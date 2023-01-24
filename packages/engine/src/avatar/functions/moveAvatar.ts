@@ -20,7 +20,7 @@ import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import { AvatarMovementSettingsState } from '../state/AvatarSettings'
+import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 
 const avatarGroundRaycastDistanceIncrease = 0.1
 const avatarGroundRaycastDistanceOffset = 1

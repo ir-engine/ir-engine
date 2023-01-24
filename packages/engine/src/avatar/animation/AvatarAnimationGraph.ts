@@ -9,7 +9,7 @@ import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networki
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AnimationManager } from '../AnimationManager'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { AvatarMovementSettingsState } from '../state/AvatarSettings'
+import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AnimationGraph, changeState } from './AnimationGraph'
 import { enterAnimationState } from './AnimationState'
 import {
