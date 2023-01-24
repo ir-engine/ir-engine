@@ -60,7 +60,7 @@
     "image-palette-core": "0.2.2",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
-    "material-ui-confirm": "3.0.3",
+    "material-ui-confirm": "3.0.8",
     "mediasoup-client": "3.6.57",
     "moment": "2.29.4",
     "nipplejs": "0.9.0",
