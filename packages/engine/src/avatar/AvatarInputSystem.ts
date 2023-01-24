@@ -1,8 +1,9 @@
-import { Euler, Quaternion } from 'three'
+import { Quaternion } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
@@ -11,11 +12,13 @@ import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
-import { getCameraMode, hasMovementControls, XRState } from '../xr/XRState'
+import { hasMovementControls } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
-import { applyGamepadInput, rotateAvatar } from './functions/moveAvatar'
+import { translateAndRotateAvatar } from './functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
+
+const _quat = new Quaternion()
 
 /**
  * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
@@ -56,7 +59,8 @@ export const AvatarAxesControlSchemeBehavior = {
     const canRotate = Math.abs(x) > 0.1 && Math.abs(z) < 0.1
 
     if (canRotate) {
-      rotateAvatar(localClientEntity, (Math.PI / 6) * (x > 0 ? -1 : 1)) // 30 degrees
+      const angle = (Math.PI / 6) * (x > 0 ? -1 : 1) // 30 degrees
+      translateAndRotateAvatar(localClientEntity, V_000, _quat.setFromAxisAngle(V_010, angle))
       InputSourceAxesDidReset.set(inputSource, false)
     } else if (canTeleport) {
       setComponent(localClientEntity, AvatarTeleportComponent, { side: inputSource.handedness })
