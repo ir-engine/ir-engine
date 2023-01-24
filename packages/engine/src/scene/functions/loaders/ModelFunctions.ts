@@ -17,11 +17,3 @@ export const deserializeModel: ComponentDeserializeFunction = (
    */
   if (!getState(EngineState).sceneLoaded.value) setComponent(entity, SceneAssetPendingTagComponent, true)
 }
-
-export const serializeModel: ComponentSerializeFunction = (entity) => {
-  const modelComponent = getComponent(entity, ModelComponent)
-  return {
-    src: modelComponent.src,
-    generateBVH: modelComponent.generateBVH
-  }
-}

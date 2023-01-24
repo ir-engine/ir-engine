@@ -74,7 +74,7 @@ import { deserializeGround, serializeGroundPlane, updateGroundPlane } from '../f
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
-import { deserializeModel, serializeModel } from '../functions/loaders/ModelFunctions'
+import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
 import { deserializeSkybox, serializeSkybox, updateSkybox } from '../functions/loaders/SkyboxFunctions'
