@@ -33,7 +33,9 @@ import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
+import Scrubber from '../inputs/Scrubber'
 import SelectInput from '../inputs/SelectInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
@@ -419,6 +421,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             <Grid item xs={12} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%', textAlign: 'center' }}>
               <Typography className={styles.primatyText}>Compress</Typography>
             </Grid>
+
             <Grid item xs={4}>
               <Typography className={styles.secondaryText}>Mode:</Typography>
             </Grid>
@@ -432,6 +435,36 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
               />
             </Grid>
+
+            <Grid item xs={4}>
+              <Typography className={styles.secondaryText}>Quality:</Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <Scrubber
+                tag="div"
+                value={compressProperties.quality.value}
+                onChange={(val) => compressProperties.quality.set(val)}
+                min={1}
+                max={255}
+                smallStep={1}
+                mediumStep={1}
+                largeStep={5}
+                style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+              >
+                Level: {compressProperties.quality.value}
+              </Scrubber>
+            </Grid>
+
+            <Grid item xs={4}>
+              <Typography className={styles.secondaryText}>Mipmaps:</Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <BooleanInput
+                value={compressProperties.mipmaps.value}
+                onChange={(val) => compressProperties.mipmaps.set(val)}
+              />
+            </Grid>
+
             <Grid item xs={12}>
               <Button onClick={compressContent}> Compress </Button>
             </Grid>
