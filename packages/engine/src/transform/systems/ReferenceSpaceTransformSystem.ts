@@ -2,7 +2,6 @@ import { MeshDepthMaterial, Scene, Skeleton, SkinnedMesh, WebGLRenderTarget } fr
 
 import { applyInputSourcePoseToIKTargets } from '../../avatar/functions/applyInputSourcePoseToIKTargets'
 import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
-import { isHMD } from '../../common/functions/isMobile'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
