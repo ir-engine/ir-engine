@@ -80,7 +80,7 @@ cli.main(async () => {
 
     const newBuildStatus = await BuildStatus.create({
       dateStarted: dateNow,
-      commitSHA: process.env.TAG? process.env.TAG.split('_')[1] : ''
+      commitSHA: process.env.TAG ? process.env.TAG.split('_')[1] : ''
     })
 
     const path = appRootPath.path + `/builder-run.txt`
