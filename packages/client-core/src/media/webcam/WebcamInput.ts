@@ -47,10 +47,11 @@ export const stopLipsyncTracking = () => {
 
 export const startFaceTracking = async () => {
   if (!faceWorker) {
-    // @ts-ignore - for some reason, the worker file path is not being resolved correctly
     const workerPath = isDev
-      ? import.meta.url.replace('.ts', 'Worker.js')
-      : new URL('./WebcamInputWorker.js', import.meta.url).href
+      ? // @ts-ignore - for some reason, the worker file path is not being resolved correctly
+        import.meta.url.replace('.ts', 'Worker.js')
+      : // @ts-ignore
+        new URL('./WebcamInputWorker.js', import.meta.url).href
     const worker = createWorkerFromCrossOriginURL(workerPath, true, {
       name: 'Face API Worker'
     })
