@@ -177,7 +177,6 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
-  console.log(skinnedMeshes)
   setComponent(entity, AvatarRigComponent, {
     rig,
     bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)),
