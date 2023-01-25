@@ -40,11 +40,6 @@ export default async function DebugRenderer(world: World) {
     if (enabled !== _enabled) {
       enabled = _enabled
       _lineSegments.visible = enabled
-      if (enabled) {
-        Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.PhysicsHelper)
-      } else {
-        Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.PhysicsHelper)
-      }
     }
 
     if (enabled && world.physicsWorld) {

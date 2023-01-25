@@ -31,8 +31,11 @@ export const applyInputSourcePoseToIKTargets = () => {
     /** Head */
     if (inAttachedControlMode && hasComponent(localClientEntity, AvatarHeadIKComponent)) {
       const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
-      ik.target.quaternion.copy(world.camera.quaternion)
-      ik.target.position.copy(world.camera.position)
+      const viewerPose = xrFrame.getViewerPose(referenceSpace)
+      if (viewerPose) {
+        ik.target.quaternion.copy(viewerPose.transform.orientation as any)
+        ik.target.position.copy(viewerPose.transform.position as any)
+      }
     }
 
     for (const inputSource of world.inputSources) {

@@ -6,14 +6,16 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, ComponentType, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationManager } from '../AnimationManager'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { animateAvatarModel, boneMatchAvatarModel, makeDefaultSkinnedMesh, rigAvatarModel } from './avatarFunctions'
 
@@ -65,6 +67,8 @@ describe('avatarFunctions Unit', async () => {
       addComponent(entity, AvatarAnimationComponent, {} as any)
       const animationComponent = getComponent(entity, AvatarAnimationComponent)
       const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      setComponent(entity, AvatarComponent, { model })
+      setTransformComponent(entity)
       AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh()
       rigAvatarModel(entity)(model)
       assert(animationComponent.rootYRatio > 0)

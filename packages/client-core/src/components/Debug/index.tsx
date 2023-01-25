@@ -115,7 +115,6 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleNodeHelpers = () => {
-    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
     dispatchAction(
       EngineRendererAction.changeNodeHelperVisibility({
         visibility: !accessEngineRendererState().nodeHelperVisibility.value
@@ -124,7 +123,6 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleGridHelper = () => {
-    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.Gizmos)
     dispatchAction(
       EngineRendererAction.changeGridToolVisibility({ visibility: !accessEngineRendererState().gridVisibility.value })
     )
