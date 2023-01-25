@@ -1,6 +1,5 @@
 import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
 import * as Comlink from 'comlink'
-import { SkinnedMesh } from 'three'
 
 import { isDev } from '@xrengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
@@ -8,15 +7,23 @@ import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/Avata
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { WebcamInputComponent } from '@xrengine/engine/src/input/components/WebcamInputComponent'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { createActionQueue } from '@xrengine/hyperflux'
 
 import { MediaStreams } from '../../transports/MediaStreams'
-// @ts-ignore
-import inputWorkerURL from './WebcamInputWorker.js?worker&url'
 
-const EXPRESSION_THRESHOLD = 0.1
+const FACE_EXPRESSION_THRESHOLD = 0.1
+const PUCKER_EXPRESSION_THRESHOLD = 0.8
+const OPEN_EXPRESSION_THRESHOLD = 0.5
+const WIDEN_EXPRESSION_THRESHOLD = 0.5
 
 const faceTrackingTimers: any[] = []
 let lipsyncTracking = false
@@ -40,9 +47,13 @@ export const stopLipsyncTracking = () => {
 
 export const startFaceTracking = async () => {
   if (!faceWorker) {
-    //@ts-ignore   -- for vite dev environments use import.meta.url & built environments use ./worker.js?worker&url
-    const workerPath = isDev ? new URL('./WebcamInputWorker.js', import.meta.url).href : inputWorkerURL
-    const worker = createWorkerFromCrossOriginURL(workerPath)
+    // @ts-ignore - for some reason, the worker file path is not being resolved correctly
+    const workerPath = isDev
+      ? import.meta.url.replace('.ts', 'Worker.js')
+      : new URL('./WebcamInputWorker.js', import.meta.url).href
+    const worker = createWorkerFromCrossOriginURL(workerPath, true, {
+      name: 'Face API Worker'
+    })
     worker.onerror = console.error
     faceWorker = Comlink.wrap(worker)
     // @ts-ignore
@@ -72,31 +83,18 @@ export const startFaceTracking = async () => {
   faceVideo.play()
 }
 
-let prevExp = ''
-
 export async function faceToInput(detection: { detection: FaceDetection; expressions: FaceExpressions }) {
   if (!hasComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)) return
-  const webcampInput = getComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)
+
+  const entity = Engine.instance.currentWorld.localClientEntity
 
   if (detection !== undefined && detection.expressions !== undefined) {
     for (const expression in detection.expressions) {
-      if (prevExp !== expression && detection.expressions[expression] >= EXPRESSION_THRESHOLD) {
-        console.log(
-          expression +
-            ' ' +
-            (detection.expressions[expression] < EXPRESSION_THRESHOLD ? 0 : detection.expressions[expression])
-        )
-
-        prevExp = expression
-        console.log('emotions|' + Engine.instance.currentWorld.localClientEntity + '|' + prevExp)
-      }
-      // If the detected value of the expression is more than 1/3rd-ish of total, record it
-      // This should allow up to 3 expressions but usually 1-2
-      const inputIndex = expressionByIndex.findIndex((exp) => exp === expression)!
-      const aboveThreshold = detection.expressions[expression] < EXPRESSION_THRESHOLD
+      const aboveThreshold = detection.expressions[expression] > FACE_EXPRESSION_THRESHOLD
       if (aboveThreshold) {
-        webcampInput.expressionIndex = inputIndex
-        webcampInput.expressionValue = detection.expressions[expression]
+        const inputIndex = expressionByIndex.findIndex((exp) => exp === expression)!
+        WebcamInputComponent.expressionIndex[entity] = inputIndex
+        WebcamInputComponent.expressionValue[entity] = detection.expressions[expression]
       }
     }
   }
@@ -122,7 +120,7 @@ export const startLipsyncTracking = () => {
 
   for (let m = 0; m < BoundingFrequencyFem.length; m++) {
     IndicesFrequencyFemale[m] = Math.round(((2 * FFT_SIZE) / samplingFrequency) * BoundingFrequencyFem[m])
-    console.log('IndicesFrequencyMale[', m, ']', IndicesFrequencyMale[m])
+    console.log('IndicesFrequencyFemale[', m, ']', IndicesFrequencyFemale[m])
   }
 
   const userSpeechAnalyzer = audioContext.createAnalyser()
@@ -175,10 +173,21 @@ export const startLipsyncTracking = () => {
     const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
     const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
 
-    const webcampInput = getComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)
-    webcampInput.pucker = pucker
-    webcampInput.widen = widen
-    webcampInput.open = open
+    const entity = Engine.instance.currentWorld.localClientEntity
+
+    if (pucker > PUCKER_EXPRESSION_THRESHOLD && pucker >= WebcamInputComponent.expressionValue[entity]) {
+      const inputIndex = expressionByIndex.findIndex((exp) => exp === 'pucker')!
+      WebcamInputComponent.expressionIndex[entity] = inputIndex
+      WebcamInputComponent.expressionValue[entity] = 1
+    } else if (widen > WIDEN_EXPRESSION_THRESHOLD && widen >= WebcamInputComponent.expressionValue[entity]) {
+      const inputIndex = expressionByIndex.findIndex((exp) => exp === 'widen')!
+      WebcamInputComponent.expressionIndex[entity] = inputIndex
+      WebcamInputComponent.expressionValue[entity] = 1
+    } else if (open > OPEN_EXPRESSION_THRESHOLD && open >= WebcamInputComponent.expressionValue[entity]) {
+      const inputIndex = expressionByIndex.findIndex((exp) => exp === 'open')!
+      WebcamInputComponent.expressionIndex[entity] = inputIndex
+      WebcamInputComponent.expressionValue[entity] = 1
+    }
   }
 }
 
@@ -218,43 +227,42 @@ const expressionByIndex = Object.keys(morphNameByInput)
 const morphNameByIndex = Object.values(morphNameByInput)
 
 const setAvatarExpression = (entity: Entity): void => {
-  const group = getComponent(entity, GroupComponent)
-  const webcamInput = getComponent(entity, WebcamInputComponent)
-  let body
-  for (const obj of group)
-    obj.traverse((obj: SkinnedMesh) => {
-      if (!body && obj.morphTargetDictionary) body = obj
-    })
+  const morphValue = WebcamInputComponent.expressionValue[entity]
+  if (morphValue === 0) return
 
-  if (!body?.isMesh || !body?.morphTargetDictionary) {
-    console.warn('[Avatar Emotions]: This avatar does not support expressive visemes.')
-    return
-  }
+  const morphName = morphNameByIndex[WebcamInputComponent.expressionIndex[entity]]
+  const skinnedMeshes = getComponent(entity, AvatarRigComponent).skinnedMeshes
 
-  const morphValue = webcamInput.expressionValue
-  const morphName = morphNameByIndex[webcamInput.expressionIndex]
-  const morphIndex = body.morphTargetDictionary[morphName]
-  console.log(body.morphTargetDictionary)
+  for (const obj of skinnedMeshes) {
+    if (!obj.morphTargetDictionary || !obj.morphTargetInfluences) continue
 
-  if (typeof morphIndex !== 'number') {
-    console.warn('[Avatar Emotions]: This avatar does not support the', morphName, ' expression.')
-    return
-  }
+    const morphIndex = obj.morphTargetDictionary[morphName]
 
-  // console.warn(inputKey + ": " + morphName + ":" + morphIndex + " = " + morphValue)
-  if (morphName && morphValue !== null) {
-    if (typeof morphValue === 'number') {
-      body.morphTargetInfluences![morphIndex] = morphValue // 0.0 - 1.0
+    if (typeof morphIndex !== 'number') {
+      for (const morphName in obj.morphTargetDictionary)
+        obj.morphTargetInfluences[obj.morphTargetDictionary[morphName]] = 0
+      return
+    }
+
+    if (morphName && morphValue !== null) {
+      if (typeof morphValue === 'number') {
+        obj.morphTargetInfluences[morphIndex] = morphValue // 0.0 - 1.0
+      }
     }
   }
 }
 
-/** @todo - this is broken - need to define the API */
 export default async function WebcamInputSystem(world: World) {
   const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
 
+  const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
+
   const execute = () => {
-    // for (const entity of webcamQuery()) setAvatarExpression(entity)
+    for (const action of avatarSpawnQueue()) {
+      const entity = world.getUserAvatarEntity(action.$from)
+      setComponent(entity, WebcamInputComponent)
+    }
+    for (const entity of webcamQuery()) setAvatarExpression(entity)
   }
 
   const cleanup = async () => {}

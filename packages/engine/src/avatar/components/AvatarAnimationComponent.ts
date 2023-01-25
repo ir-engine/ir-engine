@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { SkeletonHelper, Vector3 } from 'three'
+import { SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
 import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
@@ -53,7 +53,9 @@ export const AvatarRigComponent = defineComponent({
       /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
       lowerLegLength: 0,
       /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
-      footHeight: 0
+      footHeight: 0,
+      /** Cache of the skinned meshes currently on the rig */
+      skinnedMeshes: [] as SkinnedMesh[]
     }
   },
 
@@ -65,6 +67,8 @@ export const AvatarRigComponent = defineComponent({
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
     if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
+    if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
+    console.log(component.skinnedMeshes.value)
   },
 
   onRemove: (entity, component) => {
