@@ -68,7 +68,6 @@ export const AvatarRigComponent = defineComponent({
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
     if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
     if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
-    console.log(component.skinnedMeshes.value)
   },
 
   onRemove: (entity, component) => {
