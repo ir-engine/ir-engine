@@ -6,7 +6,6 @@ import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
 import { V_000 } from '../../common/constants/MathConstants'
-import { isHMD } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -369,7 +368,7 @@ export default async function TransformSystem(world: World) {
 
     /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
     /** @todo include in auto performance scaling metrics */
-    // if (isHMD) {
+    // if (Engine.instance.xrFrame) {
     //   /**
     //    * Update threejs skeleton manually
     //    *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation

@@ -736,7 +736,6 @@ export async function handleWebRtcReceiveTrack(
 ): Promise<any> {
   const peerID = spark.id as PeerID
   const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data
-  console.log(data, network.producers)
   const producer = network.producers.find(
     (p) =>
       p.appData.mediaTag === mediaTag &&
@@ -759,7 +758,6 @@ export async function handleWebRtcReceiveTrack(
   const router = network.routers[`${channelType}:${channelId}`].find(
     (router) => router.id === transport?.internal.routerId
   )
-  console.log(producer, router)
   if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer}`
     logger.error(`recv-track: ${peerID} ${msg}`)

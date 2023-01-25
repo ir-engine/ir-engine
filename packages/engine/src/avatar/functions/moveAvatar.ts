@@ -17,10 +17,10 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
-import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
+import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 
 const avatarGroundRaycastDistanceIncrease = 0.1
 const avatarGroundRaycastDistanceOffset = 1
@@ -139,7 +139,8 @@ export const applyGamepadInput = (entity: Entity) => {
   const deltaSeconds = world.fixedDeltaSeconds
   const controller = getComponent(entity, AvatarControllerComponent)
 
-  const legSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
+  const avatarMovementSettings = getState(AvatarMovementSettingsState).value
+  const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
   camera.getWorldDirection(cameraDirection).setY(0).normalize()
   forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
 
@@ -158,7 +159,7 @@ export const applyGamepadInput = (entity: Entity) => {
     if (controller.gamepadJumpActive) {
       if (!controller.isJumping) {
         // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
-        controller.verticalVelocity = Math.sqrt(2 * AvatarSettings.instance.jumpHeight * 9.81)
+        controller.verticalVelocity = Math.sqrt(2 * avatarMovementSettings.jumpHeight * 9.81)
         controller.isJumping = true
       }
     } else if (controller.isJumping) {

@@ -8,7 +8,6 @@ import {
   AvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { V_001, V_010, V_111 } from '@xrengine/engine/src/common/constants/MathConstants'
-import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
@@ -35,7 +34,7 @@ import {
   setLocalTransformComponent,
   TransformComponent
 } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { getPreferredInputSource, ReferenceSpace, XRState } from '@xrengine/engine/src/xr/XRState'
+import { getPreferredInputSource, isHeadset, ReferenceSpace, XRState } from '@xrengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
@@ -93,7 +92,7 @@ export default async function WidgetUISystem(world: World) {
   let createdWidgets = false
   const showWidgetMenu = (show: boolean) => {
     // temporarily only allow widgets on non hmd for local dev
-    if (!createdWidgets && (isHMD || isDev)) {
+    if (!createdWidgets && (isHeadset() || isDev)) {
       createdWidgets = true
       createAnchorWidget(world)
       // createHeightAdjustmentWidget(world)
@@ -145,7 +144,7 @@ export default async function WidgetUISystem(world: World) {
     const flipped = preferredHand.value === 'left'
     if (flipped ? keys.ButtonA?.down : keys.ButtonX?.down) onEscape()
     /** @todo allow non HMDs to access the widget menu too */
-    if ((isDev || isHMD) && keys.Escape?.down) onEscape()
+    if ((isDev || isHeadset()) && keys.Escape?.down) onEscape()
     /** for dev testing */
     if (isDev && keys.KeyO?.down)
       dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: flipped ? 'right' : 'left' }))

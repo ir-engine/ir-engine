@@ -130,7 +130,7 @@ export function getSourceMaterials(src: MaterialSource): string[] | undefined {
 export function removeMaterialSource(src: MaterialSource): boolean {
   const materialLibrary = getMaterialLibrary()
   const srcId = hashMaterialSource(src)
-  if (materialLibrary.sources[srcId]) {
+  if (materialLibrary.sources[srcId].value) {
     const srcComp = materialLibrary.sources[srcId].value
     srcComp.entries.map((matId) => {
       const toDelete = materialFromId(matId)
