@@ -15,7 +15,7 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { updateWorldOrigin } from '../../transform/updateWorldOrigin'
+import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -122,7 +122,7 @@ export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
   const world = Engine.instance.currentWorld
   const originTransform = getComponent(world.originEntity, TransformComponent)
   originTransform.position.add(movement)
-  updateWorldOrigin()
+  computeAndUpdateWorldOrigin()
   updateLocalAvatarPositionAttachedMode()
 }
 
@@ -201,31 +201,8 @@ export const rotateMatrixAboutPoint = (matrix: Matrix4, point: Vector3, rotation
   matrix.premultiply(_mat4.makeTranslation(point.x, point.y, point.z))
 }
 
-const _quat = new Quaternion()
-
-/**
- * Rotates the avatar's rigidbody around the Y axis by a given angle
- * @param entity
- * @param angle
- */
-export const rotateAvatar = (entity: Entity, angle: number) => {
-  _quat.setFromAxisAngle(V_010, angle)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  rigidBody.targetKinematicRotation.multiply(_quat)
-
-  if (getCameraMode() === 'attached') {
-    const world = Engine.instance.currentWorld
-    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    /** @todo update rotation about viewer position */
-    spinMatrixWithQuaternion(worldOriginTransform.matrix, _quat)
-    worldOriginTransform.matrix.decompose(
-      worldOriginTransform.position,
-      worldOriginTransform.rotation,
-      worldOriginTransform.scale
-    )
-    updateWorldOrigin()
-  }
-}
+const desiredAvatarMatrix = new Matrix4()
+const originRelativeToAvatarMatrix = new Matrix4()
 
 /**
  * Translates and rotates the avatar and reference space
@@ -240,16 +217,19 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
 
   if (getCameraMode() === 'attached') {
     const world = Engine.instance.currentWorld
-    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    worldOriginTransform.position.add(translation)
-    worldOriginTransform.rotation.multiply(rotation)
-    /** @todo update rotation about viewer position */
-    // spinMatrixWithQuaternion(worldOriginTransform.matrix, _quat)
-    // worldOriginTransform.matrix.decompose(
-    //   worldOriginTransform.position,
-    //   worldOriginTransform.rotation,
-    //   worldOriginTransform.scale
-    // )
+    const avatarTransform = getComponent(entity, TransformComponent)
+    const originTransform = getComponent(world.originEntity, TransformComponent)
+
+    originRelativeToAvatarMatrix.multiplyMatrices(avatarTransform.matrixInverse, originTransform.matrix)
+    desiredAvatarMatrix.compose(
+      rigidBody.targetKinematicPosition,
+      rigidBody.targetKinematicRotation,
+      avatarTransform.scale
+    )
+    originTransform.matrix.multiplyMatrices(desiredAvatarMatrix, originRelativeToAvatarMatrix)
+    originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
+    originTransform.matrixInverse.copy(originTransform.matrix).invert()
+
     updateWorldOrigin()
   }
 }

@@ -2,7 +2,6 @@ import { createGLTFLoader } from '../assets/functions/createGLTFLoader'
 import BehaveGraphSystem from '../behave-graph/systems/BehaveGraphSystem'
 import { Engine } from '../ecs/classes/Engine'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
-import AssetSystem from './systems/AssetSystem'
 import SceneLoadingSystem from './systems/SceneLoadingSystem'
 import SceneObjectSystem from './systems/SceneObjectSystem'
 import SceneObjectUpdateSystem from './systems/SceneObjectUpdateSystem'
@@ -25,11 +24,6 @@ export function SceneCommonModule() {
       uuid: 'xre.engine.SceneObjectUpdateSystem',
       type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: SceneObjectUpdateSystem })
-    },
-    {
-      uuid: 'xre.engine.AssetSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: AssetSystem })
     },
     {
       uuid: 'xre.engine.TriggerSystem',

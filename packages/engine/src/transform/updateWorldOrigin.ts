@@ -31,12 +31,17 @@ export const updateWorldOriginFromViewerHit = (
 export const updateWorldOrigin = () => {
   const world = Engine.instance.currentWorld
   if (ReferenceSpace.localFloor) {
-    computeTransformMatrix(world.originEntity, world)
-    delete world.dirtyTransforms[world.originEntity]
     const originTransform = getComponent(world.originEntity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform.inverse)
   }
+}
+
+export const computeAndUpdateWorldOrigin = () => {
+  const world = Engine.instance.currentWorld
+  computeTransformMatrix(world.originEntity, world)
+  delete world.dirtyTransforms[world.originEntity]
+  updateWorldOrigin()
 }
 
 export const updateEyeHeight = () => {

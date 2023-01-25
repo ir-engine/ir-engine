@@ -12,8 +12,16 @@ import {
   Vector2,
   Vector4,
   WebGLRenderer,
+  WebGLRenderTarget,
   Wrapping
 } from 'three'
+
+export type BlitTextureOptions = {
+  maxDimensions?: { width: number; height: number }
+  keepTransform?: boolean
+  flipX?: boolean
+  flipY?: boolean
+}
 
 function initializeTemporaryRenderer() {
   return new WebGLRenderer({ antialias: false })
@@ -61,6 +69,7 @@ function initializeTemporaryScene() {
 }
 
 let _temporaryRenderer: WebGLRenderer | undefined
+let _temporaryRenderTarget: WebGLRenderTarget | undefined
 let _temporaryScene: Scene | undefined
 
 export function getTemporaryRenderer(): WebGLRenderer {
@@ -77,19 +86,15 @@ function getTemporaryScene(): Scene {
   return _temporaryScene
 }
 
-export default async function createReadableTexture(
-  map: Texture,
-  options?: {
-    maxDimensions?: { width: number; height: number }
-    url?: boolean
-    keepTransform?: boolean
-    flipX?: boolean
-    flipY?: boolean
+export function getTemporaryRenderTarget(width, height): WebGLRenderTarget {
+  if (!_temporaryRenderTarget) {
+    _temporaryRenderTarget = new WebGLRenderTarget(width, height)
   }
-): Promise<Texture | string> {
-  if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
-    return options?.url ? map.source.data.src : map
-  }
+  _temporaryRenderTarget.setSize(width, height)
+  return _temporaryRenderTarget
+}
+
+function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   let blit: Texture = map.clone()
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
@@ -124,26 +129,58 @@ export default async function createReadableTexture(
   if (blit !== map) {
     blit.dispose()
   }
+}
+
+export function renderTargetFromTexture(map: Texture, options?: BlitTextureOptions | undefined): WebGLRenderTarget {
+  const renderTarget = getTemporaryRenderTarget(map.image.width, map.image.height).clone()
+  const renderer = getTemporaryRenderer()
+  renderer.setRenderTarget(renderTarget)
+  blitTexture(map, options)
+  renderer.setRenderTarget(null)
+  return renderTarget
+}
+
+export default async function createReadableTexture(
+  map: Texture,
+  options?: {
+    url?: boolean
+    canvas?: boolean
+  } & BlitTextureOptions
+): Promise<Texture | string> {
+  if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
+    return options?.url ? map.source.data.src : map
+  }
+
+  const temporaryRenderer = getTemporaryRenderer()
+  blitTexture(map, options)
   const result = await new Promise<Blob | null>((resolve) =>
-    temporaryRenderer.domElement.getContext('webgl2')!.canvas.toBlob(resolve)
+    (temporaryRenderer.domElement.getContext('webgl2')!.canvas as HTMLCanvasElement).toBlob(resolve)
   )
-  //temporaryRenderer.domElement.remove()
-  //temporaryRenderer.dispose()
+
   if (!result) throw new Error('Error creating blob')
   const image = new Image(map.image.width, map.image.height)
   image.src = URL.createObjectURL(result)
   await new Promise<void>(async (resolve) => {
     image.onload = () => resolve()
   })
-  if (!options?.url) {
-    const finalTexture = new Texture(image)
-    if (!options?.keepTransform) {
-      finalTexture.offset = map.offset
-      finalTexture.repeat = map.repeat
-      finalTexture.rotation = map.rotation
-    }
-    finalTexture.wrapS = map.wrapS
-    finalTexture.wrapT = map.wrapT
-    return finalTexture
-  } else return image.src
+  let finalTexture: Texture
+  if (options?.url) return image.src
+  if (options?.canvas) {
+    const canvas = document.createElement('canvas')
+    canvas.width = map.image.width
+    canvas.height = map.image.height
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(image, 0, 0)
+    finalTexture = new Texture(canvas)
+  } else {
+    finalTexture = new Texture(image)
+  }
+  if (!options?.keepTransform) {
+    finalTexture.offset = map.offset
+    finalTexture.repeat = map.repeat
+    finalTexture.rotation = map.rotation
+  }
+  finalTexture.wrapS = map.wrapS
+  finalTexture.wrapT = map.wrapT
+  return finalTexture
 }
