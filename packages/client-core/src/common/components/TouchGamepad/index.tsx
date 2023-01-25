@@ -3,9 +3,9 @@ import React from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
 import { ButtonTypes } from '@xrengine/engine/src/input/InputState'
 import { InteractState } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
+import { useIsHeadset } from '@xrengine/engine/src/xr/XRState'
 import { getState } from '@xrengine/hyperflux'
 
 import TouchAppIcon from '@mui/icons-material/TouchApp'
@@ -58,8 +58,9 @@ export const TouchGamepad = () => {
   const interactState = useHookstate(getState(InteractState))
   const availableInteractable = interactState.available.value?.[0]
   const appState = useHookstate(getState(AppState))
+  const isHeadset = useIsHeadset()
 
-  if (!isTouchAvailable || isHMD || !appState.showTouchPad.value) return <></>
+  if (!isTouchAvailable || isHeadset || !appState.showTouchPad.value) return <></>
 
   const buttons = buttonsConfig.map((value, index) => {
     return (

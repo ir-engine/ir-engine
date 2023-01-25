@@ -38,7 +38,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser))
-  //loader.register((parser) => new CachedImageLoadExtension(parser))
+  loader.register((parser) => new CachedImageLoadExtension(parser))
   loader.setMeshoptDecoder(MeshoptDecoder)
 
   if (isClient) {

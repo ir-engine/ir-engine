@@ -3,8 +3,10 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
+import { KTX2EncodeArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { State } from '@xrengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -77,6 +79,7 @@ type FileBrowserItemType = {
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
   setFileProperties: any
   setOpenPropertiesModal: any
+  setOpenCompress: any
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
@@ -90,6 +93,7 @@ export function FileBrowserItem({
   currentContent,
   setOpenPropertiesModal,
   setFileProperties,
+  setOpenCompress,
   deleteContent,
   onClick,
   dropItemsOnPanel,
@@ -173,6 +177,17 @@ export function FileBrowserItem({
     handleClose()
   }
 
+  const viewCompress = () => {
+    if (item.isFolder) {
+      //todo: add folder compress
+    } else {
+      setFileProperties(item)
+      setOpenCompress(true)
+    }
+
+    handleClose()
+  }
+
   const deleteContentCallback = () => {
     deleteContent(item.key, item.type)
 
@@ -241,6 +256,7 @@ export function FileBrowserItem({
           <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
           <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
           <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>
+          <MenuItem onClick={viewCompress}>{t('editor:layout.filebrowser.compress')}</MenuItem>
         </ContextMenu>
       </div>
     </div>

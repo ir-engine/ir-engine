@@ -1,15 +1,18 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { getEntityTreeNodeByUUID } from '../ecs/functions/EntityTree'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { WorldState } from '../networking/interfaces/WorldState'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { loadAvatarForUser } from './functions/avatarFunctions'
 import { spawnAvatarReceptor } from './functions/spawnAvatarReceptor'
 
 const randomPositionCentered = (area: Vector3) => {
@@ -57,13 +60,27 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { posit
   return getRandomSpawnPoint(userId)
 }
 
+export function avatarDetailsReceptor(
+  action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
+  world = Engine.instance.currentWorld
+) {
+  const userAvatarDetails = getState(WorldState).userAvatarDetails
+  userAvatarDetails[action.$from].set(action.avatarDetail)
+  if (isClient && action.avatarDetail.avatarURL) {
+    const entity = world.getUserAvatarEntity(action.$from)
+    loadAvatarForUser(entity, action.avatarDetail.avatarURL)
+  }
+}
+
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
 export default async function AvatarSpawnSystem(world: World) {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
+  const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
 
   const execute = () => {
     for (const action of avatarSpawnQueue()) spawnAvatarReceptor(action)
+    for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
 
     // Keep a list of spawn points so we can send our user to one
     for (const entity of spawnPointQuery.enter(world)) {
@@ -77,6 +94,7 @@ export default async function AvatarSpawnSystem(world: World) {
   const cleanup = async () => {
     removeQuery(world, spawnPointQuery)
     removeActionQueue(avatarSpawnQueue)
+    removeActionQueue(avatarDetailsQueue)
   }
 
   return { execute, cleanup }

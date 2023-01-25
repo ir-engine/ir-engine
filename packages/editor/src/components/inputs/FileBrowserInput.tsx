@@ -4,7 +4,6 @@ import { useDrop } from 'react-dnd'
 import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 
 import { ItemTypes } from '../../constants/AssetTypes'
-import { AddCorsProxyButton } from '../AddCorsProxyButton'
 import useUpload from '../assets/useUpload'
 import { ControlledStringInput, StringInputProp } from './StringInput'
 
@@ -68,7 +67,6 @@ export function FileBrowserInput({
         canDrop={isOver && canDrop}
         {...rest}
       />
-      <AddCorsProxyButton value={rest.value || ''} onAddCorsProxy={onChange} />
     </>
   )
 }

@@ -73,7 +73,7 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const pivotHalfLength = rigComponent.upperLegLength * 0.5
   const pivotHalfLengthSquare = pivotHalfLength * pivotHalfLength
   const minHeadHeight = pivotHalfLength + rigComponent.lowerLegLength + rigComponent.footHeight
-  const headTargetY = target.getWorldPosition(_vec3).y
+  const headTargetY = target.getWorldPosition(_vec3).y - body.position.y
   const clampedHeadTargetY = Math.min(Math.max(minHeadHeight, headTargetY), headToFeetLength)
 
   const targetToRealRatio = clampedHeadTargetY / headToFeetLength
