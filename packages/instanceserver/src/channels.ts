@@ -238,7 +238,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   if (app.isChannelInstance) {
     world.hostIds.media.set(hostId as UserId)
-    await RealtimeNetworkingModule(true, false)
+    await initSystems(Engine.instance.currentWorld, [...RealtimeNetworkingModule(true, false)])
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))

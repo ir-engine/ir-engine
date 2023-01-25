@@ -28,6 +28,7 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import BlurOffIcon from '@mui/icons-material/BlurOff'
+import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
 import GridOnIcon from '@mui/icons-material/GridOn'
 import Refresh from '@mui/icons-material/Refresh'
 import SelectAllIcon from '@mui/icons-material/SelectAll'
@@ -162,6 +163,16 @@ export const Debug = ({ showingStateRef }) => {
               title={t('common:debug.gridDebug')}
             >
               <GridOnIcon fontSize="small" />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                engineRendererState.forceBasicMaterials.set(!engineRendererState.forceBasicMaterials.value)
+              }
+              className={styles.flagBtn + (engineRendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
+              title={t('common:debug.forceBasicMaterials')}
+            >
+              <FormatColorResetIcon fontSize="small" />
             </button>
             {hasActiveControlledAvatar && (
               <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
