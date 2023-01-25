@@ -1,12 +1,7 @@
-import { Matrix4, Quaternion, Vector3 } from 'three'
-
-import { addActionReceptor, createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import {
   defineQuery,
@@ -17,16 +12,11 @@ import {
   removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
-import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRAction } from '../xr/XRState'
-import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { respawnAvatar } from './functions/respawnAvatar'
@@ -34,7 +24,7 @@ import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 export default async function AvatarControllerSystem(world: World) {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
-  const controllerQuery = defineQuery([AvatarControllerComponent, FollowCameraComponent])
+  const controllerQuery = defineQuery([AvatarControllerComponent])
   const sessionChangedActions = createActionQueue(XRAction.sessionChanged.matches)
 
   addActionReceptor(AvatarInputSettingsReceptor)

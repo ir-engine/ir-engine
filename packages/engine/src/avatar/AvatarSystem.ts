@@ -12,19 +12,17 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { getCameraMode, XRState } from '../xr/XRState'
+import { getCameraMode } from '../xr/XRState'
 import { AvatarRigComponent } from './components/AvatarAnimationComponent'
 import {
   AvatarIKTargetsComponent,
   AvatarLeftHandIKComponent,
   AvatarRightHandIKComponent
 } from './components/AvatarIKComponents'
-import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 

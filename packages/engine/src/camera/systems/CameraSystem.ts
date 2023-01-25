@@ -255,7 +255,7 @@ export const DefaultCameraState = {
   projectionType: ProjectionType.Perspective,
   minCameraDistance: 1,
   maxCameraDistance: 50,
-  startCameraDistance: 5,
+  startCameraDistance: 3,
   cameraMode: CameraMode.Dynamic,
   cameraModeDefault: CameraMode.ThirdPerson,
   minPhi: -70,
