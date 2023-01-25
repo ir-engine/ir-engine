@@ -57,21 +57,9 @@ export default async function AvatarControllerSystem(world: World) {
     for (const avatarEntity of localControllerQuery.enter()) {
       const controller = getComponent(avatarEntity, AvatarControllerComponent)
 
-      let targetEntity = avatarEntity
-      if (hasComponent(avatarEntity, AvatarComponent)) {
-        const avatarComponent = getComponent(avatarEntity, AvatarComponent)
-        targetEntity = createEntity()
-        setComponent(targetEntity, NameComponent, `Camera Target for: ${getComponent(avatarEntity, NameComponent)}`)
-        setTransformComponent(targetEntity)
-        setComputedTransformComponent(targetEntity, avatarEntity, () => {
-          const avatarTransform = getComponent(avatarEntity, TransformComponent)
-          const targetTransform = getComponent(targetEntity, TransformComponent)
-          targetTransform.position.copy(avatarTransform.position).y += avatarComponent.avatarHeight * 0.95
-        })
-      }
+      setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity: avatarEntity })
 
-      setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity })
-
+      // todo: this should be called when the avatar is spawned
       dispatchAction(WorldNetworkAction.spawnCamera({}))
     }
 

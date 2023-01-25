@@ -1,24 +1,12 @@
 import { useEffect } from 'react'
-import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import config from '@xrengine/common/src/config'
 import { dispatchAction, getState, startReactor } from '@xrengine/hyperflux'
 
-import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  removeComponent,
-  removeQuery,
-  useQuery
-} from '../../ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
@@ -26,7 +14,7 @@ import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSession
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
-import { XRFrameProxy, XRPose, XRSessionProxy, XRSpace } from './XR8WebXRProxy'
+import { XRFrameProxy, XRSessionProxy, XRSpace } from './XR8WebXRProxy'
 
 type XR8Assets = {
   xr8Script: HTMLScriptElement

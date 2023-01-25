@@ -4,7 +4,6 @@ import { createHookableFunction } from '@xrengine/common/src/utils/createHookabl
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_000 } from '../common/constants/MathConstants'
 import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
@@ -16,7 +15,6 @@ import { computeAndUpdateWorldOrigin, updateEyeHeight } from '../transform/updat
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
-import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { getCameraMode, ReferenceSpace, XRAction, XRState } from './XRState'
 

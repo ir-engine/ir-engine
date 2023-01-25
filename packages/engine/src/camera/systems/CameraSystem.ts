@@ -27,6 +27,7 @@ import {
   defineQuery,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   removeQuery,
   setComponent
@@ -178,6 +179,8 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
   }
 }
 
+const targetPosition = new Vector3()
+
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
   const cameraTransform = getComponent(cameraEntity, TransformComponent)
@@ -191,9 +194,14 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   let maxDistance = followCamera.zoomLevel
   let isInsideWall = false
 
+  targetPosition.copy(targetTransform.position)
+  if (hasComponent(referenceEntity, AvatarComponent)) {
+    targetPosition.y += getComponent(referenceEntity, AvatarComponent).avatarHeight * 0.95
+  }
+
   // Run only if not in first person mode
   if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {
-    const distanceResults = getMaxCamDistance(cameraEntity, targetTransform.position)
+    const distanceResults = getMaxCamDistance(cameraEntity, targetPosition)
     maxDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
   }
@@ -216,12 +224,12 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const phiRad = MathUtils.degToRad(followCamera.phi)
 
   cameraTransform.position.set(
-    targetTransform.position.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
-    targetTransform.position.y + followCamera.distance * Math.sin(phiRad),
-    targetTransform.position.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
+    targetPosition.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
+    targetPosition.y + followCamera.distance * Math.sin(phiRad),
+    targetPosition.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
   )
 
-  direction.copy(cameraTransform.position).sub(targetTransform.position).normalize()
+  direction.copy(cameraTransform.position).sub(targetPosition).normalize()
 
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
