@@ -158,6 +158,7 @@ export class EngineRenderer {
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
     this.renderer = renderer
+    this.renderer.physicallyCorrectLights = true
     this.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
@@ -342,11 +343,6 @@ export default async function WebGLRendererSystem(world: World) {
   const reactor = startReactor(() => {
     const renderSettings = useHookstate(getRendererSceneMetadataState(world))
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))
-    const isHeadset = useIsHeadset()
-
-    useEffect(() => {
-      EngineRenderer.instance.renderer.physicallyCorrectLights = isHeadset
-    }, [isHeadset])
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
