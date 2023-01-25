@@ -23,7 +23,7 @@ export class ModelTransform implements ServiceMethods<any> {
 
   constructor(app: Application) {
     this.app = app
-    this.rootPath = path.join(appRootPath.path, 'packages/projects/projects/')
+    this.rootPath = path.join(appRootPath.path, 'packages/projects/projects')
   }
 
   patch(id: NullableId, data: Partial<any>, params?: Params<Query> | undefined): Promise<any> {

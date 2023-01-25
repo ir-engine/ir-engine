@@ -2,6 +2,7 @@ import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { API } from '@xrengine/client-core/src/API'
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import {
@@ -11,8 +12,11 @@ import {
   useFileBrowserState
 } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
+import { KTX2EncodeArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
+import { KTX2EncodeDefaultArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
 import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { useState as useHFState } from '@xrengine/hyperflux'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -29,6 +33,10 @@ import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
+import BooleanInput from '../inputs/BooleanInput'
+import { Button } from '../inputs/Button'
+import Scrubber from '../inputs/Scrubber'
+import SelectInput from '../inputs/SelectInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import { FileBrowserItem } from './FileBrowserGrid'
@@ -97,6 +105,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const { skip, total, retrieving } = fileState.value
   const [fileProperties, setFileProperties] = useState<any>(null)
   const [openProperties, setOpenPropertiesModal] = useState(false)
+  const [openCompress, setOpenCompress] = useState(false)
+  const compressProperties = useHFState<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const [openConfirm, setOpenConfirm] = useState(false)
   const [contentToDeletePath, setContentToDeletePath] = useState('')
   const [contentToDeleteType, setContentToDeleteType] = useState('')
@@ -292,6 +302,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await onRefreshDirectory()
   }
 
+  const compressContent = async () => {
+    compressProperties.src.set(fileProperties.url)
+    const compressedPath = await API.instance.client.service('ktx2-encode').create(compressProperties.value)
+    await onRefreshDirectory()
+    setOpenCompress(false)
+  }
+
   let currentContent = null! as { item: FileDataType; isCopy: boolean }
   const currentContentRef = useRef(currentContent)
 
@@ -365,6 +382,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               currentContent={currentContentRef}
               setOpenPropertiesModal={setOpenPropertiesModal}
               setFileProperties={setFileProperties}
+              setOpenCompress={setOpenCompress}
               dropItemsOnPanel={dropItemsOnPanel}
             />
           ))}
@@ -387,6 +405,72 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>
+
+      {openCompress && fileProperties && (
+        <Dialog
+          open={openCompress}
+          onClose={() => setOpenCompress(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          classes={{ paper: styles.paperDialog }}
+        >
+          <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }} id="alert-dialog-title">
+            {fileProperties?.name}
+          </DialogTitle>
+          <Grid container spacing={3} style={{ width: '100%', margin: '2 rem' }}>
+            <Grid item xs={12} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%', textAlign: 'center' }}>
+              <Typography className={styles.primatyText}>Compress</Typography>
+            </Grid>
+
+            <Grid item xs={4}>
+              <Typography className={styles.secondaryText}>Mode:</Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <SelectInput
+                options={[
+                  { label: 'ETC1S', value: 'ETC1S' },
+                  { label: 'UASTC', value: 'UASTC' }
+                ]}
+                value={compressProperties.mode.value}
+                onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Typography className={styles.secondaryText}>Quality:</Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <Scrubber
+                tag="div"
+                value={compressProperties.quality.value}
+                onChange={(val) => compressProperties.quality.set(val)}
+                min={1}
+                max={255}
+                smallStep={1}
+                mediumStep={1}
+                largeStep={5}
+                style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+              >
+                Level: {compressProperties.quality.value}
+              </Scrubber>
+            </Grid>
+
+            <Grid item xs={4}>
+              <Typography className={styles.secondaryText}>Mipmaps:</Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <BooleanInput
+                value={compressProperties.mipmaps.value}
+                onChange={(val) => compressProperties.mipmaps.set(val)}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Button onClick={compressContent}> Compress </Button>
+            </Grid>
+          </Grid>
+        </Dialog>
+      )}
 
       {openProperties && fileProperties && (
         <Dialog
