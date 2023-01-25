@@ -40,8 +40,8 @@
     "@mui/icons-material": "5.8.4",
     "@mui/lab": "5.0.0-alpha.94",
     "@mui/material": "5.11.0",
-    "@mui/system": "5.11.0",
     "@mui/styled-engine-sc": "5.10.0",
+    "@mui/system": "5.11.0",
     "@mui/x-date-pickers": "5.0.0-beta.4",
     "@xrengine/common": "^1.0.0-rc8",
     "@xrengine/engine": "^1.0.0-rc8",
@@ -81,6 +81,7 @@
   "devDependencies": {
     "@emotion/react": "11.9.0",
     "@emotion/styled": "11.8.1",
+    "@types/hark": "^1.2.2",
     "@types/node": "18.11.18",
     "@types/react": "18.0.19",
     "@types/react-router-dom": "5.3.3",

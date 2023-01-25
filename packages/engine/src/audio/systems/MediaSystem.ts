@@ -38,6 +38,13 @@ import {
 export class AudioEffectPlayer {
   static instance = new AudioEffectPlayer()
 
+  constructor() {
+    // only init when running in client
+    if (isClient) {
+      this.#init()
+    }
+  }
+
   static SOUNDS = {
     notification: '/sfx/notification.mp3',
     message: '/sfx/message.mp3',
@@ -55,7 +62,7 @@ export class AudioEffectPlayer {
   // pool of elements
   #els: HTMLAudioElement[] = []
 
-  _init() {
+  #init() {
     if (this.#els.length) return
     for (let i = 0; i < 20; i++) {
       const audioElement = document.createElement('audio')
@@ -112,24 +119,23 @@ export const getMediaSceneMetadataState = (world: World) =>
   world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
 
 export default async function MediaSystem(world: World) {
+  AudioEffectPlayer.instance._init()
+
   const enableAudioContext = () => {
     if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
-    AudioEffectPlayer.instance._init()
   }
 
   if (isClient && !Engine.instance.isEditor) {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
+
     function handleAutoplay() {
       enableAudioContext()
-
       for (const entity of mediaQuery()) {
-        const media = getComponentState(entity, MediaComponent)
-        if (media.playing.value) return
-        if (media.paused.value && media.autoplay.value) media.paused.set(false)
-        // safari requires play() to be called in the DOM handle function
-        getComponent(entity, MediaElementComponent)?.element.play()
+        const mediaElement = getComponent(entity, MediaElementComponent)
+        const media = getComponent(entity, MediaComponent)
+        if (!media.paused && mediaElement?.element.paused) mediaElement.element.play()
       }
     }
     // TODO: add destroy callbacks
@@ -223,8 +229,6 @@ export default async function MediaSystem(world: World) {
   addActionReceptor(AudioSettingReceptor)
   addActionReceptor(MediaSettingReceptor)
 
-  const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
-
   const mediaQuery = defineQuery([MediaComponent])
   const videoQuery = defineQuery([VideoComponent])
   const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
@@ -265,8 +269,6 @@ export default async function MediaSystem(world: World) {
     Engine.instance.gainNodeMixBuses.music = null!
     Engine.instance.gainNodeMixBuses.soundEffects.disconnect()
     Engine.instance.gainNodeMixBuses.soundEffects = null!
-
-    removeActionQueue(userInteractActionQueue)
 
     removeQuery(world, mediaQuery)
     removeQuery(world, videoQuery)

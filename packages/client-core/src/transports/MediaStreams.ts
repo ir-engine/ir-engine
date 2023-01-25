@@ -1,7 +1,9 @@
+import { Producer } from 'mediasoup-client/lib/Producer'
+
 import multiLogger from '@xrengine/common/src/logger'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { localAudioConstraints, localVideoConstraints } from '@xrengine/engine/src/networking/constants/VideoConstants'
-import { defineAction } from '@xrengine/hyperflux'
+import { createState, defineAction } from '@xrengine/hyperflux'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
 
@@ -19,28 +21,28 @@ export class MediaStreams {
   static instance = new MediaStreams()
 
   /** Whether the video is paused or not. */
-  videoPaused = false
+  videoPaused = createState(false)
   /** Whether the audio is paused or not. */
-  audioPaused = false
+  audioPaused = createState(false)
   /** Whether the face tracking is enabled or not. */
-  faceTracking = false
+  faceTracking = createState(false)
   /** Video stream for streaming data. */
-  videoStream: MediaStream = null!
+  videoStream = null as MediaStream | null
   /** Audio stream for streaming data. */
-  audioStream: MediaStream = null!
+  audioStream = null as MediaStream | null
   /** Audio Gain to be applied on media stream. */
   microphoneGainNode: GainNode = null!
 
   /** Local screen container. */
-  localScreen = null! as MediaStream
+  localScreen = null as MediaStream | null
   /** Producer using camera to get Video. */
-  camVideoProducer = null as any
+  camVideoProducer = null as Producer | null
   /** Producer using camera to get Audio. */
-  camAudioProducer = null as any
+  camAudioProducer = null as Producer | null
   /** Producer using screen to get Video. */
-  screenVideoProducer = null as any
+  screenVideoProducer = null as Producer | null
   /** Producer using screen to get Audio. */
-  screenAudioProducer = null as any
+  screenAudioProducer = null as Producer | null
   /** Indication of whether the video while screen sharing is paused or not. */
   screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
@@ -52,8 +54,8 @@ export class MediaStreams {
    * @returns Updated face tracking state.
    */
   setFaceTracking(state: boolean): boolean {
-    this.faceTracking = state
-    return this.faceTracking
+    this.faceTracking.set(state)
+    return this.faceTracking.value
   }
 
   /**
@@ -63,8 +65,8 @@ export class MediaStreams {
    */
   setVideoPaused(state: boolean): boolean {
     logger.info('setVideoPaused')
-    this.videoPaused = state
-    return this.videoPaused
+    this.videoPaused.set(state)
+    return this.videoPaused.value
   }
 
   /**
@@ -73,8 +75,8 @@ export class MediaStreams {
    * @returns Updated Pause state.
    */
   setAudioPaused(state: boolean): boolean {
-    this.audioPaused = state
-    return this.audioPaused
+    this.audioPaused.set(state)
+    return this.audioPaused.value
   }
 
   /**
@@ -103,8 +105,8 @@ export class MediaStreams {
    */
   toggleVideoPaused(): boolean {
     logger.info(`toggleVideoPaused: ${this.videoPaused}`)
-    this.videoPaused = !this.videoPaused
-    return this.videoPaused
+    this.videoPaused.set(!this.videoPaused.value)
+    return this.videoPaused.value
   }
 
   /**
@@ -112,8 +114,8 @@ export class MediaStreams {
    * @returns Updated Pause state.
    */
   toggleAudioPaused(): boolean {
-    this.audioPaused = !this.audioPaused
-    return this.audioPaused
+    this.audioPaused.set(!this.audioPaused.value)
+    return this.audioPaused.value
   }
 
   /**
@@ -217,7 +219,7 @@ export class MediaStreams {
   /** Get device ID of device which is currently streaming media. */
   async getCurrentDeviceId(streamType: string) {
     if (streamType === 'video') {
-      if (!this.camVideoProducer) return null
+      if (!this.camVideoProducer?.track) return null
 
       const { deviceId } = this.camVideoProducer.track.getSettings()
       if (deviceId) return deviceId
@@ -229,7 +231,7 @@ export class MediaStreams {
       return deviceInfo.deviceId
     }
     if (streamType === 'audio') {
-      if (!this.camAudioProducer) return null
+      if (!this.camAudioProducer?.track) return null
 
       const { deviceId } = this.camAudioProducer.track.getSettings()
       if (deviceId) return deviceId
@@ -256,10 +258,10 @@ export class MediaStreams {
         })
       }
       if (this.videoStream.active) {
-        this.videoPaused = this.camVideoProducer != null
+        this.videoPaused.set(this.camVideoProducer != null)
         return true
       }
-      this.videoPaused = true
+      this.videoPaused.set(true)
       return false
     } catch (err) {
       logger.error(err, 'Failed to get video stream')
@@ -280,10 +282,10 @@ export class MediaStreams {
           track: this.audioStream.getAudioTracks()[0]
         })
       if (this.audioStream.active) {
-        this.audioPaused = this.camAudioProducer != null
+        this.audioPaused.set(this.camAudioProducer != null)
         return true
       }
-      this.audioPaused = true
+      this.audioPaused.set(true)
       return false
     } catch (err) {
       logger.error(err, 'Failed to get audio stream')
