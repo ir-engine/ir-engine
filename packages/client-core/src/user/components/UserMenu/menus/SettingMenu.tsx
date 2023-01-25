@@ -346,7 +346,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                   type="wide"
                   icon={<SurroundSoundIcon />}
                   label={t('user:usermenu.setting.use-positional-media')}
-                  checked={audioState.usePositionalMedia.value}
+                  checked={audioState.positionalMedia.value}
                   onChange={(value: boolean) => {
                     dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
                   }}
