@@ -31,17 +31,6 @@ import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
-/**
- * TODO: convert this to hyperflux state #7262
- */
-export class AvatarSettings {
-  static instance: AvatarSettings = new AvatarSettings()
-  // Speeds are same as animation's root motion - in meters per second
-  walkSpeed = 1.6762927669761485
-  runSpeed = 3.769894125544925 * 1.5
-  jumpHeight = 2
-}
-
 export default async function AvatarControllerSystem(world: World) {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
   const controllerQuery = defineQuery([AvatarControllerComponent])

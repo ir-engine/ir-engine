@@ -6,7 +6,6 @@ import LightSystem from './systems/LightSystem'
 import ParticleSystem from './systems/ParticleSystem'
 import PortalSystem from './systems/PortalSystem'
 import SceneObjectDynamicLoadSystem from './systems/SceneObjectDynamicLoadSystem'
-import SceneObjectUpdateSystem from './systems/SceneObjectUpdateSystem'
 
 export function SceneClientModule() {
   return [
@@ -34,11 +33,6 @@ export function SceneClientModule() {
       uuid: 'xre.engine.InstancingSystem',
       type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: InstancingSystem })
-    },
-    {
-      uuid: 'xre.engine.SceneObjectUpdateSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: SceneObjectUpdateSystem })
     },
     {
       uuid: 'xre.engine.SceneObjectDynamicLoadSystem',

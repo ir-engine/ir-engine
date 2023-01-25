@@ -1,4 +1,3 @@
-import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
@@ -70,16 +69,6 @@ export const initializeBrowser = () => {
   world.camera.layers.enable(ObjectLayers.UI)
 
   Engine.instance.isBot = navigator.userAgent === BotUserAgent
-
-  const browser = detect()
-  const os = detectOS(navigator.userAgent)
-
-  // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
-  ;(window as any).iOS =
-    os === 'iOS' ||
-    /iPad|iPhone|iPod/.test(navigator.platform) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  ;(window as any).safariWebBrowser = browser?.name === 'safari'
 
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
