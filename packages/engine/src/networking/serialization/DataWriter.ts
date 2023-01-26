@@ -5,7 +5,7 @@ import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../avatar/components/AvatarIKComponents'
+import { AvatarLeftArmIKComponent, AvatarRightArmIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -262,11 +262,11 @@ export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
 export const writeXRHeadPosition = writeVector3(AvatarHeadIKComponent.target.position)
 export const writeXRHeadRotation = writeCompressedRotation(AvatarHeadIKComponent.target.quaternion)
 
-export const writeXRControllerLeftPosition = writeVector3(AvatarLeftHandIKComponent.target.position)
-export const writeXRControllerLeftRotation = writeCompressedRotation(AvatarLeftHandIKComponent.target.quaternion)
+export const writeXRControllerLeftPosition = writeVector3(AvatarLeftArmIKComponent.target.position)
+export const writeXRControllerLeftRotation = writeCompressedRotation(AvatarLeftArmIKComponent.target.quaternion)
 
-export const writeXRControllerRightPosition = writeVector3(AvatarRightHandIKComponent.target.position)
-export const writeXRControllerRightRotation = writeCompressedRotation(AvatarRightHandIKComponent.target.quaternion)
+export const writeXRControllerRightPosition = writeVector3(AvatarRightArmIKComponent.target.position)
+export const writeXRControllerRightRotation = writeCompressedRotation(AvatarRightArmIKComponent.target.quaternion)
 
 export const writeXRHead = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, AvatarHeadIKComponent)) return
@@ -283,7 +283,7 @@ export const writeXRHead = (v: ViewCursor, entity: Entity) => {
 }
 
 export const writeXRLeftHand = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, AvatarLeftHandIKComponent)) return
+  if (!hasComponent(entity, AvatarLeftArmIKComponent)) return
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)
@@ -297,7 +297,7 @@ export const writeXRLeftHand = (v: ViewCursor, entity: Entity) => {
 }
 
 export const writeXRRightHand = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, AvatarRightHandIKComponent)) return
+  if (!hasComponent(entity, AvatarRightArmIKComponent)) return
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint16(v)

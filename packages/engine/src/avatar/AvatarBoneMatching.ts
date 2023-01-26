@@ -65,6 +65,70 @@ export type BoneStructure = {
   [bone in BoneNames]: Bone
 }
 
+/** Maps hand bones of from BoneName to a WebXR XRHandJoint */
+export const BoneToXRJoint = {
+  LeftHand: 'wrist',
+  LeftHandThumb1: 'thumb-metacarpal',
+  LeftHandThumb2: 'thumb-phalanx-proximal',
+  LeftHandThumb3: 'thumb-phalanx-distal',
+  LeftHandIndex1: 'index-finger-metacarpal',
+  LeftHandIndex2: 'index-finger-phalanx-proximal',
+  LeftHandIndex3: 'index-finger-phalanx-intermediate',
+  LeftHandMiddle1: 'middle-finger-metacarpal',
+  LeftHandMiddle2: 'middle-finger-phalanx-proximal',
+  LeftHandMiddle3: 'middle-finger-phalanx-intermediate',
+  LeftHandRing1: 'ring-finger-metacarpal',
+  LeftHandRing2: 'ring-finger-phalanx-proximal',
+  LeftHandRing3: 'ring-finger-phalanx-intermediate',
+  LeftHandPinky1: 'pinky-finger-metacarpal',
+  LeftHandPinky2: 'pinky-finger-phalanx-proximal',
+  LeftHandPinky3: 'pinky-finger-phalanx-intermediate',
+  RightHand: 'wrist',
+  RightHandThumb1: 'thumb-metacarpal',
+  RightHandThumb2: 'thumb-phalanx-proximal',
+  RightHandThumb3: 'thumb-phalanx-distal',
+  RightHandIndex1: 'index-finger-metacarpal',
+  RightHandIndex2: 'index-finger-phalanx-proximal',
+  RightHandIndex3: 'index-finger-phalanx-intermediate',
+  RightHandMiddle1: 'middle-finger-metacarpal',
+  RightHandMiddle2: 'middle-finger-phalanx-proximal',
+  RightHandMiddle3: 'middle-finger-phalanx-intermediate',
+  RightHandRing1: 'ring-finger-metacarpal',
+  RightHandRing2: 'ring-finger-phalanx-proximal',
+  RightHandRing3: 'ring-finger-phalanx-intermediate',
+  RightHandPinky1: 'pinky-finger-metacarpal',
+  RightHandPinky2: 'pinky-finger-phalanx-proximal',
+  RightHandPinky3: 'pinky-finger-phalanx-intermediate'
+} as Record<BoneNames, XRHandJoint>
+
+export const XRJointToBone = {
+  wrist: 'Hand',
+  'thumb-metacarpal': 'HandThumb1',
+  'thumb-phalanx-proximal': 'HandThumb2',
+  'thumb-phalanx-distal': 'HandThumb3',
+  'index-finger-metacarpal': 'HandIndex1',
+  'index-finger-phalanx-proximal': 'HandIndex2',
+  'index-finger-phalanx-intermediate': 'HandIndex3',
+  'middle-finger-metacarpal': 'HandMiddle1',
+  'middle-finger-phalanx-proximal': 'HandMiddle2',
+  'middle-finger-phalanx-intermediate': 'HandMiddle3',
+  'ring-finger-metacarpal': 'HandRing1',
+  'ring-finger-phalanx-proximal': 'HandRing2',
+  'ring-finger-phalanx-intermediate': 'HandRing3',
+  'pinky-finger-metacarpal': 'HandPinky1',
+  'pinky-finger-phalanx-proximal': 'HandPinky2',
+  'pinky-finger-phalanx-intermediate': 'HandPinky3'
+}
+
+/** Maps hand bones WebXR XRHandJoint to a BoneName with a specified XRHandedness */
+export const getXRJointToBone = (handedness: XRHandedness, joint: XRHandJoint) => {
+  return `${capitalizeFirstLetter(handedness)}${XRJointToBone[joint]}`
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
 const _getTailBones = (root: Bone): Bone[] => {
   const result: any[] = []
 

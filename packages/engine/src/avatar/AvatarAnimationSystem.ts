@@ -36,20 +36,22 @@ import {
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
+import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
 import { getCameraMode, useIsHeadset } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
+import { getXRJointToBone } from './AvatarBoneMatching'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import {
   AvatarIKTargetsComponent,
-  AvatarLeftHandIKComponent,
-  AvatarRightHandIKComponent
+  AvatarLeftArmIKComponent,
+  AvatarRightArmIKComponent
 } from './components/AvatarIKComponents'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
@@ -85,44 +87,6 @@ export function setupHeadIK(entity: Entity) {
   proxifyQuaternion(AvatarHeadIKComponent.target.quaternion, entity, headIK.target.quaternion)
 }
 
-export function setupLeftHandIK(entity: Entity) {
-  const leftHint = new Object3D()
-  leftHint.name = `ik-left-hint-${entity}`
-  const leftOffset = new Object3D()
-  leftOffset.name = `ik-left-offset-${entity}`
-  leftOffset.updateMatrix()
-  leftOffset.updateMatrixWorld(true)
-
-  const rig = getComponent(entity, AvatarRigComponent)
-
-  leftOffset.rotation.set(-Math.PI * 0.5, Math.PI, 0)
-
-  if (isClient) {
-    rig.rig.LeftShoulder.getWorldPosition(leftHint.position)
-    rig.rig.LeftArm.getWorldPosition(_vec)
-    _vec.subVectors(_vec, leftHint.position).normalize()
-    leftHint.position.add(_vec)
-    rig.rig.LeftShoulder.attach(leftHint)
-    leftHint.updateMatrix()
-    leftHint.updateMatrixWorld(true)
-  }
-
-  const target = new Object3D()
-  target.name = `ik-right-target-${entity}`
-
-  setComponent(entity, AvatarLeftHandIKComponent, {
-    target,
-    hint: leftHint,
-    targetOffset: leftOffset,
-    targetPosWeight: 1,
-    targetRotWeight: 1,
-    hintWeight: 1
-  })
-
-  const lefthand = getComponent(entity, AvatarLeftHandIKComponent)
-  proxifyVector3(AvatarLeftHandIKComponent.target.position, entity, lefthand.target.position)
-  proxifyQuaternion(AvatarLeftHandIKComponent.target.quaternion, entity, lefthand.target.quaternion)
-}
 // setComponent(entity, AvatarArmsTwistCorrectionComponent, {
 //   LeftHandBindRotationInv: new Quaternion(),
 //   LeftArmTwistAmount: 0.6,
@@ -130,50 +94,15 @@ export function setupLeftHandIK(entity: Entity) {
 //   RightArmTwistAmount: 0.6
 // })
 
-export function setupRightHandIK(entity: Entity) {
-  const rightHint = new Object3D()
-  rightHint.name = `ik-right-hint-${entity}`
-  const rightOffset = new Object3D()
-  rightOffset.name = `ik-right-offset-${entity}`
-
-  const rig = getComponent(entity, AvatarRigComponent)
-
-  rightOffset.rotation.set(-Math.PI * 0.5, 0, 0)
-  rightOffset.updateMatrix()
-  rightOffset.updateMatrixWorld(true)
-
-  if (isClient) {
-    rig.rig.RightShoulder.getWorldPosition(rightHint.position)
-    rig.rig.RightArm.getWorldPosition(_vec)
-    _vec.subVectors(_vec, rightHint.position).normalize()
-    rightHint.position.add(_vec)
-    rig.rig.RightShoulder.attach(rightHint)
-    rightHint.updateMatrix()
-    rightHint.updateMatrixWorld(true)
-  }
-
-  const target = new Object3D()
-  target.name = `ik-right-target-${entity}`
-
-  setComponent(entity, AvatarRightHandIKComponent, {
-    target,
-    hint: rightHint,
-    targetOffset: rightOffset,
-    targetPosWeight: 1,
-    targetRotWeight: 1,
-    hintWeight: 1
-  })
-
-  const rightHand = getComponent(entity, AvatarRightHandIKComponent)
-  proxifyVector3(AvatarRightHandIKComponent.target.position, entity, rightHand.target.position)
-  proxifyQuaternion(AvatarRightHandIKComponent.target.quaternion, entity, rightHand.target.quaternion)
-}
+export function setupRightHandIK(entity: Entity) {}
 
 export default async function AvatarAnimationSystem(world: World) {
   await AnimationManager.instance.loadDefaultAnimations()
 
-  const leftHandQuery = defineQuery([VisibleComponent, AvatarLeftHandIKComponent, AvatarRigComponent])
-  const rightHandQuery = defineQuery([VisibleComponent, AvatarRightHandIKComponent, AvatarRigComponent])
+  const leftArmQuery = defineQuery([VisibleComponent, AvatarLeftArmIKComponent, AvatarRigComponent])
+  const rightArmQuery = defineQuery([VisibleComponent, AvatarRightArmIKComponent, AvatarRigComponent])
+  const leftHandQuery = defineQuery([VisibleComponent, XRLeftHandComponent, AvatarRigComponent])
+  const rightHandQuery = defineQuery([VisibleComponent, XRRightHandComponent, AvatarRigComponent])
   const headIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarRigComponent])
   const localHeadIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarControllerComponent])
   const headDecapQuery = defineQuery([VisibleComponent, AvatarHeadDecapComponent])
@@ -237,6 +166,8 @@ export default async function AvatarAnimationSystem(world: World) {
   const execute = () => {
     const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = world
 
+    const inAttachedControlMode = getCameraMode() === 'attached'
+
     if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
       const sources = Array.from(inputSources.values())
@@ -265,19 +196,15 @@ export default async function AvatarAnimationSystem(world: World) {
       if (targets.head && !hasComponent(entity, AvatarHeadIKComponent)) setupHeadIK(entity)
       if (!targets.head && hasComponent(entity, AvatarHeadIKComponent)) removeComponent(entity, AvatarHeadIKComponent)
 
-      if (targets.leftHand && !hasComponent(entity, AvatarLeftHandIKComponent)) setupLeftHandIK(entity)
-      if (!targets.leftHand && hasComponent(entity, AvatarLeftHandIKComponent)) {
-        const leftHand = getComponent(entity, AvatarLeftHandIKComponent)
-        leftHand?.hint?.removeFromParent()
-        removeComponent(entity, AvatarLeftHandIKComponent)
-      }
+      if (targets.leftHand && !hasComponent(entity, AvatarLeftArmIKComponent))
+        setComponent(entity, AvatarLeftArmIKComponent)
+      if (!targets.leftHand && hasComponent(entity, AvatarLeftArmIKComponent))
+        removeComponent(entity, AvatarLeftArmIKComponent)
 
-      if (targets.rightHand && !hasComponent(entity, AvatarRightHandIKComponent)) setupRightHandIK(entity)
-      if (!targets.rightHand && hasComponent(entity, AvatarRightHandIKComponent)) {
-        const rightHand = getComponent(entity, AvatarRightHandIKComponent)
-        rightHand?.hint?.removeFromParent()
-        removeComponent(entity, AvatarRightHandIKComponent)
-      }
+      if (targets.rightHand && !hasComponent(entity, AvatarRightArmIKComponent))
+        setComponent(entity, AvatarRightArmIKComponent)
+      if (!targets.rightHand && hasComponent(entity, AvatarRightArmIKComponent))
+        removeComponent(entity, AvatarRightArmIKComponent)
     }
 
     if (!isClient) return
@@ -325,9 +252,15 @@ export default async function AvatarAnimationSystem(world: World) {
 
     const avatarAnimationEntities = avatarAnimationQuery(world).filter(filterPriorityEntities)
     const headIKEntities = headIKQuery(world).filter(filterPriorityEntities)
+    const leftArmEntities = leftArmQuery(world).filter(filterPriorityEntities)
+    const rightArmEntities = rightArmQuery(world).filter(filterPriorityEntities)
     const leftHandEntities = leftHandQuery(world).filter(filterPriorityEntities)
     const rightHandEntities = rightHandQuery(world).filter(filterPriorityEntities)
     const loopAnimationEntities = loopAnimationQuery(world).filter(filterPriorityEntities)
+
+    /** Apply ecs proxy to finger IK */
+    for (const entity of headIKEntities) {
+    }
 
     applyInputSourcePoseToIKTargets()
 
@@ -410,10 +343,10 @@ export default async function AvatarAnimationSystem(world: World) {
     /**
      * Apply left hand IK
      */
-    for (const entity of leftHandEntities) {
+    for (const entity of leftArmEntities) {
       const { rig } = getComponent(entity, AvatarRigComponent)
 
-      const ik = getComponent(entity, AvatarLeftHandIKComponent)
+      const ik = getComponent(entity, AvatarLeftArmIKComponent)
       ik.target.updateMatrixWorld(true)
 
       // Arms should not be straight for the solver to work properly
@@ -443,10 +376,10 @@ export default async function AvatarAnimationSystem(world: World) {
     /**
      * Apply right hand IK
      */
-    for (const entity of rightHandEntities) {
+    for (const entity of rightArmEntities) {
       const { rig } = getComponent(entity, AvatarRigComponent)
 
-      const ik = getComponent(entity, AvatarRightHandIKComponent)
+      const ik = getComponent(entity, AvatarRightArmIKComponent)
       ik.target.updateMatrixWorld(true)
 
       if (!ik.target.position.equals(V_000)) {
@@ -467,6 +400,17 @@ export default async function AvatarAnimationSystem(world: World) {
       }
     }
 
+    // for (const entity of leftHandEntities) {
+    //   const { rig } = getComponent(entity, AvatarRigComponent)
+    //   const hand = getComponent(entity, XRLeftHandComponent)
+    //   for (const joint of hand.hand.values()) {
+    //     const jointName = joint.jointName
+    //     const boneName = getXRJointToBone('left', jointName)
+    //     const bone = rig[boneName]
+    //     bone.position.copy(joint.getJointPosition())
+    //   }
+    // }
+
     /**
      * Since the scene does not automatically update the matricies for all objects,which updates bones,
      * we need to manually do it for Loop Animation Entities
@@ -482,8 +426,8 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const cleanup = async () => {
     removeQuery(world, headDecapQuery)
-    removeQuery(world, leftHandQuery)
-    removeQuery(world, rightHandQuery)
+    removeQuery(world, leftArmQuery)
+    removeQuery(world, rightArmQuery)
     removeQuery(world, localHeadIKQuery)
     removeQuery(world, headIKQuery)
     removeQuery(world, armsTwistCorrectionQuery)

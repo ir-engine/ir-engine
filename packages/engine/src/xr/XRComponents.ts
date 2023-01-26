@@ -1,5 +1,6 @@
 // TODO: this should not be here
 import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
+import { useEffect } from 'react'
 import {
   BufferGeometry,
   Group,
@@ -12,17 +13,19 @@ import {
   ShadowMaterial
 } from 'three'
 
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { matches } from '../common/functions/MatchesUtils'
+import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
-import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  createMappedComponent,
+  defineComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '../ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
-
-export type XRGripButtonComponentType = {}
-
-/** @deprecated */
-export const XRLGripButtonComponent = createMappedComponent<XRGripButtonComponentType>('XRLGripButtonComponent')
-/** @deprecated */
-export const XRRGripButtonComponent = createMappedComponent<XRGripButtonComponentType>('XRRGripButtonComponent')
 
 export type XRHandsInputComponentType = {
   /**
@@ -65,15 +68,43 @@ const HandSchema = {
   'pinky-finger-tip': Object3DSchema
 }
 
-const XRHandsInputSchema = {
-  left: HandSchema,
-  right: HandSchema
-}
-/** @deprecated */
-export const XRHandsInputComponent = createMappedComponent<XRHandsInputComponentType, typeof XRHandsInputSchema>(
-  'XRHandsInputComponent',
-  XRHandsInputSchema
-)
+export const XRLeftHandComponent = defineComponent({
+  name: 'XRLeftHandComponent',
+  schema: HandSchema,
+  onInit: (entity) => {
+    return {
+      hand: null! as XRHand
+    }
+  },
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.hand)) component.hand.set(json.hand)
+  },
+  onRemove: (entity, component) => {},
+  reactor: function ({ root }) {
+    const entity = root.entity
+
+    if (!hasComponent(entity, XRLeftHandComponent)) throw root.stop()
+
+    const hand = useComponent(entity, XRLeftHandComponent)
+    const rig = useOptionalComponent(entity, AvatarRigComponent)
+
+    useEffect(() => {
+      if (rig?.value) {
+        proxifyVector3(XRLeftHandComponent.wrist.position, entity, rig.value.rig.LeftHand.position)
+        proxifyQuaternion(XRLeftHandComponent.wrist.quaternion, entity, rig.value.rig.LeftHand.quaternion)
+        // ..etc
+      }
+    }, [hand, rig])
+
+    return null
+  }
+})
+
+export const XRRightHandComponent = defineComponent({
+  name: 'XRRightHandComponent',
+  schema: HandSchema
+})
 
 export const XRHitTestComponent = defineComponent({
   name: 'XRHitTest',
