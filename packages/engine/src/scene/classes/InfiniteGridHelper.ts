@@ -98,7 +98,6 @@ export default class InfiniteGridHelper extends Mesh {
 
     super(geometry, material)
 
-    this.visible = true
     this.name = 'InfiniteGridHelper'
     setObjectLayers(this, ObjectLayers.Gizmos)
     this.frustumCulled = false
@@ -139,10 +138,5 @@ export default class InfiniteGridHelper extends Mesh {
   setGridHeight(value) {
     this.position.y = value
     dispatchAction(EngineRendererAction.changeGridToolHeight({ gridHeight: value }))
-  }
-
-  toggleGridVisible() {
-    this.visible = !this.visible
-    dispatchAction(EngineRendererAction.changeGridToolVisibility({ visibility: this.visible }))
   }
 }

@@ -26,6 +26,7 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../s
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
@@ -119,9 +120,13 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   setupAvatarModel(entity)(model)
+  addObjectToGroup(entity, model)
+
+  computeTransformMatrix(entity)
+  updateGroupChildren(entity)
+
   setupAvatarHeight(entity, model)
 
-  addObjectToGroup(entity, model)
   setObjectLayers(model, ObjectLayers.Avatar)
   avatar.model = model
 }
@@ -157,12 +162,13 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
 
+  const skinnedMeshes = findSkinnedMeshes(model)
+
   /**@todo replace check for loop aniamtion component with ensuring tpose is only handled once */
   // Try converting to T pose
   if (!hasComponent(entity, LoopAnimationComponent) && !isSkeletonInTPose(rig)) {
     makeTPose(rig)
-    const meshes = findSkinnedMeshes(model)
-    meshes.forEach(applySkeletonPose)
+    skinnedMeshes.forEach(applySkeletonPose)
   }
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
@@ -171,7 +177,11 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
-  setComponent(entity, AvatarRigComponent, { rig, bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)) })
+  setComponent(entity, AvatarRigComponent, {
+    rig,
+    bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)),
+    skinnedMeshes
+  })
 
   const sourceHips = sourceSkeleton.bones[0]
   avatarAnimationComponent.rootYRatio = rig.Hips.position.y / sourceHips.position.y
