@@ -74,9 +74,10 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const pivotHalfLengthSquare = pivotHalfLength * pivotHalfLength
   const minHeadHeight = pivotHalfLength + rigComponent.lowerLegLength + rigComponent.footHeight
   const headTargetY = target.getWorldPosition(_vec3).y - body.position.y
-  const clampedHeadTargetY = Math.min(Math.max(minHeadHeight, headTargetY), headToFeetLength)
+  const clampedHeadTargetY =
+    Math.min(Math.max(minHeadHeight, headTargetY), headToFeetLength + rigComponent.footHeight) - rigComponent.footHeight
 
-  const targetToRealRatio = clampedHeadTargetY / headToFeetLength
+  const targetToRealRatio = Math.min(clampedHeadTargetY / headToFeetLength, 0.9999)
 
   /** calculate angle of pivot joint scaled by the relative head height */
   const pivotToHeadLength = (headToFeetLength - pivotHalfLength - rigComponent.lowerLegLength) * targetToRealRatio // h1
