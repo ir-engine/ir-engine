@@ -223,7 +223,7 @@ export class EngineRenderer {
     const xrFrame = Engine.instance.xrFrame
 
     /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
-    if (xrFrame && xrCamera.cameras.length > 1) {
+    if (xrFrame) {
       // Assume world.camera.layers is source of truth for all xr cameras
       const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
       xrCamera.layers.mask = camera.layers.mask
