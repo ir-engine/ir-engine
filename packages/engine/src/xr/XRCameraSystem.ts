@@ -118,7 +118,6 @@ function updateCameraFromXRViewerPose() {
     cameraTransform.rotation.copy(pose.transform.orientation as any)
     cameraTransform.matrix.fromArray(pose.transform.matrix)
     cameraTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
-    delete world.dirtyTransforms[world.cameraEntity]
 
     // check if it's necessary to rebuild camera list
     let cameraListNeedsUpdate = false
