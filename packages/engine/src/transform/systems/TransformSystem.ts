@@ -303,8 +303,7 @@ export default async function TransformSystem(world: World) {
         world.dirtyTransforms[entity] ||
         world.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
         world.dirtyTransforms[getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0] ||
-        hasComponent(entity, ComputedTransformComponent) ||
-        (hasComponent(entity, AnimationComponent) && getComponent(entity, AnimationComponent).animations.length > 0)
+        hasComponent(entity, ComputedTransformComponent)
 
       world.dirtyTransforms[entity] = makeDirty
     }
