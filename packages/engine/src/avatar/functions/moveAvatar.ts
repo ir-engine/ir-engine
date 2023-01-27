@@ -1,5 +1,5 @@
-import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import RAPIER, { QueryFilterFlags } from '@dimforge/rapier3d-compat'
+import { Euler, Matrix4, Quaternion, Ray, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@xrengine/hyperflux'
@@ -127,6 +127,24 @@ export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
 }
 
 const _additionalMovement = new Vector3()
+
+/**
+ * Avatar movement via click/pointer position
+ */
+export const applyAutopilotInput = (entity: Entity) => {
+  if (!entity) return
+
+  //set up rapier ray using threejs raycast data?
+  const physicsWorld = Engine.instance.currentWorld.physicsWorld
+  const world = Engine.instance.currentWorld
+  const ray = new RAPIER.Ray(world.camera.position, world.pointerScreenRaycaster.ray.direction)
+
+  const castedRay = physicsWorld.castRay(ray, 0, false)
+
+  //update avatar position
+
+  updateLocalAvatarPosition(new Vector3(ray.dir.x, ray.dir.y, ray.dir.z).multiplyScalar(world.deltaSeconds))
+}
 
 /**
  * Avatar movement via gamepad
