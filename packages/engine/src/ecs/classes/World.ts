@@ -248,7 +248,7 @@ export class World {
     return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
   }
 
-  readonly dirtyTransforms = {} as Record<Entity, true>
+  readonly dirtyTransforms = {} as Record<Entity, boolean>
 
   inputSources: Readonly<XRInputSourceArray> = []
 
