@@ -5,6 +5,7 @@ import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from '
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -302,8 +303,10 @@ export default async function TransformSystem(world: World) {
         world.dirtyTransforms[entity] ||
         world.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
         world.dirtyTransforms[getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0] ||
-        hasComponent(entity, ComputedTransformComponent)
-      if (makeDirty) world.dirtyTransforms[entity] = true
+        hasComponent(entity, ComputedTransformComponent) ||
+        (hasComponent(entity, AnimationComponent) && getComponent(entity, AnimationComponent).animations.length > 0)
+
+      world.dirtyTransforms[entity] = makeDirty
     }
 
     const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
