@@ -56,11 +56,11 @@ export function setEquippedObjectReceptor(
     if (action.equip) {
       addComponent(equippedEntity, RigidBodyKinematicPositionBasedTagComponent, true)
       removeComponent(equippedEntity, RigidBodyDynamicTagComponent)
-      body.setBodyType(RigidBodyType.KinematicPositionBased)
+      body.setBodyType(RigidBodyType.KinematicPositionBased, false)
     } else {
       addComponent(equippedEntity, RigidBodyDynamicTagComponent, true)
       removeComponent(equippedEntity, RigidBodyKinematicPositionBasedTagComponent)
-      body.setBodyType(RigidBodyType.Dynamic)
+      body.setBodyType(RigidBodyType.Dynamic, false)
     }
     for (let i = 0; i < body.numColliders(); i++) {
       const collider = body.collider(i)
