@@ -5,7 +5,6 @@ import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'thre
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 
 export type BoneNames =
-  | 'Root'
   | 'Hips'
   | 'Spine'
   | 'Spine1'
@@ -33,100 +32,46 @@ export type BoneNames =
   | 'LeftHandPinky1'
   | 'LeftHandPinky2'
   | 'LeftHandPinky3'
+  | 'LeftHandPinky4'
   | 'LeftHandRing1'
   | 'LeftHandRing2'
   | 'LeftHandRing3'
+  | 'LeftHandRing4'
   | 'LeftHandMiddle1'
   | 'LeftHandMiddle2'
   | 'LeftHandMiddle3'
+  | 'LeftHandMiddle4'
   | 'LeftHandIndex1'
   | 'LeftHandIndex2'
   | 'LeftHandIndex3'
+  | 'LeftHandIndex4'
   | 'LeftHandThumb1'
   | 'LeftHandThumb2'
   | 'LeftHandThumb3'
+  | 'LeftHandThumb4'
   | 'RightHandPinky1'
   | 'RightHandPinky2'
   | 'RightHandPinky3'
+  | 'RightHandPinky4'
   | 'RightHandRing1'
   | 'RightHandRing2'
   | 'RightHandRing3'
+  | 'RightHandRing4'
   | 'RightHandMiddle1'
   | 'RightHandMiddle2'
   | 'RightHandMiddle3'
+  | 'RightHandMiddle4'
   | 'RightHandIndex1'
   | 'RightHandIndex2'
   | 'RightHandIndex3'
+  | 'RightHandIndex4'
   | 'RightHandThumb1'
   | 'RightHandThumb2'
   | 'RightHandThumb3'
+  | 'RightHandThumb4'
 
 export type BoneStructure = {
   [bone in BoneNames]: Bone
-}
-
-/** Maps hand bones of from BoneName to a WebXR XRHandJoint */
-export const BoneToXRJoint = {
-  LeftHand: 'wrist',
-  LeftHandThumb1: 'thumb-metacarpal',
-  LeftHandThumb2: 'thumb-phalanx-proximal',
-  LeftHandThumb3: 'thumb-phalanx-distal',
-  LeftHandIndex1: 'index-finger-metacarpal',
-  LeftHandIndex2: 'index-finger-phalanx-proximal',
-  LeftHandIndex3: 'index-finger-phalanx-intermediate',
-  LeftHandMiddle1: 'middle-finger-metacarpal',
-  LeftHandMiddle2: 'middle-finger-phalanx-proximal',
-  LeftHandMiddle3: 'middle-finger-phalanx-intermediate',
-  LeftHandRing1: 'ring-finger-metacarpal',
-  LeftHandRing2: 'ring-finger-phalanx-proximal',
-  LeftHandRing3: 'ring-finger-phalanx-intermediate',
-  LeftHandPinky1: 'pinky-finger-metacarpal',
-  LeftHandPinky2: 'pinky-finger-phalanx-proximal',
-  LeftHandPinky3: 'pinky-finger-phalanx-intermediate',
-  RightHand: 'wrist',
-  RightHandThumb1: 'thumb-metacarpal',
-  RightHandThumb2: 'thumb-phalanx-proximal',
-  RightHandThumb3: 'thumb-phalanx-distal',
-  RightHandIndex1: 'index-finger-metacarpal',
-  RightHandIndex2: 'index-finger-phalanx-proximal',
-  RightHandIndex3: 'index-finger-phalanx-intermediate',
-  RightHandMiddle1: 'middle-finger-metacarpal',
-  RightHandMiddle2: 'middle-finger-phalanx-proximal',
-  RightHandMiddle3: 'middle-finger-phalanx-intermediate',
-  RightHandRing1: 'ring-finger-metacarpal',
-  RightHandRing2: 'ring-finger-phalanx-proximal',
-  RightHandRing3: 'ring-finger-phalanx-intermediate',
-  RightHandPinky1: 'pinky-finger-metacarpal',
-  RightHandPinky2: 'pinky-finger-phalanx-proximal',
-  RightHandPinky3: 'pinky-finger-phalanx-intermediate'
-} as Record<BoneNames, XRHandJoint>
-
-export const XRJointToBone = {
-  wrist: 'Hand',
-  'thumb-metacarpal': 'HandThumb1',
-  'thumb-phalanx-proximal': 'HandThumb2',
-  'thumb-phalanx-distal': 'HandThumb3',
-  'index-finger-metacarpal': 'HandIndex1',
-  'index-finger-phalanx-proximal': 'HandIndex2',
-  'index-finger-phalanx-intermediate': 'HandIndex3',
-  'middle-finger-metacarpal': 'HandMiddle1',
-  'middle-finger-phalanx-proximal': 'HandMiddle2',
-  'middle-finger-phalanx-intermediate': 'HandMiddle3',
-  'ring-finger-metacarpal': 'HandRing1',
-  'ring-finger-phalanx-proximal': 'HandRing2',
-  'ring-finger-phalanx-intermediate': 'HandRing3',
-  'pinky-finger-metacarpal': 'HandPinky1',
-  'pinky-finger-phalanx-proximal': 'HandPinky2',
-  'pinky-finger-phalanx-intermediate': 'HandPinky3'
-}
-
-/** Maps hand bones WebXR XRHandJoint to a BoneName with a specified XRHandedness */
-export const getXRJointToBone = (handedness: XRHandedness, joint: XRHandJoint) => {
-  return `${capitalizeFirstLetter(handedness)}${XRJointToBone[joint]}`
-}
-
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
 const _getTailBones = (root: Bone): Bone[] => {
@@ -495,18 +440,23 @@ function findHandBones(handBone: Object3D) {
   let pinky1,
     pinky2,
     pinky3,
+    pinky4,
     ring1,
     ring2,
     ring3,
+    ring4,
     middle1,
     middle2,
     middle3,
+    middle4,
     index1,
     index2,
     index3,
+    index4,
     thumb1,
     thumb2,
-    thumb3
+    thumb3,
+    thumb4
 
   const findBone = (parent: Object3D, name: string, index: string) => {
     const re = new RegExp(name, 'i')
@@ -525,35 +475,44 @@ function findHandBones(handBone: Object3D) {
   pinky1 = findBone(handBone, 'pinky', '1')
   pinky2 = findBone(handBone, 'pinky', '2')
   pinky3 = findBone(handBone, 'pinky', '3')
+  pinky4 = findBone(handBone, 'pinky', '4')
   ring1 = findBone(handBone, 'ring', '1')
   ring2 = findBone(handBone, 'ring', '2')
   ring3 = findBone(handBone, 'ring', '3')
+  ring4 = findBone(handBone, 'ring', '4')
   middle1 = findBone(handBone, 'middle', '1')
   middle2 = findBone(handBone, 'middle', '2')
   middle3 = findBone(handBone, 'middle', '3')
+  middle4 = findBone(handBone, 'middle', '4')
   index1 = findBone(handBone, 'index', '1')
   index2 = findBone(handBone, 'index', '2')
   index3 = findBone(handBone, 'index', '3')
+  index4 = findBone(handBone, 'index', '4')
   thumb1 = findBone(handBone, 'thumb', '1')
   thumb2 = findBone(handBone, 'thumb', '2')
   thumb3 = findBone(handBone, 'thumb', '3')
+  thumb4 = findBone(handBone, 'thumb', '4')
 
   return {
     pinky1,
     pinky2,
     pinky3,
+    pinky4,
     ring1,
     ring2,
     ring3,
+    ring4,
     middle1,
     middle2,
     middle3,
+    middle4,
     index1,
     index2,
     index3,
     thumb1,
     thumb2,
-    thumb3
+    thumb3,
+    thumb4
   }
 }
 
@@ -678,12 +637,7 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
     //   mesh.skeleton.calculateInverses()
     // }
 
-    if (Root === Hips) {
-      Root = null!
-    }
-
     const targetModelBones = {
-      Root,
       Hips,
       Spine,
       Spine1,
@@ -705,18 +659,23 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
       LeftHandPinky1: leftHandBones['pinky1'],
       LeftHandPinky2: leftHandBones['pinky2'],
       LeftHandPinky3: leftHandBones['pinky3'],
+      LeftHandPinky4: leftHandBones['pinky4'],
       LeftHandRing1: leftHandBones['ring1'],
       LeftHandRing2: leftHandBones['ring2'],
       LeftHandRing3: leftHandBones['ring3'],
+      LeftHandRing4: leftHandBones['ring4'],
       LeftHandMiddle1: leftHandBones['middle1'],
       LeftHandMiddle2: leftHandBones['middle2'],
       LeftHandMiddle3: leftHandBones['middle3'],
+      LeftHandMiddle4: leftHandBones['middle4'],
       LeftHandIndex1: leftHandBones['index1'],
       LeftHandIndex2: leftHandBones['index2'],
       LeftHandIndex3: leftHandBones['index3'],
+      LeftHandIndex4: leftHandBones['index4'],
       LeftHandThumb1: leftHandBones['thumb1'],
       LeftHandThumb2: leftHandBones['thumb2'],
       LeftHandThumb3: leftHandBones['thumb3'],
+      LeftHandThumb4: leftHandBones['thumb4'],
 
       RightShoulder,
       RightArm,
@@ -730,18 +689,23 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
       RightHandPinky1: rightHandBones['pinky1'],
       RightHandPinky2: rightHandBones['pinky2'],
       RightHandPinky3: rightHandBones['pinky3'],
+      RightHandPinky4: rightHandBones['pinky4'],
       RightHandRing1: rightHandBones['ring1'],
       RightHandRing2: rightHandBones['ring2'],
       RightHandRing3: rightHandBones['ring3'],
+      RightHandRing4: rightHandBones['ring4'],
       RightHandMiddle1: rightHandBones['middle1'],
       RightHandMiddle2: rightHandBones['middle2'],
       RightHandMiddle3: rightHandBones['middle3'],
+      RightHandMiddle4: rightHandBones['middle4'],
       RightHandIndex1: rightHandBones['index1'],
       RightHandIndex2: rightHandBones['index2'],
       RightHandIndex3: rightHandBones['index3'],
+      RightHandIndex4: rightHandBones['index4'],
       RightHandThumb1: rightHandBones['thumb1'],
       RightHandThumb2: rightHandBones['thumb2'],
-      RightHandThumb3: rightHandBones['thumb3']
+      RightHandThumb3: rightHandBones['thumb3'],
+      RightHandThumb4: rightHandBones['thumb4']
     }
 
     Object.keys(targetModelBones).forEach((key) => {

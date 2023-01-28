@@ -4,9 +4,8 @@ import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRHand, XRLeftHandComponent } from '../../xr/XRComponents'
+import { XRHand, XRJointParentMap, XRLeftHandComponent } from '../../xr/XRComponents'
 import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
-import { getXRJointToBone } from '../AvatarBoneMatching'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import {
   AvatarHeadIKComponent,
@@ -51,13 +50,22 @@ export const applyInputSourcePoseToIKTargets = () => {
             setComponent(localClientEntity, XRLeftHandComponent, { hand })
           }
 
-          const { rig } = getComponent(localClientEntity, AvatarRigComponent)
+          /** @todo this is all in local space, we should eventually get this in world space once we migrate to dual quaternions */
           for (const joint of hand.values()) {
             const jointName = joint.jointName
-            const jointPose = xrFrame.getJointPose(joint, referenceSpace)
-            const boneName = getXRJointToBone('left', jointName)
-            const bone = rig[boneName] as Bone
-            bone.matrixWorld.fromArray(jointPose?.transform.matrix as any as Vector3)
+            const parentJoint = hand.get(XRJointParentMap[jointName])!
+            const jointPose = xrFrame.getJointPose(joint, parentJoint)
+            if (jointPose) {
+              const position = jointPose.transform.position
+              XRLeftHandComponent[jointName].position.x[localClientEntity] = position.x
+              XRLeftHandComponent[jointName].position.y[localClientEntity] = position.y
+              XRLeftHandComponent[jointName].position.z[localClientEntity] = position.z
+              const orientation = jointPose.transform.orientation
+              XRLeftHandComponent[jointName].quaternion.x[localClientEntity] = orientation.x
+              XRLeftHandComponent[jointName].quaternion.y[localClientEntity] = orientation.y
+              XRLeftHandComponent[jointName].quaternion.z[localClientEntity] = orientation.z
+              XRLeftHandComponent[jointName].quaternion.w[localClientEntity] = orientation.w
+            }
           }
         } else {
           if (hasComponent(localClientEntity, XRLeftHandComponent))

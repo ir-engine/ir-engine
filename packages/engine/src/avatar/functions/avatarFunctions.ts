@@ -159,7 +159,7 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
   const rig = avatarBoneMatching(model)
-  const rootBone = rig.Root || rig.Hips
+  const rootBone = rig.Hips
   rootBone.updateWorldMatrix(true, true)
 
   const skinnedMeshes = findSkinnedMeshes(model)
