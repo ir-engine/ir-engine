@@ -23,7 +23,7 @@ export const updateWorldOriginFromViewerHit = (
   originTransform.scale.copy(scale ?? V_111)
   originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale)
   originTransform.matrixInverse.copy(originTransform.matrix).invert()
-  delete world.dirtyTransforms[world.originEntity]
+  world.dirtyTransforms[world.originEntity] = false
   const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
   ReferenceSpace.origin = ReferenceSpace.localFloor!.getOffsetReferenceSpace(xrRigidTransform)
 }
@@ -40,7 +40,7 @@ export const updateWorldOrigin = () => {
 export const computeAndUpdateWorldOrigin = () => {
   const world = Engine.instance.currentWorld
   computeTransformMatrix(world.originEntity, world)
-  delete world.dirtyTransforms[world.originEntity]
+  world.dirtyTransforms[world.originEntity] = false
   updateWorldOrigin()
 }
 
