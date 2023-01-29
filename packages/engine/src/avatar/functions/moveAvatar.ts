@@ -10,9 +10,10 @@ import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { Physics } from '../../physics/classes/Physics'
+import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
@@ -137,13 +138,24 @@ export const applyAutopilotInput = (entity: Entity) => {
   //set up rapier ray using threejs raycast data?
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const world = Engine.instance.currentWorld
-  const ray = new RAPIER.Ray(world.camera.position, world.pointerScreenRaycaster.ray.direction)
+  const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Ground)
+  const raycastArgs = {
+    type: SceneQueryType.Closest,
+    origin: new Vector3(),
+    direction: new Vector3(),
+    maxDistance: 20,
+    groups: interactionGroups
+  } as RaycastArgs
 
-  const castedRay = physicsWorld.castRay(ray, 0, false)
+  const castedRay = Physics.castRayFromCamera(world.camera, world.pointerState.position, physicsWorld, raycastArgs)
 
+  if (!castedRay.length) return
   //update avatar position
 
-  updateLocalAvatarPosition(new Vector3(ray.dir.x, ray.dir.y, ray.dir.z).multiplyScalar(world.deltaSeconds))
+  const avatarPos = getComponent(entity, TransformComponent).position
+  const moveDir = new Vector3(castedRay[0].position.x, castedRay[0].position.y, castedRay[0].position.z).sub(avatarPos)
+
+  updateLocalAvatarPosition(moveDir.normalize().multiplyScalar(world.deltaSeconds))
 }
 
 /**
