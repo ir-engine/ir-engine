@@ -35,7 +35,7 @@ export const XRJointParentMap = {
   'pinky-finger-phalanx-intermediate': 'pinky-finger-phalanx-proximal',
   'pinky-finger-phalanx-distal': 'pinky-finger-phalanx-intermediate',
   'pinky-finger-tip': 'pinky-finger-phalanx-distal'
-}
+} as Record<XRHandJoint, XRHandJoint>
 
 const Object3DSchema = {
   position: Vector3Schema,
@@ -86,8 +86,8 @@ const proxifyHand = (
 ) => {
   const handCapitalCase = handedness.charAt(0).toUpperCase() + handedness.slice(1)
 
-  proxifyVector3(component.wrist.position, entity, rig[`${handCapitalCase}Hand`].position)
-  proxifyQuaternion(component.wrist.quaternion, entity, rig[`${handCapitalCase}Hand`].quaternion)
+  // proxifyVector3(component.wrist.position, entity, rig[`${handCapitalCase}Hand`].position)
+  // proxifyQuaternion(component.wrist.quaternion, entity, rig[`${handCapitalCase}Hand`].quaternion)
 
   let nextFinger = component['thumb-tip']
   if (rig[`${handCapitalCase}HandThumb4`]) {
@@ -98,121 +98,116 @@ const proxifyHand = (
   if (rig[`${handCapitalCase}HandThumb3`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandThumb3`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandThumb3`].quaternion)
-    nextFinger = component['thumb-phalanx-intermediate']
+    nextFinger = component['thumb-phalanx-proximal']
   }
   if (rig[`${handCapitalCase}HandThumb2`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandThumb2`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandThumb2`].quaternion)
-    nextFinger = component['thumb-phalanx-proximal']
+    nextFinger = component['thumb-metacarpal']
   }
   if (rig[`${handCapitalCase}HandThumb1`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandThumb1`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandThumb1`].quaternion)
-    nextFinger = component['thumb-metacarpal']
   }
   nextFinger = component['index-finger-tip']
+  if (rig[`${handCapitalCase}HandIndexFinger5`]) {
+    proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandIndexFinger5`].position)
+    proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandIndexFinger5`].quaternion)
+    nextFinger = component['index-finger-phalanx-distal']
+  }
   if (rig[`${handCapitalCase}HandIndexFinger4`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandIndexFinger4`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandIndexFinger4`].quaternion)
-    nextFinger = component['index-finger-phalanx-distal']
+    nextFinger = component['index-finger-phalanx-intermediate']
   }
   if (rig[`${handCapitalCase}HandIndexFinger3`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandIndexFinger3`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandIndexFinger3`].quaternion)
-    nextFinger = component['index-finger-phalanx-intermediate']
+    nextFinger = component['index-finger-phalanx-proximal']
   }
   if (rig[`${handCapitalCase}HandIndexFinger2`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandIndexFinger2`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandIndexFinger2`].quaternion)
-    nextFinger = component['index-finger-phalanx-proximal']
+    nextFinger = component['index-finger-metacarpal']
   }
   if (rig[`${handCapitalCase}HandIndexFinger1`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandIndexFinger1`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandIndexFinger1`].quaternion)
-    nextFinger = component['index-finger-metacarpal']
   }
   nextFinger = component['middle-finger-tip']
+  if (rig[`${handCapitalCase}HandMiddleFinger5`]) {
+    proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandMiddleFinger5`].position)
+    proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandMiddleFinger5`].quaternion)
+    nextFinger = component['middle-finger-phalanx-distal']
+  }
   if (rig[`${handCapitalCase}HandMiddleFinger4`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandMiddleFinger4`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandMiddleFinger4`].quaternion)
-    nextFinger = component['middle-finger-phalanx-distal']
+    nextFinger = component['middle-finger-phalanx-intermediate']
   }
   if (rig[`${handCapitalCase}HandMiddleFinger3`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandMiddleFinger3`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandMiddleFinger3`].quaternion)
-    nextFinger = component['middle-finger-phalanx-intermediate']
+    nextFinger = component['middle-finger-phalanx-proximal']
   }
   if (rig[`${handCapitalCase}HandMiddleFinger2`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandMiddleFinger2`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandMiddleFinger2`].quaternion)
-    nextFinger = component['middle-finger-phalanx-proximal']
+    nextFinger = component['middle-finger-metacarpal']
   }
   if (rig[`${handCapitalCase}HandMiddleFinger1`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandMiddleFinger1`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandMiddleFinger1`].quaternion)
-    nextFinger = component['middle-finger-metacarpal']
   }
   nextFinger = component['ring-finger-tip']
+  if (rig[`${handCapitalCase}HandRingFinger5`]) {
+    proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandRingFinger5`].position)
+    proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandRingFinger5`].quaternion)
+    nextFinger = component['ring-finger-phalanx-distal']
+  }
   if (rig[`${handCapitalCase}HandRingFinger4`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandRingFinger4`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandRingFinger4`].quaternion)
-    nextFinger = component['ring-finger-phalanx-distal']
+    nextFinger = component['ring-finger-phalanx-intermediate']
   }
   if (rig[`${handCapitalCase}HandRingFinger3`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandRingFinger3`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandRingFinger3`].quaternion)
-    nextFinger = component['ring-finger-phalanx-intermediate']
+    nextFinger = component['ring-finger-phalanx-proximal']
   }
   if (rig[`${handCapitalCase}HandRingFinger2`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandRingFinger2`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandRingFinger2`].quaternion)
-    nextFinger = component['ring-finger-phalanx-proximal']
+    nextFinger = component['ring-finger-phalanx-tip']
   }
   if (rig[`${handCapitalCase}HandRingFinger1`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandRingFinger1`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandRingFinger1`].quaternion)
-    nextFinger = component['ring-finger-metacarpal']
   }
   nextFinger = component['pinky-finger-tip']
+  if (rig[`${handCapitalCase}HandPinkyFinger5`]) {
+    proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandPinkyFinger5`].position)
+    proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandPinkyFinger5`].quaternion)
+    nextFinger = component['pinky-finger-phalanx-distal']
+  }
   if (rig[`${handCapitalCase}HandPinkyFinger4`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandPinkyFinger4`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandPinkyFinger4`].quaternion)
-    nextFinger = component['pinky-finger-phalanx-distal']
+    nextFinger = component['pinky-finger-phalanx-intermediate']
   }
   if (rig[`${handCapitalCase}HandPinkyFinger3`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandPinkyFinger3`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandPinkyFinger3`].quaternion)
-    nextFinger = component['pinky-finger-phalanx-intermediate']
+    nextFinger = component['pinky-finger-phalanx-proximal']
   }
   if (rig[`${handCapitalCase}HandPinkyFinger2`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandPinkyFinger2`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandPinkyFinger2`].quaternion)
-    nextFinger = component['pinky-finger-phalanx-proximal']
+    nextFinger = component['pinky-finger-phalanx-tip']
   }
   if (rig[`${handCapitalCase}HandPinkyFinger1`]) {
     proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandPinkyFinger1`].position)
     proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandPinkyFinger1`].quaternion)
-    nextFinger = component['pinky-finger-metacarpal']
-  }
-  nextFinger = component['thumb-finger-tip']
-  if (rig[`${handCapitalCase}HandThumbFinger4`]) {
-    proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandThumbFinger4`].position)
-    proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandThumbFinger4`].quaternion)
-    nextFinger = component['thumb-finger-phalanx-distal']
-  }
-  if (rig[`${handCapitalCase}HandThumbFinger3`]) {
-    proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandThumbFinger3`].position)
-    proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandThumbFinger3`].quaternion)
-    nextFinger = component['thumb-finger-phalanx-proximal']
-  }
-  if (rig[`${handCapitalCase}HandThumbFinger2`]) {
-    proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandThumbFinger2`].position)
-    proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandThumbFinger2`].quaternion)
-    nextFinger = component['thumb-finger-metacarpal']
-  }
-  if (rig[`${handCapitalCase}HandThumbFinger1`]) {
-    proxifyVector3(nextFinger.position, entity, rig[`${handCapitalCase}HandThumbFinger1`].position)
-    proxifyQuaternion(nextFinger.quaternion, entity, rig[`${handCapitalCase}HandThumbFinger1`].quaternion)
   }
 }
 

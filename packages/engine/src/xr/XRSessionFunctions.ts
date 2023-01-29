@@ -204,7 +204,9 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
     ;(world.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   session.addEventListener('selectend', (inputSource) => {
-    ;(world.buttons as ButtonInputStateType).PrimaryClick!.up = true
+    const buttons = world.buttons as ButtonInputStateType
+    if (!buttons.PrimaryClick) return
+    buttons.PrimaryClick!.up = true
   })
 
   world.scene.background = null

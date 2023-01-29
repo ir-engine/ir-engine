@@ -107,9 +107,8 @@ export const AvatarLeftArmIKComponent = defineComponent({
     const target = new Object3D()
     target.name = `ik-right-target-${entity}`
 
-    const lefthand = getComponent(entity, AvatarLeftArmIKComponent)
-    proxifyVector3(AvatarLeftArmIKComponent.target.position, entity, lefthand.target.position)
-    proxifyQuaternion(AvatarLeftArmIKComponent.target.quaternion, entity, lefthand.target.quaternion)
+    proxifyVector3(AvatarLeftArmIKComponent.target.position, entity, target.position)
+    proxifyQuaternion(AvatarLeftArmIKComponent.target.quaternion, entity, target.quaternion)
 
     return {
       target,
@@ -154,9 +153,8 @@ export const AvatarRightArmIKComponent = defineComponent({
     const target = new Object3D()
     target.name = `ik-right-target-${entity}`
 
-    const rightHand = getComponent(entity, AvatarRightArmIKComponent)
-    proxifyVector3(AvatarRightArmIKComponent.target.position, entity, rightHand.target.position)
-    proxifyQuaternion(AvatarRightArmIKComponent.target.quaternion, entity, rightHand.target.quaternion)
+    proxifyVector3(AvatarRightArmIKComponent.target.position, entity, target.position)
+    proxifyQuaternion(AvatarRightArmIKComponent.target.quaternion, entity, target.quaternion)
 
     return {
       target,

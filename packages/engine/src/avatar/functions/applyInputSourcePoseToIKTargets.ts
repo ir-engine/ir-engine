@@ -53,14 +53,18 @@ export const applyInputSourcePoseToIKTargets = () => {
           /** @todo this is all in local space, we should eventually get this in world space once we migrate to dual quaternions */
           for (const joint of hand.values()) {
             const jointName = joint.jointName
-            const parentJoint = hand.get(XRJointParentMap[jointName])!
-            const jointPose = xrFrame.getJointPose(joint, parentJoint)
+            const isWrist = jointName === 'wrist'
+            const parentJointSpace = jointName === 'wrist' ? referenceSpace : hand.get(XRJointParentMap[jointName])!
+            const jointPose = xrFrame.getJointPose(joint, parentJointSpace)
             if (jointPose) {
-              const position = jointPose.transform.position
+              const { position, orientation } = jointPose.transform
+              if (isWrist) {
+                ik.target.position.copy(position as any as Vector3)
+                ik.target.quaternion.copy(orientation as any as Quaternion)
+              }
               XRLeftHandComponent[jointName].position.x[localClientEntity] = position.x
               XRLeftHandComponent[jointName].position.y[localClientEntity] = position.y
               XRLeftHandComponent[jointName].position.z[localClientEntity] = position.z
-              const orientation = jointPose.transform.orientation
               XRLeftHandComponent[jointName].quaternion.x[localClientEntity] = orientation.x
               XRLeftHandComponent[jointName].quaternion.y[localClientEntity] = orientation.y
               XRLeftHandComponent[jointName].quaternion.z[localClientEntity] = orientation.z

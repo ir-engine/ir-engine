@@ -253,15 +253,7 @@ export default async function AvatarAnimationSystem(world: World) {
     const headIKEntities = headIKQuery(world).filter(filterPriorityEntities)
     const leftArmEntities = leftArmQuery(world).filter(filterPriorityEntities)
     const rightArmEntities = rightArmQuery(world).filter(filterPriorityEntities)
-    const leftHandEntities = leftHandQuery(world).filter(filterPriorityEntities)
-    const rightHandEntities = rightHandQuery(world).filter(filterPriorityEntities)
     const loopAnimationEntities = loopAnimationQuery(world).filter(filterPriorityEntities)
-
-    /** Apply ecs proxy to finger IK */
-    for (const entity of headIKEntities) {
-    }
-
-    applyInputSourcePoseToIKTargets()
 
     for (const entity of avatarAnimationEntities) {
       /**
@@ -326,6 +318,8 @@ export default async function AvatarAnimationSystem(world: World) {
     /**
      * 3 - Apply avatar IK
      */
+
+    applyInputSourcePoseToIKTargets()
 
     /**
      * Apply head IK
