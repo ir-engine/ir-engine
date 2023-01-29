@@ -275,7 +275,7 @@ function createCharacterController(
     maxSlopeClimbAngle = (60 * Math.PI) / 180,
     minSlopeSlideAngle = (30 * Math.PI) / 180,
     autoStep = { maxHeight: 0.5, minWidth: 0.01, stepOverDynamic: true },
-    enableSnapToGround = false as number | false
+    enableSnapToGround = 0.1 as number | false
   }
 ) {
   const characterController = world.createCharacterController(offset)
@@ -307,7 +307,7 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
 
   removeComponent(entity, currentRigidBodyTypeTagComponent)
 
-  rigidBody.setBodyType(newType)
+  rigidBody.setBodyType(newType, false)
 
   const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
   addComponent(entity, newRigidBodyComponent, true)

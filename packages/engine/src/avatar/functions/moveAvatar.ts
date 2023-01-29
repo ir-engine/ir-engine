@@ -106,9 +106,10 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
   if (groundHits.length) {
     const hit = groundHits[0]
+    if (hit.distance > avatarGroundRaycastDistanceOffset + avatarGroundRaycastDistanceIncrease) return
     const controllerOffset = controller.controller.offset()
-    rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
-    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
+    controller.isInAir = hit.distance > 1 + controllerOffset * 2
+    if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
     if (attached) originTransform.position.y = hit.position.y
     /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
   }
@@ -158,6 +159,7 @@ export const applyGamepadInput = (entity: Entity) => {
     controller.verticalVelocity = 0
     if (controller.gamepadJumpActive) {
       if (!controller.isJumping) {
+        console.log('jump')
         // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
         controller.verticalVelocity = Math.sqrt(2 * avatarMovementSettings.jumpHeight * 9.81)
         controller.isJumping = true
