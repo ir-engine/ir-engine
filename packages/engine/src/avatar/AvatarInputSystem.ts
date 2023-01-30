@@ -15,6 +15,7 @@ import { accessEngineRendererState, EngineRendererAction } from '../renderer/Eng
 import { hasMovementControls } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
+import { autopilotGetPosition } from './functions/autopilotFunctions'
 import { translateAndRotateAvatar } from './functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -139,6 +140,11 @@ export default async function AvatarInputSystem(world: World) {
     }
 
     if (!hasMovementControls()) return
+
+    if (buttons.SecondaryClick) {
+      const walkPoint = autopilotGetPosition(world.localClientEntity)
+      controller.autopilotWalkpoint = walkPoint
+    }
 
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)

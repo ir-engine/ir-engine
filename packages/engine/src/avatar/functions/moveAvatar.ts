@@ -132,30 +132,14 @@ const _additionalMovement = new Vector3()
 /**
  * Avatar movement via click/pointer position
  */
+export const applyAutopilotInput = (entity: Entity) => {
+  const controller = getComponent(entity, AvatarControllerComponent)
+  if (!controller || controller.autopilotWalkpoint == undefined) return
 
-export const autopilotGetPosition = (entity: Entity): Vector3 | undefined => {
-  const physicsWorld = Engine.instance.currentWorld.physicsWorld
-  const world = Engine.instance.currentWorld
-  const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Ground)
-  const raycastArgs = {
-    type: SceneQueryType.Closest,
-    origin: new Vector3(),
-    direction: new Vector3(),
-    maxDistance: 20,
-    groups: interactionGroups
-  } as RaycastArgs
-
-  const castedRay = Physics.castRayFromCamera(world.camera, world.pointerState.position, physicsWorld, raycastArgs)
-
-  if (castedRay.length) {
-    return castedRay[0].position as Vector3
-  }
-  return undefined
-}
-
-export const applyAutopilotInput = (entity: Entity, walkPoint: Vector3) => {
+  const walkpoint = new Vector3()
+  walkpoint.set(controller.autopilotWalkpoint.x, controller.autopilotWalkpoint.y, controller.autopilotWalkpoint.z)
   const avatarPos = getComponent(entity, TransformComponent).position
-  const moveDir = new Vector3(walkPoint.x, walkPoint.y, walkPoint.z).sub(avatarPos)
+  const moveDir = walkpoint.sub(avatarPos)
 
   if (moveDir.length() > 0.5) updateLocalAvatarPosition(moveDir.normalize().multiplyScalar(0.1))
 }

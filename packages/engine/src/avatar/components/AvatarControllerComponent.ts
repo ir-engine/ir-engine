@@ -26,6 +26,8 @@ export type AvatarControllerComponentType = {
   /** @todo refactor animation system */
   speedVelocity: { value: number }
   translationApplied: Vector3
+  // Below are autopilot input values
+  autopilotWalkpoint: Vector3 | undefined
 }
 
 export const AvatarControllerComponent =
