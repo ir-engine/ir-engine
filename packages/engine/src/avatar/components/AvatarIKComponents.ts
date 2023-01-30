@@ -11,7 +11,7 @@ import {
   hasComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
+import { PoseSchema, QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const EPSILON = 1e-6
@@ -46,11 +46,6 @@ export type AvatarHeadIKComponentType = {
    * Use 0 to disable
    */
   rotationClamp: number
-}
-
-const PoseSchema = {
-  position: Vector3Schema,
-  quaternion: QuaternionSchema
 }
 
 const XRHeadIKSchema = {
@@ -108,7 +103,7 @@ export const AvatarLeftArmIKComponent = defineComponent({
     target.name = `ik-right-target-${entity}`
 
     proxifyVector3(AvatarLeftArmIKComponent.target.position, entity, target.position)
-    proxifyQuaternion(AvatarLeftArmIKComponent.target.quaternion, entity, target.quaternion)
+    proxifyQuaternion(AvatarLeftArmIKComponent.target.rotation, entity, target.quaternion)
 
     return {
       target,
@@ -154,7 +149,7 @@ export const AvatarRightArmIKComponent = defineComponent({
     target.name = `ik-right-target-${entity}`
 
     proxifyVector3(AvatarRightArmIKComponent.target.position, entity, target.position)
-    proxifyQuaternion(AvatarRightArmIKComponent.target.quaternion, entity, target.quaternion)
+    proxifyQuaternion(AvatarRightArmIKComponent.target.rotation, entity, target.quaternion)
 
     return {
       target,

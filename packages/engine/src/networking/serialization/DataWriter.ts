@@ -260,13 +260,13 @@ export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
 }
 
 export const writeXRHeadPosition = writeVector3(AvatarHeadIKComponent.target.position)
-export const writeXRHeadRotation = writeCompressedRotation(AvatarHeadIKComponent.target.quaternion)
+export const writeXRHeadRotation = writeCompressedRotation(AvatarHeadIKComponent.target.rotation)
 
 export const writeXRControllerLeftPosition = writeVector3(AvatarLeftArmIKComponent.target.position)
-export const writeXRControllerLeftRotation = writeCompressedRotation(AvatarLeftArmIKComponent.target.quaternion)
+export const writeXRControllerLeftRotation = writeCompressedRotation(AvatarLeftArmIKComponent.target.rotation)
 
 export const writeXRControllerRightPosition = writeVector3(AvatarRightArmIKComponent.target.position)
-export const writeXRControllerRightRotation = writeCompressedRotation(AvatarRightArmIKComponent.target.quaternion)
+export const writeXRControllerRightRotation = writeCompressedRotation(AvatarRightArmIKComponent.target.rotation)
 
 export const writeXRHead = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, AvatarHeadIKComponent)) return

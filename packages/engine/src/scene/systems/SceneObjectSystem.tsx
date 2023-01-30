@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import {
   Color,
+  DoubleSide,
   Material,
   Mesh,
   MeshBasicMaterial,

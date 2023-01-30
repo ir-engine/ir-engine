@@ -215,13 +215,13 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
 }
 
 export const readXRHeadPosition = readVector3(AvatarHeadIKComponent.target.position)
-export const readXRHeadRotation = readCompressedRotation(AvatarHeadIKComponent.target.quaternion)
+export const readXRHeadRotation = readCompressedRotation(AvatarHeadIKComponent.target.rotation)
 
 export const readXRControllerLeftPosition = readVector3(AvatarLeftArmIKComponent.target.position)
-export const readXRControllerLeftRotation = readCompressedRotation(AvatarLeftArmIKComponent.target.quaternion)
+export const readXRControllerLeftRotation = readCompressedRotation(AvatarLeftArmIKComponent.target.rotation)
 
 export const readXRControllerRightPosition = readVector3(AvatarRightArmIKComponent.target.position)
-export const readXRControllerRightRotation = readCompressedRotation(AvatarRightArmIKComponent.target.quaternion)
+export const readXRControllerRightRotation = readCompressedRotation(AvatarRightArmIKComponent.target.rotation)
 
 export const readXRHead = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)

@@ -15,6 +15,7 @@ import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { isClient } from '../common/functions/isClient'
 import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import {
@@ -37,7 +38,7 @@ import {
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
-import { getCameraMode, useIsHeadset } from '../xr/XRState'
+import { getCameraMode, ReferenceSpace, useIsHeadset } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -80,9 +81,8 @@ export function setupHeadIK(entity: Entity) {
     rotationClamp: 0.785398
   })
 
-  const headIK = getComponent(entity, AvatarHeadIKComponent)
-  proxifyVector3(AvatarHeadIKComponent.target.position, entity, headIK.target.position)
-  proxifyQuaternion(AvatarHeadIKComponent.target.quaternion, entity, headIK.target.quaternion)
+  proxifyVector3(AvatarHeadIKComponent.target.position, entity, target.position)
+  proxifyQuaternion(AvatarHeadIKComponent.target.rotation, entity, target.quaternion)
 }
 
 // setComponent(entity, AvatarArmsTwistCorrectionComponent, {
@@ -162,8 +162,6 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const execute = () => {
     const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = world
-
-    const inAttachedControlMode = getCameraMode() === 'attached'
 
     if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
@@ -390,17 +388,6 @@ export default async function AvatarAnimationSystem(world: World) {
         )
       }
     }
-
-    // for (const entity of leftHandEntities) {
-    //   const { rig } = getComponent(entity, AvatarRigComponent)
-    //   const hand = getComponent(entity, XRLeftHandComponent)
-    //   for (const joint of hand.hand.values()) {
-    //     const jointName = joint.jointName
-    //     const boneName = getXRJointToBone('left', jointName)
-    //     const bone = rig[boneName]
-    //     bone.position.copy(joint.getJointPosition())
-    //   }
-    // }
 
     /**
      * Since the scene does not automatically update the matricies for all objects,which updates bones,
