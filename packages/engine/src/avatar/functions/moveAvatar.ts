@@ -142,6 +142,7 @@ export const applyAutopilotInput = (entity: Entity) => {
   const moveDir = walkpoint.sub(avatarPos)
 
   if (moveDir.length() > 0.5) updateLocalAvatarPosition(moveDir.normalize().multiplyScalar(0.1))
+  else controller.autopilotWalkpoint = undefined
 }
 
 /**
