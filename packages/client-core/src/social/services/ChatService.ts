@@ -398,27 +398,27 @@ export const ChatService = {
     useEffect(() => {
       const messageCreatedListener = (params) => {
         const selfUser = accessAuthState().user.value
-        dispatchAction(ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser }))
+        dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser: selfUser }))
       }
 
       const messagePatchedListener = (params) => {
-        dispatchAction(ChatAction.patchedMessageAction({ message: params.message }))
+        dispatchAction(ChatAction.patchedMessageAction({ message: params }))
       }
 
       const messageRemovedListener = (params) => {
-        dispatchAction(ChatAction.removedMessageAction({ message: params.message }))
+        dispatchAction(ChatAction.removedMessageAction({ message: params }))
       }
 
       const channelCreatedListener = (params) => {
-        dispatchAction(ChatAction.createdChannelAction({ channel: params.channel }))
+        dispatchAction(ChatAction.createdChannelAction({ channel: params }))
       }
 
       const channelPatchedListener = (params) => {
-        dispatchAction(ChatAction.patchedChannelAction({ channel: params.channel }))
+        dispatchAction(ChatAction.patchedChannelAction({ channel: params }))
       }
 
       const channelRemovedListener = (params) => {
-        dispatchAction(ChatAction.removedChannelAction({ channel: params.channel }))
+        dispatchAction(ChatAction.removedChannelAction({ channel: params }))
       }
 
       API.instance.client.service('message').on('created', messageCreatedListener)

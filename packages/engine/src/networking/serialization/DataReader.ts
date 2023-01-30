@@ -185,7 +185,7 @@ export const readBodyRotation = readCompressedRotation(RigidBodyComponent.rotati
 export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
 export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
 
-export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Record<Entity, true>) => {
+export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Record<Entity, boolean>) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)

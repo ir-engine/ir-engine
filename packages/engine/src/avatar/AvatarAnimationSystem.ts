@@ -52,7 +52,6 @@ import {
   AvatarLeftArmIKComponent,
   AvatarRightArmIKComponent
 } from './components/AvatarIKComponents'
-import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePoseToIKTargets'
@@ -104,7 +103,6 @@ export default async function AvatarAnimationSystem(world: World) {
   const rightHandQuery = defineQuery([VisibleComponent, XRRightHandComponent, AvatarRigComponent])
   const headIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarRigComponent])
   const localHeadIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarControllerComponent])
-  const headDecapQuery = defineQuery([VisibleComponent, AvatarHeadDecapComponent])
   const armsTwistCorrectionQuery = defineQuery([
     VisibleComponent,
     AvatarArmsTwistCorrectionComponent,
@@ -418,9 +416,10 @@ export default async function AvatarAnimationSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, headDecapQuery)
     removeQuery(world, leftArmQuery)
     removeQuery(world, rightArmQuery)
+    removeQuery(world, leftHandQuery)
+    removeQuery(world, rightHandQuery)
     removeQuery(world, localHeadIKQuery)
     removeQuery(world, headIKQuery)
     removeQuery(world, armsTwistCorrectionQuery)

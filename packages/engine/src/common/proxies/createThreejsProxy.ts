@@ -58,7 +58,7 @@ export const proxifyVector3 = (
 export const proxifyVector3WithDirty = (
   store: Vector3Store,
   entity: Entity,
-  dirty: Record<Entity, true>,
+  dirty: Record<Entity, boolean>,
   vector3 = new Vector3()
 ): Vector3 & ProxyExtensions => {
   // Set the initial values
@@ -157,7 +157,7 @@ export const proxifyQuaternion = (
 export const proxifyQuaternionWithDirty = (
   store: QuaternionStore,
   entity: Entity,
-  dirty: Record<Entity, true>,
+  dirty: Record<Entity, boolean>,
   quaternion = new Quaternion()
 ): Quaternion & ProxyExtensions => {
   // Set the initial values
