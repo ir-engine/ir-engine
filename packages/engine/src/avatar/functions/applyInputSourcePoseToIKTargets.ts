@@ -1,18 +1,10 @@
 import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
-
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  ComponentType,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRHand, XRJointParentMap, XRLeftHandComponent } from '../../xr/XRComponents'
-import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
+import { getCameraMode, ReferenceSpace } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import {
@@ -21,36 +13,6 @@ import {
   AvatarLeftArmIKComponent,
   AvatarRightArmIKComponent
 } from '../components/AvatarIKComponents'
-
-const webxrThumbJoints = ['thumb-metacarpal', 'thumb-phalanx-proximal', 'thumb-phalanx-distal', 'thumb-tip']
-const webxrIndexJoints = [
-  'index-finger-metacarpal',
-  'index-finger-phalanx-proximal',
-  'index-finger-phalanx-intermediate',
-  'index-finger-phalanx-distal',
-  'index-finger-tip'
-]
-const webxrMiddleJoints = [
-  'middle-finger-metacarpal',
-  'middle-finger-phalanx-proximal',
-  'middle-finger-phalanx-intermediate',
-  'middle-finger-phalanx-distal',
-  'middle-finger-tip'
-]
-const webxrRingJoints = [
-  'ring-finger-metacarpal',
-  'ring-finger-phalanx-proximal',
-  'ring-finger-phalanx-intermediate',
-  'ring-finger-phalanx-distal',
-  'ring-finger-tip'
-]
-const webxrPinkyJoints = [
-  'pinky-finger-metacarpal',
-  'pinky-finger-phalanx-proximal',
-  'pinky-finger-phalanx-intermediate',
-  'pinky-finger-phalanx-distal',
-  'pinky-finger-tip'
-]
 
 /**
  * Returns the bone name for a given XRHandJoint
@@ -227,14 +189,14 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
     const jointName = joint.jointName
     const isWrist = jointName === 'wrist'
     if (isWrist) continue
-    const jointPose = xrFrame.getJointPose!(joint, wrist)
+    const jointPose = xrFrame.getJointPose!(joint, referenceSpace)
     if (jointPose) {
       const bone = getBoneNameFromXRHand(inputSource.handedness, jointName, rig.rig)
       if (bone) {
-        const { orientation } = jointPose.transform
-        console.log(bone, orientation.x, orientation.y, orientation.z, orientation.w)
-        _rot.copy(wristJoint.transform.inverse.orientation as any as Quaternion)
-        bone.quaternion.multiplyQuaternions(_rot, orientation as any as Quaternion)
+        const { matrix } = jointPose.transform
+        bone.matrixWorld.fromArray(matrix)
+        bone.matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), bone.matrixWorld)
+        bone.matrix.decompose(bone.position, bone.quaternion, bone.scale)
       }
     }
   }
