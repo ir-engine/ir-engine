@@ -81,18 +81,24 @@ export const XRHitTestComponent = defineComponent({
   onInit: (entity) => {
     return {
       hitTestSource: null! as XRHitTestSource,
-      hitTestResult: null as XRHitTestResult | null
+      hitTestResults: [] as XRHitTestResult[]
     }
   },
 
-  onSet: (entity, component, json) => {
-    if (json?.hitTestSource) component.hitTestSource.set(json.hitTestSource)
-  },
-
-  toJSON: () => {
-    return null! as {
+  onSet: (
+    entity,
+    component,
+    data: {
       hitTestSource: XRHitTestSource
     }
+  ) => {
+    component.hitTestSource.value?.cancel() // cancel previous hit test source
+    component.hitTestSource.set(data.hitTestSource)
+    component.hitTestResults.set([])
+  },
+
+  onRemove: (entity, component) => {
+    component.hitTestSource.value.cancel()
   }
 })
 
@@ -105,18 +111,19 @@ export const XRAnchorComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, json) => {
-    if (json?.anchor) component.anchor.set(json.anchor)
+  onSet: (
+    entity,
+    component,
+    data: {
+      anchor: XRAnchor
+    }
+  ) => {
+    component.anchor.value?.delete()
+    component.anchor.set(data.anchor)
   },
 
   onRemove: (entity, component) => {
     component.anchor.value.delete()
-  },
-
-  toJSON: () => {
-    return null! as {
-      anchor: XRAnchor
-    }
   }
 })
 

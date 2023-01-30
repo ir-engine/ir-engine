@@ -48,8 +48,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
-  if (getComponent(entity, GroupComponent).includes(obj))
-    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
+  if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
   getComponentState(entity, GroupComponent).merge([obj])
@@ -87,8 +86,6 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
     const group = getComponent(entity, GroupComponent)
     if (group.includes(obj)) {
       getComponentState(entity, GroupComponent)[group.indexOf(obj)].set(none)
-    } else {
-      console.warn('[removeObjectFromGroup]: Tried to remove an obejct from a group it is not in', entity, object)
     }
     if (!group.length) removeComponent(entity, GroupComponent)
   }

@@ -2,9 +2,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import AnchorIcon from '@mui/icons-material/Anchor'
@@ -21,31 +20,28 @@ export const ARPlacement = () => {
   const xrState = useHookstate(getState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrSessionActive = xrState.sessionActive.value
-  const inPlacementMode = !!xrState.scenePlacementMode.value
   if (!supportsAR || !engineState.sceneLoaded.value || !xrSessionActive) return <></>
 
-  const place = () => {
-    dispatchAction(
-      XRAction.changePlacementMode({
-        inputSource: inPlacementMode ? null : Engine.instance.currentWorld.inputSources[0]
-      })
-    )
+  const inPlacingMode = xrState.scenePlacementMode.value === 'placing'
+
+  const place = async () => {
+    xrState.scenePlacementMode.set(inPlacingMode ? 'placed' : 'placing')
     dispatchAction(AppAction.showTopShelf({ show: false }))
     dispatchAction(AppAction.showBottomShelf({ show: false }))
   }
 
   return (
-    <div className={`${styles.arPlacement} ${inPlacementMode ? `` : bottomShelfStyle}`}>
+    <div className={`${styles.arPlacement} ${inPlacingMode ? `` : bottomShelfStyle}`}>
       <button
         type="button"
         id="UserXR"
-        className={styles.iconContainer + ' ' + (inPlacementMode ? styles.on : '')}
+        className={styles.iconContainer + ' ' + (inPlacingMode ? styles.on : '')}
         onClick={place}
         onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
-        {!inPlacementMode && <AnchorIcon />}
-        <div style={{ margin: '3px' }}>{inPlacementMode ? t('common:ar.done') : t('common:ar.placeScene')}</div>
+        {!inPlacingMode && <AnchorIcon />}
+        <div style={{ margin: '3px' }}>{inPlacingMode ? t('common:ar.done') : t('common:ar.placeScene')}</div>
       </button>
     </div>
   )

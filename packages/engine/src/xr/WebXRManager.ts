@@ -46,12 +46,15 @@ declare module 'three' {
   }
 }
 
-// augment WebGLRenderingContext
 declare global {
   interface WebGLRenderingContext {
     DEPTH24_STENCIL8: number
     DEPTH_COMPONENT24: number
     RGBA8: number
+  }
+
+  interface XRSession {
+    interactionMode: 'screen-space' | 'world-space'
   }
 }
 
