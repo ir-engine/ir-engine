@@ -14,7 +14,7 @@ import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
@@ -132,10 +132,8 @@ const _additionalMovement = new Vector3()
 /**
  * Avatar movement via click/pointer position
  */
-export const applyAutopilotInput = (entity: Entity) => {
-  if (!entity) return
 
-  //set up rapier ray using threejs raycast data?
+export const autopilotGetPosition = (entity: Entity): Vector3 | undefined => {
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const world = Engine.instance.currentWorld
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Ground)
@@ -149,18 +147,23 @@ export const applyAutopilotInput = (entity: Entity) => {
 
   const castedRay = Physics.castRayFromCamera(world.camera, world.pointerState.position, physicsWorld, raycastArgs)
 
-  if (!castedRay.length) return
-  //update avatar position
+  if (castedRay.length) {
+    return castedRay[0].position as Vector3
+  }
+  return undefined
+}
 
+export const applyAutopilotInput = (entity: Entity, walkPoint: Vector3) => {
   const avatarPos = getComponent(entity, TransformComponent).position
-  const moveDir = new Vector3(castedRay[0].position.x, castedRay[0].position.y, castedRay[0].position.z).sub(avatarPos)
+  const moveDir = new Vector3(walkPoint.x, walkPoint.y, walkPoint.z).sub(avatarPos)
 
-  updateLocalAvatarPosition(moveDir.normalize().multiplyScalar(world.deltaSeconds))
+  if (moveDir.length() > 0.5) updateLocalAvatarPosition(moveDir.normalize().multiplyScalar(0.1))
 }
 
 /**
  * Avatar movement via gamepad
  */
+
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
