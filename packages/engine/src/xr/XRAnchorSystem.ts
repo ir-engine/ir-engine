@@ -24,6 +24,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import {
+  ComponentType,
   defineQuery,
   getComponent,
   getOptionalComponent,
@@ -145,21 +146,18 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 // let lastSwipeValue = null! as null | number
 
-/**
- * Updates the transform of the origin reference space to manipulate the
- * camera inversely to represent scaling the scene.
- */
-export const updateScenePlacement = (scenePlacementEntity: Entity) => {
-  // assumes local transform is relative to origin
-  const localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
-  const xrFrame = Engine.instance.xrFrame
-  const viewerPose = xrFrame?.getViewerPose(ReferenceSpace.localFloor!)
+const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformComponent>) => {
   const xrState = getState(XRState)
-  const xrSession = xrState.session.value
+  const placing = xrState.scenePlacementMode.value === 'placing'
+  if (!placing) return xrState.sceneScale.value
 
-  if (!localTransform || !xrFrame || !xrSession || !viewerPose) return
+  const xrSession = xrState.session.value!
+  const xrFrame = Engine.instance.xrFrame
+  if (!xrFrame) return 1
 
-  const world = Engine.instance.currentWorld
+  const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
+  if (!viewerPose) return 1
+
   const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(localTransform.rotation)
   const dist = _plane
     .setFromNormalAndCoplanarPoint(upDir, localTransform.position)
@@ -176,6 +174,8 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const lifeSize =
     xrSession.interactionMode === 'world-space' || (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
 
+  if (lifeSize) return 1
+
   const targetScale = lifeSize
     ? 1
     : MathUtils.clamp(
@@ -183,6 +183,22 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
         minDollhouseScale,
         maxDollhouseScale
       )
+
+  return targetScale
+}
+
+export const updateScenePlacement = (scenePlacementEntity: Entity) => {
+  // assumes local transform is relative to origin
+  const localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
+  const xrFrame = Engine.instance.xrFrame
+  const xrState = getState(XRState)
+  const xrSession = xrState.session.value
+
+  if (!localTransform || !xrFrame || !xrSession) return
+
+  const world = Engine.instance.currentWorld
+
+  const targetScale = getTargetWorldSize(localTransform)
   const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(targetScale)
   const targetRotation = localTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
@@ -191,7 +207,8 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const lerpAlpha = smootheLerpAlpha(5, world.deltaSeconds)
   xrState.scenePosition.value.lerp(targetPosition, lerpAlpha)
   xrState.sceneRotation.value.slerp(targetRotation, lerpAlpha)
-  xrState.sceneScale.set(MathUtils.lerp(xrState.sceneScale.value, targetScale, lerpAlpha))
+  if (targetScale !== xrState.sceneScale.value)
+    xrState.sceneScale.set(MathUtils.lerp(xrState.sceneScale.value, targetScale, lerpAlpha))
 }
 
 function updateScenePlacementRingMesh(scenePlacementEntity: Entity, scenePlacementRingMesh: Mesh) {
@@ -268,9 +285,13 @@ export default async function XRAnchorSystem(world: World) {
         if (xrSession.value?.requestHitTestSource && xrSession.value.interactionMode === 'world-space') {
           // @todo: handle world-space scene placement
         }
-      } else if (scenePlacementMode.value === 'placed') {
+        return
+      }
+
+      if (scenePlacementMode.value === 'placed') {
         worldOriginPinpointAnchor.removeFromParent()
         const hitTestResult = hitTest?.hitTestResults?.value?.[0]
+        console.log(hitTest, hitTestResult)
         if (hitTestResult) {
           if (!hitTestResult.createAnchor) {
             removeComponent(scenePlacementEntity, XRHitTestComponent)
