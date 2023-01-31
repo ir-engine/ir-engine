@@ -2,7 +2,9 @@ import { AnimationClip, Bone, SkinnedMesh } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
+import { applySkeletonPose, makeTPose } from './animation/avatarPose'
 import { findRootBone, processRootAnimation } from './animation/Util'
+import avatarBoneMatching, { findSkinnedMeshes } from './AvatarBoneMatching'
 import { makeDefaultSkinnedMesh } from './functions/avatarFunctions'
 
 export class AnimationManager {
@@ -19,24 +21,23 @@ export class AnimationManager {
   }
 
   async loadDefaultAnimations(path: string = '/default_assets/Animations.glb') {
-    const gltf = await AssetLoader.loadAsync(path)
-    this.getAnimations(gltf)
-  }
-
-  getAnimations(gltf: GLTF): AnimationClip[] {
     if (this._animations) {
       return this._animations
     }
-    gltf.scene.traverse((child: SkinnedMesh) => {
-      if (child.type === 'SkinnedMesh' && !this._defaultSkinnedMesh) {
-        this._defaultSkinnedMesh = child
-      }
-    })
 
-    if (!this._defaultSkinnedMesh) {
-      // reconstruct skeleton from stored data
-      this._defaultSkinnedMesh = makeDefaultSkinnedMesh()
-    }
+    const gltf = (await AssetLoader.loadAsync(path)) as GLTF
+
+    const defaultRig = makeDefaultSkinnedMesh()
+    const rig = avatarBoneMatching(defaultRig)
+    const rootBone = rig.Hips
+    rootBone.updateWorldMatrix(true, true)
+    const skinnedMeshes = findSkinnedMeshes(defaultRig)
+    makeTPose(rig)
+    rootBone.updateWorldMatrix(true, true)
+    skinnedMeshes.forEach((mesh) => mesh.skeleton.calculateInverses())
+    skinnedMeshes.forEach((mesh) => mesh.skeleton.computeBoneTexture())
+
+    this._defaultSkinnedMesh = defaultRig.children[0] as SkinnedMesh
 
     this._defaultRootBone = findRootBone(this._defaultSkinnedMesh)!
     this._rootAnimationData = {}
