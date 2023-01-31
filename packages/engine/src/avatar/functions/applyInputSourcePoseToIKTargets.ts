@@ -24,6 +24,8 @@ import {
 export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, rig: BoneStructure): Bone | undefined => {
   const handedness = side.slice(0, 1).toUpperCase() + side.slice(1)
 
+  if (joint.includes('wrist')) return rig[`${handedness}Hand`]
+
   if (joint.includes('thumb')) {
     const thumbCount = [
       rig[`${handedness}HandThumb1`],
@@ -173,22 +175,14 @@ export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, ri
 }
 
 const mat4 = new Matrix4()
-const _pos = new Vector3()
-const _rot = new Quaternion()
-const _scale = new Vector3()
 
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const hand = inputSource.hand as any as XRHand
   const rig = getComponent(entity, AvatarRigComponent)
   const referenceSpace = ReferenceSpace.origin!
-  const wrist = hand.get('wrist')!
   const xrFrame = Engine.instance.xrFrame!
-  const wristJoint = xrFrame.getJointPose!(wrist, referenceSpace)!
-
   for (const joint of hand.values()) {
     const jointName = joint.jointName
-    const isWrist = jointName === 'wrist'
-    if (isWrist) continue
     const jointPose = xrFrame.getJointPose!(joint, referenceSpace)
     if (jointPose) {
       const bone = getBoneNameFromXRHand(inputSource.handedness, jointName, rig.rig)
