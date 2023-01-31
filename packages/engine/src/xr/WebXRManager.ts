@@ -121,8 +121,6 @@ export function createWebXRManager() {
 
       let newRenderTarget = null as WebGLRenderTarget | null
 
-      console.log(session.renderState.layers, renderer.capabilities.isWebGL2)
-
       if (session.renderState.layers === undefined || renderer.capabilities.isWebGL2 === false) {
         const layerInit = {
           antialias: session.renderState.layers === undefined ? attributes.antialias : true,

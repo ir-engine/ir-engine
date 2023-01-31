@@ -130,12 +130,12 @@ function updateCameraFromXRViewerPose() {
     for (let i = 0; i < views.length; i++) {
       const view = views[i]
 
-      let viewport: XRViewport
+      let viewport: XRViewport | null = null
 
       if (glBaseLayer !== null) {
         viewport = glBaseLayer.getViewport(view)!
-      } else {
-        const glSubImage = glBinding!.getViewSubImage(glProjLayer!, view)
+      } else if (glBinding) {
+        const glSubImage = glBinding.getViewSubImage(glProjLayer!, view)
         viewport = glSubImage.viewport
 
         // For side-by-side projection, we only produce a single texture for both eyes.
@@ -167,7 +167,7 @@ function updateCameraFromXRViewerPose() {
       viewCamera.matrixWorld.compose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
       viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
       viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
-      viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
+      if (viewport) viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
 
       if (cameraListNeedsUpdate === true) {
         camera.cameras.push(viewCamera)

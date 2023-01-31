@@ -13,8 +13,25 @@ export class XRPose {
   }
 }
 
+export class XRView {
+  readonly eye: 'left' | 'right' = 'left'
+  readonly projectionMatrix: Matrix4
+  readonly transform: XRRigidTransform
+
+  constructor(transform: XRRigidTransform) {
+    this.transform = transform
+    /** @todo populate this */
+    this.projectionMatrix = new Matrix4()
+  }
+}
+
 export class XRViewerPose extends XRPose {
-  readonly views: ReadonlyArray<XRView> = []
+  readonly views: XRView[] = []
+
+  constructor(transform: XRRigidTransform) {
+    super(transform)
+    this.views.push(new XRView(transform))
+  }
 }
 
 export class XRHitTestResultProxy {
