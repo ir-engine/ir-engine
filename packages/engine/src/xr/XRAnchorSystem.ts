@@ -197,27 +197,21 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   if (!localTransform || !xrFrame || !xrSession) return
 
   const world = Engine.instance.currentWorld
+  const lerpAlpha = smootheLerpAlpha(5, world.deltaSeconds)
 
   const targetScale = getTargetWorldSize(localTransform)
-  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(targetScale)
+  if (targetScale !== xrState.sceneScale.value)
+    xrState.sceneScale.set(MathUtils.lerp(xrState.sceneScale.value, targetScale, lerpAlpha))
+
+  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(xrState.sceneScale.value)
   const targetRotation = localTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
   )
 
-  const lerpAlpha = smootheLerpAlpha(5, world.deltaSeconds)
-  xrState.scenePosition.value.lerp(targetPosition, lerpAlpha)
-  xrState.sceneRotation.value.slerp(targetRotation, lerpAlpha)
-  if (targetScale !== xrState.sceneScale.value)
-    xrState.sceneScale.set(MathUtils.lerp(xrState.sceneScale.value, targetScale, lerpAlpha))
-}
-
-function updateScenePlacementRingMesh(scenePlacementEntity: Entity, scenePlacementRingMesh: Mesh) {
-  const scenePlacementHitTest = getOptionalComponent(scenePlacementEntity, XRHitTestComponent)
-  if (scenePlacementHitTest?.hitTestResults[0]) {
-    addObjectToGroup(scenePlacementEntity, scenePlacementRingMesh)
-  } else {
-    removeObjectFromGroup(scenePlacementEntity, scenePlacementRingMesh)
-  }
+  xrState.scenePosition.value.copy(targetPosition)
+  xrState.sceneRotation.value.copy(targetRotation)
+  // xrState.scenePosition.value.lerp(targetPosition, lerpAlpha)
+  // xrState.sceneRotation.value.slerp(targetRotation, lerpAlpha)
 }
 
 /**
@@ -230,14 +224,20 @@ export default async function XRAnchorSystem(world: World) {
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
+  const scenePlacementRingMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
+  scenePlacementRingMesh.geometry.rotateX(-Math.PI / 2)
+  scenePlacementRingMesh.geometry.translate(0, 0.01, 0)
+
   const pinSphereMesh = new Mesh(new SphereGeometry(0.025, 16, 16), new MeshBasicMaterial({ color: 'white' }))
   pinSphereMesh.position.setY(0.1125)
   const pinConeMesh = new Mesh(new ConeGeometry(0.01, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
   pinConeMesh.position.setY(0.05)
   pinConeMesh.rotateX(Math.PI)
+
   const worldOriginPinpointAnchor = new Group()
   worldOriginPinpointAnchor.name = 'world-origin-pinpoint-anchor'
   worldOriginPinpointAnchor.add(pinSphereMesh, pinConeMesh)
+  worldOriginPinpointAnchor.add(scenePlacementRingMesh)
   worldOriginPinpointAnchor.updateMatrixWorld(true)
 
   const scenePlacementEntity = createEntity()
@@ -248,11 +248,6 @@ export default async function XRAnchorSystem(world: World) {
   const originAxesHelper = new AxesHelper(10000)
   setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
   addObjectToGroup(scenePlacementEntity, originAxesHelper)
-
-  const scenePlacementRingMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
-  scenePlacementRingMesh.geometry.rotateX(-Math.PI / 2)
-  scenePlacementRingMesh.geometry.translate(0, 0.01, 0)
-  setObjectLayers(scenePlacementRingMesh, ObjectLayers.Scene)
 
   const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
@@ -275,9 +270,11 @@ export default async function XRAnchorSystem(world: World) {
         if (xrSession.value?.requestHitTestSource && xrSession.value.interactionMode === 'screen-space') {
           Engine.instance.currentWorld.scene.add(worldOriginPinpointAnchor)
 
-          xrSession.value.requestHitTestSource({ space: ReferenceSpace.viewer! })?.then((hitTestSource) => {
-            setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource })
-          })
+          xrSession.value
+            .requestHitTestSource({ space: ReferenceSpace.viewer!, entityTypes: ['plane', 'point', 'mesh'] })
+            ?.then((hitTestSource) => {
+              setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource })
+            })
         }
 
         // for scene placement in 'world-space', we should request a hit test source when an input source is gripped,
@@ -294,6 +291,12 @@ export default async function XRAnchorSystem(world: World) {
         console.log(hitTest, hitTestResult)
         if (hitTestResult) {
           if (!hitTestResult.createAnchor) {
+            const xrFrame = Engine.instance.xrFrame
+            const hitPose = ReferenceSpace.localFloor && hitTestResult.getPose(ReferenceSpace.localFloor)
+            hitPose &&
+              xrFrame?.createAnchor?.(hitPose.transform, ReferenceSpace.localFloor!)?.then((anchor) => {
+                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
+              })
             removeComponent(scenePlacementEntity, XRHitTestComponent)
             return
           }
@@ -338,7 +341,6 @@ export default async function XRAnchorSystem(world: World) {
     for (const entity of xrHitTestQuery()) updateHitTest(entity)
 
     if (xrState.scenePlacementMode.value !== 'unplaced') {
-      updateScenePlacementRingMesh(scenePlacementEntity, scenePlacementRingMesh)
       updateScenePlacement(scenePlacementEntity)
       updateWorldOriginFromScenePlacement()
     }

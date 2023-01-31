@@ -21,12 +21,15 @@ export const updateWorldOriginFromScenePlacement = () => {
     .copy(originTransform.matrixInverse)
     .invert()
     .decompose(originTransform.position, originTransform.rotation, originTransform.scale)
-  updateWorldOrigin()
+  if (ReferenceSpace.localFloor) {
+    const xrRigidTransform = new XRRigidTransform(scenePosition, sceneRotation)
+    ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform)
+  }
 }
 
 export const updateWorldOrigin = () => {
-  const world = Engine.instance.currentWorld
   if (ReferenceSpace.localFloor) {
+    const world = Engine.instance.currentWorld
     const originTransform = getComponent(world.originEntity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform.inverse)
