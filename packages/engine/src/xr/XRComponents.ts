@@ -33,6 +33,91 @@ export const XRJointParentMap = {
   'pinky-finger-tip': 'pinky-finger-phalanx-distal'
 } as Record<XRHandJoint, XRHandJoint>
 
+/** Maps each XR Joint to it's corresponding Avatar Bone */
+export const XRJointAvatarBoneMap = {
+  wrist: 'Hand',
+  'thumb-metacarpal': 'HandThumb1',
+  'thumb-phalanx-proximal': 'HandThumb2',
+  'thumb-phalanx-distal': 'HandThumb3',
+  'thumb-tip': 'HandThumb4',
+  'index-finger-metacarpal': 'HandIndex1',
+  'index-finger-phalanx-proximal': 'HandIndex2',
+  'index-finger-phalanx-intermediate': 'HandIndex3',
+  'index-finger-phalanx-distal': 'HandIndex4',
+  'index-finger-tip': 'HandIndex5',
+  'middle-finger-metacarpal': 'HandMiddle1',
+  'middle-finger-phalanx-proximal': 'HandMiddle2',
+  'middle-finger-phalanx-intermediate': 'HandMiddle3',
+  'middle-finger-phalanx-distal': 'HandMiddle4',
+  'middle-finger-tip': 'HandMiddle5',
+  'ring-finger-metacarpal': 'HandRing1',
+  'ring-finger-phalanx-proximal': 'HandRing2',
+  'ring-finger-phalanx-intermediate': 'HandRing3',
+  'ring-finger-phalanx-distal': 'HandRing4',
+  'ring-finger-tip': 'HandRing5',
+  'pinky-finger-metacarpal': 'HandPinky1',
+  'pinky-finger-phalanx-proximal': 'HandPinky2',
+  'pinky-finger-phalanx-intermediate': 'HandPinky3',
+  'pinky-finger-phalanx-distal': 'HandPinky4',
+  'pinky-finger-tip': 'HandPinky5'
+} as Record<XRHandJoint, string> // BoneName without the handedness
+
+export const XRJointBones = [
+  'wrist',
+  'thumb-metacarpal',
+  'thumb-phalanx-proximal',
+  'thumb-phalanx-distal',
+  'thumb-tip',
+  'index-finger-metacarpal',
+  'index-finger-phalanx-proximal',
+  'index-finger-phalanx-intermediate',
+  'index-finger-phalanx-distal',
+  'index-finger-tip',
+  'middle-finger-metacarpal',
+  'middle-finger-phalanx-proximal',
+  'middle-finger-phalanx-intermediate',
+  'middle-finger-phalanx-distal',
+  'middle-finger-tip',
+  'ring-finger-metacarpal',
+  'ring-finger-phalanx-proximal',
+  'ring-finger-phalanx-intermediate',
+  'ring-finger-phalanx-distal',
+  'ring-finger-tip',
+  'pinky-finger-metacarpal',
+  'pinky-finger-phalanx-proximal',
+  'pinky-finger-phalanx-intermediate',
+  'pinky-finger-phalanx-distal',
+  'pinky-finger-tip'
+] as XRHandJoint[]
+
+export const HandBones = [
+  'Hand',
+  'HandThumb1',
+  'HandThumb2',
+  'HandThumb3',
+  'HandThumb4',
+  'HandIndex1',
+  'HandIndex2',
+  'HandIndex3',
+  'HandIndex4',
+  'HandIndex5',
+  'HandMiddle1',
+  'HandMiddle2',
+  'HandMiddle3',
+  'HandMiddle4',
+  'HandMiddle5',
+  'HandRing1',
+  'HandRing2',
+  'HandRing3',
+  'HandRing4',
+  'HandRing5',
+  'HandPinky1',
+  'HandPinky2',
+  'HandPinky3',
+  'HandPinky4',
+  'HandPinky5'
+]
+
 const Object3DSchema = {
   position: Vector3Schema,
   quaternion: QuaternionSchema

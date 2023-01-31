@@ -1,9 +1,9 @@
-import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRHand, XRJointParentMap, XRLeftHandComponent } from '../../xr/XRComponents'
+import { XRHand, XRJointBones, XRJointParentMap, XRLeftHandComponent } from '../../xr/XRComponents'
 import { getCameraMode, ReferenceSpace } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -13,6 +13,14 @@ import {
   AvatarLeftArmIKComponent,
   AvatarRightArmIKComponent
 } from '../components/AvatarIKComponents'
+
+// rotate +90 around rig finger's X axis
+// rotate +90 around rig finger's Z axis
+const webxrJointRotation = new Matrix4().makeRotationFromQuaternion(
+  new Quaternion()
+    .setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
+    .multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0), Math.PI / 2))
+)
 
 /**
  * Returns the bone name for a given XRHandJoint
@@ -174,24 +182,31 @@ export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, ri
   }
 }
 
+type XRFrameWithFillPoses = XRFrame & {
+  fillPoses: (poses: Iterable<XRJointSpace>, baseSpace: XRSpace, output: Float32Array) => void
+  fillJointRadii: (joints: Iterable<XRJointSpace>, output: Float32Array) => void
+}
+
 const mat4 = new Matrix4()
 
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const hand = inputSource.hand as any as XRHand
   const rig = getComponent(entity, AvatarRigComponent)
   const referenceSpace = ReferenceSpace.origin!
-  const xrFrame = Engine.instance.xrFrame!
-  for (const joint of hand.values()) {
-    const jointName = joint.jointName
-    const jointPose = xrFrame.getJointPose!(joint, referenceSpace)
-    if (jointPose) {
-      const bone = getBoneNameFromXRHand(inputSource.handedness, jointName, rig.rig)
-      if (bone) {
-        const { matrix } = jointPose.transform
-        bone.matrixWorld.fromArray(matrix)
-        bone.matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), bone.matrixWorld)
-        bone.matrix.decompose(bone.position, bone.quaternion, bone.scale)
-      }
+  const xrFrame = Engine.instance.xrFrame as XRFrameWithFillPoses
+  const poses1 = new Float32Array(16 * 25)
+  const radii1 = new Float32Array(25)
+
+  xrFrame.fillPoses(hand.values(), referenceSpace, poses1)
+  xrFrame.fillJointRadii(hand.values(), radii1)
+
+  for (let i = 0; i < XRJointBones.length; i++) {
+    const joint = XRJointBones[i]
+    const bone = getBoneNameFromXRHand(inputSource.handedness, joint, rig.rig)
+    if (bone) {
+      bone.matrixWorld.fromArray(poses1, i * 16)
+      bone.matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), bone.matrixWorld)
+      bone.matrix.decompose(bone.position, bone.quaternion, bone.scale)
     }
   }
 }
