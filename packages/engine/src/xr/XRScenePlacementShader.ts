@@ -59,7 +59,7 @@ export default async function XRScenePlacementShader(world: World) {
       const sessionActive = useHookstate(xrState.sessionActive)
 
       useEffect(() => {
-        const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value
+        const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value === 'placing'
         if (useShader) {
           obj.traverse(addShaderToObject)
         } else {
