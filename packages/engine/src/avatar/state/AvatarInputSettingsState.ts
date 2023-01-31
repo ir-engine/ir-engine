@@ -9,9 +9,9 @@ import {
   useState
 } from '@xrengine/hyperflux'
 
-export enum AvatarAxesControlScheme {
-  Move = 'AvatarControlScheme_Move',
-  RotateAndTeleport = 'AvatarControlScheme_RotateAndTeleport'
+export const AvatarAxesControlScheme = {
+  Move: 'AvatarControlScheme_Move' as const,
+  Teleport: 'AvatarControlScheme_Teleport' as const
 }
 
 export const AvatarControllerType = {
@@ -25,8 +25,10 @@ export const AvatarInputSettingsState = defineState({
   initial: () => ({
     controlType: AvatarControllerType.None as typeof AvatarControllerType[keyof typeof AvatarControllerType],
 
-    leftAxesControlScheme: AvatarAxesControlScheme.Move,
-    rightAxesControlScheme: AvatarAxesControlScheme.RotateAndTeleport,
+    leftAxesControlScheme:
+      AvatarAxesControlScheme.Move as typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme],
+    rightAxesControlScheme:
+      AvatarAxesControlScheme.Teleport as typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme],
 
     preferredHand: 'right' as 'left' | 'right',
     invertRotationAndMoveSticks: true,
@@ -88,12 +90,12 @@ export class AvatarInputSettingsAction {
 
   static setLeftAxesControlScheme = defineAction({
     type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_LEFT_CONTROL_SCHEME' as const,
-    scheme: matches.string as Validator<unknown, AvatarAxesControlScheme>
+    scheme: matches.string as Validator<unknown, typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme]>
   })
 
   static setRightAxesControlScheme = defineAction({
     type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_RIGHT_CONTROL_SCHEME' as const,
-    scheme: matches.string as Validator<unknown, AvatarAxesControlScheme>
+    scheme: matches.string as Validator<unknown, typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme]>
   })
 
   static setPreferredHand = defineAction({
