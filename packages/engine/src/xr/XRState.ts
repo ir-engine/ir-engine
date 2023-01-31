@@ -99,17 +99,26 @@ export class XRAction {
 }
 
 export const getCameraMode = () => {
-  const { avatarCameraMode, sessionActive, sceneScale, scenePlacementMode } = getState(XRState).value
-  if (!sessionActive || scenePlacementMode) return 'detached'
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState).value
+  if (!session || scenePlacementMode === 'placing') return 'detached'
   if (avatarCameraMode === 'auto') {
+    if (session.interactionMode === 'screen-space') return 'detached'
     return sceneScale !== 1 ? 'detached' : 'attached'
   }
   return avatarCameraMode
 }
 
+/**
+ * Specifies that the user has movement controls if:
+ * - they are not in an immersive session
+ * - they are in an immersive session with a screen-space interaction mode
+ * - they are in an immersive-ar session with a scene scale of 1
+ * @returns {boolean} true if the user has movement controls
+ */
 export const hasMovementControls = () => {
-  const { sessionActive, sceneScale, sessionMode } = getState(XRState).value
+  const { sessionActive, sceneScale, sessionMode, session } = getState(XRState).value
   if (!sessionActive) return true
+  if (session && session.interactionMode === 'screen-space') return true
   return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
 }
 

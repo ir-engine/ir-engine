@@ -1,5 +1,6 @@
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
+import { ReferenceSpace } from './XRState'
 
 export default async function XRInputSourceSystem(world: World) {
   const targetRaySpace = {} as XRSpace
@@ -7,7 +8,12 @@ export default async function XRInputSourceSystem(world: World) {
   const screenInputSource = {
     handedness: 'none',
     targetRayMode: 'screen',
-    targetRaySpace,
+    get targetRaySpace() {
+      if (Engine.instance.xrFrame) {
+        return ReferenceSpace.viewer!
+      }
+      return targetRaySpace
+    },
     gripSpace: undefined,
     gamepad: {
       axes: new Array(2).fill(0),
@@ -25,14 +31,16 @@ export default async function XRInputSourceSystem(world: World) {
   const defaultInputSourceArray = [screenInputSource] as XRInputSourceArray
 
   const execute = () => {
+    const now = Date.now()
+    screenInputSource.gamepad.timestamp = now
+
     if (Engine.instance.xrFrame) {
       const session = Engine.instance.xrFrame.session
       // session.inputSources is undefined when the session is ending, we should probably use xrState.sessionActive instead of Engine.instance.xrFrame
-      world.inputSources = session.inputSources ?? []
+      const inputSources = session.inputSources ? session.inputSources : []
+      world.inputSources = [...defaultInputSourceArray, ...inputSources]
     } else {
       world.inputSources = defaultInputSourceArray
-      const now = Date.now()
-      screenInputSource.gamepad.timestamp = now
     }
   }
 
