@@ -141,7 +141,6 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
 export const requestXRSession = createHookableFunction(
   async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
     const xrState = getState(XRState)
-    const xrManager = EngineRenderer.instance.xrManager
     if (xrState.requestingSession.value || xrState.sessionActive.value) return
 
     try {

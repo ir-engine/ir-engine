@@ -10,11 +10,17 @@ import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/Componen
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
-import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
+import {
+  endXRSession,
+  getReferenceSpaces,
+  requestXRSession,
+  setupARSession,
+  setupXRSession
+} from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
-import { XRFrameProxy, XRSessionProxy, XRSpace } from './XR8WebXRProxy'
+import { XRFrameProxy, XRRigidTransform, XRSessionProxy, XRSpace } from './XR8WebXRProxy'
 
 type XR8Assets = {
   xr8Script: HTMLScriptElement
@@ -165,7 +171,7 @@ export default async function XR8System(world: World) {
   let _8thwallScripts = null as XR8Assets | null
   const xrState = getState(XRState)
 
-  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
+  const using8thWall = true //isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
 
   let cameraCanvas: HTMLCanvasElement | null = null
 
@@ -228,6 +234,8 @@ export default async function XR8System(world: World) {
     inputSources.splice(inputSources.indexOf(viewerInputSource), 1)
   }
 
+  const originalXRRigidTransform = XRRigidTransform
+
   const overrideXRSessionFunctions = () => {
     if (requestXRSession.implementation !== originalRequestXRSessionImplementation) return
 
@@ -235,8 +243,11 @@ export default async function XR8System(world: World) {
 
     requestXRSession.implementation = async (action) => {
       if (xrState.requestingSession.value) return
+
+      xrState.is8thWallActive.set(true)
       xrState.requestingSession.set(true)
 
+      const world = Engine.instance.currentWorld
       try {
         /** Initialize 8th wall if not previously initialized */
         if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
@@ -247,12 +258,16 @@ export default async function XR8System(world: World) {
         return
       }
 
-      xrState.session.set(new XRSessionProxy(inputSources) as any as XRSession)
+      // bind public constructors to global object
+      ;(globalThis as any).XRRigidTransform = XRRigidTransform
+
+      const xrSession = new XRSessionProxy(inputSources) as any as XRSession
+
+      xrState.session.set(xrSession)
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
-      xrState.is8thWallActive.set(true)
 
-      getReferenceSpaces(xrState.session.value!)
+      getReferenceSpaces(xrSession)
 
       document.body.addEventListener('touchstart', onTouchStart)
       document.body.addEventListener('touchmove', onTouchMove)
@@ -272,6 +287,7 @@ export default async function XR8System(world: World) {
       ReferenceSpace.origin = null
       ReferenceSpace.localFloor = null
       ReferenceSpace.viewer = null
+      ;(globalThis as any).XRRigidTransform = originalXRRigidTransform
 
       const engineContainer = document.getElementById('engine-container')!
       engineContainer.removeChild(cameraCanvas!)

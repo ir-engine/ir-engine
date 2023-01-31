@@ -33,7 +33,7 @@ export class XRHitTestResultProxy {
     return new XRPose(new XRRigidTransform(_pos, _rot))
   }
 
-  // not supported
+  /** @todo */
   createAnchor = undefined
 }
 
@@ -51,7 +51,10 @@ export class XRSpace {
 
 export class XRReferenceSpace extends XRSpace {
   getOffsetReferenceSpace(originOffset: XRRigidTransform) {
-    return new XRReferenceSpace()
+    const offsetSpace = new XRReferenceSpace(this._position, this._rotation)
+    offsetSpace._matrix.multiplyMatrices(this._matrix, originOffset._matrix)
+    offsetSpace._matrix.decompose(offsetSpace._position, offsetSpace._rotation, _scale)
+    return offsetSpace
   }
   onreset = undefined
 
@@ -114,10 +117,14 @@ export class XRRigidTransform {
   }
 }
 
-export class XRHitTestSource {}
+export class XRHitTestSource {
+  cancel() {}
+}
 
 export class XRSessionProxy extends EventDispatcher {
   readonly inputSources: XRInputSource[]
+  readonly interactionMode: 'screen-space' | 'world-space' = 'screen-space'
+  readonly domOverlayState: XRDOMOverlayState = { type: 'screen' }
 
   constructor(inputSources: XRInputSource[]) {
     super()

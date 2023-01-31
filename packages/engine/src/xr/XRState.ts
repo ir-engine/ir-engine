@@ -72,6 +72,7 @@ export const ReferenceSpace = {
    */
   viewer: null as XRReferenceSpace | null
 }
+globalThis.ReferenceSpace = ReferenceSpace
 
 export class XRAction {
   static requestSession = defineAction({
