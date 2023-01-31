@@ -103,6 +103,7 @@ function updateCameraFromXRViewerPose() {
   if (pose) {
     const views = pose.views
     const xrRendererState = getState(XRRendererState)
+    const xrState = getState(XRState)
     const glBaseLayer = xrRendererState.glBaseLayer.value
     const glBinding = xrRendererState.glBinding.value
     const glProjLayer = xrRendererState.glProjLayer.value
@@ -114,10 +115,10 @@ function updateCameraFromXRViewerPose() {
       renderer.setRenderTarget(newRenderTarget)
     }
 
-    cameraTransform.position.copy(pose.transform.position as any)
+    cameraTransform.position.copy(pose.transform.position as any).multiplyScalar(1 / xrState.sceneScale.value)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
-    cameraTransform.matrix.fromArray(pose.transform.matrix)
-    cameraTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
+    cameraTransform.matrix.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
+    cameraTransform.matrixInverse.copy(cameraTransform.matrix).invert()
 
     // check if it's necessary to rebuild camera list
     let cameraListNeedsUpdate = false
@@ -161,10 +162,10 @@ function updateCameraFromXRViewerPose() {
         viewCamera.matrixWorldAutoUpdate = false
       }
 
-      viewCamera.position.copy(view.transform.position as any)
+      viewCamera.position.copy(view.transform.position as any).multiplyScalar(1 / xrState.sceneScale.value)
       viewCamera.quaternion.copy(view.transform.orientation as any)
-      viewCamera.matrixWorld.fromArray(view.transform.matrix)
-      viewCamera.matrixWorldInverse.fromArray(view.transform.inverse.matrix)
+      viewCamera.matrixWorld.compose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
+      viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
       viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
       viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
 
