@@ -132,8 +132,7 @@
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-scss": "^4.2.0",
     "supertest": "6.2.2",
-    "trace-unhandled": "2.0.1",
-    "ttab": "^0.7.3"
+    "trace-unhandled": "2.0.1"
   },
   "dependencies": {
     "@feathersjs/commons": "5.0.0-pre.29",
