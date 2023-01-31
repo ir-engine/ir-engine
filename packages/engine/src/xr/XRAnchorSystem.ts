@@ -178,8 +178,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
 
   const targetScale = lifeSize
     ? 1
-    : 1 /
-      MathUtils.clamp(
+    : MathUtils.clamp(
         Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2) * maxDollhouseScale,
         minDollhouseScale,
         maxDollhouseScale
