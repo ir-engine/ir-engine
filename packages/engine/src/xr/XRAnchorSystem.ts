@@ -222,6 +222,7 @@ export default async function XRAnchorSystem(world: World) {
   const worldOriginPinpointAnchor = new Group()
   worldOriginPinpointAnchor.name = 'world-origin-pinpoint-anchor'
   worldOriginPinpointAnchor.add(pinSphereMesh, pinConeMesh)
+  worldOriginPinpointAnchor.updateMatrixWorld(true)
 
   const scenePlacementEntity = createEntity()
   setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
@@ -234,6 +235,7 @@ export default async function XRAnchorSystem(world: World) {
 
   const scenePlacementRingMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
   scenePlacementRingMesh.geometry.rotateX(-Math.PI / 2)
+  scenePlacementRingMesh.geometry.translate(0, 0.01, 0)
   setObjectLayers(scenePlacementRingMesh, ObjectLayers.Scene)
 
   const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
@@ -268,6 +270,7 @@ export default async function XRAnchorSystem(world: World) {
           // @todo: handle world-space scene placement
         }
       } else if (scenePlacementMode.value === 'placed') {
+        worldOriginPinpointAnchor.removeFromParent()
         const hitTestResult = hitTest?.hitTestResults?.value?.[0]
         if (hitTestResult) {
           if (!hitTestResult.createAnchor) {
@@ -318,15 +321,6 @@ export default async function XRAnchorSystem(world: World) {
       updateScenePlacementRingMesh(scenePlacementEntity, scenePlacementRingMesh)
       updateScenePlacement(scenePlacementEntity)
       updateWorldOriginFromScenePlacement()
-    }
-
-    /** update transform from origin manually and update matrix */
-    if (worldOriginPinpointAnchor.parent === Engine.instance.currentWorld.scene) {
-      const origin = getComponent(world.originEntity, TransformComponent)
-      worldOriginPinpointAnchor.position.copy(origin.position)
-      worldOriginPinpointAnchor.quaternion.copy(origin.rotation)
-      worldOriginPinpointAnchor.scale.copy(origin.scale)
-      worldOriginPinpointAnchor.updateMatrixWorld(true)
     }
   }
 

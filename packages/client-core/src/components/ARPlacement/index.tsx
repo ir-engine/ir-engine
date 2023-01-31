@@ -24,8 +24,8 @@ export const ARPlacement = () => {
 
   const inPlacingMode = xrState.scenePlacementMode.value === 'placing'
 
-  const place = async () => {
-    xrState.scenePlacementMode.set(inPlacingMode ? 'placed' : 'placing')
+  const place = () => {
+    xrState.scenePlacementMode.set(xrState.scenePlacementMode.value === 'placing' ? 'placed' : 'placing')
     dispatchAction(AppAction.showTopShelf({ show: false }))
     dispatchAction(AppAction.showBottomShelf({ show: false }))
   }
