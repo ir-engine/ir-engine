@@ -234,6 +234,7 @@ export default async function XRAnchorSystem(world: World) {
 
   const scenePlacementRingMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
   scenePlacementRingMesh.geometry.rotateX(-Math.PI / 2)
+  setObjectLayers(scenePlacementRingMesh, ObjectLayers.Scene)
 
   const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
@@ -267,22 +268,24 @@ export default async function XRAnchorSystem(world: World) {
           // @todo: handle world-space scene placement
         }
       } else if (scenePlacementMode.value === 'placed') {
-        const hitTestResult = hitTest?.hitTestResults[0]
+        const hitTestResult = hitTest?.hitTestResults?.value?.[0]
         if (hitTestResult) {
           if (!hitTestResult.createAnchor) {
             removeComponent(scenePlacementEntity, XRHitTestComponent)
             return
           }
-          hitTestResult
-            // @ts-ignore createAnchor function is not typed correctly
-            .createAnchor()
-            .then((anchor) => {
-              setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
-              removeComponent(scenePlacementEntity, XRHitTestComponent)
-            })
-            .catch(() => {
-              removeComponent(scenePlacementEntity, XRHitTestComponent)
-            })
+          // @ts-ignore createAnchor function is not typed correctly
+          const anchorPromise = hitTestResult.createAnchor()
+          if (anchorPromise)
+            anchorPromise
+              .then((anchor) => {
+                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
+                removeComponent(scenePlacementEntity, XRHitTestComponent)
+              })
+              .catch(() => {
+                removeComponent(scenePlacementEntity, XRHitTestComponent)
+              })
+          else removeComponent(scenePlacementEntity, XRHitTestComponent)
         }
       }
     }, [scenePlacementMode, xrSession, hitTest])

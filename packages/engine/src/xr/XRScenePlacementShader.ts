@@ -20,6 +20,7 @@ type ScenePlacementMaterialType = {
 const addShaderToObject = (object: Object3DWithEntity) => {
   const obj = object as any as Mesh<any, Material & ScenePlacementMaterialType>
   if (obj.material) {
+    if (!obj.material.userData) obj.material.userData = {}
     const userData = obj.material.userData
     if (!userData.ScenePlacement) {
       userData.ScenePlacement = {
