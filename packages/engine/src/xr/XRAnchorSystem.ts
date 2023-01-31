@@ -175,6 +175,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   const maxDollhouseDist = 0.6
   const lifeSize =
     xrSession.interactionMode === 'world-space' || (dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02)
+
   const targetScale = lifeSize
     ? 1
     : 1 /
@@ -183,7 +184,6 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
         minDollhouseScale,
         maxDollhouseScale
       )
-
   const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(targetScale)
   const targetRotation = localTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
@@ -273,8 +273,8 @@ export default async function XRAnchorSystem(world: World) {
             removeComponent(scenePlacementEntity, XRHitTestComponent)
             return
           }
-          // @ts-ignore createAnchor function is not typed correctly
           hitTestResult
+            // @ts-ignore createAnchor function is not typed correctly
             .createAnchor()
             .then((anchor) => {
               setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
