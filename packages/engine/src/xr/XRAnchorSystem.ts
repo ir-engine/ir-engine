@@ -56,7 +56,7 @@ export const updateHitTest = (entity: Entity) => {
   const xrFrame = Engine.instance.xrFrame!
   const hitTest = getComponentState(entity, XRHitTestComponent)
   const localTransform = getComponent(entity, LocalTransformComponent)
-  const hitTestResults = (hitTest.source && xrFrame.getHitTestResults(hitTest.source.value!)) ?? []
+  const hitTestResults = (hitTest.source.value && xrFrame.getHitTestResults(hitTest.source.value!)) ?? []
   hitTest.results.set(hitTestResults)
   const space = ReferenceSpace.localFloor // xrFrame.session.interactionMode === 'world-space' ? ReferenceSpace.localFloor! : ReferenceSpace.viewer!
   const pose = space && hitTestResults?.length && hitTestResults[0].getPose(space)

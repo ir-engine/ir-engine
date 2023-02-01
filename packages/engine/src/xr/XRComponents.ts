@@ -17,7 +17,13 @@ import {
 import { getState } from '@xrengine/hyperflux'
 
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
-import { createMappedComponent, defineComponent, useComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  createMappedComponent,
+  defineComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '../ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
@@ -99,11 +105,14 @@ export const XRHitTestComponent = defineComponent({
     component.source.value?.cancel()
   },
 
-  reactor: (props) => {
-    const entity = props.root.entity
-    const hitTest = useComponent(entity, XRHitTestComponent)
+  reactor: ({ root }) => {
+    const entity = root.entity
+
+    const hitTest = useOptionalComponent(entity, XRHitTestComponent)
 
     useEffect(() => {
+      if (!hitTest) return
+
       const options = hitTest.options.value
       const xrState = getState(XRState).value
 
@@ -131,9 +140,9 @@ export const XRHitTestComponent = defineComponent({
 
       return () => {
         active = false
-        hitTest.source.value?.cancel()
+        hitTest?.source?.value?.cancel?.()
       }
-    }, [hitTest.options])
+    }, [hitTest?.options])
 
     return null
   }
