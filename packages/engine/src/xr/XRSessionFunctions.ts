@@ -4,7 +4,6 @@ import { createHookableFunction } from '@xrengine/common/src/utils/createHookabl
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_000 } from '../common/constants/MathConstants'
 import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
@@ -16,7 +15,6 @@ import { computeAndUpdateWorldOrigin, updateEyeHeight } from '../transform/updat
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
-import { removeComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { getCameraMode, ReferenceSpace, XRAction, XRState } from './XRState'
 
@@ -24,40 +22,35 @@ const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI
 
 const skyboxQuery = defineQuery([SkyboxComponent])
 
-export const onSessionEnd = (prevFollowCamera) => {
-  const _onSessionEnd = () => {
-    const xrState = getState(XRState)
-    xrState.session.value!.removeEventListener('end', _onSessionEnd)
-    xrState.sessionActive.set(false)
-    xrState.sessionMode.set('none')
-    xrState.session.set(null)
-    xrState.sceneScale.set(1)
+export const onSessionEnd = () => {
+  const xrState = getState(XRState)
+  xrState.session.value!.removeEventListener('end', onSessionEnd)
+  xrState.sessionActive.set(false)
+  xrState.sessionMode.set('none')
+  xrState.session.set(null)
+  xrState.sceneScale.set(1)
 
-    Engine.instance.xrFrame = null!
-    const world = Engine.instance.currentWorld
+  Engine.instance.xrFrame = null
+  const world = Engine.instance.currentWorld
 
-    /** @todo move to camera system in a reactor */
-    addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+  EngineRenderer.instance.renderer.domElement.style.display = ''
+  setVisibleComponent(world.localClientEntity, true)
 
-    EngineRenderer.instance.renderer.domElement.style.display = ''
-    setVisibleComponent(world.localClientEntity, true)
+  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+  worldOriginTransform.position.copy(V_000)
+  worldOriginTransform.rotation.identity()
 
-    const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-    worldOriginTransform.position.copy(V_000)
-    worldOriginTransform.rotation.identity()
+  ReferenceSpace.origin = null
+  ReferenceSpace.localFloor = null
+  ReferenceSpace.viewer = null
 
-    ReferenceSpace.origin = null
-    ReferenceSpace.localFloor = null
-    ReferenceSpace.viewer = null
+  const skybox = skyboxQuery()[0]
+  if (skybox) updateSkybox(skybox)
+  dispatchAction(XRAction.sessionChanged({ active: false }))
 
-    const skybox = skyboxQuery()[0]
-    if (skybox) updateSkybox(skybox)
-    dispatchAction(XRAction.sessionChanged({ active: false }))
-
-    xrState.session.set(null)
-  }
-  return _onSessionEnd
+  xrState.session.set(null)
 }
+
 export const setupXRSession = async (requestedMode) => {
   const xrState = getState(XRState)
   const xrManager = EngineRenderer.instance.xrManager
@@ -92,8 +85,16 @@ export const setupXRSession = async (requestedMode) => {
 
   const xrSession = await navigator.xr!.requestSession(mode, sessionInit)
 
+  // OculusBrowser incorrectly reports that the interaction mode is 'screen-space' when it should be 'world-space'
+  // This can be removed when the bug is fixed
+  const isOculus = navigator.userAgent.includes('OculusBrowser')
+  if (isOculus) {
+    Object.defineProperty(xrSession, 'interactionMode', {
+      value: 'world-space'
+    })
+  }
+
   const framebufferScaleFactor =
-    // @ts-ignore
     xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen' ? 0.5 : 1.2
 
   xrState.sessionActive.set(true)
@@ -140,16 +141,11 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
 export const requestXRSession = createHookableFunction(
   async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
     const xrState = getState(XRState)
-    const xrManager = EngineRenderer.instance.xrManager
     if (xrState.requestingSession.value || xrState.sessionActive.value) return
 
     try {
       const xrSession = await setupXRSession(action.mode)
       const world = Engine.instance.currentWorld
-
-      /** @todo move to camera system in a reactor */
-      const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-      removeComponent(world.cameraEntity, FollowCameraComponent)
 
       getReferenceSpaces(xrSession)
 
@@ -159,7 +155,7 @@ export const requestXRSession = createHookableFunction(
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
 
-      xrSession.addEventListener('end', onSessionEnd(prevFollowCamera))
+      xrSession.addEventListener('end', onSessionEnd)
     } catch (e) {
       console.error('Failed to create XR Session', e)
     }

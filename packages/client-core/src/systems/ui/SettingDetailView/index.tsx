@@ -173,7 +173,7 @@ const SettingDetailView = () => {
                   <SurroundSoundIcon />
                   <XRCheckboxButton
                     labelContent={t('user:usermenu.setting.use-positional-media')}
-                    checked={audioState.usePositionalMedia.value}
+                    checked={audioState.positionalMedia.value}
                     onChange={(_, value: boolean) => {
                       dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
                     }}

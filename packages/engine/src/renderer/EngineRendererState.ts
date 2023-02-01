@@ -3,6 +3,7 @@ import { defineAction, defineState, getState, syncStateWithLocalStorage, useStat
 
 import { isMobile } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { isHeadset } from '../xr/XRState'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { changeRenderMode } from './functions/changeRenderMode'
@@ -64,53 +65,53 @@ function setUsePostProcessing(usePostProcessing) {
 export class EngineRendererReceptor {
   static setQualityLevel(action: typeof EngineRendererAction.setQualityLevel.matches._TYPE) {
     const s = getState(EngineRendererState)
-    s.merge({ qualityLevel: action.qualityLevel })
+    s.qualityLevel.set(action.qualityLevel)
     setQualityLevel(action.qualityLevel)
   }
 
   static setAutomatic(action: typeof EngineRendererAction.setAutomatic.matches._TYPE) {
     const s = getState(EngineRendererState)
-    s.merge({ automatic: action.automatic })
+    s.automatic.set(action.automatic)
   }
 
   static setPostProcessing(action: typeof EngineRendererAction.setPostProcessing.matches._TYPE) {
     if (action.usePostProcessing && isHeadset()) return
     setUsePostProcessing(action.usePostProcessing)
     const s = getState(EngineRendererState)
-    s.merge({ usePostProcessing: action.usePostProcessing })
+    s.usePostProcessing.set(action.usePostProcessing)
   }
 
   static setShadows(action: typeof EngineRendererAction.setShadows.matches._TYPE) {
     if (action.useShadows && isHeadset()) return
     const s = getState(EngineRendererState)
-    s.merge({ useShadows: action.useShadows })
+    s.useShadows.set(action.useShadows)
     setUseShadows()
   }
 
   static setDebug(action: typeof EngineRendererAction.setDebug.matches._TYPE) {
     const s = getState(EngineRendererState)
-    s.merge({ debugEnable: action.debugEnable })
+    s.debugEnable.set(action.debugEnable)
   }
 
   static changedRenderMode(action: typeof EngineRendererAction.changedRenderMode.matches._TYPE) {
     changeRenderMode(action.renderMode)
     const s = getState(EngineRendererState)
-    s.merge({ renderMode: action.renderMode })
+    s.renderMode.set(action.renderMode)
   }
 
   static changeNodeHelperVisibility(action: typeof EngineRendererAction.changeNodeHelperVisibility.matches._TYPE) {
     const s = getState(EngineRendererState)
-    s.merge({ nodeHelperVisibility: action.visibility })
+    s.nodeHelperVisibility.set(action.visibility)
   }
 
   static changeGridToolHeight(action: typeof EngineRendererAction.changeGridToolHeight.matches._TYPE) {
     const s = getState(EngineRendererState)
-    s.merge({ gridHeight: action.gridHeight })
+    s.gridHeight.set(action.gridHeight)
   }
 
   static changeGridToolVisibility(action: typeof EngineRendererAction.changeGridToolVisibility.matches._TYPE) {
     const s = getState(EngineRendererState)
-    s.merge({ gridVisibility: action.visibility })
+    s.gridVisibility.set(action.visibility)
   }
 }
 

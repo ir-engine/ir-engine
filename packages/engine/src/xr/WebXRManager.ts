@@ -46,12 +46,15 @@ declare module 'three' {
   }
 }
 
-// augment WebGLRenderingContext
 declare global {
   interface WebGLRenderingContext {
     DEPTH24_STENCIL8: number
     DEPTH_COMPONENT24: number
     RGBA8: number
+  }
+
+  interface XRSession {
+    interactionMode: 'screen-space' | 'world-space'
   }
 }
 
@@ -111,8 +114,8 @@ export function createWebXRManager() {
       session.addEventListener('end', onSessionEnd)
 
       const gl = renderer.getContext() as WebGLRenderingContext
-      const attributes = gl.getContextAttributes()
-      if (attributes?.xrCompatible !== true) {
+      const attributes = gl.getContextAttributes()!
+      if (attributes.xrCompatible !== true) {
         await gl.makeXRCompatible()
       }
 
@@ -120,10 +123,10 @@ export function createWebXRManager() {
 
       if (session.renderState.layers === undefined || renderer.capabilities.isWebGL2 === false) {
         const layerInit = {
-          antialias: session.renderState.layers === undefined ? attributes?.antialias : true,
-          alpha: attributes?.alpha,
-          depth: attributes?.depth,
-          stencil: attributes?.stencil,
+          antialias: session.renderState.layers === undefined ? attributes.antialias : true,
+          alpha: attributes.alpha,
+          depth: attributes.depth,
+          stencil: attributes.stencil,
           framebufferScaleFactor: framebufferScaleFactor
         }
 
@@ -136,14 +139,14 @@ export function createWebXRManager() {
           format: RGBAFormat,
           type: UnsignedByteType,
           encoding: renderer.outputEncoding,
-          stencilBuffer: attributes?.stencil
+          stencilBuffer: attributes.stencil
         })
       } else {
         let depthFormat: number | undefined
         let depthType: number | undefined
         let glDepthFormat: number | undefined
 
-        if (attributes?.depth) {
+        if (attributes.depth) {
           glDepthFormat = attributes.stencil ? gl.DEPTH24_STENCIL8 : gl.DEPTH_COMPONENT24
           depthFormat = attributes.stencil ? DepthStencilFormat : DepthFormat
           depthType = attributes.stencil ? UnsignedInt248Type : UnsignedIntType
@@ -184,9 +187,9 @@ export function createWebXRManager() {
             // @ts-ignore	- DepthTexture typings are missing last constructor argument
             depthFormat
           ),
-          stencilBuffer: attributes?.stencil,
+          stencilBuffer: attributes.stencil,
           encoding: renderer.outputEncoding,
-          samples: attributes?.antialias ? 4 : 0
+          samples: attributes.antialias ? 4 : 0
         }
 
         if (scope.isMultiview) {

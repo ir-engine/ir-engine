@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useRouteMatch } from 'react-router-dom'
 
+import { AppLoadingState } from '@xrengine/client-core/src/common/services/AppLoadingService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { LocationIcons } from '@xrengine/client-core/src/components/LocationIcons'
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
@@ -13,16 +14,15 @@ import { LocationAction, useLocationState } from '@xrengine/client-core/src/soci
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
 import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState, useHookstate, useState } from '@xrengine/hyperflux'
 
 const LocationPage = () => {
   const { t } = useTranslation()
   const match = useRouteMatch()
   const { search } = useLocation()
-  const engineState = useEngineState()
   const locationState = useLocationState()
   const offline = new URLSearchParams(search).get('offline') === 'true'
+  const appState = useHookstate(getState(AppLoadingState).state)
 
   const params = match.params as any
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
@@ -47,7 +47,7 @@ const LocationPage = () => {
 
   return (
     <>
-      {engineState.isEngineInitialized.value ? <></> : <LoadingCircle message={t('common:loader.loadingEngine')} />}
+      {appState.value === 'START_STATE' ? <LoadingCircle message={t('common:loader.loadingEngine')} /> : <></>}
       <LoadEngineWithScene injectedSystems={DefaultLocationSystems} />
       {offline ? <OfflineLocation /> : <NetworkInstanceProvisioning />}
       <LoadLocationScene />

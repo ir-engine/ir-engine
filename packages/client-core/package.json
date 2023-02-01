@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "1.0.0-rc8",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -37,15 +37,14 @@
     "@hookstate/core": "4.0.0-rc21",
     "@hookstate/localstored": "^4.0.0-rc21",
     "@iconify/react": "3.2.0",
-    "@mui/icons-material": "5.8.4",
+    "@mui/icons-material": "5.11.0",
     "@mui/lab": "5.0.0-alpha.94",
     "@mui/material": "5.11.0",
-    "@mui/system": "5.11.0",
-    "@mui/styled-engine-sc": "5.10.0",
+    "@mui/styled-engine-sc": "5.11.0",
     "@mui/x-date-pickers": "5.0.0-beta.4",
-    "@xrengine/common": "^1.0.0-rc8",
-    "@xrengine/engine": "^1.0.0-rc8",
-    "@xrengine/hyperflux": "^1.0.0-rc8",
+    "@xrengine/common": "^1.0.0",
+    "@xrengine/engine": "^1.0.0",
+    "@xrengine/hyperflux": "^1.0.0",
     "apexcharts": "^3.28.3",
     "axios": "0.26.1",
     "classnames": "2.3.1",

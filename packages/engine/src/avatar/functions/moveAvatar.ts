@@ -22,8 +22,9 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 
-const avatarGroundRaycastDistanceIncrease = 0.1
+const avatarGroundRaycastDistanceIncrease = 0.5
 const avatarGroundRaycastDistanceOffset = 1
+const avatarGroundRaycastAcceptableDistance = 1.2
 
 /**
  * raycast internals
@@ -91,15 +92,16 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   )
 
   const computedMovement = controller.controller.computedMovement() as Vector3
+  if (desiredMovement.y === 0) computedMovement.y = 0
 
-  rigidbody.targetKinematicPosition.add(computedMovement)
+  rigidbody.targetKinematicPosition.copy(rigidbody.position).add(computedMovement)
 
+  // const grounded = controller.controller.computedGrounded()
   /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
   const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
-  // controller.isInAir = !controller.controller.computedGrounded()
   controller.isInAir = true
 
   const originTransform = getComponent(world.originEntity, TransformComponent)
@@ -107,10 +109,13 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   if (groundHits.length) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
-    rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    // controller.isInAir = !grounded
     controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
-    if (attached) originTransform.position.y = hit.position.y
-    /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
+    if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    if (hit.distance <= avatarGroundRaycastAcceptableDistance) {
+      if (attached) originTransform.position.y = hit.position.y
+      /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
+    }
   }
 
   if (!controller.isInAir) controller.verticalVelocity = 0
@@ -151,13 +156,14 @@ export const applyGamepadInput = (entity: Entity) => {
     .applyQuaternion(forwardOrientation)
 
   // movement in the world XZ plane
-  controller.gamepadWorldMovement.copy(targetWorldMovement)
+  controller.gamepadWorldMovement.lerp(targetWorldMovement, 5 * deltaSeconds)
 
   // set vertical velocity on ground
   if (!controller.isInAir) {
     controller.verticalVelocity = 0
     if (controller.gamepadJumpActive) {
       if (!controller.isJumping) {
+        console.log('jump')
         // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
         controller.verticalVelocity = Math.sqrt(2 * avatarMovementSettings.jumpHeight * 9.81)
         controller.isJumping = true
@@ -172,7 +178,11 @@ export const applyGamepadInput = (entity: Entity) => {
   // apply gamepad movement and gravity
   if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * deltaSeconds
   const verticalMovement = controller.verticalVelocity * deltaSeconds
-  _additionalMovement.set(controller.gamepadWorldMovement.x, verticalMovement, controller.gamepadWorldMovement.z)
+  _additionalMovement.set(
+    controller.gamepadWorldMovement.x,
+    (controller.isInAir || verticalMovement) > 0 ? verticalMovement : 0,
+    controller.gamepadWorldMovement.z
+  )
   updateLocalAvatarPosition(_additionalMovement)
 }
 
@@ -307,7 +317,9 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   if (raycastHit) {
     const transform = getComponent(entity, TransformComponent)
     const rigidbody = getComponent(entity, RigidBodyComponent)
-    rigidbody.targetKinematicPosition.copy(raycastHit.position as Vector3)
+    const newPosition = raycastHit.position as Vector3
+    rigidbody.targetKinematicPosition.copy(newPosition)
+    rigidbody.position.copy(newPosition)
     const attached = getCameraMode() === 'attached'
     if (attached)
       updateReferenceSpaceFromAvatarMovement(

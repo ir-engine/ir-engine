@@ -150,6 +150,7 @@ export class Message<T = MessageDataType> extends Service<T> {
       isNotification: data.isNotification
     }
     const newMessage: any = await super.create({ ...messageData })
+    newMessage.sender = loggedInUser
 
     await Promise.all(
       userIdList.map((mappedUserId: string) => {

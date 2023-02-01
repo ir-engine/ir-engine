@@ -21,6 +21,7 @@ import {
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -56,10 +57,11 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
-  const controlSchemes = Object.values(AvatarAxesControlScheme).filter((value) => typeof value === 'string')
+  const controlSchemes = Object.entries(AvatarAxesControlScheme)
   const handOptions = ['left', 'right']
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
+  const postprocessingSettings = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld).enabled)
 
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
@@ -131,10 +133,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     }
   })
 
-  const controlSchemesMenu: InputMenuItem[] = controlSchemes.map((el) => {
+  const controlSchemesMenu: InputMenuItem[] = controlSchemes.map(([label, value]) => {
     return {
-      label: el,
-      value: el
+      label,
+      value
     }
   })
 
@@ -181,15 +183,15 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                   {t('user:usermenu.setting.xrusersetting')}
                 </Text>
 
-                <InputSwitch
+                {/* <InputSwitch
                   checked={invertRotationAndMoveSticks}
                   label={t('user:usermenu.setting.invert-rotation')}
                   sx={{ mb: 2 }}
                   onChange={handleChangeInvertRotationAndMoveSticks}
-                />
+                /> */}
 
                 <Grid container spacing={{ xs: 0, sm: 2 }}>
-                  <Grid item xs={12} sm={8}>
+                  <Grid item xs={12} sm={4}>
                     <InputSelect
                       label={t('user:usermenu.setting.lbl-left-control-scheme')}
                       value={leftAxesControlScheme}
@@ -201,7 +203,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={8}>
+                  <Grid item xs={12} sm={4}>
                     <InputSelect
                       label={t('user:usermenu.setting.lbl-right-control-scheme')}
                       value={rightAxesControlScheme}
@@ -307,6 +309,16 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               </Text>
             )}
 
+            <InputCheck
+              type="wide"
+              icon={<SurroundSoundIcon />}
+              label={t('user:usermenu.setting.use-positional-media')}
+              checked={audioState.positionalMedia.value}
+              onChange={(value: boolean) => {
+                dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
+              }}
+            />
+
             <InputSlider
               icon={audioState.masterVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
               label={t('user:usermenu.setting.lbl-volume')}
@@ -331,76 +343,67 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               }}
             />
 
-            <Button
+            {/* <Button
               type="expander"
               open={openOtherAudioSettings}
               sx={{ justifyContent: 'center', margin: 1.5 }}
               onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
             >
               {t('user:usermenu.setting.other-audio-setting')}
-            </Button>
+            </Button> */}
 
-            <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
-              <>
-                <InputCheck
-                  type="wide"
-                  icon={<SurroundSoundIcon />}
-                  label={t('user:usermenu.setting.use-positional-media')}
-                  checked={audioState.usePositionalMedia.value}
-                  onChange={(value: boolean) => {
-                    dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
-                  }}
-                />
+            {/* <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
+              <> */}
 
-                <InputSlider
-                  icon={audioState.mediaStreamVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
-                  label={t('user:usermenu.setting.lbl-media-instance')}
-                  max={1}
-                  min={0}
-                  step={0.01}
-                  value={audioState.mediaStreamVolume.value}
-                  onChange={(value: number) => {
-                    dispatchAction(AudioSettingAction.setMediaStreamVolume({ value }))
-                  }}
-                />
+            <InputSlider
+              icon={audioState.mediaStreamVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              label={t('user:usermenu.setting.lbl-media-instance')}
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.mediaStreamVolume.value}
+              onChange={(value: number) => {
+                dispatchAction(AudioSettingAction.setMediaStreamVolume({ value }))
+              }}
+            />
 
-                <InputSlider
-                  icon={audioState.notificationVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
-                  label={t('user:usermenu.setting.lbl-notification')}
-                  max={1}
-                  min={0}
-                  step={0.01}
-                  value={audioState.notificationVolume.value}
-                  onChange={(value: number) => {
-                    dispatchAction(AudioSettingAction.setNotificationVolume({ value }))
-                  }}
-                />
+            <InputSlider
+              icon={audioState.notificationVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              label={t('user:usermenu.setting.lbl-notification')}
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.notificationVolume.value}
+              onChange={(value: number) => {
+                dispatchAction(AudioSettingAction.setNotificationVolume({ value }))
+              }}
+            />
 
-                <InputSlider
-                  icon={audioState.soundEffectsVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
-                  label={t('user:usermenu.setting.lbl-sound-effect')}
-                  max={1}
-                  min={0}
-                  step={0.01}
-                  value={audioState.soundEffectsVolume.value}
-                  onChange={(value: number) => {
-                    dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value }))
-                  }}
-                />
+            <InputSlider
+              icon={audioState.soundEffectsVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              label={t('user:usermenu.setting.lbl-sound-effect')}
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.soundEffectsVolume.value}
+              onChange={(value: number) => {
+                dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value }))
+              }}
+            />
 
-                <InputSlider
-                  icon={audioState.backgroundMusicVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
-                  label={t('user:usermenu.setting.lbl-background-music-volume')}
-                  max={1}
-                  min={0}
-                  step={0.01}
-                  value={audioState.backgroundMusicVolume.value}
-                  onChange={(value: number) => {
-                    dispatchAction(AudioSettingAction.setMusicVolume({ value }))
-                  }}
-                />
-              </>
-            </Collapse>
+            <InputSlider
+              icon={audioState.backgroundMusicVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              label={t('user:usermenu.setting.lbl-background-music-volume')}
+              max={1}
+              min={0}
+              step={0.01}
+              value={audioState.backgroundMusicVolume.value}
+              onChange={(value: number) => {
+                dispatchAction(AudioSettingAction.setMusicVolume({ value }))
+              }}
+            />
+            {/* </>
+            </Collapse> */}
           </>
         )}
 
@@ -425,8 +428,8 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               <Grid item xs={12} sm={4}>
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-pp')}
-                  checked={rendererState.usePostProcessing.value}
-                  disabled={!Engine.instance.currentWorld.sceneJson?.metadata?.postprocessing}
+                  checked={postprocessingSettings.value && rendererState.usePostProcessing.value}
+                  disabled={!postprocessingSettings.value}
                   onChange={(value: boolean) => {
                     dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: value }))
                     dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))

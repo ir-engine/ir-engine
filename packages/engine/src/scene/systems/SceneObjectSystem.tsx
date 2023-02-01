@@ -26,6 +26,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isHeadset } from '../../xr/XRState'
@@ -68,13 +69,16 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
       } else if (shouldMakeSimple && !child.userData.lastMaterial) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-        child.material = new MeshBasicMaterial().copy(prevMaterial)
+        const prevMatEntry = unregisterMaterial(prevMaterial)
+        const nuMaterial = new MeshBasicMaterial().copy(prevMaterial)
+        child.material = nuMaterial
         child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
         child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
         // todo: find out why leaving the envMap makes basic & lambert materials transparent here
         child.material.envMap = null
         child.userData.lastMaterial = prevMaterial
+        prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
       child.material.dithering = true
     }
@@ -111,13 +115,11 @@ export default async function SceneObjectSystem(world: World) {
     useEffect(() => {
       const shadow = shadowComponent?.value
       obj.traverse((child: Mesh<any, Material>) => {
-        if (child.material) {
-          child.castShadow = !!shadow?.cast
-          child.receiveShadow = !!shadow?.receive
-          if (child.receiveShadow) {
-            /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
-            EngineRenderer.instance.csm?.setupMaterial(child)
-          }
+        child.castShadow = !!shadow?.cast
+        child.receiveShadow = !!shadow?.receive
+        if (child.material && child.receiveShadow) {
+          /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
+          EngineRenderer.instance.csm?.setupMaterial(child)
         }
       })
     }, [shadowComponent])

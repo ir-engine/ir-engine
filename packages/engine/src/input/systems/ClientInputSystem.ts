@@ -90,9 +90,11 @@ export const addClientInputListeners = (world: World) => {
       return
     }
 
-    const index = world.inputSources.length === 1 || stick === 'StickLeft' ? 0 : 1
+    // TODO: This is a hack to support gamepad input in WebXR AR sessions
+    const index = 0 //world.inputSources.length === 1 || stick === 'StickLeft' ? 0 : 1
+    const inputSource = world.inputSources[index]
 
-    const axes = world.inputSources[index].gamepad!.axes as number[]
+    const axes = inputSource.gamepad!.axes as number[]
 
     axes[0] = value.x
     axes[1] = value.y

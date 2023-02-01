@@ -303,7 +303,7 @@ export default async function TransformSystem(world: World) {
         world.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
         world.dirtyTransforms[getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0] ||
         hasComponent(entity, ComputedTransformComponent)
-      if (makeDirty) world.dirtyTransforms[entity] = true
+      world.dirtyTransforms[entity] = makeDirty
     }
 
     const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
@@ -324,7 +324,7 @@ export default async function TransformSystem(world: World) {
       viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
     }
 
-    for (const entity in world.dirtyTransforms) delete world.dirtyTransforms[entity]
+    for (const entity in world.dirtyTransforms) world.dirtyTransforms[entity] = false
 
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)

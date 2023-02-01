@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { Bone, Object3D } from 'three'
 
+import { NO_PROXY } from '@xrengine/hyperflux'
+
 import { Entity } from '../../ecs/classes/Entity'
 import {
   createMappedComponent,
@@ -28,7 +30,7 @@ export const AvatarHeadDecapComponent = defineComponent({
         if (headDecap?.value) {
           rig.value.rig.Head?.scale.setScalar(EPSILON)
         } else {
-          rig.value.rig?.Head?.scale.setScalar(1)
+          rig.value.rig.Head?.scale.setScalar(1)
         }
       }
     }, [headDecap, rig])

@@ -17,7 +17,7 @@ type RaycastDebugs = {
   hits: RaycastHit[]
 }
 
-export default async function DebugRenderer(world: World) {
+export default async function DebugRendererSystem(world: World) {
   let enabled = false
 
   InfiniteGridHelper.instance = new InfiniteGridHelper()
@@ -30,21 +30,18 @@ export default async function DebugRenderer(world: World) {
   const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
   _lineSegments.frustumCulled = false
   setObjectLayers(_lineSegments, ObjectLayers.PhysicsHelper)
+  world.scene.add(_lineSegments)
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
 
+  const debugEnable = getState(EngineRendererState).debugEnable
+
   const execute = () => {
-    const _enabled = getState(EngineRendererState).debugEnable.value
-    for (const action of sceneLoadQueue()) Engine.instance.currentWorld.scene.add(_lineSegments)
+    const _enabled = debugEnable.value
 
     if (enabled !== _enabled) {
       enabled = _enabled
       _lineSegments.visible = enabled
-      if (enabled) {
-        Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.PhysicsHelper)
-      } else {
-        Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.PhysicsHelper)
-      }
     }
 
     if (enabled && world.physicsWorld) {
@@ -75,6 +72,7 @@ export default async function DebugRenderer(world: World) {
     }
 
     for (const line of debugLines) {
+      line.updateMatrixWorld()
       if (Date.now() - line.userData.originTime > debugLineLifetime) {
         Engine.instance.currentWorld.scene.remove(line)
         line.material.dispose()

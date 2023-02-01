@@ -1,5 +1,6 @@
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import ReferenceSpaceTransformSystem from '../transform/systems/ReferenceSpaceTransformSystem'
+import XRAnchorSystem from '../xr/XRAnchorSystem'
 import AnimationSystem from './AnimationSystem'
 import AvatarAnimationSystem from './AvatarAnimationSystem'
 import AvatarControllerSystem from './AvatarControllerSystem'
@@ -37,16 +38,22 @@ export function AvatarClientModule() {
       systemLoader: () => Promise.resolve({ default: AvatarMovementSystem })
     },
     {
-      uuid: 'xre.engine.AvatarAnimationSystem',
-      type: SystemUpdateType.UPDATE_LATE,
-      before: 'xre.engine.TransformSystem',
-      systemLoader: () => Promise.resolve({ default: AvatarAnimationSystem })
-    },
-    {
       uuid: 'xre.engine.ReferenceSpaceTransformSystem',
       type: SystemUpdateType.UPDATE_LATE,
       before: 'xre.engine.TransformSystem',
       systemLoader: () => Promise.resolve({ default: ReferenceSpaceTransformSystem })
+    },
+    {
+      uuid: 'xre.engine.XRAnchorSystem',
+      type: SystemUpdateType.UPDATE_LATE,
+      after: 'xre.engine.ReferenceSpaceTransformSystem',
+      systemLoader: () => Promise.resolve({ default: XRAnchorSystem })
+    },
+    {
+      uuid: 'xre.engine.AvatarAnimationSystem',
+      type: SystemUpdateType.UPDATE_LATE,
+      before: 'xre.engine.TransformSystem',
+      systemLoader: () => Promise.resolve({ default: AvatarAnimationSystem })
     },
     {
       uuid: 'xre.engine.FlyControlSystem',
