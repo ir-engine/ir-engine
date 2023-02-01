@@ -14,8 +14,9 @@ import {
   ShadowMaterial
 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
+import { matches } from '../common/functions/MatchesUtils'
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
 import {
   createMappedComponent,
@@ -175,4 +176,67 @@ export const XRAnchorComponent = defineComponent({
 
 export type XRHand = Map<XRHandJoint, XRJointSpace>
 
-export const XRPlaneComponent = defineComponent({ name: 'XRPlaneComponent' })
+export const XRPlaneComponent = defineComponent({
+  name: 'XRPlaneComponent',
+
+  onInit(entity, world) {
+    return {
+      shadowMesh: null! as Mesh,
+      occlusionMesh: null! as Mesh,
+      geometry: null! as BufferGeometry,
+      placementHelper: null! as Mesh
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+    if (matches.object.test(json.shadowMesh)) component.shadowMesh.set(json.shadowMesh as Mesh)
+    if (matches.object.test(json.occlusionMesh)) component.occlusionMesh.set(json.occlusionMesh as Mesh)
+    if (matches.object.test(json.placementHelper)) component.placementHelper.set(json.placementHelper as Mesh)
+    if (matches.object.test(json.geometry)) {
+      component.geometry.value?.dispose?.()
+      component.geometry.set(json.geometry as BufferGeometry)
+    }
+  },
+
+  onRemove(entity, component) {
+    component.shadowMesh.value?.traverse((mesh: Mesh) => {
+      if (mesh.geometry) mesh.geometry.dispose()
+    })
+    component.occlusionMesh.value.traverse((mesh: Mesh) => {
+      if (mesh.geometry) mesh.geometry.dispose()
+    })
+    component.placementHelper.value?.traverse((mesh: Mesh) => {
+      if (mesh.geometry) mesh.geometry.dispose()
+    })
+    component.geometry.value?.dispose?.()
+  },
+
+  reactor: function ({ root }) {
+    const entity = root.entity
+    const plane = useOptionalComponent(entity, XRPlaneComponent)
+    const scenePlacementMode = useHookstate(getState(XRState).scenePlacementMode)
+
+    useEffect(() => {
+      if (!plane) return
+
+      const shadowMesh = plane.shadowMesh.value
+      const occlusionMesh = plane.occlusionMesh.value
+
+      const setGeometry = (mesh: Mesh) => {
+        if (mesh.geometry) mesh.geometry = plane.geometry.value
+      }
+
+      shadowMesh.traverse(setGeometry)
+      occlusionMesh.traverse(setGeometry)
+    }, [plane?.geometry])
+
+    useEffect(() => {
+      if (!plane) return
+      const placementHelper = plane.placementHelper.value
+      placementHelper.visible = scenePlacementMode.value === 'placing'
+    }, [scenePlacementMode])
+
+    return null
+  }
+})
