@@ -92,7 +92,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
   const computedMovement = controller.controller.computedMovement() as Vector3
 
-  rigidbody.targetKinematicPosition.add(computedMovement)
+  rigidbody.targetKinematicPosition.copy(rigidbody.position).add(computedMovement)
 
   /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
@@ -109,7 +109,11 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     if (hit.distance > avatarGroundRaycastDistanceOffset + avatarGroundRaycastDistanceIncrease) return
     const controllerOffset = controller.controller.offset()
     controller.isInAir = hit.distance > 1 + controllerOffset * 2
-    if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    if (!controller.isInAir)
+      rigidbody.targetKinematicPosition.y = Math.max(
+        hit.position.y + controllerOffset,
+        rigidbody.targetKinematicPosition.y
+      )
     if (attached) originTransform.position.y = hit.position.y
     /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
   }
@@ -152,7 +156,7 @@ export const applyGamepadInput = (entity: Entity) => {
     .applyQuaternion(forwardOrientation)
 
   // movement in the world XZ plane
-  controller.gamepadWorldMovement.copy(targetWorldMovement)
+  controller.gamepadWorldMovement.lerp(targetWorldMovement, 5 * deltaSeconds)
 
   // set vertical velocity on ground
   if (!controller.isInAir) {
@@ -174,7 +178,11 @@ export const applyGamepadInput = (entity: Entity) => {
   // apply gamepad movement and gravity
   if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * deltaSeconds
   const verticalMovement = controller.verticalVelocity * deltaSeconds
-  _additionalMovement.set(controller.gamepadWorldMovement.x, verticalMovement, controller.gamepadWorldMovement.z)
+  _additionalMovement.set(
+    controller.gamepadWorldMovement.x,
+    (controller.isInAir || verticalMovement) > 0 ? verticalMovement : 0,
+    controller.gamepadWorldMovement.z
+  )
   updateLocalAvatarPosition(_additionalMovement)
 }
 

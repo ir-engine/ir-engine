@@ -1,48 +1,55 @@
+import { AxesHelper, Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
 import { defineAction, defineState, getState, syncStateWithLocalStorage, useHookstate } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { isMobile } from '../common/functions/isMobile'
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
+import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { createEntity } from '../ecs/functions/EntityFunctions'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { NameComponent } from '../scene/components/NameComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { DepthDataTexture } from './DepthDataTexture'
+import { XRHitTestComponent } from './XRComponents'
 import { XREstimatedLight } from './XREstimatedLight'
 
 // TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
   name: 'XRState',
-  initial: () => ({
-    sessionActive: false,
-    requestingSession: false,
-    scenePlacementMode: null as XRInputSource | null,
-    supportedSessionModes: {
-      inline: false,
-      'immersive-ar': false,
-      'immersive-vr': false
-    },
-    session: null as XRSession | null,
-    sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
-    /**
-     * The `avatarCameraMode` property can be 'auto', 'attached', or 'detached'.
-     * When `avatarCameraMode` is 'attached' the avatar's head is attached to the XR display.
-     * When `avatarCameraMode` is 'detached' the avatar can move freely via movement controls (e.g., joystick).
-     * When `avatarCameraMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
-     */
-    dollhouseMode: 'auto' as 'auto' | 'on' | 'off',
-    sceneScale: 1,
-    avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
-    viewerHitTestSource: null as XRHitTestSource | null,
-    viewerHitTestEntity: 0 as Entity,
-    sceneRotationOffset: 0,
-    /** Stores the depth map data - will exist if depth map is supported */
-    depthDataTexture: null as DepthDataTexture | null,
-    is8thWallActive: false,
-    isEstimatingLight: false,
-    lightEstimator: null! as XREstimatedLight,
-    viewerInputSourceEntity: 0 as Entity,
-    viewerPose: null as XRViewerPose | null | undefined,
-    userEyeLevel: 1.8
-  }),
+  initial: () => {
+    return {
+      sessionActive: false,
+      requestingSession: false,
+      scenePosition: new Vector3(),
+      sceneRotation: new Quaternion(),
+      sceneScale: 1,
+      sceneRotationOffset: 0,
+      scenePlacementMode: 'unplaced' as 'unplaced' | 'placing' | 'placed',
+      supportedSessionModes: {
+        inline: false,
+        'immersive-ar': false,
+        'immersive-vr': false
+      },
+      session: null as XRSession | null,
+      sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
+      avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
+      /** Stores the depth map data - will exist if depth map is supported */
+      depthDataTexture: null as DepthDataTexture | null,
+      is8thWallActive: false,
+      isEstimatingLight: false,
+      lightEstimator: null! as XREstimatedLight,
+      viewerInputSourceEntity: 0 as Entity,
+      viewerPose: null as XRViewerPose | null | undefined,
+      userEyeLevel: 1.8
+    }
+  },
+
   onCreate: (store, state) => {
     syncStateWithLocalStorage(XRState, [
       /** @todo replace this wither user_settings table entry */
@@ -65,12 +72,7 @@ export const ReferenceSpace = {
    */
   viewer: null as XRReferenceSpace | null
 }
-
-export const XRReceptors = {
-  scenePlacementMode: (action: ReturnType<typeof XRAction.changePlacementMode>) => {
-    getState(XRState).scenePlacementMode.set(action.inputSource)
-  }
-}
+globalThis.ReferenceSpace = ReferenceSpace
 
 export class XRAction {
   static requestSession = defineAction({
@@ -88,11 +90,6 @@ export class XRAction {
     $cache: { removePrevious: true }
   })
 
-  static changePlacementMode = defineAction({
-    type: 'xre.xr.changePlacementMode',
-    inputSource: matches.object.optional() as Validator<unknown, XRInputSource | null>
-  })
-
   // todo, support more haptic formats other than just vibrating controllers
   static vibrateController = defineAction({
     type: 'xre.xr.vibrateController',
@@ -103,17 +100,26 @@ export class XRAction {
 }
 
 export const getCameraMode = () => {
-  const { avatarCameraMode, sessionActive, sceneScale, scenePlacementMode } = getState(XRState).value
-  if (!sessionActive) return 'detached'
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState).value
+  if (!session || scenePlacementMode === 'placing') return 'detached'
   if (avatarCameraMode === 'auto') {
-    return sceneScale !== 1 || scenePlacementMode ? 'detached' : 'attached'
+    if (session.interactionMode === 'screen-space') return 'detached'
+    return sceneScale !== 1 ? 'detached' : 'attached'
   }
   return avatarCameraMode
 }
 
+/**
+ * Specifies that the user has movement controls if:
+ * - they are not in an immersive session
+ * - they are in an immersive session with a screen-space interaction mode
+ * - they are in an immersive-ar session with a scene scale of 1
+ * @returns {boolean} true if the user has movement controls
+ */
 export const hasMovementControls = () => {
-  const { sessionActive, sceneScale, sessionMode } = getState(XRState).value
+  const { sessionActive, sceneScale, sessionMode, session } = getState(XRState).value
   if (!sessionActive) return true
+  if (session && session.interactionMode === 'screen-space') return true
   return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
 }
 
