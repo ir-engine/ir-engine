@@ -1,5 +1,7 @@
 // TODO: this should not be here
 import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
+import { Engine } from 'behave-graph'
+import { useEffect, useReducer } from 'react'
 import {
   BufferGeometry,
   Group,
@@ -12,10 +14,13 @@ import {
   ShadowMaterial
 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
-import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
+import { createMappedComponent, defineComponent, useComponent } from '../ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
+import { XRState } from './XRState'
 
 export type XRGripButtonComponentType = {}
 
@@ -71,7 +76,7 @@ const XRHandsInputSchema = {
 }
 /** @deprecated */
 export const XRHandsInputComponent = createMappedComponent<XRHandsInputComponentType, typeof XRHandsInputSchema>(
-  'XRHandsInputComponent',
+  'XRHandsInput',
   XRHandsInputSchema
 )
 
@@ -80,25 +85,57 @@ export const XRHitTestComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      hitTestSource: null! as XRHitTestSource,
-      hitTestResults: [] as XRHitTestResult[]
+      options: null! as XRTransientInputHitTestOptionsInit | XRHitTestOptionsInit,
+      source: null! as XRHitTestSource,
+      results: [] as XRHitTestResult[]
     }
   },
 
-  onSet: (
-    entity,
-    component,
-    data: {
-      hitTestSource: XRHitTestSource
-    }
-  ) => {
-    component.hitTestSource.value?.cancel() // cancel previous hit test source
-    component.hitTestSource.set(data.hitTestSource)
-    component.hitTestResults.set([])
+  onSet: (entity, component, data: XRTransientInputHitTestOptionsInit | XRHitTestOptionsInit) => {
+    component.options.set(data)
   },
 
   onRemove: (entity, component) => {
-    component.hitTestSource.value.cancel()
+    component.source.value?.cancel()
+  },
+
+  reactor: (props) => {
+    const entity = props.root.entity
+    const hitTest = useComponent(entity, XRHitTestComponent)
+
+    useEffect(() => {
+      const options = hitTest.options.value
+      const xrState = getState(XRState).value
+
+      let active = true
+
+      if ('space' in options) {
+        xrState.session?.requestHitTestSource?.(options)?.then((source) => {
+          if (active) {
+            hitTest.source.set(source)
+            hitTest.results.set([])
+          } else {
+            source.cancel()
+          }
+        })
+      } else {
+        xrState.session?.requestHitTestSourceForTransientInput?.(options)?.then((source) => {
+          if (active) {
+            hitTest.source.set(source)
+            hitTest.results.set([])
+          } else {
+            source.cancel()
+          }
+        })
+      }
+
+      return () => {
+        active = false
+        hitTest.source.value?.cancel()
+      }
+    }, [hitTest.options])
+
+    return null
   }
 })
 

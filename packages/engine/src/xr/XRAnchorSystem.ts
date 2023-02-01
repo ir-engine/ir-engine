@@ -27,6 +27,7 @@ import {
   ComponentType,
   defineQuery,
   getComponent,
+  getComponentState,
   getOptionalComponent,
   removeComponent,
   removeQuery,
@@ -51,14 +52,16 @@ import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
+  const world = Engine.instance.currentWorld
   const xrFrame = Engine.instance.xrFrame!
-  const hitTest = getComponent(entity, XRHitTestComponent)
+  const hitTest = getComponentState(entity, XRHitTestComponent)
   const localTransform = getComponent(entity, LocalTransformComponent)
-  const hitTestResults = (hitTest.hitTestResults =
-    hitTest.hitTestSource && xrFrame.getHitTestResults(hitTest.hitTestSource!))
-  const pose =
-    hitTestResults?.length && ReferenceSpace.localFloor && hitTestResults[0].getPose(ReferenceSpace.localFloor)
+  const hitTestResults = (hitTest.source && xrFrame.getHitTestResults(hitTest.source.value!)) ?? []
+  hitTest.results.set(hitTestResults)
+  const space = ReferenceSpace.localFloor // xrFrame.session.interactionMode === 'world-space' ? ReferenceSpace.localFloor! : ReferenceSpace.viewer!
+  const pose = space && hitTestResults?.length && hitTestResults[0].getPose(space)
   if (pose) {
+    localTransform.parentEntity = space === ReferenceSpace.localFloor ? world.originEntity : world.cameraEntity
     localTransform.position.copy(pose.transform.position as any)
     localTransform.rotation.copy(pose.transform.orientation as any)
   }
@@ -189,7 +192,8 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // assumes local transform is relative to origin
-  const localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
+  let localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
+
   const xrFrame = Engine.instance.xrFrame
   const xrState = getState(XRState)
   const xrSession = xrState.session.value
@@ -203,7 +207,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   if (targetScale !== xrState.sceneScale.value)
     xrState.sceneScale.set(MathUtils.lerp(xrState.sceneScale.value, targetScale, lerpAlpha))
 
-  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(xrState.sceneScale.value)
+  const targetPosition = _vecPosition.copy(localTransform.position) //.multiplyScalar(1 / xrState.sceneScale.value)
   const targetRotation = localTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
   )
@@ -258,6 +262,10 @@ export default async function XRAnchorSystem(world: World) {
     const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
 
     useEffect(() => {
+      if (!xrSession.value) return
+
+      let active = true
+
       if (scenePlacementMode.value === 'unplaced') {
         removeComponent(scenePlacementEntity, XRHitTestComponent)
         removeComponent(scenePlacementEntity, XRAnchorComponent)
@@ -267,19 +275,17 @@ export default async function XRAnchorSystem(world: World) {
 
       if (scenePlacementMode.value === 'placing') {
         // create a hit test source for the viewer when the interaction mode is 'screen-space'
-        if (xrSession.value?.requestHitTestSource && xrSession.value.interactionMode === 'screen-space') {
+        if (xrSession.value.interactionMode === 'screen-space') {
           Engine.instance.currentWorld.scene.add(worldOriginPinpointAnchor)
-
-          xrSession.value
-            .requestHitTestSource({ space: ReferenceSpace.viewer!, entityTypes: ['plane', 'point', 'mesh'] })
-            ?.then((hitTestSource) => {
-              setComponent(scenePlacementEntity, XRHitTestComponent, { hitTestSource })
-            })
+          setComponent(scenePlacementEntity, XRHitTestComponent, {
+            space: ReferenceSpace.viewer!,
+            entityTypes: ['plane', 'point', 'mesh']
+          })
         }
 
         // for scene placement in 'world-space', we should request a hit test source when an input source is gripped,
         // and assign it to the scene placement entity
-        if (xrSession.value?.requestHitTestSource && xrSession.value.interactionMode === 'world-space') {
+        if (xrSession.value.interactionMode === 'world-space') {
           // @todo: handle world-space scene placement
         }
         return
@@ -287,14 +293,17 @@ export default async function XRAnchorSystem(world: World) {
 
       if (scenePlacementMode.value === 'placed') {
         worldOriginPinpointAnchor.removeFromParent()
-        const hitTestResult = hitTest?.hitTestResults?.value?.[0]
-        console.log(hitTest, hitTestResult)
+        const hitTestResult = hitTest?.results?.value?.[0]
         if (hitTestResult) {
           if (!hitTestResult.createAnchor) {
             const xrFrame = Engine.instance.xrFrame
             const hitPose = ReferenceSpace.localFloor && hitTestResult.getPose(ReferenceSpace.localFloor)
             hitPose &&
               xrFrame?.createAnchor?.(hitPose.transform, ReferenceSpace.localFloor!)?.then((anchor) => {
+                if (!active) {
+                  anchor.delete()
+                  return
+                }
                 setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
               })
             removeComponent(scenePlacementEntity, XRHitTestComponent)
@@ -305,6 +314,10 @@ export default async function XRAnchorSystem(world: World) {
           if (anchorPromise)
             anchorPromise
               .then((anchor) => {
+                if (!active) {
+                  anchor.delete()
+                  return
+                }
                 setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
                 removeComponent(scenePlacementEntity, XRHitTestComponent)
               })
@@ -313,6 +326,10 @@ export default async function XRAnchorSystem(world: World) {
               })
           else removeComponent(scenePlacementEntity, XRHitTestComponent)
         }
+      }
+
+      return () => {
+        active = false
       }
     }, [scenePlacementMode, xrSession, hitTest])
 
