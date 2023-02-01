@@ -152,7 +152,7 @@ export const applyAutopilotInput = (entity: Entity) => {
 /**
  * Avatar movement via gamepad
  */
-const epsilon = 0.0001
+const epsilon = 0.001
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
