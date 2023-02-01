@@ -63,22 +63,22 @@ export function AvatarInputSettingsReceptor(action) {
   const s = getState(AvatarInputSettingsState)
   matches(action)
     .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
-      return s.merge({ controlType: action.controlType })
+      return s.controlType.set(action.controlType)
     })
     .when(AvatarInputSettingsAction.setLeftAxesControlScheme.matches, (action) => {
-      return s.merge({ leftAxesControlScheme: action.scheme })
+      return s.leftAxesControlScheme.set(action.scheme)
     })
     .when(AvatarInputSettingsAction.setRightAxesControlScheme.matches, (action) => {
-      return s.merge({ leftAxesControlScheme: action.scheme })
+      return s.rightAxesControlScheme.set(action.scheme)
     })
     .when(AvatarInputSettingsAction.setPreferredHand.matches, (action) => {
-      return s.merge({ preferredHand: action.handdedness })
+      return s.preferredHand.set(action.handdedness)
     })
     .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
-      return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
+      return s.invertRotationAndMoveSticks.set(action.invertRotationAndMoveSticks)
     })
     .when(AvatarInputSettingsAction.setShowAvatar.matches, (action) => {
-      return s.merge({ showAvatar: action.showAvatar })
+      return s.showAvatar.set(action.showAvatar)
     })
 }
 
