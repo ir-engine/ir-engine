@@ -266,6 +266,7 @@ export default async function XR8System(world: World) {
       xrState.session.set(xrSession)
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
+      world.scene.background = null
 
       getReferenceSpaces(xrSession)
 

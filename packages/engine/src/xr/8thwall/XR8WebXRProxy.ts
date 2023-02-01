@@ -1,7 +1,8 @@
-import { EventDispatcher, Matrix4, Quaternion, Vector3 } from 'three'
+import { EventDispatcher, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
+import { V_111 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { XRState } from '../XRState'
 import { XR8 } from './XR8'
@@ -15,13 +16,13 @@ export class XRPose {
 
 export class XRView {
   readonly eye: 'left' | 'right' = 'left'
-  readonly projectionMatrix: Matrix4
+  readonly projectionMatrix: number[]
   readonly transform: XRRigidTransform
 
   constructor(transform: XRRigidTransform) {
     this.transform = transform
-    /** @todo populate this */
-    this.projectionMatrix = new Matrix4()
+    const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+    this.projectionMatrix = camera.projectionMatrix.toArray()
   }
 }
 
@@ -37,17 +38,14 @@ export class XRViewerPose extends XRPose {
 export class XRHitTestResultProxy {
   _mat4: Matrix4
   constructor(position: Vector3, rotation: Quaternion) {
-    this._mat4 = new Matrix4().compose(
-      new Vector3().copy(position),
-      new Quaternion().copy(rotation).normalize(),
-      new Vector3(1, 1, 1)
-    )
+    this._mat4 = new Matrix4().compose(position, rotation, V_111)
   }
 
   getPose(baseSpace: XRSpace) {
-    _mat4.copy(baseSpace._matrix).invert().multiply(this._mat4)
+    const _pos = new Vector3()
+    const _rot = new Quaternion()
     _mat4.decompose(_pos, _rot, _scale)
-    return new XRPose(new XRRigidTransform(_pos, _rot))
+    return (Engine.instance.xrFrame! as any as XRFrameProxy).getPose(baseSpace, new XRSpace(_pos, _rot))
   }
 
   /** @todo */
@@ -118,7 +116,7 @@ export class XRRigidTransform {
   constructor(position?: Vector3, orientation?: Quaternion) {
     if (position) this.position.copy(position)
     if (orientation) this.orientation.copy(orientation)
-    this._matrix.compose(this.position, this.orientation, new Vector3(1, 1, 1))
+    this._matrix.compose(this.position, this.orientation, V_111)
   }
 
   get matrix() {
