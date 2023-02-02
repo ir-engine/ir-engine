@@ -116,13 +116,11 @@ export default async function SceneObjectSystem(world: World) {
     useEffect(() => {
       const shadow = shadowComponent?.value
       obj.traverse((child: Mesh<any, Material>) => {
-        if (child.material) {
-          child.castShadow = !!shadow?.cast
-          child.receiveShadow = !!shadow?.receive
-          if (child.receiveShadow) {
-            /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
-            EngineRenderer.instance.csm?.setupMaterial(child)
-          }
+        child.castShadow = !!shadow?.cast
+        child.receiveShadow = !!shadow?.receive
+        if (child.material && child.receiveShadow) {
+          /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
+          EngineRenderer.instance.csm?.setupMaterial(child)
         }
       })
     }, [shadowComponent])

@@ -46,12 +46,15 @@ declare module 'three' {
   }
 }
 
-// augment WebGLRenderingContext
 declare global {
   interface WebGLRenderingContext {
     DEPTH24_STENCIL8: number
     DEPTH_COMPONENT24: number
     RGBA8: number
+  }
+
+  interface XRSession {
+    interactionMode: 'screen-space' | 'world-space'
   }
 }
 
@@ -117,8 +120,6 @@ export function createWebXRManager() {
       }
 
       let newRenderTarget = null as WebGLRenderTarget | null
-
-      console.log(session.renderState.layers, renderer.capabilities.isWebGL2)
 
       if (session.renderState.layers === undefined || renderer.capabilities.isWebGL2 === false) {
         const layerInit = {

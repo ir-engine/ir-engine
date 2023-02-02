@@ -41,7 +41,7 @@ export const AvatarAxesControlSchemeBehavior = {
     controller.gamepadLocalInput.z += z
   },
 
-  [AvatarAxesControlScheme.RotateAndTeleport]: (inputSource: XRInputSource) => {
+  [AvatarAxesControlScheme.Teleport]: (inputSource: XRInputSource) => {
     if (inputSource.gamepad?.mapping !== 'xr-standard') return
 
     const localClientEntity = Engine.instance.currentWorld.localClientEntity

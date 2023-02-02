@@ -20,6 +20,7 @@ type ScenePlacementMaterialType = {
 const addShaderToObject = (object: Object3DWithEntity) => {
   const obj = object as any as Mesh<any, Material & ScenePlacementMaterialType>
   if (obj.material) {
+    if (!obj.material.userData) obj.material.userData = {}
     const userData = obj.material.userData
     if (!userData.ScenePlacement) {
       userData.ScenePlacement = {
@@ -58,7 +59,7 @@ export default async function XRScenePlacementShader(world: World) {
       const sessionActive = useHookstate(xrState.sessionActive)
 
       useEffect(() => {
-        const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value
+        const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value === 'placing'
         if (useShader) {
           obj.traverse(addShaderToObject)
         } else {
