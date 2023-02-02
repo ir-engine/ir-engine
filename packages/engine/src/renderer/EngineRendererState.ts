@@ -91,8 +91,6 @@ export class EngineRendererReceptor {
   static setDebug(action: typeof EngineRendererAction.setDebug.matches._TYPE) {
     const s = getState(EngineRendererState)
     s.debugEnable.set(action.debugEnable)
-    if (action.debugEnable) Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.PhysicsHelper)
-    else Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.PhysicsHelper)
   }
 
   static changedRenderMode(action: typeof EngineRendererAction.changedRenderMode.matches._TYPE) {
@@ -104,8 +102,6 @@ export class EngineRendererReceptor {
   static changeNodeHelperVisibility(action: typeof EngineRendererAction.changeNodeHelperVisibility.matches._TYPE) {
     const s = getState(EngineRendererState)
     s.nodeHelperVisibility.set(action.visibility)
-    if (action.visibility) Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
-    else Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.NodeHelper)
   }
 
   static changeGridToolHeight(action: typeof EngineRendererAction.changeGridToolHeight.matches._TYPE) {
@@ -116,8 +112,6 @@ export class EngineRendererReceptor {
   static changeGridToolVisibility(action: typeof EngineRendererAction.changeGridToolVisibility.matches._TYPE) {
     const s = getState(EngineRendererState)
     s.gridVisibility.set(action.visibility)
-    if (action.visibility) Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Gizmos)
-    else Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Gizmos)
   }
 }
 

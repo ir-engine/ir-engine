@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent, useOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
@@ -23,7 +23,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const CloudsNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const cloudComponent = useComponent(props.node.entity, CloudComponent)
-  const hasError = !!useComponent(props.node.entity, ErrorComponent)
+  const hasError = !!useOptionalComponent(props.node.entity, ErrorComponent)
 
   return (
     <NodeEditor

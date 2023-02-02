@@ -13,6 +13,7 @@ import { DirectionalLightComponent, SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '..
 import { HemisphereLightComponent, SCENE_COMPONENT_HEMISPHERE_LIGHT } from '../components/HemisphereLightComponent'
 import { PointLightComponent, SCENE_COMPONENT_POINT_LIGHT } from '../components/PointLightComponent'
 import { SelectTagComponent } from '../components/SelectTagComponent'
+import { SCENE_COMPONENT_SHADOW, SCENE_COMPONENT_SHADOW_DEFAULT_VALUES } from '../components/ShadowComponent'
 import { SCENE_COMPONENT_SPOT_LIGHT, SpotLightComponent } from '../components/SpotLightComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
 
@@ -52,28 +53,33 @@ export default async function LightSystem(world: World) {
 
   world.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_SHADOW, props: SCENE_COMPONENT_SHADOW_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: {} }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.hemisphereLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_SHADOW, props: SCENE_COMPONENT_SHADOW_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_HEMISPHERE_LIGHT, props: {} }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.ambientLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_SHADOW, props: SCENE_COMPONENT_SHADOW_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_AMBIENT_LIGHT, props: {} }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.pointLight, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_SHADOW, props: SCENE_COMPONENT_SHADOW_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_POINT_LIGHT, props: {} }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.spotLight, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_SHADOW, props: SCENE_COMPONENT_SHADOW_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_SPOT_LIGHT, props: {} }
   ])

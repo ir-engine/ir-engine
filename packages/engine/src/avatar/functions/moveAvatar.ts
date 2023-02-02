@@ -5,7 +5,7 @@ import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@xrengine/hyperflux'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
+import { V_000, V_010, V_101, V_111 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -19,13 +19,14 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarControllerComponent, AvatarControllerComponentType } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { autopilotMarkerObject, ScaleFluctuate } from './autopilotFunctions'
 
-const avatarGroundRaycastDistanceIncrease = 0.1
+const avatarGroundRaycastDistanceIncrease = 0.5
 const avatarGroundRaycastDistanceOffset = 1
+const avatarGroundRaycastAcceptableDistance = 1.2
 
 /**
  * raycast internals
@@ -93,15 +94,16 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   )
 
   const computedMovement = controller.controller.computedMovement() as Vector3
+  if (desiredMovement.y === 0) computedMovement.y = 0
 
-  rigidbody.targetKinematicPosition.add(computedMovement)
+  rigidbody.targetKinematicPosition.copy(rigidbody.position).add(computedMovement)
 
+  // const grounded = controller.controller.computedGrounded()
   /** rapier's computed movement is a bit bugged, so do a small raycast at the avatar's feet to snap it to the ground if it's close enough */
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
   const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
-  // controller.isInAir = !controller.controller.computedGrounded()
   controller.isInAir = true
 
   const originTransform = getComponent(world.originEntity, TransformComponent)
@@ -109,10 +111,13 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   if (groundHits.length) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
-    rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    // controller.isInAir = !grounded
     controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
-    if (attached) originTransform.position.y = hit.position.y
-    /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
+    if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    if (hit.distance <= avatarGroundRaycastAcceptableDistance) {
+      if (attached) originTransform.position.y = hit.position.y
+      /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
+    }
   }
 
   if (!controller.isInAir) controller.verticalVelocity = 0
@@ -140,6 +145,11 @@ export const applyAutopilotInput = (entity: Entity) => {
   const controller = getComponent(entity, AvatarControllerComponent)
   if (!controller || controller.autopilotWalkpoint == undefined) return
 
+  if (controller.gamepadLocalInput.lengthSq() > 0) {
+    controller.autopilotWalkpoint = undefined
+    return
+  }
+
   const walkpoint = new Vector3()
   walkpoint.set(controller.autopilotWalkpoint.x, controller.autopilotWalkpoint.y, controller.autopilotWalkpoint.z)
   ScaleFluctuate(autopilotMarkerObject)
@@ -149,15 +159,21 @@ export const applyAutopilotInput = (entity: Entity) => {
   const avatarMovementSettings = getState(AvatarMovementSettingsState).value
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
   const delta = 0.0175
+
   if (distanceSquared > minimumDistanceSquared)
-    updateLocalAvatarPosition(moveDirection.normalize().multiplyScalar(delta * legSpeed))
+    updateLocalAvatarPosition(
+      moveDirection
+        .normalize()
+        .multiplyScalar(delta * legSpeed)
+        .add(new Vector3(0, controller.verticalVelocity, 0))
+    )
   else controller.autopilotWalkpoint = undefined
 }
 
 /**
  * Avatar movement via gamepad
  */
-export const movementEpsilon = 0.00025
+
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
@@ -178,13 +194,29 @@ export const applyGamepadInput = (entity: Entity) => {
     .applyQuaternion(forwardOrientation)
 
   // movement in the world XZ plane
-  controller.gamepadWorldMovement.copy(targetWorldMovement)
+  controller.gamepadWorldMovement.lerp(targetWorldMovement, 5 * deltaSeconds)
 
   // set vertical velocity on ground
+  applyVerticalVelocity(controller, avatarMovementSettings)
+
+  // apply gamepad movement and gravity
+  if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * deltaSeconds
+  const verticalMovement = controller.verticalVelocity * deltaSeconds
+  _additionalMovement.set(
+    controller.gamepadWorldMovement.x,
+    (controller.isInAir || verticalMovement) > 0 ? verticalMovement : 0,
+    controller.gamepadWorldMovement.z
+  )
+
+  updateLocalAvatarPosition(_additionalMovement)
+}
+
+const applyVerticalVelocity = (controller: AvatarControllerComponentType, avatarMovementSettings) => {
   if (!controller.isInAir) {
     controller.verticalVelocity = 0
     if (controller.gamepadJumpActive) {
       if (!controller.isJumping) {
+        console.log('jump')
         // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
         controller.verticalVelocity = Math.sqrt(2 * avatarMovementSettings.jumpHeight * 9.81)
         controller.isJumping = true
@@ -195,14 +227,6 @@ export const applyGamepadInput = (entity: Entity) => {
   } else {
     controller.isJumping = false
   }
-
-  // apply gamepad movement and gravity
-  if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * deltaSeconds
-  const verticalMovement = controller.verticalVelocity * deltaSeconds
-  _additionalMovement.set(controller.gamepadWorldMovement.x, verticalMovement, controller.gamepadWorldMovement.z)
-  // set autopilot target to undefined if manual input detected
-  if (_additionalMovement.lengthSq() > movementEpsilon) controller.autopilotWalkpoint = undefined
-  updateLocalAvatarPosition(_additionalMovement)
 }
 
 const _mat4 = new Matrix4()
@@ -336,7 +360,9 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   if (raycastHit) {
     const transform = getComponent(entity, TransformComponent)
     const rigidbody = getComponent(entity, RigidBodyComponent)
-    rigidbody.targetKinematicPosition.copy(raycastHit.position as Vector3)
+    const newPosition = raycastHit.position as Vector3
+    rigidbody.targetKinematicPosition.copy(newPosition)
+    rigidbody.position.copy(newPosition)
     const attached = getCameraMode() === 'attached'
     if (attached)
       updateReferenceSpaceFromAvatarMovement(

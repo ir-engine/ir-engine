@@ -182,7 +182,7 @@
     "setting": {
       "chromeAEC": "If you experience echo, please enable echo cancellation by going to ",
       "audio": "Audio",
-      "lbl-volume": "Volume",
+      "lbl-volume": "Total Volume",
       "lbl-microphone": "Microphone",
       "general": "General",
       "graphics": "Graphics",
@@ -204,7 +204,7 @@
       "rotation-angle": "Rotation Angle",
       "moving": "Moving",
       "user-avatar": "Avatar",
-      "invert-rotation": "Invert Rotation And Move Sticks",
+      "invert-rotation": "Invert Gamepads",
       "show-avatar": "Show Avatar",
       "lbl-media-instance": "User Volume",
       "lbl-notification": "Notification Volume",
@@ -213,7 +213,7 @@
       "themes": "Themes",
       "theme": "Theme",
       "client": "Client",
-      "editor": "Editor",
+      "studio": "Studio",
       "admin": "Admin",
       "windowsPerformanceHelp": "Windows OS Performance"
     },

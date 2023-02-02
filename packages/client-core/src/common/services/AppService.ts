@@ -9,7 +9,7 @@ export const AppState = defineState({
     showTouchPad: true
   }),
   onCreate: () => {
-    syncStateWithLocalStorage(AppState, ['showTopShelf', 'showBottomShelf', 'showTouchPad'])
+    syncStateWithLocalStorage(AppState, ['showTopShelf', 'showBottomShelf'])
   }
 })
 

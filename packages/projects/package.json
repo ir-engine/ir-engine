@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/projects",
-  "version": "1.0.0-rc8",
+  "version": "1.0.0",
   "main": "index.ts",
   "private": true,
   "description": "",

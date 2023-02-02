@@ -85,8 +85,16 @@ export const setupXRSession = async (requestedMode) => {
 
   const xrSession = await navigator.xr!.requestSession(mode, sessionInit)
 
+  // OculusBrowser incorrectly reports that the interaction mode is 'screen-space' when it should be 'world-space'
+  // This can be removed when the bug is fixed
+  const isOculus = navigator.userAgent.includes('OculusBrowser')
+  if (isOculus) {
+    Object.defineProperty(xrSession, 'interactionMode', {
+      value: 'world-space'
+    })
+  }
+
   const framebufferScaleFactor =
-    // @ts-ignore
     xrSession.interactionMode === 'screen-space' && xrSession.domOverlayState?.type === 'screen' ? 0.5 : 1.2
 
   xrState.sessionActive.set(true)
@@ -133,7 +141,6 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
 export const requestXRSession = createHookableFunction(
   async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
     const xrState = getState(XRState)
-    const xrManager = EngineRenderer.instance.xrManager
     if (xrState.requestingSession.value || xrState.sessionActive.value) return
 
     try {
