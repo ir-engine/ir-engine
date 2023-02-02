@@ -49,19 +49,24 @@ const makeMarkerObject = (): Object3D => {
   return markerObject
 }
 
-const markerObject = makeMarkerObject()
+export const autopilotMarkerObject = makeMarkerObject()
+
+export const ScaleFluctuate = (Marker: Object3D, sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
+  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.currentWorld.elapsedSeconds))
+  Marker.scale.set(scalePulse, 1, scalePulse)
+  Marker.updateMatrixWorld()
+}
 
 export async function placeMarker(controller: AvatarControllerComponentType, rayNormal: Vector3) {
   if (!controller.autopilotWalkpoint) return
-  markerObject.visible = true
-  markerObject.position.set(
+  autopilotMarkerObject.visible = true
+  autopilotMarkerObject.position.set(
     controller.autopilotWalkpoint.x,
     controller.autopilotWalkpoint.y,
     controller.autopilotWalkpoint.z
   )
   const newRotation = new Quaternion().setFromUnitVectors(V_010, rayNormal)
-  markerObject.rotation.setFromQuaternion(newRotation)
-  markerObject.updateMatrixWorld()
+  autopilotMarkerObject.rotation.setFromQuaternion(newRotation)
 
   const waitForAutopilot = () => {
     const reached = (resolve) => {
@@ -73,7 +78,7 @@ export async function placeMarker(controller: AvatarControllerComponentType, ray
 
   await waitForAutopilot()
 
-  markerObject.visible = false
+  autopilotMarkerObject.visible = false
 }
 
 const minDot = 0.45
