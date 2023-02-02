@@ -3,7 +3,13 @@ import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRHand, XRJointBones, XRJointParentMap, XRLeftHandComponent } from '../../xr/XRComponents'
+import {
+  XRHand,
+  XRJointBones,
+  XRJointParentMap,
+  XRLeftHandComponent,
+  XRRightHandComponent
+} from '../../xr/XRComponents'
 import { getCameraMode, ReferenceSpace } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -183,9 +189,11 @@ export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, ri
 }
 
 type XRFrameWithFillPoses = XRFrame & {
-  fillPoses: (poses: Iterable<XRJointSpace>, baseSpace: XRSpace, output: Float32Array) => void
-  fillJointRadii: (joints: Iterable<XRJointSpace>, output: Float32Array) => void
+  fillPoses?: (poses: Iterable<XRJointSpace>, baseSpace: XRSpace, output: Float32Array) => void
+  fillJointRadii?: (joints: Iterable<XRJointSpace>, output: Float32Array) => void
 }
+
+const emptyVec = new Vector3()
 
 const mat4 = new Matrix4()
 
@@ -197,16 +205,20 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const poses1 = new Float32Array(16 * 25)
   const radii1 = new Float32Array(25)
 
-  xrFrame.fillPoses(hand.values(), referenceSpace, poses1)
-  xrFrame.fillJointRadii(hand.values(), radii1)
+  for (const space of hand.values()) {
+    console.log(space)
+  }
+
+  xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
+  // xrFrame.fillJointRadii!(hand.values(), radii1)
 
   for (let i = 0; i < XRJointBones.length; i++) {
     const joint = XRJointBones[i]
     const bone = getBoneNameFromXRHand(inputSource.handedness, joint, rig.rig)
     if (bone) {
       bone.matrixWorld.fromArray(poses1, i * 16)
-      bone.matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), bone.matrixWorld)
-      bone.matrix.decompose(bone.position, bone.quaternion, bone.scale)
+      bone.matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), bone.matrixWorld) //.multiply(webxrJointRotation)
+      bone.matrix.decompose(bone.position, bone.quaternion, emptyVec)
     }
   }
 }
@@ -215,7 +227,7 @@ export const applyInputSourcePoseToIKTargets = () => {
   const world = Engine.instance.currentWorld
   const { localClientEntity } = world
 
-  const xrFrame = Engine.instance.xrFrame!
+  const xrFrame = Engine.instance.xrFrame! as XRFrameWithFillPoses
 
   const inAttachedControlMode = getCameraMode() === 'attached'
 
@@ -239,7 +251,7 @@ export const applyInputSourcePoseToIKTargets = () => {
         const ik = getComponent(localClientEntity, AvatarLeftArmIKComponent)
         const hand = inputSource.hand as XRHand | undefined
         /** detect hand joint pose support */
-        if (hand && xrFrame.getJointPose) {
+        if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {
           if (!hasComponent(localClientEntity, XRLeftHandComponent)) {
             setComponent(localClientEntity, XRLeftHandComponent, { hand })
           }
@@ -275,19 +287,34 @@ export const applyInputSourcePoseToIKTargets = () => {
       if (inputSource.handedness === 'right' && hasComponent(localClientEntity, AvatarRightArmIKComponent)) {
         const ik = getComponent(localClientEntity, AvatarRightArmIKComponent)
         const hand = inputSource.hand as XRHand | undefined
-        if (hand && xrFrame.getJointPose) {
-          // handled in XRRightHandComponent
-        } else if (inputSource.gripSpace) {
-          const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
-          if (pose) {
-            ik.target.position.copy(pose.transform.position as any as Vector3)
-            ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+        if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {
+          if (!hasComponent(localClientEntity, XRRightHandComponent)) {
+            setComponent(localClientEntity, XRRightHandComponent, { hand })
           }
+          const wrist = hand.get('wrist')
+          if (wrist) {
+            const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
+            if (jointPose) {
+              ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
+              ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
+            }
+          }
+          applyHandPose(inputSource, localClientEntity)
         } else {
-          const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
-          if (pose) {
-            ik.target.position.copy(pose.transform.position as any as Vector3)
-            ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+          if (hasComponent(localClientEntity, XRRightHandComponent))
+            removeComponent(localClientEntity, XRRightHandComponent)
+          if (inputSource.gripSpace) {
+            const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
+            if (pose) {
+              ik.target.position.copy(pose.transform.position as any as Vector3)
+              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            }
+          } else {
+            const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
+            if (pose) {
+              ik.target.position.copy(pose.transform.position as any as Vector3)
+              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+            }
           }
         }
       }
