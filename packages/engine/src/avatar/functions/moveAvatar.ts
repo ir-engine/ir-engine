@@ -146,14 +146,18 @@ export const applyAutopilotInput = (entity: Entity) => {
   const avatarPos = getComponent(entity, TransformComponent).position
   const moveDirection = walkpoint.sub(avatarPos)
   const distanceSquared = moveDirection.lengthSq()
-  if (distanceSquared > minimumDistanceSquared) updateLocalAvatarPosition(moveDirection.normalize().multiplyScalar(0.1))
+  const avatarMovementSettings = getState(AvatarMovementSettingsState).value
+  const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
+  const delta = 0.0175
+  if (distanceSquared > minimumDistanceSquared)
+    updateLocalAvatarPosition(moveDirection.normalize().multiplyScalar(delta * legSpeed))
   else controller.autopilotWalkpoint = undefined
 }
 
 /**
  * Avatar movement via gamepad
  */
-const epsilon = 0.001
+export const movementEpsilon = 0.00025
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
@@ -197,7 +201,7 @@ export const applyGamepadInput = (entity: Entity) => {
   const verticalMovement = controller.verticalVelocity * deltaSeconds
   _additionalMovement.set(controller.gamepadWorldMovement.x, verticalMovement, controller.gamepadWorldMovement.z)
   // set autopilot target to undefined if manual input detected
-  if (_additionalMovement.lengthSq() > epsilon) controller.autopilotWalkpoint = undefined
+  if (_additionalMovement.lengthSq() > movementEpsilon) controller.autopilotWalkpoint = undefined
   updateLocalAvatarPosition(_additionalMovement)
 }
 

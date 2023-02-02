@@ -12,6 +12,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { AvatarAnimationComponentType } from '../components/AvatarAnimationComponent'
 import { AvatarControllerComponent, AvatarControllerComponentType } from '../components/AvatarControllerComponent'
+import { movementEpsilon } from './moveAvatar'
 
 const interactionGroups = getInteractionGroups(
   CollisionGroups.Avatars,
@@ -26,6 +27,9 @@ const raycastArgs = {
 } as RaycastArgs
 
 export const autopilotSetPosition = (entity: Entity) => {
+  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
+  if (avatarControllerComponent.gamepadWorldMovement.lengthSq() > movementEpsilon) return
+
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const world = Engine.instance.currentWorld
 
@@ -33,7 +37,6 @@ export const autopilotSetPosition = (entity: Entity) => {
   const rayNormal = new Vector3(castedRay[0].normal.x, castedRay[0].normal.y, castedRay[0].normal.z)
   if (!castedRay.length || !assessWalkability(entity, rayNormal)) return undefined
 
-  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   const autopilotPosition = castedRay[0].position
   avatarControllerComponent.autopilotWalkpoint = autopilotPosition as Vector3
 
