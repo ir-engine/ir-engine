@@ -143,9 +143,8 @@ export const applyAutopilotInput = (entity: Entity) => {
   walkpoint.set(controller.autopilotWalkpoint.x, controller.autopilotWalkpoint.y, controller.autopilotWalkpoint.z)
   const avatarPos = getComponent(entity, TransformComponent).position
   const moveDirection = walkpoint.sub(avatarPos)
-
-  if (moveDirection.lengthSq() > minimumDistanceSquared)
-    updateLocalAvatarPosition(moveDirection.normalize().multiplyScalar(0.1))
+  const distanceSquared = moveDirection.lengthSq()
+  if (distanceSquared > minimumDistanceSquared) updateLocalAvatarPosition(moveDirection.normalize().multiplyScalar(0.1))
   else controller.autopilotWalkpoint = undefined
 }
 
