@@ -163,6 +163,8 @@ export const createAvatarController = (entity: Entity) => {
   rigidbody.rotation.copy(transform.rotation)
   rigidbody.targetKinematicPosition.copy(transform.position)
   rigidbody.targetKinematicRotation.copy(transform.rotation)
+  rigidbody.linearVelocity.add(new Vector3(0, 0, 1).applyQuaternion(transform.rotation))
+  console.log(rigidbody.linearVelocity)
 
   addComponent(entity, AvatarControllerComponent, {
     cameraEntity: Engine.instance.currentWorld.cameraEntity,
