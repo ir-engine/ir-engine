@@ -31,7 +31,7 @@ export function getRandomSpawnPoint(userId: UserId): { position: Vector3; rotati
       position: spawnTransform.position
         .clone()
         .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
-      rotation: new Quaternion() //spawnTransform.rotation.clone()
+      rotation: spawnTransform.rotation.clone()
     }
   }
 
