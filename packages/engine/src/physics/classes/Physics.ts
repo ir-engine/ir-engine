@@ -66,7 +66,6 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
     rigidBodyDesc.translation = position
     rigidBodyDesc.rotation = rotation
   }
-  console.log(getComponent(entity, NameComponent), entity, rigidBodyDesc, colliderDesc)
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
