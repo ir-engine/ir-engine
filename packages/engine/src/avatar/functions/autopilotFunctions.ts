@@ -42,25 +42,32 @@ export const autopilotSetPosition = (entity: Entity) => {
   placeMarker(avatarControllerComponent, rayNormal)
 }
 
-const makeMarkerObject = (): Object3D => {
-  const markerGeometry = new CylinderGeometry(0.175, 0.175, 0.025, 24, 1)
-  const material = new MeshBasicMaterial({ color: '#00E14E' })
-  const markerObject = new Mesh(markerGeometry, material)
-  const currentScene = Engine.instance.currentWorld.scene
-  currentScene.add(markerObject)
-  return markerObject
-}
-
-export const autopilotMarkerObject = makeMarkerObject()
-
 export const ScaleFluctuate = (Marker: Object3D, sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
   const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.currentWorld.elapsedSeconds))
   Marker.scale.set(scalePulse, 1, scalePulse)
   Marker.updateMatrixWorld()
 }
 
+export class AutopilotMarker {
+  object = undefined as Object3D | undefined
+
+  initializeMarker = (currentScene: Scene) => {
+    const markerGeometry = new CylinderGeometry(0.175, 0.175, 0.025, 24, 1)
+    const material = new MeshBasicMaterial({ color: '#00E14E' })
+    this.object = new Mesh(markerGeometry, material)
+    currentScene.add(this.object)
+  }
+}
+
+export const markerInstance = new AutopilotMarker()
+
 export async function placeMarker(controller: AvatarControllerComponentType, rayNormal: Vector3) {
   if (!controller.autopilotWalkpoint) return
+
+  if (!markerInstance.object) markerInstance.initializeMarker(Engine.instance.currentWorld.scene)
+
+  const autopilotMarkerObject = markerInstance.object as Object3D
+
   autopilotMarkerObject.visible = true
   autopilotMarkerObject.position.set(
     controller.autopilotWalkpoint.x,
