@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { AdditiveBlending, Blending, BufferGeometry, Color, Texture, TextureLoader, Vector4 } from 'three'
 import {
   Behavior,
@@ -22,9 +23,10 @@ import {
 } from 'three.quarks'
 import matches, { Validator } from 'ts-matches'
 
-import { getState, MatchesWithDefault } from '@xrengine/hyperflux'
+import { getState, MatchesWithDefault, none } from '@xrengine/hyperflux'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, getComponentState, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { ParticleSystemState } from '../systems/ParticleSystem'
 
 export type ParticleSystemComponentType = {
@@ -97,8 +99,8 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = 
   worldSpace: true
 }
 
-export const ParticleEmitterComponent = defineComponent({
-  name: 'EE_ParticleEmitter',
+export const ParticleSystemComponent = defineComponent({
+  name: 'EE_ParticleSystem',
   onInit: (entity) => {
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
@@ -107,12 +109,47 @@ export const ParticleEmitterComponent = defineComponent({
   },
   onSet: (entity, component, json) => {
     if (!json) return
-    json.systemParameters &&
+    !!json.systemParameters &&
       Object.entries(json.systemParameters).map(([field, value]: [keyof ParticleSystemJSONParameters, any]) => {
         matches.partial({ parser: ParticleSystemJSONParametersValidator }).test({ [field]: value }) &&
           component.systemParameters[field].set(value)
       })
 
-    json.behaviorParameters && Object.entries(json.behaviorParameters).map(([field, value]) => {})
+    const hasBehaviors = !!json.behaviorParameters
+    hasBehaviors && component.behaviorParameters.set(new Array(json.behaviorParameters.length))
+    hasBehaviors && json.behaviorParameters.map((behavior, index) => component.behaviorParameters[index].set(behavior))
+  },
+  onRemove: (entity, component) => {
+    if (component.system.value) {
+      const particleSystemState = getState(ParticleSystemState)
+      const batchRenderer = particleSystemState.batchSystem.value
+      batchRenderer.remove(component.system.value.emitter)
+      component.system.value.dispose()
+      component.system.set(none)
+    }
+  },
+  reactor: function ({ root }: EntityReactorProps) {
+    const entity = root.entity
+    if (!hasComponent(entity, ParticleSystemComponent)) throw root.stop()
+    const component = getComponent(entity, ParticleSystemComponent)
+    const componentState = getComponentState(entity, ParticleSystemComponent)
+    const particleSystemState = getState(ParticleSystemState)
+    const batchRenderer = particleSystemState.batchSystem.value
+    useEffect(() => {
+      component.system !== undefined && batchRenderer.remove(component.system.emitter)
+      component.system !== undefined && component.system.dispose()
+      const nuSystem = ParticleSystem.fromJSON(
+        component.systemParameters,
+        {
+          textures: {},
+          geometries: {}
+        },
+        {},
+        batchRenderer
+      )
+      componentState.system.set(nuSystem)
+    }, [componentState.systemParameters])
+
+    return null
   }
 })

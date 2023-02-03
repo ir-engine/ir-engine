@@ -9,7 +9,7 @@ import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GroupComponent, removeGroupComponent } from '../components/GroupComponent'
-import { ParticleEmitterComponent } from '../components/ParticleSystemComponent'
+import { ParticleSystemComponent } from '../components/ParticleSystemComponent'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export type ParticleSystemStateType = {
