@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import {
   addActionReceptor,
   dispatchAction,
@@ -9,9 +8,9 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@xrengine/hyperflux'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
-import GroupsIcon from '@mui/icons-material/Groups'
-import PersonIcon from '@mui/icons-material/Person'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'

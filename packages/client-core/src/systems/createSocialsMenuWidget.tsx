@@ -3,8 +3,6 @@ import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFun
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import GroupsIcon from '@mui/icons-material/Groups'
-
 import { createSocialsMenuView } from './ui/SocialsMenuView'
 
 export function createSocialsMenuWidget(world: World) {
@@ -14,7 +12,7 @@ export function createSocialsMenuWidget(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: WidgetName.SOCIALS,
-    icon: GroupsIcon,
+    icon: 'Groups',
     system: () => {}
   })
 }

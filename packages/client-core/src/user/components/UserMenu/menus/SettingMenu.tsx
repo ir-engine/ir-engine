@@ -24,12 +24,10 @@ import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/s
 import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
-import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
-import Box from '@mui/material/Box'
-import Collapse from '@mui/material/Collapse'
-import Grid from '@mui/material/Grid'
+import Box from '@xrengine/ui/src/Box'
+import Collapse from '@xrengine/ui/src/Collapse'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { useClientSettingState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
@@ -311,7 +309,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
 
             <InputCheck
               type="wide"
-              icon={<SurroundSoundIcon />}
+              icon={<Icon type="SurroundSound" />}
               label={t('user:usermenu.setting.use-positional-media')}
               checked={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
@@ -320,7 +318,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.masterVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={audioState.masterVolume.value == 0 ? <Icon type="VolumeOff" /> : <Icon type="VolumeUp" />}
               label={t('user:usermenu.setting.lbl-volume')}
               max={1}
               min={0}
@@ -332,7 +330,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.microphoneGain.value == 0 ? <MicOff /> : <Mic />}
+              icon={audioState.microphoneGain.value == 0 ? <Icon type="MicOff" /> : <Icon type="Mic" />}
               label={t('user:usermenu.setting.lbl-microphone')}
               max={1}
               min={0}
@@ -356,7 +354,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               <> */}
 
             <InputSlider
-              icon={audioState.mediaStreamVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={audioState.mediaStreamVolume.value == 0 ? <Icon type="VolumeOff" /> : <Icon type="VolumeUp" />}
               label={t('user:usermenu.setting.lbl-media-instance')}
               max={1}
               min={0}
@@ -368,7 +366,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.notificationVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={audioState.notificationVolume.value == 0 ? <Icon type="VolumeOff" /> : <Icon type="VolumeUp" />}
               label={t('user:usermenu.setting.lbl-notification')}
               max={1}
               min={0}
@@ -380,7 +378,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.soundEffectsVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={audioState.soundEffectsVolume.value == 0 ? <Icon type="VolumeOff" /> : <Icon type="VolumeUp" />}
               label={t('user:usermenu.setting.lbl-sound-effect')}
               max={1}
               min={0}
@@ -392,7 +390,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.backgroundMusicVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={audioState.backgroundMusicVolume.value == 0 ? <Icon type="VolumeOff" /> : <Icon type="VolumeUp" />}
               label={t('user:usermenu.setting.lbl-background-music-volume')}
               max={1}
               min={0}
@@ -411,7 +409,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
         {selectedTab === 'graphics' && (
           <>
             <InputSlider
-              icon={<BlurLinear sx={{ ml: '-3px' }} />}
+              icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}
               label={t('user:usermenu.setting.lbl-resolution')}
               max={5}
               min={1}

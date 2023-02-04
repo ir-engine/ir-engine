@@ -1,24 +1,18 @@
-import { Icon } from '@iconify/react'
+import { Icon as Iconify } from '@iconify/react'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import CloseIcon from '@mui/icons-material/Close'
-import CodeIcon from '@mui/icons-material/Code'
-import FormatColorFillIcon from '@mui/icons-material/FormatColorFill'
-import HubIcon from '@mui/icons-material/Hub'
-import ListAltIcon from '@mui/icons-material/ListAlt'
-import LockIcon from '@mui/icons-material/Lock'
-import MailOutlineIcon from '@mui/icons-material/MailOutline'
-import MenuIcon from '@mui/icons-material/Menu'
-import ViewCompactIcon from '@mui/icons-material/ViewCompact'
-import { Grid, IconButton, Typography } from '@mui/material'
-import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
-import ListItemText from '@mui/material/ListItemText'
+import Avatar from '@xrengine/ui/src/Avatar'
+import Button from '@xrengine/ui/src/Button'
+import Divider from '@xrengine/ui/src/Divider'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import List from '@xrengine/ui/src/List'
+import ListItem from '@xrengine/ui/src/ListItem'
+import ListItemAvatar from '@xrengine/ui/src/ListItemAvatar'
+import ListItemText from '@xrengine/ui/src/ListItemText'
+import Typography from '@xrengine/ui/src/Typography'
 
 import styles from '../../styles/settings.module.scss'
 import Authentication from './Authentication'
@@ -38,73 +32,73 @@ const settingItems = [
   {
     name: 'project',
     title: 'Project',
-    icon: <CodeIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="Code" sx={{ color: 'orange' }} />,
     content: <Project />
   },
   {
     name: 'server',
     title: 'Server',
-    icon: <Icon icon="carbon:bare-metal-server" color="orange" />,
+    icon: <Iconify icon="carbon:bare-metal-server" color="orange" />,
     content: <Server />
   },
   {
     name: 'client',
     title: 'Client',
-    icon: <ViewCompactIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="ViewCompact" sx={{ color: 'orange' }} />,
     content: <Client />
   },
   {
     name: 'clientTheme',
     title: 'Client Theme',
-    icon: <FormatColorFillIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="FormatColorFill" sx={{ color: 'orange' }} />,
     content: <ClientTheme />
   },
   {
     name: 'instanceServer',
     title: 'Instance Server',
-    icon: <HubIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="Hub" sx={{ color: 'orange' }} />,
     content: <InstanceServer />
   },
   {
     name: 'taskServer',
     title: 'Task Server',
-    icon: <ListAltIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="ListAlt" sx={{ color: 'orange' }} />,
     content: <TaskServer />
   },
   {
     name: 'email',
     title: 'Email',
-    icon: <MailOutlineIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="MailOutline" sx={{ color: 'orange' }} />,
     content: <Email />
   },
   {
     name: 'authentication',
     title: 'Authentication',
-    icon: <LockIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="Lock" sx={{ color: 'orange' }} />,
     content: <Authentication />
   },
   {
     name: 'aws',
     title: 'Aws',
-    icon: <Icon icon="logos:aws" />,
+    icon: <Iconify icon="logos:aws" />,
     content: <Aws />
   },
   {
     name: 'chargebee',
     title: 'Chargebee',
-    icon: <Icon icon="logos:chargebee-icon" />,
+    icon: <Iconify icon="logos:chargebee-icon" />,
     content: <ChargeBee />
   },
   {
     name: 'redis',
     title: 'Redis',
-    icon: <Icon icon="logos:redis" />,
+    icon: <Iconify icon="logos:redis" />,
     content: <Redis />
   },
   {
     name: 'coil',
     title: 'Coil',
-    icon: <Icon icon="simple-icons:coil" color="orange" />,
+    icon: <Iconify icon="simple-icons:coil" color="orange" />,
     content: <Coil />
   }
 ]
@@ -152,7 +146,7 @@ const Setting = () => {
     <div ref={rootRef}>
       <div className={styles.invisible}>
         <Button size="small" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
-          <MenuIcon />
+          <Icon type="Menu" />
         </Button>
         {menuVisible && (
           <div className={styles.hoverSettings}>
@@ -170,7 +164,7 @@ const Setting = () => {
                   right: '10px'
                 }}
               >
-                <CloseIcon />
+                <Icon type="Close" />
               </IconButton>
             </Grid>
             <Sidebar

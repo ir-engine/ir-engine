@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BuildStatus } from '@xrengine/common/src/interfaces/BuildStatus'
-
-import TextSnippetIcon from '@mui/icons-material/TextSnippet'
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
+import Box from '@xrengine/ui/src/Box'
+import Container from '@xrengine/ui/src/Container'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
@@ -110,7 +109,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
             disabled={el.logs == null || el.logs?.length === 0}
             onClick={() => handleOpenLogsModal(el)}
           >
-            <TextSnippetIcon />
+            <Icon type="TextSnippet" />
           </IconButton>
         </>
       )

@@ -3,10 +3,9 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { Location } from '@xrengine/common/src/interfaces/Location'
-
-import Avatar from '@mui/material/Avatar'
-import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
+import Avatar from '@xrengine/ui/src/Avatar'
+import Box from '@xrengine/ui/src/Box'
+import Chip from '@xrengine/ui/src/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

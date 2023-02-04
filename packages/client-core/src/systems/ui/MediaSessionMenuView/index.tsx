@@ -7,18 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-
-import {
-  Chat,
-  Face,
-  FaceRetouchingOff,
-  Mic,
-  MicOff,
-  ScreenShare,
-  StopScreenShare,
-  Videocam,
-  VideocamOff
-} from '@mui/icons-material'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { MediaInstanceConnectionService } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
@@ -141,35 +130,29 @@ const MediaSessionMenuView = () => {
   const handleOpenChatMenuWidget = () => {
     WidgetAppService.setWidgetVisibility(WidgetName.CHAT, true)
   }
-
-  const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
-  const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
-  const FaceTrackingIcon = isFaceTrackingEnabled.value ? Face : FaceRetouchingOff
-  const ScreenShareIcon = isScreenVideoEnabled.value ? ScreenShare : StopScreenShare
-
   return (
     <>
       <style>{styleString}</style>
       <div className="container" xr-layer="true">
         <h3 className="heading">{t('user:usermenu.mediaSession.containerHeading')}</h3>
         <XRTextButton onClick={handleToggleAudio}>
-          <MicIcon />
+          <Icon type={isCamAudioEnabled.value ? 'Mic' : 'MicOff'} />
           {t('user:usermenu.mediaSession.btn-audio')}
         </XRTextButton>
         <XRTextButton onClick={handleToggleVideo}>
-          <VideocamIcon />
+          <Icon type={isCamVideoEnabled.value ? 'Videocam' : 'VideocamOff'} />
           {t('user:usermenu.mediaSession.btn-video')}
         </XRTextButton>
         <XRTextButton onClick={handleToggleFaceTracking}>
-          <FaceTrackingIcon />
+          <Icon type={isFaceTrackingEnabled.value ? 'Face' : 'FaceRetouchingOff'} />
           {t('user:usermenu.mediaSession.btn-faceTracking')}
         </XRTextButton>
         <XRTextButton onClick={handleToggleScreenShare}>
-          <ScreenShareIcon />
+          <Icon type={isScreenVideoEnabled.value ? 'ScreenShare' : 'StopScreenShare'} />
           {t('user:usermenu.mediaSession.btn-screenShare')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenChatMenuWidget}>
-          <Chat />
+          <Icon type="Chat" />
           {t('user:usermenu.mediaSession.btn-chat')}
         </XRTextButton>
       </div>

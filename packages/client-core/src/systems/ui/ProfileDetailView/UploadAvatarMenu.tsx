@@ -20,8 +20,7 @@ import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/Compone
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-
-import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { loadAvatarForPreview, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
@@ -228,7 +227,7 @@ export const UploadAvatarMenu = () => {
             className="iconBlock"
             variant="iconOnly"
             onClick={openAvatarMenu}
-            content={<ArrowBack />}
+            content={<Icon type="ArrowBack" />}
           />
           <h2>{t('user:avatar.titleUploadAvatar')}</h2>
         </div>

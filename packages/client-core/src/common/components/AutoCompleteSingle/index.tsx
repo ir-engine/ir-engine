@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import FormControl from '@xrengine/ui/src/FormControl'
+import FormHelperText from '@xrengine/ui/src/FormHelperText'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import { useAutocomplete } from '@mui/base/AutocompleteUnstyled'
-import Cross from '@mui/icons-material/Cancel'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
-import IconButton from '@mui/material/IconButton'
 
 import { InputMenuItem } from '../InputSelect'
 import styles from './index.module.scss'
@@ -86,7 +86,7 @@ const AutoComplete = ({ data, label, disabled, error, onChange, value = '', free
               }}
             />
             <IconButton className={`.MuiAutocomplete-endAdornment ${styles.clearButton}`} onClick={() => handleClear()}>
-              <Cross />
+              <Icon type="Cancel" />
             </IconButton>
           </div>
         </div>

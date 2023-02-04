@@ -4,20 +4,10 @@ import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
-
-import Cross from '@mui/icons-material/Cancel'
-import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import Download from '@mui/icons-material/Download'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import Group from '@mui/icons-material/Group'
-import LinkIcon from '@mui/icons-material/Link'
-import LinkOffIcon from '@mui/icons-material/LinkOff'
-import Upload from '@mui/icons-material/Upload'
-import VisibilityIcon from '@mui/icons-material/Visibility'
-import Box from '@mui/material/Box'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+import Box from '@xrengine/ui/src/Box'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Tooltip from '@xrengine/ui/src/Tooltip'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
@@ -219,7 +209,7 @@ const ProjectTable = ({ className }: Props) => {
           <span className={`${el.needsRebuild ? styles.orangeColor : ''}`}>{name}</span>
           {el.needsRebuild && (
             <Tooltip title={t('admin:components.project.outdatedBuild')} arrow>
-              <ErrorOutlineIcon sx={{ marginLeft: 1 }} className={styles.orangeColor} />
+              <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.orangeColor} />
             </Tooltip>
           )}
         </Box>
@@ -233,7 +223,7 @@ const ProjectTable = ({ className }: Props) => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <div className={styles.commitContents}>
             {commitSHA?.substring(0, 8)}
-            {commitSHA ? <ContentCopyIcon onClick={() => copyShaToClipboard(commitSHA)} /> : '-'}
+            {commitSHA ? <Icon type="ContentCopy" onClick={() => copyShaToClipboard(commitSHA)} /> : '-'}
           </div>
         </Box>
       ),
@@ -261,14 +251,14 @@ const ProjectTable = ({ className }: Props) => {
               disabled={el.repositoryPath === null}
               onClick={() => handleOpenProjectDrawer(el)}
             >
-              <Download />
+              <Icon type="Download" />
             </IconButton>
           )}
           {isAdmin && name === 'default-project' && (
             <Tooltip title={t('admin:components.project.defaultProjectUpdateTooltip')} arrow>
               <span>
                 <IconButton className={styles.iconButton} name="update" disabled={true}>
-                  <Download />
+                  <Icon type="Download" />
                 </IconButton>
               </span>
             </Tooltip>
@@ -284,7 +274,7 @@ const ProjectTable = ({ className }: Props) => {
               disabled={!el.hasWriteAccess || !el.repositoryPath}
               onClick={() => openPushConfirmation(el)}
             >
-              <Upload />
+              <Icon type="Upload" />
             </IconButton>
           )}
         </>
@@ -297,8 +287,7 @@ const ProjectTable = ({ className }: Props) => {
             disabled={name === 'default-project'}
             onClick={() => handleOpenProjectDrawer(el, true)}
           >
-            {!el.repositoryPath && <LinkOffIcon />}
-            {el.repositoryPath && <LinkIcon />}
+            <Icon type={!el.repositoryPath ? 'LinkOff' : 'Link'} />
           </IconButton>
         </>
       ),
@@ -310,7 +299,7 @@ const ProjectTable = ({ className }: Props) => {
               name="editProjectPermissions"
               onClick={() => handleOpenUserPermissionDrawer(el)}
             >
-              <Group />
+              <Icon type="Group" />
             </IconButton>
           )}
         </>
@@ -319,7 +308,7 @@ const ProjectTable = ({ className }: Props) => {
         <>
           {isAdmin && (
             <IconButton className={styles.iconButton} name="invalidate" onClick={() => openInvalidateConfirmation(el)}>
-              <CleaningServicesIcon />
+              <Icon type="CleaningServices" />
             </IconButton>
           )}
         </>
@@ -328,7 +317,7 @@ const ProjectTable = ({ className }: Props) => {
         <>
           {isAdmin && (
             <IconButton className={styles.iconButton} name="view" onClick={() => openViewProject(el)}>
-              <VisibilityIcon />
+              <Icon type="Visibility" />
             </IconButton>
           )}
         </>
@@ -337,7 +326,7 @@ const ProjectTable = ({ className }: Props) => {
         <>
           {isAdmin && (
             <IconButton className={styles.iconButton} name="remove" onClick={() => openRemoveConfirmation(el)}>
-              <Cross />
+              <Icon type="Cancel" />
             </IconButton>
           )}
         </>

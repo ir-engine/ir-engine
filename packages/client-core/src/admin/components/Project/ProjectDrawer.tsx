@@ -7,10 +7,9 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@xrengine/common/src/interfaces/ProjectInterface'
-
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import DialogActions from '@xrengine/ui/src/DialogActions'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'

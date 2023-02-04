@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FormControlLabel - should render 1`] = `
+<ForwardRef(FormControlLabel)
+  control={
+    <Checkbox
+      defaultChecked={true}
+      inputProps={
+        {
+          "aria-label": "Checkbox demo",
+        }
+      }
+    />
+  }
+  label="Label"
+/>
+`;

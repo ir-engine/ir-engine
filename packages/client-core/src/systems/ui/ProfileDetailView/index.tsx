@@ -11,10 +11,8 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 import { getState } from '@xrengine/hyperflux'
-
-import { Check, Create, GitHub, Refresh } from '@mui/icons-material'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import CircularProgress from '@mui/material/CircularProgress'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { useClientSettingState } from '../../../admin/services/Setting/ClientSettingService'
@@ -294,7 +292,7 @@ const ProfileDetailView = () => {
                 className="avatarBtn"
                 id="select-avatar"
                 onClick={handleOpenSelectAvatarWidget}
-                content={<Create />}
+                content={<Icon type="Create" />}
               />
             </div>
             <div className="headerBlock">
@@ -307,7 +305,7 @@ const ProfileDetailView = () => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') updateUserName(e)
                 }}
-                endIcon={<Check />}
+                endIcon={<Icon type="Check" />}
                 endIconClick={updateUserName}
               />
               <div className="detailsContainer">
@@ -347,7 +345,7 @@ const ProfileDetailView = () => {
                 disabled={true}
                 type="text"
                 value={userId}
-                endIcon={<ContentCopyIcon />}
+                endIcon={<Icon type="ContentCopy" />}
                 endIconClick={() => {
                   navigator.clipboard.writeText(userId)
                   NotificationService.dispatchNotify('User ID copied', {
@@ -366,9 +364,9 @@ const ProfileDetailView = () => {
                 disabled={true}
                 type="text"
                 value={apiKey}
-                startIcon={<Refresh />}
+                startIcon={<Icon type="Refresh" />}
                 startIconClick={refreshApiKey}
-                endIcon={<ContentCopyIcon />}
+                endIcon={<Icon type="ContentCopy" />}
                 endIconClick={() => {
                   navigator.clipboard.writeText(apiKey)
                   NotificationService.dispatchNotify('API Key copied', {
@@ -389,7 +387,7 @@ const ProfileDetailView = () => {
                 placeholder={getConnectPlaceholder()}
                 onChange={handleInputChange}
                 onBlur={validate}
-                endIcon={<ContentCopyIcon />}
+                endIcon={<Icon type="ContentCopy" />}
                 endIconClick={handleGuestSubmit}
               />
               {loading && (
@@ -419,7 +417,7 @@ const ProfileDetailView = () => {
                 )}
                 {authState?.facebook && !oauthConnectedState.facebook && (
                   <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
+                    <Icon type="Facebook" width="40" height="40" viewBox="0 0 40 40" />
                   </a>
                 )}
                 {authState?.linkedin && !oauthConnectedState.linkedin && (
@@ -429,12 +427,12 @@ const ProfileDetailView = () => {
                 )}
                 {authState?.twitter && !oauthConnectedState.twitter && (
                   <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
-                    <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
+                    <Icon type="Twitter" width="40" height="40" viewBox="0 0 40 40" />
                   </a>
                 )}
                 {authState?.github && !oauthConnectedState.github && (
                   <a href="#" id="github" onClick={handleOAuthServiceClick}>
-                    <GitHub />
+                    <Icon type="GitHub" />
                   </a>
                 )}
               </div>
@@ -455,7 +453,7 @@ const ProfileDetailView = () => {
                   )}
                   {authState?.facebook && oauthConnectedState.facebook && (
                     <a href="#" id="facebook" onClick={handleRemoveOAuthServiceClick}>
-                      <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
+                      <Icon type="Facebook" width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.linkedin && oauthConnectedState.linkedin && (
@@ -465,12 +463,12 @@ const ProfileDetailView = () => {
                   )}
                   {authState?.twitter && oauthConnectedState.twitter && (
                     <a href="#" id="twitter" onClick={handleRemoveOAuthServiceClick}>
-                      <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
+                      <Icon type="Twitter" width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.github && oauthConnectedState.github && (
                     <a href="#" id="github" onClick={handleRemoveOAuthServiceClick}>
-                      <GitHub />
+                      <Icon type="GitHub" />
                     </a>
                   )}
                 </div>

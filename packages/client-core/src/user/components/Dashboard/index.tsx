@@ -2,16 +2,16 @@ import clsx from 'clsx'
 import React, { useState } from 'react'
 
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import AppBar from '@xrengine/ui/src/AppBar'
+import Box from '@xrengine/ui/src/Box'
+import Drawer from '@xrengine/ui/src/Drawer'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Popover from '@xrengine/ui/src/Popover'
+import Typography from '@xrengine/ui/src/Typography'
 
-import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
-import { Person } from '@mui/icons-material'
-import { Box, Popover } from '@mui/material'
-import AppBar from '@mui/material/AppBar'
 import CssBaseline from '@mui/material/CssBaseline'
-import Drawer from '@mui/material/Drawer'
-import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../services/AuthService'
 import SettingMenu from '../UserMenu/menus/SettingMenu'
@@ -75,14 +75,14 @@ const Dashboard = ({ children }: Props) => {
               })}
               size="large"
             >
-              <Menu />
+              <Icon type="Menu" />
             </IconButton>
             <div className={styles.appBarHeadingContainer}>
               <Typography variant="h6">Dashboard</Typography>
 
               <IconButton onClick={handleClick} className={styles.profileButton} disableRipple>
                 <span>{user.name.value}</span>
-                <Person />
+                <Icon type="Person" />
               </IconButton>
               {profileMenuOpen && (
                 <>
@@ -136,7 +136,7 @@ const Dashboard = ({ children }: Props) => {
       >
         <div className={styles.toolbar}>
           <IconButton onClick={handleDrawerOpen(false)} style={{ color: 'var(--iconButtonColor)' }} size="large">
-            {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
+            <Icon type={theme.direction === 'rtl' ? 'ChevronRight' : 'ChevronLeft'} />
           </IconButton>
         </div>
         <DashboardMenuItem />

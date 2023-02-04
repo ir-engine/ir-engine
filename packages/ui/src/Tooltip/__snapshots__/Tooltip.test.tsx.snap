@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tooltip - should render 1`] = `
+<ForwardRef(Tooltip)
+  title="I'm a tooltip"
+>
+  <IconButton
+    icon={<Memo />}
+  />
+</ForwardRef(Tooltip)>
+`;

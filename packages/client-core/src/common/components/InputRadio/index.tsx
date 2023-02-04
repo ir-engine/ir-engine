@@ -1,14 +1,14 @@
 import React from 'react'
 
 import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+import Box from '@xrengine/ui/src/Box'
+import FormControl from '@xrengine/ui/src/FormControl'
+import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
+import FormHelperText from '@xrengine/ui/src/FormHelperText'
+import FormLabel from '@xrengine/ui/src/FormLabel'
+import Radio from '@xrengine/ui/src/Radio'
+import RadioGroup from '@xrengine/ui/src/RadioGroup'
 
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormHelperText from '@mui/material/FormHelperText'
-import FormLabel from '@mui/material/FormLabel'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'

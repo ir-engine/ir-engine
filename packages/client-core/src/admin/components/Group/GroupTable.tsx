@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { Group } from '@xrengine/common/src/interfaces/Group'
-
-import Box from '@mui/material/Box'
+import Box from '@xrengine/ui/src/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

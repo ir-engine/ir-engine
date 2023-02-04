@@ -1,6 +1,7 @@
 import React from 'react'
 
-import { default as MUIIconButton } from '@mui/material/IconButton'
+import { default as MUIIconButton } from '@xrengine/ui/src/IconButton'
+
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'

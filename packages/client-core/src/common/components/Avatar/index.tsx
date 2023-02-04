@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next'
 import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import Text from '@xrengine/client-core/src/common/components/Text'
+import Box from '@xrengine/ui/src/Box'
+import Icon from '@xrengine/ui/src/Icon'
+import Paper from '@xrengine/ui/src/Paper'
 
-import CreateIcon from '@mui/icons-material/Create'
-import Box from '@mui/material/Box'
-import Paper from '@mui/material/Paper'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'

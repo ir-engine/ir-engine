@@ -5,18 +5,18 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
+import Button from '@xrengine/ui/src/Button'
+import Checkbox from '@xrengine/ui/src/Checkbox'
+import Container from '@xrengine/ui/src/Container'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
+import FormGroup from '@xrengine/ui/src/FormGroup'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Tab from '@xrengine/ui/src/Tab'
+import Tabs from '@xrengine/ui/src/Tabs'
+import TextField from '@xrengine/ui/src/TextField'
 
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
-import IconButton from '@mui/material/IconButton'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
-import TextField from '@mui/material/TextField'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -289,7 +289,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     className={styles.clearTime}
                     onClick={() => setStartTime(null)}
                   >
-                    <HighlightOffIcon />
+                    <Icon type="HighlightOff" />
                   </IconButton>
                 </div>
                 <div className={styles.pickerControls}>
@@ -305,7 +305,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     className={styles.clearTime}
                     onClick={() => setEndTime(null)}
                   >
-                    <HighlightOffIcon />
+                    <Icon type="HighlightOff" />
                   </IconButton>
                 </div>
               </LocalizationProvider>

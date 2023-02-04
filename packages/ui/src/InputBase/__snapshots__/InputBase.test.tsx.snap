@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InputBase - should render 1`] = `
+<ForwardRef(InputBase)
+  defaultChecked={true}
+  inputProps={
+    {
+      "aria-label": "InputBase demo",
+    }
+  }
+/>
+`;

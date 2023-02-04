@@ -3,15 +3,14 @@ import { useTranslation } from 'react-i18next'
 
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
-
-import DeleteIcon from '@mui/icons-material/Delete'
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
-import ListItemText from '@mui/material/ListItemText'
+import Button from '@xrengine/ui/src/Button'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import List from '@xrengine/ui/src/List'
+import ListItem from '@xrengine/ui/src/ListItem'
+import ListItemSecondaryAction from '@xrengine/ui/src/ListItemSecondaryAction'
+import ListItemText from '@xrengine/ui/src/ListItemText'
 
 import styles from '../styles/admin.module.scss'
 
@@ -60,14 +59,13 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
                 <ListItemSecondaryAction>
                   <IconButton
                     edge="end"
-                    aria-label="delete"
+                    title="delete"
                     size="large"
                     onClick={() => {
                       el.id && removeCommand(el.id)
                     }}
-                  >
-                    <DeleteIcon style={{ color: 'var(--iconButtonColor)' }} />
-                  </IconButton>
+                    icon={<Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />}
+                  />
                 </ListItemSecondaryAction>
               </ListItem>
             </List>

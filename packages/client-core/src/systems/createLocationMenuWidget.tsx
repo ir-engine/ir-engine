@@ -3,8 +3,6 @@ import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFun
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-
 import { createLocationMenuView } from './ui/LocationMenuView'
 
 export function createLocationMenuWidget(world: World) {
@@ -14,7 +12,7 @@ export function createLocationMenuWidget(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: WidgetName.LOCATION,
-    icon: LocationOnIcon,
+    icon: 'LocationOn',
     system: () => {}
   })
 }

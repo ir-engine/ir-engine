@@ -6,19 +6,16 @@ import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/com
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import { CreateEditUser, UserInterface } from '@xrengine/common/src/interfaces/User'
-
-import EmailIcon from '@mui/icons-material/Email'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import PhoneIcon from '@mui/icons-material/Phone'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
-import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
+import Button from '@xrengine/ui/src/Button'
+import Checkbox from '@xrengine/ui/src/Checkbox'
+import Container from '@xrengine/ui/src/Container'
+import DialogActions from '@xrengine/ui/src/DialogActions'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import Tooltip from '@xrengine/ui/src/Tooltip'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
@@ -296,7 +293,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.facebook')} arrow>
                   <span>
-                    <FacebookIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                    <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
                   </span>
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
@@ -308,7 +305,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.twitter')} arrow>
                   <span>
-                    <TwitterIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                    <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
                   </span>
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
@@ -331,7 +328,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {githubIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.github')} arrow>
-                  <GitHubIcon width="20px" height="20px" />
+                  <Icon type="GitHub" width="20px" height="20px" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {githubIp.accountIdentifier!}
@@ -341,7 +338,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {emailIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.email')} arrow>
-                  <EmailIcon width="20px" height="20px" />
+                  <Icon type="Email" width="20px" height="20px" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {emailIp.accountIdentifier!}
@@ -351,7 +348,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {smsIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.sms')} arrow>
-                  <PhoneIcon width="20px" height="20px" />
+                  <Icon type="Phone" width="20px" height="20px" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {smsIp.accountIdentifier!}

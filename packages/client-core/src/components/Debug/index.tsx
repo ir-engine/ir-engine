@@ -26,13 +26,7 @@ import {
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import BlurOffIcon from '@mui/icons-material/BlurOff'
-import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
-import GridOnIcon from '@mui/icons-material/GridOn'
-import Refresh from '@mui/icons-material/Refresh'
-import SelectAllIcon from '@mui/icons-material/SelectAll'
-import SquareFootIcon from '@mui/icons-material/SquareFoot'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
@@ -146,7 +140,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (engineRendererState.debugEnable.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
             >
-              <SquareFootIcon fontSize="small" />
+              <Icon type="SquareFoot" fontSize="small" />
             </button>
             <button
               type="button"
@@ -154,7 +148,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.nodeHelperDebug')}
             >
-              <SelectAllIcon fontSize="small" />
+              <Icon type="SelectAll" fontSize="small" />
             </button>
             <button
               type="button"
@@ -162,7 +156,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.gridDebug')}
             >
-              <GridOnIcon fontSize="small" />
+              <Icon type="GridOn" fontSize="small" />
             </button>
             <button
               type="button"
@@ -172,11 +166,11 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (engineRendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
               title={t('common:debug.forceBasicMaterials')}
             >
-              <FormatColorResetIcon fontSize="small" />
+              <Icon type="FormatColorReset" fontSize="small" />
             </button>
             {hasActiveControlledAvatar && (
               <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
-                <Refresh />
+                <Icon type="Refresh" />
               </button>
             )}
           </div>

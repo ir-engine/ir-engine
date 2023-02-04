@@ -1,0 +1,25 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react'
+import * as React from 'react'
+
+import Menu from './index'
+
+const argTypes = {}
+
+export default {
+  title: 'Components/Menu',
+  component: Menu,
+  parameters: {
+    componentSubtitle: 'Menu',
+    jest: 'Menu.test.tsx',
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/gYlfhfHLTAJg8r0tqEtFyN/HyperConstruct-Landing-Page'
+    }
+  },
+  argTypes
+} as ComponentMeta<typeof Menu>
+
+const Template: ComponentStory<typeof Menu> = (args) => <Menu {...args} />
+
+export const Default = Template.bind({})
+Default.args = Menu.defaultProps

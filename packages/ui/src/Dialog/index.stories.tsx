@@ -1,0 +1,25 @@
+import { ComponentMeta, ComponentStory } from '@storybook/react'
+import * as React from 'react'
+
+import Dialog from './index'
+
+const argTypes = {}
+
+export default {
+  title: 'Components/Dialog',
+  component: Dialog,
+  parameters: {
+    componentSubtitle: 'Dialog',
+    jest: 'Dialog.test.tsx',
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/file/gYlfhfHLTAJg8r0tqEtFyN/HyperConstruct-Landing-Page'
+    }
+  },
+  argTypes
+} as ComponentMeta<typeof Dialog>
+
+const Template: ComponentStory<typeof Dialog> = (args) => <Dialog {...args} />
+
+export const Default = Template.bind({})
+Default.args = Dialog.defaultProps

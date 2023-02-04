@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
-
-import { Box, Button, Grid, Typography } from '@mui/material'
-import IconButton from '@mui/material/IconButton'
+import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
+import Grid from '@xrengine/ui/src/Grid'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { initialAuthState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'

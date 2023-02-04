@@ -10,9 +10,8 @@ import { getCanvasBlob } from '@xrengine/client-core/src/common/utils'
 import config from '@xrengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-
-import CheckIcon from '@mui/icons-material/Check'
-import Box from '@mui/material/Box'
+import Box from '@xrengine/ui/src/Box'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
@@ -174,7 +173,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
         {avatarPreviewLoaded && (
           <Box display="flex" justifyContent="center" width="100%" margin="10px 0">
-            <IconButton icon={<CheckIcon />} type="gradient" onClick={uploadAvatar} />
+            <IconButton icon={<Icon type="Check" />} type="gradient" onClick={uploadAvatar} />
           </Box>
         )}
       </Box>

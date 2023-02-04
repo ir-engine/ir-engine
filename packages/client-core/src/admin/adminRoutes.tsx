@@ -11,8 +11,7 @@ import { SceneClientModule } from '@xrengine/engine/src/scene/SceneClientModule'
 import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
 import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
 import { dispatchAction } from '@xrengine/hyperflux'
-
-import CircularProgress from '@mui/material/CircularProgress'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
 
 import PrivateRoute from '../Private'
 import AdminSystem from '../systems/AdminSystem'

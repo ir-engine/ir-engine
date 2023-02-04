@@ -1,8 +1,9 @@
 import React from 'react'
 
+import Tab from '@xrengine/ui/src/Tab'
+import { default as MUITabs } from '@xrengine/ui/src/Tabs'
+
 import { SxProps, Theme } from '@mui/material/styles'
-import Tab from '@mui/material/Tab'
-import { default as MUITabs } from '@mui/material/Tabs'
 
 import { handleSoundEffect } from '../../utils'
 import { InputMenuItem } from '../InputSelect'

@@ -3,22 +3,10 @@ import React from 'react'
 
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-
-import {
-  Mic,
-  MicOff,
-  RecordVoiceOver,
-  Videocam,
-  VideocamOff,
-  VoiceOverOff,
-  VolumeDown,
-  VolumeMute,
-  VolumeOff,
-  VolumeUp
-} from '@mui/icons-material'
-import IconButton from '@mui/material/IconButton'
-import Slider from '@mui/material/Slider'
-import Tooltip from '@mui/material/Tooltip'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Slider from '@xrengine/ui/src/Slider'
+import Tooltip from '@xrengine/ui/src/Tooltip'
 
 import { useUserMediaWindowHook } from '../UserMediaWindow'
 import styles from './index.module.scss'
@@ -91,7 +79,7 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
             {videoStream && !videoProducerPaused ? (
               <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
                 <IconButton size="small" className={styles['icon-button']} onClick={toggleVideo}>
-                  {videoStreamPaused ? <VideocamOff /> : <Videocam />}
+                  <Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />
                 </IconButton>
               </Tooltip>
             ) : null}
@@ -104,7 +92,7 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
                 }
               >
                 <IconButton size="small" className={styles['icon-button']} onClick={toggleGlobalMute}>
-                  {audioProducerGlobalMute ? <VoiceOverOff /> : <RecordVoiceOver />}
+                  <Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />
                 </IconButton>
               </Tooltip>
             )}
@@ -121,7 +109,17 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
                 }
               >
                 <IconButton size="small" className={styles['icon-button']} onClick={toggleAudio}>
-                  {isSelf ? audioStreamPaused ? <MicOff /> : <Mic /> : audioStreamPaused ? <VolumeOff /> : <VolumeUp />}
+                  {isSelf ? (
+                    audioStreamPaused ? (
+                      <Icon type="MicOff" />
+                    ) : (
+                      <Icon type="Mic" />
+                    )
+                  ) : audioStreamPaused ? (
+                    <Icon type="VolumeOff" />
+                  ) : (
+                    <Icon type="VolumeUp" />
+                  )}
                 </IconButton>
               </Tooltip>
             ) : null}
@@ -129,11 +127,11 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
           {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
           {audioStream && !audioProducerPaused && !audioProducerGlobalMute && (
             <div className={styles['audio-slider']}>
-              {volume === 0 && <VolumeMute />}
-              {volume > 0 && volume < 0.7 && <VolumeDown />}
-              {volume >= 0.7 && <VolumeUp />}
+              {volume === 0 && <Icon type="VolumeMute" />}
+              {volume > 0 && volume < 0.7 && <Icon type="VolumeDown" />}
+              {volume >= 0.7 && <Icon type="VolumeUp" />}
               <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider" />
-              <VolumeUp />
+              <Icon type="VolumeUp" />
             </div>
           )}
         </div>

@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ToggleButtonGroup - should render 1`] = `
+<ForwardRef(ToggleButtonGroup)
+  defaultChecked={true}
+  inputProps={
+    {
+      "aria-label": "ToggleButtonGroup demo",
+    }
+  }
+/>
+`;

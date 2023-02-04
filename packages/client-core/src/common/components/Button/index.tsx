@@ -2,11 +2,10 @@ import React from 'react'
 
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import Text from '@xrengine/client-core/src/common/components/Text'
+import Box from '@xrengine/ui/src/Box'
+import { default as MUIButton } from '@xrengine/ui/src/Button'
+import Icon from '@xrengine/ui/src/Icon'
 
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import Box from '@mui/material/Box'
-import { default as MUIButton } from '@mui/material/Button'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
@@ -59,7 +58,7 @@ const Button = ({
         onPointerEnter={handleSoundEffect}
       >
         <Text variant="body2">{children}</Text>
-        <IconButton icon={open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />} />
+        <IconButton icon={open ? <Icon type="KeyboardArrowUp" /> : <Icon type="KeyboardArrowDown" />} />
       </Box>
     )
   }

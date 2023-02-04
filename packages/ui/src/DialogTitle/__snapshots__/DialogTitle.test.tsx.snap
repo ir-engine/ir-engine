@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DialogTitle - should render 1`] = `
+<ForwardRef(DialogTitle)>
+  I'm a Dialog Title
+</ForwardRef(DialogTitle)>
+`;

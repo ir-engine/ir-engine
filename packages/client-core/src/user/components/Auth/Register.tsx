@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
-import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import Grid from '@mui/material/Grid'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
+import Avatar from '@xrengine/ui/src/Avatar'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import TextField from '@xrengine/ui/src/TextField'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -38,7 +38,7 @@ const SignUp = (): JSX.Element => {
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
         <Avatar className={styles.avatar}>
-          <LockOutlinedIcon />
+          <Icon type="LockOutlined" />
         </Avatar>
         <Typography component="h1" variant="h5">
           {t('user:auth.register.header')}

@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Box - should render 1`] = `
+<ForwardRef(Card)
+  sx={
+    {
+      "minWidth": 275,
+    }
+  }
+>
+  <CardContent>
+    <Typography>
+      I'm typography
+    </Typography>
+    <CardMedia
+      alt="Car Content"
+      component="img"
+      height="194"
+      image="https://avatars.githubusercontent.com/u/61642798?s=200&v=4"
+    />
+  </CardContent>
+</ForwardRef(Card)>
+`;

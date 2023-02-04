@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TablePagination - should render 1`] = `
+<ForwardRef(TablePagination)
+  count={1}
+  onPageChange={[Function]}
+  page={1}
+  rowsPerPage={1}
+/>
+`;

@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Dialog - should render 1`] = `
+<ForwardRef(Dialog)
+  open={true}
+>
+  <DialogTitle>
+    I'm a Dialog Title
+  </DialogTitle>
+  <DialogContent>
+    <DialogContentText>
+      I am DialogContentText
+    </DialogContentText>
+    <TextField />
+  </DialogContent>
+  <DialogActions>
+    <Button>
+      I'm a button
+    </Button>
+  </DialogActions>
+</ForwardRef(Dialog)>
+`;

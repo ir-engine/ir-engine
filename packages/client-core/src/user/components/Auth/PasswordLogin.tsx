@@ -2,16 +2,15 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { dispatchAction } from '@xrengine/hyperflux'
-
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
-import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
+import Avatar from '@xrengine/ui/src/Avatar'
+import Button from '@xrengine/ui/src/Button'
+import Checkbox from '@xrengine/ui/src/Checkbox'
+import Container from '@xrengine/ui/src/Container'
+import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import TextField from '@xrengine/ui/src/TextField'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { DialogAction } from '../../../common/services/DialogService'
 import { useAuthState } from '../../services/AuthService'
@@ -60,7 +59,7 @@ const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
         <Avatar className={styles.avatar}>
-          <LockOutlinedIcon />
+          <Icon type="LockOutlined" />
         </Avatar>
         <Typography component="h1" variant="h5">
           {t('user:auth.passwordLogin.header')}

@@ -8,11 +8,10 @@ import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/com
 import config from '@xrengine/common/src/config'
 import { ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
 import multiLogger from '@xrengine/common/src/logger'
-
-import SyncIcon from '@mui/icons-material/Sync'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import IconButton from '@mui/material/IconButton'
+import Box from '@xrengine/ui/src/Box'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
@@ -188,7 +187,7 @@ const ServerTable = ({ selectedCard }: Props) => {
               sx={{ marginRight: 1.5 }}
               onClick={handleRefreshServerInfo}
             >
-              <SyncIcon />
+              <Icon type="Sync" />
             </IconButton>
           )}
 

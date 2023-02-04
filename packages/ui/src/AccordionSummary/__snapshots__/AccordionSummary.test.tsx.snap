@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AccordianSummary - should render 1`] = `
+<ForwardRef(AccordionSummary)>
+  <div>
+    hello, I'm an Accordian Summary
+  </div>
+</ForwardRef(AccordionSummary)>
+`;

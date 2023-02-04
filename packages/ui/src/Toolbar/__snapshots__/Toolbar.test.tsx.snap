@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Toolbar - should render 1`] = `
+<ForwardRef(Toolbar)>
+  <IconButton
+    icon={<Memo />}
+  />
+  <Typography
+    component="h2"
+    variant="h1"
+  >
+    I'm typography
+  </Typography>
+</ForwardRef(Toolbar)>
+`;

@@ -10,8 +10,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
-
-import { AdminPanelSettings, Help, Refresh, Report, ScreenshotMonitor } from '@mui/icons-material'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { EmoteIcon } from '../../../user/components/UserMenu'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -74,7 +73,7 @@ const LocationMenuView = () => {
           </XRTextButton>
         )}
         <XRTextButton onClick={handleRespawnAvatar}>
-          <Refresh />
+          <Icon type="Refresh" />
           {t('user:usermenu.location.btn-respawn')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenEmoteMenuWidget}>
@@ -82,20 +81,20 @@ const LocationMenuView = () => {
           {t('user:usermenu.location.btn-emote')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenHelpMenuWidget}>
-          <Help />
+          <Icon type="Help" />
           {t('user:usermenu.location.btn-help')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenReportIssueMenuWidget}>
-          <Report />
+          <Icon type="Report" />
           {t('user:usermenu.location.btn-reportIssue')}
         </XRTextButton>
         <XRTextButton onClick={handleToggleScreenRecord}>
-          <ScreenshotMonitor />
+          <Icon type="ScreenshotMonitor" />
           {t('user:usermenu.location.btn-screenRecord')}
         </XRTextButton>
         {isAdmin && (
           <XRTextButton onClick={handleOpenAdminControlsMenuWidget}>
-            <AdminPanelSettings />
+            <Icon type="AdminPanelSettings" />
             {t('user:usermenu.location.btn-adminControls')}
           </XRTextButton>
         )}

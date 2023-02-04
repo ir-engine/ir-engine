@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Checkbox - should render 1`] = `
+<ForwardRef(Checkbox)
+  defaultChecked={true}
+  inputProps={
+    {
+      "aria-label": "Checkbox demo",
+    }
+  }
+/>
+`;

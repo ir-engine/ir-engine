@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Visibility, VisibilityOff } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import OutlinedInput from '@mui/material/OutlinedInput'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import InputAdornment from '@xrengine/ui/src/InputAdornment'
+import OutlinedInput from '@xrengine/ui/src/OutlinedInput'
 
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -73,7 +73,7 @@ export const PasswordLoginApp = (): JSX.Element => {
                       color="secondary"
                       size="large"
                     >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                      <Icon type={showPassword ? 'Visibility' : 'VisibilityOff'} />
                     </IconButton>
                   </InputAdornment>
                 }

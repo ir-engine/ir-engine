@@ -17,9 +17,7 @@ import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/s
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
-import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
@@ -136,7 +134,7 @@ const SettingDetailView = () => {
           <section className="audioSection">
             <h4 className="title">{t('user:usermenu.setting.audio')}</h4>
             <div className="sectionRow">
-              <VolumeUp />
+              <Icon type="VolumeUp" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-volume')}
                 min="0"
@@ -149,7 +147,7 @@ const SettingDetailView = () => {
               />
             </div>
             <div className="sectionRow">
-              <Mic />
+              <Icon type="Mic" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-microphone')}
                 min="0"
@@ -170,7 +168,7 @@ const SettingDetailView = () => {
             {showAudioDetails && (
               <>
                 <div className="sectionRow">
-                  <SurroundSoundIcon />
+                  <Icon type="SurroundSound" />
                   <XRCheckboxButton
                     labelContent={t('user:usermenu.setting.use-positional-media')}
                     checked={audioState.positionalMedia.value}
@@ -180,7 +178,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-media-instance')}
                     min="0"
@@ -193,7 +191,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-notification')}
                     min="0"
@@ -206,7 +204,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-sound-effect')}
                     min="0"
@@ -219,7 +217,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-background-music-volume')}
                     min="0"
@@ -241,7 +239,7 @@ const SettingDetailView = () => {
           <section className="graphicsSection">
             <h4 className="title">{t('user:usermenu.setting.graphics')}</h4>
             <div className="sectionRow">
-              <BlurLinear />
+              <Icon type="BlurLinear" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-resolution')}
                 min="1"

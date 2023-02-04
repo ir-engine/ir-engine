@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-
-import { Box, CircularProgress } from '@mui/material'
-import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
-import Grid from '@mui/material/Grid'
+import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
+import Chip from '@xrengine/ui/src/Chip'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
+import Grid from '@xrengine/ui/src/Grid'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'

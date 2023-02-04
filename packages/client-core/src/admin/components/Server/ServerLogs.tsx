@@ -4,13 +4,10 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import multiLogger from '@xrengine/common/src/logger'
-
-import CloseIcon from '@mui/icons-material/Close'
-import DownloadIcon from '@mui/icons-material/Download'
-import SyncIcon from '@mui/icons-material/Sync'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import IconButton from '@mui/material/IconButton'
+import Box from '@xrengine/ui/src/Box'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import { useServerInfoState } from '../../services/ServerInfoService'
 import { ServerLogsService, useServerLogsState } from '../../services/ServerLogsService'
@@ -146,7 +143,7 @@ const ServerLogs = () => {
           className={styles.iconButton}
           onClick={handleDownloadServerLogs}
         >
-          <DownloadIcon />
+          <Icon type="Download" />
         </IconButton>
 
         {serverLogs.value.retrieving === false && (
@@ -156,7 +153,7 @@ const ServerLogs = () => {
             sx={{ marginRight: 1.5 }}
             onClick={handleRefreshServerLogs}
           >
-            <SyncIcon />
+            <Icon type="Sync" />
           </IconButton>
         )}
 
@@ -176,7 +173,7 @@ const ServerLogs = () => {
           className={styles.iconButton}
           onClick={handleCloseServerLogs}
         >
-          <CloseIcon />
+          <Icon type="Close" />
         </IconButton>
       </Box>
       <Box sx={{ overflow: 'auto' }}>

@@ -5,12 +5,11 @@ import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/com
 import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { LocationFetched } from '@xrengine/common/src/interfaces/Location'
-
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import Grid from '@mui/material/Grid'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import DialogActions from '@xrengine/ui/src/DialogActions'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import Grid from '@xrengine/ui/src/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'

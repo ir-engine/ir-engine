@@ -1,7 +1,8 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 
-import { Box, Checkbox } from '@mui/material'
-import CircularProgress from '@mui/material/CircularProgress'
+import Box from '@xrengine/ui/src/Box'
+import Checkbox from '@xrengine/ui/src/Checkbox'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

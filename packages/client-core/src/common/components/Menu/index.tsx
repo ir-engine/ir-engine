@@ -3,16 +3,15 @@ import { useTranslation } from 'react-i18next'
 
 import Button from '@xrengine/client-core/src/common/components/Button'
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
+import Box from '@xrengine/ui/src/Box'
+import { default as MUIDialog } from '@xrengine/ui/src/Dialog'
+import DialogActions from '@xrengine/ui/src/DialogActions'
+import DialogContent from '@xrengine/ui/src/DialogContent'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import Icon from '@xrengine/ui/src/Icon'
+import Typography from '@xrengine/ui/src/Typography'
 
-import ArrowBack from '@mui/icons-material/ArrowBack'
-import CloseIcon from '@mui/icons-material/Close'
-import Box from '@mui/material/Box'
-import { default as MUIDialog } from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import { Breakpoint, SxProps, Theme } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
 
 import styles from './index.module.scss'
 
@@ -61,7 +60,7 @@ const Menu = ({
     <>
       {(showBackButton || title || header || showCloseButton) && (
         <DialogTitle className={styles.dialogTitle}>
-          {showBackButton && <IconButton icon={<ArrowBack />} sx={{ mr: 1 }} onClick={onBack} />}
+          {showBackButton && <IconButton icon={<Icon type="ArrowBack" />} sx={{ mr: 1 }} onClick={onBack} />}
 
           {title && (
             <Typography variant="h6" sx={{ ml: showBackButton ? undefined : 1.5 }}>
@@ -71,7 +70,7 @@ const Menu = ({
 
           {header}
 
-          {showCloseButton && <IconButton icon={<CloseIcon />} sx={{ ml: 1 }} onClick={onClose} />}
+          {showCloseButton && <IconButton icon={<Icon type="Close" />} sx={{ ml: 1 }} onClick={onClose} />}
         </DialogTitle>
       )}
 

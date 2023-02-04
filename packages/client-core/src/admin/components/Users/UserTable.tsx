@@ -4,12 +4,9 @@ import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
-
-import EmailIcon from '@mui/icons-material/Email'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import PhoneIcon from '@mui/icons-material/Phone'
-import Box from '@mui/material/Box'
-import Tooltip from '@mui/material/Tooltip'
+import Box from '@xrengine/ui/src/Box'
+import Icon from '@xrengine/ui/src/Icon'
+import Tooltip from '@xrengine/ui/src/Tooltip'
 
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
@@ -109,14 +106,14 @@ const UserTable = ({ className, search }: UserProps) => {
           {facebookIp && (
             <Tooltip title={facebookIp.accountIdentifier!} arrow>
               <span>
-                <FacebookIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
               </span>
             </Tooltip>
           )}
           {twitterIp && (
             <Tooltip title={twitterIp.accountIdentifier!} arrow>
               <span>
-                <TwitterIcon width="20px" height="20px" viewBox="0 0 40 40" />
+                <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
               </span>
             </Tooltip>
           )}
@@ -129,17 +126,17 @@ const UserTable = ({ className, search }: UserProps) => {
           )}
           {githubIp && (
             <Tooltip title={githubIp.accountIdentifier!} arrow>
-              <GitHubIcon width="20px" height="20px" />
+              <Icon type="GitHub" width="20px" height="20px" />
             </Tooltip>
           )}
           {emailIp && (
             <Tooltip title={emailIp.accountIdentifier!} arrow>
-              <EmailIcon width="20px" height="20px" />
+              <Icon type="Email" width="20px" height="20px" />
             </Tooltip>
           )}
           {smsIp && (
             <Tooltip title={smsIp.accountIdentifier!} arrow>
-              <PhoneIcon width="20px" height="20px" />
+              <Icon type="Phone" width="20px" height="20px" />
             </Tooltip>
           )}
         </Box>
