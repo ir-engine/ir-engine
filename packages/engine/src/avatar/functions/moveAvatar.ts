@@ -20,6 +20,7 @@ import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
+import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 
 const avatarGroundRaycastDistanceIncrease = 0.5
@@ -356,7 +357,7 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
 
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
-    prevVector = new Vector3(0, 0, 1)
+    prevVector = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, SpawnPoseComponent).rotation)
     prevVectors.set(entity, prevVector)
   }
 
