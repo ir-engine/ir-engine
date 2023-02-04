@@ -28,6 +28,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -106,8 +107,8 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
 function applyDescToCollider(
   colliderDesc: ColliderDesc,
   shapeOptions: ColliderDescOptions,
-  position: Vector3,
-  quaternion: Quaternion
+  position?: Vector3,
+  quaternion?: Quaternion
 ) {
   if (typeof shapeOptions.friction !== 'undefined') colliderDesc.setFriction(shapeOptions.friction)
   if (typeof shapeOptions.restitution !== 'undefined') colliderDesc.setRestitution(shapeOptions.restitution)
@@ -118,8 +119,8 @@ function applyDescToCollider(
     typeof shapeOptions.collisionMask !== 'undefined' ? Number(shapeOptions.collisionMask) : DefaultCollisionMask
   colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
 
-  colliderDesc.setTranslation(position.x, position.y, position.z)
-  colliderDesc.setRotation(quaternion)
+  if (position) colliderDesc.setTranslation(position.x, position.y, position.z)
+  if (quaternion) colliderDesc.setRotation(quaternion)
 
   if (typeof shapeOptions.isTrigger !== 'undefined') colliderDesc.setSensor(shapeOptions.isTrigger)
 
@@ -129,7 +130,7 @@ function applyDescToCollider(
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 }
 
-function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
+function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions, isRoot = false): ColliderDesc {
   if (!colliderDescOptions.shapeType && colliderDescOptions.type)
     colliderDescOptions.shapeType = colliderDescOptions.type
 
@@ -220,13 +221,18 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       return undefined!
   }
 
-  applyDescToCollider(colliderDesc, colliderDescOptions, mesh.position, mesh.quaternion)
+  applyDescToCollider(
+    colliderDesc,
+    colliderDescOptions,
+    isRoot ? undefined : mesh.position,
+    isRoot ? undefined : mesh.quaternion
+  )
 
   return colliderDesc
 }
 
 function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptions: ColliderDescOptions): RigidBody {
-  const group = getComponent(entity, GroupComponent)
+  const group = getComponent(entity, GroupComponent) as any as Mesh[]
   if (!group) return undefined!
 
   const colliderDescs = [] as ColliderDesc[]
@@ -237,7 +243,7 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
     obj.traverse((mesh: Mesh) => {
       // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-      const colliderDesc = createColliderDesc(mesh, args)
+      const colliderDesc = createColliderDesc(mesh, args, obj === mesh)
       if (colliderDesc) {
         if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)
         colliderDescs.push(colliderDesc)
