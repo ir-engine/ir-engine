@@ -1,5 +1,4 @@
 node_modules/
-ios/
-www/
-android/
-*.ts.bak
+
+*.snap
+/tests/jest-test-results.json

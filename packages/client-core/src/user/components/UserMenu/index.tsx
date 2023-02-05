@@ -8,9 +8,9 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@xrengine/hyperflux'
-import Icon from '@xrengine/ui/src/Icon'
 import IconButton from '@xrengine/ui/src/IconButton'
 
+import { Groups, Person } from '@mui/icons-material'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
@@ -68,8 +68,8 @@ export const UserMenu = (): any => {
       [Views.AvatarContext]: AvatarContextMenu
     })
     getState(PopupMenuState).hotbar.merge({
-      [Views.Profile]: PersonIcon,
-      [Views.Share]: GroupsIcon,
+      [Views.Profile]: Person,
+      [Views.Share]: Groups,
       [Views.Emote]: EmoteIcon
     })
 
