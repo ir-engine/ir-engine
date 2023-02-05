@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Avatar - should render 1`] = `
-<ForwardRef(Avatar)
-  alt="User"
-  src="https://avatars.githubusercontent.com/u/61642798?s=200&v=4"
-/>
-`;

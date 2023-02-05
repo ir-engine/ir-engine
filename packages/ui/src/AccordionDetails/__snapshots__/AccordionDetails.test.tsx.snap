@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`AccordianDetails - should render 1`] = `
-<ForwardRef(AccordionDetails)>
-  <div>
-    Hello, I'm an Accordian Details!
-  </div>
-</ForwardRef(AccordionDetails)>
-`;

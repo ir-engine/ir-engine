@@ -30,6 +30,7 @@ import {
   ContactMail,
   ContentCopy,
   Create,
+  CrisisAlert,
   Dashboard,
   Delete,
   Difference,
@@ -130,6 +131,8 @@ import { SvgIconProps } from '@mui/material'
 const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
   switch (type) {
     default:
+      console.log(`----------------Icon type not found: ${type}`)
+      return <CrisisAlert {...props} />
     case 'Delete':
       return <Delete {...props} />
     case 'Search':
@@ -376,6 +379,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Timeline {...props} />
     case 'Toys':
       return <Toys {...props} />
+    case 'Phone':
+      return <Phone {...props} />
   }
 }
 

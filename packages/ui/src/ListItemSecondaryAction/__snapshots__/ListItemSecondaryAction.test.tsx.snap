@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`ListItemSecondaryAction - should render 1`] = `<ForwardRef(ListItemSecondaryAction) />`;

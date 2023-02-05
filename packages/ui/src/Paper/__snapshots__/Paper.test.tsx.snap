@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Paper - should render 1`] = `
-<ForwardRef(Paper)>
-  <Typography>
-    I'm typography
-  </Typography>
-</ForwardRef(Paper)>
-`;

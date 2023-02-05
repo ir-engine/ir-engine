@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`DialogActions - should render 1`] = `
-<ForwardRef(DialogActions)>
-  <Button>
-    I'm a button
-  </Button>
-</ForwardRef(DialogActions)>
-`;
