@@ -141,8 +141,6 @@ export function createWebXRManager() {
 
   scope.setSession = async function (session: XRSession, framebufferScaleFactor = 1) {
     if (session !== null) {
-      session.updateTargetFrameRate(120)
-
       const renderer = EngineRenderer.instance.renderer
       xrRendererState.initialRenderTarget.set(renderer.getRenderTarget())
 
@@ -356,7 +354,6 @@ export function createWebXRManager() {
         const rtOptions = {
           format: RGBAFormat,
           type: HalfFloatType,
-          // @ts-ignore
           depthTexture: new DepthTexture(
             glSubImage.depthStencilTextureWidth,
             glSubImage.textureHeight,
@@ -367,6 +364,7 @@ export function createWebXRManager() {
             undefined,
             undefined,
             undefined,
+            // @ts-ignore
             DepthFormat
           ),
           stencilBuffer: attributes.stencil,

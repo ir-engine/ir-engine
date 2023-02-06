@@ -105,6 +105,11 @@ export const setupXRSession = async (requestedMode) => {
 
   await xrManager.setSession(xrSession, framebufferScaleFactor)
 
+  if (xrManager.isMultiview && xrSession.supportedFrameRates && typeof xrSession.frameRate === 'number') {
+    const highestSupportedFrameRate = xrSession.supportedFrameRates[xrSession.supportedFrameRates.length - 1]
+    if (highestSupportedFrameRate !== xrSession.frameRate) xrSession.updateTargetFrameRate(highestSupportedFrameRate)
+  }
+
   xrState.session.set(xrSession)
 
   xrState.requestingSession.set(false)
