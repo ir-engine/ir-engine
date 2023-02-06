@@ -36,19 +36,15 @@ type InstanceState = {
 export const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
-    instances: {} as { [id: string]: InstanceState },
+    instances: {} as { [id: string]: InstanceState | undefined },
     joiningNonInstanceMediaChannel: false
   })
 })
 
 export function useMediaInstance() {
-  const [state, setState] = React.useState(null as null | State<InstanceState>)
   const mediaInstanceState = useState(getState(MediaInstanceState).instances)
   const mediaHostId = useState(Engine.instance.currentWorld.hostIds.media)
-  useEffect(() => {
-    setState(mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null)
-  }, [mediaInstanceState, mediaHostId])
-  return state
+  return mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null
 }
 
 export const MediaInstanceConnectionServiceReceptor = (action) => {
