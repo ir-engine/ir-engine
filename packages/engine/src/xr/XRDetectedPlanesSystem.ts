@@ -59,10 +59,6 @@ export const createGeometryFromPolygon = (plane: XRPlane) => {
 let planeId = 0
 
 export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, plane: XRPlane) => {
-  const referenceSpace = ReferenceSpace.localFloor!
-
-  const planePose = frame.getPose(plane.planeSpace, referenceSpace)!
-
   const geometry = new BufferGeometry()
 
   const entity = createEntity()
@@ -70,10 +66,6 @@ export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, pl
   setVisibleComponent(entity, true)
   setComponent(entity, XRPlaneComponent)
   setComponent(entity, NameComponent, 'plane-' + planeId++)
-
-  const transform = getComponent(entity, LocalTransformComponent)
-  transform.matrix.fromArray(planePose.transform.matrix)
-  transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
 
   const shadowMat = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a })
   shadowMat.polygonOffset = true
@@ -145,6 +137,19 @@ export default async function XRDetectedPlanesSystem(world: World) {
         const entity = detectedPlanesMap.get(plane)!
         const geometry = createGeometryFromPolygon(plane)
         getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
+      }
+    }
+
+    if (ReferenceSpace.localFloor) {
+      for (const [plane, entity] of detectedPlanesMap) {
+        const planePose = frame.getPose(plane.planeSpace, ReferenceSpace.localFloor)!
+        LocalTransformComponent.position.x[entity] = planePose.transform.position.x
+        LocalTransformComponent.position.y[entity] = planePose.transform.position.y
+        LocalTransformComponent.position.z[entity] = planePose.transform.position.z
+        LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
+        LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
+        LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
+        LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
       }
     }
   }
