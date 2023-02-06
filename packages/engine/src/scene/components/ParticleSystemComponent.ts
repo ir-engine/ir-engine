@@ -24,12 +24,98 @@ import {
 } from 'three.quarks'
 import matches, { Validator } from 'ts-matches'
 
+import { config } from '@xrengine/common/src/config'
 import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
 import { getState, MatchesWithDefault, NO_PROXY, none } from '@xrengine/hyperflux'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetClass } from '../../assets/enum/AssetClass'
 import { defineComponent, getComponent, getComponentState, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
+import { addObjectToGroup } from './GroupComponent'
+
+/*
+SHAPE TYPES
+*/
+export type PointShapeJSON = {
+  type: 'point'
+}
+
+export type SphereShapeJSON = {
+  type: 'sphere'
+  radius?: number
+}
+
+export type ConeShapeJSON = {
+  type: 'cone'
+  radius?: number
+  arc?: number
+  thickness?: number
+  angle?: number
+}
+
+export type DonutShapeJSON = {
+  type: 'donut'
+  radius?: number
+  arc?: number
+  thickness?: number
+  angle?: number
+}
+
+export type MeshShapeJSON = {
+  type: 'mesh'
+  mesh?: string
+}
+
+export type GridShapeJSON = {
+  type: 'grid'
+  width?: number
+  height?: number
+  column?: number
+  row?: number
+}
+
+export type EmitterShapeJSON =
+  | PointShapeJSON
+  | SphereShapeJSON
+  | ConeShapeJSON
+  | MeshShapeJSON
+  | GridShapeJSON
+  | DonutShapeJSON
+
+/*
+/SHAPE TYPES
+*/
+
+/*
+VALUE GENERATOR TYPES
+*/
+
+export type ConstantValueJSON = {
+  type: 'ConstantValue'
+  value: number
+}
+
+export type IntervalValueJSON = {
+  type: 'IntervalValue'
+  a: number
+  b: number
+}
+
+export type ConstantColorJSON = {
+  type: 'ConstantColor'
+  color: {
+    r: number
+    g: number
+    b: number
+    a: number
+  }
+}
+
+/*
+/VALUE GENERATOR TYPES
+*/
 
 export type BehaviorJSON = OpaqueType<'BehaviorJSON'> & { [field: string]: any }
 
@@ -82,20 +168,45 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = 
   looping: true,
   duration: 5,
   shape: { type: 'point' },
-  startLife: {},
-  startSpeed: {},
-  startRotation: {},
-  startSize: {},
-  startColor: {},
-  emissionOverTime: {},
-  emissionOverDistance: {},
+  startLife: {
+    type: 'IntervalValue',
+    a: 1,
+    b: 2
+  },
+  startSpeed: {
+    type: 'ConstantValue',
+    value: 1
+  },
+  startRotation: {
+    type: 'IntervalValue',
+    a: 0,
+    b: 300
+  },
+  startSize: {
+    type: 'IntervalValue',
+    a: 0.1,
+    b: 0.45
+  },
+  startColor: {
+    type: 'ConstantColor',
+    color: { r: 1, g: 1, b: 1, a: 1 }
+  },
+  emissionOverTime: {
+    type: 'ConstantValue',
+    value: 35
+  },
+  emissionOverDistance: {
+    type: 'ConstantValue',
+    value: 0
+  },
+  emissionBursts: [],
   onlyUsedByOther: false,
   rendererEmitterSettings: {
     startLength: undefined,
     followLocalOrigin: undefined
   },
   renderMode: 0,
-  texture: '/static/dot.png',
+  texture: '/static/editor/dot.png',
   startTileIndex: 0,
   uTileCount: 1,
   vTileCount: 1,
@@ -135,29 +246,35 @@ export const ParticleSystemComponent = defineComponent({
   reactor: function ({ root }: EntityReactorProps) {
     const entity = root.entity
     if (!hasComponent(entity, ParticleSystemComponent)) throw root.stop()
-    const component = getComponent(entity, ParticleSystemComponent)
+    const component = getComponent<ParticleSystemComponentType>(entity, ParticleSystemComponent)
     const componentState = getComponentState(entity, ParticleSystemComponent)
     const batchRenderer = getBatchRenderer()!
+
     useEffect(() => {
       component.system !== undefined && batchRenderer.remove(component.system.emitter)
       component.system !== undefined && component.system.dispose()
-      const nuSystem = ParticleSystem.fromJSON(
-        component.systemParameters,
-        {
-          textures: {},
-          geometries: {}
-        },
-        {},
-        batchRenderer
-      )
-      componentState.behaviors.set(
-        component.behaviorParameters.map((behaviorJSON) => {
-          const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
-          nuSystem.addBehavior(behavior)
-          return behavior
+
+      AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image &&
+        AssetLoader.load(component.systemParameters.texture, {}, (texture) => {
+          const nuSystem = ParticleSystem.fromJSON(
+            component.systemParameters,
+            {
+              textures: { [component.systemParameters.texture]: texture },
+              geometries: {}
+            },
+            {},
+            batchRenderer
+          )
+          componentState.behaviors.set(
+            component.behaviorParameters.map((behaviorJSON) => {
+              const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
+              nuSystem.addBehavior(behavior)
+              return behavior
+            })
+          )
+          addObjectToGroup(entity, nuSystem.emitter)
+          componentState.system.set(nuSystem)
         })
-      )
-      componentState.system.set(nuSystem)
     }, [componentState.systemParameters, componentState.behaviorParameters])
     return null
   }

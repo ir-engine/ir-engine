@@ -33,6 +33,8 @@ export default async function ParticleSystem(world: World) {
     for (const action of sceneLoadListener()) {
       batchRenderer!.parent === null && world.scene.add(batchRenderer!)
     }
+
+    batchRenderer && batchRenderer.update(world.deltaSeconds)
   }
 
   async function cleanup() {
