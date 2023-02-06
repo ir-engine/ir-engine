@@ -59,7 +59,7 @@ export const createGeometryFromPolygon = (plane: XRPlane) => {
 let planeId = 0
 
 export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, plane: XRPlane) => {
-  const referenceSpace = ReferenceSpace.origin!
+  const referenceSpace = ReferenceSpace.localFloor!
 
   const planePose = frame.getPose(plane.planeSpace, referenceSpace)!
 
