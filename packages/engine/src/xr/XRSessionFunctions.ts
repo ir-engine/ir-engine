@@ -65,7 +65,8 @@ export const setupXRSession = async (requestedMode) => {
       'light-estimation',
       'depth-sensing',
       'anchors',
-      'plane-detection'
+      'plane-detection',
+      'space-warp'
     ],
     depthSensing: {
       usagePreference: ['cpu-optimized', 'gpu-optimized'],

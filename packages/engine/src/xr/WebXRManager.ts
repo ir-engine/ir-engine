@@ -3,6 +3,11 @@ import {
   DepthFormat,
   DepthStencilFormat,
   DepthTexture,
+  HalfFloatType,
+  InstancedBufferAttribute,
+  Material,
+  MaterialParameters,
+  Matrix4,
   PerspectiveCamera,
   RGBAFormat,
   UnsignedByteType,
@@ -10,6 +15,7 @@ import {
   UnsignedIntType,
   Vector3,
   Vector4,
+  VelocityMaterial,
   WebGLMultiviewRenderTarget,
   WebGLRenderer,
   WebGLRenderTarget,
@@ -35,6 +41,11 @@ declare module 'three/src/cameras/PerspectiveCamera' {
 declare module 'three/src/renderers/WebGLRenderer' {
   interface WebGLRenderer {
     animation: WebGLAnimation
+    setRenderTargetTextures(
+      renderTarget: WebGLRenderTarget | null,
+      depthTexture: WebGLTexture | null,
+      stencilTexture?: WebGLTexture | null
+    ): void
   }
 }
 
@@ -43,6 +54,14 @@ declare module 'three' {
     constructor(width: number, height: number, numViews: number, options: WebGLRenderTargetOptions)
     numViews: number
     static isWebGLMultiviewRenderTarget: true
+  }
+  class VelocityMaterial extends Material {
+    constructor(parameters: MaterialParameters)
+    readonly type: 'VelocityMaterial'
+    readonly isVelocityMaterial: true
+    previousModelMatrix: Matrix4
+    previousViewMatrices: [Matrix4, Matrix4]
+    previousInstanceMatrix: Matrix4
   }
 }
 
@@ -55,6 +74,13 @@ declare global {
 
   interface XRSession {
     interactionMode: 'screen-space' | 'world-space'
+  }
+
+  interface XRWebGLSubImage {
+    depthStencilTextureWidth: number
+    motionVectorTextureWidth: number
+    motionVectorTextureHeight: number
+    motionVectorTexture: WebGLTexture
   }
 }
 
@@ -83,8 +109,15 @@ export function createWebXRManager() {
   scope.isPresenting = false
   scope.isMultiview = false
 
+  scope.velocityRenderTarget = null as WebGLRenderTarget | null
+  scope.isRenderingSpaceWarp = false
+
+  scope.glSubImage = null as XRWebGLSubImage | null
+
   function onSessionEnd() {
     xrState.session.value!.removeEventListener('end', onSessionEnd)
+
+    scope.velocityRenderTarget = null
 
     // restore framebuffer/rendering state
 
@@ -108,6 +141,8 @@ export function createWebXRManager() {
 
   scope.setSession = async function (session: XRSession, framebufferScaleFactor = 1) {
     if (session !== null) {
+      session.updateTargetFrameRate(120)
+
       const renderer = EngineRenderer.instance.renderer
       xrRendererState.initialRenderTarget.set(renderer.getRenderTarget())
 
@@ -261,20 +296,117 @@ export function createWebXRManager() {
     }
   }
 
+  scope.spaceWarpOnBeforeRender = function (object, material) {
+    if (scope.isRenderingSpaceWarp === false) {
+      return material
+    }
+
+    if (object._velocityMaterial === undefined) {
+      object._velocityMaterial = new VelocityMaterial({
+        side: material.side
+      })
+
+      object._velocityMaterial.precision = 'highp'
+
+      if (object.isInstancedMesh === true) {
+        object.previousInstanceMatrix = new InstancedBufferAttribute(
+          new Float32Array(object.instanceMatrix.count * 16),
+          object.instanceMatrix.count
+        )
+        object.previousInstanceMatrix.copy(object.instanceMatrix)
+        object.previousInstanceMatrix.needsUpdate = true
+      }
+    }
+
+    return object._velocityMaterial
+  }
+
+  scope.spaceWarpOnAfterRender = function (object) {
+    if (scope.isRenderingSpaceWarp === false) return
+
+    const cameraVR = Engine.instance.currentWorld.camera
+
+    object._velocityMaterial.previousViewMatrices[0].copy(cameraVR.cameras[0].matrixWorldInverse)
+    object._velocityMaterial.previousViewMatrices[1].copy(cameraVR.cameras[1].matrixWorldInverse)
+    object._velocityMaterial.previousModelMatrix.copy(object.matrixWorld)
+
+    if (object.isInstancedMesh === true) {
+      object.previousInstanceMatrix.copy(object.instanceMatrix)
+      object.previousInstanceMatrix.needsUpdate = true
+    }
+  }
+
   // Animation Loop
 
   let onAnimationFrameCallback = null as typeof onAnimationFrame | null
+  let onVelocityCallback = null as Function | null
 
   function onAnimationFrame(time: number, frame: XRFrame) {
     if (onAnimationFrameCallback) onAnimationFrameCallback(time, frame)
+    if (onVelocityCallback) {
+      scope.isRenderingSpaceWarp = true
+
+      const renderer = EngineRenderer.instance.renderer
+      const glSubImage = scope.glSubImage!
+
+      if (scope.velocityRenderTarget === null) {
+        const gl = renderer.getContext() as WebGLRenderingContext
+        const attributes = gl.getContextAttributes()!
+
+        const rtOptions = {
+          format: RGBAFormat,
+          type: HalfFloatType,
+          // @ts-ignore
+          depthTexture: new DepthTexture(
+            glSubImage.depthStencilTextureWidth,
+            glSubImage.textureHeight,
+            UnsignedInt248Type,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            DepthFormat
+          ),
+          stencilBuffer: attributes.stencil,
+          encoding: renderer.outputEncoding,
+          samples: 0
+        }
+
+        scope.velocityRenderTarget = new WebGLMultiviewRenderTarget(
+          glSubImage.motionVectorTextureWidth,
+          glSubImage.motionVectorTextureHeight,
+          2,
+          rtOptions
+        )
+      }
+
+      renderer.setRenderTargetTextures(
+        scope.velocityRenderTarget,
+        glSubImage.motionVectorTexture,
+        glSubImage.depthStencilTexture
+      )
+
+      renderer.setRenderTarget(scope.velocityRenderTarget)
+
+      const cameraVR = Engine.instance.currentWorld.camera
+      cameraVR.cameras[0].viewport.set(0, 0, glSubImage.motionVectorTextureWidth, glSubImage.motionVectorTextureHeight)
+      cameraVR.cameras[1].viewport.set(0, 0, glSubImage.motionVectorTextureWidth, glSubImage.motionVectorTextureHeight)
+
+      onVelocityCallback(time, frame)
+
+      scope.isRenderingSpaceWarp = false
+    }
   }
 
   const animation = createWebGLAnimation()
 
   animation.setAnimationLoop(onAnimationFrame)
 
-  scope.setAnimationLoop = function (callback: typeof onAnimationFrame) {
+  scope.setAnimationLoop = function (callback: typeof onAnimationFrame, velocityCallback: Function) {
     onAnimationFrameCallback = callback
+    onVelocityCallback = velocityCallback
   }
 
   return scope

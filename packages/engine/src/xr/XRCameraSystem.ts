@@ -136,6 +136,7 @@ function updateCameraFromXRViewerPose() {
         viewport = glBaseLayer.getViewport(view)!
       } else if (glBinding) {
         const glSubImage = glBinding.getViewSubImage(glProjLayer!, view)
+        EngineRenderer.instance.xrManager.glSubImage = glSubImage
         viewport = glSubImage.viewport
 
         // For side-by-side projection, we only produce a single texture for both eyes.
@@ -144,7 +145,7 @@ function updateCameraFromXRViewerPose() {
           renderer.setRenderTargetTextures(
             newRenderTarget,
             glSubImage.colorTexture,
-            glProjLayer!.ignoreDepthValues ? undefined : glSubImage.depthStencilTexture
+            glProjLayer!.ignoreDepthValues ? null : glSubImage.depthStencilTexture
           )
 
           renderer.setRenderTarget(newRenderTarget)
