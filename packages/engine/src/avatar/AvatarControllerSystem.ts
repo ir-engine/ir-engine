@@ -1,12 +1,7 @@
-import { Matrix4, Quaternion, Vector3 } from 'three'
-
-import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import {
   defineQuery,
@@ -17,56 +12,44 @@ import {
   removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
-import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { AvatarComponent } from './components/AvatarComponent'
+import { XRAction } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
-/**
- * TODO: convert this to hyperflux state #7262
- */
-export class AvatarSettings {
-  static instance: AvatarSettings = new AvatarSettings()
-  // Speeds are same as animation's root motion - in meters per second
-  walkSpeed = 1.6762927669761485
-  runSpeed = 3.769894125544925 * 1.5
-  jumpHeight = 2
-}
-
 export default async function AvatarControllerSystem(world: World) {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
   const controllerQuery = defineQuery([AvatarControllerComponent])
+  const sessionChangedActions = createActionQueue(XRAction.sessionChanged.matches)
 
   addActionReceptor(AvatarInputSettingsReceptor)
 
   const execute = () => {
+    for (const action of sessionChangedActions()) {
+      if (action.active) {
+        for (const avatarEntity of localControllerQuery()) {
+          const controller = getComponent(avatarEntity, AvatarControllerComponent)
+          removeComponent(controller.cameraEntity, FollowCameraComponent)
+        }
+      } else {
+        for (const avatarEntity of localControllerQuery()) {
+          const controller = getComponent(avatarEntity, AvatarControllerComponent)
+          setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity: avatarEntity })
+        }
+      }
+    }
+
     for (const avatarEntity of localControllerQuery.enter()) {
       const controller = getComponent(avatarEntity, AvatarControllerComponent)
 
-      let targetEntity = avatarEntity
-      if (hasComponent(avatarEntity, AvatarComponent)) {
-        const avatarComponent = getComponent(avatarEntity, AvatarComponent)
-        targetEntity = createEntity()
-        setComponent(targetEntity, NameComponent, `Camera Target for: ${getComponent(avatarEntity, NameComponent)}`)
-        setTransformComponent(targetEntity)
-        setComputedTransformComponent(targetEntity, avatarEntity, () => {
-          const avatarTransform = getComponent(avatarEntity, TransformComponent)
-          const targetTransform = getComponent(targetEntity, TransformComponent)
-          targetTransform.position.copy(avatarTransform.position).y += avatarComponent.avatarHeight * 0.95
-        })
-      }
+      setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity: avatarEntity })
 
-      setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity })
-
+      // todo: this should be called when the avatar is spawned
       dispatchAction(WorldNetworkAction.spawnCamera({}))
     }
 

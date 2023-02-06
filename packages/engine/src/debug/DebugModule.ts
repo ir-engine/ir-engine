@@ -1,12 +1,12 @@
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
-import DebugRenderer from './systems/DebugRenderer'
+import DebugRendererSystem from './systems/DebugRendererSystem'
 
 export function DebugModule() {
   return [
     {
-      uuid: 'xre.engine.DebugRenderer',
+      uuid: 'xre.engine.DebugRendererSystem',
       type: SystemUpdateType.PRE_RENDER,
-      systemLoader: () => Promise.resolve({ default: DebugRenderer })
+      systemLoader: () => Promise.resolve({ default: DebugRendererSystem })
     }
   ]
 }

@@ -9,6 +9,7 @@ import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } f
 
 import { getState } from '@xrengine/hyperflux'
 
+import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -20,7 +21,6 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { WebcamInputComponent } from '../../input/components/WebcamInputComponent'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -85,14 +85,6 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
 
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
-
-  setComponent(entity, WebcamInputComponent, {
-    expressionValue: 0,
-    expressionIndex: 0,
-    pucker: 0,
-    widen: 0,
-    open: 0
-  })
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(new Object3D()),
@@ -171,7 +163,6 @@ export const createAvatarController = (entity: Entity) => {
   rigidbody.rotation.copy(transform.rotation)
   rigidbody.targetKinematicPosition.copy(transform.position)
   rigidbody.targetKinematicRotation.copy(transform.rotation)
-  rigidbody.targetKinematicLerpMultiplier = 15
 
   addComponent(entity, AvatarControllerComponent, {
     cameraEntity: Engine.instance.currentWorld.cameraEntity,
@@ -186,6 +177,14 @@ export const createAvatarController = (entity: Entity) => {
     speedVelocity: { value: 0 },
     translationApplied: new Vector3()
   })
+
+  const CameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+  const avatarForward = new Vector3(0, 0, -1).applyQuaternion(transform.rotation)
+  const cameraForward = new Vector3(0, 0, 1).applyQuaternion(CameraTransform.rotation)
+  let targetTheta = (cameraForward.angleTo(avatarForward) * 180) / Math.PI
+  const orientation = cameraForward.x * avatarForward.z - cameraForward.z * avatarForward.x
+  if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
+  setTargetCameraRotation(Engine.instance.currentWorld.cameraEntity, 0, targetTheta)
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)

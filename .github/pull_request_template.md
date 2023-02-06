@@ -10,8 +10,8 @@ closes #_insert number here_
 
 ## Checklist
 - [ ] If this PR is still a WIP, convert to a draft
-- [ ] [ensure all checks pass](https://github.com/XRFoundation/XREngine/wiki/Testing-&-Contributing)
 - [ ] When this PR is ready, mark it as "Ready for review"
+- [ ] [ensure all checks pass](https://github.com/XRFoundation/XREngine/wiki/Testing-&-Contributing)
 - [ ] Changes have been manually QA'd
 - [ ] Changes reviewed by at least 2 approved reviewer
 

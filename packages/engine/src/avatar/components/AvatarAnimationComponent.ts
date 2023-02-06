@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
-import { SkeletonHelper, Vector3 } from 'three'
+import { SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
 import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
+import { matches } from '../../common/functions/MatchesUtils'
 import {
   createMappedComponent,
   defineComponent,
@@ -16,6 +17,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AnimationGraph } from '../animation/AnimationGraph'
 import { BoneStructure } from '../AvatarBoneMatching'
+import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export type AvatarAnimationComponentType = {
@@ -43,13 +45,35 @@ export const AvatarRigComponent = defineComponent({
       rig: null! as BoneStructure,
       /** Read-only bones in bind pose */
       bindRig: null! as BoneStructure,
-      helper: null as SkeletonHelper | null
+      helper: null as SkeletonHelper | null,
+      /** The length of the torso in a t-pose, from the hip join to the head joint */
+      torsoLength: 0,
+      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
+      upperLegLength: 0,
+      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
+      lowerLegLength: 0,
+      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
+      footHeight: 0,
+      /** Cache of the skinned meshes currently on the rig */
+      skinnedMeshes: [] as SkinnedMesh[]
     }
   },
 
   onSet: (entity, component, json) => {
-    if (typeof json?.rig === 'object') component.rig.set(json.rig as BoneStructure)
-    if (typeof json?.bindRig === 'object') component.bindRig.set(json.bindRig as BoneStructure)
+    if (!json) return
+    if (matches.object.test(json.rig)) component.rig.set(json.rig as BoneStructure)
+    if (matches.object.test(json.bindRig)) component.bindRig.set(json.bindRig as BoneStructure)
+    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
+    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
+    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
+    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
+    if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
+  },
+
+  onRemove: (entity, component) => {
+    if (component.helper.value) {
+      removeObjectFromGroup(entity, component.helper.value)
+    }
   },
 
   reactor: function ({ root }) {
@@ -61,9 +85,10 @@ export const AvatarRigComponent = defineComponent({
 
     useEffect(() => {
       if (debugEnabled.value && !anim.helper.value && !pending?.value) {
-        const helper = new SkeletonHelper(anim.value.rig.Hips)
+        const helper = new SkeletonHelper(anim.value.rig.Hips.parent!)
+        helper.frustumCulled = false
         helper.name = `skeleton-helper-${root.entity}`
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        setObjectLayers(helper, ObjectLayers.PhysicsHelper)
         addObjectToGroup(root.entity, helper)
         anim.helper.set(helper)
       }

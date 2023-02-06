@@ -3,7 +3,6 @@ import { Color, DirectionalLight, IcosahedronGeometry, Mesh, MeshBasicMaterial, 
 
 import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
-import { isHMD } from '../../common/functions/isMobile'
 import { matches } from '../../common/functions/MatchesUtils'
 import {
   createMappedComponent,
@@ -67,7 +66,7 @@ export const DirectionalLightComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    if (!isHMD) removeObjectFromGroup(entity, component.light.value)
+    if (component.light.value) removeObjectFromGroup(entity, component.light.value)
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 

@@ -1,7 +1,7 @@
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
 
-import { AudioState } from '../audio/AudioState'
+import { AudioState, getPositionalMedia } from '../audio/AudioState'
 import { getMediaSceneMetadataState } from '../audio/systems/MediaSystem'
 import { Engine } from '../ecs/classes/Engine'
 import { XRState } from '../xr/XRState'
@@ -42,5 +42,5 @@ export const shouldUseImmersiveMedia = () => {
   const immersiveMedia =
     mediaSettingState.immersiveMediaMode.value === 'on' ||
     (mediaSettingState.immersiveMediaMode.value === 'auto' && mediaState.immersiveMedia.value)
-  return immersiveMedia || audioState.usePositionalMedia.value || xrSessionActive
+  return immersiveMedia || getPositionalMedia() || xrSessionActive
 }

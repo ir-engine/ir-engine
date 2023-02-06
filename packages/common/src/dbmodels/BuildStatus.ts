@@ -4,4 +4,5 @@ export interface BuildStatusInterface {
   dateStarted: string
   dateEnded: string
   logs: string
+  commitSHA: string
 }

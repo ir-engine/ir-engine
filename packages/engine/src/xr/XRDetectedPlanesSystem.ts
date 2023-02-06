@@ -1,72 +1,94 @@
-import { BoxGeometry, Mesh, MeshBasicMaterial, MeshLambertMaterial, ShadowMaterial } from 'three'
+import {
+  BoxGeometry,
+  BufferAttribute,
+  BufferGeometry,
+  GeometryUtils,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  ShadowMaterial
+} from 'three'
+import matches from 'ts-matches'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { getComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, getComponentState, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRPlaneComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
+/** https://github.com/immersive-web/webxr-samples/blob/main/proposals/plane-detection.html */
+
 type DetectedPlanesType = {
   /** WebXR implements detectedPlanes on the XRFrame, but the current typescript implementation has it on worldInformation */
   detectedPlanes: XRPlaneSet
-  lastChangedTime: number
 }
 
-export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, plane: XRPlane) => {
-  const referenceSpace = ReferenceSpace.origin
-  if (!referenceSpace) return
-
-  const planePose = frame.getPose(plane.planeSpace, referenceSpace)
-  if (!planePose) return
+export const createGeometryFromPolygon = (plane: XRPlane) => {
+  const geometry = new BufferGeometry()
 
   const polygon = plane.polygon
 
-  let minX = Number.MAX_SAFE_INTEGER
-  let maxX = Number.MIN_SAFE_INTEGER
-  let minZ = Number.MAX_SAFE_INTEGER
-  let maxZ = Number.MIN_SAFE_INTEGER
+  const vertices = [] as number[]
+  const uvs = [] as number[]
 
   for (const point of polygon) {
-    minX = Math.min(minX, point.x)
-    maxX = Math.max(maxX, point.x)
-    minZ = Math.min(minZ, point.z)
-    maxZ = Math.max(maxZ, point.z)
+    vertices.push(point.x, point.y, point.z)
+    uvs.push(point.x, point.z)
   }
 
-  const width = maxX - minX
-  const height = maxZ - minZ
+  const indices = [] as number[]
+  for (let i = 2; i < polygon.length; ++i) {
+    indices.push(0, i - 1, i)
+  }
+
+  geometry.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3))
+  geometry.setAttribute('uv', new BufferAttribute(new Float32Array(uvs), 2))
+  geometry.setIndex(indices)
+  return geometry
+}
+
+let planeId = 0
+
+export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, plane: XRPlane) => {
+  const geometry = new BufferGeometry()
 
   const entity = createEntity()
   setLocalTransformComponent(entity, world.originEntity)
   setVisibleComponent(entity, true)
   setComponent(entity, XRPlaneComponent)
-
-  const box = new BoxGeometry(width, 0.01, height)
-
-  const transform = getComponent(entity, LocalTransformComponent)
-  transform.matrix.fromArray(planePose.transform.matrix)
-  transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+  setComponent(entity, NameComponent, 'plane-' + planeId++)
 
   const shadowMat = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a })
-  const shadowMesh = new Mesh(box, shadowMat)
+  shadowMat.polygonOffset = true
+  shadowMat.polygonOffsetFactor = -0.01
+  const shadowMesh = new Mesh(geometry, shadowMat)
 
   const occlusionMat = new MeshBasicMaterial({ colorWrite: false })
-  const occlusionMesh = new Mesh(box, occlusionMat)
+  occlusionMat.polygonOffset = true
+  occlusionMat.polygonOffsetFactor = -0.01
+  const occlusionMesh = new Mesh(geometry, occlusionMat)
   occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
 
-  // debug
-  // occlusionMesh.add(new Mesh(box, new MeshLambertMaterial({ wireframe: true })))
+  const placementHelper = new Mesh(
+    geometry,
+    new MeshBasicMaterial({ color: 'grey', wireframe: false, opacity: 0.5, transparent: true })
+  )
+  placementHelper.visible = false
+  occlusionMesh.add(placementHelper)
 
   addObjectToGroup(entity, shadowMesh)
   addObjectToGroup(entity, occlusionMesh)
+
+  setComponent(entity, XRPlaneComponent, { shadowMesh, occlusionMesh, placementHelper })
 
   return entity
 }
@@ -78,7 +100,7 @@ export const lostPlane = (plane: XRPlane, entity: Entity) => {
 export const detectedPlanesMap = new Map<XRPlane, Entity>()
 
 export default async function XRDetectedPlanesSystem(world: World) {
-  const planesLastChangedTimes = new Map()
+  const planesLastChangedTimes = new Map<XRPlane, number>()
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
@@ -105,17 +127,29 @@ export default async function XRDetectedPlanesSystem(world: World) {
     }
 
     for (const plane of frame.detectedPlanes) {
-      if (!detectedPlanesMap.has(plane)) {
-        const entity = foundPlane(frame, world, plane)
-        if (entity) {
+      const lastKnownTime = planesLastChangedTimes.get(plane) ?? 0
+      if (plane.lastChangedTime > lastKnownTime) {
+        planesLastChangedTimes.set(plane, plane.lastChangedTime)
+        if (!detectedPlanesMap.has(plane)) {
+          const entity = foundPlane(frame, world, plane)
           detectedPlanesMap.set(plane, entity)
-          planesLastChangedTimes.set(plane, frame.lastChangedTime)
         }
-      } else {
-        const lastKnownTime = planesLastChangedTimes.get(plane)
-        if (plane.lastChangedTime > lastKnownTime) {
-          planesLastChangedTimes.set(plane, plane.lastChangedTime)
-        }
+        const entity = detectedPlanesMap.get(plane)!
+        const geometry = createGeometryFromPolygon(plane)
+        getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
+      }
+    }
+
+    if (ReferenceSpace.localFloor) {
+      for (const [plane, entity] of detectedPlanesMap) {
+        const planePose = frame.getPose(plane.planeSpace, ReferenceSpace.localFloor)!
+        LocalTransformComponent.position.x[entity] = planePose.transform.position.x
+        LocalTransformComponent.position.y[entity] = planePose.transform.position.y
+        LocalTransformComponent.position.z[entity] = planePose.transform.position.z
+        LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
+        LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
+        LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
+        LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
       }
     }
   }
