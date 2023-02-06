@@ -6,6 +6,6 @@ const Tab = (props: TabProps) => <MuiTab {...props} />
 
 Tab.displayName = 'Tab'
 
-Tab.defaultProps = { children: null }
+Tab.defaultProps = {}
 
 export default Tab

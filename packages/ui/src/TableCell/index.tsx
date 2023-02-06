@@ -7,7 +7,7 @@ const TableCell = ({ children, ...props }: TableCellProps) => <MuiTableCell {...
 TableCell.displayName = 'TableCell'
 
 TableCell.defaultProps = {
-  children: null
+  children: `I'm a Table cell`
 }
 
 export default TableCell

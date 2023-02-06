@@ -7,7 +7,7 @@ import FormControl from '@xrengine/ui/src/FormControl'
 import FormHelperText from '@xrengine/ui/src/FormHelperText'
 import InputLabel from '@xrengine/ui/src/InputLabel'
 import MenuItem from '@xrengine/ui/src/MenuItem'
-import Select, { SelectChangeEvent } from '@xrengine/ui/src/Select'
+import Select from '@xrengine/ui/src/Select'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

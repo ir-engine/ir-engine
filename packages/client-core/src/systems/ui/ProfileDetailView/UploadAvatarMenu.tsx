@@ -303,7 +303,7 @@ export const UploadAvatarMenu = () => {
               style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
             >
               {t('user:avatar.lbl-upload')}
-              <CloudUpload />
+              <Icon type="CloudUpload" />
             </XRTextButton>
           </div>
         ) : (
@@ -322,7 +322,7 @@ export const UploadAvatarMenu = () => {
                   variant="filled"
                   buttonContent={
                     <>
-                      {t('user:avatar.avatar')} <SystemUpdateAlt />
+                      {t('user:avatar.avatar')} <Icon type="SystemUpdateAlt" />
                     </>
                   }
                 />
@@ -333,7 +333,7 @@ export const UploadAvatarMenu = () => {
                   variant="filled"
                   buttonContent={
                     <>
-                      {t('user:avatar.lbl-thumbnail')} <AccountCircle />
+                      {t('user:avatar.lbl-thumbnail')} <Icon type="AccountCircle" />
                     </>
                   }
                 />
@@ -346,7 +346,7 @@ export const UploadAvatarMenu = () => {
                 disabled={!uploadButtonEnabled}
               >
                 {t('user:avatar.lbl-upload')}
-                <CloudUpload />
+                <Icon type="CloudUpload" />
               </XRTextButton>
             </div>
           </>

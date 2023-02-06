@@ -7,10 +7,10 @@ const TablePagination = (props: TablePaginationProps & { component?: string }) =
 TablePagination.displayName = 'TablePagination'
 
 TablePagination.defaultProps = {
-  count: 1,
+  count: 100,
   onPageChange: () => {},
   page: 1,
-  rowsPerPage: 1
+  rowsPerPage: 10
 }
 
 export default TablePagination

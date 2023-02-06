@@ -13,7 +13,7 @@ export default {
     jest: 'Divider.test.tsx',
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/gYlfhfHLTAJg8r0tqEtFyN/HyperConstruct-Landing-Page'
+      url: ''
     }
   },
   argTypes

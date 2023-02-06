@@ -107,6 +107,7 @@ import {
   SurroundSound,
   SystemUpdateAlt,
   TextSnippet,
+  ThumbUp,
   Timeline,
   TouchApp,
   Toys,
@@ -133,11 +134,15 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
     default:
       console.log(`----------------Icon type not found: ${type}`)
       return <CrisisAlert {...props} />
+    case 'default':
+      return <ThumbUp {...props} />
+    case 'CrisisAlert':
+      return <CrisisAlert {...props} />
     case 'Delete':
       return <Delete {...props} />
     case 'Search':
       return <Search {...props} />
-    case 'Filterlist':
+    case 'FilterList':
       return <FilterList {...props} />
     case 'Face':
       return <Face {...props} />
@@ -259,8 +264,6 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <KeyboardArrowDown {...props} />
     case 'QrCode2':
       return <QrCode2 {...props} />
-    case 'Create':
-      return <Create {...props} />
     case 'Group':
       return <Group {...props} />
     case 'Groups':

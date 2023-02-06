@@ -6,9 +6,6 @@ const ToggleButtonGroup = (props: ToggleButtonGroupProps) => <MuiToggleButtonGro
 
 ToggleButtonGroup.displayName = 'ToggleButtonGroup'
 
-ToggleButtonGroup.defaultProps = {
-  defaultChecked: true,
-  inputProps: { 'aria-label': 'ToggleButtonGroup demo' }
-}
+ToggleButtonGroup.defaultProps = {}
 
 export default ToggleButtonGroup

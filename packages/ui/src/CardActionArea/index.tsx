@@ -6,9 +6,6 @@ const CardActionArea = (props: CardActionAreaProps) => <MuiCardActionArea {...pr
 
 CardActionArea.displayName = 'CardActionArea'
 
-CardActionArea.defaultProps = {
-  defaultChecked: true,
-  inputProps: { 'aria-label': 'CardActionArea demo' }
-}
+CardActionArea.defaultProps = {}
 
 export default CardActionArea

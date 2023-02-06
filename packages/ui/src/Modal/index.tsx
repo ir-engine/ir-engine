@@ -7,7 +7,8 @@ const Modal = (props: ModalProps) => <MuiModal {...props} />
 Modal.displayName = 'Modal'
 
 Modal.defaultProps = {
-  ...Modal.defaultProps
+  children: <div>Hello</div>,
+  open: true
 }
 
 export default Modal

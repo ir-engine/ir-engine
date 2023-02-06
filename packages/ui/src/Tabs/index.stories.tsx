@@ -13,9 +13,19 @@ export default {
     jest: 'Tabs.test.tsx',
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/gYlfhfHLTAJg8r0tqEtFyN/HyperConstruct-Landing-Page'
+      url: ''
     }
   },
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        <div role="tabpanel" hidden={false}>
+          Hello
+        </div>
+      </>
+    )
+  ],
   argTypes
 } as ComponentMeta<typeof Tabs>
 

@@ -1,6 +1,9 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 import * as React from 'react'
 
+import { Table, TableBody } from '@mui/material'
+
+import TableRow from '../TableRow'
 import TablePagination from './index'
 
 const argTypes = {}
@@ -13,9 +16,20 @@ export default {
     jest: 'TablePagination.test.tsx',
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/gYlfhfHLTAJg8r0tqEtFyN/HyperConstruct-Landing-Page'
+      url: ''
     }
   },
+  decorators: [
+    (Story) => (
+      <Table>
+        <TableBody>
+          <TableRow>
+            <Story />
+          </TableRow>
+        </TableBody>
+      </Table>
+    )
+  ],
   argTypes
 } as ComponentMeta<typeof TablePagination>
 

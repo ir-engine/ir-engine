@@ -69,7 +69,7 @@ const Avatar = ({
 
         {showChangeButton && (
           <IconButton
-            icon={<CreateIcon sx={{ fontSize: '20px' }} />}
+            icon={<Icon type="Create" sx={{ fontSize: '20px' }} />}
             title={t('user:common.edit')}
             onClick={handleChange}
           />
@@ -100,7 +100,12 @@ const Avatar = ({
     >
       <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
       {showChangeButton && (
-        <IconButton disableRipple icon={<CreateIcon sx={{ fontSize: '20px' }} />} type="glow" onClick={onChange} />
+        <IconButton
+          disableRipple
+          icon={<Icon type="Create" sx={{ fontSize: '20px' }} />}
+          type="glow"
+          onClick={onChange}
+        />
       )}
     </Box>
   )

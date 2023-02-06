@@ -40,7 +40,6 @@ const IconButton = ({
 
   return (
     <MUIIconButton
-      style={{ border: '2px solid red' }}
       id={id}
       className={`${baseStyle} ${background ? styles.backgroundStyle : ''} ${className ?? ''}`}
       disabled={disabled}

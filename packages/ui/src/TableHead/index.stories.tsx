@@ -1,6 +1,7 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 import * as React from 'react'
 
+import Table from '../Table'
 import TableHead from './index'
 
 const argTypes = {}
@@ -13,9 +14,16 @@ export default {
     jest: 'TableHead.test.tsx',
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/file/gYlfhfHLTAJg8r0tqEtFyN/HyperConstruct-Landing-Page'
+      url: ''
     }
   },
+  decorators: [
+    (Story) => (
+      <Table>
+        <Story />
+      </Table>
+    )
+  ],
   argTypes
 } as ComponentMeta<typeof TableHead>
 
