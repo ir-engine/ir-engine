@@ -27,7 +27,6 @@
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "jest",
     "test:generate-output": "jest --json --outputFile=./tests/jest-test-results.json || true",
     "test:watch": "jest -u --json --watchAll --outputFile=./tests/jest-test-results.json || true",
     "prebuild:storybook": "npm run test:generate-output",
