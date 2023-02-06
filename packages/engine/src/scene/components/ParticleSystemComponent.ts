@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { AdditiveBlending, Blending, BufferGeometry, Color, Texture, TextureLoader, Vector4 } from 'three'
 import {
   Behavior,
+  BehaviorFromJSON,
   ColorGenerator,
   ColorGeneratorFromJSON,
   ColorOverLife,
@@ -23,17 +24,21 @@ import {
 } from 'three.quarks'
 import matches, { Validator } from 'ts-matches'
 
-import { getState, MatchesWithDefault, none } from '@xrengine/hyperflux'
+import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
+import { getState, MatchesWithDefault, NO_PROXY, none } from '@xrengine/hyperflux'
 
 import { defineComponent, getComponent, getComponentState, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
-import { ParticleSystemState } from '../systems/ParticleSystem'
+import { getBatchRenderer } from '../systems/ParticleSystemSystem'
+
+export type BehaviorJSON = OpaqueType<'BehaviorJSON'> & { [field: string]: any }
 
 export type ParticleSystemComponentType = {
   systemParameters: ParticleSystemJSONParameters
-  behaviorParameters: any[]
+  behaviorParameters: BehaviorJSON[]
 
   system?: ParticleSystem | undefined
+  behaviors?: Behavior[] | undefined
 }
 
 export const ParticleSystemJSONParametersValidator = matches.shape({
@@ -72,11 +77,11 @@ export const ParticleSystemJSONParametersValidator = matches.shape({
 })
 
 export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = {
-  version: '',
+  version: '1.0',
   autoDestroy: false,
-  looping: false,
-  duration: 0,
-  shape: { type: '' },
+  looping: true,
+  duration: 5,
+  shape: { type: 'point' },
   startLife: {},
   startSpeed: {},
   startRotation: {},
@@ -90,7 +95,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = 
     followLocalOrigin: undefined
   },
   renderMode: 0,
-  texture: '',
+  texture: '/static/dot.png',
   startTileIndex: 0,
   uTileCount: 1,
   vTileCount: 1,
@@ -98,6 +103,8 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = 
   behaviors: [],
   worldSpace: true
 }
+
+export const SCENE_COMPONENT_PARTICLE_SYSTEM = 'particle-system'
 
 export const ParticleSystemComponent = defineComponent({
   name: 'EE_ParticleSystem',
@@ -114,27 +121,23 @@ export const ParticleSystemComponent = defineComponent({
         matches.partial({ parser: ParticleSystemJSONParametersValidator }).test({ [field]: value }) &&
           component.systemParameters[field].set(value)
       })
-
-    const hasBehaviors = !!json.behaviorParameters
-    hasBehaviors && component.behaviorParameters.set(new Array(json.behaviorParameters.length))
-    hasBehaviors && json.behaviorParameters.map((behavior, index) => component.behaviorParameters[index].set(behavior))
+    !!json.behaviorParameters && component.behaviorParameters.set(new Array(...json.behaviorParameters))
   },
   onRemove: (entity, component) => {
     if (component.system.value) {
-      const particleSystemState = getState(ParticleSystemState)
-      const batchRenderer = particleSystemState.batchSystem.value
+      const batchRenderer = getBatchRenderer()!
       batchRenderer.remove(component.system.value.emitter)
       component.system.value.dispose()
       component.system.set(none)
     }
+    component.behaviors.set(none)
   },
   reactor: function ({ root }: EntityReactorProps) {
     const entity = root.entity
     if (!hasComponent(entity, ParticleSystemComponent)) throw root.stop()
     const component = getComponent(entity, ParticleSystemComponent)
     const componentState = getComponentState(entity, ParticleSystemComponent)
-    const particleSystemState = getState(ParticleSystemState)
-    const batchRenderer = particleSystemState.batchSystem.value
+    const batchRenderer = getBatchRenderer()!
     useEffect(() => {
       component.system !== undefined && batchRenderer.remove(component.system.emitter)
       component.system !== undefined && component.system.dispose()
@@ -147,9 +150,15 @@ export const ParticleSystemComponent = defineComponent({
         {},
         batchRenderer
       )
+      componentState.behaviors.set(
+        component.behaviorParameters.map((behaviorJSON) => {
+          const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
+          nuSystem.addBehavior(behavior)
+          return behavior
+        })
+      )
       componentState.system.set(nuSystem)
-    }, [componentState.systemParameters])
-
+    }, [componentState.systemParameters, componentState.behaviorParameters])
     return null
   }
 })

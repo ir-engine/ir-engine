@@ -3,7 +3,7 @@ import MaterialLibrarySystem from '../renderer/materials/systems/MaterialLibrary
 import HyperspacePortalSystem from './systems/HyperspacePortalSystem'
 import InstancingSystem from './systems/InstancingSystem'
 import LightSystem from './systems/LightSystem'
-import ParticleSystem from './systems/ParticleSystem'
+import ParticleSystem from './systems/ParticleSystemSystem'
 import PortalSystem from './systems/PortalSystem'
 import SceneObjectDynamicLoadSystem from './systems/SceneObjectDynamicLoadSystem'
 

@@ -1,7 +1,15 @@
 import { BatchedParticleRenderer } from 'three.quarks'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { createActionQueue, defineAction, defineState, dispatchAction, removeActionQueue } from '@xrengine/hyperflux'
+import {
+  createActionQueue,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getState,
+  NO_PROXY,
+  removeActionQueue
+} from '@xrengine/hyperflux'
 
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -12,21 +20,26 @@ import { GroupComponent, removeGroupComponent } from '../components/GroupCompone
 import { ParticleSystemComponent } from '../components/ParticleSystemComponent'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
-export type ParticleSystemStateType = {
-  batchSystem: BatchedParticleRenderer
+let batchRenderer: BatchedParticleRenderer | null
+
+export function getBatchRenderer() {
+  return batchRenderer
 }
 
-export const ParticleSystemState = defineState({
-  name: 'ParticleSystemState',
-  initial: {
-    batchSystem: new BatchedParticleRenderer()
-  } as ParticleSystemStateType
-})
-
 export default async function ParticleSystem(world: World) {
-  function execute() {}
+  batchRenderer = new BatchedParticleRenderer()
+  const sceneLoadListener = createActionQueue(EngineActions.sceneLoaded.matches)
+  function execute() {
+    for (const action of sceneLoadListener()) {
+      batchRenderer!.parent === null && world.scene.add(batchRenderer!)
+    }
+  }
 
-  async function cleanup() {}
+  async function cleanup() {
+    removeActionQueue(sceneLoadListener)
+    batchRenderer!.parent !== null && world.scene.remove(batchRenderer!)
+    batchRenderer = null
+  }
 
   return { execute, cleanup }
 }
