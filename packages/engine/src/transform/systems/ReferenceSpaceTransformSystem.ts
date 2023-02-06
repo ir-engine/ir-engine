@@ -42,9 +42,10 @@ export default async function ReferenceSpaceTransformSystem(world: World) {
         const localClientGroup = getComponent(localClientEntity, GroupComponent)
         const renderer = EngineRenderer.instance.renderer
         skeletonForceUpdateScene.children = localClientGroup
+        const previousRenderTarget = renderer.getRenderTarget()
         renderer.setRenderTarget(dummyRenderTarget)
         renderer.render(skeletonForceUpdateScene, world.camera)
-        renderer.setRenderTarget(null)
+        renderer.setRenderTarget(previousRenderTarget)
       }
     }
 
