@@ -352,7 +352,9 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ParticleSystemComponent.name, SCENE_COMPONENT_PARTICLE_SYSTEM)
 
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {})
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {
+    defaultData: {}
+  })
 
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])

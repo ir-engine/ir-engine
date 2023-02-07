@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { AdditiveBlending, Blending, BufferGeometry, Color, Texture, TextureLoader, Vector4 } from 'three'
+import { AdditiveBlending, Blending, BufferGeometry, Color, Object3D, Texture, TextureLoader, Vector4 } from 'three'
 import {
   Behavior,
   BehaviorFromJSON,
@@ -30,10 +30,16 @@ import { getState, MatchesWithDefault, NO_PROXY, none } from '@xrengine/hyperflu
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { defineComponent, getComponent, getComponentState, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getComponentState,
+  hasComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
-import { addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 /*
 SHAPE TYPES
@@ -42,9 +48,18 @@ export type PointShapeJSON = {
   type: 'point'
 }
 
+export const POINT_SHAPE_DEFAULT: PointShapeJSON = {
+  type: 'point'
+}
+
 export type SphereShapeJSON = {
   type: 'sphere'
   radius?: number
+}
+
+export const SPHERE_SHAPE_DEFAULT: SphereShapeJSON = {
+  type: 'sphere',
+  radius: 1
 }
 
 export type ConeShapeJSON = {
@@ -55,6 +70,14 @@ export type ConeShapeJSON = {
   angle?: number
 }
 
+export const CONE_SHAPE_DEFAULT: ConeShapeJSON = {
+  type: 'cone',
+  radius: 1,
+  arc: 0.2,
+  thickness: 4,
+  angle: 30
+}
+
 export type DonutShapeJSON = {
   type: 'donut'
   radius?: number
@@ -63,9 +86,22 @@ export type DonutShapeJSON = {
   angle?: number
 }
 
+export const DONUT_SHAPE_DEFAULT: DonutShapeJSON = {
+  type: 'donut',
+  radius: 1,
+  arc: 30,
+  thickness: 0.5,
+  angle: 15
+}
+
 export type MeshShapeJSON = {
   type: 'mesh'
   mesh?: string
+}
+
+export const MESH_SHAPE_DEFAULT: MeshShapeJSON = {
+  type: 'mesh',
+  mesh: ''
 }
 
 export type GridShapeJSON = {
@@ -74,6 +110,14 @@ export type GridShapeJSON = {
   height?: number
   column?: number
   row?: number
+}
+
+export const GRID_SHAPE_DEFAULT: GridShapeJSON = {
+  type: 'grid',
+  width: 1,
+  height: 1,
+  column: 1,
+  row: 1
 }
 
 export type EmitterShapeJSON =
@@ -125,6 +169,8 @@ export type ParticleSystemComponentType = {
 
   system?: ParticleSystem | undefined
   behaviors?: Behavior[] | undefined
+  _loadIndex: number
+  _refresh: number
 }
 
 export const ParticleSystemJSONParametersValidator = matches.shape({
@@ -174,8 +220,9 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = 
     b: 2
   },
   startSpeed: {
-    type: 'ConstantValue',
-    value: 1
+    type: 'IntervalValue',
+    a: 0.1,
+    b: 5
   },
   startRotation: {
     type: 'IntervalValue',
@@ -184,16 +231,16 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = 
   },
   startSize: {
     type: 'IntervalValue',
-    a: 0.1,
+    a: 0.025,
     b: 0.45
   },
   startColor: {
     type: 'ConstantColor',
-    color: { r: 1, g: 1, b: 1, a: 1 }
+    color: { r: 1, g: 1, b: 1, a: 0.1 }
   },
   emissionOverTime: {
     type: 'ConstantValue',
-    value: 35
+    value: 400
   },
   emissionOverDistance: {
     type: 'ConstantValue',
@@ -205,12 +252,12 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = 
     startLength: undefined,
     followLocalOrigin: undefined
   },
-  renderMode: 0,
+  renderMode: RenderMode.BillBoard,
   texture: '/static/editor/dot.png',
   startTileIndex: 0,
   uTileCount: 1,
   vTileCount: 1,
-  blending: 0,
+  blending: AdditiveBlending,
   behaviors: [],
   worldSpace: true
 }
@@ -222,40 +269,57 @@ export const ParticleSystemComponent = defineComponent({
   onInit: (entity) => {
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
-      behaviorParameters: []
+      behaviorParameters: [],
+      _loadIndex: 0,
+      _refresh: 0
     } as ParticleSystemComponentType
   },
   onSet: (entity, component, json) => {
     if (!json) return
+
     !!json.systemParameters &&
-      Object.entries(json.systemParameters).map(([field, value]: [keyof ParticleSystemJSONParameters, any]) => {
-        matches.partial({ parser: ParticleSystemJSONParametersValidator }).test({ [field]: value }) &&
-          component.systemParameters[field].set(value)
+      component.systemParameters.set({
+        ...JSON.parse(JSON.stringify(component.systemParameters.value)),
+        ...json.systemParameters
       })
+
     !!json.behaviorParameters && component.behaviorParameters.set(new Array(...json.behaviorParameters))
+    ;(!!json.systemParameters || !!json.behaviorParameters) &&
+      component._refresh.set((component._refresh.value + 1) % 1000)
   },
   onRemove: (entity, component) => {
     if (component.system.value) {
-      const batchRenderer = getBatchRenderer()!
-      batchRenderer.remove(component.system.value.emitter)
-      component.system.value.dispose()
+      removeObjectFromGroup(entity, component.system.value.emitter)
+      component.system.get(NO_PROXY)?.dispose()
       component.system.set(none)
     }
     component.behaviors.set(none)
   },
+  toJSON: (entity, component) => ({
+    systemParameters: component.systemParameters.value,
+    behaviorParameters: component.behaviorParameters.value
+  }),
   reactor: function ({ root }: EntityReactorProps) {
     const entity = root.entity
     if (!hasComponent(entity, ParticleSystemComponent)) throw root.stop()
-    const component = getComponent<ParticleSystemComponentType>(entity, ParticleSystemComponent)
-    const componentState = getComponentState(entity, ParticleSystemComponent)
+    const componentState = useComponent(entity, ParticleSystemComponent)
+    const component = componentState.value
     const batchRenderer = getBatchRenderer()!
-
     useEffect(() => {
-      component.system !== undefined && batchRenderer.remove(component.system.emitter)
-      component.system !== undefined && component.system.dispose()
-
-      AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image &&
+      if (component.system && component.system!.emitter.userData['_refresh'] === component._refresh) return
+      if (component.system) {
+        removeObjectFromGroup(entity, component.system.emitter)
+        component.system.dispose()
+        componentState.system.set(none)
+      }
+      if (
+        component.systemParameters.texture &&
+        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
+      ) {
+        componentState._loadIndex.set(component._loadIndex + 1)
+        const currentLoadIdx = component._loadIndex
         AssetLoader.load(component.systemParameters.texture, {}, (texture) => {
+          if (currentLoadIdx !== component._loadIndex) return
           const nuSystem = ParticleSystem.fromJSON(
             component.systemParameters,
             {
@@ -272,10 +336,12 @@ export const ParticleSystemComponent = defineComponent({
               return behavior
             })
           )
+          nuSystem.emitter.userData['_refresh'] = component._refresh
           addObjectToGroup(entity, nuSystem.emitter)
           componentState.system.set(nuSystem)
         })
-    }, [componentState.systemParameters, componentState.behaviorParameters])
+      }
+    }, [componentState._refresh])
     return null
   }
 })
