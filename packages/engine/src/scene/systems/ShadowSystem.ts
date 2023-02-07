@@ -12,12 +12,15 @@ import {
   Quaternion,
   Raycaster,
   Sphere,
+  Texture,
   TextureLoader,
   Vector3
 } from 'three'
 
+import config from '@xrengine/common/src/config'
 import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -124,17 +127,19 @@ export default async function ShadowSystem(world: World) {
 
   const shadowOffset = new Vector3(0, 0.01, 0)
   const shadowGeometry = new PlaneGeometry(1, 1, 1, 1)
-  const loader = new TextureLoader()
-  const texture = loader.load(
-    (process.env['VITE_FILE_SERVER'] ?? 'https://localhost:8642') + '/projects/default-project/public/drop-shadow.png'
-  )
   const shadowMaterial = new MeshBasicMaterial({
-    map: texture,
     side: DoubleSide,
     transparent: true,
     depthTest: true,
     depthWrite: false
   })
+
+  AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/public/drop-shadow.png`).then(
+    (texture: Texture) => {
+      shadowMaterial.map = texture
+      shadowMaterial.needsUpdate = true
+    }
+  )
 
   let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, 0)
   dropShadows.matrixAutoUpdate = false
