@@ -44,6 +44,8 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 
 export const shadowDirection = new Vector3(0, -1, 0)
 
+const defaultShadowMatrix = new Matrix4().multiplyScalar(0)
+
 export default async function ShadowSystem(world: World) {
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
 
@@ -168,7 +170,7 @@ export default async function ShadowSystem(world: World) {
 
       const intersects = raycaster.intersectObjects(sceneObjects)
       if (!intersects.length || !intersects[0].face) {
-        setDropShadowMatrix(new Matrix4())
+        setDropShadowMatrix(defaultShadowMatrix)
         continue
       }
 
