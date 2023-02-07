@@ -5,11 +5,14 @@ import { getComponent, getComponentState, useComponent } from '@xrengine/engine/
 import {
   BehaviorJSON,
   CONE_SHAPE_DEFAULT,
+  ConstantValueJSON,
   DONUT_SHAPE_DEFAULT,
+  IntervalValueJSON,
   ParticleSystemComponent,
   POINT_SHAPE_DEFAULT,
   SPHERE_SHAPE_DEFAULT
 } from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
+import { State } from '@xrengine/hyperflux'
 
 import { ScatterPlotOutlined } from '@mui/icons-material'
 
@@ -19,6 +22,7 @@ import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import PaginatedList from '../layout/PaginatedList'
 import NodeEditor from './NodeEditor'
+import ValueGenerator from './three.quarks/ValueGenerator'
 import { EditorComponentType, updateProperty } from './Util'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
@@ -55,8 +59,18 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       const nuParms = JSON.parse(JSON.stringify(particleSystem.systemParameters.shape))
       nuParms[field] = value
       particleSystemState.systemParameters.shape.set(nuParms)
-      particleSystemState._refresh.set(particleSystem._refresh + 1)
+      particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
+  }, [])
+
+  const onSetStateParm = useCallback((state: State<any>) => {
+    return useCallback(
+      (field: keyof typeof state.value) => (value: any) => {
+        state[field].set(value)
+        particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+      },
+      []
+    )
   }, [])
 
   return (
@@ -83,6 +97,20 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         values={particleSystem.systemParameters.shape}
         onChange={onChangeShapeParm}
       />
+      <InputGroup name="Start Life" label={t('editor:properties.particle-system.start-life')}>
+        <ValueGenerator
+          value={particleSystem.systemParameters.startLife as IntervalValueJSON | ConstantValueJSON}
+          scope={particleSystemState.systemParameters.startLife as any}
+          onChange={onSetStateParm(particleSystemState.systemParameters.startLife)}
+        />
+      </InputGroup>
+      <InputGroup name="Start Size" label={t('editor:properties.particle-system.start-size')}>
+        <ValueGenerator
+          value={particleSystem.systemParameters.startSize as IntervalValueJSON | ConstantValueJSON}
+          scope={particleSystemState.systemParameters.startSize as any}
+          onChange={onSetStateParm(particleSystemState.systemParameters.startSize)}
+        />
+      </InputGroup>
       <h4>Behaviors</h4>
       <PaginatedList<BehaviorJSON>
         list={particleSystem.behaviorParameters}
