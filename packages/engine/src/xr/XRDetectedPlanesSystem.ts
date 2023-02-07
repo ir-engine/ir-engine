@@ -115,8 +115,9 @@ export default async function XRDetectedPlanesSystem(world: World) {
         return
       }
     }
+
     const frame = Engine.instance.xrFrame as XRFrame & DetectedPlanesType
-    if (!frame?.detectedPlanes) return
+    if (!frame?.detectedPlanes || frame.session.environmentBlendMode === 'opaque') return
 
     for (const [plane, entity] of detectedPlanesMap) {
       if (!frame.detectedPlanes.has(plane)) {
