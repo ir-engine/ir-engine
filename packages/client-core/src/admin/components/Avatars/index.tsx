@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+import { AvatarClientModule } from '@xrengine/engine/src/avatar/AvatarClientModule'
+import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 import Box from '@mui/material/Box'
@@ -21,6 +25,10 @@ const Avatar = () => {
   const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
   const [openDeleteAvatarModal, setOpenDeleteAvatarModal] = React.useState(false)
   const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
+
+  useEffect(() => {
+    initSystems(Engine.instance.currentWorld, [...AvatarCommonModule(), ...AvatarClientModule()])
+  }, [])
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)
