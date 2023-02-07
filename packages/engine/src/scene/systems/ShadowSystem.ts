@@ -1,10 +1,24 @@
 import { useEffect } from 'react'
-import { DirectionalLight, Group, PerspectiveCamera } from 'three'
+import {
+  Box3,
+  DirectionalLight,
+  DoubleSide,
+  Group,
+  InstancedMesh,
+  Matrix4,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  PlaneGeometry,
+  Quaternion,
+  Raycaster,
+  TextureLoader,
+  Vector3
+} from 'three'
 
 import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { CSM } from '../../assets/csm/CSM'
-import CSMHelper from '../../assets/csm/CSMHelper'
+import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -18,9 +32,15 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { EngineRendererState } from '../../renderer/EngineRendererState'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isHeadset, XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
+import { DropShadowComponent } from '../components/DropShadowComponent'
+import { GroupComponent } from '../components/GroupComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import { ObjectLayers } from '../constants/ObjectLayers'
+
+export const shadowDirection = new Vector3(0, -1, 0)
 
 export default async function ShadowSystem(world: World) {
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
@@ -96,7 +116,73 @@ export default async function ShadowSystem(world: World) {
     return null
   })
 
+  const shadowComponentQuery = defineQuery([DropShadowComponent])
+
+  const shadowOffset = new Vector3(0, 0.01, 0)
+  const shadowGeometry = new PlaneGeometry(1, 1, 1, 1)
+  const loader = new TextureLoader()
+  const texture = loader.load(
+    (process.env['VITE_FILE_SERVER'] ?? 'https://localhost:8642') + '/projects/default-project/public/drop-shadow.png'
+  )
+  const shadowMaterial = new MeshBasicMaterial({ map: texture, side: DoubleSide, transparent: true })
+  let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
+
+  let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+  console.log(sceneObjects)
+
+  const CreateDropShadows = () => {
+    const query = shadowComponentQuery()
+
+    if (dropShadows && query.length != dropShadows.count) {
+      world.scene.remove(dropShadows)
+      dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
+      dropShadows.matrixAutoUpdate = false
+      dropShadows.layers.set(ObjectLayers.DropShadowCaster)
+      world.scene.add(dropShadows)
+    }
+
+    let index = 0
+    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+
+    for (const entity of shadowComponentQuery()) {
+      const group = getComponent(entity, GroupComponent)
+      if (!group) continue
+
+      const setDropShadowMatrix = (matrix: Matrix4) => {
+        dropShadows.setMatrixAt(index, matrix)
+        index++
+      }
+
+      const transform = getComponent(entity, TransformComponent)
+
+      const raycaster = new Raycaster()
+      raycaster.layers.disable(ObjectLayers.DropShadowCaster)
+      raycaster.firstHitOnly = true
+      raycaster.set(transform.position, shadowDirection)
+
+      const intersects = raycaster.intersectObjects(sceneObjects)
+      if (!intersects.length || !intersects[0].face) {
+        setDropShadowMatrix(new Matrix4())
+        continue
+      }
+
+      const boxScale = new Vector3()
+      new Box3().setFromObject(group[0], false).getSize(boxScale)
+
+      let shadowMatrix = new Matrix4()
+      const shadowRotation = new Quaternion().setFromUnitVectors(intersects[0].face.normal, V_001)
+
+      shadowMatrix.makeRotationFromQuaternion(shadowRotation)
+      shadowMatrix.scale(new Vector3(boxScale.x, boxScale.z, boxScale.y))
+      shadowMatrix.setPosition(intersects[0].point.add(shadowOffset))
+      setDropShadowMatrix(shadowMatrix)
+    }
+    dropShadows.instanceMatrix.needsUpdate = true
+  }
+
   const execute = () => {
+    CreateDropShadows()
+
     if (!EngineRenderer.instance.csm) return
     EngineRenderer.instance.csm.sourceLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
     if (renderState.qualityLevel.value > 0) EngineRenderer.instance.csm.update()
