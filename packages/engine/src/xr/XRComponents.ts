@@ -184,7 +184,8 @@ export const XRPlaneComponent = defineComponent({
       shadowMesh: null! as Mesh,
       occlusionMesh: null! as Mesh,
       geometry: null! as BufferGeometry,
-      placementHelper: null! as Mesh
+      placementHelper: null! as Mesh,
+      plane: null! as XRPlane
     }
   },
 
@@ -196,6 +197,9 @@ export const XRPlaneComponent = defineComponent({
     if (matches.object.test(json.geometry)) {
       component.geometry.value?.dispose?.()
       component.geometry.set(json.geometry as BufferGeometry)
+    }
+    if (matches.object.test(json.plane)) {
+      component.plane.set(json.plane as XRPlane)
     }
   },
 
