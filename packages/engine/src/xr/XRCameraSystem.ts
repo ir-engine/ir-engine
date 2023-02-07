@@ -8,7 +8,6 @@ import { World } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../transform/systems/TransformSystem'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
@@ -94,16 +93,15 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
 function updateCameraFromXRViewerPose() {
   const world = Engine.instance.currentWorld
   const camera = getComponent(world.cameraEntity, CameraComponent)
+  const originTransform = getComponent(world.originEntity, TransformComponent)
   const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-  const xrFrame = Engine.instance.xrFrame
   const renderer = EngineRenderer.instance.renderer
-  const referenceSpace = ReferenceSpace.origin
-  const pose = referenceSpace && xrFrame!.getViewerPose(referenceSpace)
+  const xrState = getState(XRState)
+  const pose = xrState.viewerPose.value
 
   if (pose) {
     const views = pose.views
     const xrRendererState = getState(XRRendererState)
-    const xrState = getState(XRState)
     const glBaseLayer = xrRendererState.glBaseLayer.value
     const glBinding = xrRendererState.glBinding.value
     const glProjLayer = xrRendererState.glProjLayer.value
@@ -117,7 +115,10 @@ function updateCameraFromXRViewerPose() {
 
     cameraTransform.position.copy(pose.transform.position as any).multiplyScalar(1 / xrState.sceneScale.value)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
-    cameraTransform.matrix.compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
+    cameraTransform.matrix
+      .compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
+      .premultiply(originTransform.matrix)
+      .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
     cameraTransform.matrixInverse.copy(cameraTransform.matrix).invert()
 
     // check if it's necessary to rebuild camera list
@@ -164,7 +165,10 @@ function updateCameraFromXRViewerPose() {
 
       viewCamera.position.copy(view.transform.position as any).multiplyScalar(1 / xrState.sceneScale.value)
       viewCamera.quaternion.copy(view.transform.orientation as any)
-      viewCamera.matrixWorld.compose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
+      viewCamera.matrixWorld
+        .compose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
+        .premultiply(originTransform.matrix)
+        .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
       viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
       viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
       if (viewport) viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
@@ -221,6 +225,7 @@ export function updateXRCamera() {
 
 export default async function XRCameraSystem(world: World) {
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+  const xrState = getState(XRState)
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
@@ -229,6 +234,10 @@ export default async function XRCameraSystem(world: World) {
         _currentDepthFar = null
       }
     }
+
+    xrState.viewerPose.set(
+      ReferenceSpace.localFloor && Engine.instance.xrFrame?.getViewerPose(ReferenceSpace.localFloor)
+    )
   }
 
   const cleanup = async () => {}
