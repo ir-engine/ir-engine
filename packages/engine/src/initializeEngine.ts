@@ -65,7 +65,6 @@ export const initializeBrowser = () => {
   const world = Engine.instance.currentWorld
   world.camera.layers.disableAll()
   world.camera.layers.enable(ObjectLayers.Scene)
-  world.camera.layers.enable(ObjectLayers.DropShadowCaster)
   world.camera.layers.enable(ObjectLayers.Avatar)
   world.camera.layers.enable(ObjectLayers.UI)
 

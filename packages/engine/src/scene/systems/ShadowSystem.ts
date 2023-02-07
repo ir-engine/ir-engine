@@ -136,14 +136,12 @@ export default async function ShadowSystem(world: World) {
 
   let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, 0)
   dropShadows.matrixAutoUpdate = false
-  dropShadows.layers.set(ObjectLayers.DropShadowCaster)
-  world.scene.add(dropShadows)
 
   const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function modifyShadowCount() {
     world.scene.remove(dropShadows)
     dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
     dropShadows.matrixAutoUpdate = false
-    dropShadows.layers.set(ObjectLayers.DropShadowCaster)
+    dropShadows.layers.disable(ObjectLayers.Camera)
     world.scene.add(dropShadows)
     return null
   })
@@ -165,7 +163,6 @@ export default async function ShadowSystem(world: World) {
       const transform = getComponent(entity, TransformComponent)
 
       const raycaster = new Raycaster()
-      raycaster.layers.disable(ObjectLayers.DropShadowCaster)
       raycaster.firstHitOnly = true
       raycaster.set(transform.position, shadowDirection)
 
