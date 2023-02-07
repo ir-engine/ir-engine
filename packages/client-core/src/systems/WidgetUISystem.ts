@@ -64,8 +64,8 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createUploadAvatarWidget } from './createUploadAvatarWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
-const widgetLeftMenuGripOffset = new Vector3(0.05, 0, -0.05)
-const widgetRightMenuGripOffset = new Vector3(-0.05, 0, -0.05)
+const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
+const widgetRightMenuGripOffset = new Vector3(-0.08, 0, -0.05)
 const vec3 = new Vector3()
 
 const widgetLeftRotation = new Quaternion()
