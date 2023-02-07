@@ -15,8 +15,15 @@ import { createActionQueue, getState } from '@xrengine/hyperflux'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineComponent, getComponent, getComponentState, setComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  defineQuery,
+  getComponent,
+  getComponentState,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
+import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
@@ -58,8 +65,8 @@ export const createGeometryFromPolygon = (plane: XRPlane) => {
 
 let planeId = 0
 
-export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, plane: XRPlane) => {
-  const geometry = new BufferGeometry()
+export const foundPlane = (world: World, plane: XRPlane) => {
+  const geometry = createGeometryFromPolygon(plane)
 
   const entity = createEntity()
   setLocalTransformComponent(entity, world.originEntity)
@@ -82,13 +89,12 @@ export const foundPlane = (frame: XRFrame & DetectedPlanesType, world: World, pl
     geometry,
     new MeshBasicMaterial({ color: 'grey', wireframe: false, opacity: 0.5, transparent: true })
   )
-  placementHelper.visible = false
   occlusionMesh.add(placementHelper)
 
   addObjectToGroup(entity, shadowMesh)
   addObjectToGroup(entity, occlusionMesh)
 
-  setComponent(entity, XRPlaneComponent, { shadowMesh, occlusionMesh, placementHelper })
+  setComponent(entity, XRPlaneComponent, { shadowMesh, occlusionMesh, placementHelper, geometry, plane })
 
   return entity
 }
@@ -102,7 +108,18 @@ export const detectedPlanesMap = new Map<XRPlane, Entity>()
 export default async function XRDetectedPlanesSystem(world: World) {
   const planesLastChangedTimes = new Map<XRPlane, number>()
 
+  const planesQuery = defineQuery([XRPlaneComponent])
+
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+
+  // detected planes should have significantly different poses very infrequently, so we can afford to run this at a low priority
+  const planesGeometryQueue = createPriorityQueue({
+    accumulationBudget: 1
+  })
+
+  const planesPoseQueue = createPriorityQueue({
+    accumulationBudget: 2
+  })
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
@@ -117,7 +134,7 @@ export default async function XRDetectedPlanesSystem(world: World) {
     }
 
     const frame = Engine.instance.xrFrame as XRFrame & DetectedPlanesType
-    if (!frame?.detectedPlanes || frame.session.environmentBlendMode === 'opaque') return
+    if (!frame?.detectedPlanes || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
 
     for (const [plane, entity] of detectedPlanesMap) {
       if (!frame.detectedPlanes.has(plane)) {
@@ -128,30 +145,39 @@ export default async function XRDetectedPlanesSystem(world: World) {
     }
 
     for (const plane of frame.detectedPlanes) {
+      if (!detectedPlanesMap.has(plane)) {
+        const entity = foundPlane(world, plane)
+        detectedPlanesMap.set(plane, entity)
+      }
+      const entity = detectedPlanesMap.get(plane)!
       const lastKnownTime = planesLastChangedTimes.get(plane) ?? 0
       if (plane.lastChangedTime > lastKnownTime) {
         planesLastChangedTimes.set(plane, plane.lastChangedTime)
-        if (!detectedPlanesMap.has(plane)) {
-          const entity = foundPlane(frame, world, plane)
-          detectedPlanesMap.set(plane, entity)
-        }
-        const entity = detectedPlanesMap.get(plane)!
-        const geometry = createGeometryFromPolygon(plane)
-        getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
+        planesGeometryQueue.addPriority(entity, 1)
+        planesPoseQueue.addPriority(entity, 1)
       }
+      planesPoseQueue.addPriority(entity, 1)
     }
 
-    if (ReferenceSpace.localFloor) {
-      for (const [plane, entity] of detectedPlanesMap) {
-        const planePose = frame.getPose(plane.planeSpace, ReferenceSpace.localFloor)!
-        LocalTransformComponent.position.x[entity] = planePose.transform.position.x
-        LocalTransformComponent.position.y[entity] = planePose.transform.position.y
-        LocalTransformComponent.position.z[entity] = planePose.transform.position.z
-        LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
-        LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
-        LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
-        LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
-      }
+    planesGeometryQueue.update()
+    planesPoseQueue.update()
+
+    for (const entity of planesGeometryQueue.priorityEntities) {
+      const plane = getComponent(entity, XRPlaneComponent).plane
+      const geometry = createGeometryFromPolygon(plane)
+      getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
+    }
+
+    for (const entity of planesPoseQueue.priorityEntities) {
+      const plane = getComponent(entity, XRPlaneComponent).plane
+      const planePose = frame.getPose(plane.planeSpace, ReferenceSpace.localFloor)!
+      LocalTransformComponent.position.x[entity] = planePose.transform.position.x
+      LocalTransformComponent.position.y[entity] = planePose.transform.position.y
+      LocalTransformComponent.position.z[entity] = planePose.transform.position.z
+      LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
+      LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
+      LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
+      LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
     }
   }
 
