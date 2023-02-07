@@ -64,17 +64,17 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createUploadAvatarWidget } from './createUploadAvatarWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
-const widgetLeftMenuGripOffset = new Vector3(-0.05, 0, -0.05)
-const widgetRightMenuGripOffset = new Vector3(0.05, 0, -0.05)
+const widgetLeftMenuGripOffset = new Vector3(0.05, 0, -0.05)
+const widgetRightMenuGripOffset = new Vector3(-0.05, 0, -0.05)
 const vec3 = new Vector3()
 
 const widgetLeftRotation = new Quaternion()
-  .setFromAxisAngle(V_010, -Math.PI * 0.5)
-  .multiply(new Quaternion().setFromAxisAngle(V_001, Math.PI * 0.5))
-
-const widgetRightRotation = new Quaternion()
   .setFromAxisAngle(V_010, Math.PI * 0.5)
   .multiply(new Quaternion().setFromAxisAngle(V_001, -Math.PI * 0.5))
+
+const widgetRightRotation = new Quaternion()
+  .setFromAxisAngle(V_010, -Math.PI * 0.5)
+  .multiply(new Quaternion().setFromAxisAngle(V_001, Math.PI * 0.5))
 
 export default async function WidgetUISystem(world: World) {
   const widgetMenuUI = createWidgetButtonsView()
@@ -116,19 +116,15 @@ export default async function WidgetUISystem(world: World) {
     }
   }
 
-  const toggleWidgetsMenu = () => {
+  const toggleWidgetsMenu = (handedness?: 'left' | 'right') => {
     const state = widgetState.widgets.value
     const openWidget = Object.entries(state).find(([id, widget]) => widget.visible)
     if (openWidget) {
       dispatchAction(WidgetAppActions.showWidget({ id: openWidget[0], shown: false }))
-      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true }))
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true, handedness }))
     } else {
-      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: !widgetState.widgetsMenuOpen.value }))
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: !widgetState.widgetsMenuOpen.value, handedness }))
     }
-  }
-
-  const onEscape = () => {
-    toggleWidgetsMenu()
   }
 
   addActionReceptor(WidgetAppServiceReceptor)
@@ -137,17 +133,12 @@ export default async function WidgetUISystem(world: World) {
   const registerWidgetQueue = createActionQueue(WidgetAppActions.registerWidget.matches)
   const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
 
-  const preferredHand = getState(AvatarInputSettingsState).preferredHand
-
   const execute = () => {
     const keys = world.buttons
-    const flipped = preferredHand.value === 'left'
-    if (flipped ? keys.ButtonA?.down : keys.ButtonX?.down) onEscape()
+    if (keys.ButtonX?.down) toggleWidgetsMenu('left')
+    if (keys.ButtonA?.down) toggleWidgetsMenu('right')
     /** @todo allow non HMDs to access the widget menu too */
-    if ((isDev || isHeadset()) && keys.Escape?.down) onEscape()
-    /** for dev testing */
-    if (isDev && keys.KeyO?.down)
-      dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: flipped ? 'right' : 'left' }))
+    if ((isDev || isHeadset()) && keys.Escape?.down) toggleWidgetsMenu()
 
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
@@ -167,12 +158,14 @@ export default async function WidgetUISystem(world: World) {
     }
 
     const transform = getComponent(widgetMenuUI.entity, TransformComponent)
-    const preferredInputSource = getPreferredInputSource(world.inputSources, true)
+    const activeInputSource = Array.from(world.inputSources).find(
+      (inputSource) => inputSource.handedness === widgetState.handedness.value
+    )
 
-    if (preferredInputSource) {
+    if (activeInputSource) {
       const referenceSpace = ReferenceSpace.origin!
       const pose = Engine.instance.xrFrame!.getPose(
-        preferredInputSource.gripSpace ?? preferredInputSource.targetRaySpace,
+        activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,
         referenceSpace
       )
       if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
@@ -180,8 +173,8 @@ export default async function WidgetUISystem(world: World) {
         transform.scale.copy(V_111)
       }
       if (pose) {
-        const rot = flipped ? widgetLeftRotation : widgetRightRotation
-        const offset = flipped ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
+        const rot = widgetState.handedness.value === 'left' ? widgetLeftRotation : widgetRightRotation
+        const offset = widgetState.handedness.value === 'left' ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
         const orientation = pose.transform.orientation as any as Quaternion
         transform.rotation.copy(orientation).multiply(rot)
         vec3.copy(offset).applyQuaternion(orientation)
