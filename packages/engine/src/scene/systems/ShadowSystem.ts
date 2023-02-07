@@ -124,11 +124,16 @@ export default async function ShadowSystem(world: World) {
   const texture = loader.load(
     (process.env['VITE_FILE_SERVER'] ?? 'https://localhost:8642') + '/projects/default-project/public/drop-shadow.png'
   )
-  const shadowMaterial = new MeshBasicMaterial({ map: texture, side: DoubleSide, transparent: true })
+  const shadowMaterial = new MeshBasicMaterial({
+    map: texture,
+    side: DoubleSide,
+    transparent: true,
+    depthTest: true,
+    depthWrite: false
+  })
   let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
 
   let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
-  console.log(sceneObjects)
 
   const CreateDropShadows = () => {
     const query = shadowComponentQuery()
