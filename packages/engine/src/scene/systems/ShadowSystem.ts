@@ -11,6 +11,7 @@ import {
   PlaneGeometry,
   Quaternion,
   Raycaster,
+  Sphere,
   TextureLoader,
   Vector3
 } from 'three'
@@ -171,14 +172,16 @@ export default async function ShadowSystem(world: World) {
         continue
       }
 
-      const boxScale = new Vector3()
-      new Box3().setFromObject(group[0], false).getSize(boxScale)
+      const sphere = new Sphere()
+      new Box3().setFromObject(group[0], false).getBoundingSphere(sphere)
+      const distanceShrinkBias = 3
+      const finalSize = sphere.radius * Math.min(distanceShrinkBias / intersects[0].distance, 1)
 
       let shadowMatrix = new Matrix4()
       const shadowRotation = new Quaternion().setFromUnitVectors(intersects[0].face.normal, V_001)
 
       shadowMatrix.makeRotationFromQuaternion(shadowRotation)
-      shadowMatrix.scale(new Vector3(boxScale.x, boxScale.z, boxScale.y))
+      shadowMatrix.scale(new Vector3(finalSize, finalSize, finalSize))
       shadowMatrix.setPosition(intersects[0].point.add(shadowOffset))
       setDropShadowMatrix(shadowMatrix)
     }
