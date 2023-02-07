@@ -231,11 +231,11 @@ export const XRPlaneComponent = defineComponent({
       occlusionMesh.traverse(setGeometry)
     }, [plane?.geometry])
 
-    // useEffect(() => {
-    //   if (!plane) return
-    //   const placementHelper = plane.placementHelper.value
-    //   placementHelper.visible = scenePlacementMode.value === 'placing'
-    // }, [scenePlacementMode])
+    useEffect(() => {
+      if (!plane) return
+      const placementHelper = plane.placementHelper.value
+      placementHelper.visible = scenePlacementMode.value === 'placing'
+    }, [scenePlacementMode])
 
     return null
   }
