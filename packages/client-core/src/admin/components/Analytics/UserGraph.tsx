@@ -1,11 +1,32 @@
 import ApexCharts from 'apexcharts'
 import React from 'react'
 import ReactApexChart from 'react-apexcharts'
+import { useTranslation } from 'react-i18next'
 
-const UserGraph = ({ data, startDate, endDate }) => {
+import { useAdminAnalyticsState } from '../../services/AnalyticsService'
+
+const UserGraph = ({ startDate, endDate }) => {
+  const analyticsState = useAdminAnalyticsState()
+  const { t } = useTranslation()
+
   let maxY = 0
   let minX = new Date(startDate).getTime()
   let maxX = new Date(endDate).getTime()
+
+  const data = [
+    {
+      name: t('admin:components.analytics.dailyUsers'),
+      data: analyticsState.dailyUsers.value.map((item) => {
+        return [new Date(item.createdAt).getTime(), item.count]
+      })
+    },
+    {
+      name: t('admin:components.analytics.dailyNewUsers'),
+      data: analyticsState.dailyNewUsers.value.map((item) => {
+        return [new Date(item.createdAt).getTime(), item.count]
+      })
+    }
+  ]
 
   if (data) {
     for (let analytic of data) {
