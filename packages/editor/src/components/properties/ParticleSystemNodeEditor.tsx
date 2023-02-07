@@ -5,6 +5,7 @@ import { getComponent, getComponentState, useComponent } from '@xrengine/engine/
 import {
   BehaviorJSON,
   CONE_SHAPE_DEFAULT,
+  ConstantColorJSON,
   ConstantValueJSON,
   DONUT_SHAPE_DEFAULT,
   IntervalValueJSON,
@@ -20,8 +21,10 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
+import TexturePreviewInput, { TextureInput } from '../inputs/TexturePreviewInput'
 import PaginatedList from '../layout/PaginatedList'
 import NodeEditor from './NodeEditor'
+import ColorGenerator from './three.quarks/ColorGenerator'
 import ValueGenerator from './three.quarks/ValueGenerator'
 import { EditorComponentType, updateProperty } from './Util'
 
@@ -111,6 +114,38 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           onChange={onSetStateParm(particleSystemState.systemParameters.startSize)}
         />
       </InputGroup>
+      <InputGroup name="Start Speed" label={t('editor:properties.particle-system.start-speed')}>
+        <ValueGenerator
+          value={particleSystem.systemParameters.startSpeed as IntervalValueJSON | ConstantValueJSON}
+          scope={particleSystemState.systemParameters.startSpeed as any}
+          onChange={onSetStateParm(particleSystemState.systemParameters.startSpeed)}
+        />
+      </InputGroup>
+      <InputGroup name="Start Rotation" label={t('editor:properties.particle-system.start-rotation')}>
+        <ValueGenerator
+          value={particleSystem.systemParameters.startRotation as IntervalValueJSON | ConstantValueJSON}
+          scope={particleSystemState.systemParameters.startRotation as any}
+          onChange={onSetStateParm(particleSystemState.systemParameters.startRotation)}
+        />
+      </InputGroup>
+      <InputGroup name="Start Color" label={t('editor:properties.particle-system.start-color')}>
+        <ColorGenerator
+          value={particleSystem.systemParameters.startColor as ConstantColorJSON}
+          scope={particleSystemState.systemParameters.startColor as any}
+          onChange={onSetStateParm(particleSystemState.systemParameters.startColor)}
+        />
+      </InputGroup>
+      <InputGroup name="Emission Over Time" label={t('editor:properties.particle-system.emission-over-time')}>
+        <ValueGenerator
+          value={particleSystem.systemParameters.emissionOverTime as IntervalValueJSON | ConstantValueJSON}
+          scope={particleSystemState.systemParameters.emissionOverTime as any}
+          onChange={onSetStateParm(particleSystemState.systemParameters.emissionOverTime)}
+        />
+      </InputGroup>
+      <InputGroup name="Texture" label={t('editor:properties.particle-system.texture')}>
+        <TexturePreviewInput value={particleSystem.systemParameters.texture} onChange={onSetSystemParm('texture')} />
+      </InputGroup>
+
       <h4>Behaviors</h4>
       <PaginatedList<BehaviorJSON>
         list={particleSystem.behaviorParameters}
