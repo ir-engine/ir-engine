@@ -65,7 +65,7 @@ export const createGeometryFromPolygon = (plane: XRPlane) => {
 
 let planeId = 0
 
-export const updatePlane = (entity: Entity, plane: XRPlane) => {
+export const updatePlaneGeometry = (entity: Entity, plane: XRPlane) => {
   const lastKnownTime = planesLastChangedTimes.get(plane) ?? 0
   if (plane.lastChangedTime > lastKnownTime) {
     planesLastChangedTimes.set(plane, plane.lastChangedTime)
@@ -73,6 +73,9 @@ export const updatePlane = (entity: Entity, plane: XRPlane) => {
     const geometry = createGeometryFromPolygon(plane)
     getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
   }
+}
+
+export const updatePlanePose = (entity: Entity, plane: XRPlane) => {
   const planePose = Engine.instance.xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
   LocalTransformComponent.position.x[entity] = planePose.transform.position.x
   LocalTransformComponent.position.y[entity] = planePose.transform.position.y
@@ -112,6 +115,9 @@ export const foundPlane = (world: World, plane: XRPlane) => {
   addObjectToGroup(entity, shadowMesh)
   addObjectToGroup(entity, occlusionMesh)
 
+  planesLastChangedTimes.set(plane, plane.lastChangedTime)
+  updatePlanePose(entity, plane)
+
   setComponent(entity, XRPlaneComponent, { shadowMesh, occlusionMesh, placementHelper, geometry, plane })
 
   return entity
@@ -125,17 +131,11 @@ export const detectedPlanesMap = new Map<XRPlane, Entity>()
 export const planesLastChangedTimes = new Map<XRPlane, number>()
 
 export default async function XRDetectedPlanesSystem(world: World) {
-  const planesQuery = defineQuery([XRPlaneComponent])
-
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   // detected planes should have significantly different poses very infrequently, so we can afford to run this at a low priority
-  const planesGeometryQueue = createPriorityQueue({
+  const planesQueue = createPriorityQueue({
     accumulationBudget: 1
-  })
-
-  const planesPoseQueue = createPriorityQueue({
-    accumulationBudget: 2
   })
 
   const execute = () => {
@@ -167,34 +167,22 @@ export default async function XRDetectedPlanesSystem(world: World) {
         detectedPlanesMap.set(plane, entity)
       }
       const entity = detectedPlanesMap.get(plane)!
+      planesQueue.addPriority(entity, 1)
+    }
+
+    planesQueue.update()
+
+    for (const entity of planesQueue.priorityEntities) {
+      const plane = getComponent(entity, XRPlaneComponent).plane
       const lastKnownTime = planesLastChangedTimes.get(plane) ?? 0
       if (plane.lastChangedTime > lastKnownTime) {
-        planesLastChangedTimes.set(plane, plane.lastChangedTime)
-        planesGeometryQueue.addPriority(entity, 1)
-        planesPoseQueue.addPriority(entity, 1)
+        updatePlaneGeometry(entity, getComponent(entity, XRPlaneComponent).plane)
       }
-      planesPoseQueue.addPriority(entity, 1)
     }
 
-    planesGeometryQueue.update()
-    planesPoseQueue.update()
-
-    for (const entity of planesGeometryQueue.priorityEntities) {
+    for (const entity of planesQueue.priorityEntities) {
       const plane = getComponent(entity, XRPlaneComponent).plane
-      const geometry = createGeometryFromPolygon(plane)
-      getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
-    }
-
-    for (const entity of planesPoseQueue.priorityEntities) {
-      const plane = getComponent(entity, XRPlaneComponent).plane
-      const planePose = frame.getPose(plane.planeSpace, ReferenceSpace.localFloor)!
-      LocalTransformComponent.position.x[entity] = planePose.transform.position.x
-      LocalTransformComponent.position.y[entity] = planePose.transform.position.y
-      LocalTransformComponent.position.z[entity] = planePose.transform.position.z
-      LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
-      LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
-      LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
-      LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
+      updatePlanePose(entity, plane)
     }
   }
 
