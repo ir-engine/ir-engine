@@ -65,6 +65,24 @@ export const createGeometryFromPolygon = (plane: XRPlane) => {
 
 let planeId = 0
 
+export const updatePlane = (entity: Entity, plane: XRPlane) => {
+  const lastKnownTime = planesLastChangedTimes.get(plane) ?? 0
+  if (plane.lastChangedTime > lastKnownTime) {
+    planesLastChangedTimes.set(plane, plane.lastChangedTime)
+    const entity = detectedPlanesMap.get(plane)!
+    const geometry = createGeometryFromPolygon(plane)
+    getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
+  }
+  const planePose = Engine.instance.xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
+  LocalTransformComponent.position.x[entity] = planePose.transform.position.x
+  LocalTransformComponent.position.y[entity] = planePose.transform.position.y
+  LocalTransformComponent.position.z[entity] = planePose.transform.position.z
+  LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
+  LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
+  LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
+  LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
+}
+
 export const foundPlane = (world: World, plane: XRPlane) => {
   const geometry = createGeometryFromPolygon(plane)
 
@@ -94,6 +112,9 @@ export const foundPlane = (world: World, plane: XRPlane) => {
   addObjectToGroup(entity, shadowMesh)
   addObjectToGroup(entity, occlusionMesh)
 
+  planesLastChangedTimes.set(plane, plane.lastChangedTime)
+  updatePlane(entity, plane)
+
   setComponent(entity, XRPlaneComponent, { shadowMesh, occlusionMesh, placementHelper, geometry })
 
   return entity
@@ -104,10 +125,9 @@ export const lostPlane = (plane: XRPlane, entity: Entity) => {
 }
 
 export const detectedPlanesMap = new Map<XRPlane, Entity>()
+export const planesLastChangedTimes = new Map<XRPlane, number>()
 
 export default async function XRDetectedPlanesSystem(world: World) {
-  const planesLastChangedTimes = new Map<XRPlane, number>()
-
   const planesQuery = defineQuery([XRPlaneComponent])
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
@@ -155,22 +175,7 @@ export default async function XRDetectedPlanesSystem(world: World) {
     for (const plane of frame.detectedPlanes) {
       const entity = detectedPlanesMap.get(plane)!
       if (!priorityQueue.priorityEntities.has(entity)) continue
-
-      const lastKnownTime = planesLastChangedTimes.get(plane) ?? 0
-      if (plane.lastChangedTime > lastKnownTime) {
-        planesLastChangedTimes.set(plane, plane.lastChangedTime)
-        const entity = detectedPlanesMap.get(plane)!
-        const geometry = createGeometryFromPolygon(plane)
-        getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
-      }
-      const planePose = frame.getPose(plane.planeSpace, ReferenceSpace.localFloor)!
-      LocalTransformComponent.position.x[entity] = planePose.transform.position.x
-      LocalTransformComponent.position.y[entity] = planePose.transform.position.y
-      LocalTransformComponent.position.z[entity] = planePose.transform.position.z
-      LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
-      LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
-      LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
-      LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
+      updatePlane(entity, plane)
     }
   }
 
