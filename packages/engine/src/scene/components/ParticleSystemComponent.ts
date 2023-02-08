@@ -1,5 +1,15 @@
 import { useEffect } from 'react'
-import { AdditiveBlending, Blending, BufferGeometry, Color, Object3D, Texture, TextureLoader, Vector4 } from 'three'
+import {
+  AdditiveBlending,
+  Blending,
+  BufferGeometry,
+  Color,
+  Object3D,
+  Scene,
+  Texture,
+  TextureLoader,
+  Vector4
+} from 'three'
 import {
   Behavior,
   BehaviorFromJSON,
@@ -30,6 +40,7 @@ import { getState, MatchesWithDefault, NO_PROXY, none } from '@xrengine/hyperflu
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import {
   defineComponent,
   getComponent,
@@ -39,6 +50,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
+import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 /*
@@ -95,12 +107,12 @@ export const DONUT_SHAPE_DEFAULT: DonutShapeJSON = {
 }
 
 export type MeshShapeJSON = {
-  type: 'mesh'
+  type: 'mesh_surface'
   mesh?: string
 }
 
 export const MESH_SHAPE_DEFAULT: MeshShapeJSON = {
-  type: 'mesh',
+  type: 'mesh_surface',
   mesh: ''
 }
 
@@ -147,24 +159,73 @@ export type IntervalValueJSON = {
   b: number
 }
 
-export type ConstantColorJSON = {
-  type: 'ConstantColor'
-  color: {
-    r: number
-    g: number
-    b: number
-    a: number
-  }
+export type PiecewiseBezierValueJSON = {
+  type: 'PiecewiseBezier'
+  functions: {
+    function: {
+      p0: number
+      p1: number
+      p2: number
+      p3: number
+    }
+    start: number
+  }[]
 }
 
 /*
 /VALUE GENERATOR TYPES
 */
 
+/*
+COLOR GENERATOR TYPES
+*/
+
+export type ColorJSON = {
+  r: number
+  g: number
+  b: number
+  a: number
+}
+
+export type ConstantColorJSON = {
+  type: 'ConstantColor'
+  color: ColorJSON
+}
+
+export type ColorRangeJSON = {
+  type: 'ColorRange'
+  a: ColorJSON
+  b: ColorJSON
+}
+
+export type RandomColorJSON = {
+  type: 'RandomColor'
+  a: ColorJSON
+  b: ColorJSON
+}
+
+export type ColorGradientJSON = {
+  type: 'Gradient'
+  functions: {
+    function: ColorGeneratorJSON
+    start: number
+  }[]
+}
+
+export type ColorGeneratorJSON = ConstantColorJSON | ColorRangeJSON | RandomColorJSON | ColorGradientJSON
+
+/*
+/COLOR GENERATOR TYPES
+*/
+
 export type BehaviorJSON = OpaqueType<'BehaviorJSON'> & { [field: string]: any }
 
+export type ExpandedSystemJSON = ParticleSystemJSONParameters & {
+  instancingGeometry?: string
+}
+
 export type ParticleSystemComponentType = {
-  systemParameters: ParticleSystemJSONParameters
+  systemParameters: ExpandedSystemJSON
   behaviorParameters: BehaviorJSON[]
 
   system?: ParticleSystem | undefined
@@ -194,12 +255,15 @@ export const ParticleSystemJSONParametersValidator = matches.shape({
   emissionOverTime: matches.object,
   emissionOverDistance: matches.object,
   onlyUsedByOther: matches.boolean,
-  rendererEmitterSettings: matches.shape({
-    startLength: matches.object.optional(),
-    followLocalOrigin: matches.boolean.optional()
-  }),
+  rendererEmitterSettings: matches
+    .shape({
+      startLength: matches.object.optional(),
+      followLocalOrigin: matches.boolean.optional()
+    })
+    .optional(),
   renderMode: matches.natural,
   texture: matches.string,
+  instancingGeometry: matches.object.optional(),
   startTileIndex: matches.natural,
   uTileCount: matches.natural,
   vTileCount: matches.natural,
@@ -208,7 +272,7 @@ export const ParticleSystemJSONParametersValidator = matches.shape({
   worldSpace: matches.boolean
 })
 
-export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = {
+export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   version: '1.0',
   autoDestroy: false,
   looping: true,
@@ -254,6 +318,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ParticleSystemJSONParameters = 
   },
   renderMode: RenderMode.BillBoard,
   texture: '/static/editor/dot.png',
+  instancingGeometry: undefined,
   startTileIndex: 0,
   uTileCount: 1,
   vTileCount: 1,
@@ -312,35 +377,85 @@ export const ParticleSystemComponent = defineComponent({
         component.system.dispose()
         componentState.system.set(none)
       }
-      if (
+      function initParticleSystem(
+        systemParameters: ParticleSystemJSONParameters,
+        dependencies: {
+          textures: { [key: string]: Texture }
+          geometries: { [key: string]: BufferGeometry }
+        }
+      ) {
+        const nuSystem = ParticleSystem.fromJSON(systemParameters, dependencies, {}, batchRenderer)
+        componentState.behaviors.set(
+          component.behaviorParameters.map((behaviorJSON) => {
+            const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
+            nuSystem.addBehavior(behavior)
+            return behavior
+          })
+        )
+        nuSystem.emitter.userData['_refresh'] = component._refresh
+        addObjectToGroup(entity, nuSystem.emitter)
+        componentState.system.set(nuSystem)
+      }
+
+      const doLoadEmissionGeo =
+        component.systemParameters.shape.type === 'mesh_surface' &&
+        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetClass.Model
+
+      const doLoadInstancingGeo =
+        component.systemParameters.instancingGeometry &&
+        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetClass.Model
+
+      const doLoadTexture =
         component.systemParameters.texture &&
         AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
-      ) {
-        componentState._loadIndex.set(component._loadIndex + 1)
-        const currentLoadIdx = component._loadIndex
-        AssetLoader.load(component.systemParameters.texture, {}, (texture) => {
-          if (currentLoadIdx !== component._loadIndex) return
-          const nuSystem = ParticleSystem.fromJSON(
-            component.systemParameters,
-            {
-              textures: { [component.systemParameters.texture]: texture },
-              geometries: {}
-            },
-            {},
-            batchRenderer
-          )
-          componentState.behaviors.set(
-            component.behaviorParameters.map((behaviorJSON) => {
-              const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
-              nuSystem.addBehavior(behavior)
-              return behavior
-            })
-          )
-          nuSystem.emitter.userData['_refresh'] = component._refresh
-          addObjectToGroup(entity, nuSystem.emitter)
-          componentState.system.set(nuSystem)
+
+      const loadDependencies: Promise<any>[] = []
+      const metadata: {
+        textures: { [key: string]: Texture }
+        geometries: { [key: string]: BufferGeometry }
+      } = { textures: {}, geometries: {} }
+
+      const processedParms = JSON.parse(JSON.stringify(component.systemParameters))
+
+      function loadGeoDependency(src: string) {
+        return new Promise((resolve) => {
+          AssetLoader.load(src, {}, ({ scene }: GLTF) => {
+            const geo = getFirstMesh(scene)?.geometry
+            if (!geo) return
+            metadata.geometries[src] = geo
+            resolve(null)
+          })
         })
       }
+
+      doLoadEmissionGeo &&
+        loadDependencies.push(
+          new Promise((resolve) => {
+            AssetLoader.load(component.systemParameters.shape.mesh!, {}, ({ scene }: GLTF) => {
+              const mesh = getFirstMesh(scene)
+              !!mesh && (processedParms.shape.mesh = mesh)
+              resolve(null)
+            })
+          })
+        )
+
+      doLoadInstancingGeo && loadDependencies.push(loadGeoDependency(component.systemParameters.instancingGeometry!))
+
+      doLoadTexture &&
+        loadDependencies.push(
+          new Promise((resolve) => {
+            AssetLoader.load(component.systemParameters.texture, {}, (texture) => {
+              metadata.textures[component.systemParameters.texture] = texture
+              resolve(null)
+            })
+          })
+        )
+
+      componentState._loadIndex.set(componentState._loadIndex.value + 1)
+      const currentIndex = componentState._loadIndex.value
+      Promise.all(loadDependencies).then(() => {
+        currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata)
+      })
     }, [componentState._refresh])
     return null
   }
