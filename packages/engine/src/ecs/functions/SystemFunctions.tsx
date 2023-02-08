@@ -8,16 +8,8 @@ import { ReactorProps, ReactorRoot, startReactor } from '@xrengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
-import {
-  defineComponent,
-  defineQuery,
-  Query,
-  removeComponent,
-  removeQuery,
-  setComponent,
-  useQuery
-} from './ComponentFunctions'
-import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
+import { defineQuery, Query, useQuery } from './ComponentFunctions'
+import { EntityReactorProps } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
@@ -234,7 +226,8 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
   world.pipelines[systemData.type].push(systemData)
 }
 
-export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
+export const unloadAllSystems = (world: World, sceneSystemsOnly = false) => {
+  const promises = [] as Promise<void>[]
   Object.entries(world.pipelines).forEach(([type, pipeline]) => {
     const systemsToRemove: any[] = []
     pipeline.forEach((s) => {
@@ -248,21 +241,32 @@ export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
       const i = pipeline.indexOf(s)
       pipeline.splice(i, 1)
       delete world.systemsByUUID[s.uuid]
+      promises.push(s.cleanup())
     })
   })
+  return promises
+}
+
+export const unloadSystems = (world: World, uuids: string[]) => {
+  const systemsToUnload = uuids.map((uuid) => world.systemsByUUID[uuid])
+  const promises = [] as Promise<void>[]
+  for (const system of systemsToUnload) {
+    const pipeline = world.pipelines[system.type]
+    const i = pipeline.indexOf(system)
+    pipeline.splice(i, 1)
+    delete world.systemsByUUID[system.uuid]
+    promises.push(system.cleanup())
+  }
+  return promises
 }
 
 export const unloadSystem = (world: World, uuid: string) => {
-  const entries = Object.entries(world.pipelines)
-  for (const [type, pipeline] of entries) {
-    const system = pipeline.find((s) => s.uuid === uuid)
-    if (system) {
-      const i = pipeline.indexOf(system)
-      pipeline.splice(i, 1)
-      delete world.systemsByUUID[system.uuid]
-      return
-    }
-  }
+  const systemToUnload = world.systemsByUUID[uuid]
+  const pipeline = world.pipelines[systemToUnload.type]
+  const i = pipeline.indexOf(systemToUnload)
+  pipeline.splice(i, 1)
+  delete world.systemsByUUID[systemToUnload.uuid]
+  return systemToUnload.cleanup()
 }
 
 function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReactor: React.FC<EntityReactorProps> }) {

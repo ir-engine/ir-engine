@@ -7,7 +7,7 @@ import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
 import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import {
   Component,
@@ -18,16 +18,10 @@ import {
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  accessEngineRendererState,
-  EngineRendererAction,
-  useEngineRendererState
-} from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
-import BlurOffIcon from '@mui/icons-material/BlurOff'
 import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
 import GridOnIcon from '@mui/icons-material/GridOn'
 import Refresh from '@mui/icons-material/Refresh'
@@ -39,7 +33,7 @@ import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
   useHookstate(getState(EngineState).frameTime).value
-  const engineRendererState = useEngineRendererState()
+  const engineRendererState = useHookstate(getState(EngineRendererState))
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
@@ -53,7 +47,7 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleDebug = () => {
-    dispatchAction(EngineRendererAction.setDebug({ debugEnable: !engineRendererState.debugEnable.value }))
+    engineRendererState.debugEnable.set(!engineRendererState.debugEnable.value)
   }
 
   const tree = Engine.instance.currentWorld.entityTree
@@ -115,17 +109,11 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleNodeHelpers = () => {
-    dispatchAction(
-      EngineRendererAction.changeNodeHelperVisibility({
-        visibility: !accessEngineRendererState().nodeHelperVisibility.value
-      })
-    )
+    getState(EngineRendererState).nodeHelperVisibility.set(!getState(EngineRendererState).nodeHelperVisibility.value)
   }
 
   const toggleGridHelper = () => {
-    dispatchAction(
-      EngineRendererAction.changeGridToolVisibility({ visibility: !accessEngineRendererState().gridVisibility.value })
-    )
+    getState(EngineRendererState).gridVisibility.set(!getState(EngineRendererState).gridVisibility.value)
   }
 
   const namedEntities = useHookstate({})

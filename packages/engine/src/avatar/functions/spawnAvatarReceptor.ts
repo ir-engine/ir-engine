@@ -9,6 +9,7 @@ import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } f
 
 import { getState } from '@xrengine/hyperflux'
 
+import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -121,7 +122,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     createAvatarCollider(entity)
   }
 
-  addComponent(entity, ShadowComponent, { receive: true, cast: true })
+  addComponent(entity, ShadowComponent, { receive: true, cast: true, castDropShadow: true })
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {
@@ -176,6 +177,14 @@ export const createAvatarController = (entity: Entity) => {
     speedVelocity: { value: 0 },
     translationApplied: new Vector3()
   })
+
+  const CameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+  const avatarForward = new Vector3(0, 0, -1).applyQuaternion(transform.rotation)
+  const cameraForward = new Vector3(0, 0, 1).applyQuaternion(CameraTransform.rotation)
+  let targetTheta = (cameraForward.angleTo(avatarForward) * 180) / Math.PI
+  const orientation = cameraForward.x * avatarForward.z - cameraForward.z * avatarForward.x
+  if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
+  setTargetCameraRotation(Engine.instance.currentWorld.cameraEntity, 0, targetTheta)
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)

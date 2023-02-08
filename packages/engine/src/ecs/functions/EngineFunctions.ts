@@ -14,7 +14,7 @@ import { World } from '../classes/World'
 import { EntityTreeNode, removeEntityNodeFromParent, traverseEntityNode } from '../functions/EntityTree'
 import { defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
-import { unloadSystems } from './SystemFunctions'
+import { unloadAllSystems } from './SystemFunctions'
 
 /** Reset the engine and remove everything from memory. */
 export function dispose() {
@@ -67,7 +67,7 @@ export function dispose() {
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 
-export const unloadScene = (world: World) => {
+export const unloadScene = async (world: World) => {
   const entitiesToRemove = [] as Entity[]
   const entityNodesToRemove = [] as EntityTreeNode[]
   const sceneObjectsToRemove = [] as Object3D[]
@@ -104,6 +104,6 @@ export const unloadScene = (world: World) => {
   for (const o of sceneObjectsToRemove) Engine.instance.currentWorld.scene.remove(o)
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
-  unloadSystems(world, true)
+  await unloadAllSystems(world, true)
   dispatchAction(EngineActions.sceneUnloaded({}))
 }

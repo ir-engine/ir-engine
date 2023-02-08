@@ -1,15 +1,10 @@
-import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import {
-  XRHand,
-  XRJointBones,
-  XRJointParentMap,
-  XRLeftHandComponent,
-  XRRightHandComponent
-} from '../../xr/XRComponents'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHand, XRJointBones, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
 import { getCameraMode, ReferenceSpace } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -238,11 +233,9 @@ export const applyInputSourcePoseToIKTargets = () => {
     /** Head */
     if (inAttachedControlMode && hasComponent(localClientEntity, AvatarHeadIKComponent)) {
       const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
-      const viewerPose = xrFrame.getViewerPose(referenceSpace)
-      if (viewerPose) {
-        ik.target.quaternion.copy(viewerPose.transform.orientation as any)
-        ik.target.position.copy(viewerPose.transform.position as any)
-      }
+      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+      ik.target.quaternion.copy(cameraTransform.rotation)
+      ik.target.position.copy(cameraTransform.position)
     }
 
     for (const inputSource of world.inputSources) {

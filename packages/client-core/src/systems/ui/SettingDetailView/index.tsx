@@ -13,7 +13,7 @@ import {
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
@@ -39,7 +39,7 @@ function createSettingDetailState() {
 // TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
-  const rendererState = useEngineRendererState()
+  const rendererState = useHookstate(getState(EngineRendererState))
   const audioState = useAudioState()
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
@@ -110,22 +110,23 @@ const SettingDetailView = () => {
     setShowAudioDetails(!showAudioDetails)
   }
 
+  const handleQualityLevelChange = (value) => {
+    rendererState.qualityLevel.set(value)
+    rendererState.automatic.set(false)
+  }
+
   const handlePostProcessingCheckbox = () => {
-    dispatchAction(
-      EngineRendererAction.setPostProcessing({
-        usePostProcessing: !rendererState.usePostProcessing.value
-      })
-    )
-    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
+    rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
+    rendererState.automatic.set(false)
   }
 
   const handleShadowCheckbox = () => {
-    dispatchAction(EngineRendererAction.setShadows({ useShadows: !rendererState.useShadows.value }))
-    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
+    rendererState.useShadows.set(!rendererState.useShadows.value)
+    rendererState.automatic.set(false)
   }
 
   const handleAutomaticCheckbox = () => {
-    dispatchAction(EngineRendererAction.setAutomatic({ automatic: !rendererState.automatic.value }))
+    rendererState.automatic.set(!rendererState.automatic.value)
   }
 
   return (
@@ -248,10 +249,7 @@ const SettingDetailView = () => {
                 max="5"
                 step="1"
                 value={rendererState.qualityLevel.value}
-                onChange={(event: any) => {
-                  dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: parseInt(event.target.value) }))
-                  dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-                }}
+                onChange={handleQualityLevelChange}
               />
             </div>
 

@@ -26,8 +26,8 @@ import {
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
+import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isHeadset } from '../../xr/XRState'
