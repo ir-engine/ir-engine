@@ -3,7 +3,7 @@ import { DirectionalLight } from 'three'
 import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineRendererState } from '../EngineRendererState'
+import { EngineRendererState } from '../WebGLRendererSystem'
 import { EngineRenderer, getRendererSceneMetadataState } from '../WebGLRendererSystem'
 
 export const updateShadowMap = (disable?: boolean) => {

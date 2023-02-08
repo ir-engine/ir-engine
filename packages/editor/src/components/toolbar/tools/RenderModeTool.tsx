@@ -2,7 +2,7 @@ import React from 'react'
 
 import { RenderModesType } from '@xrengine/engine/src/renderer/constants/RenderModes'
 import { RenderModes } from '@xrengine/engine/src/renderer/constants/RenderModes'
-import { EngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'

@@ -35,7 +35,7 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isHeadset, XRState } from '../../xr/XRState'

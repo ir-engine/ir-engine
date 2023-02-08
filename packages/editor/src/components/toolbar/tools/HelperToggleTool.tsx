@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { EngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'

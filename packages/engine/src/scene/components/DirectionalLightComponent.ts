@@ -10,7 +10,7 @@ import {
   hasComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'

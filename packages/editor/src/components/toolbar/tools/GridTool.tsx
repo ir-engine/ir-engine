@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { EngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 

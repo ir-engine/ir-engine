@@ -13,7 +13,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
