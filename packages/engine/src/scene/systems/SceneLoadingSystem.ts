@@ -35,7 +35,7 @@ import {
   removeEntityNodeRecursively,
   updateRootNodeUuid
 } from '../../ecs/functions/EntityTree'
-import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
+import { initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -207,14 +207,10 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     )
 
     /** 1. unload old systems */
-    await Promise.all(systemsToUnload.flat().map((system) => system.cleanup()))
-    for (const pipeline of systemsToUnload) {
-      for (const system of pipeline) {
-        const i = pipeline.indexOf(system)
-        pipeline.splice(i, 1)
-        delete world.systemsByUUID[system.uuid]
-      }
-    }
+    await unloadSystems(
+      world,
+      systemsToUnload.flat().map((s) => s.uuid)
+    )
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
