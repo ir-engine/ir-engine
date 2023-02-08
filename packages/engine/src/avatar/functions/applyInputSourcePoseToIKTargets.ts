@@ -20,7 +20,7 @@ import {
 const webxrJointRotation = new Matrix4().makeRotationFromQuaternion(
   new Quaternion()
     .setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
-    .multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0), Math.PI / 2))
+    .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2))
 )
 
 /**
@@ -200,19 +200,16 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const poses1 = new Float32Array(16 * 25)
   const radii1 = new Float32Array(25)
 
-  for (const space of hand.values()) {
-    console.log(space)
-  }
-
   xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
   // xrFrame.fillJointRadii!(hand.values(), radii1)
 
   for (let i = 0; i < XRJointBones.length; i++) {
     const joint = XRJointBones[i]
+    if (joint === 'wrist') continue
     const bone = getBoneNameFromXRHand(inputSource.handedness, joint, rig.rig)
     if (bone) {
-      bone.matrixWorld.fromArray(poses1, i * 16)
-      bone.matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), bone.matrixWorld) //.multiply(webxrJointRotation)
+      bone.matrixWorld.fromArray(poses1, i * 16) //.multiply(webxrJointRotation)
+      bone.matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), bone.matrixWorld)
       bone.matrix.decompose(bone.position, bone.quaternion, emptyVec)
     }
   }
@@ -256,7 +253,7 @@ export const applyInputSourcePoseToIKTargets = () => {
               ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
             }
           }
-          applyHandPose(inputSource, localClientEntity)
+          // applyHandPose(inputSource, localClientEntity)
         } else {
           if (hasComponent(localClientEntity, XRLeftHandComponent))
             removeComponent(localClientEntity, XRLeftHandComponent)
@@ -292,7 +289,7 @@ export const applyInputSourcePoseToIKTargets = () => {
               ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
             }
           }
-          applyHandPose(inputSource, localClientEntity)
+          // applyHandPose(inputSource, localClientEntity)
         } else {
           if (hasComponent(localClientEntity, XRRightHandComponent))
             removeComponent(localClientEntity, XRRightHandComponent)

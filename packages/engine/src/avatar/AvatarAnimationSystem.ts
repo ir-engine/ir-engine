@@ -397,8 +397,10 @@ export default async function AvatarAnimationSystem(world: World) {
 
     for (const entity of world.priorityAvatarEntities) {
       const avatarRig = getComponent(entity, AvatarRigComponent)
-      avatarRig?.rig.Hips.updateWorldMatrix(true, true)
-      avatarRig?.helper?.updateMatrixWorld(true)
+      if (avatarRig) {
+        avatarRig.rig.Hips.updateWorldMatrix(true, true)
+        avatarRig.helper?.updateMatrixWorld(true)
+      }
     }
   }
 
