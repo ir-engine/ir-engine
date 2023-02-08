@@ -150,7 +150,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   })
 
   const handleQualityLevelChange = (value) => {
-    rendererState.qualityLevel.set(parseInt(value.target.value))
+    rendererState.qualityLevel.set(value)
     rendererState.automatic.set(false)
   }
 

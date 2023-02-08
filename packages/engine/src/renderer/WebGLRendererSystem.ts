@@ -383,8 +383,7 @@ export default async function WebGLRendererSystem(world: World) {
     }, [renderSettings.toneMappingExposure])
 
     useEffect(() => {
-      if (isHeadset()) return
-      if (!Engine.instance.isEditor) updateShadowMap()
+      updateShadowMap()
     }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
 
     useEffect(() => {
