@@ -172,6 +172,8 @@ export type PiecewiseBezierValueJSON = {
   }[]
 }
 
+export type ValueGeneratorJSON = ConstantValueJSON | IntervalValueJSON | PiecewiseBezierValueJSON
+
 /*
 /VALUE GENERATOR TYPES
 */
@@ -218,7 +220,144 @@ export type ColorGeneratorJSON = ConstantColorJSON | ColorRangeJSON | RandomColo
 /COLOR GENERATOR TYPES
 */
 
-export type BehaviorJSON = OpaqueType<'BehaviorJSON'> & { [field: string]: any }
+/*
+ROTATION GENERATOR TYPES
+*/
+
+export type AxisAngleGeneratorJSON = {
+  type: 'AxisAngle'
+  axis: [number, number, number]
+  angle: ValueGeneratorJSON
+}
+
+export type EulerGeneratorJSON = {
+  type: 'Euler'
+  angleX: ValueGeneratorJSON
+  angleY: ValueGeneratorJSON
+  angleZ: ValueGeneratorJSON
+}
+
+export type RandomQuatGeneratorJSON = {
+  type: 'RandomQuat'
+}
+
+export type RotationGeneratorJSON = AxisAngleGeneratorJSON | EulerGeneratorJSON | RandomQuatGeneratorJSON
+
+/*
+/ROTATION GENERATOR TYPES
+*/
+
+/*
+BEHAVIOR TYPES
+*/
+
+export type ApplyForceBehaviorJSON = {
+  type: 'ApplyForce'
+  direction: [number, number, number]
+  magnitude: ValueGeneratorJSON
+}
+
+export type NoiseBehaviorJSON = {
+  type: 'Noise'
+  frequency: [number, number, number]
+  power: [number, number, number]
+}
+
+export type TurbulenceFieldBehaviorJSON = {
+  type: 'TurbulenceField'
+  scale: [number, number, number]
+  octaves: number
+  velocityMultiplier: [number, number, number]
+  timeScale: [number, number, number]
+}
+
+export type GravityForceBehaviorJSON = {
+  type: 'GravityForce'
+  center: [number, number, number]
+  magnitude: number
+}
+
+export type ColorOverLifeBehaviorJSON = {
+  type: 'ColorOverLife'
+  color: ColorGeneratorJSON
+}
+
+export type RotationOverLifeBehaviorJSON = {
+  type: 'RotationOverLife'
+  angularVelocity: ValueGeneratorJSON
+  dynamic: boolean
+}
+
+export type Rotation3DOverLifeBehaviorJSON = {
+  type: 'Rotation3DOverLife'
+  angularVelocity: RotationGeneratorJSON
+  dynamic: boolean
+}
+
+export type SizeOverLifeBehaviorJSON = {
+  type: 'SizeOverLife'
+  size: ValueGeneratorJSON
+}
+
+export type SpeedOverLifeBehaviorJSON = {
+  type: 'SpeedOverLife'
+  speed: ValueGeneratorJSON
+}
+
+export type FrameOverLifeBehaviorJSON = {
+  type: 'FrameOverLife'
+  frame: ValueGeneratorJSON
+}
+
+export type ForceOverLifeBehaviorJSON = {
+  type: 'ForceOverLife'
+  x: ValueGeneratorJSON
+  y: ValueGeneratorJSON
+  z: ValueGeneratorJSON
+}
+
+export type OrbitOverLifeBehaviorJSON = {
+  type: 'OrbitOverLife'
+  orbitSpeed: ValueGeneratorJSON
+  axis: [number, number, number]
+}
+
+export type WidthOverLengthBehaviorJSON = {
+  type: 'WidthOverLength'
+  width: ValueGeneratorJSON
+}
+
+export type ChangeEmitDirectionBehaviorJSON = {
+  type: 'ChangeEmitDirection'
+  angle: ValueGeneratorJSON
+}
+
+export type EmitSubParticleSystemBehaviorJSON = {
+  type: 'EmitSubParticleSystem'
+  subParticleSystem: string
+  useVelocityAsBasis: boolean
+}
+
+export type BehaviorJSON =
+  | ApplyForceBehaviorJSON
+  | NoiseBehaviorJSON
+  | TurbulenceFieldBehaviorJSON
+  | GravityForceBehaviorJSON
+  | ColorOverLifeBehaviorJSON
+  | RotationOverLifeBehaviorJSON
+  | Rotation3DOverLifeBehaviorJSON
+  | SizeOverLifeBehaviorJSON
+  | SpeedOverLifeBehaviorJSON
+  | FrameOverLifeBehaviorJSON
+  | ForceOverLifeBehaviorJSON
+  | OrbitOverLifeBehaviorJSON
+  | WidthOverLengthBehaviorJSON
+  | ChangeEmitDirectionBehaviorJSON
+  | EmitSubParticleSystemBehaviorJSON
+
+/*
+/BEHAVIOR TYPES
+*/
 
 export type ExpandedSystemJSON = ParticleSystemJSONParameters & {
   instancingGeometry?: string
@@ -340,16 +479,14 @@ export const ParticleSystemComponent = defineComponent({
     } as ParticleSystemComponentType
   },
   onSet: (entity, component, json) => {
-    if (!json) return
-
-    !!json.systemParameters &&
+    !!json?.systemParameters &&
       component.systemParameters.set({
         ...JSON.parse(JSON.stringify(component.systemParameters.value)),
         ...json.systemParameters
       })
 
-    !!json.behaviorParameters && component.behaviorParameters.set(new Array(...json.behaviorParameters))
-    ;(!!json.systemParameters || !!json.behaviorParameters) &&
+    !!json?.behaviorParameters && component.behaviorParameters.set(JSON.parse(JSON.stringify(json.behaviorParameters)))
+    ;(!!json?.systemParameters || !!json?.behaviorParameters) &&
       component._refresh.set((component._refresh.value + 1) % 1000)
   },
   onRemove: (entity, component) => {

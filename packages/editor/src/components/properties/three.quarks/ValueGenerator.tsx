@@ -1,20 +1,25 @@
 import React from 'react'
 
-import { ConstantValueJSON, IntervalValueJSON } from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
+import {
+  ConstantValueJSON,
+  IntervalValueJSON,
+  ValueGeneratorJSON
+} from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import InputGroup from '../../inputs/InputGroup'
 import NumericInputGroup from '../../inputs/NumericInputGroup'
 import SelectInput from '../../inputs/SelectInput'
+import PaginatedList from '../../layout/PaginatedList'
 
 export default function ValueGenerator({
   scope,
   value,
   onChange
 }: {
-  scope: State<ConstantValueJSON | IntervalValueJSON>
-  value: ConstantValueJSON | IntervalValueJSON
-  onChange: (key: keyof (ConstantValueJSON & IntervalValueJSON)) => (value: any) => void
+  scope: State<ValueGeneratorJSON>
+  value: ValueGeneratorJSON
+  onChange: (key: string) => (value: any) => void
 }) {
   return (
     <div>
@@ -23,11 +28,21 @@ export default function ValueGenerator({
           value={value.type}
           options={[
             { label: 'Constant', value: 'ConstantValue' },
-            { label: 'Interval', value: 'IntervalValue' }
+            { label: 'Interval', value: 'IntervalValue' },
+            { label: 'Bezier', value: 'PiecewiseBezier' }
           ]}
-          onChange={(type: typeof scope.type.value) => {
-            const baseVal = value.type === 'ConstantValue' ? value.value : value.a
-            scope.set(type === 'ConstantValue' ? { type, value: baseVal } : { type, a: baseVal, b: baseVal })
+          onChange={(type: typeof value.type) => {
+            const baseVal =
+              value.type === 'ConstantValue'
+                ? value.value
+                : value.type === 'IntervalValue'
+                ? (value.a + value.b) / 2
+                : 0
+            scope.set(
+              (type === 'ConstantValue'
+                ? { type, value: baseVal }
+                : { type, a: baseVal, b: baseVal }) as ValueGeneratorJSON
+            )
           }}
         />
         <hr />
@@ -40,6 +55,11 @@ export default function ValueGenerator({
           <div>
             <NumericInputGroup name="min" label="Min" value={value.a} onChange={onChange('a')} />
             <NumericInputGroup name="max" label="Max" value={value.b} onChange={onChange('b')} />
+          </div>
+        )}
+        {value.type === 'PiecewiseBezier' && (
+          <div>
+            <PaginatedList list={value.functions} element={(item, index) => <div></div>} />
           </div>
         )}
       </InputGroup>

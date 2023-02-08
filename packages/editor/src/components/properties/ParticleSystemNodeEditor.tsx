@@ -25,7 +25,8 @@ import {
   MESH_SHAPE_DEFAULT,
   ParticleSystemComponent,
   POINT_SHAPE_DEFAULT,
-  SPHERE_SHAPE_DEFAULT
+  SPHERE_SHAPE_DEFAULT,
+  ValueGeneratorJSON
 } from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
 import getFirstMesh from '@xrengine/engine/src/scene/util/getFirstMesh'
 import { NO_PROXY, State, useState } from '@xrengine/hyperflux'
@@ -125,28 +126,28 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Start Life" label={t('editor:properties.particle-system.start-life')}>
         <ValueGenerator
-          value={particleSystem.systemParameters.startLife as IntervalValueJSON | ConstantValueJSON}
+          value={particleSystem.systemParameters.startLife as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startLife as any}
           onChange={onSetStateParm(particleSystemState.systemParameters.startLife)}
         />
       </InputGroup>
       <InputGroup name="Start Size" label={t('editor:properties.particle-system.start-size')}>
         <ValueGenerator
-          value={particleSystem.systemParameters.startSize as IntervalValueJSON | ConstantValueJSON}
+          value={particleSystem.systemParameters.startSize as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startSize as any}
           onChange={onSetStateParm(particleSystemState.systemParameters.startSize)}
         />
       </InputGroup>
       <InputGroup name="Start Speed" label={t('editor:properties.particle-system.start-speed')}>
         <ValueGenerator
-          value={particleSystem.systemParameters.startSpeed as IntervalValueJSON | ConstantValueJSON}
+          value={particleSystem.systemParameters.startSpeed as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startSpeed as any}
           onChange={onSetStateParm(particleSystemState.systemParameters.startSpeed)}
         />
       </InputGroup>
       <InputGroup name="Start Rotation" label={t('editor:properties.particle-system.start-rotation')}>
         <ValueGenerator
-          value={particleSystem.systemParameters.startRotation as IntervalValueJSON | ConstantValueJSON}
+          value={particleSystem.systemParameters.startRotation as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startRotation as any}
           onChange={onSetStateParm(particleSystemState.systemParameters.startRotation)}
         />
@@ -154,13 +155,12 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Start Color" label={t('editor:properties.particle-system.start-color')}>
         <ColorGenerator
           value={particleSystem.systemParameters.startColor as ConstantColorJSON}
-          scope={particleSystemState.systemParameters.startColor as any}
           onChange={onSetStateParm(particleSystemState.systemParameters.startColor)}
         />
       </InputGroup>
       <InputGroup name="Emission Over Time" label={t('editor:properties.particle-system.emission-over-time')}>
         <ValueGenerator
-          value={particleSystem.systemParameters.emissionOverTime as IntervalValueJSON | ConstantValueJSON}
+          value={particleSystem.systemParameters.emissionOverTime as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.emissionOverTime as any}
           onChange={onSetStateParm(particleSystemState.systemParameters.emissionOverTime)}
         />
