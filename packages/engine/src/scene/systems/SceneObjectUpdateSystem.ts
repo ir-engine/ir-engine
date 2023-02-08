@@ -514,6 +514,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
 
     world.scenePrefabRegistry.delete(ScenePrefabs.particleEmitter)
+    world.sceneComponentRegistry.delete(ParticleSystemComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_SYSTEM)
 
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)
