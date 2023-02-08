@@ -2,18 +2,18 @@ import { RenderPass } from 'postprocessing'
 import { Light, MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getState } from '@xrengine/hyperflux'
 
-import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { accessEngineRendererState } from '../EngineRendererState'
-import { EngineRenderer } from '../WebGLRendererSystem'
+import { RenderModes } from '../constants/RenderModes'
+import { EngineRenderer, EngineRendererState } from '../WebGLRendererSystem'
 import { updateShadowMap } from './RenderSettingsFunction'
 
 /**
  * Change render mode of the renderer
  * @param mode Mode which will be set to renderer
  */
-export function changeRenderMode(mode: RenderModesType): void {
-  const renderMode = accessEngineRendererState().renderMode.value
+export function changeRenderMode() {
+  const renderMode = getState(EngineRendererState).renderMode.value
 
   // revert any changes made by a render mode
   switch (renderMode) {
@@ -34,7 +34,7 @@ export function changeRenderMode(mode: RenderModesType): void {
 
   if (!renderPass) return
 
-  switch (mode) {
+  switch (renderMode) {
     case RenderModes.UNLIT:
       Engine.instance.currentWorld.scene.traverse((obj: Light) => {
         if (obj.isLight && obj.visible) {
@@ -60,5 +60,5 @@ export function changeRenderMode(mode: RenderModesType): void {
       break
   }
 
-  updateShadowMap(mode !== RenderModes.SHADOW)
+  updateShadowMap()
 }

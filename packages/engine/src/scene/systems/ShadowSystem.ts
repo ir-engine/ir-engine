@@ -35,7 +35,8 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { getShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
+import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isHeadset, XRState } from '../../xr/XRState'
@@ -80,10 +81,7 @@ export default async function ShadowSystem(world: World) {
           }
         }
 
-      const useCSM =
-        !isHeadset() &&
-        EngineRenderer.instance.renderer.shadowMap.enabled &&
-        getRendererSceneMetadataState(Engine.instance.currentWorld).csm.value
+      const useCSM = getShadowsEnabled() && getRendererSceneMetadataState(Engine.instance.currentWorld).csm.value
 
       if (useCSM && activeDirectionalLight) {
         if (!EngineRenderer.instance.csm) {
@@ -197,7 +195,11 @@ export default async function ShadowSystem(world: World) {
   }
 
   const execute = () => {
-    CreateDropShadows()
+    const useShadows = getShadowsEnabled()
+    if (!useShadows) {
+      CreateDropShadows()
+      return
+    }
 
     if (!EngineRenderer.instance.csm) return
     EngineRenderer.instance.csm.sourceLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
