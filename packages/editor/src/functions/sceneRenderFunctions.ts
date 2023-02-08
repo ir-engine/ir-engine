@@ -3,22 +3,15 @@ import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
@@ -101,9 +94,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
 export async function initializeRenderer(): Promise<void> {
   try {
     dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
-
-    accessEngineRendererState().automatic.set(false)
-    dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: EngineRenderer.instance.maxQualityLevel }))
   } catch (error) {
     console.error(error)
   }

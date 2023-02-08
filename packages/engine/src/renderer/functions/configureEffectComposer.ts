@@ -4,8 +4,7 @@ import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 
 import { NO_PROXY } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EffectMap, EffectPropsSchema, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
-import { accessEngineRendererState } from '../EngineRendererState'
+import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { EngineRenderer, getPostProcessingSceneMetadataState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
@@ -98,5 +97,5 @@ export const configureEffectComposer = (
     EngineRenderer.instance.effectComposer.addPass(new EffectPass(camera, ...effects, textureEffect))
   }
 
-  if (Engine.instance.isEditor) changeRenderMode(accessEngineRendererState().renderMode.value)
+  if (Engine.instance.isEditor) changeRenderMode()
 }

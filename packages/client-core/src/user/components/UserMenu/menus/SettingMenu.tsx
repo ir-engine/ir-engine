@@ -20,8 +20,10 @@ import {
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import {
+  EngineRendererState,
+  getPostProcessingSceneMetadataState
+} from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -45,7 +47,7 @@ interface Props {
 
 const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const rendererState = useEngineRendererState()
+  const rendererState = useHookstate(getState(EngineRendererState))
   const audioState = useAudioState()
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
   const selfUser = useAuthState().user
@@ -146,6 +148,25 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       value: el
     }
   })
+
+  const handleQualityLevelChange = (value) => {
+    rendererState.qualityLevel.set(parseInt(value.target.value))
+    rendererState.automatic.set(false)
+  }
+
+  const handlePostProcessingCheckbox = () => {
+    rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
+    rendererState.automatic.set(false)
+  }
+
+  const handleShadowCheckbox = () => {
+    rendererState.useShadows.set(!rendererState.useShadows.value)
+    rendererState.automatic.set(false)
+  }
+
+  const handleAutomaticCheckbox = () => {
+    rendererState.automatic.set(!rendererState.automatic.value)
+  }
 
   return (
     <Menu
@@ -418,10 +439,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               step={1}
               value={rendererState.qualityLevel.value}
               sx={{ mt: 4 }}
-              onChange={(value: number) => {
-                dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: value }))
-                dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-              }}
+              onChange={handleQualityLevelChange}
             />
 
             <Grid container spacing={{ xs: 0, sm: 2 }}>
@@ -430,10 +448,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                   label={t('user:usermenu.setting.lbl-pp')}
                   checked={postprocessingSettings.value && rendererState.usePostProcessing.value}
                   disabled={!postprocessingSettings.value}
-                  onChange={(value: boolean) => {
-                    dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: value }))
-                    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-                  }}
+                  onChange={handlePostProcessingCheckbox}
                 />
               </Grid>
 
@@ -441,10 +456,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-shadow')}
                   checked={rendererState.useShadows.value}
-                  onChange={(value: boolean) => {
-                    dispatchAction(EngineRendererAction.setShadows({ useShadows: value }))
-                    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-                  }}
+                  onChange={handleShadowCheckbox}
                 />
               </Grid>
 
@@ -452,9 +464,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-automatic')}
                   checked={rendererState.automatic.value}
-                  onChange={(value: boolean) => {
-                    dispatchAction(EngineRendererAction.setAutomatic({ automatic: value }))
-                  }}
+                  onChange={handleAutomaticCheckbox}
                 />
               </Grid>
             </Grid>

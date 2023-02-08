@@ -30,17 +30,20 @@ import {
 
 import {
   createActionQueue,
+  defineState,
   dispatchAction,
   getState,
   hookstate,
   removeActionQueue,
   startReactor,
   State,
+  syncStateWithLocalStorage,
   useHookstate
 } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { isMobile } from '../common/functions/isMobile'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
@@ -52,12 +55,43 @@ import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { isHeadset, useIsHeadset, XRState } from '../xr/XRState'
+import { RenderModes, RenderModesType } from './constants/RenderModes'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import { accessEngineRendererState, EngineRendererAction, EngineRendererState } from './EngineRendererState'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
 import WebGL from './THREE.WebGL'
+
+export const EngineRendererState = defineState({
+  name: 'EngineRendererState',
+  initial: () => ({
+    qualityLevel: isMobile ? 2 : 5, // range from 0 to 5
+    automatic: true,
+    // usePBR: true,
+    usePostProcessing: true,
+    useShadows: true,
+    debugEnable: false,
+    renderMode: RenderModes.SHADOW as RenderModesType,
+    nodeHelperVisibility: false,
+    gridVisibility: false,
+    gridHeight: 0,
+    forceBasicMaterials: false
+  }),
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(EngineRendererState, [
+      'qualityLevel',
+      'automatic',
+      // 'usePBR',
+      'usePostProcessing',
+      'useShadows',
+      'debugEnable',
+      'renderMode',
+      'nodeHelperVisibility',
+      'gridVisibility',
+      'gridHeight'
+    ])
+  }
+})
 
 export interface EffectComposerWithSchema extends EffectComposer {
   OutlineEffect: OutlineEffect
@@ -233,7 +267,7 @@ export class EngineRenderer {
 
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
-      const state = accessEngineRendererState()
+      const state = getState(EngineRendererState)
       const engineState = getEngineState()
       if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.needsResize) {
@@ -278,7 +312,7 @@ export class EngineRenderer {
     const delta = time - lastRenderTime
     lastRenderTime = time
 
-    const state = accessEngineRendererState()
+    const state = getState(EngineRendererState)
     let qualityLevel = state.qualityLevel.value
 
     this.movingAverage.update(Math.min(delta, 50))
@@ -291,7 +325,7 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel }))
+      state.qualityLevel.set(qualityLevel)
     }
   }
 }
@@ -322,16 +356,6 @@ export const getPostProcessingSceneMetadataState = (world: World) =>
   world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
 
 export default async function WebGLRendererSystem(world: World) {
-  const setQualityLevelActions = createActionQueue(EngineRendererAction.setQualityLevel.matches)
-  const setAutomaticActions = createActionQueue(EngineRendererAction.setAutomatic.matches)
-  const setPostProcessingActions = createActionQueue(EngineRendererAction.setPostProcessing.matches)
-  const setShadowsActions = createActionQueue(EngineRendererAction.setShadows.matches)
-  const setDebugActions = createActionQueue(EngineRendererAction.setDebug.matches)
-  const changedRenderModeActions = createActionQueue(EngineRendererAction.changedRenderMode.matches)
-  const changeNodeHelperVisibilityActions = createActionQueue(EngineRendererAction.changeNodeHelperVisibility.matches)
-  const changeGridToolHeightActions = createActionQueue(EngineRendererAction.changeGridToolHeight.matches)
-  const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
-
   world.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
     state: hookstate(_.cloneDeep(DefaultRenderSettingsState)),
     default: DefaultRenderSettingsState
@@ -348,6 +372,7 @@ export default async function WebGLRendererSystem(world: World) {
     const renderSettings = useHookstate(getRendererSceneMetadataState(world))
     const engineRendererSettings = useHookstate(engineRendererState)
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))
+    const xrState = useHookstate(getState(XRState))
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
@@ -358,12 +383,24 @@ export default async function WebGLRendererSystem(world: World) {
     }, [renderSettings.toneMappingExposure])
 
     useEffect(() => {
-      updateShadowMap()
-    }, [renderSettings.shadowMapType])
+      if (isHeadset()) return
+      if (!Engine.instance.isEditor) updateShadowMap()
+    }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
 
     useEffect(() => {
       configureEffectComposer()
-    }, [postprocessing])
+    }, [postprocessing, engineRendererSettings.usePostProcessing])
+
+    useEffect(() => {
+      EngineRenderer.instance.scaleFactor =
+        engineRendererSettings.qualityLevel.value / EngineRenderer.instance.maxQualityLevel
+      EngineRenderer.instance.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
+      EngineRenderer.instance.needsResize = true
+    }, [engineRendererSettings.qualityLevel])
+
+    useEffect(() => {
+      changeRenderMode()
+    }, [engineRendererSettings.renderMode])
 
     useEffect(() => {
       if (engineRendererSettings.debugEnable.value)
@@ -386,75 +423,11 @@ export default async function WebGLRendererSystem(world: World) {
     return null
   })
 
-  function setQualityLevel(qualityLevel) {
-    EngineRenderer.instance.scaleFactor = qualityLevel / EngineRenderer.instance.maxQualityLevel
-    EngineRenderer.instance.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
-    EngineRenderer.instance.needsResize = true
-  }
-
-  function setUsePostProcessing(usePostProcessing) {
-    if (engineRendererState.usePostProcessing.value === usePostProcessing) return
-    usePostProcessing = EngineRenderer.instance.supportWebGL2 && usePostProcessing
-    configureEffectComposer(!usePostProcessing)
-  }
-
   const execute = () => {
-    for (const action of setQualityLevelActions()) {
-      const s = engineRendererState
-      s.qualityLevel.set(action.qualityLevel)
-      setQualityLevel(action.qualityLevel)
-    }
-    for (const action of setAutomaticActions()) {
-      const s = engineRendererState
-      s.automatic.set(action.automatic)
-    }
-    for (const action of setPostProcessingActions()) {
-      if (action.usePostProcessing && isHeadset()) return
-      setUsePostProcessing(action.usePostProcessing)
-      const s = engineRendererState
-      s.usePostProcessing.set(action.usePostProcessing)
-    }
-    for (const action of setShadowsActions()) {
-      if (action.useShadows && isHeadset()) return
-      const s = getState(EngineRendererState)
-      s.useShadows.set(action.useShadows)
-      if (!Engine.instance.isEditor) updateShadowMap()
-    }
-    for (const action of setDebugActions()) {
-      const s = getState(EngineRendererState)
-      s.debugEnable.set(action.debugEnable)
-    }
-    for (const action of changedRenderModeActions()) {
-      changeRenderMode(action.renderMode)
-      const s = getState(EngineRendererState)
-      s.renderMode.set(action.renderMode)
-    }
-    for (const action of changeNodeHelperVisibilityActions()) {
-      const s = getState(EngineRendererState)
-      s.nodeHelperVisibility.set(action.visibility)
-    }
-    for (const action of changeGridToolHeightActions()) {
-      const s = getState(EngineRendererState)
-      s.gridHeight.set(action.gridHeight)
-    }
-    for (const action of changeGridToolVisibilityActions()) {
-      const s = getState(EngineRendererState)
-      s.gridVisibility.set(action.visibility)
-    }
-
     EngineRenderer.instance.execute(world.deltaSeconds)
   }
 
   const cleanup = async () => {
-    removeActionQueue(setQualityLevelActions)
-    removeActionQueue(setAutomaticActions)
-    removeActionQueue(setPostProcessingActions)
-    removeActionQueue(setShadowsActions)
-    removeActionQueue(setDebugActions)
-    removeActionQueue(changedRenderModeActions)
-    removeActionQueue(changeNodeHelperVisibilityActions)
-    removeActionQueue(changeGridToolHeightActions)
-    removeActionQueue(changeGridToolVisibilityActions)
     reactor.stop()
   }
 
