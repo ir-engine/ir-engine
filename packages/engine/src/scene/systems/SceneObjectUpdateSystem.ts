@@ -42,6 +42,11 @@ import {
   SCENE_COMPONENT_OCEAN,
   SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
 } from '../components/OceanComponent'
+import {
+  DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
+  ParticleSystemComponent,
+  SCENE_COMPONENT_PARTICLE_SYSTEM
+} from '../components/ParticleSystemComponent'
 import { PortalComponent, SCENE_COMPONENT_PORTAL } from '../components/PortalComponent'
 import { PrefabComponent, SCENE_COMPONENT_PREFAB } from '../components/PrefabComponent'
 import { PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE } from '../components/PreventBakeTagComponent'
@@ -340,6 +345,17 @@ export default async function SceneObjectUpdateSystem(world: World) {
     serialize: serializeSpline
   })
 
+  world.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_PARTICLE_SYSTEM, props: {} }
+  ])
+
+  world.sceneComponentRegistry.set(ParticleSystemComponent.name, SCENE_COMPONENT_PARTICLE_SYSTEM)
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {
+    defaultData: {}
+  })
+
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
@@ -496,6 +512,10 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
     world.sceneComponentRegistry.delete(SplineComponent.name)
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.particleEmitter)
+    world.sceneComponentRegistry.delete(ParticleSystemComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_SYSTEM)
 
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)
