@@ -280,6 +280,17 @@
           }
         },
         {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
           "name": "directional-light",
           "props": {
             "color": 16777215,

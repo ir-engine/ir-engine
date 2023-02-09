@@ -4,6 +4,7 @@ import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHand } from '../../xr/XRComponents'
 import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import {
@@ -31,11 +32,9 @@ export const applyInputSourcePoseToIKTargets = () => {
     /** Head */
     if (inAttachedControlMode && hasComponent(localClientEntity, AvatarHeadIKComponent)) {
       const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
-      const viewerPose = xrFrame.getViewerPose(referenceSpace)
-      if (viewerPose) {
-        ik.target.quaternion.copy(viewerPose.transform.orientation as any)
-        ik.target.position.copy(viewerPose.transform.position as any)
-      }
+      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+      ik.target.quaternion.copy(cameraTransform.rotation)
+      ik.target.position.copy(cameraTransform.position)
     }
 
     for (const inputSource of world.inputSources) {

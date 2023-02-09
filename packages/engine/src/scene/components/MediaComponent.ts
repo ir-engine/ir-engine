@@ -24,7 +24,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'

@@ -1,7 +1,6 @@
 import clsx from 'clsx'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import DateAdapter from '@mui/lab/AdapterMoment'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
@@ -13,10 +12,10 @@ import { useAdminAnalyticsState } from '../../services/AnalyticsService'
 import { AdminAnalyticsService } from '../../services/AnalyticsService'
 import styles from '../../styles/admin.module.scss'
 import ActivityGraph from './ActivityGraph'
-import Card from './CardNumber'
 
 import './index.scss'
 
+import AnalyticsService from './AnalyticsService'
 import UserGraph from './UserGraph'
 
 /**
@@ -27,86 +26,15 @@ import UserGraph from './UserGraph'
 
 const Analytics = () => {
   const [refetch, setRefetch] = useState(false)
-  const { t } = useTranslation()
+  // const { t } = useTranslation()
   const [graphSelector, setGraphSelector] = useState('activity')
   const analyticsState = useAdminAnalyticsState()
 
   const [endDate, setEndDate] = useState(moment())
   const [startDate, setStartDate] = useState(moment().subtract(30, 'days'))
 
-  const activeLocations = analyticsState.activeLocations.value.map((item) => {
-    return [new Date(item.createdAt).getTime(), item.count]
-  })
-  const activeParties = analyticsState.activeParties.value.map((item) => {
-    return [new Date(item.createdAt).getTime(), item.count]
-  })
-  const activeScenes = analyticsState.activeScenes.value.map((item) => {
-    return [new Date(item.createdAt).getTime(), item.count]
-  })
-  const activeInstances = analyticsState.activeInstances.value.map((item) => {
-    return [new Date(item.createdAt).getTime(), item.count]
-  })
-  const instanceUsers = analyticsState.instanceUsers.value.map((item) => {
-    return [new Date(item.createdAt).getTime(), item.count]
-  })
-  const channelUsers = analyticsState.channelUsers.value.map((item) => {
-    return [new Date(item.createdAt).getTime(), item.count]
-  })
-  const dailyUsers = analyticsState.dailyUsers.value.map((item) => {
-    return [new Date(item.createdAt).getTime(), item.count]
-  })
-  const dailyNewUsers = analyticsState.dailyNewUsers.value.map((item) => {
-    return [new Date(item.createdAt).getTime(), item.count]
-  })
-
-  const activityGraphData = [
-    {
-      name: t('admin:components.analytics.activeParties'),
-      data: activeParties
-    },
-    {
-      name: t('admin:components.analytics.activeLocations'),
-      data: activeLocations
-    },
-    {
-      name: t('admin:components.analytics.activeInstances'),
-      data: activeInstances
-    },
-    {
-      name: t('admin:components.analytics.activeScenes'),
-      data: activeScenes
-    },
-    {
-      name: t('admin:components.analytics.instanceUsers'),
-      data: instanceUsers
-    },
-    {
-      name: t('admin:components.analytics.channelUsers'),
-      data: channelUsers
-    }
-  ]
-
-  const userGraphData = [
-    {
-      name: t('admin:components.analytics.dailyUsers'),
-      data: dailyUsers
-    },
-    {
-      name: t('admin:components.analytics.dailyNewUsers'),
-      data: dailyNewUsers
-    }
-  ]
-
   useEffect(() => {
     if (refetch === true && startDate < endDate) {
-      AdminAnalyticsService.fetchActiveParties(startDate?.toDate(), endDate?.toDate())
-      AdminAnalyticsService.fetchInstanceUsers(startDate?.toDate(), endDate?.toDate())
-      AdminAnalyticsService.fetchChannelUsers(startDate?.toDate(), endDate?.toDate())
-      AdminAnalyticsService.fetchActiveLocations(startDate?.toDate(), endDate?.toDate())
-      AdminAnalyticsService.fetchActiveScenes(startDate?.toDate(), endDate?.toDate())
-      AdminAnalyticsService.fetchActiveInstances(startDate?.toDate(), endDate?.toDate())
-      AdminAnalyticsService.fetchDailyUsers(startDate?.toDate(), endDate?.toDate())
-      AdminAnalyticsService.fetchDailyNewUsers(startDate?.toDate(), endDate?.toDate())
       setRefetch(false)
     }
   }, [refetch, startDate, endDate])
@@ -127,54 +55,54 @@ const Analytics = () => {
     setRefetch(true)
   }
 
-  const data = [
-    {
-      number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
-      label: t('admin:components.analytics.activeParties'),
-      color1: '#2c519d',
-      color2: '#31288f'
-    },
-    {
-      number: activeLocations[activeLocations.length - 1] ? activeLocations[activeLocations.length - 1][1] : 0,
-      label: t('admin:components.analytics.activeLocations'),
-      color1: '#77b2e9',
-      color2: '#458bcc'
-    },
-    {
-      number: activeScenes[activeScenes.length - 1] ? activeScenes[activeScenes.length - 1][1] : 0,
-      label: t('admin:components.analytics.activeScenes'),
-      color1: '#e3b76c',
-      color2: '#df9b26'
-    },
-    {
-      number: activeInstances[activeInstances.length - 1] ? activeInstances[activeInstances.length - 1][1] : 0,
-      label: t('admin:components.analytics.activeInstances'),
-      color1: '#ed7d7e',
-      color2: '#c95859'
-    },
-    {
-      number: dailyUsers[dailyUsers.length - 1] ? dailyUsers[dailyUsers.length - 1][1] : 0,
-      label: t('admin:components.analytics.usersToday'),
-      color1: '#53a7cd',
-      color2: '#24779c'
-    },
-    {
-      number: dailyNewUsers[dailyNewUsers.length - 1] ? dailyNewUsers[dailyNewUsers.length - 1][1] : 0,
-      label: t('admin:components.analytics.newUsersToday'),
-      color1: '#9771d3',
-      color2: '#6945a1'
-    }
-  ]
-
   const tempStartDate = moment(startDate)
   const minEndDate = moment(tempStartDate.startOf('day').add(1, 'day'))
 
   return (
     <>
       <div className={styles.dashboardCardsContainer}>
-        {data.map((el) => {
-          return <Card key={el.label} data={el} />
-        })}
+        <AnalyticsService
+          name="activeParties"
+          colors={['#2c519d', '#31288f']}
+          fetch={AdminAnalyticsService.fetchActiveParties}
+          data={analyticsState.activeParties.value}
+          refetch={refetch}
+        />
+        <AnalyticsService
+          name="activeLocations"
+          colors={['#77b2e9', '#458bcc']}
+          fetch={AdminAnalyticsService.fetchActiveLocations}
+          data={analyticsState.activeLocations.value}
+          refetch={refetch}
+        />
+        <AnalyticsService
+          name="activeScenes"
+          colors={['#e3b76c', '#df9b26']}
+          fetch={AdminAnalyticsService.fetchActiveScenes}
+          data={analyticsState.activeScenes.value}
+          refetch={refetch}
+        />
+        <AnalyticsService
+          name="activeInstances"
+          colors={['#ed7d7e', '#c95859']}
+          fetch={AdminAnalyticsService.fetchActiveInstances}
+          data={analyticsState.activeInstances.value}
+          refetch={refetch}
+        />
+        <AnalyticsService
+          name="dailyUsers"
+          colors={['#53a7cd', '#24779c']}
+          fetch={AdminAnalyticsService.fetchDailyUsers}
+          data={analyticsState.dailyUsers.value}
+          refetch={refetch}
+        />
+        <AnalyticsService
+          name="dailyNewUsers"
+          colors={['#9771d3', '#6945a1']}
+          fetch={AdminAnalyticsService.fetchDailyNewUsers}
+          data={analyticsState.dailyNewUsers.value}
+          refetch={refetch}
+        />
       </div>
       <div className={styles.mt20px}>
         <div className={styles.analyticsPaper}>
@@ -226,11 +154,9 @@ const Analytics = () => {
             </LocalizationProvider>
           </div>
           {graphSelector === 'activity' && (
-            <ActivityGraph data={activityGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
+            <ActivityGraph startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
           )}
-          {graphSelector === 'users' && (
-            <UserGraph data={userGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
-          )}
+          {graphSelector === 'users' && <UserGraph startDate={startDate?.toDate()} endDate={endDate?.toDate()} />}
         </div>
       </div>
     </>

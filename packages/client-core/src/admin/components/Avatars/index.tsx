@@ -1,7 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+import { AvatarClientModule } from '@xrengine/engine/src/avatar/AvatarClientModule'
+import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { initSystems, unloadSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SceneClientModule } from '@xrengine/engine/src/scene/SceneClientModule'
+import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
+import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 import Box from '@mui/material/Box'
@@ -21,6 +28,23 @@ const Avatar = () => {
   const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
   const [openDeleteAvatarModal, setOpenDeleteAvatarModal] = React.useState(false)
   const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
+
+  useEffect(() => {
+    const systems = [
+      ...TransformModule(),
+      ...SceneCommonModule(),
+      ...SceneClientModule(),
+      ...AvatarCommonModule(),
+      ...AvatarClientModule()
+    ]
+    initSystems(Engine.instance.currentWorld, systems)
+    return () => {
+      unloadSystems(
+        Engine.instance.currentWorld,
+        systems.map((s) => s.uuid)
+      )
+    }
+  }, [])
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

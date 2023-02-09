@@ -3,12 +3,21 @@ import { DirectionalLight } from 'three'
 import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineRendererState } from '../EngineRendererState'
+import { isHeadset } from '../../xr/XRState'
+import { RenderModes } from '../constants/RenderModes'
+import { EngineRendererState } from '../WebGLRendererSystem'
 import { EngineRenderer, getRendererSceneMetadataState } from '../WebGLRendererSystem'
 
-export const updateShadowMap = (disable?: boolean) => {
+export const getShadowsEnabled = () => {
+  const engineRendererState = getState(EngineRendererState)
+  return (
+    !isHeadset() && engineRendererState.useShadows.value && engineRendererState.renderMode.value === RenderModes.SHADOW
+  )
+}
+
+export const updateShadowMap = () => {
+  const enabled = getShadowsEnabled()
   const type = getRendererSceneMetadataState(Engine.instance.currentWorld).shadowMapType.value
-  const enabled = getState(EngineRendererState).useShadows.value && !disable
 
   EngineRenderer.instance.renderer.shadowMap.enabled = enabled
   EngineRenderer.instance.renderer.shadowMap.type = type

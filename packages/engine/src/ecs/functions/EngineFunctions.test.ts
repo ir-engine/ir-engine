@@ -10,7 +10,7 @@ import { createEntity } from './EntityFunctions'
 
 describe('EngineFunctions', () => {
   describe('unloadScene', () => {
-    it('can unload all scene entities', () => {
+    it('can unload all scene entities', async () => {
       createEngine()
       const world = Engine.instance.currentWorld
       const groupQuery = defineQuery([GroupComponent])
@@ -26,7 +26,7 @@ describe('EngineFunctions', () => {
 
       assert.equal(groupEntities.length, 4)
 
-      unloadScene(world)
+      await unloadScene(world)
       // camera entity and non scene entity shoulder persist
       assert.equal(groupQuery(world).length, 3)
 

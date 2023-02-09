@@ -46,7 +46,8 @@ import {
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
-const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
+const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const fixedRigidBodyQuery = defineQuery([TransformComponent, RigidBodyComponent, RigidBodyFixedTagComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
 const staticBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent])
@@ -120,6 +121,19 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   TransformComponent.rotation.w[entity] = rotationW * alpha + previousRotationW * (1 - alpha)
 
   Engine.instance.currentWorld.dirtyTransforms[entity] = true
+}
+
+export const copyTransformToRigidBody = (entity: Entity) => {
+  RigidBodyComponent.position.x[entity] = TransformComponent.position.x[entity]
+  RigidBodyComponent.position.y[entity] = TransformComponent.position.y[entity]
+  RigidBodyComponent.position.z[entity] = TransformComponent.position.z[entity]
+  RigidBodyComponent.rotation.x[entity] = TransformComponent.rotation.x[entity]
+  RigidBodyComponent.rotation.y[entity] = TransformComponent.rotation.y[entity]
+  RigidBodyComponent.rotation.z[entity] = TransformComponent.rotation.z[entity]
+  RigidBodyComponent.rotation.w[entity] = TransformComponent.rotation.w[entity]
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  rigidbody.body.setTranslation(rigidbody.position, false)
+  rigidbody.body.setRotation(rigidbody.rotation, false)
 }
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
@@ -309,10 +323,12 @@ export default async function TransformSystem(world: World) {
     const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
     const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
     const dirtyGroupEntities = groupQuery().filter(isDirty)
+    const dirtyFixedRigidbodyEntities = fixedRigidBodyQuery().filter(isDirty)
 
     for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
     for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity, world)
 
+    for (const entity of dirtyFixedRigidbodyEntities) copyTransformToRigidBody(entity)
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
     if (!xrFrame) {

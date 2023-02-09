@@ -6,7 +6,7 @@ import { createState, getState, none, useHookstate } from '@xrengine/hyperflux/f
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'

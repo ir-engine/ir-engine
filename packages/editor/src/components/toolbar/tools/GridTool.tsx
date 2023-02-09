@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
-import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 
@@ -11,7 +11,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const engineRendererState = useEngineRendererState().value
+  const engineRendererState = useHookstate(getState(EngineRendererState))
   const [gridHeight, setGridHeight] = useState(engineRendererState.gridHeight)
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const GridTool = () => {
   }
 
   const onToggleGridVisible = () => {
-    dispatchAction(EngineRendererAction.changeGridToolVisibility({ visibility: !engineRendererState.gridVisibility }))
+    engineRendererState.gridVisibility.set(!engineRendererState.gridVisibility.value)
   }
 
   const onChangeGridHeight = (value) => {
