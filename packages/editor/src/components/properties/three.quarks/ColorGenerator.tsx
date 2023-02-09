@@ -1,14 +1,14 @@
 import React, { useCallback } from 'react'
 import { Color } from 'three'
+import { FunctionJSON } from 'three.quarks/dist/three.quarks.esm'
 
 import {
   ColorGeneratorJSON,
+  ColorGeneratorJSONDefaults,
   ColorGradientJSON,
   ColorJSON,
   ColorRangeJSON,
   ConstantColorJSON,
-  ConstantValueJSON,
-  IntervalValueJSON,
   RandomColorJSON
 } from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
@@ -40,14 +40,24 @@ export function ColorJSONInput({ value, onChange }: { value: ColorJSON; onChange
 }
 
 export default function ColorGenerator({
+  scope,
   value,
   onChange
 }: {
+  scope: State<ColorGeneratorJSON> | State<ColorGeneratorJSON & FunctionJSON>
   value: ColorGeneratorJSON
   onChange: (
     key: keyof (ConstantColorJSON & ColorRangeJSON & RandomColorJSON & ColorGradientJSON)
   ) => (value: any) => void
 }) {
+  const onChangeType = useCallback(() => {
+    const thisOnChange = onChange('type')
+    return (type: typeof value.type) => {
+      scope.set(ColorGeneratorJSONDefaults[type])
+      thisOnChange(type)
+    }
+  }, [])
+
   return (
     <div>
       <InputGroup name="type" label="Type">
@@ -59,30 +69,30 @@ export default function ColorGenerator({
             { label: 'Random', value: 'RandomColor' },
             { label: 'Gradient', value: 'Gradient' }
           ]}
+          onChange={onChangeType()}
         />
-        <hr />
-        {value.type === 'ConstantColor' && <ColorJSONInput value={value.color} onChange={onChange('color')} />}
-        {value.type === 'ColorRange' && (
-          <>
-            <InputGroup name="A" label="A">
-              <ColorJSONInput value={value.a} onChange={onChange('a')} />
-            </InputGroup>
-            <InputGroup name="B" label="B">
-              <ColorJSONInput value={value.b} onChange={onChange('b')} />
-            </InputGroup>
-          </>
-        )}
-        {value.type === 'RandomColor' && (
-          <>
-            <InputGroup name="A" label="A">
-              <ColorJSONInput value={value.a} onChange={onChange('a')} />
-            </InputGroup>
-            <InputGroup name="B" label="B">
-              <ColorJSONInput value={value.b} onChange={onChange('b')} />
-            </InputGroup>
-          </>
-        )}
       </InputGroup>
+      {value.type === 'ConstantColor' && <ColorJSONInput value={value.color} onChange={onChange('color')} />}
+      {value.type === 'ColorRange' && (
+        <>
+          <InputGroup name="A" label="A">
+            <ColorJSONInput value={value.a} onChange={onChange('a')} />
+          </InputGroup>
+          <InputGroup name="B" label="B">
+            <ColorJSONInput value={value.b} onChange={onChange('b')} />
+          </InputGroup>
+        </>
+      )}
+      {value.type === 'RandomColor' && (
+        <>
+          <InputGroup name="A" label="A">
+            <ColorJSONInput value={value.a} onChange={onChange('a')} />
+          </InputGroup>
+          <InputGroup name="B" label="B">
+            <ColorJSONInput value={value.b} onChange={onChange('b')} />
+          </InputGroup>
+        </>
+      )}
     </div>
   )
 }

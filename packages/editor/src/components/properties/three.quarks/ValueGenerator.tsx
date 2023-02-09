@@ -1,9 +1,8 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import {
-  ConstantValueJSON,
-  IntervalValueJSON,
-  ValueGeneratorJSON
+  ValueGeneratorJSON,
+  ValueGeneratorJSONDefaults
 } from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
@@ -21,6 +20,14 @@ export default function ValueGenerator({
   value: ValueGeneratorJSON
   onChange: (key: string) => (value: any) => void
 }) {
+  const onChangeType = useCallback(() => {
+    const thisOnChange = onChange('type')
+    return (type: typeof value.type) => {
+      scope.set(ValueGeneratorJSONDefaults[type])
+      thisOnChange(type)
+    }
+  }, [])
+
   return (
     <div>
       <InputGroup name="type" label="Type">
@@ -31,19 +38,7 @@ export default function ValueGenerator({
             { label: 'Interval', value: 'IntervalValue' },
             { label: 'Bezier', value: 'PiecewiseBezier' }
           ]}
-          onChange={(type: typeof value.type) => {
-            const baseVal =
-              value.type === 'ConstantValue'
-                ? value.value
-                : value.type === 'IntervalValue'
-                ? (value.a + value.b) / 2
-                : 0
-            scope.set(
-              (type === 'ConstantValue'
-                ? { type, value: baseVal }
-                : { type, a: baseVal, b: baseVal }) as ValueGeneratorJSON
-            )
-          }}
+          onChange={onChangeType()}
         />
         <hr />
         {value.type === 'ConstantValue' && (
@@ -59,7 +54,7 @@ export default function ValueGenerator({
         )}
         {value.type === 'PiecewiseBezier' && (
           <div>
-            <PaginatedList list={value.functions} element={(item, index) => <div></div>} />
+            <PaginatedList list={value.functions} element={(item) => <div></div>} />
           </div>
         )}
       </InputGroup>

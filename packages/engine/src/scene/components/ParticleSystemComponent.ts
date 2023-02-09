@@ -1,53 +1,14 @@
 import { useEffect } from 'react'
-import {
-  AdditiveBlending,
-  Blending,
-  BufferGeometry,
-  Color,
-  Object3D,
-  Scene,
-  Texture,
-  TextureLoader,
-  Vector4
-} from 'three'
-import {
-  Behavior,
-  BehaviorFromJSON,
-  ColorGenerator,
-  ColorGeneratorFromJSON,
-  ColorOverLife,
-  ConstantColor,
-  ConstantValue,
-  EmitterShape,
-  FunctionColorGenerator,
-  FunctionJSON,
-  FunctionValueGenerator,
-  IntervalValue,
-  ParticleSystem,
-  ParticleSystemJSONParameters,
-  PointEmitter,
-  RandomColor,
-  RenderMode,
-  ShapeJSON,
-  ValueGenerator,
-  ValueGeneratorFromJSON
-} from 'three.quarks'
-import matches, { Validator } from 'ts-matches'
+import { AdditiveBlending, BufferGeometry, Texture } from 'three'
+import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
+import matches from 'ts-matches'
 
-import { config } from '@xrengine/common/src/config'
-import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
-import { getState, MatchesWithDefault, NO_PROXY, none } from '@xrengine/hyperflux'
+import { NO_PROXY, none } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import {
-  defineComponent,
-  getComponent,
-  getComponentState,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/getFirstMesh'
@@ -174,6 +135,32 @@ export type PiecewiseBezierValueJSON = {
 
 export type ValueGeneratorJSON = ConstantValueJSON | IntervalValueJSON | PiecewiseBezierValueJSON
 
+export const ValueGeneratorJSONDefaults: Record<string, ValueGeneratorJSON> = {
+  ConstantValue: {
+    type: 'ConstantValue',
+    value: 1
+  },
+  IntervalValue: {
+    type: 'IntervalValue',
+    a: 0,
+    b: 1
+  },
+  PiecewiseBezier: {
+    type: 'PiecewiseBezier',
+    functions: [
+      {
+        function: {
+          p0: 0,
+          p1: 0,
+          p2: 1,
+          p3: 1
+        },
+        start: 0
+      }
+    ]
+  }
+}
+
 /*
 /VALUE GENERATOR TYPES
 */
@@ -215,6 +202,27 @@ export type ColorGradientJSON = {
 }
 
 export type ColorGeneratorJSON = ConstantColorJSON | ColorRangeJSON | RandomColorJSON | ColorGradientJSON
+
+export const ColorGeneratorJSONDefaults: Record<string, ColorGeneratorJSON> = {
+  ConstantColor: {
+    type: 'ConstantColor',
+    color: { r: 1, g: 1, b: 1, a: 1 }
+  },
+  ColorRange: {
+    type: 'ColorRange',
+    a: { r: 1, g: 1, b: 1, a: 1 },
+    b: { r: 1, g: 1, b: 1, a: 1 }
+  },
+  RandomColor: {
+    type: 'RandomColor',
+    a: { r: 1, g: 1, b: 1, a: 1 },
+    b: { r: 1, g: 1, b: 1, a: 1 }
+  },
+  Gradient: {
+    type: 'Gradient',
+    functions: []
+  }
+}
 
 /*
 /COLOR GENERATOR TYPES
@@ -355,12 +363,136 @@ export type BehaviorJSON =
   | ChangeEmitDirectionBehaviorJSON
   | EmitSubParticleSystemBehaviorJSON
 
+export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
+  ApplyForce: {
+    type: 'ApplyForce',
+    direction: [0, 1, 0],
+    magnitude: {
+      type: 'ConstantValue',
+      value: 1
+    }
+  },
+  Noise: {
+    type: 'Noise',
+    frequency: [1, 1, 1],
+    power: [1, 1, 1]
+  },
+  TurbulenceField: {
+    type: 'TurbulenceField',
+    scale: [1, 1, 1],
+    octaves: 3,
+    velocityMultiplier: [1, 1, 1],
+    timeScale: [1, 1, 1]
+  },
+  GravityForce: {
+    type: 'GravityForce',
+    center: [0, 0, 0],
+    magnitude: 1
+  },
+  ColorOverLife: {
+    type: 'ColorOverLife',
+    color: {
+      type: 'ConstantColor',
+      color: {
+        r: 1,
+        g: 1,
+        b: 1,
+        a: 1
+      }
+    }
+  },
+  RotationOverLife: {
+    type: 'RotationOverLife',
+    angularVelocity: {
+      type: 'ConstantValue',
+      value: 0.15
+    },
+    dynamic: false
+  },
+  Rotation3DOverLife: {
+    type: 'Rotation3DOverLife',
+    angularVelocity: {
+      type: 'RandomQuat'
+    },
+    dynamic: false
+  },
+  SizeOverLife: {
+    type: 'SizeOverLife',
+    size: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  SpeedOverLife: {
+    type: 'SpeedOverLife',
+    speed: {
+      type: 'ConstantValue',
+      value: 1
+    }
+  },
+  FrameOverLife: {
+    type: 'FrameOverLife',
+    frame: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  ForceOverLife: {
+    type: 'ForceOverLife',
+    x: {
+      type: 'ConstantValue',
+      value: 0
+    },
+    y: {
+      type: 'ConstantValue',
+      value: 1
+    },
+    z: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  OrbitOverLife: {
+    type: 'OrbitOverLife',
+    orbitSpeed: {
+      type: 'ConstantValue',
+      value: 0
+    },
+    axis: [0, 1, 0]
+  },
+  WidthOverLength: {
+    type: 'WidthOverLength',
+    width: {
+      type: 'ConstantValue',
+      value: 1
+    }
+  },
+  ChangeEmitDirection: {
+    type: 'ChangeEmitDirection',
+    angle: {
+      type: 'ConstantValue',
+      value: 1.4
+    }
+  },
+  EmitSubParticleSystem: {
+    type: 'EmitSubParticleSystem',
+    subParticleSystem: '',
+    useVelocityAsBasis: false
+  }
+}
+
 /*
 /BEHAVIOR TYPES
 */
 
 export type ExpandedSystemJSON = ParticleSystemJSONParameters & {
   instancingGeometry?: string
+  startColor: ColorGeneratorJSON
+  startRotation: ValueGeneratorJSON
+  startSize: ValueGeneratorJSON
+  startSpeed: ValueGeneratorJSON
+  startLife: ValueGeneratorJSON
+  behaviors: BehaviorJSON[]
 }
 
 export type ParticleSystemComponentType = {
@@ -558,8 +690,7 @@ export const ParticleSystemComponent = defineComponent({
         return new Promise((resolve) => {
           AssetLoader.load(src, {}, ({ scene }: GLTF) => {
             const geo = getFirstMesh(scene)?.geometry
-            if (!geo) return
-            metadata.geometries[src] = geo
+            !!geo && (metadata.geometries[src] = geo)
             resolve(null)
           })
         })

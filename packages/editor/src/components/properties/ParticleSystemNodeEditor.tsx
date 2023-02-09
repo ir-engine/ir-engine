@@ -7,43 +7,39 @@ import {
   MultiplyBlending,
   NoBlending,
   NormalBlending,
-  Scene,
   SubtractiveBlending
 } from 'three'
 import { RenderMode } from 'three.quarks/dist/three.quarks'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@xrengine/engine/src/assets/enum/AssetClass'
-import { getComponent, getComponentState, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
+  ApplyForceBehaviorJSON,
   BehaviorJSON,
   CONE_SHAPE_DEFAULT,
   ConstantColorJSON,
-  ConstantValueJSON,
   DONUT_SHAPE_DEFAULT,
-  IntervalValueJSON,
   MESH_SHAPE_DEFAULT,
   ParticleSystemComponent,
   POINT_SHAPE_DEFAULT,
   SPHERE_SHAPE_DEFAULT,
   ValueGeneratorJSON
 } from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
-import getFirstMesh from '@xrengine/engine/src/scene/util/getFirstMesh'
-import { NO_PROXY, State, useState } from '@xrengine/hyperflux'
+import { State } from '@xrengine/hyperflux'
 
 import { ScatterPlotOutlined } from '@mui/icons-material'
 
-import BooleanInput from '../inputs/BooleanInput'
+import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
-import TexturePreviewInput, { TextureInput } from '../inputs/TexturePreviewInput'
+import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import PaginatedList from '../layout/PaginatedList'
 import NodeEditor from './NodeEditor'
+import BehaviorInput from './three.quarks/BehaviorInput'
 import ColorGenerator from './three.quarks/ColorGenerator'
 import ValueGenerator from './three.quarks/ValueGenerator'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType } from './Util'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -85,11 +81,50 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const onSetStateParm = useCallback((state: State<any>) => {
-    return (field: keyof typeof state.value) => (value: any) => {
-      state[field].set(value)
-      particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+    return (field: keyof typeof state.value) => {
+      if (field === 'value') {
+        return (value: any) => {
+          const nuVals = JSON.parse(JSON.stringify(state.value))
+          nuVals.value = value
+          state.set(nuVals)
+          particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+        }
+      } else
+        return (value: any) => {
+          state[field].set(value)
+          particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+        }
     }
   }, [])
+
+  const onAddBehavior = useCallback(
+    () => () => {
+      const nuBehavior: ApplyForceBehaviorJSON = {
+        type: 'ApplyForce',
+        direction: [0, 1, 0],
+        magnitude: {
+          type: 'ConstantValue',
+          value: 1
+        }
+      }
+      particleSystemState.behaviorParameters.set([
+        ...JSON.parse(JSON.stringify(particleSystem.behaviorParameters)),
+        nuBehavior
+      ])
+      particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+    },
+    []
+  )
+
+  const onRemoveBehavior = useCallback(
+    (behavior: BehaviorJSON) => () => {
+      particleSystemState.behaviorParameters.set(
+        JSON.parse(JSON.stringify(particleSystem.behaviorParameters.filter((b) => b !== behavior)))
+      )
+      particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+    },
+    []
+  )
 
   return (
     <NodeEditor
@@ -154,6 +189,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Start Color" label={t('editor:properties.particle-system.start-color')}>
         <ColorGenerator
+          scope={particleSystemState.systemParameters.startColor}
           value={particleSystem.systemParameters.startColor as ConstantColorJSON}
           onChange={onSetStateParm(particleSystemState.systemParameters.startColor)}
         />
@@ -201,43 +237,19 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <h4>Behaviors</h4>
-      <PaginatedList<BehaviorJSON>
-        list={particleSystem.behaviorParameters}
-        element={(behavior) => {
-          const index = particleSystem.behaviorParameters.indexOf(behavior)
+      <Button onClick={onAddBehavior()}>Add Behavior</Button>
+      <PaginatedList
+        list={particleSystemState.behaviorParameters}
+        element={(behaviorState: State<BehaviorJSON>) => {
           return (
-            <div key={`particle-system-${entity}-${index}`}>
-              <hr />
-              <InputGroup name="Behavior Type" label={t('editor:properties.particle-system.behavior-type')}>
-                <select
-                  value={behavior.type}
-                  onChange={(e) => {
-                    const nuBehaviors = JSON.parse(JSON.stringify(particleSystem.behaviorParameters))
-                    nuBehaviors[index].type = e.target.value
-                    updateProperty(ParticleSystemComponent, 'behaviorParameters', nuBehaviors)
-                  }}
-                >
-                  <option value="attractor">Attractor</option>
-                  <option value="repulsor">Repulsor</option>
-                  <option value="wind">Wind</option>
-                  <option value="gravity">Gravity</option>
-                  <option value="vortex">Vortex</option>
-                  <option value="drag">Drag</option>
-                  <option value="random">Random</option>
-                </select>
-              </InputGroup>
-              <ParameterInput
-                entity={`${entity}`}
-                values={behavior.parameters}
-                onChange={(field) => {
-                  return (value: any) => {
-                    const nuBehaviors = JSON.parse(JSON.stringify(particleSystem.behaviorParameters))
-                    nuBehaviors[index].parameters[field] = value
-                    updateProperty(ParticleSystemComponent, 'behaviorParameters', nuBehaviors)
-                  }
-                }}
+            <>
+              <BehaviorInput
+                scope={behaviorState}
+                value={behaviorState.value}
+                onChange={onSetStateParm(behaviorState)}
               />
-            </div>
+              <Button onClick={onRemoveBehavior(behaviorState.value)}>Remove</Button>
+            </>
           )
         }}
       />
