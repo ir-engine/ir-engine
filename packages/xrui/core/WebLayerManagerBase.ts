@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie'
 import { compress, decompress } from 'fflate'
 import { Packr, Unpackr } from 'msgpackr'
-import { Matrix4 } from 'three/src/math/Matrix4'
+import { Matrix4 } from 'three'
 
 import {
   Bounds,
@@ -134,7 +134,7 @@ export class WebLayerManagerBase {
   rasterizeQueue = [] as { hash: StateHash; svgUrl: string; resolve: (val: any) => void; promise: any }[]
   optimizeQueue = [] as { textureHash: TextureHash; resolve: (val: any) => void; promise: any }[]
 
-  ktx2Encoder = new KTX2Encoder() as KTX2EncoderType
+  ktx2Encoder = new KTX2Encoder() as any as KTX2EncoderType
 
   private _unsavedTextureData = new Map<TextureHash, TextureStoreData>()
   private _stateData = new Map<StateHash | HTMLMediaElement, StateData>()
