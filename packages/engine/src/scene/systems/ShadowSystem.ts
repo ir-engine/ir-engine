@@ -37,7 +37,7 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
-import { getShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
+import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -172,7 +172,7 @@ export default async function ShadowSystem(world: World) {
         dropShadowComponent.radius.set(Math.max(sphere.radius * 2, minRadius))
         dropShadowComponent.center.set(groupComponent.value[0].worldToLocal(sphere.center))
       }
-    }, [groupComponent.length, getShadowsEnabled()])
+    }, [groupComponent.length, useShadowsEnabled()])
 
     return null
   })
