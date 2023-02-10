@@ -54,24 +54,6 @@ const shadowRotation = new Quaternion()
 const shadowSize = new Vector3()
 const raycaster = new Raycaster()
 
-const shadowGeometry = new PlaneGeometry(1, 1, 1, 1)
-const shadowMaterial = new MeshBasicMaterial({
-  side: DoubleSide,
-  transparent: true,
-  depthTest: true,
-  depthWrite: false
-})
-
-AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/public/drop-shadow.png`).then(
-  (texture: Texture) => {
-    shadowMaterial.map = texture
-    shadowMaterial.needsUpdate = true
-  }
-)
-
-let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, 0)
-dropShadows.matrixAutoUpdate = false
-
 export default async function ShadowSystem(world: World) {
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
 
@@ -143,6 +125,24 @@ export default async function ShadowSystem(world: World) {
     return null
   })
 
+  const shadowGeometry = new PlaneGeometry(1, 1, 1, 1)
+  const shadowMaterial = new MeshBasicMaterial({
+    side: DoubleSide,
+    transparent: true,
+    depthTest: true,
+    depthWrite: false
+  })
+
+  AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/public/drop-shadow.png`).then(
+    (texture: Texture) => {
+      shadowMaterial.map = texture
+      shadowMaterial.needsUpdate = true
+    }
+  )
+
+  let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, 0)
+  dropShadows.matrixAutoUpdate = false
+
   const shadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
   const shadowOffset = new Vector3(0, 0.01, 0)
@@ -166,7 +166,7 @@ export default async function ShadowSystem(world: World) {
       const minRadius = 0.15
       new Box3().setFromObject(groupComponent[0]).getBoundingSphere(sphere)
       dropShadowComponent.radius = Math.max(sphere.radius * 2, minRadius)
-    }, [dropShadowComponent.radius, groupComponent.length, dropShadows])
+    }, [groupComponent.length, dropShadows])
 
     return null
   })
@@ -175,39 +175,42 @@ export default async function ShadowSystem(world: World) {
     let index = 0
     sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
-    for (const entity of shadowComponentQuery()) {
-      const setDropShadowMatrix = (matrix: Matrix4) => {
-        dropShadows.setMatrixAt(index, matrix)
-        index++
+    const useShadows = getShadowsEnabled()
+    if (!useShadows) {
+      for (const entity of shadowComponentQuery()) {
+        const setDropShadowMatrix = (matrix: Matrix4) => {
+          dropShadows.setMatrixAt(index, matrix)
+          index++
+        }
+
+        const dropShadowComponent = getComponent(entity, DropShadowComponent)
+
+        const transform = getComponent(entity, TransformComponent)
+
+        raycaster.firstHitOnly = true
+        raycaster.set(transform.position, shadowDirection)
+
+        const intersected = raycaster.intersectObjects(sceneObjects)[0]
+        if (!intersected || !intersected.face) {
+          setDropShadowMatrix(defaultShadowMatrix)
+          continue
+        }
+
+        const distanceShrinkBias = 3
+        const sizeBias = 1
+        const finalSize = dropShadowComponent.radius * Math.min(distanceShrinkBias / intersected.distance, 1) * sizeBias
+
+        shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
+
+        shadowMatrix.makeRotationFromQuaternion(shadowRotation)
+        shadowSize.setScalar(finalSize)
+        shadowMatrix.scale(shadowSize)
+        shadowMatrix.setPosition(intersected.point.add(shadowOffset))
+        setDropShadowMatrix(shadowMatrix)
       }
-
-      const dropShadowComponent = getComponent(entity, DropShadowComponent)
-
-      const transform = getComponent(entity, TransformComponent)
-
-      raycaster.firstHitOnly = true
-      raycaster.set(transform.position, shadowDirection)
-
-      const intersected = raycaster.intersectObjects(sceneObjects)[0]
-      if (!intersected || !intersected.face) {
-        setDropShadowMatrix(defaultShadowMatrix)
-        continue
-      }
-
-      const distanceShrinkBias = 3
-      const sizeBias = 1
-      const finalSize = dropShadowComponent.radius * Math.min(distanceShrinkBias / intersected.distance, 1) * sizeBias
-
-      shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
-
-      shadowMatrix.makeRotationFromQuaternion(shadowRotation)
-      shadowSize.setScalar(finalSize)
-      shadowMatrix.scale(shadowSize)
-      shadowMatrix.setPosition(intersected.point.add(shadowOffset))
-      setDropShadowMatrix(shadowMatrix)
+      dropShadows.instanceMatrix.needsUpdate = true
+      return
     }
-
-    dropShadows.instanceMatrix.needsUpdate = true
 
     if (!EngineRenderer.instance.csm) return
     EngineRenderer.instance.csm.sourceLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
