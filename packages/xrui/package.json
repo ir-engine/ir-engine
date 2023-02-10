@@ -38,7 +38,7 @@
     "build": "tsc && npm run build:worker && npm run build:encoder",
     "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.txt --loader:.wasm=binary",
     "build:encoder": "esbuild core/textures/KTX2Encoder.ts --bundle --format=esm --outfile=core/textures/KTX2Encoder.bundle.js",
-    "test": "cross-env TEST=true mocha --config .mocharc.js",
+    "test": "cross-env TEST=true mocha --config .mocharc.cjs",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "type": "module"
