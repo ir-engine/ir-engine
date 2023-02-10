@@ -257,7 +257,7 @@ export class WebLayer3D extends Object3D {
    * Refresh from DOM (potentially slow, call only when needed)
    */
   public async refresh(recurse = false): Promise<void> {
-    const refreshing = []
+    const refreshing = [] as Promise<any>[]
     refreshing.push(this._webLayer.refresh())
     this.childWebLayers.length = 0
     for (const c of this._webLayer.childLayers) {

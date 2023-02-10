@@ -38,7 +38,7 @@ function serializeNamespace(node: Element, isRootNode: boolean) {
 }
 
 async function serializeChildren(node: Element, options: Options) {
-  let output = []
+  let output = [] as Promise<string>[]
   for (const n of node.childNodes) output.push(nodeTreeToXHTML(n, options))
   return Promise.all(output).then((output) => output.join(''))
 }
@@ -161,8 +161,8 @@ export function getParentsHTML(
   textureWidth: number,
   textureHeight: number
 ) {
-  const opens = []
-  const closes = []
+  const opens = [] as string[]
+  const closes = [] as string[]
   layer.manager.updateDOMMetrics(layer)
   const metrics = layer.domMetrics
   let parent = layer.element.parentElement
