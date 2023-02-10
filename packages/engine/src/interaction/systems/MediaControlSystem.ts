@@ -1,4 +1,4 @@
-import { WebLayer3D } from '@etherealjs/web-layer/three'
+import { WebLayer3D } from '@etherealengine/xrui/three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'

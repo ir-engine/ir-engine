@@ -1,4 +1,4 @@
-import type { WebContainer3D } from '@etherealjs/web-layer/three'
+import type { WebContainer3D } from '@etherealengine/xrui/three'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIManager } from '../classes/XRUIManager'

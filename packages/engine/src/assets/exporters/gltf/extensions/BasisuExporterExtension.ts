@@ -1,4 +1,4 @@
-import { KTX2Encoder } from '@etherealjs/web-layer/core/textures/KTX2Encoder'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 import { ImageDataType } from '@loaders.gl/images'
 import { CompressedTexture, Texture } from 'three'
 

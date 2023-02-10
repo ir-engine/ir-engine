@@ -1,5 +1,5 @@
 // TODO: this should not be here
-import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
+import { WebContainer3D } from '@etherealengine/xrui/three/WebContainer3D'
 import { Engine } from 'behave-graph'
 import { useEffect, useReducer } from 'react'
 import {
