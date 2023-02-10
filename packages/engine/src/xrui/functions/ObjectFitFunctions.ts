@@ -1,4 +1,4 @@
-import type { WebContainer3D } from '@etherealjs/web-layer/three'
+import type { WebContainer3D } from '@etherealengine/xrui'
 import { Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'

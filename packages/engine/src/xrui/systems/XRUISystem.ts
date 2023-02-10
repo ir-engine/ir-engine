@@ -1,4 +1,4 @@
-import { WebContainer3D } from '@etherealjs/web-layer/three'
+import { WebContainer3D } from '@etherealengine/xrui'
 import {
   AdditiveBlending,
   BufferGeometry,
@@ -79,7 +79,7 @@ export default async function XRUISystem(world: World) {
   // todo - hoist to hyperflux state
   const maxXruiPointerDistanceSqr = 3 * 3
 
-  const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
+  const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealengine/xrui')))
   xrui.WebLayerModule.WebLayerManager.initialize(renderer)
   xrui.WebLayerModule.WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 

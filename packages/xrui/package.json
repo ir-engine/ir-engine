@@ -1,0 +1,44 @@
+{
+  "name": "@etherealengine/xrui",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "description": "A set of utilities for using DOM elements to create immerive user interfaces",
+  "keywords": [
+    "3D",
+    "AR",
+    "DOM",
+    "VR",
+    "XR",
+    "three",
+    "web"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/XRFoundation/XREngine.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XRFoundation/XREngine/issues"
+  },
+  "dependencies": {
+    "@juggle/resize-observer": "^3.2.0",
+    "@loaders.gl/core": "^3.1.4",
+    "@loaders.gl/images": "^3.1.4",
+    "@zip.js/zip.js": "^2.4.4",
+    "dexie": "^3.2.0",
+    "fflate": "^0.7.3",
+    "msgpackr": "^1.5.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.11",
+    "cross-env": "^7.0.3"
+  },
+  "scripts": {
+    "build": "tsc && npm run build:worker && npm run build:encoder",
+    "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.txt --loader:.wasm=binary",
+    "build:encoder": "esbuild core/textures/KTX2Encoder.ts --bundle --format=esm --outfile=core/textures/KTX2Encoder.bundle.js",
+    "test": "cross-env TEST=true mocha --config .mocharc.cjs",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+  }
+}
