@@ -1,5 +1,5 @@
-import type { WebContainer3D } from '@etherealengine/xrui'
 import { State } from '@hookstate/core'
+import type { WebContainer3D } from '@xrfoundation/xrui'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'
@@ -17,10 +17,10 @@ import { setTransformComponent } from '../../transform/components/TransformCompo
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
-let Ethereal: typeof import('@etherealengine/xrui')
+let Ethereal: typeof import('@xrfoundation/xrui')
 
 export async function loadXRUIDeps() {
-  Ethereal = await import('@etherealengine/xrui')
+  Ethereal = await import('@xrfoundation/xrui')
 }
 
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
