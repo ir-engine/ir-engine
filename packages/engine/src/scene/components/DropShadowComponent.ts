@@ -6,8 +6,9 @@ export const DropShadowComponent = defineComponent({
   name: 'DropShadowComponent',
   onInit: (entity) => {
     return {
-      radius: 1,
-      center: new Vector3()
+      radius: 0,
+      center: undefined as Vector3 | undefined,
+      bias: 2
     }
   }
 })

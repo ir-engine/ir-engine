@@ -22,7 +22,7 @@ import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
-import { V_001 } from '../../common/constants/MathConstants'
+import { V_000, V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -163,11 +163,14 @@ export default async function ShadowSystem(world: World) {
       dropShadows.layers.disable(ObjectLayers.Camera)
       world.scene.add(dropShadows)
 
-      const sphere = new Sphere()
-      const minRadius = 0.15
-      new Box3().setFromObject(groupComponent[0]).getBoundingSphere(sphere)
-      dropShadowComponent.radius = Math.max(sphere.radius * 2, minRadius)
-      dropShadowComponent.center = groupComponent[0].worldToLocal(sphere.center)
+      //only set calculate and set if it is not manually set
+      if (!dropShadowComponent.center) {
+        const minRadius = 0.15
+        const sphere = new Sphere()
+        new Box3().setFromObject(groupComponent[0]).getBoundingSphere(sphere)
+        dropShadowComponent.radius = Math.max(sphere.radius * 2, minRadius)
+        dropShadowComponent.center = groupComponent[0].worldToLocal(sphere.center)
+      }
     }, [groupComponent.length, dropShadows])
 
     return null
@@ -180,16 +183,19 @@ export default async function ShadowSystem(world: World) {
     const useShadows = getShadowsEnabled()
     if (!useShadows) {
       for (const entity of shadowComponentQuery()) {
+        const dropShadowComponent = getComponent(entity, DropShadowComponent)
+
+        if (!dropShadowComponent.center) continue
+
         const setDropShadowMatrix = (matrix: Matrix4) => {
           dropShadows.setMatrixAt(index, matrix)
           index++
         }
 
-        const dropShadowComponent = getComponent(entity, DropShadowComponent)
         const groupComponent = getComponent(entity, GroupComponent)
 
         raycaster.firstHitOnly = true
-        raycasterPosition.copy(dropShadowComponent.center)
+        raycasterPosition.copy(dropShadowComponent.center!)
         groupComponent[0].localToWorld(raycasterPosition)
         raycaster.set(raycasterPosition, shadowDirection)
 
@@ -199,9 +205,9 @@ export default async function ShadowSystem(world: World) {
           continue
         }
 
-        const distanceShrinkBias = 2
         const sizeBias = 1
-        const finalSize = dropShadowComponent.radius * Math.min(distanceShrinkBias / intersected.distance, 1) * sizeBias
+        const finalSize =
+          dropShadowComponent.radius * Math.min(dropShadowComponent.bias / intersected.distance, 1) * sizeBias
 
         shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
 
