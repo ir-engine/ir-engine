@@ -54,8 +54,6 @@ const shadowRotation = new Quaternion()
 const shadowSize = new Vector3()
 const raycaster = new Raycaster()
 
-let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
-
 const shadowGeometry = new PlaneGeometry(1, 1, 1, 1)
 const shadowMaterial = new MeshBasicMaterial({
   side: DoubleSide,
@@ -148,6 +146,8 @@ export default async function ShadowSystem(world: World) {
   const shadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
   const shadowOffset = new Vector3(0, 0.01, 0)
+
+  let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
   const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function (props) {
     if (getShadowsEnabled()) return null
