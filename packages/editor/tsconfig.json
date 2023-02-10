@@ -25,7 +25,8 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
-    "outDir": "./lib"
+    "outDir": "./lib",
+    "types": ["vite/client", "mocha"]
   },
   "exclude": [
     "../projects/projects/**",
