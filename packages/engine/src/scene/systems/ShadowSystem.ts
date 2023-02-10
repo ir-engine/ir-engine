@@ -32,6 +32,7 @@ import {
   hasComponent,
   removeComponent,
   removeQuery,
+  setComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
@@ -142,12 +143,17 @@ export default async function ShadowSystem(world: World) {
   let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, 0)
   dropShadows.matrixAutoUpdate = false
 
-  const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function modifyShadowCount() {
+  const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function (props) {
     world.scene.remove(dropShadows)
     dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
     dropShadows.matrixAutoUpdate = false
     dropShadows.layers.disable(ObjectLayers.Camera)
     world.scene.add(dropShadows)
+
+    const sphere = new Sphere()
+    const minRadius = 0.1
+    new Box3().setFromObject(getComponent(props.root.entity, GroupComponent)[0]).getBoundingSphere(sphere)
+    getComponent(props.root.entity, DropShadowComponent).radius = Math.max(sphere.radius, minRadius)
     return null
   })
 
@@ -163,7 +169,7 @@ export default async function ShadowSystem(world: World) {
         index++
       }
 
-      const group = getComponent(entity, GroupComponent)
+      const dropShadowComponent = getComponent(entity, DropShadowComponent)
 
       const transform = getComponent(entity, TransformComponent)
 
@@ -177,11 +183,9 @@ export default async function ShadowSystem(world: World) {
         continue
       }
 
-      const sphere = new Sphere()
-      new Box3().setFromObject(group[0], false).getBoundingSphere(sphere)
       const distanceShrinkBias = 3
       const sizeBias = 1.5
-      const finalSize = sphere.radius * Math.min(distanceShrinkBias / intersects[0].distance, 1) * sizeBias
+      const finalSize = dropShadowComponent.radius * Math.min(distanceShrinkBias / intersects[0].distance, 1) * sizeBias
 
       let shadowMatrix = new Matrix4()
       const shadowRotation = new Quaternion().setFromUnitVectors(intersects[0].face.normal, V_001)
