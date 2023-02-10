@@ -151,12 +151,12 @@ export default async function ShadowSystem(world: World) {
   let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
   const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function (props) {
-    if (getShadowsEnabled()) return null
-
     const dropShadowComponent = getComponent(props.root.entity, DropShadowComponent)
     const groupComponent = getComponent(props.root.entity, GroupComponent)
 
     useEffect(() => {
+      if (getShadowsEnabled()) return
+
       world.scene.remove(dropShadows)
       dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
       dropShadows.matrixAutoUpdate = false
