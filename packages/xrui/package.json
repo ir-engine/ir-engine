@@ -40,6 +40,5 @@
     "build:encoder": "esbuild core/textures/KTX2Encoder.ts --bundle --format=esm --outfile=core/textures/KTX2Encoder.bundle.js",
     "test": "cross-env TEST=true mocha --config .mocharc.cjs",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
-  },
-  "type": "module"
+  }
 }
