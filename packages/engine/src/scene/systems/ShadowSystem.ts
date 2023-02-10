@@ -154,9 +154,13 @@ export default async function ShadowSystem(world: World) {
   const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function (props) {
     const dropShadowComponent = useComponent(props.root.entity, DropShadowComponent)
     const groupComponent = useComponent(props.root.entity, GroupComponent)
+    const useShadows = useShadowsEnabled()
 
     useEffect(() => {
-      if (getShadowsEnabled()) return
+      if (getShadowsEnabled()) {
+        world.scene.remove(dropShadows)
+        return
+      }
 
       world.scene.remove(dropShadows)
       dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
@@ -172,7 +176,7 @@ export default async function ShadowSystem(world: World) {
         dropShadowComponent.radius.set(Math.max(sphere.radius * 2, minRadius))
         dropShadowComponent.center.set(groupComponent.value[0].worldToLocal(sphere.center))
       }
-    }, [groupComponent.length, useShadowsEnabled()])
+    }, [groupComponent.length, useShadows])
 
     return null
   })
