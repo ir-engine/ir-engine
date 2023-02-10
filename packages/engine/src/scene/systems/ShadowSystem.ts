@@ -53,6 +53,7 @@ const defaultShadowMatrix = new Matrix4().multiplyScalar(0)
 const shadowRotation = new Quaternion()
 const shadowSize = new Vector3()
 const raycaster = new Raycaster()
+const raycasterPosition = new Vector3()
 
 export default async function ShadowSystem(world: World) {
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
@@ -166,6 +167,7 @@ export default async function ShadowSystem(world: World) {
       const minRadius = 0.15
       new Box3().setFromObject(groupComponent[0]).getBoundingSphere(sphere)
       dropShadowComponent.radius = Math.max(sphere.radius * 2, minRadius)
+      dropShadowComponent.center = groupComponent[0].worldToLocal(sphere.center)
     }, [groupComponent.length, dropShadows])
 
     return null
@@ -184,11 +186,12 @@ export default async function ShadowSystem(world: World) {
         }
 
         const dropShadowComponent = getComponent(entity, DropShadowComponent)
-
-        const transform = getComponent(entity, TransformComponent)
+        const groupComponent = getComponent(entity, GroupComponent)
 
         raycaster.firstHitOnly = true
-        raycaster.set(transform.position, shadowDirection)
+        raycasterPosition.copy(dropShadowComponent.center)
+        groupComponent[0].localToWorld(raycasterPosition)
+        raycaster.set(raycasterPosition, shadowDirection)
 
         const intersected = raycaster.intersectObjects(sceneObjects)[0]
         if (!intersected || !intersected.face) {
@@ -196,7 +199,7 @@ export default async function ShadowSystem(world: World) {
           continue
         }
 
-        const distanceShrinkBias = 3
+        const distanceShrinkBias = 2
         const sizeBias = 1
         const finalSize = dropShadowComponent.radius * Math.min(distanceShrinkBias / intersected.distance, 1) * sizeBias
 
