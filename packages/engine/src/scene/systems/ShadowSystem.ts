@@ -33,6 +33,7 @@ import {
   removeComponent,
   removeQuery,
   setComponent,
+  useComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
@@ -151,8 +152,8 @@ export default async function ShadowSystem(world: World) {
   let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
   const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function (props) {
-    const dropShadowComponent = getComponent(props.root.entity, DropShadowComponent)
-    const groupComponent = getComponent(props.root.entity, GroupComponent)
+    const dropShadowComponent = useComponent(props.root.entity, DropShadowComponent)
+    const groupComponent = useComponent(props.root.entity, GroupComponent)
 
     useEffect(() => {
       if (getShadowsEnabled()) return
@@ -163,15 +164,15 @@ export default async function ShadowSystem(world: World) {
       dropShadows.layers.disable(ObjectLayers.Camera)
       world.scene.add(dropShadows)
 
-      //only set calculate and set if it is not manually set
-      if (!dropShadowComponent.center) {
+      //only calculate if center is not manually set
+      if (!dropShadowComponent.center.value) {
         const minRadius = 0.15
         const sphere = new Sphere()
-        new Box3().setFromObject(groupComponent[0]).getBoundingSphere(sphere)
-        dropShadowComponent.radius = Math.max(sphere.radius * 2, minRadius)
-        dropShadowComponent.center = groupComponent[0].worldToLocal(sphere.center)
+        new Box3().setFromObject(groupComponent.value[0]).getBoundingSphere(sphere)
+        dropShadowComponent.radius.set(Math.max(sphere.radius * 2, minRadius))
+        dropShadowComponent.center.set(groupComponent.value[0].worldToLocal(sphere.center))
       }
-    }, [groupComponent.length, dropShadows])
+    }, [groupComponent.length, getShadowsEnabled()])
 
     return null
   })
