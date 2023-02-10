@@ -1,4 +1,4 @@
-import { WebLayer3D } from '@etherealengine/xrui/three'
+import { WebLayer3D } from '@etherealengine/xrui'
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 

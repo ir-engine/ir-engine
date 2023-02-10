@@ -1,4 +1,4 @@
-import type { WebLayer3D } from '@etherealengine/xrui/three'
+import type { WebLayer3D } from '@etherealengine/xrui'
 import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
