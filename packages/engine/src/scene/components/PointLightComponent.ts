@@ -101,6 +101,10 @@ export const PointLightComponent = defineComponent({
     }, [light.decay])
 
     useEffect(() => {
+      light.light.value.castShadow = light.castShadow.value
+    }, [light.castShadow])
+
+    useEffect(() => {
       light.light.value.shadow.bias = light.shadowBias.value
     }, [light.shadowBias])
 
