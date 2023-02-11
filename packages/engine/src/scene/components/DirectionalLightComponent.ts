@@ -16,19 +16,6 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
-export type DirectionalLightComponentType = {
-  color: Color
-  intensity: number
-  castShadow: boolean
-  shadowMapResolution: number
-  shadowBias: number
-  shadowRadius: number
-  cameraFar: number
-  useInCSM: boolean
-  light: DirectionalLight
-  helper: EditorDirectionalLightHelper | null
-}
-
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
 
@@ -48,8 +35,8 @@ export const DirectionalLightComponent = defineComponent({
       shadowRadius: 1,
       cameraFar: 2000,
       useInCSM: true,
-      helper: null
-    } as DirectionalLightComponentType
+      helper: null as EditorDirectionalLightHelper | null
+    }
   },
 
   onSet: (entity, component, json) => {

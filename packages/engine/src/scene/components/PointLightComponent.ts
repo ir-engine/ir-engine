@@ -11,19 +11,6 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
-export type PointLightComponentType = {
-  color: Color
-  intensity: number
-  range: number
-  decay: number
-  castShadow: boolean
-  shadowMapResolution: number
-  shadowBias: number
-  shadowRadius: number
-  light: PointLight
-  helper: Object3D | null
-}
-
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
 
@@ -40,8 +27,8 @@ export const PointLightComponent = defineComponent({
       shadowBias: 0.5,
       shadowRadius: 1,
       light,
-      helper: null
-    } as PointLightComponentType
+      helper: null as Object3D | null
+    }
   },
 
   onSet: (entity, component, json) => {
