@@ -48,8 +48,8 @@ export const DirectionalLightComponent = defineComponent({
       shadowRadius: 1,
       cameraFar: 2000,
       useInCSM: true,
-      helper: null as EditorDirectionalLightHelper | null
-    }
+      helper: null
+    } as DirectionalLightComponentType
   },
 
   onSet: (entity, component, json) => {

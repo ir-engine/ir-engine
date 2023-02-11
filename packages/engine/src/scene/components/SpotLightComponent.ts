@@ -49,10 +49,10 @@ export const SpotLightComponent = defineComponent({
       shadowBias: 0.5,
       shadowRadius: 1,
       light,
-      helper: null as Object3D | null,
-      helperCone: null as Mesh<ConeGeometry, MeshBasicMaterial> | null,
-      helperRing: null as Mesh<TorusGeometry, MeshBasicMaterial> | null
-    }
+      helper: null,
+      helperCone: null,
+      helperRing: null
+    } as SpotLightComponentType
   },
 
   onSet: (entity, component, json) => {

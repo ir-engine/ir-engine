@@ -5,6 +5,13 @@ import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
+export type HemisphereLightComponentType = {
+  skyColor: Color
+  groundColor: Color
+  intensity: number
+  light: HemisphereLight
+}
+
 export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
 
@@ -16,7 +23,7 @@ export const HemisphereLightComponent = defineComponent({
       skyColor: new Color(),
       groundColor: new Color(),
       intensity: 1
-    }
+    } as HemisphereLightComponentType
   },
 
   onSet: (entity, component, json) => {

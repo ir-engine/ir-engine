@@ -40,8 +40,8 @@ export const PointLightComponent = defineComponent({
       shadowBias: 0.5,
       shadowRadius: 1,
       light,
-      helper: null as Object3D | null
-    }
+      helper: null
+    } as PointLightComponentType
   },
 
   onSet: (entity, component, json) => {
