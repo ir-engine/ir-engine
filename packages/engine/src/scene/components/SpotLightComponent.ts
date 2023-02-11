@@ -11,23 +11,6 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
-export type SpotLightComponentType = {
-  color: Color
-  intensity: number
-  range: number
-  decay: number
-  angle: number
-  penumbra: number
-  castShadow: boolean
-  shadowMapResolution: number
-  shadowBias: number
-  shadowRadius: number
-  light: SpotLight
-  helper: Object3D | null
-  helperCone: Mesh<ConeGeometry, MeshBasicMaterial> | null
-  helperRing: Mesh<TorusGeometry, MeshBasicMaterial> | null
-}
-
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
 
@@ -49,10 +32,10 @@ export const SpotLightComponent = defineComponent({
       shadowBias: 0.5,
       shadowRadius: 1,
       light,
-      helper: null,
-      helperCone: null,
-      helperRing: null
-    } as SpotLightComponentType
+      helper: null as Object3D | null,
+      helperCone: null as Mesh<ConeGeometry, MeshBasicMaterial> | null,
+      helperRing: null as Mesh<TorusGeometry, MeshBasicMaterial> | null
+    }
   },
 
   onSet: (entity, component, json) => {
