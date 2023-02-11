@@ -73,6 +73,7 @@ export const DirectionalLightComponent = defineComponent({
       color: component.color.value.getHex(),
       intensity: component.intensity.value,
       cameraFar: component.cameraFar.value,
+      castShadow: component.castShadow.value,
       shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value,
