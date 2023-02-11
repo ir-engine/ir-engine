@@ -13,7 +13,6 @@ import {
   Raycaster,
   Sphere,
   Texture,
-  TextureLoader,
   Vector3
 } from 'three'
 
@@ -147,8 +146,6 @@ export default async function ShadowSystem(world: World) {
 
   const shadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
-  const shadowOffset = new Vector3(0, 0.01, 0)
-
   let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
   const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function (props) {
@@ -157,7 +154,8 @@ export default async function ShadowSystem(world: World) {
     const useShadows = useShadowsEnabled()
 
     useEffect(() => {
-      if (getShadowsEnabled()) {
+      const getShadows = getShadowsEnabled()
+      if (getShadows) {
         world.scene.remove(dropShadows)
         return
       }
@@ -176,10 +174,12 @@ export default async function ShadowSystem(world: World) {
         dropShadowComponent.radius.set(Math.max(sphere.radius * 2, minRadius))
         dropShadowComponent.center.set(groupComponent.value[0].worldToLocal(sphere.center))
       }
-    }, [groupComponent.length, useShadows])
+    }, [groupComponent, useShadows])
 
     return null
   })
+
+  const shadowOffset = new Vector3(0, 0.01, 0)
 
   const execute = () => {
     let index = 0
