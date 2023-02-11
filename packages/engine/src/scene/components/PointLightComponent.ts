@@ -11,6 +11,19 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
+export type PointLightComponentType = {
+  color: Color
+  intensity: number
+  range: number
+  decay: number
+  castShadow: boolean
+  shadowMapResolution: number
+  shadowBias: number
+  shadowRadius: number
+  light: PointLight
+  helper: Object3D | null
+}
+
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
 
@@ -22,6 +35,7 @@ export const PointLightComponent = defineComponent({
       intensity: 1,
       range: 0,
       decay: 2,
+      castShadow: false,
       shadowMapResolution: 256,
       shadowBias: 0.5,
       shadowRadius: 1,
@@ -37,6 +51,7 @@ export const PointLightComponent = defineComponent({
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.range)) component.range.set(json.range)
     if (matches.number.test(json.decay)) component.decay.set(json.decay)
+    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.array.test(json.shadowMapResolution))
       component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
@@ -51,6 +66,7 @@ export const PointLightComponent = defineComponent({
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,
+      castShadow: component.castShadow.value,
       shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value

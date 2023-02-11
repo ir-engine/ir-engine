@@ -62,7 +62,10 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const lightComponent = useComponent(props.node.entity, props.comp).value as any
 
   return (
-    <Fragment>
+    <>
+      <InputGroup name="Cast Shadows" label={t('editor:properties.directionalLight.lbl-castShadows')}>
+        <BooleanInput value={lightComponent.castShadow} onChange={updateProperty(props.comp, 'castShadow')} />
+      </InputGroup>
       <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput
           key={props.node.entity}
@@ -93,7 +96,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         value={lightComponent.shadowRadius}
         onChange={updateProperty(props.comp, 'shadowRadius')}
       />
-    </Fragment>
+    </>
   )
 }
 

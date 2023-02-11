@@ -11,6 +11,23 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
+export type SpotLightComponentType = {
+  color: Color
+  intensity: number
+  range: number
+  decay: number
+  angle: number
+  penumbra: number
+  castShadow: boolean
+  shadowMapResolution: number
+  shadowBias: number
+  shadowRadius: number
+  light: SpotLight
+  helper: Object3D | null
+  helperCone: Mesh<ConeGeometry, MeshBasicMaterial> | null
+  helperRing: Mesh<TorusGeometry, MeshBasicMaterial> | null
+}
+
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
 
@@ -27,6 +44,7 @@ export const SpotLightComponent = defineComponent({
       decay: 2,
       angle: Math.PI / 3,
       penumbra: 1,
+      castShadow: false,
       shadowMapResolution: 256,
       shadowBias: 0.5,
       shadowRadius: 1,
@@ -46,6 +64,7 @@ export const SpotLightComponent = defineComponent({
     if (matches.number.test(json.decay)) component.decay.set(json.decay)
     if (matches.number.test(json.angle)) component.angle.set(json.angle)
     if (matches.number.test(json.penumbra)) component.angle.set(json.penumbra)
+    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.array.test(json.shadowMapResolution))
       component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
@@ -62,6 +81,7 @@ export const SpotLightComponent = defineComponent({
       decay: component.decay.value,
       angle: component.angle.value,
       penumbra: component.penumbra.value,
+      castShadow: component.castShadow.value,
       shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value
@@ -112,6 +132,10 @@ export const SpotLightComponent = defineComponent({
     useEffect(() => {
       light.light.value.shadow.radius = light.shadowRadius.value
     }, [light.shadowRadius])
+
+    useEffect(() => {
+      light.light.value.castShadow = light.castShadow.value
+    }, [light.castShadow])
 
     useEffect(() => {
       if (light.light.value.shadow.mapSize.x !== light.shadowMapResolution.value) {

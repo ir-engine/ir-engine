@@ -16,6 +16,19 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
+export type DirectionalLightComponentType = {
+  color: Color
+  intensity: number
+  castShadow: boolean
+  shadowMapResolution: number
+  shadowBias: number
+  shadowRadius: number
+  cameraFar: number
+  useInCSM: boolean
+  light: DirectionalLight
+  helper: EditorDirectionalLightHelper | null
+}
+
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
 
@@ -29,6 +42,7 @@ export const DirectionalLightComponent = defineComponent({
       light,
       color: new Color(),
       intensity: 1,
+      castShadow: false,
       shadowMapResolution: 512,
       shadowBias: -0.00001,
       shadowRadius: 1,
@@ -44,6 +58,7 @@ export const DirectionalLightComponent = defineComponent({
     if (matches.string.test(json.color)) component.color.value.set(json.color)
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
+    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.array.test(json.shadowMapResolution))
       component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
