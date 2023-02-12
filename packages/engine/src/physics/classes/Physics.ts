@@ -227,8 +227,6 @@ function createColliderDesc(
     isRoot ? undefined : mesh.quaternion
   )
 
-  console.log(colliderDesc)
-
   return colliderDesc
 }
 
