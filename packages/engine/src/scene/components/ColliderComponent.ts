@@ -106,6 +106,7 @@ export const ColliderComponent = defineComponent({
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const transformComponent = useOptionalComponent(entity, TransformComponent)
     const colliderComponent = useOptionalComponent(entity, ColliderComponent)
+    const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
       if (!colliderComponent?.value || !transformComponent?.value) return
@@ -199,7 +200,7 @@ export const ColliderComponent = defineComponent({
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
         rigidbody.scale.copy(transformComponent.scale.value)
       }
-    }, [isLoadedFromGLTF, transformComponent, colliderComponent])
+    }, [isLoadedFromGLTF, transformComponent, colliderComponent, groupComponent?.length])
 
     return null
   }
