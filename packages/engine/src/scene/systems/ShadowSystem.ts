@@ -155,7 +155,7 @@ export default async function ShadowSystem(world: World) {
 
     useEffect(() => {
       world.scene.remove(dropShadows)
-      const getShadows = getShadowsEnabled()
+      const getShadows = useShadows
       if (getShadows) {
         return
       }
