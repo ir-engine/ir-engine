@@ -161,6 +161,7 @@ export default async function ShadowSystem(world: World) {
       }
 
       world.scene.remove(dropShadows)
+      dropShadows.dispose()
       dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
       dropShadows.matrixAutoUpdate = false
       dropShadows.layers.disable(ObjectLayers.Camera)
@@ -183,6 +184,11 @@ export default async function ShadowSystem(world: World) {
 
   const execute = () => {
     let index = 0
+    const setDropShadowMatrix = (matrix: Matrix4) => {
+      dropShadows.setMatrixAt(index, matrix)
+      index++
+    }
+
     sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
@@ -191,11 +197,6 @@ export default async function ShadowSystem(world: World) {
         const dropShadowComponent = getComponent(entity, DropShadowComponent)
 
         if (!dropShadowComponent.center) continue
-
-        const setDropShadowMatrix = (matrix: Matrix4) => {
-          dropShadows.setMatrixAt(index, matrix)
-          index++
-        }
 
         const groupComponent = getComponent(entity, GroupComponent)
 
