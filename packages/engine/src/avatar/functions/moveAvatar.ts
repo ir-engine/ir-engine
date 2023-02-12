@@ -21,6 +21,7 @@ import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent, AvatarControllerComponentType } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
+import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { markerInstance, ScaleFluctuate } from './autopilotFunctions'
 
@@ -57,22 +58,24 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const xrState = getState(XRState)
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
-  const userHeight = xrState.userEyeLevel.value
   const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
-
-  const viewerPose = xrFrame && ReferenceSpace.origin ? xrFrame.getViewerPose(ReferenceSpace.origin) : null
-  xrState.viewerPose.set(viewerPose)
+  const originTransform = getComponent(world.originEntity, TransformComponent)
 
   desiredMovement.copy(V_000)
 
   const attached = getCameraMode() === 'attached'
   if (attached) {
+    const viewerPose = xrState.viewerPose.value
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
       .set(0, avatarHeight * 0.95, 0.15)
       .applyQuaternion(rigidbody.targetKinematicRotation)
       .add(rigidbody.targetKinematicPosition)
-    viewerPose && viewerMovement.copy(viewerPose.transform.position as any).sub(avatarHeadPosition)
+    viewerPose &&
+      viewerMovement
+        .copy(viewerPose.transform.position as any)
+        .applyMatrix4(originTransform.matrix)
+        .sub(avatarHeadPosition)
     // vertical viewer movement should only apply updward movement to the rigidbody,
     // when the viewerpose is moving up over the current avatar head position
     viewerMovement.y = 0 // Math.max(viewerMovement.y, 0)
@@ -105,8 +108,6 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
   const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
   controller.isInAir = true
-
-  const originTransform = getComponent(world.originEntity, TransformComponent)
 
   if (groundHits.length) {
     const hit = groundHits[0]
@@ -314,8 +315,11 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 
   if (!viewerPose) return
 
+  const originTransform = getComponent(Engine.instance.currentWorld.originEntity, TransformComponent)
   const viewerOrientation = viewerPose.transform.orientation
-  viewerQuat.set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
+  viewerQuat
+    .set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
+    .premultiply(originTransform.rotation)
   // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
   avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
   avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
@@ -400,7 +404,7 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
 
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
-    prevVector = new Vector3(0, 0, 1)
+    prevVector = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, SpawnPoseComponent).rotation)
     prevVectors.set(entity, prevVector)
   }
 

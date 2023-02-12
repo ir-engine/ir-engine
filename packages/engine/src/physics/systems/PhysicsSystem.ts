@@ -86,16 +86,14 @@ export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, sub
       rigidbodyComponent.targetKinematicPosition,
       substep
     )
-    rigidbodyComponent.rotation.slerpQuaternions(
-      rigidbodyComponent.previousRotation,
-      rigidbodyComponent.targetKinematicRotation,
-      substep
-    )
+    rigidbodyComponent.rotation
+      .copy(rigidbodyComponent.previousRotation)
+      .fastSlerp(rigidbodyComponent.targetKinematicRotation, substep)
   } else {
     /** gradual smoothing between substeps */
     const alpha = smootheLerpAlpha(rigidbodyComponent.targetKinematicLerpMultiplier, dt)
     rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
-    rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
+    rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
   }
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
   rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)

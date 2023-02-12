@@ -11,8 +11,8 @@ import { getComponent, getComponentState, removeComponent, setComponent } from '
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
-import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { EngineRendererState } from '../renderer/WebGLRendererSystem'
 import { hasMovementControls } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
@@ -116,11 +116,7 @@ export default async function AvatarInputSystem(world: World) {
   }
 
   const onKeyP = () => {
-    dispatchAction(
-      EngineRendererAction.setDebug({
-        debugEnable: !accessEngineRendererState().debugEnable.value
-      })
-    )
+    getState(EngineRendererState).debugEnable.set(!getState(EngineRendererState).debugEnable.value)
   }
 
   const canvas = EngineRenderer.instance.renderer.domElement
