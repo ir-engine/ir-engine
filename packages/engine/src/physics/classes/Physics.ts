@@ -239,8 +239,8 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
   for (const obj of group) {
     obj.updateMatrixWorld(true)
     obj.traverse((mesh: Mesh) => {
-      if (!mesh.userData || mesh.userData.type === 'glb') return console.error(mesh)
-      if (!mesh.isMesh && !mesh.userData.type) return console.error(mesh)
+      if (!mesh.userData || mesh.userData.type === 'glb') return //console.error(mesh)
+      if (!mesh.isMesh && !mesh.userData.type) return //console.error(mesh)
 
       // backwards support for deprecated `type` property
       if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
