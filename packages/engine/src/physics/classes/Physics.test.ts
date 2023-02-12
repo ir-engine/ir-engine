@@ -97,7 +97,7 @@ describe('Physics', () => {
     boxDynamicConfig.collisionMask = collisionMask
     boxDynamicConfig.isTrigger = true
 
-    const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig)
+    const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig, new Vector3(1, 1, 1))
     const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
     assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.type)

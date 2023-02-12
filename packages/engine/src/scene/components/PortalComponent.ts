@@ -29,7 +29,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { portalTriggerEnter } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
-import { ColliderComponent, ColliderComponentType } from './ColliderComponent'
+import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
@@ -53,7 +53,7 @@ export const SCENE_COMPONENT_PORTAL_COLLIDER_VALUES = {
   collisionMask: CollisionGroups.Avatars,
   target: '',
   onEnter: 'teleport'
-} as ColliderComponentType
+}
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',

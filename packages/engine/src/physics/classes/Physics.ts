@@ -14,7 +14,7 @@ import RAPIER, {
   TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
-import { Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import { Line, Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
@@ -130,8 +130,13 @@ function applyDescToCollider(
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 }
 
-function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions, isRoot = false): ColliderDesc {
-  if (!colliderDescOptions.shapeType && colliderDescOptions.type)
+function createColliderDesc(
+  mesh: Mesh,
+  colliderDescOptions: ColliderDescOptions,
+  scale: Vector3,
+  isRoot = false
+): ColliderDesc {
+  if (!colliderDescOptions.shapeType && colliderDescOptions.type && colliderDescOptions.type !== ('glb' as any))
     colliderDescOptions.shapeType = colliderDescOptions.type
 
   // Type is required
@@ -161,34 +166,30 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     }
   }
 
-  // If custom size has been provided use that else use mesh scale
-  const colliderSize = colliderDescOptions.size ? colliderDescOptions.size : mesh.scale
-
   let colliderDesc: ColliderDesc
+
   switch (shapeType as ShapeType) {
     case ShapeType.Cuboid:
-      colliderDesc = ColliderDesc.cuboid(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
       break
 
     case ShapeType.Ball:
-      colliderDesc = ColliderDesc.ball(Math.abs(colliderSize.x))
+      colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
       break
 
     case ShapeType.Capsule:
-      colliderDesc = ColliderDesc.capsule(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
+      colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
       break
 
     case ShapeType.Cylinder:
-      colliderDesc = ColliderDesc.cylinder(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
+      colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
       break
 
     case ShapeType.ConvexPolyhedron: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
       try {
-        const _buff = mesh.geometry
-          .clone()
-          .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
         const vertices = new Float32Array(_buff.attributes.position.array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
@@ -203,9 +204,7 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
       try {
-        const _buff = mesh.geometry
-          .clone()
-          .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
         const vertices = new Float32Array(_buff.attributes.position.array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.trimesh(vertices, indices)
@@ -228,6 +227,8 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     isRoot ? undefined : mesh.quaternion
   )
 
+  console.log(colliderDesc)
+
   return colliderDesc
 }
 
@@ -240,10 +241,14 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
 
   // create collider desc using userdata of each child mesh
   for (const obj of group) {
-    obj.traverse((mesh: Mesh) => {
+    obj.updateMatrixWorld(true)
+    obj.traverse((child) => {
+      if ((child as Line).isLine) return
+      const mesh = child as Mesh
       // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-      const colliderDesc = createColliderDesc(mesh, args, obj === mesh)
+      const scale = mesh.getWorldScale(new Vector3())
+      const colliderDesc = createColliderDesc(mesh, args, scale, obj === mesh)
       if (colliderDesc) {
         if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)
         colliderDescs.push(colliderDesc)
