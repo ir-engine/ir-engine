@@ -130,22 +130,14 @@ function applyDescToCollider(
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 }
 
-function createColliderDesc(
-  mesh: Mesh,
-  colliderDescOptions: ColliderDescOptions,
-  scale: Vector3,
-  isRoot = false
-): ColliderDesc {
-  if (!colliderDescOptions.shapeType && colliderDescOptions.type && colliderDescOptions.type !== ('glb' as any))
-    colliderDescOptions.shapeType = colliderDescOptions.type
-
-  // Type is required
-  if (typeof colliderDescOptions.shapeType === 'undefined') return undefined!
+function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions, isRoot = false) {
+  if (typeof colliderDescOptions.shapeType === 'undefined') return
 
   let shapeType =
     typeof colliderDescOptions.shapeType === 'string'
       ? ShapeType[colliderDescOptions.shapeType]
       : colliderDescOptions.shapeType
+
   //check for old collider types to allow backwards compatibility
   if (typeof shapeType === 'undefined') {
     switch (colliderDescOptions.shapeType as unknown as string) {
@@ -164,6 +156,12 @@ function createColliderDesc(
       default:
         console.error('unrecognized collider shape type: ' + colliderDescOptions.shapeType)
     }
+  }
+
+  const scale = mesh.getWorldScale(new Vector3())
+
+  if (mesh.geometry?.type === 'BoxGeometry') {
+    scale.multiplyScalar(0.5)
   }
 
   let colliderDesc: ColliderDesc
@@ -195,7 +193,7 @@ function createColliderDesc(
         colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
       } catch (e) {
         console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
-        return undefined!
+        return
       }
       break
     }
@@ -210,14 +208,14 @@ function createColliderDesc(
         colliderDesc = ColliderDesc.trimesh(vertices, indices)
       } catch (e) {
         console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
-        return undefined!
+        return
       }
       break
     }
 
     default:
       console.error('unknown shape', colliderDescOptions)
-      return undefined!
+      return
   }
 
   applyDescToCollider(
@@ -240,13 +238,17 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
   // create collider desc using userdata of each child mesh
   for (const obj of group) {
     obj.updateMatrixWorld(true)
-    obj.traverse((child) => {
-      if ((child as Line).isLine) return
-      const mesh = child as Mesh
+    obj.traverse((mesh: Mesh) => {
+      if (!mesh.userData || mesh.userData.type === 'glb') return console.error(mesh)
+      if (!mesh.isMesh && !mesh.userData.type) return console.error(mesh)
+
+      // backwards support for deprecated `type` property
+      if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
+
       // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-      const scale = mesh.getWorldScale(new Vector3())
-      const colliderDesc = createColliderDesc(mesh, args, scale, obj === mesh)
+      const colliderDesc = createColliderDesc(mesh, args, obj === mesh)
+
       if (colliderDesc) {
         if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)
         colliderDescs.push(colliderDesc)
