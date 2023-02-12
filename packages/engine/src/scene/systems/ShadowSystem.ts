@@ -154,18 +154,21 @@ export default async function ShadowSystem(world: World) {
     const useShadows = useShadowsEnabled()
 
     useEffect(() => {
-      const getShadows = getShadowsEnabled()
-      if (getShadows) {
-        world.scene.remove(dropShadows)
+      world.scene.remove(dropShadows)
+
+      if (useShadows) {
         return
       }
 
-      world.scene.remove(dropShadows)
-      dropShadows.dispose()
-      dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
-      dropShadows.matrixAutoUpdate = false
-      dropShadows.layers.disable(ObjectLayers.Camera)
-      world.scene.add(dropShadows)
+      const reinitDropShadows = () => {
+        dropShadows.dispose()
+        dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
+        dropShadows.matrixAutoUpdate = false
+        dropShadows.layers.disable(ObjectLayers.Camera)
+        world.scene.add(dropShadows)
+      }
+
+      reinitDropShadows()
 
       //only calculate if center is not manually set
       if (!dropShadowComponent.center.value) {
@@ -174,6 +177,11 @@ export default async function ShadowSystem(world: World) {
         new Box3().setFromObject(groupComponent.value[0]).getBoundingSphere(sphere)
         dropShadowComponent.radius.set(Math.max(sphere.radius * 2, minRadius))
         dropShadowComponent.center.set(groupComponent.value[0].worldToLocal(sphere.center))
+      }
+
+      return function cleanup() {
+        world.scene.remove(dropShadows)
+        reinitDropShadows()
       }
     }, [groupComponent, useShadows])
 

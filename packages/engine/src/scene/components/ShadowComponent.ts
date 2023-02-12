@@ -8,7 +8,9 @@ import {
   defineComponent,
   getComponent,
   hasComponent,
-  useComponent
+  setComponent,
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { DropShadowComponent } from './DropShadowComponent'
@@ -50,10 +52,9 @@ export const ShadowComponent = defineComponent({
 })
 
 function ShadowReactor({ root }: EntityReactorProps) {
+  const shadowComponent = useOptionalComponent(root.entity, ShadowComponent)
   useEffect(() => {
-    const shadowComponent = getComponent(root.entity, ShadowComponent)
-
-    if (shadowComponent.castDropShadow) addComponent(root.entity, DropShadowComponent)
+    if (shadowComponent && shadowComponent.castDropShadow.value) setComponent(root.entity, DropShadowComponent)
   })
 
   return null
