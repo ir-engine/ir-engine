@@ -7,7 +7,7 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -34,7 +34,7 @@ export default async function DebugRendererSystem(world: World) {
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
 
-  const debugEnable = getState(EngineRendererState).debugEnable
+  const debugEnable = getState(RendererState).debugEnable
 
   const execute = () => {
     const _enabled = debugEnable.value

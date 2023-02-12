@@ -5,7 +5,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getState } from '@xrengine/hyperflux'
 
 import { RenderModes } from '../constants/RenderModes'
-import { EngineRenderer, EngineRendererState } from '../WebGLRendererSystem'
+import { RendererState } from '../RendererState'
+import { EngineRenderer } from '../WebGLRendererSystem'
 import { updateShadowMap } from './RenderSettingsFunction'
 
 /**
@@ -13,7 +14,7 @@ import { updateShadowMap } from './RenderSettingsFunction'
  * @param mode Mode which will be set to renderer
  */
 export function changeRenderMode() {
-  const renderMode = getState(EngineRendererState).renderMode.value
+  const renderMode = getState(RendererState).renderMode.value
 
   // revert any changes made by a render mode
   switch (renderMode) {

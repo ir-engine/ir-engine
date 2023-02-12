@@ -32,11 +32,14 @@ import {
   hasComponent,
   removeComponent,
   removeQuery,
+  setComponent,
+  useComponent,
+  useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
-import { getShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
+import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isHeadset, XRState } from '../../xr/XRState'
@@ -51,13 +54,8 @@ export const shadowDirection = new Vector3(0, -1, 0)
 const defaultShadowMatrix = new Matrix4().multiplyScalar(0)
 
 export default async function ShadowSystem(world: World) {
-  const directionalLightQuery = defineQuery([DirectionalLightComponent])
-
-  let lastActiveDirectionLight = null as DirectionalLight | null
-
   const xrState = getState(XRState)
-  const renderState = getState(EngineRendererState)
-  // let helper
+  const renderState = getState(RendererState)
 
   const csmGroup = new Group()
   csmGroup.name = 'CSM-group'
@@ -65,58 +63,72 @@ export default async function ShadowSystem(world: World) {
 
   const csmReactor = startReactor(() => {
     const lightEstimator = useHookstate(xrState.isEstimatingLight)
-    const directionalLights = useQuery(directionalLightQuery)
+    const directionalLights = useQuery([DirectionalLightComponent])
+    const shadowsEnabled = useShadowsEnabled()
+
+    let activeLight: DirectionalLight | undefined
+
+    // TODO: convert light estimator to an entity to simplify all this logic
+    let activeDirectionalLightEntity = UndefinedEntity
+    if (lightEstimator.value) activeLight = xrState.lightEstimator.value!.directionalLight
+    else
+      for (const entity of directionalLights) {
+        const component = getComponent(entity, DirectionalLightComponent)
+        const visible = hasComponent(entity, VisibleComponent)
+        // TODO: source of truth for which light to use for CSM should be in renderer state, not DirectionalLightComponent
+        if (component.useInCSM && visible) {
+          activeDirectionalLightEntity = entity
+          activeLight = component.light
+          break
+        }
+      }
+
+    // track visibility and light properties for CSM updates
+    useOptionalComponent(activeDirectionalLightEntity, VisibleComponent)?.value
+    useOptionalComponent(activeDirectionalLightEntity, DirectionalLightComponent)?.useInCSM.value
+
+    const activeLightFromEntity = useOptionalComponent(activeDirectionalLightEntity, DirectionalLightComponent)?.value
+      .light
+    if (!activeLight) activeLight = activeLightFromEntity
+
+    const csmEnabled = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld).csm).value
+
+    const useCSM = shadowsEnabled && csmEnabled
 
     useEffect(() => {
-      let activeDirectionalLight = null as DirectionalLight | null
-      let activeDirectionalLightEntity = UndefinedEntity as Entity
-
-      if (lightEstimator.value) activeDirectionalLight = xrState.lightEstimator.value!.directionalLight
-      else
-        for (const entity of directionalLights) {
-          const component = getComponent(entity, DirectionalLightComponent)
-          if (component.useInCSM) {
-            activeDirectionalLightEntity = entity
-            activeDirectionalLight = component.light
-          }
-        }
-
-      const useCSM = getShadowsEnabled() && getRendererSceneMetadataState(Engine.instance.currentWorld).csm.value
-
-      if (useCSM && activeDirectionalLight) {
-        if (!EngineRenderer.instance.csm) {
-          EngineRenderer.instance.csm = new CSM({
-            camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
-            parent: csmGroup,
-            light: activeDirectionalLight
-          })
-          // helper = new CSMHelper(EngineRenderer.instance.csm)
-          // Engine.instance.currentWorld.scene.add(helper)
-        }
-
-        if (activeDirectionalLightEntity && hasComponent(activeDirectionalLightEntity, VisibleComponent))
-          removeComponent(activeDirectionalLightEntity, VisibleComponent)
-        activeDirectionalLight.visible = false
-
-        lastActiveDirectionLight = activeDirectionalLight
-
-        for (const light of EngineRenderer.instance.csm.lights) {
-          light.color = activeDirectionalLight.color
-          light.intensity = activeDirectionalLight.intensity
-          light.shadow.bias = activeDirectionalLight.shadow.bias
-          light.shadow.radius = activeDirectionalLight.shadow.radius
-          light.shadow.mapSize = activeDirectionalLight.shadow.mapSize
-          light.shadow.camera.far = activeDirectionalLight.shadow.camera.far
-        }
-      } else if (EngineRenderer.instance.csm) {
-        if (lastActiveDirectionLight) lastActiveDirectionLight.visible = true
-        lastActiveDirectionLight = null
-
-        EngineRenderer.instance.csm.remove()
-        EngineRenderer.instance.csm.dispose()
+      if (!activeLight || !useCSM) {
+        EngineRenderer.instance.csm?.remove()
+        EngineRenderer.instance.csm?.dispose()
         EngineRenderer.instance.csm = undefined!
+        return
       }
-    }, [lightEstimator, directionalLights])
+
+      if (!EngineRenderer.instance.csm) {
+        EngineRenderer.instance.csm = new CSM({
+          camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
+          parent: csmGroup,
+          light: activeLight
+        })
+        // helper = new CSMHelper(EngineRenderer.instance.csm)
+        // Engine.instance.currentWorld.scene.add(helper)
+      }
+
+      const activeLightParent = activeLight.parent
+      if (activeLightParent) activeLightParent.remove(activeLight)
+
+      for (const light of EngineRenderer.instance.csm.lights) {
+        light.color = activeLight.color
+        light.intensity = activeLight.intensity
+        light.shadow.bias = activeLight.shadow.bias
+        light.shadow.radius = activeLight.shadow.radius
+        light.shadow.mapSize = activeLight.shadow.mapSize
+        light.shadow.camera.far = activeLight.shadow.camera.far
+      }
+
+      return () => {
+        activeLightParent?.add(activeLight!)
+      }
+    }, [useCSM, activeLight])
 
     return null
   })
@@ -208,7 +220,6 @@ export default async function ShadowSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, directionalLightQuery)
     removeQuery(world, shadowComponentQuery)
     csmReactor.stop()
     dropShadowReactor.stop()

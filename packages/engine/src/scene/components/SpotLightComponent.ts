@@ -5,7 +5,7 @@ import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { isHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -79,7 +79,7 @@ export const SpotLightComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, SpotLightComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, SpotLightComponent)
 
     useEffect(() => {
