@@ -22,6 +22,7 @@ export const PointLightComponent = defineComponent({
       intensity: 1,
       range: 0,
       decay: 2,
+      castShadow: false,
       shadowMapResolution: 256,
       shadowBias: 0.5,
       shadowRadius: 1,
@@ -37,6 +38,7 @@ export const PointLightComponent = defineComponent({
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.range)) component.range.set(json.range)
     if (matches.number.test(json.decay)) component.decay.set(json.decay)
+    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.array.test(json.shadowMapResolution))
       component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
@@ -51,6 +53,7 @@ export const PointLightComponent = defineComponent({
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,
+      castShadow: component.castShadow.value,
       shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value
@@ -83,6 +86,10 @@ export const PointLightComponent = defineComponent({
     useEffect(() => {
       light.light.value.decay = light.decay.value
     }, [light.decay])
+
+    useEffect(() => {
+      light.light.value.castShadow = light.castShadow.value
+    }, [light.castShadow])
 
     useEffect(() => {
       light.light.value.shadow.bias = light.shadowBias.value

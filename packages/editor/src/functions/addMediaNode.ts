@@ -5,7 +5,6 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
-import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
