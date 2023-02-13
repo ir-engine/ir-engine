@@ -398,7 +398,7 @@ export function useQuery(components: QueryComponents) {
   useEffect(() => {
     const root = startReactor(() => {
       for (const entity of useHookstate(state).value) {
-        components.forEach((C) => ('isComponent' in C ? useComponent(entity, C as any).value : undefined))
+        components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
       }
       forceUpdate()
       return null
