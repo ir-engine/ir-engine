@@ -58,7 +58,7 @@
     "ts-matches": "^5.1.0-1",
     "typescript": "4.8.3",
     "url-polyfill": "1.1.12",
-    "vite": "4.0.4",
+    "vite": "4.1.1",
     "web-worker": "1.2.0"
   },
   "devDependencies": {
