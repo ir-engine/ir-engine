@@ -1,5 +1,4 @@
 import { Not } from 'bitecs'
-import { noop } from 'lodash'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
@@ -25,12 +24,8 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { updateCollider, updateModelColliders } from '../../scene/functions/loaders/ColliderFunctions'
 import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
-import { XRState } from '../../xr/XRState'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -82,12 +77,6 @@ export const teleportRigidbody = (entity: Entity) => {
   rigidBody.position.copy(transform.position)
   rigidBody.previousRotation.copy(transform.rotation)
   rigidBody.rotation.copy(transform.rotation)
-  // if scale has changed, we have to recreate the collider
-  const scaleChanged = rigidBody.scale.manhattanDistanceTo(transform.scale) > 0.0001
-  if (scaleChanged) {
-    if (hasComponent(entity, GLTFLoadedComponent)) updateModelColliders(entity)
-    else updateCollider(entity)
-  }
 }
 
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {

@@ -70,7 +70,7 @@ export default async function PhysicsSimulationTestSystem(world: World) {
 }
 
 export const boxDynamicConfig = {
-  type: ShapeType.Cuboid,
+  shapeType: ShapeType.Cuboid,
   bodyType: RigidBodyType.Fixed,
   collisionLayer: CollisionGroups.Default,
   collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
@@ -121,7 +121,7 @@ export const generatePhysicsObject = (
   isNetworkObject = false,
   scale = defaultScale
 ) => {
-  const type = config.type
+  const type = config.shapeType
 
   let geometry
   switch (type) {
