@@ -20,7 +20,7 @@ const CardNumber = ({ data }: Props) => {
     <Card className={styles.rootCardNumber}>
       <CardContent className="text-center">
         <Typography variant="h3" component="h3" className={styles.label}>
-          <span>{data.number}</span>
+          <span>{data.number !== 0 ? data.number : ''}</span>
         </Typography>
         <Typography variant="body2" component="p" className={styles.label}>
           <span>{data.label}</span>

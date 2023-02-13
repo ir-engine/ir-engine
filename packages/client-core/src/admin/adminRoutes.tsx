@@ -1,7 +1,6 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
@@ -11,22 +10,24 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 import PrivateRoute from '../Private'
 import AdminSystem from '../systems/AdminSystem'
+import Dashboard from '../user/components/Dashboard'
 import { useAuthState } from '../user/services/AuthService'
-import analytics from './components/Analytics'
-import avatars from './components/Avatars'
-import benchmarking from './components/Benchmarking'
-import botSetting from './components/Bots'
-import groups from './components/Group'
-import instance from './components/Instance'
-import invites from './components/Invite'
-import locations from './components/Location'
-import party from './components/Party'
-import projects from './components/Project'
-import resources from './components/Resources'
-import routes from './components/Routes'
-import server from './components/Server'
-import setting from './components/Setting'
-import users from './components/Users'
+
+const analytics = lazy(() => import('./components/Analytics'))
+const avatars = lazy(() => import('./components/Avatars'))
+const benchmarking = lazy(() => import('./components/Benchmarking'))
+const botSetting = lazy(() => import('./components/Bots'))
+const groups = lazy(() => import('./components/Group'))
+const instance = lazy(() => import('./components/Instance'))
+const invites = lazy(() => import('./components/Invite'))
+const locations = lazy(() => import('./components/Location'))
+const party = lazy(() => import('./components/Party'))
+const projects = lazy(() => import('./components/Project'))
+const resources = lazy(() => import('./components/Resources'))
+const routes = lazy(() => import('./components/Routes'))
+const server = lazy(() => import('./components/Server'))
+const setting = lazy(() => import('./components/Setting'))
+const users = lazy(() => import('./components/Users'))
 
 const AdminSystemInjection = {
   uuid: 'core.admin.AdminSystem',
@@ -80,23 +81,22 @@ const ProtectedRoutes = () => {
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
-      <Suspense
-        fallback={
-          <div
-            style={{
-              height: '100vh',
-              width: '100%',
-              textAlign: 'center',
-              pointerEvents: 'auto',
-              paddingTop: 'calc(50vh - 7px)'
-            }}
-          >
-            <CircularProgress />
-          </div>
-        }
-      >
-        {!isEngineInitialized && <LoadingView sx={{ height: '100vh' }} />}
-        {isEngineInitialized && (
+      <Dashboard>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                height: '100vh',
+                width: '100%',
+                textAlign: 'center',
+                pointerEvents: 'auto',
+                paddingTop: 'calc(50vh - 7px)'
+              }}
+            >
+              <CircularProgress />
+            </div>
+          }
+        >
           <Switch>
             {allowedRoutes.globalAvatars && <PrivateRoute exact path="/admin/avatars" component={avatars} />}
             {allowedRoutes.benchmarking && <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />}
@@ -115,8 +115,8 @@ const ProtectedRoutes = () => {
             <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />
             <PrivateRoute path="/admin" component={analytics} />
           </Switch>
-        )}
-      </Suspense>
+        </Suspense>
+      </Dashboard>
     </div>
   )
 }

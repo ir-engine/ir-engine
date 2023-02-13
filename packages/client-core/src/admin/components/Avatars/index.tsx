@@ -30,6 +30,10 @@ const Avatar = () => {
   const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
 
   useEffect(() => {
+    initSystems(Engine.instance.currentWorld, [...AvatarCommonModule(), ...AvatarClientModule()])
+  }, [])
+
+  useEffect(() => {
     const systems = [
       ...TransformModule(),
       ...SceneCommonModule(),

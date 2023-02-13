@@ -15,6 +15,15 @@ import ActivityGraph from './ActivityGraph'
 
 import './index.scss'
 
+import { useTranslation } from 'react-i18next'
+
+import AdminSystem from '@xrengine/client-core/src/systems/AdminSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { dispatchAction } from '@xrengine/hyperflux'
+
+import LoadingView from '../../../common/components/LoadingView'
 import AnalyticsService from './AnalyticsService'
 import UserGraph from './UserGraph'
 
@@ -25,6 +34,8 @@ import UserGraph from './UserGraph'
  */
 
 const Analytics = () => {
+  const { isEngineInitialized } = useEngineState().value
+
   const [refetch, setRefetch] = useState(false)
   // const { t } = useTranslation()
   const [graphSelector, setGraphSelector] = useState('activity')
@@ -32,6 +43,19 @@ const Analytics = () => {
 
   const [endDate, setEndDate] = useState(moment())
   const [startDate, setStartDate] = useState(moment().subtract(30, 'days'))
+
+  const AdminSystemInjection = {
+    uuid: 'core.admin.AdminSystem',
+    type: 'PRE_RENDER',
+    systemLoader: () => Promise.resolve({ default: AdminSystem })
+  } as const
+
+  useEffect(() => {
+    initSystems(Engine.instance.currentWorld, [AdminSystemInjection]).then(async () => {
+      dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+      setRefetch(true)
+    })
+  }, [])
 
   useEffect(() => {
     if (refetch === true && startDate < endDate) {
@@ -57,6 +81,10 @@ const Analytics = () => {
 
   const tempStartDate = moment(startDate)
   const minEndDate = moment(tempStartDate.startOf('day').add(1, 'day'))
+
+  if (!isEngineInitialized) {
+    return <LoadingView variant="body2" sx={{ position: 'absolute', top: 0 }} />
+  }
 
   return (
     <>

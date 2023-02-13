@@ -3,9 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { ServerInfoInterface } from '@xrengine/common/src/interfaces/ServerInfo'
 
-import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material'
+import { Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
 
 import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
@@ -14,10 +13,19 @@ import ServerTable from './ServerTable'
 
 import 'react-reflex/styles.css'
 
+import AdminSystem from '@xrengine/client-core/src/systems/AdminSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { useServerLogsState } from '../../services/ServerLogsService'
+import ServerList from './ServerList'
 import ServerLogs from './ServerLogs'
 
 const Server = () => {
+  const [refetch, setRefetch] = useState(false)
+
   const { t } = useTranslation()
   const [selectedCard, setSelectedCard] = useState('all')
   const serverInfo = useServerInfoState()
@@ -27,7 +35,7 @@ const Server = () => {
 
   useEffect(() => {
     if (serverInfo.updateNeeded.value) ServerInfoService.fetchServerInfo()
-  }, [serverInfo.updateNeeded.value])
+  }, [serverInfo.updateNeeded.value, refetch])
 
   if (!serverInfo.value.fetched) {
     return (
@@ -38,16 +46,7 @@ const Server = () => {
   return (
     <Box sx={{ height: 'calc(100% - 106px)' }}>
       <Grid container spacing={1} className={styles.mb10px}>
-        {serverInfo.value.servers.map((item, index) => (
-          <Grid item key={item.id} xs={12} sm={6} md={2}>
-            <ServerItemCard
-              key={index}
-              data={item}
-              isSelected={selectedCard === item.id}
-              onCardClick={setSelectedCard}
-            />
-          </Grid>
-        ))}
+        <ServerList data={serverInfo?.value?.servers} selectedCard={selectedCard} setSelectedCard={setSelectedCard} />
       </Grid>
       {displayLogs === false && <ServerTable selectedCard={selectedCard} />}
       {displayLogs && (
@@ -67,27 +66,8 @@ const Server = () => {
   )
 }
 
-interface ServerItemProps {
-  data: ServerInfoInterface
-  isSelected: boolean
-  onCardClick: (key: string) => void
-}
+Server.displayName = 'Server'
 
-const ServerItemCard = ({ data, isSelected, onCardClick }: ServerItemProps) => {
-  return (
-    <Card className={`${styles.rootCardNumber} ${isSelected ? styles.selectedCard : ''}`}>
-      <CardActionArea onClick={() => onCardClick(data.id)}>
-        <CardContent className="text-center">
-          <Typography variant="h5" component="h5" className={styles.label}>
-            {data.label}
-          </Typography>
-          <Typography variant="body1" component="p" className={styles.label}>
-            {data.pods.filter((item) => item.status === 'Running').length}/{data.pods.length}
-          </Typography>
-        </CardContent>
-      </CardActionArea>
-    </Card>
-  )
-}
+Server.defaultProps = {}
 
 export default Server
