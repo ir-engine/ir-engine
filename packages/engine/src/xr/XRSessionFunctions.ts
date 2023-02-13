@@ -104,6 +104,12 @@ export const setupXRSession = async (requestedMode) => {
 
   await xrManager.setSession(xrSession, framebufferScaleFactor)
 
+  /** Hide the canvas - do not do this for the WebXR emulator */
+  /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
+  if (typeof xrSession.visibilityState === 'string') {
+    EngineRenderer.instance.renderer.domElement.style.display = 'none'
+  }
+
   xrState.session.set(xrSession)
 
   xrState.requestingSession.set(false)
@@ -188,8 +194,6 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
 export const setupVRSession = (world = Engine.instance.currentWorld) => {}
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
-  EngineRenderer.instance.renderer.domElement.style.display = 'none'
-
   const session = getState(XRState).session.value!
 
   /**
