@@ -115,6 +115,7 @@ export default async function SceneObjectSystem(world: World) {
     useEffect(() => {
       const shadow = shadowComponent?.value
       obj.traverse((child: Mesh<any, Material>) => {
+        if (!child.isMesh) return
         child.castShadow = !!shadow?.cast
         child.receiveShadow = !!shadow?.receive
         if (child.material && child.receiveShadow) {

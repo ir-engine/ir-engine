@@ -256,7 +256,6 @@
       "lbl-isEquippable": "Is Equippable",
       "lbl-castShadow": "Cast Shadow",
       "lbl-receiveShadow": "Receive Shadow",
-      "lbl-dropShadow": "Cast Drop Shadow",
       "lbl-interactable": "Interactable",
       "lbl-generateBVH": "Generate BVH",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",

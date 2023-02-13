@@ -21,7 +21,7 @@ import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
-import { V_000, V_001 } from '../../common/constants/MathConstants'
+import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -32,18 +32,16 @@ import {
   removeComponent,
   removeQuery,
   setComponent,
-  useComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { isHeadset, XRState } from '../../xr/XRState'
+import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { GroupComponent } from '../components/GroupComponent'
+import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 
@@ -130,6 +128,7 @@ export default async function ShadowSystem(world: World) {
   const shadowMaterial = new MeshBasicMaterial({
     side: DoubleSide,
     transparent: true,
+    opacity: 0.5,
     depthTest: true,
     depthWrite: false
   })
@@ -144,13 +143,15 @@ export default async function ShadowSystem(world: World) {
   let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, 0)
   dropShadows.matrixAutoUpdate = false
 
-  const shadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
+  const castShadowFilter = (entity: Entity) => getComponent(entity, ShadowComponent).cast
+
+  const shadowComponentQuery = defineQuery([ShadowComponent, GroupComponent])
+  const dropShadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
   let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
-  const dropShadowReactor = startQueryReactor([DropShadowComponent, GroupComponent], function (props) {
-    const dropShadowComponent = useComponent(props.root.entity, DropShadowComponent)
-    const groupComponent = useComponent(props.root.entity, GroupComponent)
+  const dropShadowReactor = startReactor(function (props) {
+    const shadowComponents = useQuery(shadowComponentQuery)
     const useShadows = useShadowsEnabled()
 
     useEffect(() => {
@@ -160,9 +161,11 @@ export default async function ShadowSystem(world: World) {
         return
       }
 
+      const castShadowEntities = shadowComponentQuery().filter(castShadowFilter)
+
       const reinitDropShadows = () => {
         dropShadows.dispose()
-        dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, shadowComponentQuery().length)
+        dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, castShadowEntities.length)
         dropShadows.matrixAutoUpdate = false
         dropShadows.layers.disable(ObjectLayers.Camera)
         world.scene.add(dropShadows)
@@ -170,20 +173,25 @@ export default async function ShadowSystem(world: World) {
 
       reinitDropShadows()
 
-      //only calculate if center is not manually set
-      if (!dropShadowComponent.center.value) {
-        const minRadius = 0.15
-        const sphere = new Sphere()
-        new Box3().setFromObject(groupComponent.value[0]).getBoundingSphere(sphere)
-        dropShadowComponent.radius.set(Math.max(sphere.radius * 2, minRadius))
-        dropShadowComponent.center.set(groupComponent.value[0].worldToLocal(sphere.center))
+      for (const entity of castShadowEntities) {
+        const groupComponent = getComponent(entity, GroupComponent)
+        if (!hasComponent(entity, DropShadowComponent) && groupComponent.length) {
+          const minRadius = 0.15
+          const sphere = new Sphere()
+          const box3 = new Box3()
+          for (const obj of groupComponent) box3.setFromObject(obj)
+          box3.getBoundingSphere(sphere)
+          const radius = Math.max(sphere.radius * 2, minRadius)
+          const center = groupComponent[0].worldToLocal(sphere.center)
+          setComponent(entity, DropShadowComponent, { radius, center })
+        }
       }
 
       return function cleanup() {
         world.scene.remove(dropShadows)
         reinitDropShadows()
       }
-    }, [groupComponent, useShadows])
+    }, [shadowComponents, useShadows])
 
     return null
   })
@@ -201,7 +209,7 @@ export default async function ShadowSystem(world: World) {
 
     const useShadows = getShadowsEnabled()
     if (!useShadows) {
-      for (const entity of shadowComponentQuery()) {
+      for (const entity of dropShadowComponentQuery()) {
         const dropShadowComponent = getComponent(entity, DropShadowComponent)
 
         if (!dropShadowComponent.center) continue
