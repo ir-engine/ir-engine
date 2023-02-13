@@ -119,17 +119,24 @@ export default async function AvatarInputSystem(world: World) {
     getState(EngineRendererState).debugEnable.set(!getState(EngineRendererState).debugEnable.value)
   }
 
-  const canvas = EngineRenderer.instance.renderer.domElement
-  canvas.addEventListener('auxclick', () => {
-    autopilotSetPosition(world.localClientEntity)
-  })
-
+  let mouseMovedDuringPrimaryClick = false
   const execute = () => {
     const { inputSources, localClientEntity } = world
     if (!localClientEntity) return
 
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
     const buttons = world.buttons
+
+    console.log(mouseMovedDuringPrimaryClick)
+    if (buttons.PrimaryClick?.touched) {
+      let mouseMoved = world.pointerState.movement.lengthSq() > 0
+      if (mouseMoved) mouseMovedDuringPrimaryClick = true
+
+      if (buttons.PrimaryClick.up) {
+        if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(world.localClientEntity)
+        else mouseMovedDuringPrimaryClick = false
+      }
+    }
 
     if (buttons.ShiftLeft?.down) onShiftLeft()
     if (buttons.KeyE?.down) onKeyE()
