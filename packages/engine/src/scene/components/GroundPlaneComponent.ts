@@ -76,6 +76,10 @@ export const GroundPlaneComponent = defineComponent({
       }
     }, [])
 
+    useEffect(() => {
+      if (component.mesh.value) component.mesh.value.material.color.set(component.color.value)
+    }, [component.color])
+
     return null
   }
 })
