@@ -20,10 +20,8 @@ import {
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import {
-  EngineRendererState,
-  getPostProcessingSceneMetadataState
-} from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
+import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -47,7 +45,7 @@ interface Props {
 
 const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getState(EngineRendererState))
+  const rendererState = useHookstate(getState(RendererState))
   const audioState = useAudioState()
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
   const selfUser = useAuthState().user

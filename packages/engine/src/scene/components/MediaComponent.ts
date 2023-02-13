@@ -24,7 +24,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
@@ -375,7 +375,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
     [mediaElement, media.isMusic]
   )
 
-  const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+  const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
 
   useEffect(() => {
     if (debugEnabled.value && !media.helper.value) {

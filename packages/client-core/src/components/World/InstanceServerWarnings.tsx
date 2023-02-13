@@ -12,8 +12,8 @@ import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import WEBGL from '@xrengine/engine/src/renderer/THREE.WebGL'
-import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { addActionReceptor, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { NetworkConnectionService } from '../../common/services/NetworkConnectionService'
@@ -47,7 +47,7 @@ const InstanceServerWarnings = () => {
   const [currentError, _setCurrentError] = useState(-1)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
-  const engineRendereState = useHookstate(getState(EngineRendererState))
+  const engineRendereState = useHookstate(getState(RendererState))
   const chatState = useChatState()
   const [erroredInstanceId, setErroredInstanceId] = useState<string>(null!)
   const [hasShownLowFramerateError, setHasShownLowFramerateError] = useState(false)

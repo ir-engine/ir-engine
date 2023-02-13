@@ -11,8 +11,7 @@ import { getComponent, getComponentState, removeComponent, setComponent } from '
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { EngineRendererState } from '../renderer/WebGLRendererSystem'
+import { RendererState } from '../renderer/RendererState'
 import { hasMovementControls } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
@@ -116,7 +115,7 @@ export default async function AvatarInputSystem(world: World) {
   }
 
   const onKeyP = () => {
-    getState(EngineRendererState).debugEnable.set(!getState(EngineRendererState).debugEnable.value)
+    getState(RendererState).debugEnable.set(!getState(RendererState).debugEnable.value)
   }
 
   let mouseMovedDuringPrimaryClick = false

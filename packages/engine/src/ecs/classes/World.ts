@@ -62,6 +62,7 @@ import {
   getComponent,
   hasComponent,
   Query,
+  QueryComponents,
   setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
@@ -262,7 +263,7 @@ export class World {
 
   buttons = {} as Readonly<ButtonInputStateType>
 
-  reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]> }>()
+  reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]>; components: QueryComponents }>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]

@@ -6,6 +6,7 @@ import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
 import multiLogger from '@xrengine/common/src/logger'
 import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
+import { useForceUpdate } from '@xrengine/common/src/utils/useForceUpdate'
 import { startReactor } from '@xrengine/hyperflux'
 import {
   createState,
@@ -63,6 +64,7 @@ export interface Component<
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = string
 > {
+  isComponent: true
   name: string
   schema?: Schema
   onInit: (
@@ -99,6 +101,7 @@ export const defineComponent = <
   const Component = bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) as ComponentExtras &
     SoAComponentType<Schema> &
     Component<ComponentType, Schema, JSON, SetJSON, Error>
+  Component.isComponent = true
   Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
@@ -369,20 +372,42 @@ export function removeQuery(world: World, query: ReturnType<typeof defineQuery>)
   bitECS.removeQuery(world, query._exitQuery)
 }
 
+export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Component)[]
+
 /**
  * Use a query in a reactive context (a React component)
  */
-export function useQuery(query: Query, world = Engine.instance.currentWorld) {
+export function useQuery(components: QueryComponents) {
+  const world = Engine.instance.currentWorld
+
   const state = useHookstate([] as Entity[])
+  const forceUpdate = useForceUpdate()
+
   useEffect(() => {
+    const query = defineQuery(components)
     state.set(query(world))
-    const queryState = { query, state }
+    const queryState = { query, state, components }
     world.reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(world, query)
       world.reactiveQueryStates.delete(queryState)
     }
-  }, [query, world])
+  }, [])
+
+  // create an effect that forces an update when any components in the query change
+  useEffect(() => {
+    const root = startReactor(() => {
+      for (const entity of useHookstate(state).value) {
+        components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
+      }
+      forceUpdate()
+      return null
+    })
+    return () => {
+      root.stop()
+    }
+  }, [state])
+
   return state.value
 }
 

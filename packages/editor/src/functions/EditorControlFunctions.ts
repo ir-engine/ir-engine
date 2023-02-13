@@ -35,7 +35,6 @@ import { ColliderComponent } from '@xrengine/engine/src/scene/components/Collide
 import { GLTFLoadedComponent } from '@xrengine/engine/src/scene/components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { updateCollider, updateModelColliders } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { createNewEditorNode, deserializeSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
@@ -467,13 +466,7 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    if (typeof node !== 'string' && hasComponent(node.entity, ColliderComponent)) {
-      if (hasComponent(node.entity, GLTFLoadedComponent)) {
-        updateModelColliders(node.entity)
-      } else {
-        updateCollider(node.entity)
-      }
-    }
+    setComponent((node as EntityTreeNode).entity, TransformComponent, { scale: transformComponent.scale })
   }
 }
 

@@ -37,7 +37,6 @@ import {
   removeActionQueue,
   startReactor,
   State,
-  syncStateWithLocalStorage,
   useHookstate
 } from '@xrengine/hyperflux'
 
@@ -60,38 +59,8 @@ import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
+import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
-
-export const EngineRendererState = defineState({
-  name: 'EngineRendererState',
-  initial: () => ({
-    qualityLevel: isMobile ? 2 : 5, // range from 0 to 5
-    automatic: true,
-    // usePBR: true,
-    usePostProcessing: true,
-    useShadows: true,
-    debugEnable: false,
-    renderMode: RenderModes.SHADOW as RenderModesType,
-    nodeHelperVisibility: false,
-    gridVisibility: false,
-    gridHeight: 0,
-    forceBasicMaterials: false
-  }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(EngineRendererState, [
-      'qualityLevel',
-      'automatic',
-      // 'usePBR',
-      'usePostProcessing',
-      'useShadows',
-      'debugEnable',
-      'renderMode',
-      'nodeHelperVisibility',
-      'gridVisibility',
-      'gridHeight'
-    ])
-  }
-})
 
 export interface EffectComposerWithSchema extends EffectComposer {
   OutlineEffect: OutlineEffect
@@ -267,7 +236,7 @@ export class EngineRenderer {
 
       this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
     } else {
-      const state = getState(EngineRendererState)
+      const state = getState(RendererState)
       const engineState = getEngineState()
       if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.needsResize) {
@@ -312,7 +281,7 @@ export class EngineRenderer {
     const delta = time - lastRenderTime
     lastRenderTime = time
 
-    const state = getState(EngineRendererState)
+    const state = getState(RendererState)
     let qualityLevel = state.qualityLevel.value
 
     this.movingAverage.update(Math.min(delta, 50))
@@ -366,11 +335,11 @@ export default async function WebGLRendererSystem(world: World) {
     default: DefaultPostProcessingState
   }
 
-  const engineRendererState = getState(EngineRendererState)
+  const rendererState = getState(RendererState)
 
   const reactor = startReactor(() => {
     const renderSettings = useHookstate(getRendererSceneMetadataState(world))
-    const engineRendererSettings = useHookstate(engineRendererState)
+    const engineRendererSettings = useHookstate(rendererState)
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))
     const xrState = useHookstate(getState(XRState))
 

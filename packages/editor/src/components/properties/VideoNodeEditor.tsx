@@ -29,8 +29,6 @@ const fitOptions = [
   { label: 'Horizontal', value: 'horizontal' }
 ]
 
-const mediaComponentQuery = defineQuery([MediaComponent])
-
 /**
  * VideoNodeEditor used to render editor view for property customization.
  *
@@ -42,7 +40,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const video = useComponent(props.node.entity, VideoComponent)
 
-  const mediaEntities = useQuery(mediaComponentQuery)
+  const mediaEntities = useQuery([MediaComponent])
 
   const entityTree = Engine.instance.currentWorld.entityTree
 

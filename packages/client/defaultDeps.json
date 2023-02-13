@@ -226,7 +226,6 @@
     "uuid",
     "web-worker",
     "yup",
-    "@etherealjs/web-layer/three",
     "@mui/base/AutocompleteUnstyled",
     "@mui/icons-material/CleaningServices",
     "@mui/icons-material/ErrorOutline",

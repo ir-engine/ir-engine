@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { useForceUpdate } from '@xrengine/client-core/src/util/useForceRender'
+import { useForceUpdate } from '@xrengine/common/src/utils/useForceUpdate'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
