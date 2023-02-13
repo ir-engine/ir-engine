@@ -69,6 +69,7 @@ export default async function ShadowSystem(world: World) {
   const csmReactor = startReactor(() => {
     const lightEstimator = useHookstate(xrState.isEstimatingLight)
     const directionalLights = useQuery(directionalLightQuery)
+    const useShadows = useShadowsEnabled()
 
     useEffect(() => {
       let activeDirectionalLight = null as DirectionalLight | null
@@ -84,7 +85,7 @@ export default async function ShadowSystem(world: World) {
           }
         }
 
-      const useCSM = getShadowsEnabled() && getRendererSceneMetadataState(Engine.instance.currentWorld).csm.value
+      const useCSM = useShadows && getRendererSceneMetadataState(Engine.instance.currentWorld).csm.value
 
       if (useCSM && activeDirectionalLight) {
         if (!EngineRenderer.instance.csm) {
@@ -119,7 +120,7 @@ export default async function ShadowSystem(world: World) {
         EngineRenderer.instance.csm.dispose()
         EngineRenderer.instance.csm = undefined!
       }
-    }, [lightEstimator, directionalLights])
+    }, [lightEstimator, directionalLights, useShadows])
 
     return null
   })
