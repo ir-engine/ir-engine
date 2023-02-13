@@ -13,7 +13,7 @@ import {
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
@@ -39,7 +39,7 @@ function createSettingDetailState() {
 // TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getState(EngineRendererState))
+  const rendererState = useHookstate(getState(RendererState))
   const audioState = useAudioState()
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))

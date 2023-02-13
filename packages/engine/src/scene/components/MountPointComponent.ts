@@ -5,7 +5,7 @@ import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -44,7 +44,7 @@ export const MountPointComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, MountPointComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(root.entity, MountPointComponent)
 
     useEffect(() => {

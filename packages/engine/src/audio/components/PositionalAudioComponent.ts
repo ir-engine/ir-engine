@@ -6,7 +6,7 @@ import { createState, getState, none, useHookstate } from '@xrengine/hyperflux/f
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -76,7 +76,7 @@ export const PositionalAudioComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, PositionalAudioComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
     const audio = useComponent(root.entity, PositionalAudioComponent)
     const mediaElement = useComponent(root.entity, MediaElementComponent)
 

@@ -10,7 +10,7 @@ import {
   hasComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -76,7 +76,7 @@ export const DirectionalLightComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, DirectionalLightComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, DirectionalLightComponent)
 
     useEffect(() => {

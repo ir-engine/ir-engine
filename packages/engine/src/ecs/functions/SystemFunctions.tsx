@@ -8,7 +8,7 @@ import { ReactorProps, ReactorRoot, startReactor } from '@xrengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
-import { defineQuery, Query, useQuery } from './ComponentFunctions'
+import { defineQuery, Query, QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityReactorProps } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
@@ -269,7 +269,11 @@ export const unloadSystem = (world: World, uuid: string) => {
   return systemToUnload.cleanup()
 }
 
-function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReactor: React.FC<EntityReactorProps> }) {
+function QueryReactor(props: {
+  root: ReactorRoot
+  query: QueryComponents
+  ChildEntityReactor: React.FC<EntityReactorProps>
+}) {
   const entities = useQuery(props.query)
   return (
     <>
@@ -280,12 +284,8 @@ function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReact
   )
 }
 
-export const startQueryReactor = (
-  components: (bitECS.Component | bitECS.QueryModifier)[],
-  ChildEntityReactor: React.FC<EntityReactorProps>
-) => {
-  const query = defineQuery(components)
+export const startQueryReactor = (Components: QueryComponents, ChildEntityReactor: React.FC<EntityReactorProps>) => {
   return startReactor(({ root }: ReactorProps) => (
-    <QueryReactor query={query} ChildEntityReactor={ChildEntityReactor} root={root} />
+    <QueryReactor query={Components} ChildEntityReactor={ChildEntityReactor} root={root} />
   ))
 }
