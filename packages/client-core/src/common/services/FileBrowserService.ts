@@ -42,6 +42,11 @@ export const FileBrowserServiceReceptor = (action) => {
         retrieving: true
       })
     })
+    .when(FileBrowserAction.setUpdateNeeded.matches, (action) => {
+      return s.merge({
+        updateNeeded: action.updateNeeded
+      })
+    })
 }
 
 export const accessFileBrowserState = () => getState(FileBrowserState)
@@ -61,6 +66,11 @@ export class FileBrowserAction {
   static filesDeleted = defineAction({
     type: 'xre.client.FileBrowser.FILES_DELETED' as const,
     contentPath: matches.any
+  })
+
+  static setUpdateNeeded = defineAction({
+    type: 'xre.editor.FileBrowser.SET_UPDATE_NEEDED' as const,
+    updateNeeded: matches.boolean
   })
 }
 
