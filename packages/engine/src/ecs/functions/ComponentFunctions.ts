@@ -392,7 +392,7 @@ export function useQuery(components: QueryComponents) {
       removeQuery(world, query)
       world.reactiveQueryStates.delete(queryState)
     }
-  })
+  }, [])
 
   // create an effect that forces an update when any components in the query change
   useEffect(() => {
