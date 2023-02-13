@@ -127,7 +127,6 @@ export default async function AvatarInputSystem(world: World) {
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
     const buttons = world.buttons
 
-    console.log(mouseMovedDuringPrimaryClick)
     if (buttons.PrimaryClick?.touched) {
       let mouseMoved = world.pointerState.movement.lengthSq() > 0
       if (mouseMoved) mouseMovedDuringPrimaryClick = true

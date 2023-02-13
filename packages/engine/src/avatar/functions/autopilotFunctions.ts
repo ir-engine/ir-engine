@@ -1,6 +1,8 @@
 import _ from 'lodash'
-import { CylinderGeometry, Material, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
+import { CylinderGeometry, Material, Matrix4, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
 import { Vector3 } from 'three'
+
+import { defineState, getState, useState } from '@xrengine/hyperflux'
 
 import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -27,6 +29,7 @@ const raycastArgs = {
 
 export const autopilotSetPosition = (entity: Entity) => {
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
+  const markerState = getState(AutopilotMarker)
   if (avatarControllerComponent.gamepadLocalInput.lengthSq() > 0) return
 
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
@@ -37,9 +40,9 @@ export const autopilotSetPosition = (entity: Entity) => {
   if (!castedRay.length || !assessWalkability(entity, rayNormal)) return undefined
 
   const autopilotPosition = castedRay[0].position
-  avatarControllerComponent.autopilotWalkpoint = autopilotPosition as Vector3
+  markerState.walkTarget.set(autopilotPosition as Vector3)
 
-  placeMarker(avatarControllerComponent, rayNormal)
+  placeMarker(rayNormal)
 }
 
 export const ScaleFluctuate = (Marker: Object3D, sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
@@ -48,38 +51,44 @@ export const ScaleFluctuate = (Marker: Object3D, sinOffset = 4, scaleMultiplier 
   Marker.updateMatrixWorld()
 }
 
-export class AutopilotMarker {
-  object = undefined as Object3D | undefined
+export const AutopilotMarker = defineState({
+  name: 'autopilotMarkerState',
+  initial: () => ({
+    markerObject: new Object3D(),
+    walkTarget: undefined as Vector3 | undefined
+  })
+})
 
-  initializeMarker = (currentScene: Scene) => {
-    const markerGeometry = new CylinderGeometry(0.175, 0.175, 0.025, 24, 1)
-    const material = new MeshBasicMaterial({ color: '#00E14E' })
-    this.object = new Mesh(markerGeometry, material)
-    currentScene.add(this.object)
-  }
+const SetupMarker = () => {
+  const markerState = getState(AutopilotMarker)
+  const markerGeometry = new CylinderGeometry(0.175, 0.175, 0.05, 24, 1)
+  const material = new MeshBasicMaterial({ color: '#00E14E' })
+  const mesh = new Mesh(markerGeometry, material)
+  mesh.visible = false
+  Engine.instance.currentWorld.scene.add(mesh)
+  markerState.markerObject.set(mesh)
 }
 
-export const markerInstance = new AutopilotMarker()
+SetupMarker()
 
-export async function placeMarker(controller: AvatarControllerComponentType, rayNormal: Vector3) {
-  if (!controller.autopilotWalkpoint) return
+export async function placeMarker(rayNormal: Vector3) {
+  const markerState = getState(AutopilotMarker)
 
-  if (!markerInstance.object) markerInstance.initializeMarker(Engine.instance.currentWorld.scene)
+  if (!markerState.walkTarget.value) return
 
-  const autopilotMarkerObject = markerInstance.object as Object3D
+  const state = getState(AutopilotMarker)
+  const marker = state.markerObject.value
+  marker.visible = true
 
-  autopilotMarkerObject.visible = true
-  autopilotMarkerObject.position.set(
-    controller.autopilotWalkpoint.x,
-    controller.autopilotWalkpoint.y,
-    controller.autopilotWalkpoint.z
-  )
   const newRotation = new Quaternion().setFromUnitVectors(V_010, rayNormal)
-  autopilotMarkerObject.rotation.setFromQuaternion(newRotation)
+
+  marker.position.copy(markerState.walkTarget.value)
+  marker.quaternion.copy(newRotation)
+  marker.updateMatrixWorld()
 
   const waitForAutopilot = () => {
     const reached = (resolve) => {
-      if (!controller.autopilotWalkpoint) resolve()
+      if (!markerState.walkTarget.value) resolve()
       else setTimeout((_) => reached(resolve), 250)
     }
     return new Promise(reached)
@@ -87,7 +96,7 @@ export async function placeMarker(controller: AvatarControllerComponentType, ray
 
   await waitForAutopilot()
 
-  autopilotMarkerObject.visible = false
+  marker.visible = false
 }
 
 const minDot = 0.45
