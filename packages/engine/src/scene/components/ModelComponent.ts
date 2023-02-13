@@ -115,6 +115,7 @@ function ModelReactor({ root }: EntityReactorProps) {
         if (!entityExists(Engine.instance.currentWorld, entity)) return
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
+        if (scene.userData.type === 'glb') delete scene.userData.type
         modelComponent.scene.set(scene)
       } catch (err) {
         console.error(err)

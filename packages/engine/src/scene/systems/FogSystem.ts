@@ -53,9 +53,9 @@ export default async function FogSystem(world: World) {
   const fogStateReactor = startReactor(() => {
     const fog = useHookstate(getFogSceneMetadataState(world))
     const scene = world.scene
-    const fogData = fog.value
 
     useEffect(() => {
+      const fogData = fog.value
       switch (fogData.type) {
         case FogType.Linear:
           scene.fog = new Fog(fogData.color, fogData.near, fogData.far)
@@ -85,27 +85,33 @@ export default async function FogSystem(world: World) {
     }, [fog.type])
 
     useEffect(() => {
+      const fogData = fog.value
       if (scene.fog) scene.fog.color.set(fogData.color)
     }, [fog.color])
 
     useEffect(() => {
+      const fogData = fog.value
       if (scene.fog && fogData.type !== FogType.Linear) (scene.fog as FogExp2).density = fogData.density
     }, [fog.density])
 
     useEffect(() => {
+      const fogData = fog.value
       if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).near = fogData.near
     }, [fog.near])
 
     useEffect(() => {
+      const fogData = fog.value
       if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).far = fogData.far
     }, [fog.far])
 
     useEffect(() => {
+      const fogData = fog.value
       if (scene.fog && (fogData.type === FogType.Brownian || fogData.type === FogType.Height))
         for (const s of world.fogShaders) s.uniforms.heightFactor.value = fogData.height
     }, [fog.timeScale])
 
     useEffect(() => {
+      const fogData = fog.value
       if (scene.fog && fogData.type === FogType.Brownian)
         for (const s of world.fogShaders) {
           s.uniforms.fogTimeScale.value = fogData.timeScale

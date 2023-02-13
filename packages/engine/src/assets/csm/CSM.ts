@@ -316,7 +316,6 @@ export class CSM {
       id: OBCType.CSM,
       compile: (shader: ShaderType) => {
         if (shaders.has(material)) return
-        console.log(mesh, material)
         const far = Math.min(this.camera.far, this.maxFar)
         this.getExtendedBreaks(breaksVec2)
 
