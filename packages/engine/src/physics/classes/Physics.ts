@@ -128,6 +128,8 @@ function applyDescToCollider(
     ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
     : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+
+  return colliderDesc
 }
 
 function createColliderDesc(
@@ -135,6 +137,16 @@ function createColliderDesc(
   colliderDescOptions: ColliderDescOptions,
   isRoot = false
 ): ColliderDesc | undefined {
+  // @todo - check this works in all scenes
+  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'BoxGeometry')
+  //   colliderDescOptions.shapeType = ShapeType.Cuboid
+
+  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'SphereGeometry')
+  //   colliderDescOptions.shapeType = ShapeType.Ball
+
+  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'CylinderGeometry')
+  //   colliderDescOptions.shapeType = ShapeType.Cylinder
+
   if (typeof colliderDescOptions.shapeType === 'undefined') return
 
   let shapeType =
