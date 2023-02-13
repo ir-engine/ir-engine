@@ -55,8 +55,6 @@ export type ColliderHitEvent = {
 }
 
 export type ColliderDescOptions = {
-  /**@deprecated */
-  type?: ShapeType
   shapeType?: ShapeType
   bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
   isTrigger?: boolean

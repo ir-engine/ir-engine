@@ -130,7 +130,11 @@ function applyDescToCollider(
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 }
 
-function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions, isRoot = false) {
+function createColliderDesc(
+  mesh: Mesh,
+  colliderDescOptions: ColliderDescOptions,
+  isRoot = false
+): ColliderDesc | undefined {
   if (typeof colliderDescOptions.shapeType === 'undefined') return
 
   let shapeType =
