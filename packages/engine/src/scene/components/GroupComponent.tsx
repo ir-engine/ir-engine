@@ -13,6 +13,7 @@ import {
   getComponent,
   getComponentState,
   hasComponent,
+  QueryComponents,
   removeComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -102,9 +103,9 @@ export type GroupReactorProps = {
 
 export const startGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
-  components: (bitECS.Component | bitECS.QueryModifier)[] = []
+  Components: QueryComponents = []
 ) =>
-  startQueryReactor([GroupComponent, ...components], function (props) {
+  startQueryReactor([GroupComponent, ...Components], function (props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 

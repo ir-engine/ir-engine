@@ -18,7 +18,7 @@ import {
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -33,7 +33,7 @@ import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
   useHookstate(getState(EngineState).frameTime).value
-  const engineRendererState = useHookstate(getState(EngineRendererState))
+  const rendererState = useHookstate(getState(RendererState))
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
@@ -47,7 +47,7 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleDebug = () => {
-    engineRendererState.debugEnable.set(!engineRendererState.debugEnable.value)
+    rendererState.debugEnable.set(!rendererState.debugEnable.value)
   }
 
   const tree = Engine.instance.currentWorld.entityTree
@@ -109,11 +109,11 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleNodeHelpers = () => {
-    getState(EngineRendererState).nodeHelperVisibility.set(!getState(EngineRendererState).nodeHelperVisibility.value)
+    getState(RendererState).nodeHelperVisibility.set(!getState(RendererState).nodeHelperVisibility.value)
   }
 
   const toggleGridHelper = () => {
-    getState(EngineRendererState).gridVisibility.set(!getState(EngineRendererState).gridVisibility.value)
+    getState(RendererState).gridVisibility.set(!getState(RendererState).gridVisibility.value)
   }
 
   const namedEntities = useHookstate({})
@@ -131,7 +131,7 @@ export const Debug = ({ showingStateRef }) => {
             <button
               type="button"
               onClick={toggleDebug}
-              className={styles.flagBtn + (engineRendererState.debugEnable.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.debugEnable.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
             >
               <SquareFootIcon fontSize="small" />
@@ -139,7 +139,7 @@ export const Debug = ({ showingStateRef }) => {
             <button
               type="button"
               onClick={toggleNodeHelpers}
-              className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.nodeHelperDebug')}
             >
               <SelectAllIcon fontSize="small" />
@@ -147,17 +147,15 @@ export const Debug = ({ showingStateRef }) => {
             <button
               type="button"
               onClick={toggleGridHelper}
-              className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.gridVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.gridDebug')}
             >
               <GridOnIcon fontSize="small" />
             </button>
             <button
               type="button"
-              onClick={() =>
-                engineRendererState.forceBasicMaterials.set(!engineRendererState.forceBasicMaterials.value)
-              }
-              className={styles.flagBtn + (engineRendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
+              onClick={() => rendererState.forceBasicMaterials.set(!rendererState.forceBasicMaterials.value)}
+              className={styles.flagBtn + (rendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
               title={t('common:debug.forceBasicMaterials')}
             >
               <FormatColorResetIcon fontSize="small" />
