@@ -54,7 +54,7 @@
     "simplex-noise": "^3.0.0",
     "three": "0.148.0",
     "three-mesh-bvh": "^0.5.0",
-    "three.quarks": "^0.8.6",
+    "three.quarks": "0.8.6",
     "ts-matches": "^5.1.0-1",
     "typescript": "4.8.3",
     "url-polyfill": "1.1.12",
