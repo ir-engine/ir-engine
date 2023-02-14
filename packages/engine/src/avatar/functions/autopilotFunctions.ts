@@ -54,7 +54,7 @@ export const ScaleFluctuate = (Marker: Object3D, sinOffset = 4, scaleMultiplier 
 export const AutopilotMarker = defineState({
   name: 'autopilotMarkerState',
   initial: () => ({
-    markerObject: new Object3D(),
+    markerObject: undefined as undefined | Object3D,
     walkTarget: undefined as Vector3 | undefined
   })
 })
@@ -77,7 +77,7 @@ export async function placeMarker(rayNormal: Vector3) {
   if (!markerState.walkTarget.value) return
 
   const state = getState(AutopilotMarker)
-  const marker = state.markerObject.value
+  const marker = state.markerObject.value!
   marker.visible = true
 
   const newRotation = new Quaternion().setFromUnitVectors(V_010, rayNormal)
