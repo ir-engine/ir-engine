@@ -67,7 +67,7 @@
     "sass": "1.50.0",
     "sequelize": "6.21.6",
     "ts-node": "10.8.2",
-    "vite": "4.0.4",
+    "vite": "4.1.1",
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-html": "3.2.0",
     "vite-plugin-package-config": "0.1.1"

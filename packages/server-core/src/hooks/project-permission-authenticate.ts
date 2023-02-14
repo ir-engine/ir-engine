@@ -44,7 +44,7 @@ export default (writeAccess) => {
       if (!githubIdentityProvider) throw new Forbidden('You are not authorized to access this project')
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(projectRepoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid project URL')
-      const split = githubPathRegexExec[1].split('/')
+      const split = githubPathRegexExec[2].split('/')
       const owner = split[0]
       const repo = split[1].replace('.git', '')
       const userRepoWriteStatus = await checkUserRepoWriteStatus(owner, repo, githubIdentityProvider.oauthToken)

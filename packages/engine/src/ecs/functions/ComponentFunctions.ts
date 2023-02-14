@@ -396,8 +396,9 @@ export function useQuery(components: QueryComponents) {
 
   // create an effect that forces an update when any components in the query change
   useEffect(() => {
+    const entities = [...state.value]
     const root = startReactor(() => {
-      for (const entity of useHookstate(state).value) {
+      for (const entity of entities) {
         components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
       }
       forceUpdate()
