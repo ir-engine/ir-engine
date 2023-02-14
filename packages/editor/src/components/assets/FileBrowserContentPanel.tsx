@@ -1,4 +1,5 @@
 import { Downgraded } from '@hookstate/core'
+import path from 'path'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -307,7 +308,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const compressContent = async () => {
-    compressProperties.src.set(fileProperties.url)
+    const props = fileProperties.value
+    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
     const compressedPath = await API.instance.client.service('ktx2-encode').create(compressProperties.value)
     await onRefreshDirectory()
     setOpenCompress(false)
@@ -421,6 +423,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }} id="alert-dialog-title">
             {fileProperties?.name}
           </DialogTitle>
+          <Typography>{fileProperties.value.isFolder ? 'Directory' : 'File'}</Typography>
           <Grid container spacing={3} style={{ width: '100%', margin: '2 rem' }}>
             <Grid item xs={12} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%', textAlign: 'center' }}>
               <Typography className={styles.primatyText}>Compress</Typography>

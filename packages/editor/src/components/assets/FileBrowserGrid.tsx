@@ -178,12 +178,8 @@ export function FileBrowserItem({
   }
 
   const viewCompress = () => {
-    if (item.isFolder) {
-      //todo: add folder compress
-    } else {
-      setFileProperties(item)
-      setOpenCompress(true)
-    }
+    setFileProperties(item)
+    setOpenCompress(true)
 
     handleClose()
   }

@@ -10,6 +10,7 @@ export const SkyboxComponent = defineComponent({
       backgroundColor: new Color(0x000000),
       equirectangularPath: '',
       cubemapPath: '/hdr/cubemap/skyboxsun25deg/',
+      compressed: false,
       backgroundType: 1,
       sky: null! as Sky | null,
       skyboxProps: {
@@ -25,6 +26,7 @@ export const SkyboxComponent = defineComponent({
   },
   onSet: (entity, component, json) => {
     if (typeof json?.backgroundColor === 'number') component.backgroundColor.set(new Color(json.backgroundColor))
+    if (typeof json?.compressed === 'boolean') component.compressed.set(json.compressed)
     if (typeof json?.equirectangularPath === 'string') component.equirectangularPath.set(json.equirectangularPath)
     if (typeof json?.cubemapPath === 'string') component.cubemapPath.set(json.cubemapPath)
     if (typeof json?.backgroundType === 'number') component.backgroundType.set(json.backgroundType)

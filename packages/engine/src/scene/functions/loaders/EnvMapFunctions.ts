@@ -92,9 +92,7 @@ export const updateEnvMap = async (entity: Entity) => {
 
         case EnvMapTextureType.Equirectangular:
           {
-            const texture = (await AssetLoader.loadAsync(component.envMapSourceURL, {}, (_res) => {
-              /* console.log(_res) */
-            })) as CubeTexture | undefined
+            const texture = (await AssetLoader.loadAsync(component.envMapSourceURL, {})) as CubeTexture | undefined
             if (texture) {
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
               EnvMap.encoding = sRGBEncoding

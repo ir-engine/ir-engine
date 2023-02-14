@@ -1,6 +1,7 @@
-import { Color, sRGBEncoding } from 'three'
+import { Color, CubeTexture, sRGBEncoding, TextureLoader } from 'three'
 import { Vector3 } from 'three'
 
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -20,7 +21,7 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Sky } from '../../classes/Sky'
 import { SkyboxComponent } from '../../components/SkyboxComponent'
 import { SkyTypeEnum } from '../../constants/SkyTypeEnum'
-import { getPmremGenerator, loadCubeMapTexture, textureLoader } from '../../constants/Util'
+import { getPmremGenerator, loadCompressedCubeMapTexture, loadCubeMapTexture } from '../../constants/Util'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeSkybox: ComponentDeserializeFunction = (
@@ -41,21 +42,30 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
       break
 
     case SkyTypeEnum.cubemap:
-      loadCubeMapTexture(
+      const onLoad = (texture) => {
+        texture.encoding = sRGBEncoding
+        Engine.instance.currentWorld.scene.background = texture
+        removeError(entity, SkyboxComponent, 'FILE_ERROR')
+      }
+      const loadArgs: [
+        string,
+        (texture: CubeTexture) => void,
+        ((event: ProgressEvent<EventTarget>) => void) | undefined,
+        ((event: ErrorEvent) => void) | undefined
+      ] = [
         component.cubemapPath,
-        (texture) => {
-          texture.encoding = sRGBEncoding
-          Engine.instance.currentWorld.scene.background = texture
-          removeError(entity, SkyboxComponent, 'FILE_ERROR')
-        },
+        onLoad,
         undefined,
         (error) => addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
-      )
+      ]
+      component.compressed && loadCompressedCubeMapTexture(...loadArgs)
+      !component.compressed && loadCubeMapTexture(...loadArgs)
       break
 
     case SkyTypeEnum.equirectangular:
-      textureLoader.load(
+      AssetLoader.load(
         component.equirectangularPath,
+        {},
         (texture) => {
           texture.encoding = sRGBEncoding
           Engine.instance.currentWorld.scene.background = getPmremGenerator().fromEquirectangular(texture).texture

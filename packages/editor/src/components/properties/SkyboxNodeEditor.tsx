@@ -15,6 +15,7 @@ import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
 
 import CloudIcon from '@mui/icons-material/Cloud'
 
+import { BooleanInput } from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import FolderInput from '../inputs/FolderInput'
@@ -202,6 +203,12 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           options={SkyOption}
           value={skyboxComponent.backgroundType.value}
           onChange={updateProperty(SkyboxComponent, 'backgroundType')}
+        />
+      </InputGroup>
+      <InputGroup name="compressed" label="Compressed">
+        <BooleanInput
+          value={skyboxComponent.compressed.value}
+          onChange={updateProperty(SkyboxComponent, 'compressed')}
         />
       </InputGroup>
       {renderSkyBoxProps()}
