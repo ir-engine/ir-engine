@@ -192,6 +192,9 @@ export default async function ShadowSystem(world: World) {
 
       const castShadowEntities = shadowComponents.filter(castShadowFilter)
 
+      // TODO: make a reactor for each entity instead of iterating over all entities,
+      // since avatars sometimes end up with a shadow that has a tiny radius before their model loads.
+      // shadow radius should be responsive to group component
       for (const entity of castShadowEntities) {
         const groupComponent = getComponent(entity, GroupComponent)
         if (!hasComponent(entity, DropShadowComponent) && groupComponent.length) {
@@ -200,6 +203,7 @@ export default async function ShadowSystem(world: World) {
           const box3 = new Box3()
           for (const obj of groupComponent) box3.setFromObject(obj)
           box3.getBoundingSphere(sphere)
+
           const radius = Math.max(sphere.radius * 2, minRadius)
           const center = groupComponent[0].worldToLocal(sphere.center)
 
@@ -253,19 +257,19 @@ export default async function ShadowSystem(world: World) {
           continue
         }
 
-        const centerCorrectedDist = Math.max(intersected.distance - dropShadowComponent.center.y, 0)
-
-        const opacityBias = 1
-        const shadowMaterial = (getComponent(dropShadowComponent.entity, GroupComponent)[0] as any).material as Material
-        shadowMaterial.opacity = Math.max(Math.min(opacityBias / centerCorrectedDist, 1), 0)
+        const centerCorrectedDist = Math.max(intersected.distance - dropShadowComponent.center.y, 0.0001)
 
         //arbitrary bias to make it a bit smaller
-        const sizeBias = 0.8
-        const finalSize = sizeBias * dropShadowComponent.radius + Math.min(centerCorrectedDist, 2)
+        const sizeBias = 0.3
+        const finalRadius =
+          sizeBias * dropShadowComponent.radius + dropShadowComponent.radius * centerCorrectedDist * 0.5
+
+        const shadowMaterial = (getComponent(dropShadowComponent.entity, GroupComponent)[0] as any).material as Material
+        shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 0.6
 
         shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
         shadowMatrix.makeRotationFromQuaternion(shadowRotation)
-        shadowSize.setScalar(finalSize)
+        shadowSize.setScalar(finalRadius * 2)
         shadowMatrix.scale(shadowSize)
         shadowMatrix.setPosition(intersected.point.add(shadowOffset))
         setDropShadowMatrix(shadowMatrix, dropShadowComponent.entity, entity)
