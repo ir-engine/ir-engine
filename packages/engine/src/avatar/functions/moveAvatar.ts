@@ -148,7 +148,7 @@ export const applyAutopilotInput = (entity: Entity) => {
   const controller = getComponent(entity, AvatarControllerComponent)
   if (!controller || markerState.walkTarget.value == undefined) return
 
-  if (controller.gamepadLocalInput.lengthSq() > 0) {
+  if (controller.gamepadLocalInput.lengthSq() > 0 || controller.isJumping) {
     markerState.walkTarget.set(undefined)
     return
   }
