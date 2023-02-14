@@ -148,9 +148,9 @@ const _additionalMovement = new Vector3()
 
 const minimumDistanceSquared = 0.5 * 0.5
 
-const markerState = getState(AutopilotMarker)
-
 export const applyAutopilotInput = (entity: Entity) => {
+  const markerState = getState(AutopilotMarker)
+
   const controller = getComponent(entity, AvatarControllerComponent)
   if (!controller || markerState.walkTarget.value == undefined) return
 

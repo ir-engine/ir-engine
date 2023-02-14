@@ -69,10 +69,10 @@ const SetupMarker = () => {
   markerState.merge({ markerObject: mesh })
 }
 
-SetupMarker()
-
 export async function placeMarker(rayNormal: Vector3) {
   const markerState = getState(AutopilotMarker)
+
+  if (!markerState.markerObject.value) SetupMarker()
 
   if (!markerState.walkTarget.value) return
 
