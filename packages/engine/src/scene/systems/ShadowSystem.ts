@@ -241,7 +241,7 @@ export default async function ShadowSystem(world: World) {
 
         const opacityBias = 1
         const shadowMaterial = (getComponent(dropShadowComponent.entity, GroupComponent)[0] as any).material as Material
-        shadowMaterial.opacity = Math.min(opacityBias / centerCorrectedDist, 1)
+        shadowMaterial.opacity = Math.max(Math.min(opacityBias / centerCorrectedDist, 1), 0)
 
         const sizeBias = 1
         const finalSize = dropShadowComponent.radius * Math.min(centerCorrectedDist * sizeBias, 2)
