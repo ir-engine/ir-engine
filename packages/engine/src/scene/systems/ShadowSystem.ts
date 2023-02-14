@@ -1,12 +1,15 @@
 import { useEffect } from 'react'
 import {
   Box3,
+  BoxGeometry,
   DirectionalLight,
   DoubleSide,
   Group,
   InstancedMesh,
   Matrix4,
+  Mesh,
   MeshBasicMaterial,
+  Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   Quaternion,
@@ -26,6 +29,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
+  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
@@ -36,17 +40,22 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
+import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
-import { GroupComponent } from '../components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
+import { NameComponent } from '../components/NameComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { enableObjectLayer } from '../functions/setObjectLayers'
 
 export const shadowDirection = new Vector3(0, -1, 0)
 const shadowMatrix = new Matrix4()
@@ -140,7 +149,7 @@ export default async function ShadowSystem(world: World) {
   const shadowMaterial = new MeshBasicMaterial({
     side: DoubleSide,
     transparent: true,
-    opacity: 0.5,
+    opacity: 1,
     depthTest: true,
     depthWrite: false
   })
@@ -151,9 +160,6 @@ export default async function ShadowSystem(world: World) {
       shadowMaterial.needsUpdate = true
     }
   )
-
-  let dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, 0)
-  dropShadows.matrixAutoUpdate = false
 
   const castShadowFilter = (entity: Entity) => getComponent(entity, ShadowComponent).cast
 
@@ -166,23 +172,11 @@ export default async function ShadowSystem(world: World) {
     const useShadows = useShadowsEnabled()
 
     useEffect(() => {
-      world.scene.remove(dropShadows)
-
       if (useShadows) {
         return
       }
 
       const castShadowEntities = shadowComponents.filter(castShadowFilter)
-
-      const reinitDropShadows = () => {
-        dropShadows.dispose()
-        dropShadows = new InstancedMesh(shadowGeometry, shadowMaterial, castShadowEntities.length)
-        dropShadows.matrixAutoUpdate = false
-        dropShadows.layers.disable(ObjectLayers.Camera)
-        world.scene.add(dropShadows)
-      }
-
-      reinitDropShadows()
 
       for (const entity of castShadowEntities) {
         const groupComponent = getComponent(entity, GroupComponent)
@@ -194,14 +188,21 @@ export default async function ShadowSystem(world: World) {
           box3.getBoundingSphere(sphere)
           const radius = Math.max(sphere.radius * 2, minRadius)
           const center = groupComponent[0].worldToLocal(sphere.center)
-          setComponent(entity, DropShadowComponent, { radius, center })
+
+          const e = createEntity()
+          const node = createEntityNode(e)
+          addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.rootNode)
+          const shadowObject = new Mesh(shadowGeometry, shadowMaterial)
+          Engine.instance.currentWorld.scene.add(shadowObject)
+          addObjectToGroup(e, shadowObject)
+          addComponent(e, NameComponent, 'Shadow for ' + getComponent(entity, NameComponent))
+          addComponent(e, VisibleComponent)
+
+          setComponent(entity, DropShadowComponent, { radius, center, entity: e })
         }
       }
 
-      return function cleanup() {
-        world.scene.remove(dropShadows)
-        reinitDropShadows()
-      }
+      return function cleanup() {}
     }, [shadowComponents, useShadows])
 
     return null
@@ -210,10 +211,10 @@ export default async function ShadowSystem(world: World) {
   const shadowOffset = new Vector3(0, 0.01, 0)
 
   const execute = () => {
-    let index = 0
-    const setDropShadowMatrix = (matrix: Matrix4) => {
-      dropShadows.setMatrixAt(index, matrix)
-      index++
+    const setDropShadowMatrix = (matrix: Matrix4, entity: Entity, caster: Entity) => {
+      const transformComponent = getComponent(entity, TransformComponent)
+      if (!transformComponent) removeComponent(caster, DropShadowComponent)
+      transformComponent.matrix.copy(matrix)
     }
 
     sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
@@ -228,13 +229,13 @@ export default async function ShadowSystem(world: World) {
         const groupComponent = getComponent(entity, GroupComponent)
 
         raycaster.firstHitOnly = true
-        raycasterPosition.copy(dropShadowComponent.center!)
+        raycasterPosition.copy(dropShadowComponent.center)
         groupComponent[0].localToWorld(raycasterPosition)
         raycaster.set(raycasterPosition, shadowDirection)
 
         const intersected = raycaster.intersectObjects(sceneObjects)[0]
         if (!intersected || !intersected.face) {
-          setDropShadowMatrix(defaultShadowMatrix)
+          setDropShadowMatrix(defaultShadowMatrix, dropShadowComponent.entity, entity)
           continue
         }
 
@@ -248,9 +249,8 @@ export default async function ShadowSystem(world: World) {
         shadowSize.setScalar(finalSize)
         shadowMatrix.scale(shadowSize)
         shadowMatrix.setPosition(intersected.point.add(shadowOffset))
-        setDropShadowMatrix(shadowMatrix)
+        setDropShadowMatrix(shadowMatrix, dropShadowComponent.entity, entity)
       }
-      dropShadows.instanceMatrix.needsUpdate = true
       return
     }
 
