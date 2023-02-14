@@ -125,7 +125,7 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
   if (xrState.sessionMode.value === 'immersive-ar') {
-    worldOriginTransform.position.copy(V_000)
+    worldOriginTransform.position.copy(rigidBody.position)
     worldOriginTransform.rotation.copy(quat180y)
   } else {
     worldOriginTransform.position.copy(rigidBody.position)
