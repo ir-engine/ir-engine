@@ -16,7 +16,7 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
+import { getCameraMode, hasMovementControls, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -81,6 +81,12 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     // desiredMovement.y = 0 // Math.max(desiredMovement.y, 0)
   } else {
     viewerMovement.copy(V_000)
+  }
+
+  if (!hasMovementControls()) {
+    rigidbody.targetKinematicPosition.copy(rigidbody.position).add(desiredMovement)
+    updateLocalAvatarPositionAttachedMode()
+    return
   }
 
   if (controller.movementEnabled && additionalMovement) desiredMovement.add(additionalMovement)
