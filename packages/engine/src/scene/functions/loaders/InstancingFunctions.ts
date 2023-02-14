@@ -295,10 +295,10 @@ float diff = max(dotNormalLight, frc);
 vec3 diffuse = diff * lightTimesTexture;
 
 float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
-    vec3 skyLight = sky * vec3(0.12, 0.29, 0.55);
-    vec3 col = 0.3 * skyLight * textureColor + diffuse * diffuseStrength + ambient * ambientStrength;
-    gl_FragColor = vec4(col, 1.0);
-    #include <logdepthbuf_fragment>
+vec3 skyLight = sky * vec3(0.12, 0.29, 0.55);
+vec3 col = 0.3 * skyLight * textureColor + diffuse * diffuseStrength + ambient * ambientStrength;
+gl_FragColor = vec4(col, 1.0);
+#include <logdepthbuf_fragment>
 }`
 
 export class InstancingActions {

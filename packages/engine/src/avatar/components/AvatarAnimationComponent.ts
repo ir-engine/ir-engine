@@ -12,7 +12,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -160,9 +160,9 @@ export const AvatarRigComponent = defineComponent({
 
     if (!hasComponent(entity, AvatarRigComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).debugEnable)
-    const anim = useComponent(entity, AvatarRigComponent)
-    const pending = useOptionalComponent(entity, AvatarPendingComponent)
+    const debugEnabled = useHookstate(getState(RendererState).debugEnable)
+    const anim = useComponent(root.entity, AvatarRigComponent)
+    const pending = useOptionalComponent(root.entity, AvatarPendingComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !anim.helper.value && !pending?.value) {

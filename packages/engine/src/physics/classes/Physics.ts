@@ -14,7 +14,7 @@ import RAPIER, {
   TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
-import { Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import { Line, Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
@@ -128,19 +128,32 @@ function applyDescToCollider(
     ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
     : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
   colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+
+  return colliderDesc
 }
 
-function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions, isRoot = false): ColliderDesc {
-  if (!colliderDescOptions.shapeType && colliderDescOptions.type)
-    colliderDescOptions.shapeType = colliderDescOptions.type
+function createColliderDesc(
+  mesh: Mesh,
+  colliderDescOptions: ColliderDescOptions,
+  isRoot = false
+): ColliderDesc | undefined {
+  // @todo - check this works in all scenes
+  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'BoxGeometry')
+  //   colliderDescOptions.shapeType = ShapeType.Cuboid
 
-  // Type is required
-  if (typeof colliderDescOptions.shapeType === 'undefined') return undefined!
+  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'SphereGeometry')
+  //   colliderDescOptions.shapeType = ShapeType.Ball
+
+  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'CylinderGeometry')
+  //   colliderDescOptions.shapeType = ShapeType.Cylinder
+
+  if (typeof colliderDescOptions.shapeType === 'undefined') return
 
   let shapeType =
     typeof colliderDescOptions.shapeType === 'string'
       ? ShapeType[colliderDescOptions.shapeType]
       : colliderDescOptions.shapeType
+
   //check for old collider types to allow backwards compatibility
   if (typeof shapeType === 'undefined') {
     switch (colliderDescOptions.shapeType as unknown as string) {
@@ -161,40 +174,42 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     }
   }
 
-  // If custom size has been provided use that else use mesh scale
-  const colliderSize = colliderDescOptions.size ? colliderDescOptions.size : mesh.scale
+  const scale = mesh.getWorldScale(new Vector3())
+
+  if (mesh.geometry?.type === 'BoxGeometry') {
+    scale.multiplyScalar(0.5)
+  }
 
   let colliderDesc: ColliderDesc
+
   switch (shapeType as ShapeType) {
     case ShapeType.Cuboid:
-      colliderDesc = ColliderDesc.cuboid(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
       break
 
     case ShapeType.Ball:
-      colliderDesc = ColliderDesc.ball(Math.abs(colliderSize.x))
+      colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
       break
 
     case ShapeType.Capsule:
-      colliderDesc = ColliderDesc.capsule(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
+      colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
       break
 
     case ShapeType.Cylinder:
-      colliderDesc = ColliderDesc.cylinder(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
+      colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
       break
 
     case ShapeType.ConvexPolyhedron: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
       try {
-        const _buff = mesh.geometry
-          .clone()
-          .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
         const vertices = new Float32Array(_buff.attributes.position.array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
       } catch (e) {
         console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
-        return undefined!
+        return
       }
       break
     }
@@ -203,22 +218,20 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
       try {
-        const _buff = mesh.geometry
-          .clone()
-          .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
         const vertices = new Float32Array(_buff.attributes.position.array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.trimesh(vertices, indices)
       } catch (e) {
         console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
-        return undefined!
+        return
       }
       break
     }
 
     default:
       console.error('unknown shape', colliderDescOptions)
-      return undefined!
+      return
   }
 
   applyDescToCollider(
@@ -240,10 +253,18 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
 
   // create collider desc using userdata of each child mesh
   for (const obj of group) {
+    obj.updateMatrixWorld(true)
     obj.traverse((mesh: Mesh) => {
+      if (!mesh.userData || mesh.userData.type === 'glb') return //console.error(mesh)
+      if (!mesh.isMesh && !mesh.userData.type) return //console.error(mesh)
+
+      // backwards support for deprecated `type` property
+      if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
+
       // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
       const colliderDesc = createColliderDesc(mesh, args, obj === mesh)
+
       if (colliderDesc) {
         if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)
         colliderDescs.push(colliderDesc)

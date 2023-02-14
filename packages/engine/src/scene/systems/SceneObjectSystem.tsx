@@ -5,6 +5,7 @@ import {
   Material,
   Mesh,
   MeshBasicMaterial,
+  MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial
@@ -27,7 +28,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isHeadset } from '../../xr/XRState'
@@ -71,7 +72,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
-        const nuMaterial = new MeshBasicMaterial().copy(prevMaterial)
+        const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
         child.material = nuMaterial
         child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
         child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
@@ -98,7 +99,7 @@ export default async function SceneObjectSystem(world: World) {
     const { entity, obj } = props
 
     const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-    const forceBasicMaterials = useHookstate(getState(EngineRendererState).forceBasicMaterials)
+    const forceBasicMaterials = useHookstate(getState(RendererState).forceBasicMaterials)
 
     useEffect(() => {
       return () => {
@@ -116,6 +117,7 @@ export default async function SceneObjectSystem(world: World) {
     useEffect(() => {
       const shadow = shadowComponent?.value
       obj.traverse((child: Mesh<any, Material>) => {
+        if (!child.isMesh) return
         child.castShadow = !!shadow?.cast
         child.receiveShadow = !!shadow?.receive
         if (child.material && child.receiveShadow) {

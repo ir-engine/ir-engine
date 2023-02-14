@@ -97,10 +97,11 @@ describe('Physics', () => {
     boxDynamicConfig.collisionMask = collisionMask
     boxDynamicConfig.isTrigger = true
 
-    const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig)
+    const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig)!
     const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
+    console.log({ boxColliderDesc })
 
-    assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.type)
+    assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.shapeType)
     assert.deepEqual(boxColliderDesc.collisionGroups, interactionGroups)
     assert.deepEqual(boxColliderDesc.isSensor, boxDynamicConfig.isTrigger)
     assert.deepEqual(boxColliderDesc.friction, boxDynamicConfig.friction)
@@ -144,7 +145,7 @@ describe('Physics', () => {
     assert.deepEqual(hasComponent(entity, RigidBodyFixedTagComponent), true)
     assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), false)
     assert.deepEqual(rigidBody.bodyType(), boxDynamicConfig.bodyType)
-    assert.deepEqual(collider.shape.type, boxDynamicConfig.type)
+    assert.deepEqual(collider.shape.type, boxDynamicConfig.shapeType)
     assert.deepEqual(collider.collisionGroups(), interactionGroups)
     assert.deepEqual(collider.isSensor(), boxDynamicConfig.isTrigger)
     assert.deepEqual(collider.friction(), boxDynamicConfig.friction)

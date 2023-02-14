@@ -14,7 +14,7 @@ export default function PaginatedList<T>({
   options
 }: {
   ['list']: T[] | State<T[]>
-  ['element']: any
+  ['element']: (index: T | State<T>) => JSX.Element
   ['options']?: {
     ['countPerPage']?: number
   }

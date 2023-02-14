@@ -323,7 +323,7 @@ export default async function XR8System(world: World) {
    *     session, changing the overrides, and entering the session again
    */
   const vpsReactor = startReactor(function XR8VPSReactor() {
-    const hasPersistentAnchor = useQuery(vpsQuery).length
+    const hasPersistentAnchor = useQuery([PersistentAnchorComponent]).length
 
     useEffect(() => {
       /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */

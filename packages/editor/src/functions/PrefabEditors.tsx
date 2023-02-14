@@ -18,7 +18,7 @@ import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaCompo
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@xrengine/engine/src/scene/components/MountPointComponent'
 import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanComponent'
-import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
+import { ParticleSystemComponent } from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
 import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
@@ -55,7 +55,7 @@ import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
-import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
+import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
 import PersistentAnchorNodeEditor from '../components/properties/PersistentAnchorNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
@@ -83,7 +83,7 @@ EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
-EntityNodeEditor.set(ParticleEmitterComponent, ParticleEmitterNodeEditor)
+EntityNodeEditor.set(ParticleSystemComponent, ParticleSystemNodeEditor)
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
 EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
@@ -118,7 +118,7 @@ export const prefabIcons = {
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
-  [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
+  [ScenePrefabs.particleEmitter]: ParticleSystemNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
   [PhysicsPrefabs.collider]: ColliderNodeEditor.iconComponent,
   [ScenePrefabs.chair]: ChairIcon,
