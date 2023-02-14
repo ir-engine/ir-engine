@@ -252,15 +252,15 @@ export default async function ShadowSystem(world: World) {
           continue
         }
 
-        const halfPoint = 0.5
-        const centerCorrectedDist = Math.max(intersected.distance - dropShadowComponent.center.y * halfPoint, 0)
+        const centerCorrectedDist = Math.max(intersected.distance - dropShadowComponent.center.y, 0)
 
         const opacityBias = 1
         const shadowMaterial = (getComponent(dropShadowComponent.entity, GroupComponent)[0] as any).material as Material
         shadowMaterial.opacity = Math.max(Math.min(opacityBias / centerCorrectedDist, 1), 0)
 
-        const sizeBias = 1
-        const finalSize = dropShadowComponent.radius * Math.min(centerCorrectedDist * sizeBias, 2)
+        //arbitrary bias to make it a bit smaller
+        const sizeBias = 0.8
+        const finalSize = sizeBias * dropShadowComponent.radius + Math.min(centerCorrectedDist, 2)
 
         shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
         shadowMatrix.makeRotationFromQuaternion(shadowRotation)
