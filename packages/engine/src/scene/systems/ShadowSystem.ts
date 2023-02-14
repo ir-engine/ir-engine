@@ -21,7 +21,7 @@ import {
 } from 'three'
 
 import config from '@xrengine/common/src/config'
-import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { getState, hookstate, startReactor, useHookstate } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
@@ -41,7 +41,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
@@ -155,10 +155,13 @@ export default async function ShadowSystem(world: World) {
     depthWrite: false
   })
 
+  const shadowState = hookstate(null as MeshBasicMaterial | null)
+
   AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/public/drop-shadow.png`).then(
     (texture: Texture) => {
       shadowMaterial.map = texture
       shadowMaterial.needsUpdate = true
+      shadowState.set(shadowMaterial)
     }
   )
 
@@ -170,10 +173,20 @@ export default async function ShadowSystem(world: World) {
 
   const dropShadowReactor = startReactor(function (props) {
     const shadowComponents = useQuery([ShadowComponent, GroupComponent])
+    const dropShadowComponents = useQuery([DropShadowComponent])
     const useShadows = useShadowsEnabled()
+    const shadowMaterial = useHookstate(shadowState)
 
     useEffect(() => {
+      if (!shadowMaterial.value) return
+
       if (useShadows) {
+        for (const entity of dropShadowComponentQuery()) {
+          const dropShadowComponent = getComponent(entity, DropShadowComponent)
+          const shadowEntity = dropShadowComponent.entity
+          if (entityExists(shadowEntity)) removeEntity(shadowEntity)
+          removeComponent(entity, DropShadowComponent)
+        }
         return
       }
 
@@ -193,7 +206,7 @@ export default async function ShadowSystem(world: World) {
           const e = createEntity()
           const node = createEntityNode(e)
           addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.rootNode)
-          const shadowObject = new Mesh(shadowGeometry, shadowMaterial.clone())
+          const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
           Engine.instance.currentWorld.scene.add(shadowObject)
           addObjectToGroup(e, shadowObject)
           addComponent(e, NameComponent, 'Shadow for ' + getComponent(entity, NameComponent))
@@ -204,7 +217,7 @@ export default async function ShadowSystem(world: World) {
       }
 
       return function cleanup() {}
-    }, [shadowComponents, useShadows])
+    }, [shadowComponents, useShadows, shadowMaterial])
 
     return null
   })
@@ -214,7 +227,6 @@ export default async function ShadowSystem(world: World) {
   const execute = () => {
     const setDropShadowMatrix = (matrix: Matrix4, entity: Entity, caster: Entity) => {
       const transformComponent = getComponent(entity, TransformComponent)
-      if (!transformComponent) removeComponent(caster, DropShadowComponent)
       transformComponent.matrix.copy(matrix)
     }
 
@@ -224,6 +236,10 @@ export default async function ShadowSystem(world: World) {
     if (!useShadows) {
       for (const entity of dropShadowComponentQuery()) {
         const dropShadowComponent = getComponent(entity, DropShadowComponent)
+
+        if (!entityExists(dropShadowComponent.entity)) {
+          removeComponent(entity, DropShadowComponent)
+        }
 
         raycaster.firstHitOnly = true
         raycasterPosition.copy(dropShadowComponent.center)
