@@ -6,6 +6,7 @@ import {
   DoubleSide,
   Group,
   InstancedMesh,
+  Material,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -192,7 +193,7 @@ export default async function ShadowSystem(world: World) {
           const e = createEntity()
           const node = createEntityNode(e)
           addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.rootNode)
-          const shadowObject = new Mesh(shadowGeometry, shadowMaterial)
+          const shadowObject = new Mesh(shadowGeometry, shadowMaterial.clone())
           Engine.instance.currentWorld.scene.add(shadowObject)
           addObjectToGroup(e, shadowObject)
           addComponent(e, NameComponent, 'Shadow for ' + getComponent(entity, NameComponent))
@@ -224,13 +225,9 @@ export default async function ShadowSystem(world: World) {
       for (const entity of dropShadowComponentQuery()) {
         const dropShadowComponent = getComponent(entity, DropShadowComponent)
 
-        if (!dropShadowComponent.center) continue
-
-        const groupComponent = getComponent(entity, GroupComponent)
-
         raycaster.firstHitOnly = true
         raycasterPosition.copy(dropShadowComponent.center)
-        groupComponent[0].localToWorld(raycasterPosition)
+        getComponent(entity, GroupComponent)[0].localToWorld(raycasterPosition)
         raycaster.set(raycasterPosition, shadowDirection)
 
         const intersected = raycaster.intersectObjects(sceneObjects)[0]
@@ -239,12 +236,17 @@ export default async function ShadowSystem(world: World) {
           continue
         }
 
+        const halfPoint = 0.5
+        const centerCorrectedDist = Math.max(intersected.distance - dropShadowComponent.center.y * halfPoint, 0)
+
+        const opacityBias = 1
+        const shadowMaterial = (getComponent(dropShadowComponent.entity, GroupComponent)[0] as any).material as Material
+        shadowMaterial.opacity = Math.min(opacityBias / centerCorrectedDist, 1)
+
         const sizeBias = 1
-        const finalSize =
-          dropShadowComponent.radius * Math.min(dropShadowComponent.bias / intersected.distance, 1) * sizeBias
+        const finalSize = dropShadowComponent.radius * Math.min(centerCorrectedDist * sizeBias, 2)
 
         shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
-
         shadowMatrix.makeRotationFromQuaternion(shadowRotation)
         shadowSize.setScalar(finalSize)
         shadowMatrix.scale(shadowSize)

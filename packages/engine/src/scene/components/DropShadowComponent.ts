@@ -9,10 +9,14 @@ export const DropShadowComponent = defineComponent({
   onInit: (entity) => {
     return {
       radius: 0,
-      center: undefined as Vector3 | undefined,
+      center: new Vector3(),
       bias: 2,
       entity: 0 as Entity
     }
+  },
+
+  toJSON: () => {
+    return null! as any
   },
 
   onSet: (entity, component, json) => {
