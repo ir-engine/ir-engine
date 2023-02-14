@@ -16,7 +16,7 @@ import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { getCameraMode, ReferenceSpace, XRAction, XRState } from './XRState'
+import { getCameraMode, hasMovementControls, ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -121,10 +121,16 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
   const world = Engine.instance.currentWorld
   const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
   const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
+  const xrState = getState(XRState)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
-  worldOriginTransform.position.copy(rigidBody.position)
-  worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
+  if (xrState.sessionMode.value === 'immersive-ar') {
+    worldOriginTransform.position.copy(V_000)
+    worldOriginTransform.rotation.copy(quat180y)
+  } else {
+    worldOriginTransform.position.copy(rigidBody.position)
+    worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
+  }
 
   /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
   xrSession.requestReferenceSpace('local-floor').then((space) => {
