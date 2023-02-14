@@ -66,7 +66,7 @@ const SetupMarker = () => {
   const mesh = new Mesh(markerGeometry, material)
   mesh.visible = false
   Engine.instance.currentWorld.scene.add(mesh)
-  markerState.markerObject.set(mesh)
+  markerState.merge({ markerObject: mesh })
 }
 
 SetupMarker()
