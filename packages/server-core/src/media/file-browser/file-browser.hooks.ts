@@ -1,4 +1,5 @@
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { iff, isProvider } from 'feathers-hooks-common'
+import { SYNC } from 'feathers-sync'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -8,9 +9,19 @@ export default {
     all: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
     find: [],
     get: [],
-    create: [],
+    create: [
+      (context) => {
+        context[SYNC] = false
+        return context
+      }
+    ],
     update: [],
-    patch: [],
+    patch: [
+      (context) => {
+        context[SYNC] = false
+        return context
+      }
+    ],
     remove: []
   },
 
