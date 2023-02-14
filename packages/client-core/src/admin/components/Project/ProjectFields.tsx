@@ -15,18 +15,13 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@xrengine/common/src/interfaces/ProjectInterface'
-
-import { Difference } from '@mui/icons-material'
-import Cancel from '@mui/icons-material/Cancel'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import HelpIcon from '@mui/icons-material/Help'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import TextField from '@mui/material/TextField'
-import Tooltip from '@mui/material/Tooltip'
+import Box from '@xrengine/ui/src/Box'
+import Container from '@xrengine/ui/src/Container'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import TextField from '@xrengine/ui/src/TextField'
+import Tooltip from '@xrengine/ui/src/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -420,7 +415,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                   />
                   <Tooltip title="Copy From Destination">
                     <IconButton className={styles.gradientButton} onClick={copyDestination}>
-                      <Difference />
+                      <Icon type="Difference" />
                     </IconButton>
                   </Tooltip>
                 </div>
@@ -501,7 +496,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
             projectUpdateStatus.value?.commitData.length > 0 &&
             !matchesEngineVersion && (
               <div className={styles.projectMismatchWarning}>
-                <WarningAmberIcon />
+                <Icon type="WarningAmber" />
                 {t('admin:components.project.mismatchedProjectWarning')}
               </div>
             )}
@@ -517,8 +512,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               [styles.invalid]: !projectUpdateStatus.value?.destinationValid
             })}
           >
-            {projectUpdateStatus.value?.destinationValid && <CheckCircle />}
-            {!projectUpdateStatus.value?.destinationValid && <Cancel />}
+            {projectUpdateStatus.value?.destinationValid && <Icon type="CheckCircle" />}
+            {!projectUpdateStatus.value?.destinationValid && <Icon type="Cancel" />}
             {t('admin:components.project.destinationURLValid')}
           </div>
 
@@ -530,8 +525,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 [styles.invalid]: !projectUpdateStatus.value?.sourceValid
               })}
             >
-              {projectUpdateStatus.value?.sourceValid && <CheckCircle />}
-              {!projectUpdateStatus.value?.sourceValid && <Cancel />}
+              {projectUpdateStatus.value?.sourceValid && <Icon type="CheckCircle" />}
+              {!projectUpdateStatus.value?.sourceValid && <Icon type="Cancel" />}
               {t('admin:components.project.sourceURLValid')}
             </div>
           )}
@@ -544,8 +539,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 [styles.invalid]: !projectUpdateStatus.value?.sourceProjectMatchesDestination
               })}
             >
-              {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CheckCircle />}
-              {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <Cancel />}
+              {projectUpdateStatus.value?.sourceProjectMatchesDestination && <Icon type="CheckCircle" />}
+              {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <Icon type="Cancel" />}
               {t('admin:components.project.sourceMatchesDestination')}
             </div>
           )}
@@ -583,7 +578,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {t('admin:components.project.prod')}
                         <Tooltip title={t('admin:components.project.prodTooltip')} arrow>
-                          <HelpIcon sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
+                          <Icon type="Help" sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
                         </Tooltip>
                       </Box>
                     )
@@ -594,7 +589,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {t('admin:components.project.dev')}
                         <Tooltip title={t('admin:components.project.devTooltip')} arrow>
-                          <HelpIcon sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
+                          <Icon type="Help" sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
                         </Tooltip>
                       </Box>
                     )

@@ -10,8 +10,7 @@ import { InstanceService } from '@xrengine/client-core/src/common/services/Insta
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { XRAction } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction } from '@xrengine/hyperflux'
-
-import Box from '@mui/material/Box'
+import Box from '@xrengine/ui/src/Box'
 
 import styles from '../index.module.scss'
 import { Views } from '../util'

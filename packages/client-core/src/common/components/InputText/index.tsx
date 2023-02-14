@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next'
 
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import Box from '@xrengine/ui/src/Box'
+import FormControl from '@xrengine/ui/src/FormControl'
+import FormHelperText from '@xrengine/ui/src/FormHelperText'
+import InputLabel from '@xrengine/ui/src/InputLabel'
+import OutlinedInput from '@xrengine/ui/src/OutlinedInput'
 
-import { InputLabel, OutlinedInput } from '@mui/material'
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import commonStyles from '../common.module.scss'

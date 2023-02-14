@@ -11,13 +11,9 @@ import Text from '@xrengine/client-core/src/common/components/Text'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-
-import CheckIcon from '@mui/icons-material/Check'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
+import Box from '@xrengine/ui/src/Box'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { useAuthState } from '../../../services/AuthService'
 import { AvatarService, useAvatarService } from '../../../services/AvatarService'
@@ -83,7 +79,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         <Box display="flex" width="100%">
           <Button
             disabled={!selectedAvatar || selectedAvatar.id === userAvatarId}
-            startIcon={<CheckIcon />}
+            startIcon={<Icon type="Check" />}
             size="medium"
             type="gradientRounded"
             title={t('user:avatar.confirm')}
@@ -111,7 +107,11 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
               onChange={(e) => AvatarService.fetchAvatarList(e.target.value)}
             />
 
-            <IconButton icon={<KeyboardArrowUpIcon />} sx={{ display: 'none' }} onClick={handlePreviousAvatars} />
+            <IconButton
+              icon={<Icon type="KeyboardArrowUp" />}
+              sx={{ display: 'none' }}
+              onClick={handlePreviousAvatars}
+            />
 
             <Grid container sx={{ height: '275px', gap: 1.5, overflowX: 'hidden', overflowY: 'auto' }}>
               {avatarList.map((avatar) => (
@@ -136,11 +136,15 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
             </Grid>
 
             <Box>
-              <IconButton icon={<KeyboardArrowDownIcon />} sx={{ display: 'none' }} onClick={handleNextAvatars} />
+              <IconButton
+                icon={<Icon type="KeyboardArrowDown" />}
+                sx={{ display: 'none' }}
+                onClick={handleNextAvatars}
+              />
             </Box>
             <Button
               fullWidth
-              startIcon={<PersonAddIcon />}
+              startIcon={<Icon type="PersonAdd" />}
               title={t('user:avatar.createAvatar')}
               type="gradientRounded"
               sx={{ mb: 0 }}

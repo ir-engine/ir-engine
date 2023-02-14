@@ -3,19 +3,17 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
-
-import AddIcon from '@mui/icons-material/Add'
-import SearchIcon from '@mui/icons-material/Search'
-import Button from '@mui/material/Button'
-import InputAdornment from '@mui/material/InputAdornment'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
-import TableRow from '@mui/material/TableRow'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
+import Button from '@xrengine/ui/src/Button'
+import Icon from '@xrengine/ui/src/Icon'
+import InputAdornment from '@xrengine/ui/src/InputAdornment'
+import Table from '@xrengine/ui/src/Table'
+import TableBody from '@xrengine/ui/src/TableBody'
+import TableCell from '@xrengine/ui/src/TableCell'
+import TableHead from '@xrengine/ui/src/TableHead'
+import TablePagination from '@xrengine/ui/src/TablePagination'
+import TableRow from '@xrengine/ui/src/TableRow'
+import TextField from '@xrengine/ui/src/TextField'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { API } from '../../../../API'
 import styles from '../index.module.scss'
@@ -97,13 +95,13 @@ const LocationMenu = (props: Props) => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <SearchIcon />
+                      <Icon type="Search" />
                     </InputAdornment>
                   )
                 }}
               />
               <Button className={styles.newLocation} onClick={() => props.changeActiveLocation(LocationSeed)}>
-                <AddIcon />
+                <Icon type="Add" />
                 {t('user:usermenu.locationTable.lbl-new')}
               </Button>
             </section>

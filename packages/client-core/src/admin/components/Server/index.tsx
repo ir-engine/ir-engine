@@ -4,9 +4,12 @@ import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { ServerInfoInterface } from '@xrengine/common/src/interfaces/ServerInfo'
-
-import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material'
-import Grid from '@mui/material/Grid'
+import Box from '@xrengine/ui/src/Box'
+import Card from '@xrengine/ui/src/Card'
+import CardActionArea from '@xrengine/ui/src/CardActionArea'
+import CardContent from '@xrengine/ui/src/CardContent'
+import Grid from '@xrengine/ui/src/Grid'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
 import styles from '../../styles/admin.module.scss'

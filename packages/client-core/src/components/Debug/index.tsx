@@ -20,13 +20,9 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { getState, useHookstate } from '@xrengine/hyperflux'
-
-import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
-import GridOnIcon from '@mui/icons-material/GridOn'
-import Refresh from '@mui/icons-material/Refresh'
-import SelectAllIcon from '@mui/icons-material/SelectAll'
-import SquareFootIcon from '@mui/icons-material/SquareFoot'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
@@ -134,7 +130,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (rendererState.debugEnable.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
             >
-              <SquareFootIcon fontSize="small" />
+              <Icon type="SquareFoot" fontSize="small" />
             </button>
             <button
               type="button"
@@ -142,7 +138,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (rendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.nodeHelperDebug')}
             >
-              <SelectAllIcon fontSize="small" />
+              <Icon type="SelectAll" fontSize="small" />
             </button>
             <button
               type="button"
@@ -150,7 +146,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (rendererState.gridVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.gridDebug')}
             >
-              <GridOnIcon fontSize="small" />
+              <Icon type="GridOn" fontSize="small" />
             </button>
             <button
               type="button"
@@ -158,11 +154,11 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (rendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
               title={t('common:debug.forceBasicMaterials')}
             >
-              <FormatColorResetIcon fontSize="small" />
+              <Icon type="FormatColorReset" fontSize="small" />
             </button>
             {hasActiveControlledAvatar && (
               <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
-                <Refresh />
+                <Icon type="Refresh" />
               </button>
             )}
           </div>

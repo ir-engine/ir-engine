@@ -9,12 +9,11 @@ import { initSystems, unloadSystems } from '@xrengine/engine/src/ecs/functions/S
 import { SceneClientModule } from '@xrengine/engine/src/scene/SceneClientModule'
 import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
 import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
-
-import DeleteIcon from '@mui/icons-material/Delete'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
+import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import Search from '../../common/Search'
 import { AdminAvatarService } from '../../services/AvatarService'
@@ -80,7 +79,7 @@ const Avatar = () => {
                 title={t('admin:components.avatar.deleteSelected')}
                 onClick={() => setOpenDeleteAvatarModal(true)}
               >
-                <DeleteIcon color="info" fontSize="large" />
+                <Icon type="Delete" color="info" fontSize="large" />
               </IconButton>
             )}
           </Box>

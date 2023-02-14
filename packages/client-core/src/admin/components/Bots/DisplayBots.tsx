@@ -3,16 +3,13 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
 import { AdminBot, BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
-
-import { Edit } from '@mui/icons-material'
-import DeleteIcon from '@mui/icons-material/Delete'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import Accordion from '@mui/material/Accordion'
-import AccordionDetails from '@mui/material/AccordionDetails'
-import AccordionSummary from '@mui/material/AccordionSummary'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
+import Accordion from '@xrengine/ui/src/Accordion'
+import AccordionDetails from '@xrengine/ui/src/AccordionDetails'
+import AccordionSummary from '@xrengine/ui/src/AccordionSummary'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -101,7 +98,7 @@ const DisplayBots = () => {
         return (
           <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)} key={bot.id}>
             <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
+              expandIcon={<Icon type="ExpandMore" />}
               aria-controls={`panel${index}bh-content`}
               id={`panel${index}bh-header`}
               className={styles.summary}
@@ -135,7 +132,7 @@ const DisplayBots = () => {
                   <Grid item xs={4} style={{ display: 'flex' }}>
                     <div style={{ marginLeft: 'auto' }}>
                       <IconButton onClick={() => handleOpenUpdateBot(bot)} size="large">
-                        <Edit style={{ color: 'var(--iconButtonColor)' }} />
+                        <Icon type="Edit" style={{ color: 'var(--iconButtonColor)' }} />
                       </IconButton>
                       <IconButton
                         onClick={() => {
@@ -145,7 +142,7 @@ const DisplayBots = () => {
                         }}
                         size="large"
                       >
-                        <DeleteIcon style={{ color: 'var(--iconButtonColor)' }} />
+                        <Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />
                       </IconButton>
                     </div>
                   </Grid>

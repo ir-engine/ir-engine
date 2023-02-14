@@ -20,11 +20,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
-import FaceIcon from '@mui/icons-material/Face'
-import ScreenShareIcon from '@mui/icons-material/ScreenShare'
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import {
@@ -131,9 +127,6 @@ export const MediaIconsBox = () => {
   const xrSessionActive = xrState.sessionActive.value
   const handleExitSpectatorClick = () => dispatchAction(EngineActions.exitSpectate({}))
 
-  const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
-  const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
-
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
       {audioEnabled &&
@@ -148,7 +141,7 @@ export const MediaIconsBox = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          <MicIcon />
+          <Icon type={isCamAudioEnabled.value ? 'Mic' : 'MicOff'} />
         </button>
       ) : null}
       {videoEnabled &&
@@ -164,7 +157,7 @@ export const MediaIconsBox = () => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <VideocamIcon />
+            <Icon type={isCamVideoEnabled.value ? 'Videocam' : 'VideocamOff'} />
           </button>
           <button
             type="button"
@@ -174,7 +167,7 @@ export const MediaIconsBox = () => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <FaceIcon />
+            <Icon type="Face" />
           </button>
           <button
             type="button"
@@ -184,7 +177,7 @@ export const MediaIconsBox = () => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <ScreenShareIcon />
+            <Icon type="ScreenShare" />
           </button>
         </>
       ) : null}
@@ -217,7 +210,7 @@ export const MediaIconsBox = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          {<ViewInArIcon />}
+          {<Icon type="ViewInAr" />}
         </button>
       )}
       {engineState.spectating.value && (

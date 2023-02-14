@@ -2,14 +2,10 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import ChatBubble from '@mui/icons-material/ChatBubble'
-import FacebookIcon from '@mui/icons-material/Facebook'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import LinkedinIcon from '@mui/icons-material/LinkedIn'
-import TwitterIcon from '@mui/icons-material/Twitter'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import Grid from '@mui/material/Grid'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -68,7 +64,7 @@ const SocialLogin = ({
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleGithubLogin(e)}
-        startIcon={<GitHubIcon />}
+        startIcon={<Icon type="GitHub" />}
         variant="contained"
         className={styles.github}
         fullWidth={true}
@@ -92,7 +88,7 @@ const SocialLogin = ({
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleFacebookLogin(e)}
-        startIcon={<FacebookIcon />}
+        startIcon={<Icon type="Facebook" />}
         variant="contained"
         className={styles.facebook}
         fullWidth={true}
@@ -108,7 +104,7 @@ const SocialLogin = ({
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleLinkedinLogin(e)}
-        startIcon={<LinkedinIcon />}
+        startIcon={<Icon type="LinkedIn" />}
         variant="contained"
         className={styles.facebook}
         fullWidth={true}
@@ -124,7 +120,7 @@ const SocialLogin = ({
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleTwitterLogin(e)}
-        startIcon={<TwitterIcon />}
+        startIcon={<Icon type="Twitter" />}
         variant="contained"
         className={styles.facebook}
         fullWidth={true}
@@ -140,7 +136,7 @@ const SocialLogin = ({
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleDiscordLogin(e)}
-        startIcon={<ChatBubble />}
+        startIcon={<Icon type="ChatBubble" />}
         variant="contained"
         className={styles.discord}
         fullWidth={true}

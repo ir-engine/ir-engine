@@ -2,31 +2,27 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-
-import MenuIcon from '@mui/icons-material/Menu'
-import SettingIcon from '@mui/icons-material/Settings'
-import {
-  Box,
-  Button,
-  Dialog,
-  Divider,
-  IconButton,
-  InputBase,
-  List,
-  ListItem,
-  ListItemText,
-  Menu,
-  MenuItem,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Typography
-} from '@mui/material'
+import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
+import Dialog from '@xrengine/ui/src/Dialog'
+import Divider from '@xrengine/ui/src/Divider'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import InputBase from '@xrengine/ui/src/InputBase'
+import List from '@xrengine/ui/src/List'
+import ListItem from '@xrengine/ui/src/ListItem'
+import ListItemText from '@xrengine/ui/src/ListItemText'
+import Menu from '@xrengine/ui/src/Menu'
+import MenuItem from '@xrengine/ui/src/MenuItem'
+import Select from '@xrengine/ui/src/Select'
+import Table from '@xrengine/ui/src/Table'
+import TableBody from '@xrengine/ui/src/TableBody'
+import TableCell from '@xrengine/ui/src/TableCell'
+import TableContainer from '@xrengine/ui/src/TableContainer'
+import TableHead from '@xrengine/ui/src/TableHead'
+import TablePagination from '@xrengine/ui/src/TablePagination'
+import TableRow from '@xrengine/ui/src/TableRow'
+import Typography from '@xrengine/ui/src/Typography'
 
 import DrawerView from '../../../common/DrawerView'
 import styles from '../../../styles/settings.module.scss'
@@ -228,7 +224,7 @@ const ThemePlayground = () => {
                   <div className="textSubheading">
                     <label className="text">Subheading</label>
                     <IconButton className="panelCardIcon">
-                      <SettingIcon />
+                      <Icon type="Setting" />
                     </IconButton>
                   </div>
                   <div className="textDescription">This is my description</div>
@@ -238,7 +234,7 @@ const ThemePlayground = () => {
                   <div className="textSubheading">
                     <label className="text">Subheading</label>
                     <IconButton className="panelCardIcon">
-                      <SettingIcon />
+                      <Icon type="Setting" />
                     </IconButton>
                   </div>
                   <div className="textDescription">This is my description</div>
@@ -248,7 +244,7 @@ const ThemePlayground = () => {
                   <div className="textSubheading">
                     <label className="text">Subheading</label>
                     <IconButton className="panelCardIcon">
-                      <SettingIcon />
+                      <Icon type="Setting" />
                     </IconButton>
                   </div>
                   <div className="textDescription">This is my description</div>
@@ -258,7 +254,7 @@ const ThemePlayground = () => {
                   <div className="textSubheading">
                     <label className="text">Subheading</label>
                     <IconButton className="panelCardIcon">
-                      <SettingIcon />
+                      <Icon type="Setting" />
                     </IconButton>
                   </div>
                   <div className="textDescription">This is my description</div>
@@ -271,11 +267,11 @@ const ThemePlayground = () => {
                 <div className="iconButtonContainer">
                   <label className="textSubheading">Unselected Button:</label>
                   <IconButton className="iconButton">
-                    <SettingIcon />
+                    <Icon type="Setting" />
                   </IconButton>
                   <label className="textSubheading">Selected Button:</label>
                   <IconButton className="iconButtonSelected">
-                    <SettingIcon />
+                    <Icon type="Setting" />
                   </IconButton>
                 </div>
                 <label className="textSubheading">Outlined Button:</label>
@@ -296,7 +292,7 @@ const ThemePlayground = () => {
               <div className="buttonContainer">
                 <label className="textSubheading">Menu Icon Dropdown:</label>
                 <IconButton className="iconButton" onClick={openMenu}>
-                  <MenuIcon />
+                  <Icon type="Menu" />
                 </IconButton>
                 <Menu
                   anchorEl={anchorEl}
@@ -316,7 +312,7 @@ const ThemePlayground = () => {
                   value={selectValue}
                   className="select"
                   MenuProps={{ classes: { paper: 'selectPaper' } }}
-                  onChange={(e) => setSelectValue(e.target.value)}
+                  onChange={(e: any) => setSelectValue(e.target.value)}
                 >
                   <MenuItem value="" key={-1} disabled classes={{ root: 'option', selected: 'optionSelected' }}>
                     Select Option

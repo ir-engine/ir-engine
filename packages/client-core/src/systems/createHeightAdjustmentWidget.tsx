@@ -8,8 +8,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
-
-import AccessibilityIcon from '@mui/icons-material/Accessibility'
+import Icon from '@xrengine/ui/src/Icon'
 
 export function createHeightAdjustmentWidget(world: World) {
   const ui = createXRUI(() => null)
@@ -21,7 +20,7 @@ export function createHeightAdjustmentWidget(world: World) {
   const widget: Widget = {
     ui,
     label: 'Height Adjustment',
-    icon: AccessibilityIcon,
+    icon: 'Accessibility',
     onOpen: () => {
       dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
       const xrFrame = Engine.instance.xrFrame

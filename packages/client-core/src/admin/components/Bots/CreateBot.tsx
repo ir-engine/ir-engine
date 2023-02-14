@@ -7,14 +7,13 @@ import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { BotCommands, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-
-import { Autorenew, Face, Save } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import IconButton from '@mui/material/IconButton'
-import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
+import Button from '@xrengine/ui/src/Button'
+import Card from '@xrengine/ui/src/Card'
+import CardContent from '@xrengine/ui/src/CardContent'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Paper from '@xrengine/ui/src/Paper'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -169,12 +168,12 @@ const CreateBot = () => {
     <Card className={styles.botRootLeft}>
       <Paper className={styles.botHeader} style={{ display: 'flex' }}>
         <Typography className={styles.botTitle}>
-          <Face />
+          <Icon type="Face" />
           <div className={styles.smFont}>{t('admin:components.bot.createNewBot')}</div>
         </Typography>
 
         <Button variant="contained" disableElevation type="submit" className={styles.botSaveBtn} onClick={handleSubmit}>
-          <Save className={styles.saveBtnIcon} /> {t('social:save')}
+          <Icon type="Save" className={styles.saveBtnIcon} /> {t('social:save')}
         </Button>
       </Paper>
       <CardContent>
@@ -207,7 +206,7 @@ const CreateBot = () => {
             onChange={handleInputChange}
             endControl={
               <IconButton onClick={fetchAdminLocations}>
-                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
+                <Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
           />
@@ -221,7 +220,7 @@ const CreateBot = () => {
             onChange={handleInputChange}
             endControl={
               <IconButton onClick={fetchAdminInstances}>
-                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
+                <Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
           />

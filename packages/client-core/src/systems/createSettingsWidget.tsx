@@ -3,8 +3,6 @@ import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFun
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import SettingsIcon from '@mui/icons-material/Settings'
-
 import { createSettingDetailView } from './ui/SettingDetailView'
 
 export function createSettingsWidget(world: World) {
@@ -14,7 +12,7 @@ export function createSettingsWidget(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: WidgetName.SETTINGS,
-    icon: SettingsIcon,
+    icon: 'Settings',
     system: () => {}
   })
 }

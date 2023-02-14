@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
-
-import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
-import HelpIcon from '@mui/icons-material/Help'
-import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
-import Tooltip from '@mui/material/Tooltip'
+import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Tooltip from '@xrengine/ui/src/Tooltip'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
@@ -234,12 +235,12 @@ const Client = () => {
                   className={styles.iconButton}
                   onClick={() => handleRemoveSocialLinks(index)}
                 >
-                  <DeleteIcon />
+                  <Icon type="Delete" />
                 </IconButton>
               </Box>
             ))}
           <Button variant="contained" onClick={handleAddSocialLinks}>
-            <AddIcon /> {t('admin:components.setting.addSocialLink')}
+            <Icon type="Add" /> {t('admin:components.setting.addSocialLink')}
           </Button>
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -258,7 +259,7 @@ const Client = () => {
               onChange={(e) => setShortTitle(e.target.value)}
             />
             <Tooltip title={t('admin:components.setting.shortTitleTooltip')} arrow>
-              <HelpIcon />
+              <Icon type="Help" />
             </Tooltip>
           </div>
 
@@ -270,7 +271,7 @@ const Client = () => {
               onChange={(e) => setStartPath(e.target.value)}
             />
             <Tooltip title={t('admin:components.setting.startPathTooltip')} arrow>
-              <HelpIcon />
+              <Icon type="Help" />
             </Tooltip>
           </div>
 

@@ -16,15 +16,16 @@ import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/Wo
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 import { getState } from '@xrengine/hyperflux'
+import Avatar from '@xrengine/ui/src/Avatar'
+import Badge from '@xrengine/ui/src/Badge'
+import Card from '@xrengine/ui/src/Card'
+import CardContent from '@xrengine/ui/src/CardContent'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import TextField from '@xrengine/ui/src/TextField'
 
-import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
-import { IconButton } from '@mui/material'
-import Avatar from '@mui/material/Avatar'
-import Badge from '@mui/material/Badge'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
-import TextField from '@mui/material/TextField'
 
 import { AppAction } from '../../common/services/AppService'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
@@ -391,7 +392,7 @@ export const InstanceChat = ({
                         className={styles.sendButton}
                         focusRipple={false}
                       >
-                        <Send fontSize="small" />
+                        <Icon type="Send" fontSize="small" />
                       </IconButton>
                     )
                   }}

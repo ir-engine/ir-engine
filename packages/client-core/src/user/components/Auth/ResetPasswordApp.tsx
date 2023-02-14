@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Visibility, VisibilityOff } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import Typography from '@mui/material/Typography'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import InputAdornment from '@xrengine/ui/src/InputAdornment'
+import OutlinedInput from '@xrengine/ui/src/OutlinedInput'
+import Typography from '@xrengine/ui/src/Typography'
 
 import EmptyLayout from '../../../common/components/EmptyLayout'
 import { AuthService } from '../../services/AuthService'
@@ -100,7 +100,7 @@ export const ResetPassword = ({ token, completeAction }: Props): JSX.Element => 
                         color="secondary"
                         size="large"
                       >
-                        {values.showPassword ? <Visibility /> : <VisibilityOff />}
+                        <Icon type={values.showPassword ? 'Visibility' : 'VisibilityOff'} />
                       </IconButton>
                     </InputAdornment>
                   }
@@ -126,7 +126,7 @@ export const ResetPassword = ({ token, completeAction }: Props): JSX.Element => 
                         color="secondary"
                         size="large"
                       >
-                        {values.showPasswordConfirm ? <Visibility /> : <VisibilityOff />}
+                        <Icon type={values.showPasswordConfirm ? 'Visibility' : 'VisibilityOff'} />
                       </IconButton>
                     </InputAdornment>
                   }

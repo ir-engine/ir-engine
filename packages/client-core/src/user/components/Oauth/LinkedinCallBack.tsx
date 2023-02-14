@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, withRouter } from 'react-router-dom'
 
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
 
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'

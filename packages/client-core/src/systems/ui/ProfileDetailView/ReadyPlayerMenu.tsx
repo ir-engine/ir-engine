@@ -15,9 +15,8 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-
-import { ArrowBack, Check } from '@mui/icons-material'
-import CircularProgress from '@mui/material/CircularProgress'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { loadAvatarForPreview, resetAnimationLogic, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
@@ -148,7 +147,7 @@ const ReadyPlayerMenu = () => {
                 xr-layer="true"
                 onClick={openProfileMenu}
               >
-                <ArrowBack />
+                <Icon type="ArrowBack" />
               </button>
             </div>
           </section>
@@ -186,7 +185,7 @@ const ReadyPlayerMenu = () => {
             xr-layer="true"
             onClick={closeMenu}
           >
-            <Check />
+            <Icon type="Check" />
           </button>
         )}
         {showLoading && <CircularProgress style={{ position: 'absolute', top: '50%', left: '46%' }} />}

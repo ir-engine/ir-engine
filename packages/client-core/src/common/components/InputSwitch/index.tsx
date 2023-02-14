@@ -1,11 +1,11 @@
 import React from 'react'
 
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import Box from '@xrengine/ui/src/Box'
+import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
+import Switch from '@xrengine/ui/src/Switch'
 
-import Box from '@mui/material/Box'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import { SxProps, Theme } from '@mui/material/styles'
-import Switch from '@mui/material/Switch'
 
 import { handleSoundEffect } from '../../utils'
 import styles from './index.module.scss'

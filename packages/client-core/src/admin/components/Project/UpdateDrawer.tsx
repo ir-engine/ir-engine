@@ -10,14 +10,13 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@xrengine/common/src/interfaces/ProjectInterface'
-
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControlLabel from '@mui/material/FormControlLabel'
+import Button from '@xrengine/ui/src/Button'
+import Checkbox from '@xrengine/ui/src/Checkbox'
+import Container from '@xrengine/ui/src/Container'
+import DialogActions from '@xrengine/ui/src/DialogActions'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
@@ -159,7 +158,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
         {updateProjects && (
           <>
             <div className={styles.projectUpdateWarning}>
-              <WarningAmberIcon />
+              <Icon type="WarningAmber" />
               {t('admin:components.project.projectWarning')}
             </div>
             <div className={styles.projectSelector}>

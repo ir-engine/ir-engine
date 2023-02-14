@@ -4,17 +4,16 @@ import { useTranslation } from 'react-i18next'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
-
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Switch from '@mui/material/Switch'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import DialogActions from '@xrengine/ui/src/DialogActions'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import List from '@xrengine/ui/src/List'
+import ListItem from '@xrengine/ui/src/ListItem'
+import ListItemText from '@xrengine/ui/src/ListItemText'
+import Switch from '@xrengine/ui/src/Switch'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
@@ -144,7 +143,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
                     aria-label="Remove Access"
                     onClick={() => handleRemovePermission(permission.id)}
                   >
-                    <HighlightOffIcon />
+                    <Icon type="HighlightOff" />
                   </IconButton>
                 )}
               </ListItem>

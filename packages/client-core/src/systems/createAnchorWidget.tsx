@@ -7,8 +7,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
-
-import AnchorIcon from '@mui/icons-material/Anchor'
+import AnchorIcon from '@xrengine/ui/src/Icon'
 
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 
@@ -26,7 +25,7 @@ export function createAnchorWidget(world: World) {
   const widget: Widget = {
     ui,
     label: 'World Anchor',
-    icon: AnchorIcon,
+    icon: 'Anchor',
     onOpen: () => {
       const xrSession = xrState.session.value
       if (!xrSession || !ReferenceSpace.viewer) return

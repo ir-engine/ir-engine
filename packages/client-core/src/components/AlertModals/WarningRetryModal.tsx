@@ -2,10 +2,10 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import CloseIcon from '@mui/icons-material/Close'
-import Fade from '@mui/material/Fade'
-import IconButton from '@mui/material/IconButton'
-import Modal from '@mui/material/Modal'
+import Fade from '@xrengine/ui/src/Fade'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Modal from '@xrengine/ui/src/Modal'
 
 import styles from './index.module.scss'
 
@@ -95,7 +95,7 @@ const WarningRetryModal = ({
                 onClick={handleCloseButtonClick}
                 size="large"
               >
-                <CloseIcon />
+                <Icon type="Close" />
               </IconButton>
             </div>
             <div className={styles['modal-body']}>

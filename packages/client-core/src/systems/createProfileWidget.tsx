@@ -3,8 +3,6 @@ import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFun
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import PersonIcon from '@mui/icons-material/Person'
-
 import { createProfileDetailView } from './ui/ProfileDetailView'
 
 export function createProfileWidget(world: World) {
@@ -13,7 +11,7 @@ export function createProfileWidget(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: WidgetName.PROFILE,
-    icon: PersonIcon,
+    icon: 'Person',
     system: () => {}
   })
 }
