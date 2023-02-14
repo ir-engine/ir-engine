@@ -239,6 +239,7 @@ export default async function ShadowSystem(world: World) {
 
         if (!entityExists(dropShadowComponent.entity)) {
           removeComponent(entity, DropShadowComponent)
+          continue
         }
 
         raycaster.firstHitOnly = true
