@@ -363,7 +363,8 @@ export const getOctokitForChecking = async (app: Application, url: string, param
   return {
     owner,
     repo,
-    octoKit
+    octoKit,
+    token: githubIdentityProvider.oauthToken
   }
 }
 

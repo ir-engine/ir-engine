@@ -615,3 +615,12 @@
 #menu-projectURL {
   z-index: 1500;
 }
+
+.refreshGHBtn {
+  width: 200px;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 14px;
+  background-color: var(--popupBackground) !important;
+  color: var(--textColor) !important;
+}
