@@ -173,7 +173,7 @@ export const applyAutopilotInput = (entity: Entity) => {
       moveDirection
         .normalize()
         .multiplyScalar(delta * legSpeed)
-        .add(new Vector3(0, controller.verticalVelocity, 0))
+        .setY(controller.verticalVelocity)
     )
   else {
     clearWalkPoint()
@@ -226,7 +226,6 @@ const applyVerticalVelocity = (controller: AvatarControllerComponentType, avatar
     controller.verticalVelocity = 0
     if (controller.gamepadJumpActive) {
       if (!controller.isJumping) {
-        console.log('jump')
         // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
         controller.verticalVelocity = Math.sqrt(2 * avatarMovementSettings.jumpHeight * 9.81)
         controller.isJumping = true
