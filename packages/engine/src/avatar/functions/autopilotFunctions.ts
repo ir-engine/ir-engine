@@ -1,10 +1,11 @@
+import { World } from '@dimforge/rapier3d-compat'
 import _ from 'lodash'
 import { CylinderGeometry, Material, Matrix4, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
 import { Vector3 } from 'three'
 
 import { defineState, getState, useState } from '@xrengine/hyperflux'
 
-import { V_010 } from '../../common/constants/MathConstants'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -12,6 +13,7 @@ import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarAnimationComponentType } from '../components/AvatarAnimationComponent'
 import { AvatarControllerComponent, AvatarControllerComponentType } from '../components/AvatarControllerComponent'
 
@@ -19,7 +21,8 @@ const interactionGroups = getInteractionGroups(
   CollisionGroups.Avatars,
   CollisionGroups.Ground | CollisionGroups.Default
 )
-const raycastArgs = {
+
+const autopilotRaycastArgs = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
   direction: new Vector3(),
@@ -35,9 +38,15 @@ export const autopilotSetPosition = (entity: Entity) => {
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const world = Engine.instance.currentWorld
 
-  const castedRay = Physics.castRayFromCamera(world.camera, world.pointerState.position, physicsWorld, raycastArgs)
+  const castedRay = Physics.castRayFromCamera(
+    world.camera,
+    world.pointerState.position,
+    physicsWorld,
+    autopilotRaycastArgs
+  )
   const rayNormal = new Vector3(castedRay[0].normal.x, castedRay[0].normal.y, castedRay[0].normal.z)
-  if (!castedRay.length || !assessWalkability(entity, rayNormal)) return undefined
+  if (!castedRay.length || !assessWalkability(entity, rayNormal, castedRay[0].position as Vector3, physicsWorld))
+    return undefined
 
   const autopilotPosition = castedRay[0].position
   markerState.walkTarget.set(autopilotPosition as Vector3)
@@ -53,7 +62,7 @@ export const AutopilotMarker = defineState({
   })
 })
 
-const SetupMarker = () => {
+const setupMarker = () => {
   const markerState = getState(AutopilotMarker)
   const markerGeometry = new CylinderGeometry(0.175, 0.175, 0.05, 24, 1)
   const material = new MeshBasicMaterial({ color: '#FFF' })
@@ -63,7 +72,7 @@ const SetupMarker = () => {
   markerState.merge({ markerObject: mesh })
 }
 
-export const ScaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
+export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
   const marker = getState(AutopilotMarker).markerObject.value!
   const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.currentWorld.elapsedSeconds))
   marker.scale.set(scalePulse, 1, scalePulse)
@@ -75,7 +84,7 @@ export async function placeMarker(rayNormal: Vector3) {
 
   if (!markerState.walkTarget.value) return
 
-  if (!markerState.markerObject.value) SetupMarker()
+  if (!markerState.markerObject.value) setupMarker()
 
   const state = getState(AutopilotMarker)
   const marker = state.markerObject.value!
@@ -89,8 +98,21 @@ export async function placeMarker(rayNormal: Vector3) {
 }
 
 const minDot = 0.45
-export const assessWalkability = (entity: Entity, rayNormal: Vector3): boolean => {
-  const flatEnough = rayNormal.dot(V_010) > minDot
+const toWalkPoint = new Vector3()
+export const assessWalkability = (
+  entity: Entity,
+  rayNormal: Vector3,
+  targetPosition: Vector3,
+  world: World
+): boolean => {
+  const transform = getComponent(entity, TransformComponent)
+  autopilotRaycastArgs.origin.copy(transform.position).setY(transform.position.y + 1)
+  autopilotRaycastArgs.direction.copy(targetPosition).sub(autopilotRaycastArgs.origin)
+  const castedRay = Physics.castRay(world, autopilotRaycastArgs)
+
+  toWalkPoint.copy(castedRay[0].position as Vector3).sub(targetPosition)
+
+  const flatEnough = rayNormal.dot(V_010) > minDot && toWalkPoint.lengthSq() < 0.5
   return flatEnough
 }
 

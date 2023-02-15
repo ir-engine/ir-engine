@@ -23,7 +23,7 @@ import { AvatarControllerComponent, AvatarControllerComponentType } from '../com
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
-import { AutopilotMarker, clearWalkPoint, ScaleFluctuate } from './autopilotFunctions'
+import { AutopilotMarker, clearWalkPoint, scaleFluctuate } from './autopilotFunctions'
 
 const avatarGroundRaycastDistanceIncrease = 0.5
 const avatarGroundRaycastDistanceOffset = 1
@@ -159,7 +159,7 @@ export const applyAutopilotInput = (entity: Entity) => {
     return
   }
 
-  ScaleFluctuate()
+  scaleFluctuate()
   const avatarPos = getComponent(entity, TransformComponent).position
   walkPoint.copy(markerState.walkTarget.value)
   const moveDirection = walkPoint.sub(avatarPos)
