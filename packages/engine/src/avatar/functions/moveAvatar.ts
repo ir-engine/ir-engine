@@ -23,7 +23,7 @@ import { AvatarControllerComponent, AvatarControllerComponentType } from '../com
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
-import { AutopilotMarker, ScaleFluctuate } from './autopilotFunctions'
+import { AutopilotMarker, clearWalkPoint, ScaleFluctuate } from './autopilotFunctions'
 
 const avatarGroundRaycastDistanceIncrease = 0.5
 const avatarGroundRaycastDistanceOffset = 1
@@ -147,7 +147,7 @@ const _additionalMovement = new Vector3()
  */
 
 const minimumDistanceSquared = 0.5 * 0.5
-
+const walkPoint = new Vector3() as Vector3
 export const applyAutopilotInput = (entity: Entity) => {
   const markerState = getState(AutopilotMarker)
 
@@ -155,15 +155,14 @@ export const applyAutopilotInput = (entity: Entity) => {
   if (!controller || markerState.walkTarget.value == undefined) return
 
   if (controller.gamepadLocalInput.lengthSq() > 0 || controller.isJumping) {
-    markerState.walkTarget.set(undefined)
+    clearWalkPoint()
     return
   }
 
-  const walkpoint = new Vector3()
-  walkpoint.copy(markerState.walkTarget.value)
-  ScaleFluctuate(markerState.markerObject.value!)
+  ScaleFluctuate()
   const avatarPos = getComponent(entity, TransformComponent).position
-  const moveDirection = walkpoint.sub(avatarPos)
+  walkPoint.copy(markerState.walkTarget.value)
+  const moveDirection = walkPoint.sub(avatarPos)
   const distanceSquared = moveDirection.lengthSq()
   const avatarMovementSettings = getState(AvatarMovementSettingsState).value
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
@@ -177,8 +176,7 @@ export const applyAutopilotInput = (entity: Entity) => {
         .add(new Vector3(0, controller.verticalVelocity, 0))
     )
   else {
-    markerState.walkTarget.set(undefined)
-    markerState.markerObject.value!.visible = false
+    clearWalkPoint()
   }
 }
 

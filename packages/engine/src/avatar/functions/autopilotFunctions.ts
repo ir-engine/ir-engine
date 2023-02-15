@@ -45,12 +45,6 @@ export const autopilotSetPosition = (entity: Entity) => {
   placeMarker(rayNormal)
 }
 
-export const ScaleFluctuate = (Marker: Object3D, sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
-  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.currentWorld.elapsedSeconds))
-  Marker.scale.set(scalePulse, 1, scalePulse)
-  Marker.updateMatrixWorld()
-}
-
 export const AutopilotMarker = defineState({
   name: 'autopilotMarkerState',
   initial: () => ({
@@ -69,12 +63,19 @@ const SetupMarker = () => {
   markerState.merge({ markerObject: mesh })
 }
 
+export const ScaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
+  const marker = getState(AutopilotMarker).markerObject.value!
+  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.currentWorld.elapsedSeconds))
+  marker.scale.set(scalePulse, 1, scalePulse)
+  marker.updateMatrixWorld()
+}
+
 export async function placeMarker(rayNormal: Vector3) {
   const markerState = getState(AutopilotMarker)
 
-  if (!markerState.markerObject.value) SetupMarker()
-
   if (!markerState.walkTarget.value) return
+
+  if (!markerState.markerObject.value) SetupMarker()
 
   const state = getState(AutopilotMarker)
   const marker = state.markerObject.value!
@@ -91,4 +92,10 @@ const minDot = 0.45
 export const assessWalkability = (entity: Entity, rayNormal: Vector3): boolean => {
   const flatEnough = rayNormal.dot(V_010) > minDot
   return flatEnough
+}
+
+export const clearWalkPoint = () => {
+  const markerState = getState(AutopilotMarker)
+  markerState.walkTarget.set(undefined)
+  markerState.markerObject.value!.visible = false
 }
