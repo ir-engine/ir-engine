@@ -97,7 +97,7 @@ describe('avatarFunctions Unit', async () => {
         rootYRatio: 1,
         locomotion: new Vector3()
       })
-      await AnimationManager.instance.loadDefaultAnimations()
+      await AnimationManager.instance.loadDefaultAnimations(animGLB)
 
       const group = new Group()
       animateAvatarModel(entity)(group)
