@@ -6,7 +6,7 @@ import CircularProgress from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/CircularProgress',
+  title: 'MUI/CircularProgress',
   component: CircularProgress,
   parameters: {
     componentSubtitle: 'CircularProgress',

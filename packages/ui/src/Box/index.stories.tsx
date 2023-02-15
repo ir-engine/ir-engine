@@ -6,7 +6,7 @@ import Box from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Box',
+  title: 'MUI/Box',
   component: Box,
   parameters: {
     componentSubtitle: 'Box',

@@ -6,7 +6,7 @@ import Tabs from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Tabs',
+  title: 'MUI/Tabs',
   component: Tabs,
   parameters: {
     componentSubtitle: 'Tabs',

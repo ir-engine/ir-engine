@@ -6,7 +6,7 @@ import Fade from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Fade',
+  title: 'MUI/Fade',
   component: Fade,
   parameters: {
     componentSubtitle: 'Fade',

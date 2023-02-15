@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import $confirm from './confirm'
 import $forgotpassword from './forgotpassword'
@@ -13,7 +13,7 @@ import $twitter from './oauth/twitter'
 
 const AuthRoutes = () => {
   return (
-    <Switch>
+    <Routes>
       <Route path="/auth/oauth/discord" component={$discord} />
       <Route path="/auth/oauth/facebook" component={$facebook} />
       <Route path="/auth/oauth/github" component={$github} />
@@ -23,7 +23,7 @@ const AuthRoutes = () => {
       <Route path="/auth/confirm" component={$confirm} />
       <Route path="/auth/forgotpassword" component={$forgotpassword} />
       <Route path="/auth/magiclink" component={$magiclink} />
-    </Switch>
+    </Routes>
   )
 }
 

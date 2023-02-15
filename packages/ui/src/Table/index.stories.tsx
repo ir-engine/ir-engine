@@ -6,7 +6,7 @@ import Table from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Table',
+  title: 'MUI/Table',
   component: Table,
   parameters: {
     componentSubtitle: 'Table',

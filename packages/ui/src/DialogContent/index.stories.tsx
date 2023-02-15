@@ -6,7 +6,7 @@ import DialogContent from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/DialogContent',
+  title: 'MUI/DialogContent',
   component: DialogContent,
   parameters: {
     componentSubtitle: 'DialogContent',

@@ -6,7 +6,7 @@ import Select from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Select',
+  title: 'MUI/Select',
   component: Select,
   parameters: {
     componentSubtitle: 'Select',

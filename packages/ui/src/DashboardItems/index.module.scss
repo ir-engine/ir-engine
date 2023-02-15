@@ -1,0 +1,162 @@
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+  background: var(--navbarBackground);
+  height: 50px;
+
+  .navContainer {
+    width: 100vw;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+
+    .logoBlock {
+      width: 100px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position-y: 50%;
+    }
+
+    .profileButton {
+      display: flex;
+      align-items: center;
+      color: var(--textColor);
+      background: transparent;
+
+      span {
+        margin-right: 5px;
+        font-size: 14px;
+      }
+
+      &:hover,
+      &:focus-visible {
+        color: var(--green);
+      }
+    }
+
+    .backdrop {
+      position: fixed;
+      width: 100vw;
+      height: calc(100vh - 50px);
+      top: 50px;
+      left: 0;
+      background: #00000080;
+      z-index: 100;
+    }
+
+    .profileMenuBlock {
+      position: absolute;
+      right: 25px;
+      top: 0;
+
+      .profileMenuContainer {
+        z-index: 100;
+        top: 70px;
+        bottom: unset;
+        right: 0;
+        left: unset;
+        transform: unset;
+        border-radius: 10px;
+
+        div[class^="_closeButton"] {
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+.textLink {
+  text-decoration: none;
+}
+
+.selected {
+  background: var(--sidebarSelectedBackground) !important;
+}
+
+.menuButton {
+  margin-right: 25px;
+  color: var(--iconButtonColor);
+  padding: 16px;
+  margin-left: 0;
+}
+
+.hide {
+  display: none;
+}
+
+.appBarHeadingContainer {
+  flex: 1;
+  display: flex;
+  color: var(--textColor);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.appBar {
+  z-index: 1000;
+}
+
+.drawer {
+  z-index: 9;
+  width: 250px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.drawerOpen {
+  position: absolute;
+  width: 250px !important;
+  height: 100%;
+  z-index: 1000;
+  transition: width 225ms cubic-bezier(0.4, 0, 0.6, 1);
+  background-color: var(--sidebarBackground);
+}
+
+.drawerClose {
+  z-index: 9;
+  overflow-x: hidden;
+  width: 57px !important;
+  transition: width 195ms cubic-bezier(0.4, 0, 0.6, 1);
+  background-color: var(--sidebarBackground);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 8px;
+}
+
+.drawerIconColor {
+  svg {
+    color: var(--iconButtonColor) !important;
+  }
+}
+
+.content {
+  top: 50px;
+  overflow: auto;
+  position: relative;
+  padding: 24px;
+  background-color: var(--mainBackground);
+  height: calc(100vh - 50px);
+}
+
+.contentWidthDrawerOpen {
+  left: 57px;
+  width: calc(100vw - 57px);
+}
+
+.contentWidthDrawerClosed {
+  left: 57px;
+  width: calc(100vw - 57px);
+}
+
+.profilePaper {
+  background-color: transparent;
+}

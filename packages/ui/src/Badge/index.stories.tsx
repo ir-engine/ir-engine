@@ -6,7 +6,7 @@ import Badge from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Badge',
+  title: 'MUI/Badge',
   component: Badge,
   parameters: {
     componentSubtitle: 'Badge',

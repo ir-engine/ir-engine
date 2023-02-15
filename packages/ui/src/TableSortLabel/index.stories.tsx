@@ -6,7 +6,7 @@ import TableSortLabel from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/TableSortLabel',
+  title: 'MUI/TableSortLabel',
   component: TableSortLabel,
   parameters: {
     componentSubtitle: 'TableSortLabel',

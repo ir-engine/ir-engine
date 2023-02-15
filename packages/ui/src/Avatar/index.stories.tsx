@@ -6,7 +6,7 @@ import Avatar from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Avatar',
+  title: 'MUI/Avatar',
   component: Avatar,
   parameters: {
     componentSubtitle: 'Avatar',

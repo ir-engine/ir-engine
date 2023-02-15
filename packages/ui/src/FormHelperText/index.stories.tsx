@@ -6,7 +6,7 @@ import FormHelperText from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/FormHelperText',
+  title: 'MUI/FormHelperText',
   component: FormHelperText,
   parameters: {
     componentSubtitle: 'FormHelperText',

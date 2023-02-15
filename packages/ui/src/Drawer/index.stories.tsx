@@ -6,7 +6,7 @@ import Drawer from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Drawer',
+  title: 'MUI/Drawer',
   component: Drawer,
   parameters: {
     componentSubtitle: 'Drawer',

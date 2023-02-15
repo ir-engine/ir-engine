@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, withRouter } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import Divider from '@xrengine/ui/src/Divider'
 import List from '@xrengine/ui/src/List'
@@ -8,8 +8,8 @@ import ListItem from '@xrengine/ui/src/ListItem'
 import ListItemIcon from '@xrengine/ui/src/ListItemIcon'
 import ListItemText from '@xrengine/ui/src/ListItemText'
 
-import { useAuthState } from '../../services/AuthService'
-import { SidebarItems } from './DashboardItems'
+// import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { SidebarItems } from '../DashboardItems'
 import styles from './index.module.scss'
 
 interface Props {
@@ -17,9 +17,11 @@ interface Props {
   location: any
 }
 
-const DashboardMenuItem = ({ location }: Props) => {
+const DashboardMenuItem = () => {
+  const location = useLocation()
   const { pathname } = location
-  const scopes = useAuthState().user?.scopes?.value || []
+  // const scopes = useAuthState().user?.scopes?.value || []
+  const scopes = []
   const { t } = useTranslation()
 
   let allowedRoutes = {
@@ -77,4 +79,4 @@ const DashboardMenuItem = ({ location }: Props) => {
   )
 }
 
-export default withRouter(DashboardMenuItem)
+export default DashboardMenuItem

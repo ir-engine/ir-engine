@@ -6,7 +6,7 @@ import SvgIcon from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/SvgIcon',
+  title: 'MUI/SvgIcon',
   component: SvgIcon,
   parameters: {
     componentSubtitle: 'SvgIcon',

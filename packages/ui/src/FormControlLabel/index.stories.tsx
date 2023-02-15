@@ -6,7 +6,7 @@ import FormControlLabel from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/FormControlLabel',
+  title: 'MUI/FormControlLabel',
   component: FormControlLabel,
   parameters: {
     componentSubtitle: 'FormControlLabel',

@@ -6,7 +6,7 @@ import Container from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Container',
+  title: 'MUI/Container',
   component: Container,
   parameters: {
     componentSubtitle: 'Container',

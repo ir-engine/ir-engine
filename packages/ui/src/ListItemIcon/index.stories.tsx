@@ -6,7 +6,7 @@ import ListItemIcon from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/ListItemIcon',
+  title: 'MUI/ListItemIcon',
   component: ListItemIcon,
   parameters: {
     componentSubtitle: 'ListItemIcon',

@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from 'react'
-import { Redirect, Switch } from 'react-router-dom'
+import { Redirect, Routes } from 'react-router-dom'
 
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { AvatarClientModule } from '@xrengine/engine/src/avatar/AvatarClientModule'
@@ -13,6 +13,7 @@ import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
 import { dispatchAction } from '@xrengine/hyperflux'
 import CircularProgress from '@xrengine/ui/src/CircularProgress'
 
+import ErrorBoundary from '../common/components/ErrorBoundary'
 import PrivateRoute from '../Private'
 import AdminSystem from '../systems/AdminSystem'
 import { useAuthState } from '../user/services/AuthService'
@@ -91,43 +92,45 @@ const ProtectedRoutes = () => {
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
-      <Suspense
-        fallback={
-          <div
-            style={{
-              height: '100vh',
-              width: '100%',
-              textAlign: 'center',
-              pointerEvents: 'auto',
-              paddingTop: 'calc(50vh - 7px)'
-            }}
-          >
-            <CircularProgress />
-          </div>
-        }
-      >
-        {!isEngineInitialized && <LoadingView sx={{ height: '100vh' }} />}
-        {isEngineInitialized && (
-          <Switch>
-            {allowedRoutes.globalAvatars && <PrivateRoute exact path="/admin/avatars" component={avatars} />}
-            {allowedRoutes.benchmarking && <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />}
-            {allowedRoutes.groups && <PrivateRoute exact path="/admin/groups" component={groups} />}
-            {allowedRoutes.instance && <PrivateRoute exact path="/admin/instance" component={instance} />}
-            {allowedRoutes.invite && <PrivateRoute exact path="/admin/invites" component={invites} />}
-            {allowedRoutes.location && <PrivateRoute exact path="/admin/locations" component={locations} />}
-            {allowedRoutes.routes && <PrivateRoute exact path="/admin/routes" component={routes} />}
-            {allowedRoutes.party && <PrivateRoute exact path="/admin/parties" component={party} />}
-            {allowedRoutes.bot && <PrivateRoute exact path="/admin/bots" component={botSetting} />}
-            {allowedRoutes.projects && <PrivateRoute exact path="/admin/projects" component={projects} />}
-            {allowedRoutes.server && <PrivateRoute exact path="/admin/server" component={server} />}
-            {allowedRoutes.settings && <PrivateRoute exact path="/admin/settings" component={setting} />}
-            {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
-            {allowedRoutes.user && <PrivateRoute exact path="/admin/users" component={users} />}
-            <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />
-            <PrivateRoute path="/admin" component={analytics} />
-          </Switch>
-        )}
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                height: '100vh',
+                width: '100%',
+                textAlign: 'center',
+                pointerEvents: 'auto',
+                paddingTop: 'calc(50vh - 7px)'
+              }}
+            >
+              <CircularProgress />
+            </div>
+          }
+        >
+          {!isEngineInitialized && <LoadingView sx={{ height: '100vh' }} />}
+          {isEngineInitialized && (
+            <Routes>
+              {allowedRoutes.globalAvatars && <PrivateRoute exact path="/admin/avatars" component={avatars} />}
+              {allowedRoutes.benchmarking && <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />}
+              {allowedRoutes.groups && <PrivateRoute exact path="/admin/groups" component={groups} />}
+              {allowedRoutes.instance && <PrivateRoute exact path="/admin/instance" component={instance} />}
+              {allowedRoutes.invite && <PrivateRoute exact path="/admin/invites" component={invites} />}
+              {allowedRoutes.location && <PrivateRoute exact path="/admin/locations" component={locations} />}
+              {allowedRoutes.routes && <PrivateRoute exact path="/admin/routes" component={routes} />}
+              {allowedRoutes.party && <PrivateRoute exact path="/admin/parties" component={party} />}
+              {allowedRoutes.bot && <PrivateRoute exact path="/admin/bots" component={botSetting} />}
+              {allowedRoutes.projects && <PrivateRoute exact path="/admin/projects" component={projects} />}
+              {allowedRoutes.server && <PrivateRoute exact path="/admin/server" component={server} />}
+              {allowedRoutes.settings && <PrivateRoute exact path="/admin/settings" component={setting} />}
+              {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
+              {allowedRoutes.user && <PrivateRoute exact path="/admin/users" component={users} />}
+              <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />
+              <PrivateRoute path="/admin" component={analytics} />
+            </Routes>
+          )}
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

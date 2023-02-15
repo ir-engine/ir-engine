@@ -9,7 +9,7 @@ import TablePagination from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/TablePagination',
+  title: 'MUI/TablePagination',
   component: TablePagination,
   parameters: {
     componentSubtitle: 'TablePagination',

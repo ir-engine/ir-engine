@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Route, Routes, useHistory, useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
@@ -31,7 +31,8 @@ import $404 from '../pages/404'
 import $503 from '../pages/503'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
-const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
+// const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
+const $admin = React.lazy(() => import('@xrengine/client/src/pages/admin'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
 const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))
 
@@ -118,10 +119,10 @@ function RouterComp() {
   return (
     <ErrorBoundary>
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
-        <Switch>
-          {customRoutes.map((route, i) => (
+        <Routes>
+          {/* {customRoutes.map((route, i) => (
             <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
-          ))}
+          ))} */}
           <Route key={'offline'} path={'/offline'} component={$offline} />
           {/* default to allowing admin access regardless */}
           <Route key={'default-admin'} path={'/admin'} component={$admin} />
@@ -129,7 +130,7 @@ function RouterComp() {
           {/* if no index page has been provided, indicate this as obviously as possible */}
           <Route key={'/503'} path={'/'} component={$503} exact />
           <Route key={'404'} path="*" component={$404} />
-        </Switch>
+        </Routes>
       </Suspense>
     </ErrorBoundary>
   )

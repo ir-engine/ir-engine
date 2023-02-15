@@ -6,7 +6,7 @@ import InputLabel from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/InputLabel',
+  title: 'MUI/InputLabel',
   component: InputLabel,
   parameters: {
     componentSubtitle: 'InputLabel',

@@ -6,7 +6,7 @@ import Menu from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Menu',
+  title: 'MUI/Menu',
   component: Menu,
   parameters: {
     componentSubtitle: 'Menu',

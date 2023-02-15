@@ -6,7 +6,7 @@ import Radio from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Radio',
+  title: 'MUI/Radio',
   component: Radio,
   parameters: {
     componentSubtitle: 'Radio',

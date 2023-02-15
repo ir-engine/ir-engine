@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Redirect, Route, Switch } from 'react-router-dom'
+import { Redirect, Route, Routes } from 'react-router-dom'
 
 import { API } from '@xrengine/client-core/src/API'
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
@@ -103,7 +103,7 @@ const EditorProtectedRoutes = () => {
 
   return (
     <Suspense fallback={<LoadingCircle />}>
-      <Switch>
+      <Routes>
         <Redirect from="/editor/:projectName/:sceneName" to="/studio/:projectName/:sceneName" />
         <Redirect from="/editor/:projectName" to="/studio/:projectName" />
         <Redirect from="/editor" to="/studio" />
@@ -112,7 +112,7 @@ const EditorProtectedRoutes = () => {
         <Route path="/studio" component={ProjectPage} />
         {/* Not in use */}
         <Route path="/studio-login" component={SignInPage} />
-      </Switch>
+      </Routes>
     </Suspense>
   )
 }

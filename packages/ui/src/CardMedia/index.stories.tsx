@@ -6,7 +6,7 @@ import CardMedia from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/CardMedia',
+  title: 'MUI/CardMedia',
   component: CardMedia,
   parameters: {
     componentSubtitle: 'CardMedia',

@@ -137,7 +137,7 @@ const argTypes = {
 }
 
 export default {
-  title: 'Components/Icon',
+  title: 'MUI/Icon',
   component: Icon,
   parameters: {
     componentSubtitle: 'Icon',

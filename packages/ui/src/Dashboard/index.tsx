@@ -2,6 +2,11 @@ import clsx from 'clsx'
 import React, { useState } from 'react'
 
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+// import { useTheme } from '@mui/material/styles'
+
+// import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import AppBar from '@xrengine/ui/src/AppBar'
 import Box from '@xrengine/ui/src/Box'
 import Drawer from '@xrengine/ui/src/Drawer'
@@ -11,17 +16,9 @@ import Popover from '@xrengine/ui/src/Popover'
 import Typography from '@xrengine/ui/src/Typography'
 
 import CssBaseline from '@mui/material/CssBaseline'
-import { useTheme } from '@mui/material/styles'
 
-import { useAuthState } from '../../services/AuthService'
-import SettingMenu from '../UserMenu/menus/SettingMenu'
-import { Views } from '../UserMenu/util'
-import DashboardMenuItem from './DashboardMenuItem'
+import DashboardMenuItem from '../DashboardMenuItem'
 import styles from './index.module.scss'
-
-interface Props {
-  children?: JSX.Element
-}
 
 /**
  * Function for admin dashboard
@@ -30,14 +27,14 @@ interface Props {
  * @returns @ReactDomElements
  */
 
-const Dashboard = ({ children }: Props) => {
-  const authState = useAuthState()
-  const theme = useTheme()
+const Dashboard = ({ children }) => {
+  // const authState = useAuthState()
+  // const theme = useTheme()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
   const [open, setOpen] = React.useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
-  const user = authState.user
+  // const user = authState.user
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
@@ -81,7 +78,7 @@ const Dashboard = ({ children }: Props) => {
               <Typography variant="h6">Dashboard</Typography>
 
               <IconButton onClick={handleClick} className={styles.profileButton} disableRipple>
-                <span>{user.name.value}</span>
+                {/* <span>{user.name.value}</span> */}
                 <Icon type="Person" />
               </IconButton>
               {profileMenuOpen && (
@@ -136,7 +133,8 @@ const Dashboard = ({ children }: Props) => {
       >
         <div className={styles.toolbar}>
           <IconButton onClick={handleDrawerOpen(false)} style={{ color: 'var(--iconButtonColor)' }} size="large">
-            <Icon type={theme.direction === 'rtl' ? 'ChevronRight' : 'ChevronLeft'} />
+            {/* <Icon type={theme.direction === 'rtl' ? 'ChevronRight' : 'ChevronLeft'} /> */}
+            <Icon type={'ChevronLeft'} />
           </IconButton>
         </div>
         <DashboardMenuItem />
@@ -151,6 +149,17 @@ const Dashboard = ({ children }: Props) => {
       </main>
     </div>
   )
+}
+
+Dashboard.displayName = 'Dashboard'
+
+Dashboard.defaultProps = {
+  children: <div>hello</div>,
+  user: {
+    name: {
+      value: 'default name'
+    }
+  }
 }
 
 export default Dashboard

@@ -6,7 +6,7 @@ import Slider from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Slider',
+  title: 'MUI/Slider',
   component: Slider,
   parameters: {
     componentSubtitle: 'Slider',

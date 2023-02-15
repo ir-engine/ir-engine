@@ -6,7 +6,7 @@ import MenuItem from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/MenuItem',
+  title: 'MUI/MenuItem',
   component: MenuItem,
   parameters: {
     componentSubtitle: 'MenuItem',

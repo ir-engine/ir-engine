@@ -8,7 +8,7 @@ import TableRow from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/TableRow',
+  title: 'MUI/TableRow',
   component: TableRow,
   parameters: {
     componentSubtitle: 'TableRow',

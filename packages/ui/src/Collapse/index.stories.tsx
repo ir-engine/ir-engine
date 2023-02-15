@@ -6,7 +6,7 @@ import Collapse from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Collapse',
+  title: 'MUI/Collapse',
   component: Collapse,
   parameters: {
     componentSubtitle: 'Collapse',

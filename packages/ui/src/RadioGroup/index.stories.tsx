@@ -6,7 +6,7 @@ import RadioGroup from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/RadioGroup',
+  title: 'MUI/RadioGroup',
   component: RadioGroup,
   parameters: {
     componentSubtitle: 'RadioGroup',

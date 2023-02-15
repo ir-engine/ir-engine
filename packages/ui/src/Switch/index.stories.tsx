@@ -6,7 +6,7 @@ import Switch from './index'
 const argTypes = {}
 
 export default {
-  title: 'Components/Switch',
+  title: 'MUI/Switch',
   component: Switch,
   parameters: {
     componentSubtitle: 'Switch',
