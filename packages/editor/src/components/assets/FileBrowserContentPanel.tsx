@@ -102,7 +102,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   )
   const fileState = useFileBrowserState()
   const filesValue = fileState.files.attach(Downgraded).value
-  const { skip, total, retrieving } = fileState.value
+  const { skip, total, retrieving, updateNeeded } = fileState.value
   const [fileProperties, setFileProperties] = useState<any>(null)
   const [openProperties, setOpenPropertiesModal] = useState(false)
   const [openCompress, setOpenCompress] = useState(false)
@@ -164,6 +164,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   useEffect(() => {
     setLoading(false)
   }, [filesValue])
+
+  useEffect(() => {
+    if (updateNeeded) onRefreshDirectory()
+  }, [updateNeeded])
 
   useEffect(() => {
     FileBrowserService.fetchFiles(selectedDirectory)

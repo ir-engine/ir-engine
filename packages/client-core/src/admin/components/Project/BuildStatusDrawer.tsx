@@ -66,7 +66,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
       ),
       commitSHA: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <span>{el.commitSHA.slice(0, 8)}</span>
+          <span>{el.commitSHA?.slice(0, 8)}</span>
         </Box>
       ),
       status: (

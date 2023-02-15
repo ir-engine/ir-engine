@@ -179,7 +179,7 @@ export const ProjectService = {
       // })
 
       const projectPatchedListener = (params) => {
-        dispatchAction(ProjectAction.patchedProject({ project: params.project }))
+        dispatchAction(ProjectAction.patchedProject({ project: params }))
       }
 
       API.instance.client.service('project').on('patched', projectPatchedListener)

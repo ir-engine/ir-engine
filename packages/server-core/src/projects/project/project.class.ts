@@ -509,7 +509,7 @@ export class Project extends Service {
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
       if (!githubIdentityProvider) throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
-      const split = githubPathRegexExec[1].split('/')
+      const split = githubPathRegexExec[2].split('/')
       const org = split[0]
       const repo = split[1].replace('.git', '')
       const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.oauthToken)
@@ -642,13 +642,13 @@ export class Project extends Service {
       })) as any
       let allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repos = githubIdentityProvider ? await getUserRepos(githubIdentityProvider.oauthToken) : []
-      const repoPaths = repos.map((repo) => repo.svn_url.toLowerCase())
+      const repoPaths = repos.map((repo) => repo.html_url.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
       allowedProjectGithubRepos = await Promise.all(
         allowedProjectGithubRepos.map(async (project) => {
           const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
           if (!regexExec) return { repositoryPath: '', name: '' }
-          const split = regexExec[1].split('/')
+          const split = regexExec[2].split('/')
           try {
             project.repositoryPath = await getRepo(
               split[0],
@@ -672,10 +672,16 @@ export class Project extends Service {
 
       if (githubIdentityProvider) {
         const allowedRepos = await getUserRepos(githubIdentityProvider.oauthToken)
+        allowedRepos.forEach((repo, index) => {
+          const url = repo.html_url.toLowerCase()
+          allowedRepos[index] = url
+          allowedRepos.push(`${url}.git`)
+        })
+
         const matchingAllowedRepos = await this.app.service('project').Model.findAll({
           where: {
             repositoryPath: {
-              [Op.in]: allowedRepos.map((repo) => repo.svn_url)
+              [Op.in]: allowedRepos
             }
           }
         })
