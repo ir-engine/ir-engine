@@ -62,7 +62,7 @@ export const AutopilotMarker = defineState({
 const SetupMarker = () => {
   const markerState = getState(AutopilotMarker)
   const markerGeometry = new CylinderGeometry(0.175, 0.175, 0.05, 24, 1)
-  const material = new MeshBasicMaterial({ color: '#00E14E' })
+  const material = new MeshBasicMaterial({ color: '#FFF' })
   const mesh = new Mesh(markerGeometry, material)
   mesh.visible = false
   Engine.instance.currentWorld.scene.add(mesh)
@@ -85,18 +85,6 @@ export async function placeMarker(rayNormal: Vector3) {
   marker.position.copy(markerState.walkTarget.value)
   marker.quaternion.copy(newRotation)
   marker.updateMatrixWorld()
-
-  const waitForAutopilot = () => {
-    const reached = (resolve) => {
-      if (!markerState.walkTarget.value) resolve()
-      else setTimeout((_) => reached(resolve), 250)
-    }
-    return new Promise(reached)
-  }
-
-  await waitForAutopilot()
-
-  marker.visible = false
 }
 
 const minDot = 0.45

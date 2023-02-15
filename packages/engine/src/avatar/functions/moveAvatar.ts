@@ -161,7 +161,7 @@ export const applyAutopilotInput = (entity: Entity) => {
 
   const walkpoint = new Vector3()
   walkpoint.copy(markerState.walkTarget.value)
-  ScaleFluctuate(markerState.markerObject.value)
+  ScaleFluctuate(markerState.markerObject.value!)
   const avatarPos = getComponent(entity, TransformComponent).position
   const moveDirection = walkpoint.sub(avatarPos)
   const distanceSquared = moveDirection.lengthSq()
@@ -176,7 +176,10 @@ export const applyAutopilotInput = (entity: Entity) => {
         .multiplyScalar(delta * legSpeed)
         .add(new Vector3(0, controller.verticalVelocity, 0))
     )
-  else markerState.walkTarget.set(undefined)
+  else {
+    markerState.walkTarget.set(undefined)
+    markerState.markerObject.value!.visible = false
+  }
 }
 
 /**
