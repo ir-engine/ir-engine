@@ -39,6 +39,7 @@ export type AvatarAnimationComponentType = {
 export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')
 
 const RigSchema = {
+  Root: PoseSchema,
   Hips: PoseSchema,
   Spine: PoseSchema,
   Spine1: PoseSchema,
@@ -187,9 +188,9 @@ export const AvatarRigComponent = defineComponent({
       const rig = anim.rig.value
       for (const [boneName, bone] of Object.entries(rig)) {
         if (!bone) continue
-        const axesHelper = new AxesHelper(0.1)
-        setObjectLayers(axesHelper, ObjectLayers.Scene)
-        bone.add(axesHelper)
+        // const axesHelper = new AxesHelper(0.1)
+        // setObjectLayers(axesHelper, ObjectLayers.Scene)
+        // bone.add(axesHelper)
         proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.position)
         proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.quaternion)
       }

@@ -5,6 +5,7 @@ import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'thre
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 
 export type BoneNames =
+  | 'Root'
   | 'Hips'
   | 'Spine'
   | 'Spine1'
@@ -658,7 +659,12 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
     //   mesh.skeleton.calculateInverses()
     // }
 
+    if (Root === Hips) {
+      Root = null!
+    }
+
     const targetModelBones = {
+      Root,
       Hips,
       Spine,
       Spine1,
