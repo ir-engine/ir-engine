@@ -1,5 +1,5 @@
-import RAPIER, { QueryFilterFlags } from '@dimforge/rapier3d-compat'
-import { Euler, Matrix4, Quaternion, Ray, Vector3 } from 'three'
+import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@xrengine/hyperflux'
