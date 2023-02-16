@@ -1,22 +1,20 @@
 import { World } from '@dimforge/rapier3d-compat'
 import _ from 'lodash'
-import { CylinderGeometry, Material, Matrix4, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
+import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
 import { Vector3 } from 'three'
 
-import { defineState, getState, useState } from '@xrengine/hyperflux'
+import { defineState, getState } from '@xrengine/hyperflux'
 
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AvatarAnimationComponentType } from '../components/AvatarAnimationComponent'
-import { AvatarControllerComponent, AvatarControllerComponentType } from '../components/AvatarControllerComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
 const interactionGroups = getInteractionGroups(
   CollisionGroups.Avatars,

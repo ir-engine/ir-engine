@@ -5,17 +5,16 @@ import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@xrengine/hyperflux'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { V_000, V_010, V_111 } from '../../common/constants/MathConstants'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { Physics, RaycastArgs } from '../../physics/classes/Physics'
+import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getCameraMode, hasMovementControls, ReferenceSpace, XRState } from '../../xr/XRState'
@@ -149,10 +148,11 @@ const _additionalMovement = new Vector3()
 
 const minimumDistanceSquared = 0.5 * 0.5
 const walkPoint = new Vector3()
-const targetDelta = Engine.instance.currentWorld.fixedDeltaSeconds
 let currentDelta = 0
 
 export const applyAutopilotInput = (entity: Entity) => {
+  const targetDelta = Engine.instance.currentWorld.fixedDeltaSeconds
+
   const markerState = getState(AutopilotMarker)
 
   const controller = getComponent(entity, AvatarControllerComponent)
@@ -173,10 +173,16 @@ export const applyAutopilotInput = (entity: Entity) => {
   const distanceSquared = moveDirection.lengthSq()
   const avatarMovementSettings = getState(AvatarMovementSettingsState).value
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
+  const yDirectionMultiplier = 1.25
   currentDelta = lerp(currentDelta, targetDelta, 0.1)
 
   if (distanceSquared > minimumDistanceSquared)
-    updateLocalAvatarPosition(moveDirection.normalize().multiplyScalar(currentDelta * legSpeed))
+    updateLocalAvatarPosition(
+      moveDirection
+        .normalize()
+        .multiplyScalar(currentDelta * legSpeed)
+        .setY(moveDirection.y * yDirectionMultiplier)
+    )
   else {
     clearWalkPoint()
     currentDelta = 0
