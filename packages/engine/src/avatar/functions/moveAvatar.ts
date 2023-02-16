@@ -7,6 +7,7 @@ import { getState } from '@xrengine/hyperflux'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_000, V_010, V_111 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
+import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -148,35 +149,43 @@ const _additionalMovement = new Vector3()
 
 const minimumDistanceSquared = 0.5 * 0.5
 const walkPoint = new Vector3()
+const targetDelta = 0.0175
+let currentDelta = 0
+
 export const applyAutopilotInput = (entity: Entity) => {
   const markerState = getState(AutopilotMarker)
 
   const controller = getComponent(entity, AvatarControllerComponent)
-  if (!controller || markerState.walkTarget.value == undefined) return
+
+  if (!controller || !markerState.walkTarget.value) return
 
   if (controller.gamepadLocalInput.lengthSq() > 0 || controller.isJumping) {
     clearWalkPoint()
+    currentDelta = 0
     return
   }
 
   scaleFluctuate()
+
   const avatarPos = getComponent(entity, TransformComponent).position
   walkPoint.copy(markerState.walkTarget.value)
   const moveDirection = walkPoint.sub(avatarPos)
   const distanceSquared = moveDirection.lengthSq()
   const avatarMovementSettings = getState(AvatarMovementSettingsState).value
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
-  const delta = 0.0175
+
+  currentDelta = lerp(currentDelta, targetDelta, 0.1)
 
   if (distanceSquared > minimumDistanceSquared)
     updateLocalAvatarPosition(
       moveDirection
         .normalize()
-        .multiplyScalar(delta * legSpeed)
+        .multiplyScalar(currentDelta * legSpeed)
         .setY(controller.verticalVelocity)
     )
   else {
     clearWalkPoint()
+    currentDelta = 0
   }
 }
 
