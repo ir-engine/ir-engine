@@ -120,7 +120,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
     // controller.isInAir = !grounded
-    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
+    controller.isInAir = hit.distance > 1 + controllerOffset * 10
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
     if (hit.distance <= avatarGroundRaycastAcceptableDistance) {
       if (attached) originTransform.position.y = hit.position.y
@@ -159,7 +159,7 @@ export const applyAutopilotInput = (entity: Entity) => {
 
   if (!controller || !markerState.walkTarget.value) return
 
-  if (controller.gamepadLocalInput.lengthSq() > 0 || controller.isJumping) {
+  if (controller.gamepadLocalInput.lengthSq() > 0 || controller.isJumping || controller.isInAir) {
     clearWalkPoint()
     currentDelta = 0
     return
@@ -173,16 +173,10 @@ export const applyAutopilotInput = (entity: Entity) => {
   const distanceSquared = moveDirection.lengthSq()
   const avatarMovementSettings = getState(AvatarMovementSettingsState).value
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
-
   currentDelta = lerp(currentDelta, targetDelta, 0.1)
 
   if (distanceSquared > minimumDistanceSquared)
-    updateLocalAvatarPosition(
-      moveDirection
-        .normalize()
-        .multiplyScalar(currentDelta * legSpeed)
-        .setY(controller.verticalVelocity)
-    )
+    updateLocalAvatarPosition(moveDirection.normalize().multiplyScalar(currentDelta * legSpeed))
   else {
     clearWalkPoint()
     currentDelta = 0

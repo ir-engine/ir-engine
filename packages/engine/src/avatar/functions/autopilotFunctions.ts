@@ -107,7 +107,7 @@ export const assessWalkability = (
   world: World
 ): boolean => {
   const transform = getComponent(entity, TransformComponent)
-  autopilotRaycastArgs.origin.copy(transform.position).setY(transform.position.y + 1)
+  autopilotRaycastArgs.origin.copy(transform.position).setY(transform.position.y + 1.5)
   autopilotRaycastArgs.direction.copy(targetPosition).sub(autopilotRaycastArgs.origin)
   const castedRay = Physics.castRay(world, autopilotRaycastArgs)
 
