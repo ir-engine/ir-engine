@@ -161,6 +161,7 @@ export const applyAutopilotInput = (entity: Entity) => {
 
   if (controller.gamepadLocalInput.lengthSq() > 0 || controller.isJumping || controller.isInAir) {
     clearWalkPoint()
+    currentDirection.set(0, 0, 0)
     return
   }
 
@@ -184,6 +185,7 @@ export const applyAutopilotInput = (entity: Entity) => {
   if (distanceSquared > minimumDistanceSquared) updateLocalAvatarPosition(currentDirection)
   else {
     clearWalkPoint()
+    currentDirection.set(0, 0, 0)
   }
 }
 
