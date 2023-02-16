@@ -19,4 +19,5 @@ export interface ServerSettingInterface {
   local: boolean
   releaseName: string
   instanceserverUnreachableTimeoutSeconds: number
+  githubWebhookSecret: string
 }
