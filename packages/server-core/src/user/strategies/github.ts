@@ -74,6 +74,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
       await this.app.service('identity-provider').remove(identityProvider.id)
       await this.app.service('user').remove(identityProvider.userId)
+      await this.app.service('github-repo-access-refresh').find(Object.assign({}, params, { user }))
       return super.updateEntity(entity, profile, params)
     }
     const existingEntity = await super.findEntity(profile, params)
@@ -82,9 +83,12 @@ export class GithubStrategy extends CustomOAuthStrategy {
       profile.oauthToken = params.access_token
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
+      await this.app.service('github-repo-access-refresh').find(Object.assign({}, params, { user }))
       return newIP
-    } else if (existingEntity.userId === identityProvider.userId) return existingEntity
-    else {
+    } else if (existingEntity.userId === identityProvider.userId) {
+      await this.app.service('github-repo-access-refresh').find(Object.assign({}, params, { user }))
+      return existingEntity
+    } else {
       throw new Error('Another user is linked to this account')
     }
   }

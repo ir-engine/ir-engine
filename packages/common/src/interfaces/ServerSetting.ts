@@ -20,6 +20,7 @@ export interface ServerSetting {
   local?: boolean
   releaseName?: string
   instanceserverUnreachableTimeoutSeconds?: number
+  githubWebhookSecret?: string
 }
 
 export interface HubInfo {
@@ -28,6 +29,6 @@ export interface HubInfo {
 
 export interface PatchServerSetting {
   gaTrackingId?: string
-  gitPem?: string
+  githubWebhookSecret?: string
   instanceserverUnreachableTimeoutSeconds?: number
 }

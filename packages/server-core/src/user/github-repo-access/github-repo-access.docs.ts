@@ -3,17 +3,17 @@
  */
 export default {
   definitions: {
-    'login-token': {
+    'github-repo-access': {
       type: 'object',
       properties: {
-        identityProviderId: {
+        token: {
           type: 'string'
         }
       }
     },
-    'login-token_list': {
+    'github-repo-access_list': {
       type: 'array',
-      items: { $ref: '#/definitions/login-token' }
+      items: { $ref: '#/definitions/github-repo-access' }
     }
   }
 }

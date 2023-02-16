@@ -123,7 +123,11 @@ export default async function WidgetUISystem(world: World) {
       dispatchAction(WidgetAppActions.showWidget({ id: openWidget[0], shown: false }))
       dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true, handedness }))
     } else {
-      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: !widgetState.widgetsMenuOpen.value, handedness }))
+      if (widgetState.handedness.value !== handedness) {
+        dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true, handedness }))
+      } else {
+        dispatchAction(WidgetAppActions.showWidgetMenu({ shown: !widgetState.widgetsMenuOpen.value, handedness }))
+      }
     }
   }
 

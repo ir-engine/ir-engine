@@ -509,7 +509,7 @@ export class Project extends Service {
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
       if (!githubIdentityProvider) throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
-      const split = githubPathRegexExec[1].split('/')
+      const split = githubPathRegexExec[2].split('/')
       const org = split[0]
       const repo = split[1].replace('.git', '')
       const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.oauthToken)
@@ -641,28 +641,23 @@ export class Project extends Service {
         paginate: false
       })) as any
       let allowedProjects = await projectPermissions.map((permission) => permission.project)
-      const repos = githubIdentityProvider ? await getUserRepos(githubIdentityProvider.oauthToken) : []
-      const repoPaths = repos.map((repo) => repo.svn_url.toLowerCase())
+      const repoAccess = githubIdentityProvider
+        ? await this.app.service('github-repo-access').Model.findAll({
+            paginate: false,
+            where: {
+              identityProviderId: githubIdentityProvider.id
+            }
+          })
+        : []
+      const repoPaths = repoAccess.map((item) => item.repo.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
       allowedProjectGithubRepos = await Promise.all(
         allowedProjectGithubRepos.map(async (project) => {
           const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
           if (!regexExec) return { repositoryPath: '', name: '' }
-          const split = regexExec[1].split('/')
-          try {
-            project.repositoryPath = await getRepo(
-              split[0],
-              split[1].replace(/.git/, ''),
-              githubIdentityProvider.oauthToken
-            )
-            return project
-          } catch (err) {
-            logger.error('repo fetch error %o', err)
-            errors.push(err)
-            return {
-              repositoryPath: 'ERROR'
-            }
-          }
+          const split = regexExec[2].split('/')
+          project.repositoryPath = `https://github.com/${split[0]}/${split[1]}`
+          return project
         })
       )
       const pushableAllowedProjects = allowedProjectGithubRepos.filter(
@@ -671,11 +666,22 @@ export class Project extends Service {
       projectPushIds = projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
 
       if (githubIdentityProvider) {
-        const allowedRepos = await getUserRepos(githubIdentityProvider.oauthToken)
+        repoAccess.forEach((item, index) => {
+          const url = item.repo.toLowerCase()
+          repoAccess[index] = url
+          repoAccess.push(`${url}.git`)
+          const regexExec = GITHUB_URL_REGEX.exec(url)
+          if (regexExec) {
+            const split = regexExec[2].split('/')
+            repoAccess.push(`git@github.com:${split[0]}/${split[1]}`)
+            repoAccess.push(`git@github.com:${split[0]}/${split[1]}.git`)
+          }
+        })
+
         const matchingAllowedRepos = await this.app.service('project').Model.findAll({
           where: {
             repositoryPath: {
-              [Op.in]: allowedRepos.map((repo) => repo.svn_url)
+              [Op.in]: repoAccess
             }
           }
         })
