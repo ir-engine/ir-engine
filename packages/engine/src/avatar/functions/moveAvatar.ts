@@ -149,7 +149,7 @@ const _additionalMovement = new Vector3()
 
 const minimumDistanceSquared = 0.5 * 0.5
 const walkPoint = new Vector3()
-const targetDelta = 0.0175
+const targetDelta = Engine.instance.currentWorld.fixedDeltaSeconds
 let currentDelta = 0
 
 export const applyAutopilotInput = (entity: Entity) => {
