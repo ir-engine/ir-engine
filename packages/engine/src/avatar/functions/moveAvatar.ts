@@ -148,10 +148,10 @@ const _additionalMovement = new Vector3()
 
 const minimumDistanceSquared = 0.5 * 0.5
 const walkPoint = new Vector3()
-let currentDelta = 0
 
+const currentDirection = new Vector3()
 export const applyAutopilotInput = (entity: Entity) => {
-  const targetDelta = Engine.instance.currentWorld.fixedDeltaSeconds
+  const deltaSeconds = Engine.instance.currentWorld.fixedDeltaSeconds
 
   const markerState = getState(AutopilotMarker)
 
@@ -161,7 +161,6 @@ export const applyAutopilotInput = (entity: Entity) => {
 
   if (controller.gamepadLocalInput.lengthSq() > 0 || controller.isJumping || controller.isInAir) {
     clearWalkPoint()
-    currentDelta = 0
     return
   }
 
@@ -174,18 +173,17 @@ export const applyAutopilotInput = (entity: Entity) => {
   const avatarMovementSettings = getState(AvatarMovementSettingsState).value
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
   const yDirectionMultiplier = 1.25
-  currentDelta = lerp(currentDelta, targetDelta, 0.1)
+  moveDirection
+    .normalize()
+    .multiplyScalar(deltaSeconds * legSpeed)
+    .setY(moveDirection.y * yDirectionMultiplier)
 
-  if (distanceSquared > minimumDistanceSquared)
-    updateLocalAvatarPosition(
-      moveDirection
-        .normalize()
-        .multiplyScalar(currentDelta * legSpeed)
-        .setY(moveDirection.y * yDirectionMultiplier)
-    )
+  const lerpSpeed = 10
+  currentDirection.lerp(moveDirection, deltaSeconds * lerpSpeed)
+
+  if (distanceSquared > minimumDistanceSquared) updateLocalAvatarPosition(currentDirection)
   else {
     clearWalkPoint()
-    currentDelta = 0
   }
 }
 
