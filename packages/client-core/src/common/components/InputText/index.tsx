@@ -73,6 +73,7 @@ const InputText = ({
   const ref = useRef(null)
 
   useEffect(() => {
+    if (type !== 'number') return
     let input
     for (const child of (ref.current as any)?.children) {
       if (child.tagName === 'INPUT') {

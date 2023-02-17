@@ -1,5 +1,5 @@
 /**
- * An object for swagger documentation configiration
+ * An object for swagger documentation configuration
  */
 export default {
   definitions: {

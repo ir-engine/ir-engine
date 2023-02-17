@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@xrengine/client-core/src/admin/components/Project/ProjectDrawer'
-import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
+import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -30,11 +30,13 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   CircularProgress,
   IconButton,
   InputBase,
   Menu,
   MenuItem,
+  Button as MuiButton,
   Paper
 } from '@mui/material'
 
@@ -145,78 +147,81 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
 }
 
 const ProjectsPage = () => {
-  const [installedProjects, setInstalledProjects] = useState<ProjectInterface[]>([]) // constant projects initialized with an empty array.
-  const [officialProjects, setOfficialProjects] = useState<ProjectInterface[]>([])
-  const [communityProjects, setCommunityProjects] = useState<ProjectInterface[]>([])
-  const [activeProject, setActiveProject] = useState<ProjectInterface | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
-  const [query, setQuery] = useState('')
-  const [filterAnchorEl, setFilterAnchorEl] = useState<any>(null)
-  const [projectAnchorEl, setProjectAnchorEl] = useState<any>(null)
-  const [filter, setFilter] = useState({ installed: false, official: true, community: true })
-  const [isCreateDialogOpen, setCreateDialogOpen] = useState(false)
-  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [updatingProject, setUpdatingProject] = useState(false)
-  const [uploadingProject, setUploadingProject] = useState(false)
-  const [editPermissionsDialogOpen, setPermissionsDialogOpen] = useState(false)
-  const [projectDrawerOpen, setProjectDrawerOpen] = useState(false)
-  const [changeDestination, setChangeDestination] = useState(false)
+  const installedProjects = useHookstate<ProjectInterface[]>([]) // constant projects initialized with an empty array.
+  const officialProjects = useHookstate<ProjectInterface[]>([])
+  const communityProjects = useHookstate<ProjectInterface[]>([])
+  const activeProject = useHookstate<ProjectInterface | null>(null)
+  const loading = useHookstate(false)
+  const error = useHookstate<Error | null>(null)
+  const query = useHookstate('')
+  const filterAnchorEl = useHookstate<any>(null)
+  const projectAnchorEl = useHookstate<any>(null)
+  const filter = useHookstate({ installed: false, official: true, community: true })
+  const isCreateDialogOpen = useHookstate(false)
+  const isDeleteDialogOpen = useHookstate(false)
+  const updatingProject = useHookstate(false)
+  const uploadingProject = useHookstate(false)
+  const editPermissionsDialogOpen = useHookstate(false)
+  const projectDrawerOpen = useHookstate(false)
+  const changeDestination = useHookstate(false)
 
   const authState = useAuthState()
+  const projectState = useProjectState()
   const authUser = authState.authUser
   const user = authState.user
 
-  const ownsActiveProject =
-    activeProject?.project_permissions &&
-    activeProject.project_permissions.find(
-      (permission) => permission.userId === user.value.id && permission.type === 'owner'
-    )
+  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
   const { t } = useTranslation()
   const route = useRouter()
 
   const fetchInstalledProjects = async () => {
-    setLoading(true)
+    loading.set(true)
     try {
       const data = await getProjects()
-      setInstalledProjects(data.sort(sortAlphabetical) ?? [])
-      if (activeProject) setActiveProject(data.find((item) => item.id === activeProject.id) as ProjectInterface | null)
+      installedProjects.set(data.sort(sortAlphabetical) ?? [])
+      if (activeProject.value)
+        activeProject.set(data.find((item) => item.id === activeProject.value?.id) as ProjectInterface | null)
     } catch (error) {
       logger.error(error)
-      setError(error)
+      error.set(error)
     }
-    setLoading(false)
+    loading.set(false)
   }
 
   const fetchOfficialProjects = async (query?: string) => {
-    setLoading(true)
+    loading.set(true)
     try {
       const data = await (query
         ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
         : OfficialProjectData)
 
-      setOfficialProjects((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
+      officialProjects.set((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
     } catch (error) {
       logger.error(error)
-      setError(error)
+      error.set(error)
     }
-    setLoading(false)
+    loading.set(false)
   }
 
   const fetchCommunityProjects = async (query?: string) => {
-    setLoading(true)
+    loading.set(true)
     try {
       const data = await (query
         ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
         : CommunityProjectData)
 
-      setCommunityProjects(data.sort(sortAlphabetical) ?? [])
+      communityProjects.set(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
       logger.error(error)
-      setError(error)
+      error.set(error)
     }
-    setLoading(false)
+    loading.set(false)
+  }
+
+  const refreshGithubRepoAccess = () => {
+    ProjectService.refreshGithubRepoAccess()
+    fetchInstalledProjects()
   }
 
   useEffect(() => {
@@ -266,20 +271,20 @@ const ProjectsPage = () => {
     await fetchInstalledProjects()
   }
 
-  const openDeleteConfirm = () => setDeleteDialogOpen(true)
-  const closeDeleteConfirm = () => setDeleteDialogOpen(false)
-  const openCreateDialog = () => setCreateDialogOpen(true)
-  const closeCreateDialog = () => setCreateDialogOpen(false)
-  const openEditPermissionsDialog = () => setPermissionsDialogOpen(true)
-  const closeEditPermissionsDialog = () => setPermissionsDialogOpen(false)
+  const openDeleteConfirm = () => isDeleteDialogOpen.set(true)
+  const closeDeleteConfirm = () => isDeleteDialogOpen.set(false)
+  const openCreateDialog = () => isCreateDialogOpen.set(true)
+  const closeCreateDialog = () => isCreateDialogOpen.set(false)
+  const openEditPermissionsDialog = () => editPermissionsDialogOpen.set(true)
+  const closeEditPermissionsDialog = () => editPermissionsDialogOpen.set(false)
 
   const deleteProject = async () => {
     closeDeleteConfirm()
 
-    setUpdatingProject(true)
-    if (activeProject) {
+    updatingProject.set(true)
+    if (activeProject.value) {
       try {
-        const proj = installedProjects.find((proj) => proj.id === activeProject.id)!
+        const proj = installedProjects.value.find((proj) => proj.id === activeProject.value?.id)!
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()
       } catch (err) {
@@ -288,24 +293,24 @@ const ProjectsPage = () => {
     }
 
     closeProjectContextMenu()
-    setUpdatingProject(false)
+    updatingProject.set(false)
   }
 
   const pushProject = async (id: string) => {
-    setUploadingProject(true)
+    uploadingProject.set(true)
     try {
       await ProjectService.pushProject(id)
       await fetchInstalledProjects()
     } catch (err) {
       logger.error(err)
     }
-    setUploadingProject(false)
+    uploadingProject.set(false)
   }
 
   const isInstalled = (project: ProjectInterface | null) => {
     if (!project) return false
 
-    for (const installedProject of installedProjects) {
+    for (const installedProject of installedProjects.value) {
       if (project.repositoryPath === installedProject.repositoryPath) return true
     }
 
@@ -319,30 +324,28 @@ const ProjectsPage = () => {
   }
 
   const handleSearch = (e) => {
-    setQuery(e.target.value)
+    query.set(e.target.value)
 
-    if (filter.installed) {
+    if (filter.value.installed) {
     }
-
-    if (filter.official) fetchOfficialProjects(e.target.value)
-
-    if (filter.community) fetchCommunityProjects(e.target.value)
+    if (filter.value.official) fetchOfficialProjects(e.target.value)
+    if (filter.value.community) fetchCommunityProjects(e.target.value)
   }
 
-  const clearSearch = () => setQuery('')
-  const openFilterMenu = (e) => setFilterAnchorEl(e.target)
-  const closeFilterMenu = () => setFilterAnchorEl(null)
-  const toggleFilter = (type: string) => setFilter({ ...filter, [type]: !filter[type] })
+  const clearSearch = () => query.set('')
+  const openFilterMenu = (e) => filterAnchorEl.set(e.target)
+  const closeFilterMenu = () => filterAnchorEl.set(null)
+  const toggleFilter = (type: string) => filter.set({ ...filter.value, [type]: !filter.value[type] })
 
   const openProjectContextMenu = (event: MouseEvent, project: ProjectInterface) => {
     event.preventDefault()
     event.stopPropagation()
 
-    setActiveProject(project)
-    setProjectAnchorEl(event.target)
+    activeProject.set(JSON.parse(JSON.stringify(project)))
+    projectAnchorEl.set(event.target)
   }
 
-  const closeProjectContextMenu = () => setProjectAnchorEl(null)
+  const closeProjectContextMenu = () => projectAnchorEl.set(null)
 
   const renderProjectList = (projects: ProjectInterface[], areInstalledProjects?: boolean) => {
     if (!projects || projects.length <= 0) return <></>
@@ -390,14 +393,14 @@ const ProjectsPage = () => {
     )
   }
 
-  const handleOpenProjectDrawer = (changeDestination = false) => {
-    setProjectDrawerOpen(true)
-    setChangeDestination(changeDestination)
+  const handleOpenProjectDrawer = (change = false) => {
+    projectDrawerOpen.set(true)
+    changeDestination.set(change)
   }
 
   const handleCloseProjectDrawer = () => {
-    setChangeDestination(false)
-    setProjectDrawerOpen(false)
+    changeDestination.set(false)
+    projectDrawerOpen.set(false)
   }
 
   /**
@@ -432,32 +435,32 @@ const ProjectsPage = () => {
                 <FilterList />
               </IconButton>
               <Menu
-                anchorEl={filterAnchorEl}
-                open={Boolean(filterAnchorEl)}
+                anchorEl={filterAnchorEl.value}
+                open={Boolean(filterAnchorEl.value)}
                 onClose={closeFilterMenu}
                 classes={{ paper: styles.filterMenu }}
               >
                 <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('installed')}>
-                  {filter.installed && <Check />}
+                  {filter.value.installed && <Check />}
                   {t(`editor.projects.installed`)}
                 </MenuItem>
                 <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('official')}>
-                  {filter.official && <Check />}
+                  {filter.value.official && <Check />}
                   {t(`editor.projects.official`)}
                 </MenuItem>
                 <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('community')}>
-                  {filter.community && <Check />}
+                  {filter.value.community && <Check />}
                   {t(`editor.projects.community`)}
                 </MenuItem>
               </Menu>
               <InputBase
-                value={query}
+                value={query.value}
                 classes={{ root: styles.inputRoot }}
                 placeholder={t(`editor.projects.lbl-searchProject`)}
                 inputProps={{ 'aria-label': t(`editor.projects.lbl-searchProject`) }}
                 onChange={handleSearch}
               />
-              {query ? (
+              {query.value ? (
                 <IconButton aria-label="search" disableRipple onClick={clearSearch}>
                   <Clear />
                 </IconButton>
@@ -468,6 +471,25 @@ const ProjectsPage = () => {
               )}
             </Paper>
             <div className={styles.buttonContainer}>
+              {githubProvider != null && (
+                <MuiButton
+                  className={styles.refreshGHBtn}
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  disabled={projectState.refreshingGithubRepoAccess.value}
+                  onClick={() => refreshGithubRepoAccess()}
+                >
+                  {projectState.refreshingGithubRepoAccess.value ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
+                      {t('admin:components.project.refreshingGithubRepoAccess')}
+                    </Box>
+                  ) : (
+                    t('admin:components.project.refreshGithubRepoAccess')
+                  )}
+                </MuiButton>
+              )}
               <Button onClick={() => handleOpenProjectDrawer(false)} className={styles.btn}>
                 {t(`editor.projects.install`)}
               </Button>
@@ -477,34 +499,34 @@ const ProjectsPage = () => {
             </div>
           </div>
           <div className={styles.projectGrid}>
-            {error && <div className={styles.errorMsg}>{error.message}</div>}
-            {(!query || filter.installed) && (
+            {error.value && <div className={styles.errorMsg}>{error.value.message}</div>}
+            {(!query.value || filter.value.installed) && (
               <ProjectExpansionList
                 id={t(`editor.projects.installed`)}
-                summary={`${t('editor.projects.installed')} (${installedProjects.length})`}
+                summary={`${t('editor.projects.installed')} (${installedProjects.value.length})`}
               >
-                {renderProjectList(installedProjects, true)}
+                {renderProjectList(installedProjects.value, true)}
               </ProjectExpansionList>
             )}
-            {(!query || (query && filter.official && officialProjects.length > 0)) && (
+            {(!query.value || (query.value && filter.value.official && officialProjects.value.length > 0)) && (
               <ProjectExpansionList
                 id={t(`editor.projects.official`)}
-                summary={`${t('editor.projects.official')} (${officialProjects.length})`}
+                summary={`${t('editor.projects.official')} (${officialProjects.value.length})`}
               >
-                {renderProjectList(officialProjects)}
+                {renderProjectList(officialProjects.value)}
               </ProjectExpansionList>
             )}
-            {(!query || (!query && filter.community && communityProjects.length > 0)) && (
+            {(!query.value || (!query.value && filter.value.community && communityProjects.value.length > 0)) && (
               <ProjectExpansionList
                 id={t(`editor.projects.community`)}
-                summary={`${t('editor.projects.community')} (${communityProjects.length})`}
+                summary={`${t('editor.projects.community')} (${communityProjects.value.length})`}
               >
-                {renderProjectList(communityProjects)}
+                {renderProjectList(communityProjects.value)}
               </ProjectExpansionList>
             )}
           </div>
         </div>
-        {installedProjects.length < 2 && !loading ? (
+        {installedProjects.value.length < 2 && !loading ? (
           <div className={styles.welcomeContainer}>
             <h1>{t('editor.projects.welcomeMsg')}</h1>
             <h2>{t('editor.projects.description')}</h2>
@@ -512,79 +534,91 @@ const ProjectsPage = () => {
           </div>
         ) : null}
       </div>
-      {activeProject?.name !== 'default-project' && (
+      {activeProject.value?.name !== 'default-project' && (
         <Menu
-          anchorEl={projectAnchorEl}
-          open={Boolean(projectAnchorEl)}
+          anchorEl={projectAnchorEl.value}
+          open={Boolean(projectAnchorEl.value)}
           onClose={closeProjectContextMenu}
-          TransitionProps={{ onExited: () => setActiveProject(null) }}
+          TransitionProps={{ onExited: () => activeProject.set(null) }}
           classes={{ paper: styles.filterMenu }}
         >
-          {activeProject && isInstalled(activeProject) && (
+          {activeProject.value && isInstalled(activeProject.value) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openEditPermissionsDialog}>
               <Group />
               {t(`editor.projects.permissions`)}
             </MenuItem>
           )}
-          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && ownsActiveProject && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
-              <Download />
-              {t(`editor.projects.updateFromGithub`)}
-            </MenuItem>
-          )}
-          {activeProject && isInstalled(activeProject) && !hasRepo(activeProject) && ownsActiveProject && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
-              <Link />
-              {t(`editor.projects.link`)}
-            </MenuItem>
-          )}
-          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && ownsActiveProject && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
-              <LinkOff />
-              {t(`editor.projects.unlink`)}
-            </MenuItem>
-          )}
-          {activeProject?.hasWriteAccess && hasRepo(activeProject) && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => pushProject(activeProject.id)}>
-              {uploadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Upload />}
+          {activeProject.value &&
+            isInstalled(activeProject.value) &&
+            hasRepo(activeProject.value) &&
+            activeProject.value.hasWriteAccess && (
+              <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
+                <Download />
+                {t(`editor.projects.updateFromGithub`)}
+              </MenuItem>
+            )}
+          {activeProject.value &&
+            isInstalled(activeProject.value) &&
+            !hasRepo(activeProject.value) &&
+            activeProject.value.hasWriteAccess && (
+              <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
+                <Link />
+                {t(`editor.projects.link`)}
+              </MenuItem>
+            )}
+          {activeProject.value &&
+            isInstalled(activeProject.value) &&
+            hasRepo(activeProject.value) &&
+            activeProject.value.hasWriteAccess && (
+              <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
+                <LinkOff />
+                {t(`editor.projects.unlink`)}
+              </MenuItem>
+            )}
+          {activeProject.value?.hasWriteAccess && hasRepo(activeProject.value) && (
+            <MenuItem
+              classes={{ root: styles.filterMenuItem }}
+              onClick={() => activeProject?.value?.id && pushProject(activeProject.value.id)}
+            >
+              {uploadingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Upload />}
               {t(`editor.projects.pushToGithub`)}
             </MenuItem>
           )}
-          {isInstalled(activeProject) && ownsActiveProject && (
+          {isInstalled(activeProject.value) && activeProject.value?.hasWriteAccess && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
-              {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
+              {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
               {t(`editor.projects.uninstall`)}
             </MenuItem>
           )}
-          {!isInstalled(activeProject) && (
+          {!isInstalled(activeProject.value) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
-              {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
+              {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
               {t(`editor.projects.install`)}
             </MenuItem>
           )}
         </Menu>
       )}
-      <CreateProjectDialog open={isCreateDialogOpen} onSuccess={onCreateProject} onClose={closeCreateDialog} />
-      {activeProject && activeProject.project_permissions && (
+      <CreateProjectDialog open={isCreateDialogOpen.value} onSuccess={onCreateProject} onClose={closeCreateDialog} />
+      {activeProject.value && activeProject.value.project_permissions && (
         <EditPermissionsDialog
-          open={editPermissionsDialogOpen}
+          open={editPermissionsDialogOpen.value}
           onClose={closeEditPermissionsDialog}
-          project={activeProject}
-          projectPermissions={activeProject.project_permissions}
+          project={activeProject.value}
+          projectPermissions={activeProject.value.project_permissions}
           addPermission={onCreatePermission}
           patchPermission={onPatchPermission}
           removePermission={onRemovePermission}
         />
       )}
       <ProjectDrawer
-        open={projectDrawerOpen}
-        inputProject={activeProject}
-        existingProject={activeProject != null}
+        open={projectDrawerOpen.value}
+        inputProject={activeProject.value}
+        existingProject={activeProject.value != null}
         onClose={handleCloseProjectDrawer}
-        changeDestination={changeDestination}
+        changeDestination={changeDestination.value}
       />
       <DeleteDialog
-        open={isDeleteDialogOpen}
+        open={isDeleteDialogOpen.value}
         isProjectMenu
         onCancel={closeDeleteConfirm}
         onClose={closeDeleteConfirm}
