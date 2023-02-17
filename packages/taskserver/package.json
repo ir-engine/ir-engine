@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/taskserver",
   "description": "Task server for EtherealEngine platform",
-  "version": "1.0.0-rc8",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -29,7 +29,7 @@
   "contributors": [],
   "bugs": {},
   "engines": {
-    "node": ">= 16.3.0"
+    "node": ">= 18.12.0"
   },
   "scripts": {
     "check-errors": "tsc --noemit",
@@ -42,9 +42,9 @@
   "dependencies": {
     "@feathersjs/express": "5.0.0-pre.29",
     "@feathersjs/feathers": "5.0.0-pre.29",
-    "@feathersjs/primus":  "4.5.15",
+    "@feathersjs/primus": "4.5.15",
     "@swc/core": "^1.2.210",
-    "@xrengine/server-core": "^1.0.0-rc8",
+    "@xrengine/server-core": "^1.0.0",
     "compression": "1.7.4",
     "cors": "2.8.5",
     "cross-env": "7.0.3",
@@ -54,6 +54,6 @@
   },
   "devDependencies": {
     "@types/compression": "1.7.2",
-    "@types/node": "16.11.26"
+    "@types/node": "18.11.18"
   }
 }

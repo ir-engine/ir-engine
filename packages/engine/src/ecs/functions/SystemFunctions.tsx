@@ -8,16 +8,8 @@ import { ReactorProps, ReactorRoot, startReactor } from '@xrengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
-import {
-  defineComponent,
-  defineQuery,
-  Query,
-  removeComponent,
-  removeQuery,
-  setComponent,
-  useQuery
-} from './ComponentFunctions'
-import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
+import { defineQuery, Query, QueryComponents, useQuery } from './ComponentFunctions'
+import { EntityReactorProps } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
@@ -44,6 +36,8 @@ export interface SystemInstance extends SystemInstanceData {
   name: string
   uuid: string
   type: SystemUpdateType
+  before?: string
+  after?: string
   sceneSystem: boolean
   enabled: boolean
   subsystems: SystemInstance[]
@@ -62,6 +56,9 @@ export type SystemModuleType<A> = {
   uuid: string
   type: SystemUpdateType
   sceneSystem?: boolean
+  /** @todo replace this with a more robust identifier */
+  before?: string
+  after?: string
   args?: A
 }
 
@@ -69,6 +66,8 @@ export type SystemFactoryType<A> = {
   uuid: string
   systemModule: SystemModule<A>
   type: SystemUpdateType
+  before?: string
+  after?: string
   sceneSystem?: boolean
   args?: A
 }
@@ -151,9 +150,11 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         uuid: s.uuid,
         args: s.args,
         type: s.type,
+        before: s.before,
+        after: s.after,
         sceneSystem: s.sceneSystem,
         systemModule: await s.systemLoader()
-      }
+      } as SystemFactoryType<any>
     })
   )
   const systems = await Promise.all(
@@ -162,16 +163,28 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         uuid: s.uuid,
         name: s.systemModule.default.name,
         type: s.type,
+        before: s.before,
+        after: s.after,
         sceneSystem: s.sceneSystem,
         enabled: true,
         ...(await loadSystemInjection(world, s))
-      }
+      } as SystemInstance
     })
   )
   systems.forEach((s) => {
     if (s) {
       world.systemsByUUID[s.uuid] = s
-      world.pipelines[s.type].push(s)
+      if (s.before) {
+        const index = world.pipelines[s.type].findIndex((system) => system.uuid === s.before)
+        if (index === -1) throw new Error(`System with id ${s.before} could not be found in pipeline ${s.type}`)
+        world.pipelines[s.type].splice(index, 0, s)
+      } else if (s.after) {
+        const index = world.pipelines[s.type].findIndex((system) => system.uuid === s.after)
+        if (index === -1) throw new Error(`System with id ${s.after} could not be found in pipeline ${s.type}`)
+        world.pipelines[s.type].splice(index + 1, 0, s)
+      } else {
+        world.pipelines[s.type].push(s)
+      }
     }
   })
 }
@@ -213,7 +226,8 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
   world.pipelines[systemData.type].push(systemData)
 }
 
-export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
+export const unloadAllSystems = (world: World, sceneSystemsOnly = false) => {
+  const promises = [] as Promise<void>[]
   Object.entries(world.pipelines).forEach(([type, pipeline]) => {
     const systemsToRemove: any[] = []
     pipeline.forEach((s) => {
@@ -227,24 +241,39 @@ export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
       const i = pipeline.indexOf(s)
       pipeline.splice(i, 1)
       delete world.systemsByUUID[s.uuid]
+      promises.push(s.cleanup())
     })
   })
+  return promises
+}
+
+export const unloadSystems = (world: World, uuids: string[]) => {
+  const systemsToUnload = uuids.map((uuid) => world.systemsByUUID[uuid])
+  const promises = [] as Promise<void>[]
+  for (const system of systemsToUnload) {
+    const pipeline = world.pipelines[system.type]
+    const i = pipeline.indexOf(system)
+    pipeline.splice(i, 1)
+    delete world.systemsByUUID[system.uuid]
+    promises.push(system.cleanup())
+  }
+  return promises
 }
 
 export const unloadSystem = (world: World, uuid: string) => {
-  const entries = Object.entries(world.pipelines)
-  for (const [type, pipeline] of entries) {
-    const system = pipeline.find((s) => s.uuid === uuid)
-    if (system) {
-      const i = pipeline.indexOf(system)
-      pipeline.splice(i, 1)
-      delete world.systemsByUUID[system.uuid]
-      return
-    }
-  }
+  const systemToUnload = world.systemsByUUID[uuid]
+  const pipeline = world.pipelines[systemToUnload.type]
+  const i = pipeline.indexOf(systemToUnload)
+  pipeline.splice(i, 1)
+  delete world.systemsByUUID[systemToUnload.uuid]
+  return systemToUnload.cleanup()
 }
 
-function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReactor: React.FC<EntityReactorProps> }) {
+function QueryReactor(props: {
+  root: ReactorRoot
+  query: QueryComponents
+  ChildEntityReactor: React.FC<EntityReactorProps>
+}) {
   const entities = useQuery(props.query)
   return (
     <>
@@ -255,12 +284,8 @@ function QueryReactor(props: { root: ReactorRoot; query: Query; ChildEntityReact
   )
 }
 
-export const startQueryReactor = (
-  components: (bitECS.Component | bitECS.QueryModifier)[],
-  ChildEntityReactor: React.FC<EntityReactorProps>
-) => {
-  const query = defineQuery(components)
+export const startQueryReactor = (Components: QueryComponents, ChildEntityReactor: React.FC<EntityReactorProps>) => {
   return startReactor(({ root }: ReactorProps) => (
-    <QueryReactor query={query} ChildEntityReactor={ChildEntityReactor} root={root} />
+    <QueryReactor query={Components} ChildEntityReactor={ChildEntityReactor} root={root} />
   ))
 }

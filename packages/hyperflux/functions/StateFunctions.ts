@@ -1,6 +1,7 @@
 import { createState, SetInitialStateAction, State } from '@hookstate/core'
 
 import multiLogger from '@xrengine/common/src/logger'
+import { isNode } from '@xrengine/engine/src/common/functions/getEnvironment'
 
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
@@ -54,6 +55,7 @@ const stateNamespaceKey = 'ee.hyperflux'
  * we need to pass in a schema or validator function to this function (we should use ts-pattern for this).
  */
 export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
+  if (isNode) return
   const state = getState(stateDefinition)
 
   for (const key of keys) {

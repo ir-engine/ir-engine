@@ -17,11 +17,9 @@ import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { PortalEffects } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
-import {
-  PortalEffects,
-  setAvatarToLocationTeleportingState
-} from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { setAvatarToLocationTeleportingState } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { addActionReceptor, dispatchAction, getState, removeActionReceptor } from '@xrengine/hyperflux'
 
@@ -55,15 +53,14 @@ export const useLoadEngine = ({ setClientReady, injectedSystems }: LoadEnginePro
   }, [])
 }
 
-export const useLocationSpawnAvatar = (spectateIfNoVR = false) => {
+export const useLocationSpawnAvatar = (spectate = false) => {
   const engineState = useEngineState()
   const authState = useAuthState()
 
-  const vrSupported = useHookstate(getState(XRState)).supportedSessionModes['immersive-vr'].value
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
   useEffect(() => {
-    if (spectateIfNoVR && !vrSupported) {
+    if (spectate) {
       if (!engineState.sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
       dispatchAction(EngineActions.spectateUser({}))
       dispatchAction(EngineActions.joinedWorld({}))
@@ -159,16 +156,17 @@ export const usePortalTeleport = () => {
 
 type Props = {
   injectedSystems?: SystemModuleType<any>[]
+  spectate?: boolean
 }
 
-export const LoadEngineWithScene = ({ injectedSystems }: Props) => {
+export const LoadEngineWithScene = ({ injectedSystems, spectate }: Props) => {
   const engineState = useEngineState()
   const sceneState = useSceneState()
   const loadingState = useLoadingState()
   const [clientReady, setClientReady] = useState(false)
 
   useLoadEngine({ setClientReady, injectedSystems })
-  useLocationSpawnAvatar()
+  useLocationSpawnAvatar(spectate)
   usePortalTeleport()
 
   /**

@@ -3,7 +3,7 @@ import assert from 'assert'
 import { createEngine } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
-import { initSystems, unloadSystems } from './SystemFunctions'
+import { initSystems, unloadAllSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const MocksystemLoader = async () => {
@@ -117,7 +117,7 @@ describe('SystemFunctions', () => {
     })
   })
 
-  describe('unloadSystems', () => {
+  describe('unloadAllSystems', () => {
     it('can remove scene system', async () => {
       createEngine()
       const world = Engine.instance.currentWorld
@@ -133,7 +133,7 @@ describe('SystemFunctions', () => {
 
       assert.equal(world.pipelines[pipelineType].length, 1)
 
-      unloadSystems(world, true)
+      unloadAllSystems(world, true)
 
       assert.equal(world.pipelines[pipelineType].length, 0)
     })
@@ -159,7 +159,7 @@ describe('SystemFunctions', () => {
 
       assert.equal(world.pipelines[pipelineType].length, 2)
 
-      unloadSystems(world, false)
+      unloadAllSystems(world, false)
 
       assert.equal(world.pipelines[pipelineType].length, 0)
     })
@@ -185,7 +185,7 @@ describe('SystemFunctions', () => {
 
       assert.equal(world.pipelines[pipelineType].length, 2)
 
-      unloadSystems(world, true)
+      unloadAllSystems(world, true)
 
       assert.equal(world.pipelines[pipelineType].length, 1)
     })

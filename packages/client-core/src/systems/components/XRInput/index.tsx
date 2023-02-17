@@ -1,6 +1,6 @@
 import React from 'react'
 
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 const XRInput = React.forwardRef((props: any, ref) => {
   const { border = true, startIcon, startIconClick, endIcon, endIconClick, ...inputProps } = props

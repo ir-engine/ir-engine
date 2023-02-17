@@ -2,7 +2,7 @@ import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
-import { Component, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component, getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
@@ -56,24 +56,15 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
 
   const changeShadowMapResolution = (resolution) => {
-    updateProperties(props.comp, { shadowMapResolution: new Vector2(resolution, resolution) })
+    updateProperties(props.comp, { shadowMapResolution: resolution })
   }
 
-  const lightComponent = getComponent(props.node.entity, props.comp)
-  const csmEnabled = EngineRenderer.instance.csm && props.comp === DirectionalLightComponent
+  const lightComponent = useComponent(props.node.entity, props.comp).value as any
 
   return (
-    <Fragment>
-      <InputGroup
-        name="Cast Shadow"
-        label={t('editor:properties.directionalLight.lbl-castShadow')}
-        info={csmEnabled ? t('editor:properties.directionalLight.lbl-disableForCSM') : ''}
-      >
-        <BooleanInput
-          value={lightComponent.castShadow}
-          onChange={updateProperty(props.comp, 'castShadow')}
-          disabled={csmEnabled}
-        />
+    <>
+      <InputGroup name="Cast Shadows" label={t('editor:properties.directionalLight.lbl-castShadows')}>
+        <BooleanInput value={lightComponent.castShadow} onChange={updateProperty(props.comp, 'castShadow')} />
       </InputGroup>
       <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput
@@ -105,7 +96,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         value={lightComponent.shadowRadius}
         onChange={updateProperty(props.comp, 'shadowRadius')}
       />
-    </Fragment>
+    </>
   )
 }
 

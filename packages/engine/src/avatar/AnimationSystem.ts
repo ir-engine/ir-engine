@@ -1,4 +1,3 @@
-import { Not } from 'bitecs'
 import { Euler } from 'three'
 
 import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
@@ -9,12 +8,8 @@ import { defineQuery, getComponent, removeQuery } from '../ecs/functions/Compone
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
-import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
-import { AnimationManager } from './AnimationManager'
-import AvatarAnimationSystem from './AvatarAnimationSystem'
 import { AnimationComponent } from './components/AnimationComponent'
 
 const euler1YXZ = new Euler()
@@ -40,7 +35,6 @@ export function animationActionReceptor(
 }
 
 export default async function AnimationSystem(world: World) {
-  const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
   const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
@@ -49,30 +43,6 @@ export default async function AnimationSystem(world: World) {
     const { deltaSeconds } = world
 
     for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
-
-    for (const entity of desiredTransformQuery(world)) {
-      const desiredTransform = getComponent(entity, DesiredTransformComponent)
-      const mutableTransform = getComponent(entity, TransformComponent)
-
-      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * deltaSeconds)
-      // store rotation before interpolation
-      euler1YXZ.setFromQuaternion(mutableTransform.rotation)
-      // lerp to desired rotation
-      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * deltaSeconds)
-
-      euler2YXZ.setFromQuaternion(mutableTransform.rotation)
-      // use axis locks - yes this is correct, the axis order is weird because quaternions
-      if (desiredTransform.lockRotationAxis[0]) {
-        euler2YXZ.x = euler1YXZ.x
-      }
-      if (desiredTransform.lockRotationAxis[2]) {
-        euler2YXZ.y = euler1YXZ.y
-      }
-      if (desiredTransform.lockRotationAxis[1]) {
-        euler2YXZ.z = euler1YXZ.z
-      }
-      mutableTransform.rotation.setFromEuler(euler2YXZ)
-    }
 
     for (const entity of tweenQuery(world)) {
       const tween = getComponent(entity, TweenComponent)
@@ -83,11 +53,11 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
+      world.dirtyTransforms[entity] = true
     }
   }
 
   const cleanup = async () => {
-    removeQuery(world, desiredTransformQuery)
     removeQuery(world, tweenQuery)
     removeQuery(world, animationQuery)
     removeActionQueue(avatarAnimationQueue)
@@ -96,6 +66,6 @@ export default async function AnimationSystem(world: World) {
   return {
     execute,
     cleanup,
-    subsystems: [() => Promise.resolve({ default: AvatarAnimationSystem })]
+    subsystems: []
   }
 }

@@ -1,54 +1,78 @@
-import matches from 'ts-matches'
+import { AxesHelper, Quaternion, Vector3 } from 'three'
+import matches, { Validator } from 'ts-matches'
 
-import { defineState, getState } from '@xrengine/hyperflux'
-import { defineAction } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState, syncStateWithLocalStorage, useHookstate } from '@xrengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { isHMD } from '../common/functions/isMobile'
+import { isMobile } from '../common/functions/isMobile'
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
+import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { createEntity } from '../ecs/functions/EntityFunctions'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { NameComponent } from '../scene/components/NameComponent'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { DepthDataTexture } from './DepthDataTexture'
+import { XRHitTestComponent } from './XRComponents'
 import { XREstimatedLight } from './XREstimatedLight'
 
+// TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
   name: 'XRState',
-  initial: () => ({
-    sessionActive: false,
-    requestingSession: false,
-    scenePlacementMode: false,
-    supportedSessionModes: {
-      inline: false,
-      'immersive-ar': false,
-      'immersive-vr': false
-    },
-    sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
-    /**
-     * The `avatarControlMode` property can be 'auto', 'attached', or 'detached'.
-     * When `avatarControlMode` is 'attached' the avatar's head is attached to the XR display.
-     * When `avatarControlMode` is 'detached' the avatar can move freely via movement controls (e.g., joystick).
-     * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
-     */
-    avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
-    avatarHeadLock: 'auto' as 'auto' | true | false,
-    /** origin is always 0,0,0 */
-    originReferenceSpace: null as XRReferenceSpace | null,
-    viewerReferenceSpace: null as XRReferenceSpace | null,
-    viewerHitTestSource: null as XRHitTestSource | null,
-    viewerHitTestEntity: 0 as Entity,
-    sceneRotationOffset: 0,
-    /** Stores the depth map data - will exist if depth map is supported */
-    depthDataTexture: null as DepthDataTexture | null,
-    is8thWallActive: false,
-    isEstimatingLight: false,
-    lightEstimator: null! as XREstimatedLight,
-    viewerInputSourceEntity: 0 as Entity
-  })
+  initial: () => {
+    return {
+      sessionActive: false,
+      requestingSession: false,
+      scenePosition: new Vector3(),
+      sceneRotation: new Quaternion(),
+      sceneScale: 1,
+      sceneRotationOffset: 0,
+      scenePlacementMode: 'unplaced' as 'unplaced' | 'placing' | 'placed',
+      supportedSessionModes: {
+        inline: false,
+        'immersive-ar': false,
+        'immersive-vr': false
+      },
+      session: null as XRSession | null,
+      sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
+      avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
+      /** Stores the depth map data - will exist if depth map is supported */
+      depthDataTexture: null as DepthDataTexture | null,
+      is8thWallActive: false,
+      isEstimatingLight: false,
+      lightEstimator: null! as XREstimatedLight,
+      viewerInputSourceEntity: 0 as Entity,
+      viewerPose: null as XRViewerPose | null | undefined,
+      userEyeLevel: 1.8
+    }
+  },
+
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(XRState, [
+      /** @todo replace this wither user_settings table entry */
+      'userEyeLevel'
+    ])
+  }
 })
 
-export const XRReceptors = {
-  scenePlacementMode: (action: ReturnType<typeof XRAction.changePlacementMode>) => {
-    getState(XRState).scenePlacementMode.set(action.active)
-  }
+export const ReferenceSpace = {
+  /**
+   * The scene origin reference space describes where the origin of the tracking space is
+   */
+  origin: null as XRReferenceSpace | null,
+  /**
+   * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-local-floor
+   */
+  localFloor: null as XRReferenceSpace | null,
+  /**
+   * @see https://www.w3.org/TR/webxr/#dom-xrreferencespacetype-viewer
+   */
+  viewer: null as XRReferenceSpace | null
 }
+globalThis.ReferenceSpace = ReferenceSpace
 
 export class XRAction {
   static requestSession = defineAction({
@@ -66,11 +90,6 @@ export class XRAction {
     $cache: { removePrevious: true }
   })
 
-  static changePlacementMode = defineAction({
-    type: 'xre.xr.changePlacementMode',
-    active: matches.boolean
-  })
-
   // todo, support more haptic formats other than just vibrating controllers
   static vibrateController = defineAction({
     type: 'xre.xr.vibrateController',
@@ -80,18 +99,28 @@ export class XRAction {
   })
 }
 
-export const getControlMode = () => {
-  const { avatarControlMode, sessionMode, sessionActive } = getState(XRState).value
-  if (!sessionActive) return 'none'
-  if (avatarControlMode === 'auto') {
-    return sessionMode === 'immersive-vr' || sessionMode === 'inline' || isHMD ? 'attached' : 'detached'
+export const getCameraMode = () => {
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState).value
+  if (!session || scenePlacementMode === 'placing') return 'detached'
+  if (avatarCameraMode === 'auto') {
+    if (session.interactionMode === 'screen-space') return 'detached'
+    return sceneScale !== 1 ? 'detached' : 'attached'
   }
-  return avatarControlMode
+  return avatarCameraMode
 }
 
-export const getAvatarHeadLock = () => {
-  const { avatarHeadLock } = getState(XRState)
-  return avatarHeadLock.value === 'auto' ? false : avatarHeadLock.value
+/**
+ * Specifies that the user has movement controls if:
+ * - they are not in an immersive session
+ * - they are in an immersive session with a screen-space interaction mode
+ * - they are in an immersive-ar session with a scene scale of 1
+ * @returns {boolean} true if the user has movement controls
+ */
+export const hasMovementControls = () => {
+  const { sessionActive, sceneScale, sessionMode, session } = getState(XRState).value
+  if (!sessionActive) return true
+  if (session && session.interactionMode === 'screen-space') return true
+  return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
 }
 
 /**
@@ -108,4 +137,28 @@ export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhan
     if (!offhand && avatarInputSettings.preferredHand.value == inputSource.handedness) return inputSource
     if (offhand && avatarInputSettings.preferredHand.value !== inputSource.handedness) return inputSource
   }
+}
+
+/**
+ * @deprecated prefer using a more fine-grained feature or cabability detection, e.g.,
+ * xrState.session.interactionMode === 'world-space'
+ * or
+ * renderState.qualityLevel > 2
+ * */
+export const isHeadset = () => {
+  const supportedSessionModes = getState(XRState).supportedSessionModes
+  if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
+  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
+}
+
+/**
+ * @deprecated prefer using a more fine-grained feature or cabability detection, e.g.,
+ * xrState.session.interactionMode === 'world-space'
+ * or
+ * renderState.qualityLevel > 2
+ * */
+export const useIsHeadset = () => {
+  const supportedSessionModes = useHookstate(getState(XRState).supportedSessionModes)
+  if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
+  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
 }

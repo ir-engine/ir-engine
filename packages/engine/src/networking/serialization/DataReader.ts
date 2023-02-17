@@ -185,7 +185,7 @@ export const readBodyRotation = readCompressedRotation(RigidBodyComponent.rotati
 export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
 export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
 
-export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Record<Entity, true>) => {
+export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Record<Entity, boolean>) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
@@ -202,11 +202,15 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readBodyAngularVelocity(v, entity)
   if (hasComponent(entity, RigidBodyComponent)) {
     const rigidBody = getComponent(entity, RigidBodyComponent)
-    const body = rigidBody.body
-    body.setTranslation(rigidBody.position, true)
-    body.setRotation(rigidBody.rotation, true)
-    body.setLinvel(rigidBody.linearVelocity, true)
-    body.setAngvel(rigidBody.angularVelocity, true)
+    const position = rigidBody.position
+    const rotation = rigidBody.rotation
+    RigidBodyComponent.targetKinematicPosition.x[entity] = position.x
+    RigidBodyComponent.targetKinematicPosition.y[entity] = position.y
+    RigidBodyComponent.targetKinematicPosition.z[entity] = position.z
+    RigidBodyComponent.targetKinematicRotation.x[entity] = rotation.x
+    RigidBodyComponent.targetKinematicRotation.y[entity] = rotation.y
+    RigidBodyComponent.targetKinematicRotation.z[entity] = rotation.z
+    RigidBodyComponent.targetKinematicRotation.w[entity] = rotation.w
   }
 }
 

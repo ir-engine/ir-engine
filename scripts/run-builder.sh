@@ -14,6 +14,7 @@ touch ./builder-started.txt
 bash ./scripts/setup_helm.sh
 bash ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
 npm run check-db-exists
+npm run prepare-database
 npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
 npm run install-projects >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
@@ -66,6 +67,8 @@ npm run record-build-error -- --service=taskserver --isDocker=true
 #npm run record-build-error -- --service=testbot --isDocker=true
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
+
+npm run updateCronjobImage -- --repoName=${REPO_NAME} --tag=${TAG} --ecrUrl=${ECR_URL} --startTime=${START_TIME}
 
 npm run clear-projects-rebuild
 npm run record-build-success

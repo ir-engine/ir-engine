@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "homepage": "xrengine.io",
   "private": true,
+  "bin": {
+    "xrengine": "npx/cli.js"
+  },
   "workspaces": [
     "packages/*",
     "packages/projects/projects/*"
@@ -32,7 +35,7 @@
     "config": "config/"
   },
   "engines": {
-    "node": ">= 16.3.0"
+    "node": ">= 18.12.0"
   },
   "npmClient": "npm",
   "scripts": {
@@ -91,7 +94,9 @@
     "update-site-manifest": "cross-env ts-node --swc scripts/update-site-manifest.ts",
     "create-build-status": "cross-env ts-node --swc scripts/create-build-status.ts",
     "record-build-error": "cross-env ts-node --swc scripts/record-build-error.ts",
-    "record-build-success": "cross-env ts-node --swc scripts/record-build-success"
+    "record-build-success": "cross-env ts-node --swc scripts/record-build-success",
+    "updateProject": "cross-env ts-node --swc scripts/update-project.ts",
+    "updateCronjobImage": "cross-env ts-node --swc scripts/update-cronjob-image.ts"
   },
   "types": "lib/",
   "pre-commit": [
@@ -130,8 +135,7 @@
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-scss": "^4.2.0",
     "supertest": "6.2.2",
-    "trace-unhandled": "2.0.1",
-    "ttab": "^0.7.3"
+    "trace-unhandled": "2.0.1"
   },
   "dependencies": {
     "@feathersjs/commons": "5.0.0-pre.29",
@@ -142,15 +146,16 @@
     "dotenv": "14.3.2",
     "fix-esm": "^1.0.1",
     "lerna": "4.0.0",
-    "patch-package": "^6.5.0",
+    "patch-package": "^6.5.1",
     "pino": "^7.10.0",
     "pino-pretty": "^7.6.1",
     "postcss": "^8.4.16",
     "qrcode.react": "^3.1.0",
     "react-json-view": "^1.21.3",
-    "three": "0.147.0",
+    "three": "0.148.0",
     "ts-node": "10.8.2",
     "typescript": "4.8.3",
-    "vite-plugin-node": "^1.0.0"
+    "vite-plugin-node": "^1.0.0",
+    "ws": "8.12.0"
   }
 }

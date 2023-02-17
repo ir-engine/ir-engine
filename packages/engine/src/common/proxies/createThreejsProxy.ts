@@ -25,6 +25,7 @@ export const proxifyVector3 = (
   return defineProperties(vector3 as Vector3 & ProxyExtensions, {
     entity: { value: entity, configurable: true, writable: true },
     store: { value: store, configurable: true, writable: true },
+    dirtyRecord: { value: {}, configurable: true, writable: true },
     x: {
       get() {
         return this.store.x[this.entity]
@@ -58,7 +59,7 @@ export const proxifyVector3 = (
 export const proxifyVector3WithDirty = (
   store: Vector3Store,
   entity: Entity,
-  dirty: Record<Entity, true>,
+  dirty: Record<Entity, boolean>,
   vector3 = new Vector3()
 ): Vector3 & ProxyExtensions => {
   // Set the initial values
@@ -69,12 +70,13 @@ export const proxifyVector3WithDirty = (
   return defineProperties(vector3 as Vector3 & ProxyExtensions, {
     entity: { value: entity, configurable: true, writable: true },
     store: { value: store, configurable: true, writable: true },
+    dirtyRecord: { value: dirty, configurable: true, writable: true },
     x: {
       get() {
         return this.store.x[this.entity]
       },
       set(n) {
-        dirty[this.entity] = true
+        this.dirtyRecord[this.entity] = true
         return (this.store.x[this.entity] = n)
       },
       configurable: true
@@ -84,7 +86,7 @@ export const proxifyVector3WithDirty = (
         return this.store.y[this.entity]
       },
       set(n) {
-        dirty[this.entity] = true
+        this.dirtyRecord[this.entity] = true
         return (this.store.y[this.entity] = n)
       },
       configurable: true
@@ -94,7 +96,7 @@ export const proxifyVector3WithDirty = (
         return this.store.z[this.entity]
       },
       set(n) {
-        dirty[this.entity] = true
+        this.dirtyRecord[this.entity] = true
         return (this.store.z[this.entity] = n)
       },
       configurable: true
@@ -115,6 +117,7 @@ export const proxifyQuaternion = (
   return defineProperties(quaternion as Quaternion & ProxyExtensions, {
     entity: { value: entity, configurable: true, writable: true },
     store: { value: store, configurable: true, writable: true },
+    dirtyRecord: { value: {}, configurable: true, writable: true },
     _x: {
       get() {
         return this.store.x[this.entity]
@@ -157,7 +160,7 @@ export const proxifyQuaternion = (
 export const proxifyQuaternionWithDirty = (
   store: QuaternionStore,
   entity: Entity,
-  dirty: Record<Entity, true>,
+  dirty: Record<Entity, boolean>,
   quaternion = new Quaternion()
 ): Quaternion & ProxyExtensions => {
   // Set the initial values
@@ -169,12 +172,13 @@ export const proxifyQuaternionWithDirty = (
   return defineProperties(quaternion as Quaternion & ProxyExtensions, {
     entity: { value: entity, configurable: true, writable: true },
     store: { value: store, configurable: true, writable: true },
+    dirtyRecord: { value: dirty, configurable: true, writable: true },
     _x: {
       get() {
         return this.store.x[this.entity]
       },
       set(n) {
-        dirty[this.entity] = true
+        this.dirtyRecord[this.entity] = true
         return (this.store.x[this.entity] = n)
       },
       configurable: true
@@ -184,7 +188,7 @@ export const proxifyQuaternionWithDirty = (
         return this.store.y[this.entity]
       },
       set(n) {
-        dirty[this.entity] = true
+        this.dirtyRecord[this.entity] = true
         return (this.store.y[this.entity] = n)
       },
       configurable: true
@@ -194,7 +198,7 @@ export const proxifyQuaternionWithDirty = (
         return this.store.z[this.entity]
       },
       set(n) {
-        dirty[this.entity] = true
+        this.dirtyRecord[this.entity] = true
         return (this.store.z[this.entity] = n)
       },
       configurable: true
@@ -204,7 +208,7 @@ export const proxifyQuaternionWithDirty = (
         return this.store.w[this.entity]
       },
       set(n) {
-        dirty[this.entity] = true
+        this.dirtyRecord[this.entity] = true
         return (this.store.w[this.entity] = n)
       },
       configurable: true

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import IconButton from '@xrengine/client-core/src/common/components/IconButton'
@@ -69,6 +69,25 @@ const InputText = ({
   placeholder = placeholder ? placeholder : `${t('common:components.enter')} ${label}`
   placeholder = disabled ? undefined : placeholder
 
+  const [cursor, setCursor] = useState(null)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (type !== 'number') return
+    let input
+    for (const child of (ref.current as any)?.children) {
+      if (child.tagName === 'INPUT') {
+        input = child
+      }
+    }
+    if (input) input.setSelectionRange(cursor, cursor)
+  }, [ref, cursor, value])
+
+  const handleChange = (e) => {
+    setCursor(e.target.selectionStart)
+    onChange && onChange(e)
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
       <Box sx={{ display: 'flex' }}>
@@ -83,6 +102,7 @@ const InputText = ({
           <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
           <OutlinedInput
+            ref={ref}
             disabled={disabled}
             error={!!error}
             fullWidth
@@ -124,7 +144,7 @@ const InputText = ({
               </>
             }
             onBlur={onBlur}
-            onChange={onChange}
+            onChange={handleChange}
             onKeyDown={onKeyDown}
           />
         </FormControl>

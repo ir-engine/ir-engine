@@ -10,6 +10,7 @@ COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/editor/package.json ./packages/editor/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
+COPY patches/ ./patches/
 
 ARG NODE_ENV
 RUN npm install --loglevel notice --legacy-peer-deps
@@ -70,7 +71,7 @@ RUN rm -r packages/client/public
 
 ENV APP_ENV=production
 
-FROM node:16-buster-slim as runner
+FROM node:18-buster-slim as runner
 WORKDIR /app
 
 COPY --from=builder /app/packages/client ./packages/client

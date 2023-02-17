@@ -7,7 +7,7 @@ import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
 import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import {
   Component,
@@ -18,16 +18,11 @@ import {
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  accessEngineRendererState,
-  EngineRendererAction,
-  useEngineRendererState
-} from '@xrengine/engine/src/renderer/EngineRendererState'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
-import BlurOffIcon from '@mui/icons-material/BlurOff'
+import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
 import GridOnIcon from '@mui/icons-material/GridOn'
 import Refresh from '@mui/icons-material/Refresh'
 import SelectAllIcon from '@mui/icons-material/SelectAll'
@@ -38,7 +33,7 @@ import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
   useHookstate(getState(EngineState).frameTime).value
-  const engineRendererState = useEngineRendererState()
+  const rendererState = useHookstate(getState(RendererState))
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
@@ -52,7 +47,7 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleDebug = () => {
-    dispatchAction(EngineRendererAction.setDebug({ debugEnable: !engineRendererState.debugEnable.value }))
+    rendererState.debugEnable.set(!rendererState.debugEnable.value)
   }
 
   const tree = Engine.instance.currentWorld.entityTree
@@ -114,19 +109,11 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleNodeHelpers = () => {
-    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
-    dispatchAction(
-      EngineRendererAction.changeNodeHelperVisibility({
-        visibility: !accessEngineRendererState().nodeHelperVisibility.value
-      })
-    )
+    getState(RendererState).nodeHelperVisibility.set(!getState(RendererState).nodeHelperVisibility.value)
   }
 
   const toggleGridHelper = () => {
-    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.Gizmos)
-    dispatchAction(
-      EngineRendererAction.changeGridToolVisibility({ visibility: !accessEngineRendererState().gridVisibility.value })
-    )
+    getState(RendererState).gridVisibility.set(!getState(RendererState).gridVisibility.value)
   }
 
   const namedEntities = useHookstate({})
@@ -144,7 +131,7 @@ export const Debug = ({ showingStateRef }) => {
             <button
               type="button"
               onClick={toggleDebug}
-              className={styles.flagBtn + (engineRendererState.debugEnable.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.debugEnable.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
             >
               <SquareFootIcon fontSize="small" />
@@ -152,7 +139,7 @@ export const Debug = ({ showingStateRef }) => {
             <button
               type="button"
               onClick={toggleNodeHelpers}
-              className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.nodeHelperDebug')}
             >
               <SelectAllIcon fontSize="small" />
@@ -160,10 +147,18 @@ export const Debug = ({ showingStateRef }) => {
             <button
               type="button"
               onClick={toggleGridHelper}
-              className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.gridVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.gridDebug')}
             >
               <GridOnIcon fontSize="small" />
+            </button>
+            <button
+              type="button"
+              onClick={() => rendererState.forceBasicMaterials.set(!rendererState.forceBasicMaterials.value)}
+              className={styles.flagBtn + (rendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
+              title={t('common:debug.forceBasicMaterials')}
+            >
+              <FormatColorResetIcon fontSize="small" />
             </button>
             {hasActiveControlledAvatar && (
               <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>

@@ -9,9 +9,9 @@ import {
   useState
 } from '@xrengine/hyperflux'
 
-export const AvatarMovementScheme = {
-  Linear: 'AvatarMovementScheme_Linear' as const,
-  Teleport: 'AvatarMovementScheme_Teleport' as const
+export const AvatarAxesControlScheme = {
+  Move: 'AvatarControlScheme_Move' as const,
+  Teleport: 'AvatarControlScheme_Teleport' as const
 }
 
 export const AvatarControllerType = {
@@ -24,7 +24,12 @@ export const AvatarInputSettingsState = defineState({
   name: 'AvatarInputSettingsState',
   initial: () => ({
     controlType: AvatarControllerType.None as typeof AvatarControllerType[keyof typeof AvatarControllerType],
-    controlScheme: AvatarMovementScheme.Linear as typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme],
+
+    leftAxesControlScheme:
+      AvatarAxesControlScheme.Move as typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme],
+    rightAxesControlScheme:
+      AvatarAxesControlScheme.Teleport as typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme],
+
     preferredHand: 'right' as 'left' | 'right',
     invertRotationAndMoveSticks: true,
     // TODO: implement the following
@@ -58,19 +63,22 @@ export function AvatarInputSettingsReceptor(action) {
   const s = getState(AvatarInputSettingsState)
   matches(action)
     .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
-      return s.merge({ controlType: action.controlType })
+      return s.controlType.set(action.controlType)
     })
-    .when(AvatarInputSettingsAction.setControlScheme.matches, (action) => {
-      return s.merge({ controlScheme: action.scheme })
+    .when(AvatarInputSettingsAction.setLeftAxesControlScheme.matches, (action) => {
+      return s.leftAxesControlScheme.set(action.scheme)
+    })
+    .when(AvatarInputSettingsAction.setRightAxesControlScheme.matches, (action) => {
+      return s.rightAxesControlScheme.set(action.scheme)
     })
     .when(AvatarInputSettingsAction.setPreferredHand.matches, (action) => {
-      return s.merge({ preferredHand: action.handdedness })
+      return s.preferredHand.set(action.handdedness)
     })
     .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
-      return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
+      return s.invertRotationAndMoveSticks.set(action.invertRotationAndMoveSticks)
     })
     .when(AvatarInputSettingsAction.setShowAvatar.matches, (action) => {
-      return s.merge({ showAvatar: action.showAvatar })
+      return s.showAvatar.set(action.showAvatar)
     })
 }
 
@@ -80,9 +88,14 @@ export class AvatarInputSettingsAction {
     controlType: matches.string as Validator<unknown, typeof AvatarControllerType[keyof typeof AvatarControllerType]>
   })
 
-  static setControlScheme = defineAction({
-    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_CONTROL_SCHEME' as const,
-    scheme: matches.string as Validator<unknown, typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme]>
+  static setLeftAxesControlScheme = defineAction({
+    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_LEFT_CONTROL_SCHEME' as const,
+    scheme: matches.string as Validator<unknown, typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme]>
+  })
+
+  static setRightAxesControlScheme = defineAction({
+    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_RIGHT_CONTROL_SCHEME' as const,
+    scheme: matches.string as Validator<unknown, typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme]>
   })
 
   static setPreferredHand = defineAction({

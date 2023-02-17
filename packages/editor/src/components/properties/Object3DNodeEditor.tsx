@@ -117,7 +117,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     return {
       objName: obj3d.name,
       position: obj3d.position.clone(),
-      rotation: new Vector3(...obj3d.rotation.toArray()),
+      rotation: new Vector3(...(obj3d.rotation.toArray() as number[])),
       scale: obj3d.scale.clone()
     }
   }
@@ -287,7 +287,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
           {instancedMesh?.count > 0 && (
             <PaginatedList
               list={range(0, instancedMesh.count - 1)}
-              element={(i) => {
+              element={(i: number) => {
                 let transform = new Matrix4()
                 instancedMesh.getMatrixAt(i, transform)
                 let position = new Vector3()

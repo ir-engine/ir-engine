@@ -1,12 +1,14 @@
-import type { WebContainer3D } from '@etherealjs/web-layer/three'
-import { Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import type { WebContainer3D } from '@xrfoundation/xrui'
+import { Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 
 const _size = new Vector2()
@@ -14,6 +16,8 @@ const _vec = new Vector3()
 const _pos = new Vector3()
 const _quat = new Quaternion()
 const _forward = new Vector3(0, 0, -1)
+const _mat4 = new Matrix4()
+const _vec3 = new Vector3()
 
 export type ContentFitType = 'cover' | 'contain' | 'vertical' | 'horizontal'
 
@@ -79,15 +83,13 @@ export const ObjectFitFunctions = {
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, size.width, size.height, fit)
   },
 
-  attachObjectInFrontOfCamera: (obj: Object3D, scale: number, distance: number) => {
-    obj.scale.x = obj.scale.y = scale
-    obj.position.z = -distance
-    // obj.rotation.z = 0
-    // obj.rotation.y = 0
-    if (obj.parent !== Engine.instance.currentWorld.camera) {
-      obj.removeFromParent()
-      Engine.instance.currentWorld.camera.add(obj)
-    }
+  attachObjectInFrontOfCamera: (entity: Entity, scale: number, distance: number) => {
+    const transform = getComponent(entity, TransformComponent)
+    _mat4.makeTranslation(0, 0, -distance).scale(_vec3.set(scale, scale, 1))
+    transform.matrix.multiplyMatrices(Engine.instance.currentWorld.camera.matrixWorld, _mat4)
+    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+    transform.matrixInverse.copy(transform.matrix).invert()
+    Engine.instance.currentWorld.dirtyTransforms[entity] = false
   },
 
   attachObjectToHand: (container: WebContainer3D, scale: number) => {

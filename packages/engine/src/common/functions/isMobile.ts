@@ -20,8 +20,4 @@ export const iOS =
 export const isSafari =
   typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent.toLowerCase())
 
-export const isHMD = typeof navigator?.userAgent === 'string' && /Oculus/i.test(navigator.userAgent)
-
-export const isMobile = mobileOrTablet && !isHMD
-
-export const isMobileOrHMD = isHMD || isMobile
+export const isMobile = mobileOrTablet

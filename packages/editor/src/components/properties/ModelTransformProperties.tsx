@@ -5,23 +5,15 @@ import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { API } from '@xrengine/client-core/src/API'
 import { FileBrowserService } from '@xrengine/client-core/src/common/services/FileBrowserService'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
-import { AssetClass } from '@xrengine/engine/src/assets/enum/AssetClass'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import {
-  ComponentType,
-  getComponent,
-  getComponentState,
-  hasComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ComponentType, getComponentState, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialSource, SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
 import MeshBasicMaterial from '@xrengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
 import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
-import { batchSetMaterialProperty } from '@xrengine/engine/src/renderer/materials/functions/batchEditMaterials'
 import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@xrengine/hyperflux'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { ToggleButton } from '@mui/material'

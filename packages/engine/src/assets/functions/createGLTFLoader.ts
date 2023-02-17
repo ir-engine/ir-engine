@@ -4,6 +4,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
+import { CachedImageLoadExtension } from '../loaders/gltf/extensions/CachedImageLoadExtension'
 import EEECSImporterExtension from '../loaders/gltf/extensions/EEECSImporterExtension'
 import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMaterialImporterExtension'
 import { GPUInstancingExtension } from '../loaders/gltf/extensions/GPUInstancingExtension'
@@ -37,7 +38,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser))
-
+  loader.register((parser) => new CachedImageLoadExtension(parser))
   loader.setMeshoptDecoder(MeshoptDecoder)
 
   if (isClient) {

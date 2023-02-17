@@ -23,7 +23,7 @@ import {
 } from '../../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
 import XRIconButton from '../../components/XRIconButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 export function createWidgetButtonsView() {
   return createXRUI(WidgetButtons, createWidgetButtonsState())
@@ -134,17 +134,18 @@ const WidgetButtons = () => {
 
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
 
+  const activeWidgets = widgets.filter((widget) => widget.enabled && widget.icon)
+
+  const additionalWidgetCount = 1 + (mediaInstanceState?.value ? 1 : 0)
+  const gridTemplateColumns = new Array(additionalWidgetCount)
+    .fill('1fr')
+    .concat(activeWidgets.map(() => ' 1fr'))
+    .join(' ')
+
   return (
     <>
       <style>{styleString}</style>
-      <div
-        className="container"
-        style={{
-          gridTemplateColumns: '1fr 1fr' + widgets.map(() => ' 1fr').flat()
-        }}
-        xr-pixel-ratio="8"
-        xr-layer="true"
-      >
+      <div className="container" style={{ gridTemplateColumns }} xr-pixel-ratio="8" xr-layer="true">
         <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
         {mediaInstanceState?.value && (
           <WidgetButton
@@ -158,13 +159,9 @@ const WidgetButtons = () => {
           toggle={toggleVRSession}
           label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
         /> */}
-        {widgets.map(
-          (widget, i) =>
-            widget.enabled &&
-            widget.icon && (
-              <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
-            )
-        )}
+        {activeWidgets.map((widget, i) => (
+          <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
+        ))}
       </div>
     </>
   )

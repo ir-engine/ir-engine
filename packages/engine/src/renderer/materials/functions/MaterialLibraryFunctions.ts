@@ -130,7 +130,7 @@ export function getSourceMaterials(src: MaterialSource): string[] | undefined {
 export function removeMaterialSource(src: MaterialSource): boolean {
   const materialLibrary = getMaterialLibrary()
   const srcId = hashMaterialSource(src)
-  if (materialLibrary.sources[srcId]) {
+  if (materialLibrary.sources[srcId].value) {
     const srcComp = materialLibrary.sources[srcId].value
     srcComp.entries.map((matId) => {
       const toDelete = materialFromId(matId)
@@ -165,6 +165,22 @@ export function registerMaterial(material: Material, src: MaterialSource, params
     prototype: prototype.prototypeId,
     src
   })
+}
+
+export function unregisterMaterial(material: Material) {
+  const materialLibrary = getMaterialLibrary()
+  try {
+    const matEntry = materialFromId(material.uuid)
+    materialLibrary.materials[material.uuid].set(none)
+    const srcEntry = materialLibrary.sources[hashMaterialSource(matEntry.src)].entries
+    srcEntry.set(srcEntry.value.filter((matId) => matId !== material.uuid))
+    return matEntry
+  } catch (error) {
+    if (error instanceof MaterialNotFoundError) {
+      console.warn('material is already not registered')
+      return undefined
+    } else throw error
+  }
 }
 
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {

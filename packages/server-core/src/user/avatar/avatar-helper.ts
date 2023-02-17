@@ -71,7 +71,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
             where: {
               name: avatar.avatarName,
               isPublic: avatar.isPublic,
-              project: projectName
+              project: projectName || null
             }
           })
           let selectedAvatar
@@ -79,11 +79,11 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
             selectedAvatar = await app.service('avatar').create({
               name: avatar.avatarName,
               isPublic: avatar.isPublic,
-              project: projectName
+              project: projectName || null
             })
           } else selectedAvatar = existingAvatar
           avatar.avatarName = selectedAvatar.identifierName
-          avatar.project = projectName
+          avatar.project = projectName || null
           const [modelResource, thumbnailResource] = await uploadAvatarStaticResource(app, avatar)
 
           await app.service('avatar').patch(selectedAvatar.id, {

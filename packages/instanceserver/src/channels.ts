@@ -13,6 +13,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -237,7 +238,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   if (app.isChannelInstance) {
     world.hostIds.media.set(hostId as UserId)
-    await RealtimeNetworkingModule(true, false)
+    await initSystems(Engine.instance.currentWorld, [...RealtimeNetworkingModule(true, false)])
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
@@ -248,11 +249,11 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
-    await Promise.all([
-      TransformModule(),
-      SceneCommonModule(),
-      AvatarCommonModule(),
-      RealtimeNetworkingModule(false, true)
+    await initSystems(Engine.instance.currentWorld, [
+      ...TransformModule(),
+      ...SceneCommonModule(),
+      ...AvatarCommonModule(),
+      ...RealtimeNetworkingModule(false, true)
     ])
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))

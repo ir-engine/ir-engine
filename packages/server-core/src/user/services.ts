@@ -3,6 +3,7 @@ import Auth from './auth-management/auth-management.service'
 import Avatar from './avatar/avatar.service'
 import DiscordBotAuth from './discord-bot-auth/discord-bot-auth.service'
 import Email from './email/email.service'
+import GithubRepoAccess from './github-repo-access/github-repo-access.service'
 import IdentityProvider from './identity-provider/identity-provider.service'
 import LoginToken from './login-token/login-token.service'
 import Login from './login/login.service'
@@ -29,5 +30,6 @@ export default [
   MagicLink,
   Email,
   SMS,
-  DiscordBotAuth
+  DiscordBotAuth,
+  GithubRepoAccess
 ]

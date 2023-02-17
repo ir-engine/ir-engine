@@ -4,18 +4,20 @@ import axios from 'axios'
 import { compareVersions } from 'compare-versions'
 import _ from 'lodash'
 import path from 'path'
+import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
 
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
 import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
-import { ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { ProjectInterface, ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
-import { getOctokitForChecking } from './github-helper'
+import { getOctokitForChecking, getUserOrgs, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
@@ -37,6 +39,7 @@ interface GitHubFile {
     size: number
     url: string
     html_url: string
+    ssh_url: string
     git_url: string
     download_url: string
     type: string
@@ -118,7 +121,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
   let isRebuilding = true
 
   // check k8s to find the status of builder service
-  if (app.k8DefaultClient && !config.server.local) {
+  if (app.k8DefaultClient && config.server.releaseName !== 'local') {
     try {
       logger.info('Attempting to check k8s rebuild status')
 
@@ -415,7 +418,7 @@ export const checkProjectDestinationMatch = async (app: Application, params: Pro
 export const checkDestination = async (app: Application, url: string, params?: ProjectParams) => {
   const inputProjectURL = params!.query!.inputProjectURL!
   const octokitResponse = await getOctokitForChecking(app, url, params!)
-  const { owner, repo, octoKit } = octokitResponse
+  const { owner, repo, octoKit, token } = octokitResponse
 
   const returned = {} as any
   if (!owner || !repo)
@@ -431,15 +434,21 @@ export const checkDestination = async (app: Application, url: string, params?: P
     }
 
   try {
-    const [authUser, orgs] = await Promise.all([
-      octoKit.rest.users.getAuthenticated(),
-      octoKit.rest.orgs.listForAuthenticatedUser()
-    ])
-    const orgAccessible =
-      owner === authUser.data.login || orgs.data.find((org) => org.login.toLowerCase() === owner.toLowerCase())
-    if (!orgAccessible) {
-      returned.error = 'appNotAuthorizedInOrg'
-      returned.text = `The organization '${owner}' needs to install the GitHub OAuth app '${config.authentication.oauth.github.key}' in order to push code to its repositories. See https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps for further details.`
+    const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token)])
+    const repoAccessible =
+      owner === authUser.data.login ||
+      repos.find(
+        (repo) =>
+          repo.html_url.toLowerCase() === url.toLowerCase() ||
+          repo.ssh_url.toLowerCase() === url.toLowerCase() ||
+          repo.ssh_url.toLowerCase() === `${url.toLowerCase()}.git`
+      )
+    if (!repoAccessible) {
+      returned.error = 'userNotAuthorizedForRepo'
+      returned.text = `You do not appear to have access to this repository. If this seems wrong, click the button 
+      "Refresh GitHub Repo Access" and try again. If you are only in the organization that owns this repo, make sure that the
+      organization has installed the OAuth app associated with this installation, and that your personal GitHub account
+      has granted access to the organization: https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps`
     }
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
     if (!repoResponse)
@@ -454,13 +463,17 @@ export const checkDestination = async (app: Application, url: string, params?: P
       logger.error('destination package fetch error', err)
       if (err.status !== 404) throw err
     }
-    returned.destinationValid = repoResponse.data?.permissions?.push || repoResponse.data?.permissions?.admin || false
+    returned.destinationValid =
+      repoResponse.data?.permissions?.push ||
+      repoResponse.data?.permissions?.admin ||
+      repoResponse.data?.permissions?.maintain ||
+      false
     if (destinationPackage)
       returned.projectName = JSON.parse(Buffer.from(destinationPackage.data.content, 'base64').toString()).name
     else returned.repoEmpty = true
     if (!returned.destinationValid) {
       returned.error = 'invalidPermission'
-      returned.text = 'You do not have personal push or admin access to this repo.'
+      returned.text = 'You do not have personal push, maintain, or admin access to this repo.'
     }
 
     if (inputProjectURL?.length > 0) {
@@ -727,4 +740,193 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
       return []
     }
   }
+}
+
+export const getLatestProjectTaggedCommitInBranch = async (
+  app: Application,
+  url: string,
+  branchName: string,
+  params: ProjectParams
+): Promise<string[] | { error: string; text: string }> => {
+  const octokitResponse = await getOctokitForChecking(app, url, params!)
+  const { owner, repo, octoKit } = octokitResponse
+
+  if (!owner || !repo)
+    return {
+      error: 'invalidUrl',
+      text: 'Project URL is not a valid GitHub URL, or the GitHub repo is private'
+    }
+
+  if (!octoKit)
+    return {
+      error: 'invalidDestinationOctokit',
+      text: 'You does not have access to the destination GitHub repo'
+    }
+
+  const tagResponse = await octoKit.rest.repos.listTags({
+    owner,
+    repo,
+    per_page: BRANCH_PER_PAGE
+  })
+
+  const commitResponse = await octoKit.rest.repos.listCommits({
+    owner,
+    repo,
+    sha: branchName,
+    per_page: COMMIT_PER_PAGE
+  })
+
+  let latestTaggedCommitInBranch
+  let sortedTags = semver.rsort(tagResponse.data.map((item) => item.name))
+  const taggedCommits = [] as string[]
+  sortedTags.forEach((tag) => taggedCommits.push(tagResponse.data.find((item) => item.name === tag)!.commit.sha))
+  const branchCommits = commitResponse.data.map((response) => response.sha)
+  for (const commit of taggedCommits) {
+    if (branchCommits.indexOf(commit) > -1) {
+      latestTaggedCommitInBranch = commit
+      break
+    }
+  }
+
+  return latestTaggedCommitInBranch
+}
+
+export const getCronJobBody = (project: ProjectInterface, image: string): object => {
+  return {
+    metadata: {
+      name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+      labels: {
+        'etherealengine/projectUpdater': 'true',
+        'etherealengine/projectField': project.name,
+        'etherealengine/projectId': project.id,
+        'etherealengine/release': process.env.RELEASE_NAME
+      }
+    },
+    spec: {
+      schedule: project.updateSchedule,
+      concurrencyPolicy: 'Replace',
+      successfulJobsHistoryLimit: 1,
+      failedJobsHistoryLimit: 2,
+      jobTemplate: {
+        spec: {
+          template: {
+            metadata: {
+              labels: {
+                'etherealengine/projectUpdater': 'true',
+                'etherealengine/projectField': project.name,
+                'etherealengine/projectId': project.id,
+                'etherealengine/release': process.env.RELEASE_NAME
+              }
+            },
+            spec: {
+              serviceAccountName: `${process.env.RELEASE_NAME}-xrengine-api`,
+              containers: [
+                {
+                  name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+                  image,
+                  imagePullPolicy: 'IfNotPresent',
+                  command: ['npm', 'run', 'updateProject', '--', '--projectName', `${project.name}`],
+                  env: Object.entries(process.env).map(([key, value]) => {
+                    return { name: key, value: value }
+                  })
+                }
+              ],
+              restartPolicy: 'OnFailure'
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
+  const project = await app.service('project').Model.findOne({
+    where: {
+      name: projectName
+    }
+  })
+
+  const apiPods = await getPodsData(
+    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
+    'api',
+    'Api',
+    app
+  )
+
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'xrengine')!.image
+
+  if (app.k8BatchClient) {
+    try {
+      await app.k8BatchClient.patchNamespacedCronJob(
+        `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
+        'default',
+        getCronJobBody(project, image),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        {
+          headers: {
+            'content-type': 'application/merge-patch+json'
+          }
+        }
+      )
+    } catch (err) {
+      logger.error('Could not find cronjob %o', err)
+      await app.k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
+    }
+  }
+}
+
+export const removeProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
+  try {
+    if (app.k8BatchClient)
+      await app.k8BatchClient.deleteNamespacedCronJob(
+        `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
+        'default'
+      )
+  } catch (err) {
+    logger.error('Failed to remove project update cronjob %o', err)
+  }
+}
+
+export const checkProjectAutoUpdate = async (app: Application, projectName: string): Promise<void> => {
+  let commitSHA
+  const project = await app.service('project').Model.findOne({
+    where: {
+      name: projectName
+    }
+  })
+  const user = await app.service('user').get(project.updateUserId)
+  if (project.updateType === 'tag') {
+    const latestTaggedCommit = await getLatestProjectTaggedCommitInBranch(
+      app,
+      project.sourceRepo,
+      project.sourceBranch,
+      { user }
+    )
+    if (latestTaggedCommit !== project.commitSHA) commitSHA = latestTaggedCommit
+  } else if (project.updateType === 'commit') {
+    const commits = await getProjectCommits(app, project.sourceRepo, {
+      user,
+      query: { branchName: project.branchName }
+    })
+    if (commits && commits[0].commitSHA !== project.commitSHA) commitSHA = commits[0].commitSHA
+  }
+  if (commitSHA)
+    await app.service('project').update(
+      {
+        sourceURL: project.sourceRepo,
+        destinationURL: project.repositoryPath,
+        name: projectName,
+        reset: true,
+        commitSHA,
+        sourceBranch: project.sourceBranch,
+        updateType: project.updateType,
+        updateSchedule: project.updateSchedule
+      },
+      null,
+      { user: user }
+    )
 }

@@ -1,5 +1,5 @@
 # not slim because we need github depedencies
-FROM node:16-buster-slim
+FROM node:18-buster-slim
 
 RUN apt-get update
 RUN apt-get install -y build-essential meson python3-testresources python3-venv python3-pip git procps
@@ -24,6 +24,7 @@ COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/taskserver/package.json ./packages/taskserver/
 COPY packages/projects/package.json ./packages/projects/
 COPY project-package-jsons ./
+COPY patches/ ./patches/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 

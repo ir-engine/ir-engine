@@ -30,7 +30,7 @@ import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
 import XRTextButton from '../../components/XRTextButton'
 import XRUploadButton from '../../components/XRUploadButton'
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 const logger = multiLogger.child({ component: 'client-core:UploadAvatarMenu' })
 

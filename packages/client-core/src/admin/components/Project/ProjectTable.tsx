@@ -254,15 +254,24 @@ const ProjectTable = ({ className }: Props) => {
       ),
       update: (
         <>
-          {isAdmin && (
+          {isAdmin && name !== 'default-project' && (
             <IconButton
               className={styles.iconButton}
               name="update"
-              disabled={el.repositoryPath === null && name !== 'default-project'}
+              disabled={el.repositoryPath === null}
               onClick={() => handleOpenProjectDrawer(el)}
             >
               <Download />
             </IconButton>
+          )}
+          {isAdmin && name === 'default-project' && (
+            <Tooltip title={t('admin:components.project.defaultProjectUpdateTooltip')} arrow>
+              <span>
+                <IconButton className={styles.iconButton} name="update" disabled={true}>
+                  <Download />
+                </IconButton>
+              </span>
+            </Tooltip>
           )}
         </>
       ),
@@ -282,7 +291,12 @@ const ProjectTable = ({ className }: Props) => {
       ),
       link: (
         <>
-          <IconButton className={styles.iconButton} name="update" onClick={() => handleOpenProjectDrawer(el, true)}>
+          <IconButton
+            className={styles.iconButton}
+            name="update"
+            disabled={name === 'default-project'}
+            onClick={() => handleOpenProjectDrawer(el, true)}
+          >
             {!el.repositoryPath && <LinkOffIcon />}
             {el.repositoryPath && <LinkIcon />}
           </IconButton>

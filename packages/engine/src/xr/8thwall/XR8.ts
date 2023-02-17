@@ -1,31 +1,26 @@
 import { useEffect } from 'react'
-import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import config from '@xrengine/common/src/config'
 import { dispatchAction, getState, startReactor } from '@xrengine/hyperflux'
 
-import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { EventDispatcher } from '../../common/classes/EventDispatcher'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  removeComponent,
-  removeQuery,
-  useQuery
-} from '../../ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
-import { endXRSession, requestXRSession } from '../XRSessionFunctions'
-import { XRAction, XRState } from '../XRState'
+import {
+  endXRSession,
+  getReferenceSpaces,
+  requestXRSession,
+  setupARSession,
+  setupXRSession
+} from '../XRSessionFunctions'
+import { ReferenceSpace, XRAction, XRState } from '../XRState'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
+import { XRFrameProxy, XRRigidTransform, XRSessionProxy, XRSpace } from './XR8WebXRProxy'
 
 type XR8Assets = {
   xr8Script: HTMLScriptElement
@@ -169,109 +164,6 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
   })
 }
 
-class XRHitTestResultProxy {
-  #mat4: Matrix4
-  constructor(position: Vector3, rotation: Quaternion) {
-    this.#mat4 = new Matrix4().compose(
-      new Vector3().copy(position),
-      new Quaternion().copy(rotation).normalize(),
-      new Vector3(1, 1, 1)
-    )
-  }
-
-  /** for now, assume it is always relative to the absolute world origin (0, 0, 0) */
-  getPose(baseSpace: XRSpace) {
-    const scope = this
-    return {
-      get transform() {
-        return {
-          get matrix() {
-            return scope.#mat4.toArray()
-          },
-          get inverse() {
-            throw new Error("[XR8]: 'XRHitTestResult.getViewerPose.transform.inverse' not implemented")
-          },
-          get position() {
-            const _vec = new Vector3()
-            scope.#mat4.decompose(_vec, new Quaternion(), new Vector3())
-            return _vec
-          },
-          get orientation() {
-            const _quat = new Quaternion()
-            scope.#mat4.decompose(new Vector3(), _quat, new Vector3())
-            return _quat
-          }
-        }
-      }
-    } as unknown as Partial<XRPose>
-  }
-
-  // not supported
-  createAnchor = undefined
-}
-
-class XRReferenceSpace {}
-
-class XRHitTestSource {}
-
-class XRSessionProxy extends EventDispatcher {
-  readonly inputSources: XRInputSource[]
-
-  constructor(inputSources: XRInputSource[]) {
-    super()
-    this.inputSources = inputSources
-  }
-  async requestReferenceSpace(type: 'local' | 'viewer') {
-    const space = new XRReferenceSpace()
-    return space
-  }
-
-  async requestHitTestSource(args: { space: XRReferenceSpace }) {
-    const source = new XRHitTestSource()
-    return source as XRHitTestSource
-  }
-}
-
-/**
- * currently, the hit test proxy only supports viewer space
- */
-class XRFrameProxy {
-  getHitTestResults(source: XRHitTestSource) {
-    const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position as Vector3, rotation as Quaternion))
-  }
-
-  get session() {
-    return EngineRenderer.instance.xrSession
-  }
-
-  /**
-   * XRFrame.getPose is only currently used for anchors and controllers, which are not implemented in 8thwall
-   */
-  getPose = undefined
-
-  getViewerPose(space: XRReferenceSpace) {
-    return {
-      get transform() {
-        return {
-          get matrix() {
-            return Engine.instance.currentWorld.camera.matrix.toArray()
-          },
-          get inverse() {
-            throw new Error("[XR8]: 'XRFrame.getViewerPose.transform.inverse' not implemented")
-          },
-          get position() {
-            return Engine.instance.currentWorld.camera.position
-          },
-          get orientation() {
-            return Engine.instance.currentWorld.camera.quaternion
-          }
-        }
-      }
-    }
-  }
-}
-
 const skyboxQuery = defineQuery([SkyboxComponent])
 const vpsQuery = defineQuery([PersistentAnchorComponent])
 
@@ -286,13 +178,15 @@ export default async function XR8System(world: World) {
   let originalRequestXRSessionImplementation = requestXRSession.implementation
   let originalEndXRSessionImplementation = endXRSession.implementation
 
-  let prevFollowCamera
   const inputSources = [] as XRInputSource[]
   const viewerInputSource = {
     handedness: 'none',
     targetRayMode: 'screen',
     get targetRaySpace() {
-      return new Error("[XR8]: 'viewerInputSource.targetRaySpace' not currently implemented ") as any
+      return new XRSpace(
+        Engine.instance.currentWorld.camera.position,
+        Engine.instance.currentWorld.camera.quaternion
+      ) as any
     },
     gamepad: {
       axes: [0, 0],
@@ -316,7 +210,7 @@ export default async function XR8System(world: World) {
       (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
       (ev.touches[0].screenY / window.innerHeight) * -2 + 1
     ]
-    EngineRenderer.instance.xrSession.dispatchEvent({
+    xrState.session.value!.dispatchEvent({
       type: 'inputsourceschange',
       added: [viewerInputSource],
       removed: []
@@ -332,13 +226,15 @@ export default async function XR8System(world: World) {
   }
 
   const onTouchEnd = (ev) => {
-    EngineRenderer.instance.xrSession.dispatchEvent({
+    xrState.session.value!.dispatchEvent({
       type: 'inputsourceschange',
       removed: [viewerInputSource],
       added: []
     } as any)
     inputSources.splice(inputSources.indexOf(viewerInputSource), 1)
   }
+
+  const originalXRRigidTransform = XRRigidTransform
 
   const overrideXRSessionFunctions = () => {
     if (requestXRSession.implementation !== originalRequestXRSessionImplementation) return
@@ -347,8 +243,11 @@ export default async function XR8System(world: World) {
 
     requestXRSession.implementation = async (action) => {
       if (xrState.requestingSession.value) return
+
+      xrState.is8thWallActive.set(true)
       xrState.requestingSession.set(true)
 
+      const world = Engine.instance.currentWorld
       try {
         /** Initialize 8th wall if not previously initialized */
         if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
@@ -359,17 +258,21 @@ export default async function XR8System(world: World) {
         return
       }
 
-      EngineRenderer.instance.xrSession = new XRSessionProxy(inputSources) as any as XRSession
+      // bind public constructors to global object
+      ;(globalThis as any).XRRigidTransform = XRRigidTransform
+
+      const xrSession = new XRSessionProxy(inputSources) as any as XRSession
+
+      xrState.session.set(xrSession)
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
-      xrState.is8thWallActive.set(true)
+      world.scene.background = null
+
+      getReferenceSpaces(xrSession)
 
       document.body.addEventListener('touchstart', onTouchStart)
       document.body.addEventListener('touchmove', onTouchMove)
       document.body.addEventListener('touchend', onTouchEnd)
-
-      prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-      removeComponent(world.cameraEntity, FollowCameraComponent)
 
       xrState.requestingSession.set(false)
       dispatchAction(XRAction.sessionChanged({ active: true }))
@@ -380,10 +283,12 @@ export default async function XR8System(world: World) {
       xrState.sessionActive.set(false)
       xrState.sessionMode.set('none')
       xrState.is8thWallActive.set(false)
-      EngineRenderer.instance.xrSession = null!
+      xrState.session.set(null)
 
-      xrState.originReferenceSpace.set(null)
-      xrState.viewerReferenceSpace.set(null)
+      ReferenceSpace.origin = null
+      ReferenceSpace.localFloor = null
+      ReferenceSpace.viewer = null
+      ;(globalThis as any).XRRigidTransform = originalXRRigidTransform
 
       const engineContainer = document.getElementById('engine-container')!
       engineContainer.removeChild(cameraCanvas!)
@@ -392,7 +297,6 @@ export default async function XR8System(world: World) {
       document.body.removeEventListener('touchmove', onTouchMove)
       document.body.removeEventListener('touchend', onTouchEnd)
 
-      addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
       const skybox = skyboxQuery()[0]
       if (skybox) updateSkybox(skybox)
       dispatchAction(XRAction.sessionChanged({ active: false }))
@@ -419,7 +323,7 @@ export default async function XR8System(world: World) {
    *     session, changing the overrides, and entering the session again
    */
   const vpsReactor = startReactor(function XR8VPSReactor() {
-    const hasPersistentAnchor = useQuery(vpsQuery).length
+    const hasPersistentAnchor = useQuery([PersistentAnchorComponent]).length
 
     useEffect(() => {
       /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */

@@ -1,0 +1,6 @@
+api:
+  extraEnv:
+    FORCE_DB_REFRESH: "true"
+media:
+  extraEnv:
+    FORCE_DB_REFRESH: "true"

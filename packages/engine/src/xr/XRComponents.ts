@@ -1,5 +1,6 @@
 // TODO: this should not be here
-import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
+import { Engine } from 'behave-graph'
+import { useEffect, useReducer } from 'react'
 import {
   BufferGeometry,
   Group,
@@ -12,10 +13,20 @@ import {
   ShadowMaterial
 } from 'three'
 
+import { getState, useHookstate } from '@xrengine/hyperflux'
+
+import { matches } from '../common/functions/MatchesUtils'
 import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
-import { createMappedComponent, defineComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  createMappedComponent,
+  defineComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '../ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
+import { XRState } from './XRState'
 
 export type XRGripButtonComponentType = {}
 
@@ -71,7 +82,7 @@ const XRHandsInputSchema = {
 }
 /** @deprecated */
 export const XRHandsInputComponent = createMappedComponent<XRHandsInputComponentType, typeof XRHandsInputSchema>(
-  'XRHandsInputComponent',
+  'XRHandsInput',
   XRHandsInputSchema
 )
 
@@ -80,19 +91,60 @@ export const XRHitTestComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      hitTestSource: null! as XRHitTestSource,
-      hitTestResult: null as XRHitTestResult | null
+      options: null! as XRTransientInputHitTestOptionsInit | XRHitTestOptionsInit,
+      source: null! as XRHitTestSource,
+      results: [] as XRHitTestResult[]
     }
   },
 
-  onSet: (entity, component, json) => {
-    if (json?.hitTestSource) component.hitTestSource.set(json.hitTestSource)
+  onSet: (entity, component, data: XRTransientInputHitTestOptionsInit | XRHitTestOptionsInit) => {
+    component.options.set(data)
   },
 
-  toJSON: () => {
-    return null! as {
-      hitTestSource: XRHitTestSource
-    }
+  onRemove: (entity, component) => {
+    component.source.value?.cancel()
+  },
+
+  reactor: ({ root }) => {
+    const entity = root.entity
+
+    const hitTest = useOptionalComponent(entity, XRHitTestComponent)
+
+    useEffect(() => {
+      if (!hitTest) return
+
+      const options = hitTest.options.value
+      const xrState = getState(XRState).value
+
+      let active = true
+
+      if ('space' in options) {
+        xrState.session?.requestHitTestSource?.(options)?.then((source) => {
+          if (active) {
+            hitTest.source.set(source)
+            hitTest.results.set([])
+          } else {
+            source.cancel()
+          }
+        })
+      } else {
+        xrState.session?.requestHitTestSourceForTransientInput?.(options)?.then((source) => {
+          if (active) {
+            hitTest.source.set(source)
+            hitTest.results.set([])
+          } else {
+            source.cancel()
+          }
+        })
+      }
+
+      return () => {
+        active = false
+        hitTest?.source?.value?.cancel?.()
+      }
+    }, [hitTest?.options])
+
+    return null
   }
 })
 
@@ -105,21 +157,89 @@ export const XRAnchorComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, json) => {
-    if (json?.anchor) component.anchor.set(json.anchor)
+  onSet: (
+    entity,
+    component,
+    data: {
+      anchor: XRAnchor
+    }
+  ) => {
+    component.anchor.value?.delete()
+    component.anchor.set(data.anchor)
   },
 
   onRemove: (entity, component) => {
     component.anchor.value.delete()
-  },
-
-  toJSON: () => {
-    return null! as {
-      anchor: XRAnchor
-    }
   }
 })
 
 export type XRHand = Map<XRHandJoint, XRJointSpace>
 
-export const XRPlaneComponent = defineComponent({ name: 'XRPlaneComponent' })
+export const XRPlaneComponent = defineComponent({
+  name: 'XRPlaneComponent',
+
+  onInit(entity, world) {
+    return {
+      shadowMesh: null! as Mesh,
+      occlusionMesh: null! as Mesh,
+      geometry: null! as BufferGeometry,
+      placementHelper: null! as Mesh,
+      plane: null! as XRPlane
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+    if (matches.object.test(json.shadowMesh)) component.shadowMesh.set(json.shadowMesh as Mesh)
+    if (matches.object.test(json.occlusionMesh)) component.occlusionMesh.set(json.occlusionMesh as Mesh)
+    if (matches.object.test(json.placementHelper)) component.placementHelper.set(json.placementHelper as Mesh)
+    if (matches.object.test(json.geometry)) {
+      component.geometry.value?.dispose?.()
+      component.geometry.set(json.geometry as BufferGeometry)
+    }
+    if (matches.object.test(json.plane)) {
+      component.plane.set(json.plane as XRPlane)
+    }
+  },
+
+  onRemove(entity, component) {
+    component.shadowMesh.value?.traverse((mesh: Mesh) => {
+      if (mesh.geometry) mesh.geometry.dispose()
+    })
+    component.occlusionMesh.value.traverse((mesh: Mesh) => {
+      if (mesh.geometry) mesh.geometry.dispose()
+    })
+    component.placementHelper.value?.traverse((mesh: Mesh) => {
+      if (mesh.geometry) mesh.geometry.dispose()
+    })
+    component.geometry.value?.dispose?.()
+  },
+
+  reactor: function ({ root }) {
+    const entity = root.entity
+    const plane = useOptionalComponent(entity, XRPlaneComponent)
+    const scenePlacementMode = useHookstate(getState(XRState).scenePlacementMode)
+
+    useEffect(() => {
+      if (!plane) return
+
+      const shadowMesh = plane.shadowMesh.value
+      const occlusionMesh = plane.occlusionMesh.value
+
+      const setGeometry = (mesh: Mesh) => {
+        if (mesh.geometry) mesh.geometry = plane.geometry.value
+      }
+
+      shadowMesh.traverse(setGeometry)
+      occlusionMesh.traverse(setGeometry)
+    }, [plane?.geometry])
+
+    useEffect(() => {
+      if (!plane) return
+      const placementHelper = plane.placementHelper.value
+      placementHelper.visible = scenePlacementMode.value === 'placing'
+    }, [scenePlacementMode])
+
+    return null
+  }
+})

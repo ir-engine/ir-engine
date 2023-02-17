@@ -1,18 +1,14 @@
-import { Engine } from '../ecs/classes/Engine'
-import { initSystems } from '../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import MaterialLibrarySystem from '../renderer/materials/systems/MaterialLibrarySystem'
 import HyperspacePortalSystem from './systems/HyperspacePortalSystem'
 import InstancingSystem from './systems/InstancingSystem'
 import LightSystem from './systems/LightSystem'
-import ParticleSystem from './systems/ParticleSystem'
+import ParticleSystem from './systems/ParticleSystemSystem'
 import PortalSystem from './systems/PortalSystem'
 import SceneObjectDynamicLoadSystem from './systems/SceneObjectDynamicLoadSystem'
-import SceneObjectUpdateSystem from './systems/SceneObjectUpdateSystem'
-import TriggerSystem from './systems/TriggerSystem'
 
 export function SceneClientModule() {
-  return initSystems(Engine.instance.currentWorld, [
+  return [
     {
       uuid: 'xre.engine.PortalSystem',
       type: SystemUpdateType.UPDATE,
@@ -39,11 +35,6 @@ export function SceneClientModule() {
       systemLoader: () => Promise.resolve({ default: InstancingSystem })
     },
     {
-      uuid: 'xre.engine.SceneObjectUpdateSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: SceneObjectUpdateSystem })
-    },
-    {
       uuid: 'xre.engine.SceneObjectDynamicLoadSystem',
       type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: SceneObjectDynamicLoadSystem })
@@ -53,5 +44,5 @@ export function SceneClientModule() {
       type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: MaterialLibrarySystem })
     }
-  ])
+  ]
 }

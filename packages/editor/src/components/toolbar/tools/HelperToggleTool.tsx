@@ -1,13 +1,7 @@
-import React, { useCallback, useState } from 'react'
+import React from 'react'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import {
-  accessEngineRendererState,
-  EngineRendererAction,
-  useEngineRendererState
-} from '@xrengine/engine/src/renderer/EngineRendererState'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
@@ -16,21 +10,14 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
-  const engineRenderState = useEngineRendererState()
-  const [, updateState] = useState<any>()
-  const forceUpdate = useCallback(() => updateState({}), [])
-  const engineRendererState = useEngineRendererState()
+  const rendererState = useHookstate(getState(RendererState))
 
   const toggleDebug = () => {
-    forceUpdate()
-    dispatchAction(EngineRendererAction.setDebug({ debugEnable: !engineRenderState.debugEnable.value }))
+    rendererState.debugEnable.set(!rendererState.debugEnable.value)
   }
 
   const toggleNodeHelpers = () => {
-    Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
-    dispatchAction(
-      EngineRendererAction.changeNodeHelperVisibility({ visibility: !engineRenderState.nodeHelperVisibility.value })
-    )
+    rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)
   }
 
   return (
@@ -39,7 +26,7 @@ export const HelperToggleTool = () => {
         <InfoTooltip title="Toggle Helpers">
           <button
             onClick={toggleDebug}
-            className={styles.toolButton + ' ' + (engineRendererState.debugEnable.value ? styles.selected : '')}
+            className={styles.toolButton + ' ' + (rendererState.debugEnable.value ? styles.selected : '')}
           >
             <SquareFootIcon fontSize="small" />
           </button>
@@ -49,7 +36,7 @@ export const HelperToggleTool = () => {
         <InfoTooltip title="Toggle Node Helpers">
           <button
             onClick={toggleNodeHelpers}
-            className={styles.toolButton + ' ' + (engineRenderState.nodeHelperVisibility.value ? styles.selected : '')}
+            className={styles.toolButton + ' ' + (rendererState.nodeHelperVisibility.value ? styles.selected : '')}
           >
             <SelectAllIcon fontSize="small" />
           </button>

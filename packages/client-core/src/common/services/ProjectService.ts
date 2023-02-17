@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 import { BuilderInfo } from '@xrengine/common/src/interfaces/BuilderInfo'
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { ProjectInterface, ProjectUpdateType } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { UpdateProjectInterface } from '@xrengine/common/src/interfaces/UpdateProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -26,7 +26,8 @@ export const ProjectState = defineState({
     builderInfo: {
       engineVersion: '',
       engineCommit: ''
-    }
+    },
+    refreshingGithubRepoAccess: false
   })
 })
 
@@ -50,6 +51,9 @@ export const ProjectServiceReceptor = (action) => {
     })
     .when(ProjectAction.builderInfoFetched.matches, (action) => {
       return s.merge({ builderInfo: action.builderInfo })
+    })
+    .when(ProjectAction.setGithubRepoAccessRefreshing.matches, (action) => {
+      return s.merge({ refreshingGithubRepoAccess: action.refreshing })
     })
 }
 
@@ -79,13 +83,16 @@ export const ProjectService = {
   uploadProject: async (
     sourceURL: string,
     destinationURL: string,
-    name?: string,
-    reset?: boolean,
-    commitSHA?: string
+    name: string,
+    reset: boolean,
+    commitSHA: string,
+    sourceBranch: string,
+    updateType: ProjectUpdateType,
+    updateSchedule: string
   ) => {
     const result = await API.instance.client
       .service('project')
-      .update({ sourceURL, destinationURL, name, reset, commitSHA })
+      .update({ sourceURL, destinationURL, name, reset, commitSHA, sourceBranch, updateType, updateSchedule })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
     await API.instance.client.service('project-invalidate').patch({ projectName: name })
@@ -176,7 +183,7 @@ export const ProjectService = {
       // })
 
       const projectPatchedListener = (params) => {
-        dispatchAction(ProjectAction.patchedProject({ project: params.project }))
+        dispatchAction(ProjectAction.patchedProject({ project: params }))
       }
 
       API.instance.client.service('project').on('patched', projectPatchedListener)
@@ -296,6 +303,18 @@ export const ProjectService = {
       logger.error('Error with getting engine info', err)
       throw err
     }
+  },
+
+  refreshGithubRepoAccess: async () => {
+    try {
+      dispatchAction(ProjectAction.setGithubRepoAccessRefreshing({ refreshing: true }))
+      await API.instance.client.service('github-repo-access-refresh').find()
+      dispatchAction(ProjectAction.setGithubRepoAccessRefreshing({ refreshing: false }))
+      await ProjectService.fetchProjects()
+    } catch (err) {
+      logger.error('Error with refreshing Github repo access', err)
+      throw err
+    }
   }
 }
 
@@ -332,6 +351,11 @@ export class ProjectAction {
   static builderInfoFetched = defineAction({
     type: 'xre.client.project.BUILDER_INFO_FETCHED' as const,
     builderInfo: matches.object as Validator<unknown, BuilderInfo>
+  })
+
+  static setGithubRepoAccessRefreshing = defineAction({
+    type: 'xre.client.project.SET_ACCESS_REFRESHING' as const,
+    refreshing: matches.boolean
   })
 
   // TODO #7254

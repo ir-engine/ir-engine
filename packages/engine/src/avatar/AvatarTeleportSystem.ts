@@ -28,7 +28,7 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction, XRState } from '../xr/XRState'
+import { getCameraMode, ReferenceSpace, XRAction, XRState } from '../xr/XRState'
 import { createTransitionState } from '../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
@@ -139,15 +139,17 @@ export default async function AvatarTeleportSystem(world: World) {
   let fadeBackInAccumulator = -1
 
   const execute = () => {
+    if (getCameraMode() !== 'attached') return
     if (fadeBackInAccumulator >= 0) {
-      fadeBackInAccumulator += world.deltaSeconds
-      if (fadeBackInAccumulator > 0.25) {
-        fadeBackInAccumulator = -1
-        teleportAvatar(world.localClientEntity, guideCursor.position)
-        dispatchAction(CameraActions.fadeToBlack({ in: false }))
-        dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
-        dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
-      }
+      /** @todo fix camera fade transition shader - for now just teleport instantly */
+      // fadeBackInAccumulator += world.deltaSeconds
+      // if (fadeBackInAccumulator > 0.25) {
+      fadeBackInAccumulator = -1
+      teleportAvatar(world.localClientEntity, guideCursor.position)
+      dispatchAction(CameraActions.fadeToBlack({ in: false }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
+      // }
     }
     for (const entity of avatarTeleportQuery.exit(world)) {
       visibleSegments = 1
@@ -163,9 +165,9 @@ export default async function AvatarTeleportSystem(world: World) {
     }
     for (const entity of avatarTeleportQuery(world)) {
       const side = getComponent(world.localClientEntity, AvatarTeleportComponent).side
+      const referenceSpace = ReferenceSpace.origin!
 
       for (const inputSource of world.inputSources) {
-        const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
         if (inputSource.handedness === side) {
           const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)!
           guidelineTransform.position.copy(pose.transform.position as any as Vector3)

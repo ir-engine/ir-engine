@@ -172,7 +172,7 @@
         {
           "name": "shadow",
           "props": {
-            "cast": true,
+            "cast": false,
             "receive": true
           }
         }
@@ -277,6 +277,17 @@
               "y": 1,
               "z": 1
             }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
           }
         },
         {

@@ -101,12 +101,12 @@ function ModelReactor({ root }: EntityReactorProps) {
           case '.gltf':
           case '.fbx':
           case '.usdz':
-            scene = (
-              await AssetLoader.loadAsync(model.src, {
-                ignoreDisposeGeometry: model.generateBVH,
-                uuid
-              })
-            ).scene as Scene
+            const loadedAsset = await AssetLoader.loadAsync(model.src, {
+              ignoreDisposeGeometry: model.generateBVH,
+              uuid
+            })
+            scene = loadedAsset.scene
+            scene.animations = loadedAsset.animations
             break
           default:
             throw new Error(`Model type '${fileExtension}' not supported`)
@@ -115,6 +115,7 @@ function ModelReactor({ root }: EntityReactorProps) {
         if (!entityExists(Engine.instance.currentWorld, entity)) return
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
+        if (scene.userData.type === 'glb') delete scene.userData.type
         modelComponent.scene.set(scene)
       } catch (err) {
         console.error(err)

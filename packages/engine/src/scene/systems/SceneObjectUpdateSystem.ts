@@ -9,7 +9,6 @@ import {
   SCENE_COMPONENT_LOOP_ANIMATION,
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
 } from '../../avatar/components/LoopAnimationComponent'
-import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
@@ -18,29 +17,16 @@ import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '../../transform/components/TransformComponent'
-import {
-  AssetComponent,
-  SCENE_COMPONENT_ASSET,
-  SCENE_COMPONENT_ASSET_DEFAULT_VALUES
-} from '../components/AssetComponent'
 import { CameraTrackComponent, SCENE_COMPONENT_CAMERA_TRACK } from '../components/CameraTrackComponent'
 import {
   CloudComponent,
   SCENE_COMPONENT_CLOUD,
   SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
 } from '../components/CloudComponent'
-import {
-  EnvMapBakeComponent,
-  SCENE_COMPONENT_ENVMAP_BAKE,
-  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
-} from '../components/EnvMapBakeComponent'
+import { EnvMapBakeComponent, SCENE_COMPONENT_ENVMAP_BAKE } from '../components/EnvMapBakeComponent'
 import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '../components/EnvmapComponent'
-import {
-  GroundPlaneComponent,
-  SCENE_COMPONENT_GROUND_PLANE,
-  SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
-} from '../components/GroundPlaneComponent'
-import { addObjectToGroup, GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
+import { GroundPlaneComponent, SCENE_COMPONENT_GROUND_PLANE } from '../components/GroundPlaneComponent'
+import { GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
 import { ImageComponent, SCENE_COMPONENT_IMAGE } from '../components/ImageComponent'
 import {
   InteriorComponent,
@@ -54,11 +40,12 @@ import {
   SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
 } from '../components/OceanComponent'
 import {
-  PortalComponent,
-  SCENE_COMPONENT_PORTAL,
-  SCENE_COMPONENT_PORTAL_COLLIDER_VALUES,
-  SCENE_COMPONENT_PORTAL_DEFAULT_VALUES
-} from '../components/PortalComponent'
+  DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
+  ParticleSystemComponent,
+  SCENE_COMPONENT_PARTICLE_SYSTEM
+} from '../components/ParticleSystemComponent'
+import { PortalComponent, SCENE_COMPONENT_PORTAL } from '../components/PortalComponent'
+import { PrefabComponent, SCENE_COMPONENT_PREFAB } from '../components/PrefabComponent'
 import { PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE } from '../components/PreventBakeTagComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
@@ -70,11 +57,7 @@ import {
   ShadowComponent
 } from '../components/ShadowComponent'
 import { SCENE_COMPONENT_SKYBOX, SkyboxComponent } from '../components/SkyboxComponent'
-import {
-  SCENE_COMPONENT_SPAWN_POINT,
-  SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA,
-  SpawnPointComponent
-} from '../components/SpawnPointComponent'
+import { SCENE_COMPONENT_SPAWN_POINT, SpawnPointComponent } from '../components/SpawnPointComponent'
 import { SCENE_COMPONENT_SPLINE, SplineComponent } from '../components/SplineComponent'
 import {
   SCENE_COMPONENT_SYSTEM,
@@ -83,31 +66,15 @@ import {
 } from '../components/SystemComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
-import { FogType } from '../constants/FogType'
-import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
-import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
-import {
-  deserializeGround,
-  serializeGroundPlane,
-  shouldDeserializeGroundPlane,
-  updateGroundPlane
-} from '../functions/loaders/GroundPlaneFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
-import { deserializePortal, serializePortal, updatePortal } from '../functions/loaders/PortalFunctions'
-import { enterScenePreviewCamera, serializeScenePreviewCamera } from '../functions/loaders/ScenePreviewCameraFunctions'
-import { updateShadow } from '../functions/loaders/ShadowFunctions'
-import {
-  deserializeSkybox,
-  serializeSkybox,
-  shouldDeserializeSkybox,
-  updateSkybox
-} from '../functions/loaders/SkyboxFunctions'
+import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
+import { deserializeSkybox, serializeSkybox, updateSkybox } from '../functions/loaders/SkyboxFunctions'
 import { deserializeWater } from '../functions/loaders/WaterFunctions'
 
 export const defaultSpatialComponents: ComponentJson[] = [
@@ -126,7 +93,7 @@ export const ScenePrefabs = {
   skybox: 'Skybox' as const,
   spawnPoint: 'Spawn Point' as const,
   group: 'Group' as const,
-  asset: 'Asset' as const,
+  prefab: 'Prefab' as const,
   image: 'Image' as const,
   cloud: 'Cloud' as const,
   water: 'Water' as const,
@@ -151,7 +118,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ShadowComponent.name, SCENE_COMPONENT_SHADOW)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {
-    defaultData: SCENE_COMPONENT_SHADOW_DEFAULT_VALUES
+    defaultData: true
   })
 
   world.sceneComponentRegistry.set(PreventBakeTagComponent.name, SCENE_COMPONENT_PREVENT_BAKE)
@@ -168,9 +135,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   ])
 
   world.sceneComponentRegistry.set(ScenePreviewCameraComponent.name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
-    serialize: serializeScenePreviewCamera
-  })
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {})
 
   world.scenePrefabRegistry.set(ScenePrefabs.system, [
     { name: SCENE_COMPONENT_SYSTEM, props: SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES }
@@ -189,24 +154,22 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(SpawnPointComponent.name, SCENE_COMPONENT_SPAWN_POINT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
-    defaultData: SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA
+    defaultData: {}
   })
 
   /**
    * Assets
    */
 
-  world.scenePrefabRegistry.set(ScenePrefabs.asset, [
+  world.scenePrefabRegistry.set(ScenePrefabs.prefab, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_ASSET, props: SCENE_COMPONENT_ASSET_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_PREFAB, props: {} }
   ])
 
-  world.sceneComponentRegistry.set(AssetComponent.name, SCENE_COMPONENT_ASSET)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSET, {
-    defaultData: SCENE_COMPONENT_ASSET_DEFAULT_VALUES,
-    deserialize: deserializeAsset,
-    serialize: serializeAsset
+  world.sceneComponentRegistry.set(PrefabComponent.name, SCENE_COMPONENT_PREFAB)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PREFAB, {
+    deserialize: deserializePrefab
   })
 
   /**
@@ -215,13 +178,12 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.portal, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_PORTAL, props: {} }
   ])
 
   world.sceneComponentRegistry.set(PortalComponent.name, SCENE_COMPONENT_PORTAL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {
-    deserialize: deserializePortal,
-    serialize: serializePortal
+    defaultData: {}
   })
 
   /**
@@ -243,14 +205,12 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_ENVMAP_BAKE, props: SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_ENVMAP_BAKE, props: {} }
   ])
 
   world.sceneComponentRegistry.set(EnvMapBakeComponent.name, SCENE_COMPONENT_ENVMAP_BAKE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {
-    defaultData: SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES,
-    deserialize: deserializeEnvMapBake,
-    serialize: serializeEnvMapBake
+    defaultData: {}
   })
 
   /**
@@ -266,7 +226,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
-    defaultData: {},
     deserialize: deserializeModel
   })
 
@@ -292,15 +251,15 @@ export default async function SceneObjectUpdateSystem(world: World) {
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.groundPlane, [
-    ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_GROUND_PLANE, props: SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_SHADOW, props: { receive: true, cast: false } },
+    { name: SCENE_COMPONENT_GROUND_PLANE, props: {} }
   ])
 
   world.sceneComponentRegistry.set(GroundPlaneComponent.name, SCENE_COMPONENT_GROUND_PLANE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
-    defaultData: SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES,
-    deserialize: deserializeGround,
-    serialize: serializeGroundPlane
+    defaultData: {}
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.image, [
@@ -386,6 +345,17 @@ export default async function SceneObjectUpdateSystem(world: World) {
     defaultData: {}
   })
 
+  world.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_PARTICLE_SYSTEM, props: {} }
+  ])
+
+  world.sceneComponentRegistry.set(ParticleSystemComponent.name, SCENE_COMPONENT_PARTICLE_SYSTEM)
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {
+    defaultData: {}
+  })
+
   const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
   const imageQuery = defineQuery([ImageComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
@@ -398,6 +368,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const oceanQuery = defineQuery([OceanComponent])
   const interiorQuery = defineQuery([InteriorComponent])
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
+  const spawnPointComponent = defineQuery([SpawnPointComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
@@ -406,8 +377,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
       for (const entity of action.entities) {
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, GroupComponent)) updateEnvMap(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
-        if (hasComponent(entity, PortalComponent)) updatePortal(entity)
-        if (hasComponent(entity, GroundPlaneComponent)) updateGroundPlane(entity)
         if (hasComponent(entity, LoopAnimationComponent)) updateLoopAnimation(entity)
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
@@ -419,12 +388,10 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
     for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')
-    for (const entity of portalQuery.enter()) updatePortal(entity)
-    for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)
-    for (const entity of scenePreviewCameraQuery.enter()) enterScenePreviewCamera(entity)
+    for (const entity of spawnPointComponent()) getComponent(entity, SpawnPointComponent).helperBox?.update()
   }
 
   const cleanup = async () => {
@@ -460,10 +427,10 @@ export default async function SceneObjectUpdateSystem(world: World) {
      * Assets
      */
 
-    world.scenePrefabRegistry.delete(ScenePrefabs.asset)
+    world.scenePrefabRegistry.delete(ScenePrefabs.prefab)
 
-    world.sceneComponentRegistry.delete(AssetComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_ASSET)
+    world.sceneComponentRegistry.delete(PrefabComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PREFAB)
 
     /**
      * Portals
@@ -548,6 +515,10 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
     world.sceneComponentRegistry.delete(CameraTrackComponent.name)
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_CAMERA_TRACK)
+
+    world.scenePrefabRegistry.delete(ScenePrefabs.particleEmitter)
+    world.sceneComponentRegistry.delete(ParticleSystemComponent.name)
+    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_SYSTEM)
 
     removeQuery(world, envmapQuery)
     removeQuery(world, imageQuery)

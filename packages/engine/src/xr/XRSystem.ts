@@ -2,9 +2,9 @@ import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperf
 
 import XR8 from './8thwall/XR8'
 import { World } from './../ecs/classes/World'
+import { VPSSystem } from './VPSSystem'
 import XRAnchorSystem from './XRAnchorSystem'
 import XRCameraSystem from './XRCameraSystem'
-import XRDepthOcclusion from './XRDepthOcclusion'
 import XRDetectedPlanesSystem from './XRDetectedPlanesSystem'
 import XRHapticsSystem from './XRHapticsSystem'
 import XRInputSourceSystem from './XRInputSourceSystem'
@@ -57,14 +57,13 @@ export default async function XRSystem(world: World) {
     cleanup,
     subsystems: [
       () => Promise.resolve({ default: XR8 }),
-      () => Promise.resolve({ default: XRPersistentAnchorSystem }),
-      () => Promise.resolve({ default: XRAnchorSystem }),
+      () => Promise.resolve({ default: VPSSystem }),
       () => Promise.resolve({ default: XRCameraSystem }),
       () => Promise.resolve({ default: XRInputSourceSystem }),
       () => Promise.resolve({ default: XRHapticsSystem }),
-      () => Promise.resolve({ default: XRLightProbeSystem }),
+      // () => Promise.resolve({ default: XRLightProbeSystem }),
       () => Promise.resolve({ default: XRDetectedPlanesSystem }),
-      () => Promise.resolve({ default: XRDepthOcclusion }),
+      // () => Promise.resolve({ default: XRDepthOcclusion }),
       () => Promise.resolve({ default: XRScenePlacementShader })
     ]
   }

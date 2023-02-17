@@ -1,14 +1,28 @@
 import { DirectionalLight } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
+import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineRendererState } from '../EngineRendererState'
+import { RendererState } from '../../renderer/RendererState'
+import { isHeadset, useIsHeadset } from '../../xr/XRState'
+import { RenderModes } from '../constants/RenderModes'
 import { EngineRenderer, getRendererSceneMetadataState } from '../WebGLRendererSystem'
 
-export const updateShadowMap = (disable?: boolean) => {
+export const getShadowsEnabled = () => {
+  const rendererState = getState(RendererState)
+  return !isHeadset() && !iOS && rendererState.useShadows.value && rendererState.renderMode.value === RenderModes.SHADOW
+}
+
+export const useShadowsEnabled = () => {
+  const isHeadset = useIsHeadset()
+  const rendererState = useHookstate(getState(RendererState))
+  return !isHeadset && !iOS && rendererState.useShadows.value && rendererState.renderMode.value === RenderModes.SHADOW
+}
+
+export const updateShadowMap = () => {
+  const enabled = getShadowsEnabled()
   const type = getRendererSceneMetadataState(Engine.instance.currentWorld).shadowMapType.value
-  const enabled = getState(EngineRendererState).useShadows.value && !disable
 
   EngineRenderer.instance.renderer.shadowMap.enabled = enabled
   EngineRenderer.instance.renderer.shadowMap.type = type

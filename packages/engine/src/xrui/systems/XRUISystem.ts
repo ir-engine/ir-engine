@@ -1,4 +1,4 @@
-import { WebContainer3D } from '@etherealjs/web-layer/three'
+import { WebContainer3D } from '@xrfoundation/xrui'
 import {
   AdditiveBlending,
   BufferGeometry,
@@ -25,7 +25,7 @@ import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { XRState } from '../../xr/XRState'
+import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent, XRUIInteractableComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
@@ -79,7 +79,7 @@ export default async function XRUISystem(world: World) {
   // todo - hoist to hyperflux state
   const maxXruiPointerDistanceSqr = 3 * 3
 
-  const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
+  const xrui = (XRUIManager.instance = new XRUIManager(await import('@xrfoundation/xrui')))
   xrui.WebLayerModule.WebLayerManager.initialize(renderer)
   xrui.WebLayerModule.WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
@@ -171,13 +171,12 @@ export default async function XRUISystem(world: World) {
     const keys = world.buttons
 
     const xrFrame = Engine.instance.xrFrame
-    const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
 
     /** Update the objects to use for intersection tests */
     if (xrFrame && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
       xrui.interactionRays = (Array.from(pointers.values()) as (Ray | Object3D)[]).concat(
         world.pointerScreenRaycaster.ray
-      ) // todo, replace pointerScreenRaycaster with viewerInputSourceEntity
+      ) // todo, replace pointerScreenRaycaster with input sources
 
     if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
@@ -199,6 +198,7 @@ export default async function XRUISystem(world: World) {
 
     /** do intersection tests */
     for (const inputSource of world.inputSources) {
+      if (inputSource.targetRayMode !== 'tracked-pointer') continue
       if (!pointers.has(inputSource)) {
         const pointer = createPointer(inputSource)
         const cursor = createUICursor()
@@ -211,7 +211,8 @@ export default async function XRUISystem(world: World) {
 
       const pointer = pointers.get(inputSource)!
 
-      if (Engine.instance.xrFrame) {
+      const referenceSpace = ReferenceSpace.origin
+      if (Engine.instance.xrFrame && referenceSpace) {
         const pose = Engine.instance.xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
         if (pose) {
           pointer.position.copy(pose.transform.position as any as Vector3)

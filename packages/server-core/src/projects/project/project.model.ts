@@ -30,6 +30,21 @@ export default (app: Application) => {
       needsRebuild: {
         type: DataTypes.BOOLEAN
       },
+      sourceRepo: {
+        type: DataTypes.STRING
+      },
+      sourceBranch: {
+        type: DataTypes.STRING
+      },
+      updateType: {
+        type: DataTypes.STRING
+      },
+      updateSchedule: {
+        type: DataTypes.STRING
+      },
+      updateUserId: {
+        type: DataTypes.UUID
+      },
       commitSHA: {
         type: DataTypes.STRING
       },

@@ -1,10 +1,8 @@
-import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { createGLTFLoader } from './assets/functions/createGLTFLoader'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
@@ -72,33 +70,27 @@ export const initializeBrowser = () => {
 
   Engine.instance.isBot = navigator.userAgent === BotUserAgent
 
-  const browser = detect()
-  const os = detectOS(navigator.userAgent)
-
-  // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
-  ;(window as any).iOS =
-    os === 'iOS' ||
-    /iPad|iPhone|iPod/.test(navigator.platform) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  ;(window as any).safariWebBrowser = browser?.name === 'safari'
-
-  setupInitialClickListener()
-
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
   EngineRenderer.instance.initialize()
+  setupInitialClickListener()
   Engine.instance.engineTimer.start()
 }
 
 const setupInitialClickListener = () => {
+  const canvas = EngineRenderer.instance.renderer.domElement
   const initialClickListener = () => {
     dispatchAction(EngineActions.setUserHasInteracted({}))
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
+    canvas.removeEventListener('click', initialClickListener)
+    canvas.removeEventListener('touchend', initialClickListener)
   }
   window.addEventListener('click', initialClickListener)
   window.addEventListener('touchend', initialClickListener)
+  canvas.addEventListener('click', initialClickListener)
+  canvas.addEventListener('touchend', initialClickListener)
 }
 
 /**

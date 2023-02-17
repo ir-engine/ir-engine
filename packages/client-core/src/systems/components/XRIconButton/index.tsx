@@ -1,6 +1,6 @@
 import React from 'react'
 
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
 type iconButtonVariant = 'filled' | 'iconOnly'
 type iconButtonSize = 'small' | 'medium' | 'large'

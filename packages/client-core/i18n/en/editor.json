@@ -138,14 +138,14 @@
       "name": "Environment Map",
       "description": "environment map properties"
     },
-    "asset": {
-      "name": "Asset",
+    "prefab": {
+      "name": "Prefab",
       "description": "A grouping of scene components which can be dynamically loaded and unloaded",
       "lbl-options": "Options",
-      "lbl-assetPath": "Asset Path",
-      "lbl-assetName": "Export Name",
+      "lbl-prefabPath": "Prefab Path",
+      "lbl-prefabName": "Export Name",
       "lbl-exportOptions": "Export Options",
-      "lbl-export": "Export Asset",
+      "lbl-export": "Export Prefab",
       "lbl-load": "Load Into Scene",
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
@@ -223,7 +223,8 @@
       "lbl-shadowmapResolution": "Shadow Map Resolution",
       "lbl-shadowBias": "Shadow Bias",
       "lbl-shadowRadius": "Shadow Radius",
-      "lbl-showCameraHelper": "Show Camera Helper"
+      "lbl-showCameraHelper": "Show Camera Helper",
+      "lbl-castShadows": "Cast Shadows"
     },
     "groundPlane": {
       "name": "Ground Plane",

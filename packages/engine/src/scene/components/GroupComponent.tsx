@@ -1,6 +1,6 @@
 import * as bitECS from 'bitecs'
 import React from 'react'
-import { BufferGeometry, Camera, Material, Mesh, Object3D } from 'three'
+import { Camera, Material, Mesh, Object3D } from 'three'
 
 import { none } from '@xrengine/hyperflux'
 
@@ -13,6 +13,7 @@ import {
   getComponent,
   getComponentState,
   hasComponent,
+  QueryComponents,
   removeComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -31,8 +32,12 @@ export const GroupComponent = defineComponent({
   onRemove: (entity, component) => {
     for (const obj of component.value) {
       obj.removeFromParent()
-      obj.traverse((mesh: Mesh<BufferGeometry, Material>) => {
-        mesh.material?.dispose()
+      obj.traverse((mesh: Mesh) => {
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((material: Material) => material.dispose())
+        } else {
+          mesh.material?.dispose()
+        }
         mesh.geometry?.dispose()
       })
     }
@@ -44,8 +49,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
-  if (getComponent(entity, GroupComponent).includes(obj))
-    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
+  if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
   getComponentState(entity, GroupComponent).merge([obj])
@@ -83,8 +87,6 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
     const group = getComponent(entity, GroupComponent)
     if (group.includes(obj)) {
       getComponentState(entity, GroupComponent)[group.indexOf(obj)].set(none)
-    } else {
-      console.warn('[removeObjectFromGroup]: Tried to remove an obejct from a group it is not in', entity, object)
     }
     if (!group.length) removeComponent(entity, GroupComponent)
   }
@@ -101,9 +103,9 @@ export type GroupReactorProps = {
 
 export const startGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
-  components: (bitECS.Component | bitECS.QueryModifier)[] = []
+  Components: QueryComponents = []
 ) =>
-  startQueryReactor([GroupComponent, ...components], function (props) {
+  startQueryReactor([GroupComponent, ...Components], function (props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 

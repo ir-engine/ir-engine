@@ -3,7 +3,6 @@ import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Component } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
-import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { CameraTrackComponent } from '@xrengine/engine/src/scene/components/CameraTrackComponent'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
 import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
@@ -20,9 +19,10 @@ import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaCompo
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@xrengine/engine/src/scene/components/MountPointComponent'
 import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanComponent'
-import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
+import { ParticleSystemComponent } from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
 import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
 import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
@@ -41,7 +41,6 @@ import { PersistentAnchorComponent } from '@xrengine/engine/src/xr/XRAnchorCompo
 import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
-import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import CameraTrackNodeEditor from '../components/properties/CameraTrackNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
@@ -58,11 +57,12 @@ import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
-import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
+import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
 import PersistentAnchorNodeEditor from '../components/properties/PersistentAnchorNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
+import { PrefabNodeEditor } from '../components/properties/PrefabNodeEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
@@ -85,12 +85,12 @@ EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
-EntityNodeEditor.set(ParticleEmitterComponent, ParticleEmitterNodeEditor)
+EntityNodeEditor.set(ParticleSystemComponent, ParticleSystemNodeEditor)
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
 EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
 EntityNodeEditor.set(GroupComponent, GroupNodeEditor)
-EntityNodeEditor.set(AssetComponent, AssetNodeEditor)
+EntityNodeEditor.set(PrefabComponent, PrefabNodeEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
 EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)
@@ -121,12 +121,12 @@ export const prefabIcons = {
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
-  [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
+  [ScenePrefabs.particleEmitter]: ParticleSystemNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
   [PhysicsPrefabs.collider]: ColliderNodeEditor.iconComponent,
   [ScenePrefabs.chair]: ChairIcon,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
-  [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,
+  [ScenePrefabs.prefab]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,

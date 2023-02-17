@@ -1,6 +1,6 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { createRef, useCallback, useEffect, useState } from 'react'
+import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 
 import {
@@ -61,7 +61,7 @@ declare module '@mui/styles/defaultTheme' {
 }
 
 const App = (): any => {
-  const notistackRef = createRef<SnackbarProvider>()
+  const notistackRef = useRef<SnackbarProvider>()
   const authState = useAuthState()
   const selfUser = authState.user
   const clientSettingState = useClientSettingState()
@@ -82,11 +82,6 @@ const App = (): any => {
   const oEmbed = oEmbedState.oEmbed
 
   const initApp = useCallback(() => {
-    if (process.env && process.env.NODE_CONFIG) {
-      ;(window as any).env = process.env.NODE_CONFIG
-    } else {
-      ;(window as any).env = (window as any).env ?? ''
-    }
     initGA()
     logPageView()
   }, [])
@@ -240,7 +235,7 @@ const App = (): any => {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <SnackbarProvider
-            ref={notistackRef}
+            ref={notistackRef as any}
             maxSnack={7}
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             action={defaultAction}

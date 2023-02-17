@@ -21,6 +21,14 @@
   }
 }
 
+.refreshGHBtn {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 12px;
+  background-color: var(--popupBackground) !important;
+  color: var(--textColor) !important;
+}
+
 .dateTimePickerDialog {
   background: var(--popupBackground);
   color: var(--textColor) !important;
@@ -279,12 +287,6 @@
   @media (max-width: 900px) {
     overflow-y: scroll;
   }
-}
-
-.paper {
-  padding: 24px 32px;
-  box-shadow: 0 3px 5px -1px rgb(0 0 0 / 20%), 0 5px 8px 0 rgb(0 0 0 / 14%), 0 1px 14px 0 rgb(0 0 0 / 12%);
-  background-color: #fff;
 }
 
 .buttonContainer {

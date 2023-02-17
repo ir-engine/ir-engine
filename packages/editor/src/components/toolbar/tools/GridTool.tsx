@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 
@@ -10,28 +11,10 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const engineRendererState = useEngineRendererState().value
-  const [isGridVisible, setGridVisible] = useState(engineRendererState.gridVisibility)
-  const [gridHeight, setGridHeight] = useState(engineRendererState.gridHeight)
-
-  useEffect(() => {
-    updateGridHeight(engineRendererState.gridHeight)
-  }, [engineRendererState.gridHeight])
-
-  useEffect(() => {
-    updateGridVisibility(engineRendererState.gridVisibility)
-  }, [engineRendererState.gridVisibility])
-
-  const updateGridVisibility = (val) => {
-    setGridVisible(val)
-  }
-
-  const updateGridHeight = (val) => {
-    setGridHeight(val)
-  }
+  const rendererState = useHookstate(getState(RendererState))
 
   const onToggleGridVisible = () => {
-    InfiniteGridHelper.instance.toggleGridVisible()
+    rendererState.gridVisibility.set(!rendererState.gridVisibility.value)
   }
 
   const onChangeGridHeight = (value) => {
@@ -43,14 +26,14 @@ const GridTool = () => {
       <InfoTooltip title="Toggle Grid Visibility">
         <button
           onClick={onToggleGridVisible}
-          className={styles.toolButton + ' ' + (isGridVisible ? styles.selected : '')}
+          className={styles.toolButton + ' ' + (rendererState.gridVisibility ? styles.selected : '')}
         >
           <GridOnIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <NumericStepperInput
         className={styles.toolbarNumericStepperInput}
-        value={gridHeight}
+        value={rendererState.gridHeight.value}
         onChange={onChangeGridHeight}
         precision={0.01}
         smallStep={0.5}

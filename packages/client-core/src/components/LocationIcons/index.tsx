@@ -4,6 +4,7 @@ import { TouchGamepad } from '@xrengine/client-core/src/common/components/TouchG
 import { UserMenu } from '@xrengine/client-core/src/user/components/UserMenu'
 import { iOS } from '@xrengine/engine/src/common/functions/isMobile'
 import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { getCameraMode, XRState } from '@xrengine/engine/src/xr/XRState'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
@@ -19,6 +20,9 @@ import styles from './index.module.scss'
 export const LocationIcons = () => {
   const loadingSystemState = useHookstate(getState(LoadingSystemState))
   const engineState = useHookstate(getState(EngineState))
+  useHookstate(getState(XRState))
+  const cameraMode = getCameraMode()
+
   if (!engineState.isEngineInitialized.value) return <></>
   return (
     <>
@@ -33,7 +37,7 @@ export const LocationIcons = () => {
         <ARPlacement />
         <XRLoading />
         <MediaIconsBox />
-        <TouchGamepad />
+        {cameraMode === 'detached' && <TouchGamepad />}
         {!iOS && <Fullscreen />}
       </div>
     </>

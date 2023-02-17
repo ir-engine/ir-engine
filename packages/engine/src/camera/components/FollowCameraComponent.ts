@@ -11,7 +11,7 @@ import { CameraMode } from '../types/CameraMode'
 //const cameraRayCount = 1
 export const coneDebugHelpers: ArrowHelper[] = []
 // todo properly turn into gizmo
-export const debugRays = true
+export const debugRays = false
 
 export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',

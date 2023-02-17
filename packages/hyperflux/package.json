@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/hyperflux",
-  "version": "1.0.0-rc8",
+  "version": "1.0.0",
   "main": "index.ts",
   "description": "State Management for XREngine",
   "repository": {
@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@hookstate/core": "4.0.0-rc21",
-    "react-nil": "1.2.0",
     "react-reconciler": "^0.29.0"
   },
   "devDependencies": {

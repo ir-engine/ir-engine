@@ -2,9 +2,15 @@ import React, { useState } from 'react'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
-import styleString from './index.scss'
+import styleString from './index.scss?inline'
 
-const XRSelectDropdown = (props) => {
+interface Props<T> {
+  value: T
+  options: readonly T[]
+  onChange: (value: T) => void
+}
+
+function XRSelectDropdown<T extends string>(props: Props<T>) {
   const { value, options, onChange } = props
   const [visible, setVisible] = useState(false)
 

@@ -5,7 +5,11 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import {
+  DefaultUpdateSchedule,
+  ProjectInterface,
+  ProjectUpdateType
+} from '@xrengine/common/src/interfaces/ProjectInterface'
 
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import Button from '@mui/material/Button'
@@ -85,7 +89,10 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
           sourceURL: projectUpdateStatus[name].sourceURL.value,
           destinationURL: projectUpdateStatus[name].destinationURL.value,
           reset: true,
-          commitSHA: projectUpdateStatus[name].selectedSHA.value
+          commitSHA: projectUpdateStatus[name].selectedSHA.value,
+          sourceBranch: projectUpdateStatus[name].selectedBranch.value,
+          updateType: projectUpdateStatus[name].updateType.value || ('none' as ProjectUpdateType),
+          updateSchedule: projectUpdateStatus[name].updateSchedule.value || DefaultUpdateSchedule
         }
       })
     )
