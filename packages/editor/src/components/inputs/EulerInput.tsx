@@ -27,6 +27,7 @@ type EulerInputProps = {
  */
 export const EulerInput = (props: EulerInputProps) => {
   const newValue = useHookstate(new Euler())
+  newValue.value.set(0, 0, 0)
   _euler.setFromQuaternion(props.quaternion)
 
   const onChange = (x: number, y: number, z: number) => {
