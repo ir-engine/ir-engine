@@ -42,7 +42,8 @@ import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpda
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
-  TransformComponent
+  TransformComponent,
+  TransformComponentType
 } from '@xrengine/engine/src/transform/components/TransformComponent'
 import {
   computeLocalTransformMatrix,
@@ -331,6 +332,7 @@ const positionObject = (
     } else {
       const transform = getComponent(node.entity, TransformComponent)
       const localTransform = getOptionalComponent(node.entity, LocalTransformComponent) ?? transform
+      const targetComponent = localTransform ? LocalTransformComponent : TransformComponent
 
       if (space === TransformSpace.Local) {
         if (addToPosition) localTransform.position.add(pos)
@@ -346,7 +348,8 @@ const positionObject = (
         const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
-        localTransform.position.copy(tempVector)
+
+        updateComponent(node.entity, targetComponent, { position: tempVector })
       }
     }
   }
@@ -366,7 +369,6 @@ const rotateObject = (
     if (typeof node === 'string') {
       const obj3d = obj3dFromUuid(node)
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
-
       if (space === TransformSpace.Local) {
         obj3d.quaternion.copy(T_QUAT_1)
         obj3d.updateMatrix()
@@ -376,12 +378,14 @@ const rotateObject = (
 
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
-
         obj3d.quaternion.copy(newLocalQuaternion)
       }
     } else {
       const transform = getComponent(node.entity, TransformComponent)
       const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+      const targetComponent = getComponent(node.entity, LocalTransformComponent)
+        ? TransformComponent
+        : LocalTransformComponent
 
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
@@ -395,7 +399,7 @@ const rotateObject = (
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
-        localTransform.rotation.copy(newLocalQuaternion)
+        updateComponent(node.entity, targetComponent, { rotation: newLocalQuaternion })
         computeLocalTransformMatrix(node.entity)
         computeTransformMatrix(node.entity)
       }
@@ -403,6 +407,9 @@ const rotateObject = (
   }
 }
 
+const newPosition = new Vector3()
+const newRotation = new Quaternion()
+const newScale = new Vector3()
 const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: number, pivot: Vector3) => {
   const pivotToOriginMatrix = new Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z)
   const originToPivotMatrix = new Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z)
@@ -423,6 +430,8 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
       const transform = getComponent(node.entity, TransformComponent)
       const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
       const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
+      const targetComponent = transform || parentTransform ? LocalTransformComponent : TransformComponent
+      const targetEntity = parentTransform ? node.parentEntity! : node.entity
 
       new Matrix4()
         .copy(transform.matrix)
@@ -430,7 +439,11 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
         .premultiply(rotationMatrix)
         .premultiply(originToPivotMatrix)
         .premultiply(parentTransform.matrixInverse)
-        .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+        .decompose(newPosition, newRotation, newScale)
+
+      console.log(newRotation)
+
+      updateComponent(node.entity, targetComponent, { position: newPosition, rotation: newRotation, scale: newScale })
     }
   }
 }
