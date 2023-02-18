@@ -478,7 +478,7 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent((node as EntityTreeNode).entity, TransformComponent, { scale: transformComponent.scale })
+    updateComponent((node as EntityTreeNode).entity, LocalTransformComponent, { scale: transformComponent.scale })
   }
 }
 
