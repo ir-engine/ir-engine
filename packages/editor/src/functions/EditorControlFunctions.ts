@@ -332,7 +332,9 @@ const positionObject = (
     } else {
       const transform = getComponent(node.entity, TransformComponent)
       const localTransform = getOptionalComponent(node.entity, LocalTransformComponent) ?? transform
-      const targetComponent = localTransform ? LocalTransformComponent : TransformComponent
+      const targetComponent = hasComponent(node.entity, LocalTransformComponent)
+        ? LocalTransformComponent
+        : TransformComponent
 
       if (space === TransformSpace.Local) {
         if (addToPosition) localTransform.position.add(pos)
@@ -349,7 +351,8 @@ const positionObject = (
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
 
-        updateComponent(node.entity, targetComponent, { position: tempVector })
+        localTransform.position.copy(tempVector)
+        updateComponent(node.entity, targetComponent, { position: localTransform.position })
       }
     }
   }
@@ -407,9 +410,6 @@ const rotateObject = (
   }
 }
 
-const newPosition = new Vector3()
-const newRotation = new Quaternion()
-const newScale = new Vector3()
 const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: number, pivot: Vector3) => {
   const pivotToOriginMatrix = new Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z)
   const originToPivotMatrix = new Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z)
@@ -430,8 +430,9 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
       const transform = getComponent(node.entity, TransformComponent)
       const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
       const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
-      const targetComponent = transform || parentTransform ? LocalTransformComponent : TransformComponent
-      const targetEntity = parentTransform ? node.parentEntity! : node.entity
+      const targetComponent = hasComponent(node.entity, LocalTransformComponent)
+        ? LocalTransformComponent
+        : TransformComponent
 
       new Matrix4()
         .copy(transform.matrix)
@@ -439,11 +440,9 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
         .premultiply(rotationMatrix)
         .premultiply(originToPivotMatrix)
         .premultiply(parentTransform.matrixInverse)
-        .decompose(newPosition, newRotation, newScale)
+        .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
 
-      console.log(newRotation)
-
-      updateComponent(node.entity, targetComponent, { position: newPosition, rotation: newRotation, scale: newScale })
+      updateComponent(node.entity, targetComponent, { rotation: localTransform.rotation })
     }
   }
 }
