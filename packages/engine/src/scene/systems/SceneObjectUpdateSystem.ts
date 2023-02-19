@@ -77,7 +77,7 @@ import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loader
 import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
-import { deserializeSkybox, serializeSkybox, updateSkybox } from '../functions/loaders/SkyboxFunctions'
+import { updateSkybox } from '../functions/loaders/SkyboxFunctions'
 import { deserializeSpline, serializeSpline } from '../functions/loaders/SplineFunctions'
 import { deserializeWater } from '../functions/loaders/WaterFunctions'
 
@@ -200,9 +200,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(SkyboxComponent.name, SCENE_COMPONENT_SKYBOX)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
-    defaultData: {},
-    deserialize: deserializeSkybox,
-    serialize: serializeSkybox
+    defaultData: {}
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
