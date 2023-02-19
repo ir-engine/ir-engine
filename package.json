@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "homepage": "xrengine.io",
   "private": true,
+  "bin": {
+    "xrengine": "npx/cli.js"
+  },
   "workspaces": [
     "packages/*",
     "packages/projects/projects/*"
