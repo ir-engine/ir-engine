@@ -22,6 +22,7 @@ export enum AssetType {
   XLS = 'xls',
   Script = 'script',
   KTX2 = 'ktx2',
+  DDS = 'dds',
   USDZ = 'usdz',
   M3U8 = 'm3u8'
 }
