@@ -1304,6 +1304,8 @@ class GLTFWriter {
 
 		}
 
+		/*
+
 		// pbrMetallicRoughness.baseColorFactor
 		if (material.color) {
 			const color = material.color.toArray().concat( [ material.opacity ] );
@@ -1415,7 +1417,7 @@ class GLTFWriter {
 			materialDef.occlusionTexture = occlusionMapDef;
 
 		}
-
+*/
 		// alphaMode
 		if ( material.transparent ) {
 
@@ -1434,6 +1436,7 @@ class GLTFWriter {
 
 		// doubleSided
 		if ( material.side === DoubleSide ) materialDef.doubleSided = true;
+		
 		if ( material.name !== '' ) materialDef.name = material.name;
 
 		this.serializeUserData( material, materialDef );
