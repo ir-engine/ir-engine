@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouteMatch } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { AppLoadingState } from '@xrengine/client-core/src/common/services/AppLoadingService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
@@ -16,10 +16,8 @@ import { loadSceneJsonOffline } from './utils'
 
 const LocationPage = () => {
   const { t } = useTranslation()
-  const match = useRouteMatch()
+  const params = useParams()
   const appState = useHookstate(getState(AppLoadingState).state)
-
-  const params = match.params as any
 
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName: `${params.projectName}/${params.sceneName}` }))

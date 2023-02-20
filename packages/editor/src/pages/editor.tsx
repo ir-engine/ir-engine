@@ -1,5 +1,6 @@
+import { t } from 'i18next'
 import React, { Suspense, useEffect, useState } from 'react'
-import { Redirect, Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
@@ -26,20 +27,17 @@ const EditorProtectedRoutes = () => {
     }
   }, [user.scopes])
 
-  if (!isAuthorized) return <LoadingCircle />
+  if (!isAuthorized) return <LoadingCircle message={t('common:loader.auth')} />
 
   return (
-    <Suspense fallback={<LoadingCircle />}>
-      <Switch>
-        <Redirect from="/editor/:projectName/:sceneName" to="/studio/:projectName/:sceneName" />
-        <Redirect from="/editor/:projectName" to="/studio/:projectName" />
-        <Redirect from="/editor" to="/studio" />
-        <Route path="/studio/:projectName/:sceneName" component={EditorPage} />
-        <Route path="/studio/:projectName" component={EditorPage} />
-        <Route path="/studio" component={ProjectPage} />
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingEditor')} />}>
+      <Routes>
+        <Route path=":projectName/:sceneName" element={<EditorPage />} />
+        <Route path=":projectName" element={<EditorPage />} />
+        <Route path="*" element={<ProjectPage />} />
         {/* Not in use */}
-        <Route path="/studio-login" component={SignInPage} />
-      </Switch>
+        {/* <Route path="/studio-login" element={<SignInPage />} /> */}
+      </Routes>
     </Suspense>
   )
 }
