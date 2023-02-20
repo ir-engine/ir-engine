@@ -9,7 +9,7 @@ import {
   setComponent,
   useOptionalComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
@@ -65,14 +65,14 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   const onChangeVisible = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n !== 'string'
-    ) as EntityTreeNode[]
+    ) as EntityOrObjectUUID[]
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
   const onChangeBakeStatic = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
-      (n) => typeof n === 'object'
-    ) as EntityTreeNode[]
+      (n) => typeof n === 'number'
+    ) as EntityOrObjectUUID[]
     EditorControlFunctions.addOrRemoveComponent(nodes, PreventBakeTagComponent, value)
   }
 

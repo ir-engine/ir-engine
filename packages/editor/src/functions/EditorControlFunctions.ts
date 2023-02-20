@@ -11,6 +11,7 @@ import {
   addComponent,
   Component,
   getComponent,
+  getComponentState,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -21,11 +22,11 @@ import {
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
-  cloneEntityNode,
-  createEntityNode,
-  EntityTreeNode,
+  EntityOrObjectUUID,
+  EntityTreeComponent,
+  getAllEntitiesInTree,
   getEntityNodeArrayFromEntities,
-  removeEntityNodeFromParent,
+  removeEntityNodeRecursively,
   reparentEntityNode,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
@@ -64,22 +65,22 @@ import makeUniqueName from './makeUniqueName'
  * @param nodes
  * @param component
  */
-const addOrRemoveComponent = <C extends Component<any, any>>(nodes: EntityTreeNode[], component: C, add: boolean) => {
+const addOrRemoveComponent = <C extends Component<any, any>>(
+  nodes: EntityOrObjectUUID[],
+  component: C,
+  add: boolean
+) => {
   cancelGrabOrPlacement()
 
   for (let i = 0; i < nodes.length; i++) {
-    const entity = nodes[i].entity
+    const entity = nodes[i]
     if (typeof entity === 'string') continue
     if (add) setComponent(entity, component)
     else removeComponent(entity, component)
   }
 
   /** @todo remove when all scene components migrated to reactor pattern #6892 */
-  dispatchAction(
-    EngineActions.sceneObjectUpdate({
-      entities: nodes.map((n) => n.entity)
-    })
-  )
+  dispatchAction(EngineActions.sceneObjectUpdate({ entities: nodes as Entity[] }))
   dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
@@ -92,7 +93,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(nodes: EntityTreeNo
  * @param component
  */
 const modifyProperty = <C extends Component<any, any>>(
-  nodes: EntityTreeNode[],
+  nodes: EntityOrObjectUUID[],
   component: C,
   properties: Partial<SerializedComponentType<C>>
 ) => {
@@ -101,14 +102,13 @@ const modifyProperty = <C extends Component<any, any>>(
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node === 'string') continue
-    const entity = node.entity
-    updateComponent(entity, component, properties)
+    updateComponent(node, component, properties)
   }
 
   /** @todo remove when all scene components migrated to reactor pattern #6892 */
   dispatchAction(
     EngineActions.sceneObjectUpdate({
-      entities: nodes.filter((node) => typeof node !== 'string').map((node: EntityTreeNode) => node.entity)
+      entities: nodes.filter((node) => typeof node !== 'string') as Entity[]
     })
   )
   dispatchAction(EditorAction.sceneModified({ modified: true }))
@@ -185,9 +185,9 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
  * @returns
  */
 const addObject = (
-  nodes: (EntityTreeNode | string)[],
-  parents: (string | EntityTreeNode)[],
-  befores: (string | EntityTreeNode)[],
+  nodes: EntityOrObjectUUID[],
+  parents: EntityOrObjectUUID[],
+  befores: EntityOrObjectUUID[],
   prefabTypes: string[] = [],
   sceneData: SceneJson[] = [],
   updateSelection = true
@@ -205,42 +205,29 @@ const addObject = (
       } else if (sceneData.length) {
         const data = sceneData[i] ?? sceneData[0]
 
-        traverseEntityNode(object, (node) => {
+        traverseEntityNode(object, (entity) => {
+          const node = getComponent(entity, EntityTreeComponent)
           if (!data.entities[node.uuid]) return
-          node.entity = createEntity()
+          const newEntity = createEntity()
+          setComponent(newEntity, EntityTreeComponent, { parentEntity: node.parentEntity, uuid: node.uuid })
+          getComponentState(newEntity, EntityTreeComponent).children.merge([...node.children])
           deserializeSceneEntity(node, data.entities[node.uuid])
-
-          if (node.parentEntity && node.uuid !== data.root)
-            reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
         })
       }
     }
 
-    let parent = parents.length ? parents[i] ?? parents[0] : world.entityTree.rootNode
+    let parent = parents.length ? parents[i] ?? parents[0] : world.sceneEntity
     let before = befores.length ? befores[i] ?? befores[0] : undefined
 
-    let index
     if (typeof parent !== 'string') {
-      if (before && typeof before === 'string' && !hasComponent(parent.entity, GroupComponent)) {
-        addComponent(parent.entity, GroupComponent, [])
+      if (before && typeof before === 'string' && !hasComponent(parent, GroupComponent)) {
+        addComponent(parent, GroupComponent, [])
       }
-      index =
-        before && parent.children
-          ? typeof before === 'string'
-            ? getComponent(parent.entity, GroupComponent).indexOf(obj3dFromUuid(before) as Object3DWithEntity)
-            : parent.children.indexOf(before.entity)
-          : undefined
-    } else {
-      const pObj3d = obj3dFromUuid(parent)
-      index =
-        before && pObj3d.children && typeof before === 'string'
-          ? pObj3d.children.indexOf(obj3dFromUuid(before))
-          : undefined
     }
     if (typeof parent !== 'string' && typeof object !== 'string') {
-      addEntityNodeChild(object, parent, index)
+      addEntityNodeChild(object, parent)
 
-      reparentObject3D(object, parent, typeof before === 'string' ? undefined : before, world.entityTree)
+      reparentObject3D(object, parent, typeof before === 'string' ? undefined : before)
 
       traverseEntityNode(object, (node) => makeUniqueName(node))
     }
@@ -255,16 +242,15 @@ const addObject = (
   dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
 }
 
-const duplicateObject = (nodes: (EntityTreeNode | string)[]) => {
+const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
   cancelGrabOrPlacement()
 
   const roots = getDetachedObjectsRoots(nodes.filter((o) => typeof o !== 'string'))
-  const duplicatedObjects = roots.map((object) =>
-    typeof object === 'string' ? obj3dFromUuid(object).clone().uuid : cloneEntityNode(object)
-  )
+  const duplicatedObjects = roots
+    .map((object) => (typeof object === 'string' ? obj3dFromUuid(object).clone().uuid : getAllEntitiesInTree(object)))
+    .flat()
 
-  const parents = [] as (EntityTreeNode | string)[]
-  const tree = Engine.instance.currentWorld.entityTree
+  const parents = [] as EntityOrObjectUUID[]
 
   for (const o of duplicatedObjects) {
     if (typeof o === 'string') {
@@ -273,9 +259,8 @@ const duplicateObject = (nodes: (EntityTreeNode | string)[]) => {
       const parent = obj3d.parent
       parents.push(parent.uuid)
     } else {
-      if (!o.parentEntity) throw new Error('Parent is not defined')
-      const parent = tree.entityNodeMap.get(o.parentEntity)
-
+      if (!hasComponent(o, EntityTreeComponent)) throw new Error('Parent is not defined')
+      const parent = getComponent(o, EntityTreeComponent).parentEntity
       if (!parent) throw new Error('Parent is not defined')
       parents.push(parent)
     }
@@ -299,7 +284,7 @@ const tempMatrix = new Matrix4()
 const tempVector = new Vector3()
 
 const positionObject = (
-  nodes: (EntityTreeNode | string)[],
+  nodes: EntityOrObjectUUID[],
   positions: Vector3[],
   space: TransformSpace = TransformSpace.Local,
   addToPosition?: boolean
@@ -329,14 +314,17 @@ const positionObject = (
       }
       obj3d.updateMatrix()
     } else {
-      const transform = getComponent(node.entity, TransformComponent)
-      const localTransform = getOptionalComponent(node.entity, LocalTransformComponent) ?? transform
+      const transform = getComponent(node, TransformComponent)
+      const localTransform = getOptionalComponent(node, LocalTransformComponent) ?? transform
 
       if (space === TransformSpace.Local) {
         if (addToPosition) localTransform.position.add(pos)
         else localTransform.position.copy(pos)
       } else {
-        const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
+        const entityTreeComponent = getComponent(node, EntityTreeComponent)
+        const parentTransform = entityTreeComponent.parentEntity
+          ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
+          : transform
 
         if (addToPosition) {
           tempVector.setFromMatrixPosition(transform.matrix)
@@ -356,7 +344,7 @@ const T_QUAT_1 = new Quaternion()
 const T_QUAT_2 = new Quaternion()
 
 const rotateObject = (
-  nodes: (EntityTreeNode | string)[],
+  nodes: EntityOrObjectUUID[],
   rotations: Euler[],
   space: TransformSpace = TransformSpace.Local
 ) => {
@@ -380,15 +368,18 @@ const rotateObject = (
         obj3d.quaternion.copy(newLocalQuaternion)
       }
     } else {
-      const transform = getComponent(node.entity, TransformComponent)
-      const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+      const transform = getComponent(node, TransformComponent)
+      const localTransform = getComponent(node, LocalTransformComponent) || transform
 
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
       if (space === TransformSpace.Local) {
         localTransform.rotation.copy(T_QUAT_1)
       } else {
-        const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
+        const entityTreeComponent = getComponent(node, EntityTreeComponent)
+        const parentTransform = entityTreeComponent.parentEntity
+          ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
+          : transform
 
         const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
 
@@ -396,14 +387,14 @@ const rotateObject = (
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
         localTransform.rotation.copy(newLocalQuaternion)
-        computeLocalTransformMatrix(node.entity)
-        computeTransformMatrix(node.entity)
+        computeLocalTransformMatrix(node)
+        computeTransformMatrix(node)
       }
     }
   }
 }
 
-const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: number, pivot: Vector3) => {
+const rotateAround = (nodes: EntityOrObjectUUID[], axis: Vector3, angle: number, pivot: Vector3) => {
   const pivotToOriginMatrix = new Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z)
   const originToPivotMatrix = new Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z)
   const rotationMatrix = new Matrix4().makeRotationAxis(axis, angle)
@@ -420,9 +411,12 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
         .premultiply(obj3d.parent!.matrixWorld.clone().invert())
       obj3d.matrixWorld.copy(matrixWorld)
     } else {
-      const transform = getComponent(node.entity, TransformComponent)
-      const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
-      const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
+      const transform = getComponent(node, TransformComponent)
+      const localTransform = getComponent(node, LocalTransformComponent) || transform
+      const entityTreeComponent = getComponent(node, EntityTreeComponent)
+      const parentTransform = entityTreeComponent.parentEntity
+        ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
+        : transform
 
       new Matrix4()
         .copy(transform.matrix)
@@ -436,7 +430,7 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
 }
 
 const scaleObject = (
-  nodes: (EntityTreeNode | string)[],
+  nodes: EntityOrObjectUUID[],
   scales: Vector3[],
   space: TransformSpace = TransformSpace.Local,
   overrideScale = false
@@ -452,7 +446,7 @@ const scaleObject = (
     const transformComponent =
       typeof node === 'string'
         ? obj3dFromUuid(node)
-        : getComponent(node.entity, LocalTransformComponent) ?? getComponent(node.entity, TransformComponent)
+        : getComponent(node, LocalTransformComponent) ?? getComponent(node, TransformComponent)
 
     if (overrideScale) {
       transformComponent.scale.copy(scale)
@@ -466,14 +460,14 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    setComponent((node as EntityTreeNode).entity, TransformComponent, { scale: transformComponent.scale })
+    setComponent(node as Entity, TransformComponent, { scale: transformComponent.scale })
   }
 }
 
 const reparentObject = (
-  nodes: (EntityTreeNode | string)[],
-  parents: (string | EntityTreeNode)[] = [],
-  befores: (string | EntityTreeNode)[] = [],
+  nodes: EntityOrObjectUUID[],
+  parents: EntityOrObjectUUID[] = [],
+  befores: EntityOrObjectUUID[] = [],
   updateSelection = true
 ) => {
   cancelGrabOrPlacement()
@@ -485,15 +479,14 @@ const reparentObject = (
     const node = nodes[i]
     const before = befores ? befores[i] ?? befores[0] : undefined
     if (typeof node !== 'string') {
-      const _parent = parent as EntityTreeNode
-      if (node.entity === _parent.entity) continue
-      const _before = before as EntityTreeNode | undefined
-      const index = _before && _parent.children ? _parent.children.indexOf(_before.entity) : undefined
-      reparentEntityNode(node, _parent, index)
-      reparentObject3D(node, _parent, _before)
+      if (node === parent) continue
+      const entityTreeComponent = getComponent(node, EntityTreeComponent)
+      const index =
+        before && entityTreeComponent.children ? entityTreeComponent.children.indexOf(before as Entity) : undefined
+      reparentEntityNode(node, parent as Entity, index)
+      reparentObject3D(node, parent as Entity, before as Entity)
     } else {
-      const _parent =
-        typeof parent === 'string' ? obj3dFromUuid(parent) : getComponent(parent.entity, GroupComponent)[0]
+      const _parent = typeof parent === 'string' ? obj3dFromUuid(parent) : getComponent(parent, GroupComponent)[0]
 
       const obj3d = obj3dFromUuid(node)
       const oldWorldTransform = obj3d.parent?.matrixWorld ?? new Matrix4()
@@ -513,14 +506,15 @@ const reparentObject = (
 }
 
 const groupObjects = (
-  nodes: (EntityTreeNode | string)[],
-  parents: (string | EntityTreeNode)[] = [],
-  befores: (string | EntityTreeNode)[] = [],
+  nodes: EntityOrObjectUUID[],
+  parents: EntityOrObjectUUID[] = [],
+  befores: EntityOrObjectUUID[] = [],
   updateSelection = true
 ) => {
   cancelGrabOrPlacement()
 
-  const groupNode = createEntityNode(createEntity())
+  const groupNode = createEntity()
+  setComponent(groupNode, EntityTreeComponent)
   EditorControlFunctions.addObject([groupNode], parents!, befores!, [ScenePrefabs.group], [], false)
 
   EditorControlFunctions.reparentObject(nodes, [groupNode], [], false)
@@ -535,7 +529,7 @@ const groupObjects = (
  * @param nodes
  * @returns
  */
-const removeObject = (nodes: (EntityTreeNode | string)[], updateSelection = true) => {
+const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
   cancelGrabOrPlacement()
 
   if (updateSelection) {
@@ -550,16 +544,7 @@ const removeObject = (nodes: (EntityTreeNode | string)[], updateSelection = true
       transformPropertyChanged: false
     })
   }
-  const removedParentNodes = getEntityNodeArrayFromEntities(
-    filterParentEntities(
-      nodes.map((node: EntityTreeNode | string): Entity | string => {
-        return typeof node === 'string' ? node : node.entity
-      }),
-      undefined,
-      true,
-      false
-    )
-  )
+  const removedParentNodes = getEntityNodeArrayFromEntities(filterParentEntities(nodes, undefined, true, false))
   const scene = Engine.instance.currentWorld.scene
   for (let i = 0; i < removedParentNodes.length; i++) {
     const node = removedParentNodes[i]
@@ -567,9 +552,9 @@ const removeObject = (nodes: (EntityTreeNode | string)[], updateSelection = true
       const obj = scene.getObjectByProperty('uuid', node)
       obj?.removeFromParent()
     } else {
-      if (!node.parentEntity) continue
-      traverseEntityNode(node, (node) => removeEntity(node.entity, true))
-      removeEntityNodeFromParent(node)
+      const entityTreeComponent = getComponent(node, EntityTreeComponent)
+      if (!entityTreeComponent.parentEntity) continue
+      removeEntityNodeRecursively(node, false)
     }
   }
 
@@ -581,14 +566,13 @@ const removeObject = (nodes: (EntityTreeNode | string)[], updateSelection = true
  * @param nodes
  * @returns
  */
-const replaceSelection = (nodes: (EntityTreeNode | string)[]) => {
+const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
   const current = getState(SelectionState).selectedEntities.value
-  const selectedEntities = nodes.map((n) => (typeof n === 'string' ? n : n.entity))
 
-  if (selectedEntities.length === current.length) {
+  if (nodes.length === current.length) {
     let same = true
-    for (let i = 0; i < selectedEntities.length; i++) {
-      if (!current.includes(selectedEntities[i])) {
+    for (let i = 0; i < nodes.length; i++) {
+      if (!current.includes(nodes[i])) {
         same = false
         break
       }
@@ -596,8 +580,8 @@ const replaceSelection = (nodes: (EntityTreeNode | string)[]) => {
     if (same) return
   }
 
-  dispatchAction(SelectionAction.updateSelection({ selectedEntities }))
-  dispatchAction(EditorHistoryAction.createSnapshot({ selectedEntities }))
+  dispatchAction(SelectionAction.updateSelection({ selectedEntities: nodes }))
+  dispatchAction(EditorHistoryAction.createSnapshot({ selectedEntities: nodes }))
 }
 
 /**
@@ -605,34 +589,30 @@ const replaceSelection = (nodes: (EntityTreeNode | string)[]) => {
  * @param nodes
  * @returns
  */
-const toggleSelection = (nodes: (EntityTreeNode | string)[]) => {
+const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
   const selectedEntities = getState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
-    let index = selectedEntities.indexOf(typeof node === 'string' ? node : node.entity)
+    let index = selectedEntities.indexOf(node)
 
     if (index > -1) {
       selectedEntities.splice(index, 1)
     } else {
-      selectedEntities.push(typeof node === 'string' ? node : node.entity)
+      selectedEntities.push(node)
     }
   }
   dispatchAction(SelectionAction.updateSelection({ selectedEntities }))
   dispatchAction(EditorHistoryAction.createSnapshot({ selectedEntities }))
 }
 
-const addToSelection = (nodes: (EntityTreeNode | string)[]) => {
+const addToSelection = (nodes: EntityOrObjectUUID[]) => {
   const selectedEntities = getState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < nodes.length; i++) {
     const object = nodes[i]
-    if (selectedEntities.includes(typeof object === 'string' ? object : object.entity)) continue
-    if (typeof object === 'string') {
-      selectedEntities.push(object)
-    } else {
-      selectedEntities.push(object.entity)
-    }
+    if (selectedEntities.includes(object)) continue
+    selectedEntities.push(object)
   }
 
   dispatchAction(SelectionAction.updateSelection({ selectedEntities }))

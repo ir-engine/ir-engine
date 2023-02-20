@@ -2,6 +2,7 @@ import { Matrix4 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { accessSelectionState } from '../services/SelectionServices'
@@ -22,7 +23,7 @@ export function getSpaceMatrix() {
       IDENTITY_MAT_4
     )
   } else {
-    const entityNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(lastSelectedEntity)
+    const entityNode = getComponent(lastSelectedEntity, EntityTreeComponent)
     const parentEntity = entityNode?.parentEntity || lastSelectedEntity
     return getComponent(parentEntity, TransformComponent).matrix
   }

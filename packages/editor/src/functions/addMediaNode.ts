@@ -1,9 +1,9 @@
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
+import { setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
@@ -22,13 +22,15 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  */
 export async function addMediaNode(
   url: string,
-  parent?: EntityTreeNode,
-  before?: EntityTreeNode
-): Promise<EntityTreeNode> {
-  let contentType = (await getContentType(url)) || ''
+  parent?: EntityOrObjectUUID,
+  before?: EntityOrObjectUUID
+): Promise<EntityOrObjectUUID> {
+  const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
 
-  let node = createEntityNode(createEntity())
+  const node = createEntity()
+  setComponent(node, EntityTreeComponent, { parentEntity: typeof parent === 'number' ? parent : undefined })
+
   let prefabType = ''
   let updateFunc = null! as Function
 

@@ -9,6 +9,8 @@ import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
 import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
@@ -148,10 +150,9 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
 
   function selectParentEntityNode() {
     let walker = obj3d as Object3DWithEntity
-    const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
     while (walker) {
-      if (walker.entity && nodeMap.has(walker.entity)) {
-        EditorControlFunctions.replaceSelection([nodeMap.get(walker.entity)!])
+      if (walker.entity && hasComponent(walker.entity, EntityTreeComponent)) {
+        EditorControlFunctions.replaceSelection([walker.entity!])
         break
       }
       walker = walker.parent as Object3DWithEntity

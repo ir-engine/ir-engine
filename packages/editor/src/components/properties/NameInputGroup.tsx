@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 import { getComponent, getOptionalComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
@@ -30,10 +30,10 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
  */
 export const NameInputGroup: EditorComponentType = (props) => {
   const selectionState = useSelectionState()
-  const nodeName = useComponent(props.node.entity, NameComponent)
+  const nodeName = useComponent(props.node, NameComponent)
 
   const [name, setName] = useState(nodeName.value)
-  const [focusedNode, setFocusedNode] = useState<EntityTreeNode>()
+  const [focusedNode, setFocusedNode] = useState<EntityOrObjectUUID>()
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -41,14 +41,14 @@ export const NameInputGroup: EditorComponentType = (props) => {
   }, [selectionState.objectChangeCounter])
 
   const onObjectChange = (propertyName: string) => {
-    if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent))
+    if (propertyName === 'name') setName(getComponent(props.node, NameComponent))
   }
 
   //function to handle change in name property
   const updateName = () => {
     nodeName.set(name)
 
-    const group = getOptionalComponent(props.node.entity, GroupComponent)
+    const group = getOptionalComponent(props.node, GroupComponent)
     if (group) for (const obj3d of group) obj3d.name = name
   }
 

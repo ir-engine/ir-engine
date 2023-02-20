@@ -6,9 +6,10 @@ import { useForceUpdate } from '@xrengine/common/src/utils/useForceUpdate'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode, getEntityTreeNodeByUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
 import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useEditorState } from '../../services/EditorServices'
@@ -65,7 +66,7 @@ export const PropertiesPanelContainer = () => {
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
   let nodeEntity = lockedNode
-    ? getEntityTreeNodeByUUID(lockedNode)?.entity ?? lockedNode
+    ? UUIDComponent.entitiesByUUID[lockedNode].value ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
   const isMaterial =
     typeof nodeEntity === 'string' &&
@@ -79,14 +80,15 @@ export const PropertiesPanelContainer = () => {
       Object.values(materialLibrary.materials.value).find(({ material }) => material.uuid === nodeEntity)
     : isObject3D
     ? world.scene.getObjectByProperty('uuid', nodeEntity as string)
-    : world.entityTree.entityNodeMap.get(nodeEntity as Entity)
+    : nodeEntity
 
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else if (isObject3D) {
     content = (
       <StyledNodeEditor>
-        <Object3DNodeEditor multiEdit={multiEdit} node={node as EntityTreeNode} />
+        {/* @todo these types are incorrect */}
+        <Object3DNodeEditor multiEdit={multiEdit} node={node as Entity} entity={node as Entity} />
       </StyledNodeEditor>
     )
   } else if (isMaterial) {
@@ -101,7 +103,7 @@ export const PropertiesPanelContainer = () => {
 
     content = (
       <StyledNodeEditor>
-        <CoreNodeEditor node={node as EntityTreeNode} />
+        <CoreNodeEditor node={node as Entity} entity={node as Entity} />
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
           // nodeEntity is used as key here to signal to React when the entity has changed,
@@ -111,7 +113,8 @@ export const PropertiesPanelContainer = () => {
             <Editor
               key={`${nodeEntity}-${Editor.name}`}
               multiEdit={multiEdit}
-              node={node as EntityTreeNode}
+              node={node as Entity}
+              entity={node as Entity}
               component={c}
             />
           )

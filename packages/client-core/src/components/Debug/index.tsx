@@ -16,10 +16,11 @@ import {
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
@@ -50,25 +51,23 @@ export const Debug = ({ showingStateRef }) => {
     rendererState.debugEnable.set(!rendererState.debugEnable.value)
   }
 
-  const tree = Engine.instance.currentWorld.entityTree
-
-  const renderEntityTree = (node: EntityTreeNode) => {
-    return {
-      entity: node.entity,
-      uuid: node.uuid,
-      components: renderEntityComponents(node.entity),
-      children: {
-        ...node.children.reduce(
-          (r, child, i) =>
-            Object.assign(r, {
-              [`${i} - ${getComponent(child, NameComponent) ?? tree.entityNodeMap.get(child)?.uuid}`]: renderEntityTree(
-                tree.entityNodeMap.get(child)!
-              )
-            }),
-          {}
-        )
-      }
-    }
+  const renderEntityTree = (node: EntityOrObjectUUID) => {
+    // return {
+    //   entity: node.entity,
+    //   uuid: node.uuid,
+    //   components: renderEntityComponents(node.entity),
+    //   children: {
+    //     ...node.children.reduce(
+    //       (r, child, i) =>
+    //         Object.assign(r, {
+    //           [`${i} - ${getComponent(child, NameComponent) ?? tree.entityNodeMap.get(child)?.uuid}`]: renderEntityTree(
+    //             tree.entityNodeMap.get(child)!
+    //           )
+    //         }),
+    //       {}
+    //     )
+    //   }
+    // }
   }
 
   const renderEntityComponents = (entity: Entity) => {
@@ -93,10 +92,12 @@ export const Debug = ({ showingStateRef }) => {
       ...Object.fromEntries(
         [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
-            const name = getOptionalComponent(eid, NameComponent)
             try {
               return [
-                '(eid:' + eid + ') ' + (name ?? tree.entityNodeMap.get(eid)?.uuid ?? ''),
+                '(eid:' +
+                  eid +
+                  ') ' +
+                  (getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''),
                 renderEntityComponents(eid)
               ]
             } catch (e) {
@@ -121,7 +122,7 @@ export const Debug = ({ showingStateRef }) => {
   const pipelines = Engine.instance.currentWorld.pipelines
 
   namedEntities.set(renderAllEntities())
-  entityTree.set(renderEntityTree(tree.rootNode))
+  // entityTree.set(renderEntityTree(tree.rootNode))
   return (
     <div className={styles.debugContainer}>
       <div className={styles.debugOptionContainer}>

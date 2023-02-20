@@ -42,7 +42,7 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { RendererState } from '../../renderer/RendererState'
@@ -208,8 +208,7 @@ export default async function ShadowSystem(world: World) {
           const center = groupComponent[0].worldToLocal(sphere.center)
 
           const e = createEntity()
-          const node = createEntityNode(e)
-          addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.rootNode)
+          addEntityNodeChild(e, Engine.instance.currentWorld.sceneEntity)
           const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
           Engine.instance.currentWorld.scene.add(shadowObject)
           addObjectToGroup(e, shadowObject)

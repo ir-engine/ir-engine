@@ -1,6 +1,6 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent, getOptionalComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
@@ -15,16 +15,18 @@ function getNameWithoutIndex(name) {
   return cacheName
 }
 
-export default function makeUniqueName(node: EntityTreeNode) {
+export default function makeUniqueName(node: Entity) {
   let counter = 0
 
-  const nodeNameComp = getComponent(node.entity, NameComponent)
+  const nodeNameComp = getComponent(node, NameComponent)
   const nameWithoutIndex = getNameWithoutIndex(nodeNameComp)
 
-  traverseEntityNode(Engine.instance.currentWorld.entityTree.rootNode, (child) => {
-    if (child.entity === node.entity) return
+  const world = Engine.instance.currentWorld
 
-    const nameComponent = getOptionalComponent(child.entity, NameComponent)
+  traverseEntityNode(world.sceneEntity, (child) => {
+    if (child === node) return
+
+    const nameComponent = getOptionalComponent(child, NameComponent)
 
     if (!nameComponent || !nameComponent?.startsWith(nameWithoutIndex)) return
 
@@ -40,5 +42,5 @@ export default function makeUniqueName(node: EntityTreeNode) {
     }
   })
 
-  setComponent(node.entity, NameComponent, nameWithoutIndex + (counter > 0 ? ' ' + (counter + 1) : ''))
+  setComponent(node, NameComponent, nameWithoutIndex + (counter > 0 ? ' ' + (counter + 1) : ''))
 }

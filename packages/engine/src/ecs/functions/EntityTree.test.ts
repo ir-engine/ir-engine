@@ -12,16 +12,16 @@ import { EntityTreeNode } from './EntityTree'
 import {
   addEntityNodeChild,
   addToEntityTreeMaps,
-  cloneEntityNode,
   createEntityNode,
-  emptyEntityTree,
   findIndexOfEntityNode,
+  getAllEntitiesInTree,
   getEntityNodeArrayFromEntities,
-  initializeEntityTree,
+  initializeSceneEntity,
   isEntityNode,
   iterateEntityNode,
   removeEntityNodeChild,
   removeEntityNodeFromParent,
+  removeEntityTree,
   removeFromEntityTreeMaps,
   reparentEntityNode,
   traverseEntityNode,
@@ -60,7 +60,7 @@ describe('EntityTree', () => {
 
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
-      initializeEntityTree()
+      initializeSceneEntity()
       assert(world.entityTree.entityNodeMap)
       assert.equal(world.entityTree.entityNodeMap.size, 1)
     })
@@ -94,7 +94,7 @@ describe('EntityTree', () => {
     })
   })
 
-  describe('emptyEntityTree function', () => {
+  describe('removeEntityTree function', () => {
     it('will empty entity tree', () => {
       const node_0 = createEntityNode(createEntity())
       const node_0_0 = createEntityNode(createEntity())
@@ -108,7 +108,7 @@ describe('EntityTree', () => {
       addEntityNodeChild(node_0_0_0, node_0_0)
       addEntityNodeChild(node_0_1_0, node_0_1)
 
-      emptyEntityTree(world.entityTree)
+      removeEntityTree(world.entityTree)
 
       assert(world.entityTree.rootNode.entity)
       assert.equal(world.entityTree.entityNodeMap.size, 1)
@@ -206,7 +206,7 @@ describe('EntityTree', () => {
 
   it('will cloned passed entity node', () => {
     const node = createEntityNode(createEntity())
-    const clone = cloneEntityNode(node)
+    const clone = getAllEntitiesInTree(node)
 
     assert.deepEqual(node, clone)
     assert.notEqual(node, clone)
@@ -374,6 +374,6 @@ describe('EntityTree', () => {
   })
 
   afterEach(() => {
-    emptyEntityTree(world.entityTree)
+    removeEntityTree(world.entityTree)
   })
 })

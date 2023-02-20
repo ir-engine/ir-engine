@@ -37,7 +37,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
   data: ReturnType<typeof EnvmapComponent.toJSON>
 ) => {
   if (!isClient) return
-  if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) return
+  if (entity === Engine.instance.currentWorld.sceneEntity) return
   setComponent(entity, EnvmapComponent, data)
 }
 

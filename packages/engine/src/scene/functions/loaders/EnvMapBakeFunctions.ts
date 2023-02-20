@@ -3,20 +3,21 @@ import { Mesh, MeshStandardMaterial, Object3D, Scene } from 'three'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '../../../ecs/functions/EntityTree'
+import { EntityTreeComponent, traverseEntityNode } from '../../../ecs/functions/EntityTree'
 import { GroupComponent } from '../../components/GroupComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 
 export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene => {
   const scene = world.scene.clone(false)
   const parents = {
-    [world.entityTree.rootNode.entity]: scene
+    [world.sceneEntity]: scene
   } as { [key: Entity]: Object3D }
 
-  traverseEntityNode(world.entityTree.rootNode, (node) => {
-    if (node === world.entityTree.rootNode || hasComponent(node.entity, PreventBakeTagComponent)) return
+  traverseEntityNode(world.sceneEntity, (entity) => {
+    if (entity === world.sceneEntity || hasComponent(entity, PreventBakeTagComponent)) return
 
-    const group = getComponent(node.entity, GroupComponent) as unknown as Mesh<any, MeshStandardMaterial>[]
+    const group = getComponent(entity, GroupComponent) as unknown as Mesh<any, MeshStandardMaterial>[]
+    const node = getComponent(entity, EntityTreeComponent)
 
     if (group) {
       for (const obj of group) {

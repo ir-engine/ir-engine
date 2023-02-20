@@ -29,6 +29,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -302,9 +303,7 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
   if (!Engine.instance.isEditor)
     for (const mesh of meshesToRemove) {
       mesh.removeFromParent()
-      mesh.traverse((obj: Mesh<any, any>) =>
-        cleanupAllMeshData(obj, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
-      )
+      mesh.traverse((obj: Mesh<any, any>) => cleanupAllMeshData(obj, { uuid: getComponent(entity, UUIDComponent) }))
     }
 
   return body

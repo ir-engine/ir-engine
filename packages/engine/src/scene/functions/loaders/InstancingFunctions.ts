@@ -41,10 +41,9 @@ import {
   hasComponent,
   removeComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { getEntityTreeNodeByUUID, iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { setCallback } from '../../components/CallbackComponent'
 import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 import {
@@ -63,6 +62,7 @@ import {
   VertexProperties
 } from '../../components/InstancingComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
+import { UUIDComponent } from '../../components/UUIDComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
 import LogarithmicDepthBufferMaterialChunk from '../LogarithmicDepthBufferMaterialChunk'
@@ -322,12 +322,15 @@ export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
   }
   const scatterProps = getComponent(entity, InstancingComponent)
   if (scatterProps.surface) {
-    const eNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+    const eNode = entity
     DependencyTree.add(
       scatterProps.surface,
       new Promise<void>((resolve) => {
         matchActionOnce(
-          InstancingActions.instancingStaged.matches.validate((action) => action.uuid === eNode.uuid, ''),
+          InstancingActions.instancingStaged.matches.validate(
+            (action) => action.uuid === getComponent(eNode, UUIDComponent),
+            ''
+          ),
           () => resolve()
         )
       })
@@ -733,7 +736,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       }
       break
     case SampleMode.NODES:
-      const root = getEntityTreeNodeByUUID((scatter.sampleProperties as NodeProperties).root)
+      const root = UUIDComponent.entitiesByUUID[(scatter.sampleProperties as NodeProperties).root].value
       numInstances = 0
       if (root === undefined) {
         console.error('could not find root node with uuid', (scatter.sampleProperties as NodeProperties).root)
@@ -742,15 +745,14 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
           root,
           (node) => {
             numInstances += 1
-            const obj3d = obj3dFromUuid(node.uuid, world)
+            const obj3d = obj3dFromUuid(getComponent(node, UUIDComponent), world)
             if ((props as GrassProperties).isGrassProperties) {
               stageGrassBuffers(obj3d.position, obj3d.quaternion, obj3d.scale)
             } else if ((props as MeshProperties).isMeshProperties) {
               stageMeshBuffers(obj3d.position, obj3d.quaternion, obj3d.scale)
             }
           },
-          (node) => node !== root && hasComponent(node.entity, GroupComponent),
-          world.entityTree
+          (node) => node !== root && hasComponent(node, GroupComponent)
         )
         if ((props as GrassProperties).isGrassProperties) stageGrassAttributes()
       }
@@ -848,7 +850,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   }
   switch (scatter.sampling) {
     case SampleMode.NODES:
-      const rootNode = getEntityTreeNodeByUUID(sampleProps.root)
+      const rootNode = UUIDComponent.entitiesByUUID[sampleProps.root].value
       function update(dt: number) {
         if (rootNode === undefined) {
           console.error('could not find root node with uuid', sampleProps.root)
@@ -857,11 +859,11 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
           iterateEntityNode(
             rootNode,
             (node) => {
-              const obj3d = getComponent(node.entity, GroupComponent)[0]
+              const obj3d = getComponent(node, GroupComponent)[0]
               ;(result as InstancedMesh).setMatrixAt(instanceIdx, obj3d.matrix)
               instanceIdx += 1
             },
-            (node) => node !== rootNode && hasComponent(node.entity, GroupComponent, world)
+            (node) => node !== rootNode && hasComponent(node, GroupComponent, world)
           )
           ;(result as InstancedMesh).instanceMatrix.needsUpdate = true
         }
@@ -878,8 +880,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   result.frustumCulled = false
   obj3d.add(result)
   scatter.state = ScatterState.STAGED
-  const eNode = world.entityTree.entityNodeMap.get(entity)!
-  dispatchAction(InstancingActions.instancingStaged({ uuid: eNode.uuid }))
+  dispatchAction(InstancingActions.instancingStaged({ uuid: getComponent(entity, UUIDComponent) }))
 }
 
 export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {

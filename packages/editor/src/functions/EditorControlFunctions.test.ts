@@ -10,7 +10,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { addEntityNodeChild, createEntityNode, emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { addEntityNodeChild, createEntityNode, removeEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -257,7 +257,7 @@ describe('EditorControlFunctions', () => {
     })
 
     afterEach(() => {
-      emptyEntityTree(Engine.instance.currentWorld.entityTree)
+      removeEntityTree(Engine.instance.currentWorld.entityTree)
       deregisterEditorReceptors()
     })
   })

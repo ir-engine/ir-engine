@@ -80,6 +80,6 @@ export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()
 export function reparentToSceneAtCursorPosition(objects, mousePos) {
   const newPosition = new Vector3()
   getCursorSpawnPosition(mousePos, newPosition)
-  EditorControlFunctions.reparentObject(objects, [Engine.instance.currentWorld.entityTree.rootNode])
+  EditorControlFunctions.reparentObject(objects, [Engine.instance.currentWorld.sceneEntity])
   EditorControlFunctions.positionObject(objects, [newPosition])
 }

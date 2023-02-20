@@ -14,11 +14,11 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getState } from '@xrengine/hyperflux'
 
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
-import { PrefabComponentType } from '../components/PrefabComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
@@ -74,8 +74,6 @@ export interface GLTFExtension {
 }
 
 const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instance.currentWorld) => {
-  const eTree = world.entityTree
-  const nodeMap = eTree.entityNodeMap
   let rootEntities = new Array()
   const idxTable = new Map<Entity, number>()
   const extensionSet = new Set<string>()
@@ -96,13 +94,13 @@ const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instanc
       const nodeBase = {
         name: srcObj.name,
         extensions: srcObj.userData.gltfExtensions,
-        extras: { uuid: nodeMap.get(srcObj.entity)?.uuid }
+        extras: { uuid: getComponent(srcObj.entity, UUIDComponent) }
       }
       for (const [name] of Object.entries(nodeBase.extensions)) {
         extensionSet.add(name)
       }
       delete srcObj.userData.gltfExtensions
-      const children = nodeMap.get(srcObj.entity)?.children
+      const children = getComponent(srcObj.entity, EntityTreeComponent)?.children
 
       if (children) {
         haveChildren.push(nodeBase)
@@ -126,9 +124,7 @@ const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instanc
 }
 
 export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
-  const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   for (const root of roots) {
-    const node = eNodeMap.get(root.entity)!
     root.traverse((node: Object3DWithEntity) => {
       if (node.entity) {
         prepareObjectForGLTFExport(node)
