@@ -49,9 +49,9 @@ import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@xrengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { EulerState } from '../components/inputs/EulerInput'
+import { eulerInput } from '../components/inputs/EulerInput'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction, SelectionState } from '../services/SelectionServices'
@@ -443,8 +443,7 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
         .premultiply(parentTransform.matrixInverse)
         .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
 
-      const eulerState = getState(EulerState).euler.value
-      eulerState.setFromQuaternion(localTransform.rotation)
+      eulerInput.value.setFromQuaternion(localTransform.rotation)
 
       updateComponent(node.entity, targetComponent, { rotation: localTransform.rotation })
     }

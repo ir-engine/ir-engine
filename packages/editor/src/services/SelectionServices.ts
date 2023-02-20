@@ -19,7 +19,7 @@ import {
 } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@xrengine/hyperflux'
 
-import EulerInput, { EulerState } from '../components/inputs/EulerInput'
+import { eulerInput } from '../components/inputs/EulerInput'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
@@ -52,7 +52,6 @@ export const SelectionState = defineState({
 
 export default function EditorSelectionReceptor(world: World): SystemDefintion {
   const selectionState = getState(SelectionState)
-  const eulerState = getState(EulerState)
 
   const updateSelectionQueue = createActionQueue(SelectionAction.updateSelection.matches)
   const changedObjectQueue = createActionQueue(SelectionAction.changedObject.matches)
@@ -68,10 +67,7 @@ export default function EditorSelectionReceptor(world: World): SystemDefintion {
           const add = action.selectedEntities.includes(entity)
           if (add && !hasComponent(entity, SelectTagComponent)) setComponent(entity, SelectTagComponent)
           if (!add && hasComponent(entity, SelectTagComponent)) removeComponent(entity, SelectTagComponent)
-          if (add)
-            eulerState.set({
-              euler: new Euler().setFromQuaternion(getComponent(entity, LocalTransformComponent).rotation)
-            })
+          if (add) eulerInput.set(new Euler().setFromQuaternion(getComponent(entity, LocalTransformComponent).rotation))
         }
       }
       selectionState.merge({
