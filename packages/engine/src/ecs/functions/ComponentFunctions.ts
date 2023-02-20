@@ -8,15 +8,7 @@ import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunct
 import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
 import { useForceUpdate } from '@xrengine/common/src/utils/useForceUpdate'
 import { startReactor } from '@xrengine/hyperflux'
-import {
-  hookstate,
-  NO_PROXY,
-  none,
-  State,
-  StateMethods,
-  StateMethodsDestroy,
-  useHookstate
-} from '@xrengine/hyperflux/functions/StateFunctions'
+import { hookstate, NO_PROXY, none, State, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
@@ -33,7 +25,7 @@ globalThis.ComponentMap = ComponentMap
 
 type PartialIfObject<T> = T extends object ? Partial<T> : T
 
-type OnInitValidateNotState<T> = T extends StateMethods<any, {}> ? 'onAdd must not return a State object' : T
+type OnInitValidateNotState<T> = T extends State<any, {}> ? 'onAdd must not return a State object' : T
 
 type SomeStringLiteral = 'a' | 'b' | 'c' // just a dummy string literal union
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
@@ -78,8 +70,8 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: HookableFunction<React.FC<EntityReactorProps>>
   reactorMap: Map<Entity, EntityReactorRoot>
-  existenceMap: StateMethods<Record<Entity, boolean>>
-  stateMap: Record<Entity, StateMethods<ComponentType> | undefined>
+  existenceMap: State<Record<Entity, boolean>>
+  stateMap: Record<Entity, State<ComponentType> | undefined>
   valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
 }
@@ -143,7 +135,7 @@ export const getOptionalComponentState = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, {}, unknown>,
   world = Engine.instance.currentWorld
-): StateMethods<ComponentType> | undefined => {
+): State<ComponentType> | undefined => {
   // if (entity === UndefinedEntity) return undefined
   if (component.existenceMap[entity].value) return component.stateMap[entity]
   return undefined
@@ -153,7 +145,7 @@ export const getComponentState = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, {}, unknown>,
   world = Engine.instance.currentWorld
-): StateMethods<ComponentType> => {
+): State<ComponentType> => {
   const componentState = getOptionalComponentState(entity, component, world)!
   // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
   // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
