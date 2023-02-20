@@ -93,9 +93,6 @@ export const FileBrowserService = {
       .get(directory, params)) as Paginated<FileContentType>
     dispatchAction(FileBrowserAction.filesFetched({ files }))
   },
-  putContent: async (fileName: string, path: string, body: Buffer, contentType: string) => {
-    return API.instance.client.service('file-browser').patch(null, { fileName, path, body, contentType })
-  },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
     return API.instance.client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })
   },
