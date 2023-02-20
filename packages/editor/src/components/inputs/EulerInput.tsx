@@ -23,6 +23,7 @@ type EulerInputProps = {
   unit?: string
 }
 
+//To be set by editor control functions
 export const EulerState = defineState({
   name: 'euler',
   initial: () => ({
