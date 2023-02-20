@@ -21,7 +21,7 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const lightComponent = useComponent(props.node.entity, DirectionalLightComponent).value
+  const lightComponent = useComponent(props.entity, DirectionalLightComponent).value
 
   return (
     <NodeEditor

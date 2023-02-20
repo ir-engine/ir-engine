@@ -47,8 +47,8 @@ const rotation = new Quaternion()
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const { t } = useTranslation()
-  const portalName = getComponent(props.node.entity, NameComponent)
-  const transformComponent = getComponent(props.node.entity, TransformComponent)
+  const portalName = getComponent(props.entity, NameComponent)
+  const transformComponent = getComponent(props.entity, TransformComponent)
 
   useEffect(() => {
     loadPortals()
@@ -88,7 +88,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     loadPortals()
   }
 
-  const portalComponent = getComponent(props.node.entity, PortalComponent)
+  const portalComponent = getComponent(props.entity, PortalComponent)
 
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
@@ -97,7 +97,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={portals}
           value={portalComponent.linkedPortalId}
           onChange={updateProperty(PortalComponent, 'linkedPortalId')}
@@ -108,7 +108,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Effect Type" label={t('editor:properties.portal.lbl-effectType')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={Array.from(PortalEffects.keys()).map((val) => {
             return { value: val, label: val }
           })}
@@ -118,7 +118,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Preview Type" label={t('editor:properties.portal.lbl-previewType')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={Array.from(PortalPreviewTypes.values()).map((val) => {
             return { value: val, label: val }
           })}

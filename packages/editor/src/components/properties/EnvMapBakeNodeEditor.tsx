@@ -89,7 +89,7 @@ const DefaultEnvMapBakeSettings = [
 
 export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
   const renderEnvMapBakeProperties = () => {
-    const bakeComponent = getComponent(props.node.entity, EnvMapBakeComponent)
+    const bakeComponent = getComponent(props.entity, EnvMapBakeComponent)
 
     const renderedProperty = DefaultEnvMapBakeSettings.map((element, id) => {
       if (element.label == 'Realtime Settings' && bakeComponent.bakeType == EnvMapBakeTypes.Realtime) {
@@ -119,7 +119,7 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor {...props} name="EnvMap Bake" description="For Adding EnvMap bake in your scene">
       {renderEnvMapBakeProperties()}
-      <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.node.entity)}>Bake</PropertiesPanelButton>
+      <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.entity)}>Bake</PropertiesPanelButton>
     </NodeEditor>
   )
 }

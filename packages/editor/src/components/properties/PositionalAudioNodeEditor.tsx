@@ -23,7 +23,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const audioComponent = useComponent(props.node.entity, PositionalAudioComponent)
+  const audioComponent = useComponent(props.entity, PositionalAudioComponent)
 
   return (
     <NodeEditor
@@ -37,7 +37,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         info={t('editor:properties.audio.info-distanceModel')}
       >
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={DistanceModelOptions}
           value={audioComponent.distanceModel.value}
           onChange={updateProperty(PositionalAudioComponent, 'distanceModel')}

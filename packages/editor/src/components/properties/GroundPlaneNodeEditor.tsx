@@ -16,7 +16,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const groundPlaneComponent = getComponent(props.node.entity, GroundPlaneComponent)
+  const groundPlaneComponent = getComponent(props.entity, GroundPlaneComponent)
 
   return (
     <NodeEditor

@@ -16,9 +16,9 @@ import { EditorComponentType, updateProperty } from './Util'
 
 export const ImageNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const imageComponent = useComponent(entity, ImageComponent)
-  const errors = getEntityErrors(props.node.entity, ImageComponent)
+  const errors = getEntityErrors(props.entity, ImageComponent)
 
   return (
     <NodeEditor

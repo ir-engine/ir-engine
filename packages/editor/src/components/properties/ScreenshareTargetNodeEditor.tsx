@@ -12,7 +12,7 @@ import { EditorComponentType } from './Util'
 
 export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {

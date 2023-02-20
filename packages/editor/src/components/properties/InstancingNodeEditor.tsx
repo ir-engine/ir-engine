@@ -47,7 +47,7 @@ import { EditorComponentType, traverseScene, updateProperty } from './Util'
 
 export const InstancingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const node = props.node
   const scatter = getComponent(entity, InstancingComponent)
   const sampleProps = scatter.sampleProperties as ScatterProperties & VertexProperties & NodeProperties

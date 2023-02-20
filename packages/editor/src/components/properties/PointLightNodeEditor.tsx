@@ -15,7 +15,7 @@ import { EditorComponentType, updateProperty } from './Util'
 
 export const PointLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const lightComponent = useComponent(props.node.entity, PointLightComponent).value
+  const lightComponent = useComponent(props.entity, PointLightComponent).value
 
   return (
     <NodeEditor {...props} description={t('editor:properties.pointLight.description')}>

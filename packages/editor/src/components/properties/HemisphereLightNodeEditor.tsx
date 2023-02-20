@@ -18,7 +18,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.node.entity, HemisphereLightComponent).value
+  const lightComponent = useComponent(props.entity, HemisphereLightComponent).value
 
   return (
     <NodeEditor

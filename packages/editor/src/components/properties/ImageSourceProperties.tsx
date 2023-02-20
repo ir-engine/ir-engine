@@ -24,7 +24,7 @@ const ImageProjectionSideOptions = [
 export const ImageSourceProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const imageComponent = useComponent(props.node.entity, ImageComponent)
+  const imageComponent = useComponent(props.entity, ImageComponent)
 
   return (
     <>
@@ -45,7 +45,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
         }
       >
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={imageTransparencyOptions}
           value={imageComponent.alphaMode.value}
           onChange={updateProperty(ImageComponent, 'alphaMode')}
@@ -67,7 +67,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
       )}
       <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={imageProjectionOptions}
           value={imageComponent.projection.value}
           onChange={updateProperty(ImageComponent, 'projection')}
@@ -75,7 +75,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Side" label={t('editor:properties.image.lbl-side')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={ImageProjectionSideOptions}
           value={imageComponent.side.value}
           onChange={updateProperty(ImageComponent, 'side')}

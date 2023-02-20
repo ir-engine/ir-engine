@@ -22,7 +22,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.node.entity, SpotLightComponent).value
+  const lightComponent = useComponent(props.entity, SpotLightComponent).value
 
   return (
     <NodeEditor {...props} description={t('editor:properties.spotLight.description')}>
