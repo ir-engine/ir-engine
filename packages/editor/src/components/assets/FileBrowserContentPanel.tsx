@@ -11,6 +11,7 @@ import {
   FILES_PAGE_LIMIT,
   useFileBrowserState
 } from '@xrengine/client-core/src/common/services/FileBrowserService'
+import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import { KTX2EncodeArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
 import { KTX2EncodeDefaultArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
@@ -231,7 +232,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
             const name = processFileName(file.name)
-            await FileBrowserService.putContent(name, path, file as any, file.type)
+            await uploadToFeathersService('file-browser/upload', [file], {
+              fileName: name,
+              path,
+              contentType: file.type
+            }).promise
           }
         })
       )
