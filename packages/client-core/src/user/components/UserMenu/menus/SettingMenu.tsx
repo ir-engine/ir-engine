@@ -72,8 +72,17 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
-  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
+  let themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
+
+  // This is done as a fix because previously studio was called editor
+  if (themeModes['editor']) {
+    if (!themeModes['studio']) {
+      themeModes['studio'] = themeModes['editor']
+    }
+
+    delete themeModes['editor']
+  }
 
   const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
 
@@ -120,7 +129,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && !hasAdminAccess) {
       return false
-    } else if (mode === 'editor' && !hasEditorAccess) {
+    } else if (mode === 'studio' && !hasEditorAccess) {
       return false
     }
     return true
