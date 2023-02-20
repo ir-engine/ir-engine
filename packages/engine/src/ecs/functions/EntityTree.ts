@@ -78,15 +78,13 @@ export const EntityTreeComponent = defineComponent({
     // set new data
     if (matchesEntity.test(json?.parentEntity)) component.parentEntity.set(json.parentEntity)
     if (matchesEntityUUID.test(json?.uuid)) component.uuid.set(json.uuid)
+    EntityTreeComponent.entitiesByUUID[component.uuid.value].set(entity)
     setComponent(entity, UUIDComponent, component.uuid.value)
 
     const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
 
     // If a new parentEntity, add this entity to its children
     if (parent && !parent?.children.value.includes(entity)) parent.children.merge([entity])
-
-    EntityTreeComponent.entitiesByUUID[component.uuid.value].set(entity)
-    EntityTreeComponent.uuidByEntity[entity].set(component.uuid.value)
 
     if (parent) {
       // If parent is the world origin, then the parent entity is a tree root
@@ -111,7 +109,6 @@ export const EntityTreeComponent = defineComponent({
     parent.children.set([...children.slice(0, parentChildIndex - 1), ...children.slice(parentChildIndex)])
 
     EntityTreeComponent.entitiesByUUID[component.uuid.value].set(UndefinedEntity)
-    EntityTreeComponent.uuidByEntity[entity].set(none)
     EntityTreeComponent.roots[entity].set(none)
 
     removeComponent(entity, UUIDComponent)
@@ -119,9 +116,7 @@ export const EntityTreeComponent = defineComponent({
 
   roots: hookstate({} as Record<Entity, true>),
 
-  entitiesByUUID: hookstate({} as Record<EntityUUID, Entity>),
-
-  uuidByEntity: hookstate({} as Record<Entity, EntityUUID>)
+  entitiesByUUID: hookstate({} as Record<EntityUUID, Entity>)
 })
 
 export type EntityOrObjectUUID = Entity | string
