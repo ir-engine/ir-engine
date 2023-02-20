@@ -30,7 +30,7 @@ const AnalyticsService = ({ name, colors, fetch, data, refetch }: any) => {
       />
     )
   } else {
-    return <LoadingView sx={{ height: '100vh' }} />
+    return <LoadingView sx={{ height: '100vh' }} title={t(`admin:components.analytics.loading`)} />
   }
 }
 
