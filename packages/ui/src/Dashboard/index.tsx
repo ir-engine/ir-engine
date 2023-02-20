@@ -2,11 +2,9 @@ import clsx from 'clsx'
 import React, { useState } from 'react'
 
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-// import { useTheme } from '@mui/material/styles'
-
-// import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import AppBar from '@xrengine/ui/src/AppBar'
 import Box from '@xrengine/ui/src/Box'
 import Drawer from '@xrengine/ui/src/Drawer'
@@ -15,7 +13,7 @@ import IconButton from '@xrengine/ui/src/IconButton'
 import Popover from '@xrengine/ui/src/Popover'
 import Typography from '@xrengine/ui/src/Typography'
 
-import CssBaseline from '@mui/material/CssBaseline'
+import { useTheme } from '@mui/material/styles'
 
 import DashboardMenuItem from '../DashboardMenuItem'
 import styles from './index.module.scss'
@@ -28,13 +26,13 @@ import styles from './index.module.scss'
  */
 
 const Dashboard = ({ children }) => {
-  // const authState = useAuthState()
-  // const theme = useTheme()
+  const authState = useAuthState()
+  const theme = useTheme()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
   const [open, setOpen] = React.useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
-  // const user = authState.user
+  const { user } = authState
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
@@ -58,7 +56,6 @@ const Dashboard = ({ children }) => {
 
   return (
     <div>
-      <CssBaseline />
       <AppBar position="fixed" className={styles.appBar}>
         <nav className={styles.navbar}>
           <div className={styles.navContainer}>
@@ -78,7 +75,7 @@ const Dashboard = ({ children }) => {
               <Typography variant="h6">Dashboard</Typography>
 
               <IconButton onClick={handleClick} className={styles.profileButton} disableRipple>
-                {/* <span>{user.name.value}</span> */}
+                <span>{user.name.value}</span>
                 <Icon type="Person" />
               </IconButton>
               {profileMenuOpen && (
@@ -133,8 +130,7 @@ const Dashboard = ({ children }) => {
       >
         <div className={styles.toolbar}>
           <IconButton onClick={handleDrawerOpen(false)} style={{ color: 'var(--iconButtonColor)' }} size="large">
-            {/* <Icon type={theme.direction === 'rtl' ? 'ChevronRight' : 'ChevronLeft'} /> */}
-            <Icon type={'ChevronLeft'} />
+            <Icon type={theme.direction === 'rtl' ? 'ChevronRight' : 'ChevronLeft'} />
           </IconButton>
         </div>
         <DashboardMenuItem />

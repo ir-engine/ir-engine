@@ -1,30 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import Divider from '@xrengine/ui/src/Divider'
 import List from '@xrengine/ui/src/List'
 import ListItem from '@xrengine/ui/src/ListItem'
 import ListItemIcon from '@xrengine/ui/src/ListItemIcon'
 import ListItemText from '@xrengine/ui/src/ListItemText'
 
-// import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { SidebarItems } from '../DashboardItems'
 import styles from './index.module.scss'
-
-interface Props {
-  //authState?: any
-  location: any
-}
 
 const DashboardMenuItem = () => {
   const location = useLocation()
   const { pathname } = location
-  // const scopes = useAuthState().user?.scopes?.value || []
-  const scopes = []
+
+  const authState = useAuthState()
+  const { user } = authState
+  const { scopes } = user
+
   const { t } = useTranslation()
 
-  let allowedRoutes = {
+  const [allowedRoutes, setAllowedRoutes] = useState({
+    analytics: true,
     location: false,
     user: false,
     bot: false,
@@ -40,18 +39,17 @@ const DashboardMenuItem = () => {
     projects: false,
     settings: false,
     server: false
-  }
-
-  scopes.forEach((scope) => {
-    if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
-      if (scope.type.split(':')[1] === 'read') {
-        allowedRoutes = {
-          ...allowedRoutes,
-          [scope.type.split(':')[0]]: true
-        }
-      }
-    }
   })
+
+  useEffect(() => {
+    const { value } = scopes
+    if (value) {
+      setAllowedRoutes({
+        ...allowedRoutes,
+        ...value?.reduce((prevoius, current) => Object.assign({}, prevoius, { [current.type.split(':')[0]]: true }))
+      })
+    }
+  }, [scopes])
 
   return (
     <>

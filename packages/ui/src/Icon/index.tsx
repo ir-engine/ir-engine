@@ -53,6 +53,7 @@ import {
   Google,
   GridOn,
   Group,
+  GroupAdd,
   Groups,
   Help,
   HighlightOff,
@@ -266,6 +267,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <QrCode2 {...props} />
     case 'Group':
       return <Group {...props} />
+    case 'GroupAdd':
+      return <GroupAdd {...props} />
     case 'Groups':
       return <Groups {...props} />
     case 'Close':

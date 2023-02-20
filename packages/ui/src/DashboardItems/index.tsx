@@ -3,7 +3,7 @@ import React from 'react'
 import Icon from '@xrengine/ui/src/Icon'
 
 export const SidebarItems = (allowedRoutes) => [
-  {
+  allowedRoutes.analytics && {
     name: 'user:dashboard.dashboard',
     path: '/admin',
     icon: <Icon type="Dashboard" style={{ color: 'white' }} />

@@ -10,10 +10,10 @@ import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
 import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
 import { dispatchAction } from '@xrengine/hyperflux'
 import CircularProgress from '@xrengine/ui/src/CircularProgress'
+import Dashboard from '@xrengine/ui/src/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import AdminSystem from '../systems/AdminSystem'
-import Dashboard from '../user/components/Dashboard'
 import { useAuthState } from '../user/services/AuthService'
 import Analytics from './components/Analytics'
 
@@ -49,14 +49,7 @@ const ProtectedRoutes = () => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    initSystems(Engine.instance.currentWorld, [
-      ...TransformModule(),
-      ...SceneCommonModule(),
-      ...SceneClientModule(),
-      ...AvatarCommonModule(),
-      ...AvatarClientModule(),
-      AdminSystemInjection
-    ]).then(async () => {
+    initSystems(Engine.instance.currentWorld, [AdminSystemInjection]).then(async () => {
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })
   }, [])
