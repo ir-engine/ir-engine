@@ -241,7 +241,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         )}
         {scatter.mode === ScatterMode.MESH && (
           <InstancingMeshProperties
-            value={scatter.sourceProperties}
+            state={scatterState.sourceProperties as State<SourceProperties>}
             onChange={updateProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
