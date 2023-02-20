@@ -57,22 +57,30 @@ export const EntityTreeComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, json: Partial<Readonly<EntityTreeSetType>>) => {
+  onSet: (entity, component, json?: Partial<Readonly<EntityTreeSetType>>) => {
+    if (!json) return
+
     const world = Engine.instance.currentWorld
 
     if (entity === world.originEntity) return
 
-    const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
+    const oldParent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
 
     // If a previous parentEntity, remove this entity from its children
-    if (parent) {
-      const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
-      const children = parent.children.get(NO_PROXY)
-      parent.children.set([...children.slice(0, parentChildIndex - 1), ...children.slice(parentChildIndex)])
+    if (oldParent) {
+      const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
+      if (parentChildIndex) {
+        const children = oldParent.children.get(NO_PROXY)
+        oldParent.children.set([...children.slice(0, parentChildIndex - 1), ...children.slice(parentChildIndex)])
+      }
     }
 
+    // set new data
     if (matchesEntity.test(json?.parentEntity)) component.parentEntity.set(json.parentEntity)
     if (matchesEntityUUID.test(json?.uuid)) component.uuid.set(json.uuid)
+    setComponent(entity, UUIDComponent, component.uuid.value)
+
+    const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
 
     // If a new parentEntity, add this entity to its children
     if (parent && !parent?.children.value.includes(entity)) parent.children.merge([entity])
@@ -92,8 +100,6 @@ export const EntityTreeComponent = defineComponent({
         : getComponent(component.parentEntity.value, EntityTreeComponent).rootEntity
       component.rootEntity.set(rootEntity)
     }
-
-    setComponent(entity, UUIDComponent, component.uuid.value)
   },
 
   onRemove: (entity, component) => {
