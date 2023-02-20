@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import { Box, CircularProgress } from '@mui/material'
 import Button from '@mui/material/Button'
@@ -23,21 +24,15 @@ const Projects = () => {
   const adminProjectState = useProjectState()
   const builderTags = adminProjectState.builderTags.value
   const { t } = useTranslation()
-  const [projectDrawerOpen, setProjectDrawerOpen] = useState(false)
-  const [updateDrawerOpen, setUpdateDrawerOpen] = useState(false)
-  const [buildStatusDrawerOpen, setBuildStatusDrawerOpen] = useState(false)
-  const [isFirstRun, setIsFirstRun] = useState(true)
+  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
-  const handleOpenProjectDrawer = () => {
-    setProjectDrawerOpen(true)
-  }
+  const projectDrawerOpen = useHookstate(false)
+  const updateDrawerOpen = useHookstate(false)
+  const buildStatusDrawerOpen = useHookstate(false)
+  const isFirstRun = useHookstate(true)
 
-  const handleOpenUpdateDrawer = () => {
-    setUpdateDrawerOpen(true)
-  }
-
-  const handleOpenBuildStatusDrawer = () => {
-    setBuildStatusDrawerOpen(true)
+  const refreshGithubRepoAccess = () => {
+    ProjectService.refreshGithubRepoAccess()
   }
 
   const ProjectUpdateSystemInjection = {
@@ -61,7 +56,7 @@ const Projects = () => {
   useEffect(() => {
     let interval
 
-    setIsFirstRun(false)
+    isFirstRun.set(false)
 
     if (adminProjectState.rebuilding.value) {
       interval = setInterval(ProjectService.checkReloadStatus, 10000)
@@ -82,7 +77,7 @@ const Projects = () => {
             type="button"
             variant="contained"
             color="primary"
-            onClick={handleOpenProjectDrawer}
+            onClick={() => projectDrawerOpen.set(true)}
           >
             {t('admin:components.project.addProject')}
           </Button>
@@ -93,12 +88,12 @@ const Projects = () => {
             type="button"
             variant="contained"
             color="primary"
-            onClick={() => handleOpenUpdateDrawer()}
+            onClick={() => updateDrawerOpen.set(true)}
           >
             {adminProjectState.rebuilding.value ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
-                {isFirstRun ? t('admin:components.project.checking') : t('admin:components.project.rebuilding')}
+                {isFirstRun.value ? t('admin:components.project.checking') : t('admin:components.project.rebuilding')}
               </Box>
             ) : (
               t('admin:components.project.updateAndRebuild')
@@ -111,7 +106,7 @@ const Projects = () => {
             type="button"
             variant="contained"
             color="primary"
-            onClick={() => handleOpenBuildStatusDrawer()}
+            onClick={() => buildStatusDrawerOpen.set(true)}
           >
             {t('admin:components.project.buildStatus')}
           </Button>
@@ -121,15 +116,38 @@ const Projects = () => {
       <div className={styles.engineInfo}>
         <Chip label={`Current Engine Version: ${adminProjectState.builderInfo.engineVersion.value}`} />
         <Chip label={`Current Engine Commit: ${adminProjectState.builderInfo.engineCommit.value}`} />
+        {githubProvider != null && (
+          <Button
+            className={styles.refreshGHBtn}
+            type="button"
+            variant="contained"
+            color="primary"
+            disabled={adminProjectState.refreshingGithubRepoAccess.value}
+            onClick={() => refreshGithubRepoAccess()}
+          >
+            {adminProjectState.refreshingGithubRepoAccess.value ? (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
+                {t('admin:components.project.refreshingGithubRepoAccess')}
+              </Box>
+            ) : (
+              t('admin:components.project.refreshGithubRepoAccess')
+            )}
+          </Button>
+        )}
       </div>
 
       <ProjectTable className={styles.rootTableWithSearch} />
 
-      <UpdateDrawer open={updateDrawerOpen} builderTags={builderTags} onClose={() => setUpdateDrawerOpen(false)} />
+      <UpdateDrawer
+        open={updateDrawerOpen.value}
+        builderTags={builderTags}
+        onClose={() => updateDrawerOpen.set(false)}
+      />
 
-      <ProjectDrawer open={projectDrawerOpen} onClose={() => setProjectDrawerOpen(false)} />
+      <ProjectDrawer open={projectDrawerOpen.value} onClose={() => projectDrawerOpen.set(false)} />
 
-      <BuildStatusDrawer open={buildStatusDrawerOpen} onClose={() => setBuildStatusDrawerOpen(false)} />
+      <BuildStatusDrawer open={buildStatusDrawerOpen.value} onClose={() => buildStatusDrawerOpen.set(false)} />
     </div>
   )
 }
