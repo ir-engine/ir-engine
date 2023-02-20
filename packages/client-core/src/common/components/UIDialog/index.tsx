@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 import Dialog from '@xrengine/ui/src/Dialog'
@@ -17,13 +17,11 @@ const UIDialog = (): JSX.Element => {
   const dialog = useDialogState()
   const isOpened = dialog.isOpened
   const content = dialog.content
-  const history = useHistory()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    history.listen(() => {
-      dispatchAction(DialogAction.dialogClose({}))
-    })
-  }, [])
+    dispatchAction(DialogAction.dialogClose({}))
+  }, [location, dispatchAction])
 
   const handleClose = (e: any): void => {
     e.preventDefault()

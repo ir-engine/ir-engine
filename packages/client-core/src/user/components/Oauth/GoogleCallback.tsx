@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, withRouter } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import Button from '@xrengine/ui/src/Button'
 import Container from '@xrengine/ui/src/Container'
@@ -53,4 +53,4 @@ const GoogleCallbackComponent = (props): JSX.Element => {
   )
 }
 
-export const GoogleCallback = withRouter(GoogleCallbackComponent) as any
+export const GoogleCallback = GoogleCallbackComponent as any

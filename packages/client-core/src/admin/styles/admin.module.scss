@@ -21,6 +21,14 @@
   }
 }
 
+.refreshGHBtn {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 12px;
+  background-color: var(--popupBackground) !important;
+  color: var(--textColor) !important;
+}
+
 .dateTimePickerDialog {
   background: var(--popupBackground);
   color: var(--textColor) !important;

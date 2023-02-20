@@ -1,18 +1,22 @@
-import React, { useEffect } from 'react'
-import { Redirect, Route, Routes } from 'react-router-dom'
+import { t } from 'i18next'
+import React, { lazy, Suspense, useEffect } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-const locationPage = React.lazy(() => import('./[locationName]'))
+import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+
+const LocationPage = lazy(() => import('./[locationName]'))
 
 const LocationRoutes = () => {
   useEffect(() => {
     console.log('offline route loaded')
   }, [])
   return (
-    <Routes>
-      <Route exact path="/offline/:projectName/:sceneName" component={locationPage} />
-      <Route exact path="/offline/:locationName" component={locationPage} />
-      <Redirect path="/offline" to={'/'} />
-    </Routes>
+    <Suspense fallback={<LoadingCircle message={t('common:loader.offline')} />}>
+      <Routes>
+        <Route path=":projectName/:sceneName" element={<LocationPage />} />
+        <Route path=":locationName" element={<LocationPage />} />
+      </Routes>
+    </Suspense>
   )
 }
 

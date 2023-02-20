@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
+import { useHookstate } from '@xrengine/hyperflux'
 import Box from '@xrengine/ui/src/Box'
 import Button from '@xrengine/ui/src/Button'
 import Grid from '@xrengine/ui/src/Grid'
@@ -22,36 +23,34 @@ const Server = () => {
   const [serverSetting] = serverSettingState?.server?.value || []
   const id = serverSetting?.id
 
-  const [gaTrackingId, setGaTrackingId] = useState(serverSetting?.gaTrackingId)
-  const [gitPem, setGitPem] = useState(serverSetting?.gitPem)
-  const [instanceserverUnreachableTimeoutSeconds, setInstanceserverUnreachableTimeoutSeconds] = useState(
-    serverSetting?.instanceserverUnreachableTimeoutSeconds
-  )
+  const gaTrackingId = useHookstate(serverSetting?.gaTrackingId)
+  const githubWebhookSecret = useHookstate(serverSetting?.githubWebhookSecret)
+  const instanceserverUnreachableTimeoutSeconds = useHookstate(serverSetting?.instanceserverUnreachableTimeoutSeconds)
   const [dryRun, setDryRun] = useState(true)
   const [local, setLocal] = useState(true)
 
   useEffect(() => {
     if (serverSetting) {
-      setGaTrackingId(serverSetting?.gaTrackingId)
-      setGitPem(serverSetting?.gitPem)
-      setInstanceserverUnreachableTimeoutSeconds(serverSetting?.instanceserverUnreachableTimeoutSeconds)
+      gaTrackingId.set(serverSetting?.gaTrackingId)
+      githubWebhookSecret.set(serverSetting?.githubWebhookSecret)
+      instanceserverUnreachableTimeoutSeconds.set(serverSetting?.instanceserverUnreachableTimeoutSeconds)
     }
   }, [serverSettingState?.updateNeeded?.value])
 
   const handleSubmit = (event) => {
     ServerSettingService.patchServerSetting(
       {
-        gaTrackingId: gaTrackingId,
-        gitPem: gitPem,
-        instanceserverUnreachableTimeoutSeconds: instanceserverUnreachableTimeoutSeconds
+        gaTrackingId: gaTrackingId.value,
+        githubWebhookSecret: githubWebhookSecret.value,
+        instanceserverUnreachableTimeoutSeconds: instanceserverUnreachableTimeoutSeconds.value
       },
       id
     )
   }
 
   const handleCancel = () => {
-    setGaTrackingId(serverSetting?.gaTrackingId)
-    setGitPem(serverSetting?.gitPem)
+    gaTrackingId.set(serverSetting?.gaTrackingId)
+    githubWebhookSecret.set(serverSetting?.githubWebhookSecret)
   }
 
   useEffect(() => {
@@ -142,9 +141,9 @@ const Server = () => {
           <InputText
             name="gaTrackingId"
             label={t('admin:components.setting.googleAnalyticsTrackingId')}
-            value={gaTrackingId || ''}
+            value={gaTrackingId.value || ''}
             startAdornment={<Icon style={{ marginRight: 8 }} fontSize={18} icon="emojione:key" />}
-            onChange={(e) => setGaTrackingId(e.target.value)}
+            onChange={(e) => gaTrackingId.set(e.target.value)}
           />
 
           <InputText
@@ -180,10 +179,10 @@ const Server = () => {
           />
 
           <InputText
-            name="githubPrivateKey"
-            label={t('admin:components.setting.githubPrivateKey')}
-            value={gitPem || ''}
-            onChange={(e) => setGitPem(e.target.value)}
+            name="githubWebhookSecret"
+            label={t('admin:components.setting.githubWebhookSecret')}
+            value={githubWebhookSecret.value || ''}
+            onChange={(e) => githubWebhookSecret.set(e.target.value)}
           />
 
           <InputText
@@ -196,8 +195,8 @@ const Server = () => {
           <InputText
             name="releaseName"
             label={t('admin:components.setting.instanceserverUnreachableTimeoutSeconds')}
-            value={instanceserverUnreachableTimeoutSeconds}
-            onChange={(e) => setInstanceserverUnreachableTimeoutSeconds(e.target.value)}
+            value={instanceserverUnreachableTimeoutSeconds.value}
+            onChange={(e) => instanceserverUnreachableTimeoutSeconds.set(e.target.value)}
           />
 
           <InputSwitch

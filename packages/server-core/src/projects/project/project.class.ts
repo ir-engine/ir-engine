@@ -641,28 +641,23 @@ export class Project extends Service {
         paginate: false
       })) as any
       let allowedProjects = await projectPermissions.map((permission) => permission.project)
-      const repos = githubIdentityProvider ? await getUserRepos(githubIdentityProvider.oauthToken) : []
-      const repoPaths = repos.map((repo) => repo.html_url.toLowerCase())
+      const repoAccess = githubIdentityProvider
+        ? await this.app.service('github-repo-access').Model.findAll({
+            paginate: false,
+            where: {
+              identityProviderId: githubIdentityProvider.id
+            }
+          })
+        : []
+      const repoPaths = repoAccess.map((item) => item.repo.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
       allowedProjectGithubRepos = await Promise.all(
         allowedProjectGithubRepos.map(async (project) => {
           const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
           if (!regexExec) return { repositoryPath: '', name: '' }
           const split = regexExec[2].split('/')
-          try {
-            project.repositoryPath = await getRepo(
-              split[0],
-              split[1].replace(/.git/, ''),
-              githubIdentityProvider.oauthToken
-            )
-            return project
-          } catch (err) {
-            logger.error('repo fetch error %o', err)
-            errors.push(err)
-            return {
-              repositoryPath: 'ERROR'
-            }
-          }
+          project.repositoryPath = `https://github.com/${split[0]}/${split[1]}`
+          return project
         })
       )
       const pushableAllowedProjects = allowedProjectGithubRepos.filter(
@@ -671,17 +666,22 @@ export class Project extends Service {
       projectPushIds = projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
 
       if (githubIdentityProvider) {
-        const allowedRepos = await getUserRepos(githubIdentityProvider.oauthToken)
-        allowedRepos.forEach((repo, index) => {
-          const url = repo.html_url.toLowerCase()
-          allowedRepos[index] = url
-          allowedRepos.push(`${url}.git`)
+        repoAccess.forEach((item, index) => {
+          const url = item.repo.toLowerCase()
+          repoAccess[index] = url
+          repoAccess.push(`${url}.git`)
+          const regexExec = GITHUB_URL_REGEX.exec(url)
+          if (regexExec) {
+            const split = regexExec[2].split('/')
+            repoAccess.push(`git@github.com:${split[0]}/${split[1]}`)
+            repoAccess.push(`git@github.com:${split[0]}/${split[1]}.git`)
+          }
         })
 
         const matchingAllowedRepos = await this.app.service('project').Model.findAll({
           where: {
             repositoryPath: {
-              [Op.in]: allowedRepos
+              [Op.in]: repoAccess
             }
           }
         })

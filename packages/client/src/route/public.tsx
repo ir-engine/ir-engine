@@ -1,6 +1,6 @@
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Route, Routes, useHistory, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import {
   AuthSettingsService,
@@ -8,7 +8,6 @@ import {
   useAuthSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/AuthSettingService'
 import {
-  ClientSettingService,
   ClientSettingsServiceReceptor,
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
@@ -31,17 +30,18 @@ import $404 from '../pages/404'
 import $503 from '../pages/503'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
-// const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
-const $admin = React.lazy(() => import('@xrengine/client/src/pages/admin'))
-const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
-const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))
+const $index = lazy(() => import('@xrengine/client/src/pages'))
+const $auth = lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
+const $offline = lazy(() => import('@xrengine/client/src/pages/offline/offline'))
+const $custom = lazy(() => import('@xrengine/client/src/route/customRoutes'))
+const $admin = lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
   const clientSettingsState = useClientSettingState()
   const authSettingsState = useAuthSettingState()
   const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [routesReady, setRoutesReady] = useState(false)
   const routerState = useHookstate(getState(RouterState))
   const route = useRouter()
@@ -101,7 +101,7 @@ function RouterComp() {
 
   useEffect(() => {
     if (location.pathname !== routerState.pathname.value) {
-      history.push(routerState.pathname.value)
+      navigate(routerState.pathname.value)
     }
   }, [routerState.pathname])
 
@@ -120,16 +120,15 @@ function RouterComp() {
     <ErrorBoundary>
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
         <Routes>
-          {/* {customRoutes.map((route, i) => (
-            <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
-          ))} */}
-          <Route key={'offline'} path={'/offline'} component={$offline} />
+          <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
+          <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
           {/* default to allowing admin access regardless */}
-          <Route key={'default-admin'} path={'/admin'} component={$admin} />
-          <Route key={'default-auth'} path={'/auth'} component={$auth} />
+          <Route key={'default-admin'} path={'/admin/*'} element={<$admin />} />
+          <Route key={'default-auth'} path={'/auth/*'} element={<$auth />} />
+          <Route key={'default-index'} path={'/'} element={<$index />} />
           {/* if no index page has been provided, indicate this as obviously as possible */}
-          <Route key={'/503'} path={'/'} component={$503} exact />
-          <Route key={'404'} path="*" component={$404} />
+          <Route key={'/503'} path={'/'} element={<$503 />} />
+          <Route key={'404'} path="*" element={<$404 />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>
