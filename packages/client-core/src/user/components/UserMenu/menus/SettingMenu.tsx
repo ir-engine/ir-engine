@@ -21,7 +21,10 @@ import {
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import {
+  getPostProcessingSceneMetadataState,
+  PostProcessingSceneMetadataLabel
+} from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -61,7 +64,15 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const handOptions = ['left', 'right']
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
-  const postprocessingSettings = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld).enabled)
+
+  const postProcessingSceneMetadataState = Engine.instance.currentWorld.sceneMetadataRegistry[
+    PostProcessingSceneMetadataLabel
+  ]
+    ? getPostProcessingSceneMetadataState(Engine.instance.currentWorld)
+    : undefined
+  const postprocessingSettings = postProcessingSceneMetadataState?.enabled
+    ? useHookstate(postProcessingSceneMetadataState.enabled)
+    : { value: undefined }
 
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
