@@ -50,7 +50,7 @@ export const EditorHelperState = defineState({
       const state = useHookstate(getState(EditorHelperState))
 
       useEffect(() => {
-        SceneState.transformGizmo.setTransformMode(state.transformMode.value)
+        SceneState.transformGizmo?.setTransformMode(state.transformMode.value)
       }, [state.transformMode])
 
       useEffect(() => {

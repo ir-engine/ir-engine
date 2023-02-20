@@ -23,6 +23,7 @@ import {
   defineComponent,
   getComponent,
   getComponentState,
+  getOptionalComponentState,
   hasComponent,
   removeComponent,
   setComponent
@@ -51,7 +52,7 @@ export const EntityTreeComponent = defineComponent({
       /** @deprecated use UUIDComponent instead */
       uuid: MathUtils.generateUUID() as EntityUUID,
       // internal
-      children: null! as Entity[],
+      children: [] as Entity[],
       rootEntity: UndefinedEntity
     }
   },
@@ -61,9 +62,10 @@ export const EntityTreeComponent = defineComponent({
 
     if (entity === world.originEntity) return
 
+    const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
+
     // If a previous parentEntity, remove this entity from its children
-    if (component.parentEntity.value !== UndefinedEntity) {
-      const parent = getComponentState(component.parentEntity.value, EntityTreeComponent)
+    if (parent) {
       const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
       const children = parent.children.get(NO_PROXY)
       parent.children.set([...children.slice(0, parentChildIndex - 1), ...children.slice(parentChildIndex)])
@@ -73,22 +75,23 @@ export const EntityTreeComponent = defineComponent({
     if (matchesEntityUUID.test(json?.uuid)) component.uuid.set(json.uuid)
 
     // If a new parentEntity, add this entity to its children
-    if (!component.children.value.includes(entity))
-      getComponentState(component.parentEntity.value, EntityTreeComponent).children.merge([entity])
+    if (parent && !parent?.children.value.includes(entity)) parent.children.merge([entity])
 
     EntityTreeComponent.entitiesByUUID[component.uuid.value].set(entity)
     EntityTreeComponent.uuidByEntity[entity].set(component.uuid.value)
 
-    // If parent is the world origin, then the parent entity is a tree root
-    const isRoot = component.parentEntity.value === world.originEntity
-    if (isRoot) {
-      EntityTreeComponent.roots[entity].set(true)
-    }
+    if (parent) {
+      // If parent is the world origin, then the parent entity is a tree root
+      const isRoot = component.parentEntity.value === world.originEntity
+      if (isRoot) {
+        EntityTreeComponent.roots[entity].set(true)
+      }
 
-    const rootEntity = isRoot
-      ? component.parentEntity.value
-      : getComponent(component.parentEntity.value, EntityTreeComponent).rootEntity
-    component.rootEntity.set(rootEntity)
+      const rootEntity = isRoot
+        ? component.parentEntity.value
+        : getComponent(component.parentEntity.value, EntityTreeComponent).rootEntity
+      component.rootEntity.set(rootEntity)
+    }
 
     setComponent(entity, UUIDComponent, component.uuid.value)
   },
@@ -170,12 +173,12 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
     setComponent(entity, EntityTreeComponent, { parentEntity, uuid })
   }
 
-  computeTransformMatrix(parentEntity)
-  computeTransformMatrix(entity)
   const parentTransform = getComponent(parentEntity, TransformComponent)
   const childTransform = getComponent(entity, TransformComponent)
   getState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
+    computeTransformMatrix(parentEntity)
+    computeTransformMatrix(entity)
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
     setLocalTransformComponent(entity, parentEntity)
     const localTransform = getComponent(entity, LocalTransformComponent)
