@@ -1,6 +1,7 @@
 import i18n from 'i18next'
 
 import { API } from '@xrengine/client-core/src/API'
+import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
@@ -79,14 +80,14 @@ export const saveScene = async (
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const thumbnailBuffer = thumbnailBlob ? await thumbnailBlob.arrayBuffer() : undefined
-
-  if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
-
   const sceneData = serializeWorld()
 
   try {
-    return await API.instance.client.service('scene').update(projectName, { sceneName, sceneData, thumbnailBuffer })
+    return await uploadToFeathersService('scene/upload', thumbnailBlob ? [thumbnailBlob] : [], {
+      projectName,
+      sceneName,
+      sceneData
+    }).promise
   } catch (error) {
     logger.error(error, 'Error in saving project')
     throw error
