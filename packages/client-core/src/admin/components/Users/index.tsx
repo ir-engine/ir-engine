@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import FilterListIcon from '@mui/icons-material/FilterList'
@@ -23,6 +23,10 @@ const Users = () => {
   const [checked, setChecked] = useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const openMenu = Boolean(anchorEl)
+
+  useEffect(() => {
+    AdminUserService.resetFilter()
+  }, [])
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
