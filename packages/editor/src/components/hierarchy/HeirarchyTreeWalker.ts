@@ -46,24 +46,24 @@ export function* heirarchyTreeWalker(
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
     yield {
-      isLeaf: !entityTreeComponent.children || entityTreeComponent.children.length === 0,
+      isLeaf: entityTreeComponent.children.length === 0,
       isCollapsed,
       depth,
-      entityNode: entityNode,
+      entityNode,
       selected: selectedEntities.includes(entityNode),
       active: selectedEntities.length > 0 && entityNode === selectedEntities[selectedEntities.length - 1],
       childIndex,
       lastChild
     }
 
-    if (entityTreeComponent.children && entityTreeComponent.children.length !== 0 && !isCollapsed) {
+    if (entityTreeComponent.children.length !== 0 && !isCollapsed) {
       for (let i = entityTreeComponent.children.length - 1; i >= 0; i--) {
         const node = hasComponent(entityTreeComponent.children[i], EntityTreeComponent)
 
         if (node) {
           stack.push({
             depth: depth + 1,
-            entityNode,
+            entityNode: entityTreeComponent.children[i],
             childIndex: i,
             lastChild: i === 0
           })

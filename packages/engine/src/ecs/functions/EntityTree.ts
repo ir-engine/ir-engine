@@ -62,7 +62,9 @@ export const EntityTreeComponent = defineComponent({
 
     const world = Engine.instance.currentWorld
 
-    if (entity === world.originEntity) return
+    if (entity === world.originEntity) {
+      return
+    }
 
     const oldParent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
 
@@ -71,14 +73,14 @@ export const EntityTreeComponent = defineComponent({
       const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
       if (parentChildIndex) {
         const children = oldParent.children.get(NO_PROXY)
-        oldParent.children.set([...children.slice(0, parentChildIndex - 1), ...children.slice(parentChildIndex)])
+        oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
       }
     }
 
     // set new data
     if (matchesEntity.test(json?.parentEntity)) component.parentEntity.set(json.parentEntity)
+    else component.parentEntity.set(world.originEntity)
     if (matchesEntityUUID.test(json?.uuid)) component.uuid.set(json.uuid)
-    EntityTreeComponent.entitiesByUUID[component.uuid.value].set(entity)
     setComponent(entity, UUIDComponent, component.uuid.value)
 
     const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
@@ -86,18 +88,14 @@ export const EntityTreeComponent = defineComponent({
     // If a new parentEntity, add this entity to its children
     if (parent && !parent?.children.value.includes(entity)) parent.children.merge([entity])
 
-    if (parent) {
-      // If parent is the world origin, then the parent entity is a tree root
-      const isRoot = component.parentEntity.value === world.originEntity
-      if (isRoot) {
-        EntityTreeComponent.roots[entity].set(true)
-      }
-
-      const rootEntity = isRoot
-        ? component.parentEntity.value
-        : getComponent(component.parentEntity.value, EntityTreeComponent).rootEntity
-      component.rootEntity.set(rootEntity)
+    // If parent is the world origin, then the parent entity is a tree root
+    const isRoot = component.parentEntity.value === world.originEntity
+    if (isRoot) {
+      EntityTreeComponent.roots[entity].set(true)
     }
+
+    const rootEntity = isRoot ? entity : getComponent(component.parentEntity.value, EntityTreeComponent).rootEntity
+    component.rootEntity.set(rootEntity)
   },
 
   onRemove: (entity, component) => {
@@ -106,17 +104,13 @@ export const EntityTreeComponent = defineComponent({
     const parent = getComponentState(component.parentEntity.value, EntityTreeComponent)
     const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
     const children = parent.children.get(NO_PROXY)
-    parent.children.set([...children.slice(0, parentChildIndex - 1), ...children.slice(parentChildIndex)])
-
-    EntityTreeComponent.entitiesByUUID[component.uuid.value].set(UndefinedEntity)
+    parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
     EntityTreeComponent.roots[entity].set(none)
 
     removeComponent(entity, UUIDComponent)
   },
 
-  roots: hookstate({} as Record<Entity, true>),
-
-  entitiesByUUID: hookstate({} as Record<EntityUUID, Entity>)
+  roots: hookstate({} as Record<Entity, true>)
 })
 
 export type EntityOrObjectUUID = Entity | string
@@ -126,7 +120,7 @@ export type EntityOrObjectUUID = Entity | string
  * @param world World
  */
 export function initializeSceneEntity(world = Engine.instance.currentWorld): void {
-  if (entityExists(world.sceneEntity)) removeEntity(world.sceneEntity, true)
+  if (world.sceneEntity && entityExists(world.sceneEntity)) removeEntity(world.sceneEntity, true)
 
   world.sceneEntity = createEntity()
   setComponent(world.sceneEntity, NameComponent, 'scene')
@@ -157,9 +151,6 @@ export function removeFromEntityTree(rootEntity: Entity): void {
   }
 }
 
-// ========== Entity Tree Functions ========== //
-
-// ========== Entity Tree Node Functions ========== //
 /**
  * Adds entity node as a child of passed node
  * @param parent Node in which child node will be added

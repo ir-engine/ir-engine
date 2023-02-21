@@ -272,6 +272,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, worl
       const entity = createEntity()
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!].value
       setComponent(entity, EntityTreeComponent, { parentEntity, uuid })
+      setLocalTransformComponent(entity, parentEntity)
       addEntityNodeChild(entity, parentEntity)
       deserializeSceneEntity(entity, entityJson)
     }

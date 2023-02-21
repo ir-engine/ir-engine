@@ -87,9 +87,6 @@ export class World {
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
-    // @todo do this as the scene loads instead of world creation
-    initializeSceneEntity(this)
-
     this.originEntity = createEntity()
     setComponent(this.originEntity, NameComponent, 'origin')
     setComponent(this.originEntity, EntityTreeComponent)
@@ -109,6 +106,9 @@ export class World {
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
+
+    // @todo do this as the scene loads instead of world creation
+    initializeSceneEntity(this)
 
     this.scene.matrixAutoUpdate = false
     this.scene.matrixWorldAutoUpdate = false

@@ -8,8 +8,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
-import { createEntityNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { createEngine, setupEngineActionSystems } from '../../../initializeEngine'
@@ -29,13 +27,11 @@ import {
 
 describe('InstancingFunctions', async () => {
   let entity: Entity
-  let node: EntityTreeNode
   let world: World
   let sandbox: SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    node = createEntityNode(entity)
     world = Engine.instance.currentWorld
   }
   beforeEach(async () => {
