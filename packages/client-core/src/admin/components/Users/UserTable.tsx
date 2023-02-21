@@ -41,7 +41,9 @@ const UserTable = ({ className, search }: UserProps) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    AdminUserService.fetchUsersAsAdmin(search, 0, sortField, fieldOrder)
+    if (adminUserState.updateNeeded.value) {
+      AdminUserService.fetchUsersAsAdmin(search, 0, sortField, fieldOrder)
+    }
   }, [search, user?.id?.value, adminUserState.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
