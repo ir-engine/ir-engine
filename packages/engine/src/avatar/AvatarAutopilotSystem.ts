@@ -1,9 +1,9 @@
 import { World } from '../ecs/classes/World'
 import { applyAutopilotInput, applyGamepadInput } from './functions/moveAvatar'
 
-export default async function AvatarMovementSystem(world: World) {
+export default async function AvatarAutopilotSystem(world: World) {
   const execute = () => {
-    applyGamepadInput(world.localClientEntity)
+    applyAutopilotInput(world.localClientEntity)
   }
 
   const cleanup = async () => {}
