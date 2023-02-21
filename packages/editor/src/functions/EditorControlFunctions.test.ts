@@ -6,11 +6,15 @@ import {
   addComponent,
   createMappedComponent,
   getComponent,
+  hasComponent,
   setComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { addEntityNodeChild, createEntityNode, removeEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import {
+  addEntityNodeChild,
+  EntityTreeComponent,
+  removeEntityTree
+} from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -26,6 +30,8 @@ import { deregisterEditorReceptors, registerEditorReceptors } from '../services/
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 import '@xrengine/engine/src/patchEngineNode'
+
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 import { createTransformGizmo } from '../systems/EditorControlSystem'
 
@@ -55,7 +61,7 @@ function getRandomValues(): TestComponentType {
 }
 describe('EditorControlFunctions', () => {
   describe('modifyProperty', () => {
-    let nodes: EntityTreeNode[]
+    let nodes: Entity[]
 
     beforeEach(() => {
       createEngine()
@@ -64,12 +70,12 @@ describe('EditorControlFunctions', () => {
 
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentWorld.entityTree.rootNode
-      nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
+      const rootNode = Engine.instance.currentWorld.sceneEntity
+      nodes = [createEntity(), createEntity()]
 
       for (let i = 0; i < 2; i++) {
         addEntityNodeChild(nodes[i], rootNode)
-        addComponent(nodes[i].entity, TestComponent, getRandomValues())
+        addComponent(nodes[i], TestComponent, getRandomValues())
       }
     })
 
@@ -79,17 +85,17 @@ describe('EditorControlFunctions', () => {
       applyIncomingActions()
       for (const node of nodes) {
         if (typeof node === 'string') return
-        const component = getComponent(node.entity, TestComponent)
+        const component = getComponent(node, TestComponent)
         assert.deepEqual(component, prop)
       }
     })
   })
 
   describe('addObject', async () => {
-    let rootNode: EntityTreeNode
-    let nodes: EntityTreeNode[]
-    let parentNodes: EntityTreeNode[]
-    let beforeNodes: EntityTreeNode[]
+    let rootNode: Entity
+    let nodes: Entity[]
+    let parentNodes: Entity[]
+    let beforeNodes: Entity[]
 
     beforeEach(() => {
       createEngine()
@@ -103,10 +109,10 @@ describe('EditorControlFunctions', () => {
         { name: SCENE_COMPONENT_GROUP, props: true }
       ])
 
-      rootNode = Engine.instance.currentWorld.entityTree.rootNode
-      nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-      parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-      beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
+      rootNode = Engine.instance.currentWorld.sceneEntity
+      nodes = [createEntity(), createEntity()]
+      parentNodes = [createEntity(), createEntity()]
+      beforeNodes = [createEntity(), createEntity()]
 
       addEntityNodeChild(parentNodes[0], rootNode)
       addEntityNodeChild(parentNodes[1], rootNode)
@@ -116,7 +122,7 @@ describe('EditorControlFunctions', () => {
 
     it('creates prefab of given type', () => {
       EditorControlFunctions.addObject(nodes, [], [], [ScenePrefabs.group])
-      assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get((nodes[0] as EntityTreeNode).entity))
+      assert(hasComponent(nodes[0], EntityTreeComponent))
     })
 
     it('creates prefab of given type and adds as child of passed parent node', () => {
@@ -126,8 +132,8 @@ describe('EditorControlFunctions', () => {
       assert.notEqual(beforeNodes.length, 0)
 
       nodes.forEach((node, index) => {
-        assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
-        assert.equal(node.parentEntity, parentNodes[index].entity)
+        assert(hasComponent(node, EntityTreeComponent))
+        assert.equal(node, parentNodes[index])
       })
     })
 
@@ -139,8 +145,8 @@ describe('EditorControlFunctions', () => {
       assert.notEqual(beforeNodes.length, 0)
 
       nodes.forEach((node, index) => {
-        assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
-        assert.equal(node.parentEntity, beforeNodes[index].parentEntity)
+        assert(hasComponent(node, EntityTreeComponent))
+        assert.equal(node, beforeNodes[index])
       })
     })
 
@@ -151,8 +157,8 @@ describe('EditorControlFunctions', () => {
       assert.notEqual(parentNodes.length, 0)
       assert.notEqual(beforeNodes.length, 0)
 
-      assert.equal(getComponent(nodes[0].entity, NameComponent), ScenePrefabs.group)
-      assert.equal(getComponent(nodes[1].entity, NameComponent), ScenePrefabs.group + ' 2')
+      assert.equal(getComponent(nodes[0], NameComponent), ScenePrefabs.group)
+      assert.equal(getComponent(nodes[1], NameComponent), ScenePrefabs.group + ' 2')
     })
 
     // it('will create node from provided scenedata', () => {
@@ -183,9 +189,9 @@ describe('EditorControlFunctions', () => {
 
   /** currently failing - see #7272 */
   describe.skip('duplicateObjects', async () => {
-    let nodes: EntityTreeNode[]
-    let parentNodes: EntityTreeNode[]
-    let beforeNodes: EntityTreeNode[]
+    let nodes: Entity[]
+    let parentNodes: Entity[]
+    let beforeNodes: Entity[]
 
     beforeEach(() => {
       createEngine()
@@ -193,10 +199,10 @@ describe('EditorControlFunctions', () => {
       createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentWorld.entityTree.rootNode
-      nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-      parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-      beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
+      const rootNode = Engine.instance.currentWorld.sceneEntity
+      nodes = [createEntity(), createEntity()]
+      parentNodes = [createEntity(), createEntity()]
+      beforeNodes = [createEntity(), createEntity()]
 
       addEntityNodeChild(nodes[0], rootNode)
       addEntityNodeChild(nodes[1], rootNode)
@@ -210,17 +216,18 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.duplicateObject(nodes)
       applyIncomingActions()
 
-      const rootNode = Engine.instance.currentWorld.entityTree.rootNode
+      const rootEntity = Engine.instance.currentWorld.sceneEntity
+      const rootNode = getComponent(rootEntity, EntityTreeComponent)
       rootNode.children.forEach((entity) => {
-        assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(entity))
+        assert(hasComponent(entity, EntityTreeComponent))
       })
     })
   })
 
   describe('groupObjects', async () => {
-    let nodes: EntityTreeNode[]
-    let parentNodes: EntityTreeNode[]
-    let beforeNodes: EntityTreeNode[]
+    let nodes: Entity[]
+    let parentNodes: Entity[]
+    let beforeNodes: Entity[]
 
     beforeEach(() => {
       createEngine()
@@ -234,38 +241,41 @@ describe('EditorControlFunctions', () => {
         { name: SCENE_COMPONENT_GROUP, props: true }
       ])
 
-      const rootNode = Engine.instance.currentWorld.entityTree.rootNode
-      nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-      parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-      beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
+      const rootNode = Engine.instance.currentWorld.sceneEntity
+      nodes = [createEntity(), createEntity()]
+      parentNodes = [createEntity(), createEntity()]
+      beforeNodes = [createEntity(), createEntity()]
 
       addEntityNodeChild(parentNodes[0], rootNode)
       addEntityNodeChild(parentNodes[1], rootNode)
-      addEntityNodeChild(nodes[0], parentNodes[0], 0)
-      addEntityNodeChild(nodes[1], parentNodes[1], 0)
+      addEntityNodeChild(nodes[0], parentNodes[0])
+      addEntityNodeChild(nodes[1], parentNodes[1])
       addEntityNodeChild(beforeNodes[0], parentNodes[0])
       addEntityNodeChild(beforeNodes[1], parentNodes[1])
     })
 
     it('duplicates objects', () => {
-      const entityTree = Engine.instance.currentWorld.entityTree
       EditorControlFunctions.groupObjects(nodes)
       for (const node of nodes) {
-        assert(entityTree.entityNodeMap.has(node.parentEntity!))
-        assert(entityTree.entityNodeMap.get(node.parentEntity!)!.children.includes(node.entity))
+        assert(hasComponent(node, EntityTreeComponent))
+        assert(
+          getComponent(getComponent(node, EntityTreeComponent).parentEntity, EntityTreeComponent).children.includes(
+            node
+          )
+        )
       }
     })
 
     afterEach(() => {
-      removeEntityTree(Engine.instance.currentWorld.entityTree)
+      removeEntityTree(Engine.instance.currentWorld.sceneEntity)
       deregisterEditorReceptors()
     })
   })
 
   describe('removeObjects', async () => {
-    let nodes: EntityTreeNode[]
-    let parentNodes: EntityTreeNode[]
-    let beforeNodes: EntityTreeNode[]
+    let nodes: Entity[]
+    let parentNodes: Entity[]
+    let beforeNodes: Entity[]
 
     beforeEach(() => {
       createEngine()
@@ -273,12 +283,12 @@ describe('EditorControlFunctions', () => {
       createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentWorld.entityTree.rootNode
-      nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-      parentNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
-      beforeNodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
+      const rootNode = Engine.instance.currentWorld.sceneEntity
+      nodes = [createEntity(), createEntity()]
+      parentNodes = [createEntity(), createEntity()]
+      beforeNodes = [createEntity(), createEntity()]
       ;[...nodes, ...parentNodes, ...beforeNodes].map((node) =>
-        setComponent(node.entity, NameComponent, `Test-RemoveObjectCommandEntity-${node.entity}`)
+        setComponent(node, NameComponent, `Test-RemoveObjectCommandEntity-${node}`)
       )
 
       addEntityNodeChild(nodes[0], parentNodes[0])
@@ -292,20 +302,20 @@ describe('EditorControlFunctions', () => {
     it('Removes given nodes', () => {
       EditorControlFunctions.removeObject(nodes)
 
-      nodes.forEach((node: EntityTreeNode) => {
-        assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
+      nodes.forEach((node: Entity) => {
+        assert(!hasComponent(node, EntityTreeComponent))
 
-        const parent = Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.parentEntity!)
-        assert(parent && parent.children)
-        assert(!parent.children.includes(node.entity))
+        const parent = getComponent(getComponent(node, EntityTreeComponent).parentEntity, EntityTreeComponent)
+        assert(parent.children)
+        assert(!parent.children.includes(node))
       })
     })
 
     it('will not remove root node', () => {
-      EditorControlFunctions.removeObject([Engine.instance.currentWorld.entityTree.rootNode])
+      EditorControlFunctions.removeObject([Engine.instance.currentWorld.sceneEntity])
 
-      nodes.forEach((node: EntityTreeNode) => {
-        assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
+      nodes.forEach((node: Entity) => {
+        assert(hasComponent(node, EntityTreeComponent))
       })
     })
   })

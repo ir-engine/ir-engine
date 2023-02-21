@@ -211,7 +211,7 @@ const addObject = (
           const newEntity = createEntity()
           setComponent(newEntity, EntityTreeComponent, { parentEntity: node.parentEntity, uuid: node.uuid })
           getComponentState(newEntity, EntityTreeComponent).children.merge([...node.children])
-          deserializeSceneEntity(node, data.entities[node.uuid])
+          deserializeSceneEntity(entity, data.entities[node.uuid])
         })
       }
     }
