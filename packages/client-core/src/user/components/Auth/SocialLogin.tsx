@@ -88,13 +88,11 @@ const SocialLogin = ({
     <Grid item xs={12}>
       <Button
         onClick={(e) => handleFacebookLogin(e)}
-        startIcon={<Icon type="Facebook" />}
+        startIcon={<Icon type="Facebook" width="20px" height="20px" />}
         variant="contained"
         className={styles.facebook}
         fullWidth={true}
-      >
-        {t('user:auth.social.facebook')}
-      </Button>
+      ></Button>
     </Grid>
   ) : (
     ''

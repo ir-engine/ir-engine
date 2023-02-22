@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
 import Menu from '@xrengine/client-core/src/common/components/Menu'
@@ -12,6 +11,7 @@ import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constant
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import Box from '@xrengine/ui/src/Box'
 import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'

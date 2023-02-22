@@ -99,9 +99,8 @@ export const ResetPassword = ({ token, completeAction }: Props): JSX.Element => 
                         onMouseDown={handleMouseDownPassword}
                         color="secondary"
                         size="large"
-                      >
-                        <Icon type={values.showPassword ? 'Visibility' : 'VisibilityOff'} />
-                      </IconButton>
+                        icon={<Icon type={values.showPassword ? 'Visibility' : 'VisibilityOff'} />}
+                      />
                     </InputAdornment>
                   }
                 />
@@ -125,9 +124,8 @@ export const ResetPassword = ({ token, completeAction }: Props): JSX.Element => 
                         onMouseDown={handleMouseDownPassword}
                         color="secondary"
                         size="large"
-                      >
-                        <Icon type={values.showPasswordConfirm ? 'Visibility' : 'VisibilityOff'} />
-                      </IconButton>
+                        icon={<Icon type={values.showPasswordConfirm ? 'Visibility' : 'VisibilityOff'} />}
+                      />
                     </InputAdornment>
                   }
                 />

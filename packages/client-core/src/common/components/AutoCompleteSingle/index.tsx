@@ -85,9 +85,11 @@ const AutoComplete = ({ data, label, disabled, error, onChange, value = '', free
                 if (event?.target?.value?.length === 0) handleClear()
               }}
             />
-            <IconButton className={`.MuiAutocomplete-endAdornment ${styles.clearButton}`} onClick={() => handleClear()}>
-              <Icon type="Cancel" />
-            </IconButton>
+            <IconButton
+              className={`.MuiAutocomplete-endAdornment ${styles.clearButton}`}
+              onClick={() => handleClear()}
+              icon={<Icon type="Cancel" />}
+            />
           </div>
         </div>
         {groupedOptions.length > 0 && (

@@ -186,9 +186,8 @@ const ServerTable = ({ selectedCard }: Props) => {
               className={styles.iconButton}
               sx={{ marginRight: 1.5 }}
               onClick={handleRefreshServerInfo}
-            >
-              <Icon type="Sync" />
-            </IconButton>
+              icon={<Icon type="Sync" />}
+            />
           )}
 
           {serverInfo.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}

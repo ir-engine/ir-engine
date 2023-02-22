@@ -140,11 +140,10 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
                 {selfUserPermission === 'owner' && selfUser.id.value !== permission.userId && (
                   <IconButton
                     className={styles.iconButton}
-                    aria-label="Remove Access"
+                    title="Remove Access"
                     onClick={() => handleRemovePermission(permission.id)}
-                  >
-                    <Icon type="HighlightOff" />
-                  </IconButton>
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 )}
               </ListItem>
             ))}

@@ -69,9 +69,8 @@ const Resources = () => {
               aria-controls={openMenu ? 'resources-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={openMenu ? 'true' : undefined}
-            >
-              <Icon type="FilterList" color="info" fontSize="large" />
-            </IconButton>
+              icon={<Icon type="FilterList" color="info" fontSize="large" />}
+            />
           </Box>
         </Grid>
       </Grid>

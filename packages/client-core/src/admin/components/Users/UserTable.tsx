@@ -91,37 +91,27 @@ const UserTable = ({ className, search }: UserProps) => {
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           {discordIp && (
             <Tooltip title={discordIp.accountIdentifier!} arrow>
-              <span>
-                <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {googleIp && (
             <Tooltip title={googleIp.accountIdentifier!} arrow>
-              <span>
-                <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {facebookIp && (
             <Tooltip title={facebookIp.accountIdentifier!} arrow>
-              <span>
-                <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {twitterIp && (
             <Tooltip title={twitterIp.accountIdentifier!} arrow>
-              <span>
-                <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {linkedinIp && (
             <Tooltip title={linkedinIp.accountIdentifier!} arrow>
-              <span>
-                <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {githubIp && (

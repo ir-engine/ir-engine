@@ -163,9 +163,8 @@ const Setting = () => {
                   position: 'absolute',
                   right: '10px'
                 }}
-              >
-                <Icon type="Close" />
-              </IconButton>
+                icon={<Icon type="Close" />}
+              />
             </Grid>
             <Sidebar
               selected={selectedItem}

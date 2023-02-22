@@ -391,9 +391,8 @@ export const InstanceChat = ({
                         onClick={packageMessage}
                         className={styles.sendButton}
                         focusRipple={false}
-                      >
-                        <Icon type="Send" fontSize="small" />
-                      </IconButton>
+                        icon={<Icon type="Send" fontSize="small" />}
+                      />
                     )
                   }}
                 />

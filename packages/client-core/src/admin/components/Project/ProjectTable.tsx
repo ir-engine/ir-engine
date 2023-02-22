@@ -250,17 +250,12 @@ const ProjectTable = ({ className }: Props) => {
               name="update"
               disabled={el.repositoryPath === null}
               onClick={() => handleOpenProjectDrawer(el)}
-            >
-              <Icon type="Download" />
-            </IconButton>
+              icon={<Icon type="Download" />}
+            />
           )}
           {isAdmin && name === 'default-project' && (
             <Tooltip title={t('admin:components.project.defaultProjectUpdateTooltip')} arrow>
-              <span>
-                <IconButton className={styles.iconButton} name="update" disabled={true}>
-                  <Icon type="Download" />
-                </IconButton>
-              </span>
+              <IconButton className={styles.iconButton} name="update" disabled={true} icon={<Icon type="Download" />} />
             </Tooltip>
           )}
         </>
@@ -273,9 +268,8 @@ const ProjectTable = ({ className }: Props) => {
               name="update"
               disabled={!el.hasWriteAccess || !el.repositoryPath}
               onClick={() => openPushConfirmation(el)}
-            >
-              <Icon type="Upload" />
-            </IconButton>
+              icon={<Icon type="Upload" />}
+            />
           )}
         </>
       ),
@@ -286,9 +280,8 @@ const ProjectTable = ({ className }: Props) => {
             name="update"
             disabled={name === 'default-project'}
             onClick={() => handleOpenProjectDrawer(el, true)}
-          >
-            <Icon type={!el.repositoryPath ? 'LinkOff' : 'Link'} />
-          </IconButton>
+            icon={<Icon type={!el.repositoryPath ? 'LinkOff' : 'Link'} />}
+          />
         </>
       ),
       projectPermissions: (
@@ -298,36 +291,44 @@ const ProjectTable = ({ className }: Props) => {
               className={styles.iconButton}
               name="editProjectPermissions"
               onClick={() => handleOpenUserPermissionDrawer(el)}
-            >
-              <Icon type="Group" />
-            </IconButton>
+              icon={<Icon type="Group" />}
+            />
           )}
         </>
       ),
       invalidate: (
         <>
           {isAdmin && (
-            <IconButton className={styles.iconButton} name="invalidate" onClick={() => openInvalidateConfirmation(el)}>
-              <Icon type="CleaningServices" />
-            </IconButton>
+            <IconButton
+              className={styles.iconButton}
+              name="invalidate"
+              onClick={() => openInvalidateConfirmation(el)}
+              icon={<Icon type="CleaningServices" />}
+            />
           )}
         </>
       ),
       view: (
         <>
           {isAdmin && (
-            <IconButton className={styles.iconButton} name="view" onClick={() => openViewProject(el)}>
-              <Icon type="Visibility" />
-            </IconButton>
+            <IconButton
+              className={styles.iconButton}
+              name="view"
+              onClick={() => openViewProject(el)}
+              icon={<Icon type="Visibility" />}
+            />
           )}
         </>
       ),
       action: (
         <>
           {isAdmin && (
-            <IconButton className={styles.iconButton} name="remove" onClick={() => openRemoveConfirmation(el)}>
-              <Icon type="Cancel" />
-            </IconButton>
+            <IconButton
+              className={styles.iconButton}
+              name="remove"
+              onClick={() => openRemoveConfirmation(el)}
+              icon={<Icon type="Cancel" />}
+            />
           )}
         </>
       )

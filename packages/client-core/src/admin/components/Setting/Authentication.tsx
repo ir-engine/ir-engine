@@ -291,12 +291,15 @@ const Account = () => {
                 value={keySecret?.discord?.key || ''}
                 type={showPassword.discord.key ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('discord-key')}>
-                    <Icon
-                      icon={showPassword.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('discord-key')}
+                    icon={
+                      <Icon
+                        icon={showPassword.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
               />
@@ -307,12 +310,15 @@ const Account = () => {
                 value={keySecret?.discord?.secret || ''}
                 type={showPassword.discord.secret ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('discord-secret')}>
-                    <Icon
-                      icon={showPassword.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('discord-secret')}
+                    icon={
+                      <Icon
+                        icon={showPassword.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
               />
@@ -335,12 +341,15 @@ const Account = () => {
                 value={keySecret?.facebook?.key || ''}
                 type={showPassword.facebook.key ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('facebook-key')}>
-                    <Icon
-                      icon={showPassword.facebook.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('facebook-key')}
+                    icon={
+                      <Icon
+                        icon={showPassword.facebook.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
               />
@@ -351,12 +360,15 @@ const Account = () => {
                 value={keySecret?.facebook?.secret || ''}
                 type={showPassword.facebook.secret ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('facebook-secret')}>
-                    <Icon
-                      icon={showPassword.facebook.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('facebook-secret')}
+                    icon={
+                      <Icon
+                        icon={showPassword.facebook.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
               />
@@ -379,12 +391,15 @@ const Account = () => {
                 value={keySecret?.github?.appid || ''}
                 type={showPassword.github.appid ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('github-appid')}>
-                    <Icon
-                      icon={showPassword.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('github-appid')}
+                    icon={
+                      <Icon
+                        icon={showPassword.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
               />
@@ -395,12 +410,15 @@ const Account = () => {
                 value={keySecret?.github?.key || ''}
                 type={showPassword.github.key ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('github-key')}>
-                    <Icon
-                      icon={showPassword.github.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('github-key')}
+                    icon={
+                      <Icon
+                        icon={showPassword.github.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
               />
@@ -411,12 +429,15 @@ const Account = () => {
                 value={keySecret?.github?.secret || ''}
                 type={showPassword.github.secret ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('github-secret')}>
-                    <Icon
-                      icon={showPassword.github.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('github-secret')}
+                    icon={
+                      <Icon
+                        icon={showPassword.github.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
               />
@@ -448,12 +469,15 @@ const Account = () => {
             type={showPassword.password.secret ? 'text' : 'password'}
             disabled
             endAdornment={
-              <IconButton onClick={() => handleShowPassword('password-secret')}>
-                <Icon
-                  icon={showPassword.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                  color="orange"
-                />
-              </IconButton>
+              <IconButton
+                onClick={() => handleShowPassword('password-secret')}
+                icon={
+                  <Icon
+                    icon={showPassword.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                    color="orange"
+                  />
+                }
+              />
             }
           />
           {holdAuth?.google && (
@@ -466,12 +490,15 @@ const Account = () => {
                 value={keySecret?.google?.key || ''}
                 type={showPassword.google.key ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('google-key')}>
-                    <Icon
-                      icon={showPassword.google.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('google-key')}
+                    icon={
+                      <Icon
+                        icon={showPassword.google.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
               />
@@ -482,12 +509,15 @@ const Account = () => {
                 value={keySecret?.google?.secret || ''}
                 type={showPassword.google.secret ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('google-secret')}>
-                    <Icon
-                      icon={showPassword.google.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('google-secret')}
+                    icon={
+                      <Icon
+                        icon={showPassword.google.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
               />
@@ -510,12 +540,15 @@ const Account = () => {
                 value={keySecret?.linkedin?.key || ''}
                 type={showPassword.linkedin.key ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('linkedin-key')}>
-                    <Icon
-                      icon={showPassword.linkedin.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('linkedin-key')}
+                    icon={
+                      <Icon
+                        icon={showPassword.linkedin.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.LINKEDIN)}
               />
@@ -526,12 +559,15 @@ const Account = () => {
                 value={keySecret?.linkedin?.secret || ''}
                 type={showPassword.linkedin.secret ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('linkedin-secret')}>
-                    <Icon
-                      icon={showPassword.linkedin.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('linkedin-secret')}
+                    icon={
+                      <Icon
+                        icon={showPassword.linkedin.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
               />
@@ -554,12 +590,15 @@ const Account = () => {
                 value={keySecret?.twitter?.key || ''}
                 type={showPassword.twitter.key ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('twitter-key')}>
-                    <Icon
-                      icon={showPassword.twitter.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('twitter-key')}
+                    icon={
+                      <Icon
+                        icon={showPassword.twitter.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
               />
@@ -570,12 +609,15 @@ const Account = () => {
                 value={keySecret?.twitter?.secret || ''}
                 type={showPassword.twitter.secret ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton onClick={() => handleShowPassword('twitter-secret')}>
-                    <Icon
-                      icon={showPassword.twitter.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
+                  <IconButton
+                    onClick={() => handleShowPassword('twitter-secret')}
+                    icon={
+                      <Icon
+                        icon={showPassword.twitter.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    }
+                  />
                 }
                 onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
               />

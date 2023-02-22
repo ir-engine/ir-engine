@@ -108,9 +108,8 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
             name="update"
             disabled={el.logs == null || el.logs?.length === 0}
             onClick={() => handleOpenLogsModal(el)}
-          >
-            <Icon type="TextSnippet" />
-          </IconButton>
+            icon={<Icon type="TextSnippet" />}
+          />
         </>
       )
     }

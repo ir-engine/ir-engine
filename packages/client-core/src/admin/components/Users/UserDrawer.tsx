@@ -268,9 +268,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {discordIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.discord')} arrow>
-                  <span>
-                    <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {discordIp.accountIdentifier!}
@@ -280,9 +278,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {googleIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.google')} arrow>
-                  <span>
-                    <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {googleIp.accountIdentifier!}
@@ -292,9 +288,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {facebookIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.facebook')} arrow>
-                  <span>
-                    <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {facebookIp.accountIdentifier!}
@@ -316,9 +310,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {linkedinIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.linkedIn')} arrow>
-                  <span>
-                    <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {linkedinIp.accountIdentifier!}

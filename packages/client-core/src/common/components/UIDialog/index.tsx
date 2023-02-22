@@ -32,9 +32,13 @@ const UIDialog = (): JSX.Element => {
     <Dialog open={isOpened.value} onClose={handleClose} aria-labelledby="xr-dialog" color="background">
       <DialogTitle className={styles.dialogTitle}>
         <Typography variant="h6">{(content && content?.value?.title) ?? ''}</Typography>
-        <IconButton aria-label="close" className={styles.dialogCloseButton} onClick={handleClose} size="large">
-          <Icon type="Close" />
-        </IconButton>
+        <IconButton
+          aria-label="close"
+          className={styles.dialogCloseButton}
+          onClick={handleClose}
+          size="large"
+          icon={<Icon type="Close" />}
+        />
       </DialogTitle>
       <DialogContent className={styles.dialogContent}>{content && content?.value?.children}</DialogContent>
     </Dialog>

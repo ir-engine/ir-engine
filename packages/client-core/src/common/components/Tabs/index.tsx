@@ -27,7 +27,13 @@ const Tabs = ({ className, items, value, sx, onChange }: Props) => {
       onChange={(_e, value) => onChange && onChange(value)}
     >
       {items?.map((item) => (
-        <Tab value={item.value} label={item.label} onPointerUp={handleSoundEffect} onPointerEnter={handleSoundEffect} />
+        <Tab
+          key={`${item.value}-${item.label}`}
+          value={item.value}
+          label={item.label}
+          onPointerUp={handleSoundEffect}
+          onPointerEnter={handleSoundEffect}
+        />
       ))}
     </MUITabs>
   )

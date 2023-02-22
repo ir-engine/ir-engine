@@ -53,9 +53,13 @@ const BuildStatusLogsModal = ({ open, onClose, buildStatus }: Props) => {
         >
           <div className={styles.modalHeader}>
             <div className={styles['title']}>{title}</div>
-            <IconButton aria-label="close" className={styles.closeButton} onClick={onClose} size="large">
-              <Icon type="Close" />
-            </IconButton>
+            <IconButton
+              title="close"
+              className={styles.closeButton}
+              onClick={onClose}
+              size="large"
+              icon={<Icon type="Close" />}
+            />
           </div>
           <pre className={styles['modal-body']}>{buildStatus.logs}</pre>
         </div>

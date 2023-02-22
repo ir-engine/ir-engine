@@ -414,9 +414,11 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                     onBlur={handleChangeSourceRepo}
                   />
                   <Tooltip title="Copy From Destination">
-                    <IconButton className={styles.gradientButton} onClick={copyDestination}>
-                      <Icon type="Difference" />
-                    </IconButton>
+                    <IconButton
+                      className={styles.gradientButton}
+                      onClick={copyDestination}
+                      icon={<Icon type="Difference" />}
+                    />
                   </Tooltip>
                 </div>
               ) : (

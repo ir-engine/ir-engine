@@ -205,9 +205,10 @@ const CreateBot = () => {
             menu={locationMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations}>
-                <Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />
-              </IconButton>
+              <IconButton
+                onClick={fetchAdminLocations}
+                icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
+              />
             }
           />
 
@@ -219,9 +220,10 @@ const CreateBot = () => {
             menu={instanceMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances}>
-                <Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />
-              </IconButton>
+              <IconButton
+                onClick={fetchAdminInstances}
+                icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
+              />
             }
           />
 

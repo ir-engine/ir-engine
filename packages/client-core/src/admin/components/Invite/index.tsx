@@ -119,9 +119,8 @@ const InvitesConsole = () => {
                   size="small"
                   title={t('admin:components.invite.deleteSelected')}
                   onClick={() => setDeleteMultiInviteModalOpen(true)}
-                >
-                  <Icon type="Delete" color="info" fontSize="large" />
-                </IconButton>
+                  icon={<Icon type="Delete" color="info" fontSize="large" />}
+                />
               )}
             </Box>
           </Grid>

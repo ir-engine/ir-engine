@@ -94,9 +94,8 @@ const WarningRetryModal = ({
                 className={styles.closeButton}
                 onClick={handleCloseButtonClick}
                 size="large"
-              >
-                <Icon type="Close" />
-              </IconButton>
+                icon={<Icon type="Close" />}
+              />
             </div>
             <div className={styles['modal-body']}>
               {body}

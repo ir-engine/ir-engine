@@ -78,9 +78,8 @@ const Avatar = () => {
                 size="small"
                 title={t('admin:components.avatar.deleteSelected')}
                 onClick={() => setOpenDeleteAvatarModal(true)}
-              >
-                <Icon type="Delete" color="info" fontSize="large" />
-              </IconButton>
+                icon={<Icon type="Delete" color="info" fontSize="large" />}
+              />
             )}
           </Box>
         </Grid>

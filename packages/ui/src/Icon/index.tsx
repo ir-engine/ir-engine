@@ -22,6 +22,8 @@ import {
   ChatBubble,
   Check,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
   CleaningServices,
   Clear,
   Close,
@@ -35,6 +37,7 @@ import {
   Delete,
   Difference,
   DirectionsRun,
+  Download,
   Edit,
   Email,
   ErrorOutline,
@@ -94,6 +97,7 @@ import {
   RecordVoiceOver,
   Refresh,
   Report,
+  Save,
   ScreenShare,
   ScreenshotMonitor,
   Search,
@@ -106,6 +110,7 @@ import {
   Storage,
   SupervisorAccount,
   SurroundSound,
+  Sync,
   SystemUpdateAlt,
   TextSnippet,
   ThumbUp,
@@ -137,6 +142,16 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <CrisisAlert {...props} />
     case 'default':
       return <ThumbUp {...props} />
+    case 'Save':
+      return <Save {...props} />
+    case 'Sync':
+      return <Sync {...props} />
+    case 'Download':
+      return <Download {...props} />
+    case 'ChevronLeft':
+      return <ChevronLeft {...props} />
+    case 'ChevronRight':
+      return <ChevronRight {...props} />
     case 'CrisisAlert':
       return <CrisisAlert {...props} />
     case 'Delete':

@@ -1,4 +1,4 @@
 node_modules/
 
 *.snap
-/tests/jest-test-results.json
+tests/jest-test-results.json

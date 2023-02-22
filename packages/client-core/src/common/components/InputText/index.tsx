@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import Box from '@xrengine/ui/src/Box'
 import FormControl from '@xrengine/ui/src/FormControl'
 import FormHelperText from '@xrengine/ui/src/FormHelperText'
+import IconButton from '@xrengine/ui/src/IconButton'
 import InputLabel from '@xrengine/ui/src/InputLabel'
 import OutlinedInput from '@xrengine/ui/src/OutlinedInput'
 
@@ -103,7 +103,6 @@ const InputText = ({
           <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
           <OutlinedInput
-            ref={ref}
             disabled={disabled}
             error={!!error}
             fullWidth

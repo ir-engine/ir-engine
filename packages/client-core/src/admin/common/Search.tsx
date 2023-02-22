@@ -24,7 +24,7 @@ const Search = ({ text, sx, handleChange }: Props) => {
         inputProps={{ 'aria-label': 'search for location ' }}
         onChange={(e) => handleChange(e)}
       />
-      <IconButton className={styles.iconButton} title="search" size="large" icon={<Icon type="search" />} />
+      <IconButton className={styles.iconButton} title="search" size="large" icon={<Icon type="Search" />} />
     </Paper>
   )
 }

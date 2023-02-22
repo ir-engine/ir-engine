@@ -55,7 +55,7 @@ const Dashboard = ({ children }) => {
   }
 
   return (
-    <div>
+    <div style={{ pointerEvents: 'auto' }}>
       <AppBar position="fixed" className={styles.appBar}>
         <nav className={styles.navbar}>
           <div className={styles.navContainer}>
@@ -68,16 +68,22 @@ const Dashboard = ({ children }) => {
                 [styles.hide]: open
               })}
               size="large"
-            >
-              <Icon type="Menu" />
-            </IconButton>
+              icon={<Icon type="Menu" />}
+            />
             <div className={styles.appBarHeadingContainer}>
               <Typography variant="h6">Dashboard</Typography>
 
-              <IconButton onClick={handleClick} className={styles.profileButton} disableRipple>
-                <span>{user.name.value}</span>
-                <Icon type="Person" />
-              </IconButton>
+              <IconButton
+                onClick={handleClick}
+                className={styles.profileButton}
+                disableRipple
+                icon={
+                  <>
+                    <span>{user.name.value}</span>
+                    <Icon type="Person" />
+                  </>
+                }
+              />
               {profileMenuOpen && (
                 <>
                   <div className={styles.backdrop}></div>
@@ -129,9 +135,12 @@ const Dashboard = ({ children }) => {
         onClose={handleDrawerOpen(false)}
       >
         <div className={styles.toolbar}>
-          <IconButton onClick={handleDrawerOpen(false)} style={{ color: 'var(--iconButtonColor)' }} size="large">
-            <Icon type={theme.direction === 'rtl' ? 'ChevronRight' : 'ChevronLeft'} />
-          </IconButton>
+          <IconButton
+            onClick={handleDrawerOpen(false)}
+            style={{ color: 'var(--iconButtonColor)' }}
+            size="large"
+            icon={<Icon type={theme.direction === 'rtl' ? 'ChevronRight' : 'ChevronLeft'} />}
+          />
         </div>
         <DashboardMenuItem />
       </Drawer>

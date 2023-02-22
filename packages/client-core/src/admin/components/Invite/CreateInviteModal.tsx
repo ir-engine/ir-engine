@@ -288,9 +288,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     size="small"
                     className={styles.clearTime}
                     onClick={() => setStartTime(null)}
-                  >
-                    <Icon type="HighlightOff" />
-                  </IconButton>
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 </div>
                 <div className={styles.pickerControls}>
                   <DateTimePicker
@@ -304,9 +303,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     size="small"
                     className={styles.clearTime}
                     onClick={() => setEndTime(null)}
-                  >
-                    <Icon type="HighlightOff" />
-                  </IconButton>
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 </div>
               </LocalizationProvider>
             </div>

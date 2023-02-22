@@ -8,7 +8,6 @@ import Avatar from '@xrengine/client-core/src/common/components/Avatar'
 import Button from '@xrengine/client-core/src/common/components/Button'
 import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import { DiscordIcon } from '@xrengine/client-core/src/common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '@xrengine/client-core/src/common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '@xrengine/client-core/src/common/components/Icons/GoogleIcon'
@@ -25,6 +24,7 @@ import { getState } from '@xrengine/hyperflux'
 import Box from '@xrengine/ui/src/Box'
 import CircularProgress from '@xrengine/ui/src/CircularProgress'
 import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import { useAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
@@ -391,7 +391,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
               sizePx={80}
               icon={
                 <Icon
-                  type="settings"
+                  type="Settings"
                   sx={{
                     display: 'block',
                     width: '100%',

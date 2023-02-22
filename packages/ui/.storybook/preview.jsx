@@ -21,23 +21,23 @@ import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 
 import { theme as defaultTheme, useTheme } from '@xrengine/client-core/src/theme'
 
-const providerFn = ({ theme, children }) => {
-  const compliledTheme = useTheme(theme)
-  return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        {children}
-      </ThemeProvider>
-    </StyledEngineProvider>
-  )
-}
+// const providerFn = ({ theme, children }) => {
+//   const compliledTheme = useTheme(theme)
+//   return (
+//     <StyledEngineProvider injectFirst>
+//       <ThemeProvider theme={theme}>
+//         <GlobalStyle />
+//         {children}
+//       </ThemeProvider>
+//     </StyledEngineProvider>
+//   )
+// }
 
 
 export const decorators = [
   withRouter,
   withTests({ results }),
-  withThemes(null, [defaultTheme], { providerFn })
+  // withThemes(null, [defaultTheme], { providerFn })
 ]
 
 export const parameters = {

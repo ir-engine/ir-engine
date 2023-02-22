@@ -72,9 +72,8 @@ export const PasswordLoginApp = (): JSX.Element => {
                       onMouseDown={handleMouseDownPassword}
                       color="secondary"
                       size="large"
-                    >
-                      <Icon type={showPassword ? 'Visibility' : 'VisibilityOff'} />
-                    </IconButton>
+                      icon={<Icon type={showPassword ? 'Visibility' : 'VisibilityOff'} />}
+                    />
                   </InputAdornment>
                 }
               />

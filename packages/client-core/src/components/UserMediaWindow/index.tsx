@@ -678,9 +678,8 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                       [styles.mediaOn]: !videoStreamPaused
                     })}
                     onClick={toggleVideo}
-                  >
-                    <Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />
-                  </IconButton>
+                    icon={<Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />}
+                  />
                 </Tooltip>
               ) : null}
               {enableGlobalMute && !isSelf && audioStream && (
@@ -699,9 +698,8 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                       [styles.mediaOn]: !audioProducerGlobalMute
                     })}
                     onClick={toggleGlobalMute}
-                  >
-                    <Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />
-                  </IconButton>
+                    icon={<Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />}
+                  />
                 </Tooltip>
               )}
               {audioStream && !audioProducerPaused ? (
@@ -724,19 +722,14 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                       [styles.mediaOn]: !audioStreamPaused
                     })}
                     onClick={toggleAudio}
-                  >
-                    {isSelf ? (
-                      audioStreamPaused ? (
-                        <Icon type="MicOff" />
-                      ) : (
-                        <Icon type="Mic" />
-                      )
-                    ) : audioStreamPaused ? (
-                      <Icon type="VolumeOff" />
-                    ) : (
-                      <Icon type="VolumeUp" />
-                    )}
-                  </IconButton>
+                    icon={
+                      <Icon
+                        type={
+                          isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'
+                        }
+                      />
+                    }
+                  />
                 </Tooltip>
               ) : null}
               <Tooltip title={t('user:person.openPictureInPicture') as string}>
@@ -748,9 +741,8 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                     e.stopPropagation()
                     togglePiP()
                   }}
-                >
-                  <Icon type="Launch" className={styles.pipBtn} />
-                </IconButton>
+                  icon={<Icon type="Launch" className={styles.pipBtn} />}
+                />
               </Tooltip>
             </div>
             {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}

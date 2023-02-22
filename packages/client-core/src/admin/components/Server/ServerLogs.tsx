@@ -142,9 +142,8 @@ const ServerLogs = () => {
           title={t('admin:components.server.download')}
           className={styles.iconButton}
           onClick={handleDownloadServerLogs}
-        >
-          <Icon type="Download" />
-        </IconButton>
+          icon={<Icon type="Download" />}
+        />
 
         {serverLogs.value.retrieving === false && (
           <IconButton
@@ -152,9 +151,8 @@ const ServerLogs = () => {
             className={styles.iconButton}
             sx={{ marginRight: 1.5 }}
             onClick={handleRefreshServerLogs}
-          >
-            <Icon type="Sync" />
-          </IconButton>
+            icon={<Icon type="Sync" />}
+          />
         )}
 
         {serverLogs.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
@@ -172,9 +170,8 @@ const ServerLogs = () => {
           title={t('admin:components.common.close')}
           className={styles.iconButton}
           onClick={handleCloseServerLogs}
-        >
-          <Icon type="Close" />
-        </IconButton>
+          icon={<Icon type="Close" />}
+        />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
         <pre style={{ fontSize: '14px' }}>{serverLogs.value.logs}</pre>

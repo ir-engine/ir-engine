@@ -223,9 +223,7 @@ const ThemePlayground = () => {
                   <img className="panelCardImage" />
                   <div className="textSubheading">
                     <label className="text">Subheading</label>
-                    <IconButton className="panelCardIcon">
-                      <Icon type="Setting" />
-                    </IconButton>
+                    <IconButton className="panelCardIcon" icon={<Icon type="Setting" />} />
                   </div>
                   <div className="textDescription">This is my description</div>
                 </Box>
@@ -233,9 +231,7 @@ const ThemePlayground = () => {
                   <img className="panelCardImage" />
                   <div className="textSubheading">
                     <label className="text">Subheading</label>
-                    <IconButton className="panelCardIcon">
-                      <Icon type="Setting" />
-                    </IconButton>
+                    <IconButton className="panelCardIcon" icon={<Icon type="Setting" />} />
                   </div>
                   <div className="textDescription">This is my description</div>
                 </Box>
@@ -243,9 +239,7 @@ const ThemePlayground = () => {
                   <img className="panelCardImage" />
                   <div className="textSubheading">
                     <label className="text">Subheading</label>
-                    <IconButton className="panelCardIcon">
-                      <Icon type="Setting" />
-                    </IconButton>
+                    <IconButton className="panelCardIcon" icon={<Icon type="Setting" />} />
                   </div>
                   <div className="textDescription">This is my description</div>
                 </Box>
@@ -253,9 +247,7 @@ const ThemePlayground = () => {
                   <img className="panelCardImage" />
                   <div className="textSubheading">
                     <label className="text">Subheading</label>
-                    <IconButton className="panelCardIcon">
-                      <Icon type="Setting" />
-                    </IconButton>
+                    <IconButton className="panelCardIcon" icon={<Icon type="Setting" />} />
                   </div>
                   <div className="textDescription">This is my description</div>
                 </Box>
@@ -266,13 +258,9 @@ const ThemePlayground = () => {
               <div className="buttonContainer">
                 <div className="iconButtonContainer">
                   <label className="textSubheading">Unselected Button:</label>
-                  <IconButton className="iconButton">
-                    <Icon type="Setting" />
-                  </IconButton>
+                  <IconButton className="iconButton" icon={<Icon type="Setting" />} />
                   <label className="textSubheading">Selected Button:</label>
-                  <IconButton className="iconButtonSelected">
-                    <Icon type="Setting" />
-                  </IconButton>
+                  <IconButton className="iconButtonSelected" icon={<Icon type="Setting" />} />
                 </div>
                 <label className="textSubheading">Outlined Button:</label>
                 <Button variant="outlined" className="outlinedButton">
@@ -291,9 +279,7 @@ const ThemePlayground = () => {
               <div className="textHeading">Dropdown</div>
               <div className="buttonContainer">
                 <label className="textSubheading">Menu Icon Dropdown:</label>
-                <IconButton className="iconButton" onClick={openMenu}>
-                  <Icon type="Menu" />
-                </IconButton>
+                <IconButton className="iconButton" onClick={openMenu} icon={<Icon type="Menu" />} />
                 <Menu
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}

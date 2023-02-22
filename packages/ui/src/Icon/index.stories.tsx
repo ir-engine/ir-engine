@@ -131,7 +131,12 @@ const argTypes = {
       'VolumeOff',
       'VolumeUp',
       'WarningAmber',
-      'ZoomOutMap'
+      'ZoomOutMap',
+      'ChevronLeft',
+      'ChevronRight',
+      'Sync',
+      'Download',
+      'Save'
     ]
   }
 }

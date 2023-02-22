@@ -234,9 +234,8 @@ const Client = () => {
                   title={t('admin:components.common.delete')}
                   className={styles.iconButton}
                   onClick={() => handleRemoveSocialLinks(index)}
-                >
-                  <Icon type="Delete" />
-                </IconButton>
+                  icon={<Icon type="Delete" />}
+                />
               </Box>
             ))}
           <Button variant="contained" onClick={handleAddSocialLinks}>

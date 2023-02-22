@@ -78,9 +78,12 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
           <div className={styles['mute-controls']}>
             {videoStream && !videoProducerPaused ? (
               <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
-                <IconButton size="small" className={styles['icon-button']} onClick={toggleVideo}>
-                  <Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />
-                </IconButton>
+                <IconButton
+                  size="small"
+                  className={styles['icon-button']}
+                  onClick={toggleVideo}
+                  icon={<Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />}
+                />
               </Tooltip>
             ) : null}
             {enableGlobalMute && !isSelf && audioStream && (
@@ -91,9 +94,12 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
                     : (t('user:person.unmuteForEveryone') as string)
                 }
               >
-                <IconButton size="small" className={styles['icon-button']} onClick={toggleGlobalMute}>
-                  <Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />
-                </IconButton>
+                <IconButton
+                  size="small"
+                  className={styles['icon-button']}
+                  onClick={toggleGlobalMute}
+                  icon={<Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />}
+                />
               </Tooltip>
             )}
             {audioStream && !audioProducerPaused ? (
@@ -108,19 +114,18 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
                     : t('user:person.unmuteThisPerson')) as string
                 }
               >
-                <IconButton size="small" className={styles['icon-button']} onClick={toggleAudio}>
-                  {isSelf ? (
-                    audioStreamPaused ? (
-                      <Icon type="MicOff" />
-                    ) : (
-                      <Icon type="Mic" />
-                    )
-                  ) : audioStreamPaused ? (
-                    <Icon type="VolumeOff" />
-                  ) : (
-                    <Icon type="VolumeUp" />
-                  )}
-                </IconButton>
+                <IconButton
+                  size="small"
+                  className={styles['icon-button']}
+                  onClick={toggleAudio}
+                  icon={
+                    <Icon
+                      type={
+                        isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'
+                      }
+                    />
+                  }
+                />
               </Tooltip>
             ) : null}
           </div>

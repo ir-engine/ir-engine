@@ -142,9 +142,12 @@ const Email = () => {
             value={auth?.pass || ''}
             type={showPassword ? 'text' : 'password'}
             endAdornment={
-              <IconButton onClick={() => setShowPassword(!showPassword)}>
-                <Icon icon={showPassword ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'} color="orange" />
-              </IconButton>
+              <IconButton
+                onClick={() => setShowPassword(!showPassword)}
+                icon={
+                  <Icon icon={showPassword ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'} color="orange" />
+                }
+              />
             }
             onChange={(e) => handleUpdateAuth(e, 'pass')}
           />

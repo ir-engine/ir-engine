@@ -131,9 +131,11 @@ const DisplayBots = () => {
                   </Grid>
                   <Grid item xs={4} style={{ display: 'flex' }}>
                     <div style={{ marginLeft: 'auto' }}>
-                      <IconButton onClick={() => handleOpenUpdateBot(bot)} size="large">
-                        <Icon type="Edit" style={{ color: 'var(--iconButtonColor)' }} />
-                      </IconButton>
+                      <IconButton
+                        onClick={() => handleOpenUpdateBot(bot)}
+                        size="large"
+                        icon={<Icon type="Edit" style={{ color: 'var(--iconButtonColor)' }} />}
+                      />
                       <IconButton
                         onClick={() => {
                           setBotId(bot.id)
@@ -141,9 +143,8 @@ const DisplayBots = () => {
                           setOpenConfirm(true)
                         }}
                         size="large"
-                      >
-                        <Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />
-                      </IconButton>
+                        icon={<Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />}
+                      />
                     </div>
                   </Grid>
                 </Grid>
