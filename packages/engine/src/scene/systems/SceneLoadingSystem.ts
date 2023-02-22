@@ -355,7 +355,6 @@ export default async function SceneLoadingSystem(world: World) {
         progress: promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * currentLoaded) / totalAssetSize)
       })
     )
-    console.log(currentLoaded)
   }
 
   const execute = () => {
