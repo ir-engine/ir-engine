@@ -80,7 +80,7 @@ const InputText = ({
         input = child
       }
     }
-    // if (input) input.setSelectionRange(cursor, cursor)
+    if (input && cursor) input.setSelectionRange(cursor, cursor)
   }, [ref, cursor, value])
 
   const handleChange = (e) => {
