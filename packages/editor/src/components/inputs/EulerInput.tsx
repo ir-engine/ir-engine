@@ -1,12 +1,15 @@
-import { useHookstate } from '@hookstate/core'
+import { hookstate, useHookstate, useState } from '@hookstate/core'
 import React from 'react'
 import { MathUtils as _Math, Euler, Quaternion } from 'three'
+
+import { defineState } from '@xrengine/hyperflux'
 
 import NumericInput from './NumericInput'
 import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
 
 const { RAD2DEG, DEG2RAD } = _Math
 const _euler = new Euler()
+const _empty = Object.freeze(new Euler())
 
 /**
  * Type aliase created EulerInputProps.
@@ -20,20 +23,31 @@ type EulerInputProps = {
   unit?: string
 }
 
+//To be set by editor control functions
+export const eulerInput = hookstate(new Euler())
+
 /**
  * FileIEulerInputnput used to show EulerInput.
  *
  * @type {Object}
  */
 export const EulerInput = (props: EulerInputProps) => {
-  const newValue = useHookstate(new Euler())
-  _euler.setFromQuaternion(props.quaternion)
+  const newValueEuler = useHookstate(new Euler())
+  const e = useState(eulerInput)
+  if (e.value.x + e.value.y + e.value.z != 0) {
+    _euler.copy(e.value)
+  } else {
+    _euler.copy(newValueEuler.value)
+  }
+  e.value.copy(_empty)
 
   const onChange = (x: number, y: number, z: number) => {
-    const e = new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD)
-    newValue.set(e)
+    if (newValueEuler.value) _euler.copy(newValueEuler.value)
+    else _euler.setFromQuaternion(props.quaternion)
+
+    newValueEuler.set(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
     if (typeof props.onChange === 'function') {
-      props.onChange(newValue.value)
+      props.onChange(newValueEuler.value)
     }
   }
 

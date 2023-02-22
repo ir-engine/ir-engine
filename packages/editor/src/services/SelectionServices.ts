@@ -1,14 +1,25 @@
 import { useState } from '@hookstate/core'
+import { Euler } from 'three'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { hasComponent, removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@xrengine/hyperflux'
 
+import { eulerInput } from '../components/inputs/EulerInput'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
@@ -40,7 +51,7 @@ export const SelectionState = defineState({
 })
 
 export default function EditorSelectionReceptor(world: World): SystemDefintion {
-  const s = getState(SelectionState)
+  const selectionState = getState(SelectionState)
 
   const updateSelectionQueue = createActionQueue(SelectionAction.updateSelection.matches)
   const changedObjectQueue = createActionQueue(SelectionAction.changedObject.matches)
@@ -51,29 +62,31 @@ export default function EditorSelectionReceptor(world: World): SystemDefintion {
     for (const action of updateSelectionQueue()) {
       cancelGrabOrPlacement()
       /** update SelectTagComponent to only newly selected entities */
-      for (const entity of action.selectedEntities.concat(...s.selectedEntities.value)) {
+      for (const entity of action.selectedEntities.concat(...selectionState.selectedEntities.value)) {
         if (typeof entity === 'number') {
           const add = action.selectedEntities.includes(entity)
           if (add && !hasComponent(entity, SelectTagComponent)) setComponent(entity, SelectTagComponent)
           if (!add && hasComponent(entity, SelectTagComponent)) removeComponent(entity, SelectTagComponent)
+          if (add) eulerInput.set(new Euler().setFromQuaternion(getComponent(entity, LocalTransformComponent).rotation))
         }
       }
-      s.merge({
-        selectionCounter: s.selectionCounter.value + 1,
+      selectionState.merge({
+        selectionCounter: selectionState.selectionCounter.value + 1,
         selectedEntities: action.selectedEntities,
         selectedParentEntities: filterParentEntities(action.selectedEntities)
       })
       updateOutlinePassSelection()
     }
     for (const action of changedObjectQueue())
-      s.merge({
-        objectChangeCounter: s.objectChangeCounter.value + 1,
+      selectionState.merge({
+        objectChangeCounter: selectionState.objectChangeCounter.value + 1,
         propertyName: action.propertyName,
         transformPropertyChanged: transformProps.includes(action.propertyName)
       })
     for (const action of changedSceneGraphQueue())
-      s.merge({ sceneGraphChangeCounter: s.sceneGraphChangeCounter.value + 1 })
-    for (const action of forceUpdateQueue()) s.merge({ objectChangeCounter: s.objectChangeCounter.value + 1 })
+      selectionState.merge({ sceneGraphChangeCounter: selectionState.sceneGraphChangeCounter.value + 1 })
+    for (const action of forceUpdateQueue())
+      selectionState.merge({ objectChangeCounter: selectionState.objectChangeCounter.value + 1 })
   }
 
   const cleanup = async () => {

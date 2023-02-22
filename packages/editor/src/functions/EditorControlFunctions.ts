@@ -42,14 +42,16 @@ import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpda
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
-  TransformComponent
+  TransformComponent,
+  TransformComponentType
 } from '@xrengine/engine/src/transform/components/TransformComponent'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@xrengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { eulerInput } from '../components/inputs/EulerInput'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction, SelectionState } from '../services/SelectionServices'
@@ -331,6 +333,9 @@ const positionObject = (
     } else {
       const transform = getComponent(node.entity, TransformComponent)
       const localTransform = getOptionalComponent(node.entity, LocalTransformComponent) ?? transform
+      const targetComponent = hasComponent(node.entity, LocalTransformComponent)
+        ? LocalTransformComponent
+        : TransformComponent
 
       if (space === TransformSpace.Local) {
         if (addToPosition) localTransform.position.add(pos)
@@ -346,7 +351,9 @@ const positionObject = (
         const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
+
         localTransform.position.copy(tempVector)
+        updateComponent(node.entity, targetComponent, { position: localTransform.position })
       }
     }
   }
@@ -366,7 +373,6 @@ const rotateObject = (
     if (typeof node === 'string') {
       const obj3d = obj3dFromUuid(node)
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
-
       if (space === TransformSpace.Local) {
         obj3d.quaternion.copy(T_QUAT_1)
         obj3d.updateMatrix()
@@ -376,12 +382,14 @@ const rotateObject = (
 
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
-
         obj3d.quaternion.copy(newLocalQuaternion)
       }
     } else {
       const transform = getComponent(node.entity, TransformComponent)
       const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
+      const targetComponent = getComponent(node.entity, LocalTransformComponent)
+        ? TransformComponent
+        : LocalTransformComponent
 
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
@@ -395,7 +403,7 @@ const rotateObject = (
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
-        localTransform.rotation.copy(newLocalQuaternion)
+        updateComponent(node.entity, targetComponent, { rotation: newLocalQuaternion })
         computeLocalTransformMatrix(node.entity)
         computeTransformMatrix(node.entity)
       }
@@ -423,6 +431,9 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
       const transform = getComponent(node.entity, TransformComponent)
       const localTransform = getComponent(node.entity, LocalTransformComponent) || transform
       const parentTransform = node.parentEntity ? getComponent(node.parentEntity, TransformComponent) : transform
+      const targetComponent = hasComponent(node.entity, LocalTransformComponent)
+        ? LocalTransformComponent
+        : TransformComponent
 
       new Matrix4()
         .copy(transform.matrix)
@@ -431,6 +442,10 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
         .premultiply(originToPivotMatrix)
         .premultiply(parentTransform.matrixInverse)
         .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+
+      eulerInput.value.setFromQuaternion(localTransform.rotation)
+
+      updateComponent(node.entity, targetComponent, { rotation: localTransform.rotation })
     }
   }
 }
@@ -466,7 +481,7 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    setComponent((node as EntityTreeNode).entity, TransformComponent, { scale: transformComponent.scale })
+    updateComponent((node as EntityTreeNode).entity, LocalTransformComponent, { scale: transformComponent.scale })
   }
 }
 
