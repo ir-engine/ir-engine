@@ -42,6 +42,7 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
+
   const { t } = useTranslation()
   const colors = useHookstate({
     main: '',

@@ -47,9 +47,7 @@ export function EngineEventReceptor(a) {
     )
     .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
     .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
-    .when(EngineActions.sceneLoaded.matches, (action) =>
-      s.merge({ sceneLoading: false, sceneLoaded: true, loadingProgress: 100 })
-    )
+    .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoading: false, sceneLoaded: true }))
     .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
     .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
     .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
