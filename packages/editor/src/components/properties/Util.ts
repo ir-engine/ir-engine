@@ -56,8 +56,8 @@ export const updateProperties = <C extends Component>(
 }
 
 export function traverseScene<T>(
-  callback: (node: EntityOrObjectUUID) => T,
-  predicate: (node: EntityOrObjectUUID) => boolean = () => true,
+  callback: (node: Entity) => T,
+  predicate: (node: Entity) => boolean = () => true,
   snubChildren: boolean = false,
   world: World = Engine.instance.currentWorld
 ): T[] {
