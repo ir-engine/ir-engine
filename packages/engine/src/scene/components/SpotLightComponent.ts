@@ -29,7 +29,7 @@ export const SpotLightComponent = defineComponent({
       penumbra: 1,
       castShadow: false,
       shadowMapResolution: 256,
-      shadowBias: 0.5,
+      shadowBias: 0.00001,
       shadowRadius: 1,
       light,
       helper: null as Object3D | null,

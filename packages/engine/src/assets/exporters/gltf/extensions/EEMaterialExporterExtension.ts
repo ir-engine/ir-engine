@@ -5,6 +5,7 @@ import {
   materialToDefaultArgs
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
 import { getMaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
+import createReadableTexture from '../../../functions/createReadableTexture'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -32,9 +33,12 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       switch (v.type) {
         case 'texture':
           if (material[k]) {
+            if (k === 'envMap') return //for skipping environment maps which cause errors
             if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
-            const mapDef = { index: this.writer.processTexture(material[k]) }
-            this.writer.applyTextureTransform(mapDef, material[k])
+            let texture = material[k] as Texture
+            const mapDef = { index: this.writer.processTexture(texture) }
+            texture.repeat.y *= -1
+            this.writer.applyTextureTransform(mapDef, texture)
             result[k] = mapDef
           } else result[k] = material[k]
           break
@@ -53,7 +57,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       name: material.name,
       prototype:
         getMaterialLibrary().materials[material.uuid].value?.prototype ?? material.userData.type ?? material.type,
-      args: { ...result }
+      args: result
     }
     this.writer.extensionsUsed[this.name] = true
   }

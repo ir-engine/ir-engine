@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, withRouter } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import Divider from '@mui/material/Divider'
 import List from '@mui/material/List'
@@ -17,8 +17,8 @@ interface Props {
   location: any
 }
 
-const DashboardMenuItem = ({ location }: Props) => {
-  const { pathname } = location
+const DashboardMenuItem = () => {
+  const { pathname } = useLocation()
   const scopes = useAuthState().user?.scopes?.value || []
   const { t } = useTranslation()
 
@@ -58,8 +58,15 @@ const DashboardMenuItem = ({ location }: Props) => {
         {SidebarItems(allowedRoutes)
           .filter(Boolean)
           .map((sidebarItem, index) => {
+            const pieces = sidebarItem.path.split('/')
+            const lastPiece = pieces[pieces.length - 1]
             return (
-              <Link key={index} to={sidebarItem.path} className={styles.textLink} title={t(sidebarItem.name)}>
+              <Link
+                key={index}
+                to={lastPiece === 'admin' ? '/admin' : lastPiece}
+                className={styles.textLink}
+                title={t(sidebarItem.name)}
+              >
                 <ListItem
                   classes={{ selected: styles.selected }}
                   style={{ color: 'var(--iconButtonColor)' }}
@@ -77,4 +84,4 @@ const DashboardMenuItem = ({ location }: Props) => {
   )
 }
 
-export default withRouter(DashboardMenuItem)
+export default DashboardMenuItem

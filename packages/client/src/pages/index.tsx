@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import styles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
@@ -28,7 +28,7 @@ export const HomePage = (): any => {
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)
-    if (redirectParsed.protocol == null) return <Redirect to={ROOT_REDIRECT} />
+    if (redirectParsed.protocol == null) return <Navigate to={ROOT_REDIRECT} />
     else window.location.href = ROOT_REDIRECT
   } else
     return (
