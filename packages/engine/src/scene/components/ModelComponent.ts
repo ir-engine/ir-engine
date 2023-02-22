@@ -2,14 +2,18 @@ import { entityExists } from 'bitecs'
 import { useEffect } from 'react'
 import { Object3D, Scene } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../assets/classes/DependencyTree'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
+  getComponent,
   hasComponent,
   removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -72,6 +76,7 @@ function ModelReactor({ root }: EntityReactorProps) {
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
   const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
+
   // update src
   useEffect(() => {
     if (model.src === model.scene?.userData?.src) return
@@ -91,7 +96,6 @@ function ModelReactor({ root }: EntityReactorProps) {
         }
         if (!model.src) return
         if (!nodeMap.has(entity)) return
-
         const uuid = nodeMap.get(entity)!.uuid
         DependencyTree.add(uuid)
         let scene: Scene
@@ -140,6 +144,7 @@ function ModelReactor({ root }: EntityReactorProps) {
     setBoundingBoxComponent(entity)
     enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
     removeComponent(entity, SceneAssetPendingTagComponent)
+    console.log('loaded')
 
     return () => removeObjectFromGroup(entity, scene)
   }, [modelComponent.scene])

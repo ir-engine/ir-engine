@@ -1,11 +1,12 @@
 import { cloneDeep, merge } from 'lodash'
 import { MathUtils } from 'three'
+import { number } from 'ts-matches'
 
 import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import logger from '@xrengine/common/src/logger'
 import { setLocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState, NO_PROXY } from '@xrengine/hyperflux'
+import { dispatchAction, getState, hookstate, NO_PROXY } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -343,15 +344,18 @@ const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 export default async function SceneLoadingSystem(world: World) {
   let totalPendingAssets = 0
+  let totalAssetSize = 0
+  let currentLoaded = 0
+  const sizes = new Map<Entity, number>()
 
   const onComplete = (pendingAssets: number) => {
     const promisesCompleted = totalPendingAssets - pendingAssets
     dispatchAction(
       EngineActions.sceneLoadingProgress({
-        progress:
-          promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
+        progress: promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * currentLoaded) / totalAssetSize)
       })
     )
+    console.log(currentLoaded)
   }
 
   const execute = () => {
@@ -361,9 +365,18 @@ export default async function SceneLoadingSystem(world: World) {
 
     for (const entity of sceneAssetPendingTagQuery.enter()) {
       totalPendingAssets++
+      if (!getState(EngineState).sceneLoaded.value) {
+        fetch(getComponent(entity, ModelComponent).src, { method: 'HEAD' }).then((response) => {
+          const fileSize = parseInt(response.headers.get('content-length')!)
+          sizes.set(entity, fileSize)
+          totalAssetSize += fileSize
+        })
+      }
     }
 
     for (const entity of sceneAssetPendingTagQuery.exit()) {
+      currentLoaded += sizes.get(entity)!
+      sizes.delete(entity)
       onComplete(pendingAssets)
       if (pendingAssets === 0) {
         totalPendingAssets = 0
