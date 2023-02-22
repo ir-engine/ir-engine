@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { API } from '@xrengine/client-core/src/API'
 import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
@@ -24,7 +24,8 @@ import GizmoSystem from '../systems/GizmoSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
 import RenderSystem from '../systems/RenderSystem'
 
-export const EditorPage = (props: RouteComponentProps<{ sceneName: string; projectName: string }>) => {
+export const EditorPage = () => {
+  const params = useParams()
   const editorState = useEditorState()
   const projectState = useProjectState()
   const authState = useAuthState()
@@ -104,10 +105,10 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   }, [authUser.accessToken, user.id, isAuthenticated])
 
   useEffect(() => {
-    const { projectName, sceneName } = props.match.params
+    const { projectName, sceneName } = params
     dispatchAction(EditorAction.projectChanged({ projectName: projectName ?? null }))
     dispatchAction(EditorAction.sceneChanged({ sceneName: sceneName ?? null }))
-  }, [props.match.params.projectName, props.match.params.sceneName])
+  }, [params])
 
   useEffect(() => {
     if (clientInitialized || projectState.projects.value.length <= 0) return

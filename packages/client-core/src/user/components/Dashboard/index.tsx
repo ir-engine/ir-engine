@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
 import { Person } from '@mui/icons-material'
 import { Box, Popover } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
-import CssBaseline from '@mui/material/CssBaseline'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
@@ -60,8 +59,7 @@ const Dashboard = ({ children }: Props) => {
   }
 
   return (
-    <div>
-      <CssBaseline />
+    <div style={{ pointerEvents: 'auto' }}>
       <AppBar position="fixed" className={styles.appBar}>
         <nav className={styles.navbar}>
           <div className={styles.navContainer}>

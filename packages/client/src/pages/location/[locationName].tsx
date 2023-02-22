@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useRouteMatch } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import { AppLoadingState } from '@xrengine/client-core/src/common/services/AppLoadingService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
@@ -18,13 +18,12 @@ import { dispatchAction, getState, useHookstate, useState } from '@xrengine/hype
 
 const LocationPage = () => {
   const { t } = useTranslation()
-  const match = useRouteMatch()
+  const params = useParams()
   const { search } = useLocation()
   const locationState = useLocationState()
   const offline = new URLSearchParams(search).get('offline') === 'true'
   const appState = useHookstate(getState(AppLoadingState).state)
 
-  const params = match.params as any
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
 
   AuthService.useAPIListeners()

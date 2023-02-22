@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
 
 import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
