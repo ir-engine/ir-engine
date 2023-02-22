@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
@@ -44,18 +45,12 @@ const getPrefabList = () => {
   return arr
 }
 
-export const addPrefabElement = (item: PrefabItemType, parent?: EntityOrObjectUUID, before?: EntityOrObjectUUID) => {
-  const newEntity = createEntity()
-  setComponent(newEntity, EntityTreeComponent, { parentEntity: Engine.instance.currentWorld.sceneEntity })
-
-  EditorControlFunctions.addObject(
-    [newEntity],
-    parent ? [parent] : [],
-    before ? [before] : [],
-    [item.prefabType],
-    [],
-    true
-  )
+export const addPrefabElement = (
+  item: PrefabItemType,
+  parent = Engine.instance.currentWorld.sceneEntity,
+  before?: Entity
+) => {
+  const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)
 
   return newEntity
 }

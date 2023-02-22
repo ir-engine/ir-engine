@@ -138,36 +138,24 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     const isObj3D = !node.entityNode && node.obj3d
+    if (isObj3D) return
     const obj3d = node.obj3d!
-    let parentNode: EntityOrObjectUUID | undefined = undefined
-    let beforeNode: EntityOrObjectUUID | undefined = undefined
+    let parentNode: Entity | null = null
+    let beforeNode: Entity | null = null
 
     if (place === 'Before') {
-      if (isObj3D) {
-        parentNode = obj3d.parent?.uuid ?? undefined
-        beforeNode = obj3d.uuid
-      } else {
-        const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
-        parentNode = entityTreeComponent?.parentEntity
-        beforeNode = node.entityNode
-      }
+      const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity
+      beforeNode = node.entityNode as Entity
     } else if (place === 'After') {
-      if (isObj3D) {
-        const parent = obj3d.parent
-        parentNode = parent?.uuid ?? undefined
-        if (parent?.children && parent.children.indexOf(obj3d) < parent.children.length - 1) {
-          beforeNode = parent.children[parent.children.indexOf(obj3d) + 1].uuid
-        }
-      } else {
-        const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
-        parentNode = entityTreeComponent?.parentEntity
-        const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity, EntityTreeComponent)
-        if (!node.lastChild && parentNode && parentTreeComponent.children.length > node.childIndex + 1) {
-          beforeNode = parentTreeComponent.children[node.childIndex + 1]
-        }
+      const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity
+      const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+      if (!node.lastChild && parentNode && parentTreeComponent.children.length > node.childIndex + 1) {
+        beforeNode = parentTreeComponent.children[node.childIndex + 1]
       }
     } else {
-      parentNode = isObj3D ? node.obj3d!.uuid : node.entityNode
+      parentNode = node.entityNode as Entity
     }
 
     if (!parentNode)
@@ -176,7 +164,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       }
 
     return (item: any, monitor): void => {
-      if (typeof parentNode !== 'string' && typeof beforeNode !== 'string') {
+      if (parentNode && typeof parentNode !== 'string' && typeof beforeNode !== 'string') {
         if (item.files) {
           const dndItem: any = monitor.getItem()
           const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
@@ -197,12 +185,16 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         }
 
         if (item.type === ItemTypes.Prefab) {
-          addPrefabElement(item, parentNode, beforeNode)
+          addPrefabElement(item, parentNode, beforeNode!)
           return
         }
       }
       if (parentNode) {
-        EditorControlFunctions.reparentObject([item.value], [parentNode], beforeNode ? [beforeNode] : [])
+        EditorControlFunctions.reparentObject(
+          Array.isArray(item.value) ? item.value : [item.value],
+          parentNode,
+          beforeNode
+        )
       }
     }
   }

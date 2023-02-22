@@ -59,7 +59,7 @@ export const LoadVolumeComponent = defineComponent({
         if (!loaded) return
         const targetEntity = UUIDComponent.entitiesByUUID[uuid].value!
         const parent = getComponent(targetEntity, EntityTreeComponent)
-        const parentNode = parent.parentEntity
+        const parentNode = parent.parentEntity!
         const clearChildren = () => removeEntityNodeRecursively(targetEntity)
         const componentJson = serializeEntity(targetEntity)
         clearChildren()

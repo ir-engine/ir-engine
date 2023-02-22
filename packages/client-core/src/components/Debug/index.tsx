@@ -16,7 +16,7 @@ import {
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -51,23 +51,36 @@ export const Debug = ({ showingStateRef }) => {
     rendererState.debugEnable.set(!rendererState.debugEnable.value)
   }
 
-  const renderEntityTree = (node: EntityOrObjectUUID) => {
-    // return {
-    //   entity: node.entity,
-    //   uuid: node.uuid,
-    //   components: renderEntityComponents(node.entity),
-    //   children: {
-    //     ...node.children.reduce(
-    //       (r, child, i) =>
-    //         Object.assign(r, {
-    //           [`${i} - ${getComponent(child, NameComponent) ?? tree.entityNodeMap.get(child)?.uuid}`]: renderEntityTree(
-    //             tree.entityNodeMap.get(child)!
-    //           )
-    //         }),
-    //       {}
-    //     )
-    //   }
-    // }
+  const renderEntityTreeRoots = () => {
+    return {
+      ...Object.keys(EntityTreeComponent.roots.value).reduce(
+        (r, child, i) =>
+          Object.assign(r, {
+            [`${i} - ${
+              getComponent(child as any as Entity, NameComponent) ?? getComponent(child as any as Entity, UUIDComponent)
+            }`]: renderEntityTree(child as any as Entity)
+          }),
+        {}
+      )
+    }
+  }
+
+  const renderEntityTree = (entity: Entity) => {
+    const node = getComponent(entity, EntityTreeComponent)
+    return {
+      entity,
+      components: renderEntityComponents(entity),
+      children: {
+        ...node.children.reduce(
+          (r, child, i) =>
+            Object.assign(r, {
+              [`${i} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
+                renderEntityTree(child)
+            }),
+          {}
+        )
+      }
+    }
   }
 
   const renderEntityComponents = (entity: Entity) => {
@@ -118,11 +131,11 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const namedEntities = useHookstate({})
-  const entityTree = useHookstate({})
+  const entityTree = useHookstate({} as any)
   const pipelines = Engine.instance.currentWorld.pipelines
 
   namedEntities.set(renderAllEntities())
-  // entityTree.set(renderEntityTree(tree.rootNode))
+  entityTree.set(renderEntityTreeRoots())
   return (
     <div className={styles.debugContainer}>
       <div className={styles.debugOptionContainer}>
@@ -216,7 +229,13 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
-        <JSONTree data={entityTree.value} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree
+          data={entityTree.value}
+          postprocessValue={(v) => v?.value ?? v}
+          shouldExpandNode={(keyPath, data, level) =>
+            !!data.components && !!data.children && typeof data.entity === 'number'
+          }
+        />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>

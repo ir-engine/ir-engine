@@ -69,7 +69,7 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, wor
       const entityTree = getComponent(entity, EntityTreeComponent)
 
       if (entityTree.parentEntity !== world.sceneEntity) {
-        entityJson.parent = getComponent(entityTree.parentEntity, UUIDComponent)
+        entityJson.parent = getComponent(entityTree.parentEntity!, UUIDComponent)
         entityJson.index = index
       }
 

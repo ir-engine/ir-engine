@@ -1,6 +1,7 @@
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
@@ -20,44 +21,39 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  * @param before Newly created node will be set before this node in parent's children array
  * @returns Newly created media node
  */
-export async function addMediaNode(
-  url: string,
-  parent?: EntityOrObjectUUID,
-  before?: EntityOrObjectUUID
-): Promise<EntityOrObjectUUID> {
+export async function addMediaNode(url: string, parent?: Entity | null, before?: Entity | null) {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-
-  const node = createEntity()
-  setComponent(node, EntityTreeComponent, { parentEntity: typeof parent === 'number' ? parent : undefined })
 
   let prefabType = ''
   let updateFunc = null! as Function
 
+  let node: Entity | null = null
+
   if (contentType.startsWith('prefab/')) {
     prefabType = ScenePrefabs.prefab
-    updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node])
+    updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node!])
   } else if (contentType.startsWith('model/')) {
     prefabType = ScenePrefabs.model
-    updateFunc = () => updateProperties(ModelComponent, { src: url }, [node])
+    updateFunc = () => updateProperties(ModelComponent, { src: url }, [node!])
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     prefabType = MediaPrefabs.video
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   } else if (contentType.startsWith('image/')) {
     prefabType = ScenePrefabs.image
-    updateFunc = () => updateProperties(ImageComponent, { source: url }, [node])
+    updateFunc = () => updateProperties(ImageComponent, { source: url }, [node!])
   } else if (contentType.startsWith('audio/')) {
     prefabType = MediaPrefabs.audio
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   } else if (url.includes('.uvol')) {
     prefabType = MediaPrefabs.volumetric
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   }
 
   if (prefabType) {
-    EditorControlFunctions.addObject([node], parent ? [parent] : [], before ? [before] : [], [prefabType], [], true)
+    node = EditorControlFunctions.createObjectFromPrefab(prefabType, parent, before!)
 
-    updateFunc()
+    if (node) updateFunc()
   }
 
   return node

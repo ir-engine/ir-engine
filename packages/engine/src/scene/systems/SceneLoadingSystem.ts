@@ -244,7 +244,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
 
   /** 4. update scene entities with new data, and load new ones */
   removeComponent(world.sceneEntity, UUIDComponent)
-  setComponent(world.sceneEntity, EntityTreeComponent, { uuid: sceneData.scene.root })
+  setComponent(world.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root], world)
   updateSceneEntitiesFromJSON(sceneData.scene.root, world)
 

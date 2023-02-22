@@ -436,7 +436,7 @@ export default function HierarchyPanel({
         return
       }
 
-      EditorControlFunctions.reparentObject([item.value], [Engine.instance.currentWorld.sceneEntity])
+      EditorControlFunctions.reparentObject(Array.isArray(item.value) ? item.value : [item.value])
     },
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false

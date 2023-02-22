@@ -13,7 +13,7 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -35,6 +35,7 @@ describe('loadGLTFModel', () => {
 
     const entity = createEntity()
     addEntityNodeChild(entity, world.sceneEntity)
+    setLocalTransformComponent(entity, world.sceneEntity)
     addComponent(entity, ModelComponent, {
       ...mockComponentData
     })

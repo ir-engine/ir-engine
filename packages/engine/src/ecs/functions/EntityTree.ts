@@ -31,13 +31,14 @@ import {
 import { createEntity, entityExists, removeEntity } from '../functions/EntityFunctions'
 
 type EntityTreeSetType = {
-  parentEntity: Entity
-  uuid: EntityUUID
+  parentEntity: Entity | null
+  uuid?: EntityUUID
+  childIndex?: number
 }
 
 /**
  * EntityTreeComponent describes parent-child relationship between entities.
- * A root entity has it's parent the world origin.
+ * A root entity has it's parentEntity set to null.
  * @param {Entity} parentEntity
  * @param {string} uuid
  * @param {Readonly<Entity[]>} children
@@ -48,50 +49,53 @@ export const EntityTreeComponent = defineComponent({
   onInit: (entity, world) => {
     return {
       // api
-      parentEntity: UndefinedEntity,
+      parentEntity: null as Entity | null,
       /** @deprecated use UUIDComponent instead */
       uuid: MathUtils.generateUUID() as EntityUUID,
       // internal
       children: [] as Entity[],
-      rootEntity: UndefinedEntity
+      rootEntity: null as Entity | null
     }
   },
 
-  onSet: (entity, component, json?: Partial<Readonly<EntityTreeSetType>>) => {
+  onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {
     if (!json) return
 
-    const world = Engine.instance.currentWorld
-
-    if (entity === world.originEntity) {
-      return
-    }
-
-    const oldParent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
-
     // If a previous parentEntity, remove this entity from its children
-    if (oldParent) {
+    if (component.parentEntity.value && component.parentEntity.value !== json.parentEntity) {
+      const oldParent = getComponentState(component.parentEntity.value, EntityTreeComponent)
       const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
-      if (parentChildIndex) {
-        const children = oldParent.children.get(NO_PROXY)
-        oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
-      }
+      const children = oldParent.children.get(NO_PROXY)
+      oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
     }
 
     // set new data
-    if (matchesEntity.test(json?.parentEntity)) component.parentEntity.set(json.parentEntity)
-    else component.parentEntity.set(world.originEntity)
+    if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
+
     if (matchesEntityUUID.test(json?.uuid)) component.uuid.set(json.uuid)
     setComponent(entity, UUIDComponent, component.uuid.value)
 
-    const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
+    if (component.parentEntity.value) {
+      const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
 
-    // If a new parentEntity, add this entity to its children
-    if (parent && !parent?.children.value.includes(entity)) parent.children.merge([entity])
+      // If a new parentEntity, add this entity to its children
+      if (parent && !parent?.children.value.includes(entity)) {
+        if (typeof json.childIndex !== 'undefined')
+          parent.children.set([
+            ...parent.children.value.slice(0, json.childIndex),
+            entity,
+            ...parent.children.value.slice(json.childIndex)
+          ])
+        else parent.children.set([...parent.children.value, entity])
+      }
+    }
 
     // If parent is the world origin, then the parent entity is a tree root
-    const isRoot = component.parentEntity.value === world.originEntity
+    const isRoot = component.parentEntity.value === null
     if (isRoot) {
       EntityTreeComponent.roots[entity].set(true)
+    } else {
+      EntityTreeComponent.roots[entity].set(none)
     }
 
     const rootEntity = isRoot ? entity : getComponent(component.parentEntity.value, EntityTreeComponent).rootEntity
@@ -101,11 +105,14 @@ export const EntityTreeComponent = defineComponent({
   onRemove: (entity, component) => {
     if (entity === Engine.instance.currentWorld.originEntity) return
 
-    const parent = getComponentState(component.parentEntity.value, EntityTreeComponent)
-    const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
-    const children = parent.children.get(NO_PROXY)
-    parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
-    EntityTreeComponent.roots[entity].set(none)
+    if (component.parentEntity.value) {
+      const parent = getComponentState(component.parentEntity.value, EntityTreeComponent)
+      const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
+      const children = parent.children.get(NO_PROXY)
+      parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+    } else {
+      EntityTreeComponent.roots[entity].set(none)
+    }
 
     removeComponent(entity, UUIDComponent)
   },
@@ -127,18 +134,18 @@ export function initializeSceneEntity(world = Engine.instance.currentWorld): voi
   setComponent(world.sceneEntity, VisibleComponent, true)
   setComponent(world.sceneEntity, SceneTagComponent, true)
   setTransformComponent(world.sceneEntity)
-  setComponent(world.sceneEntity, EntityTreeComponent, { parentEntity: world.originEntity })
+  setComponent(world.sceneEntity, EntityTreeComponent, { parentEntity: null })
 }
 
 /**
  * Recursively destroys all the children entities of the passed entity
  */
-export function removeEntityTree(rootEntity: Entity): void {
+export function destroyEntityTree(rootEntity: Entity): void {
   const children = getComponent(rootEntity, EntityTreeComponent).children.slice()
   for (const child of children) {
-    removeEntityTree(child)
-    removeEntity(child)
+    destroyEntityTree(child)
   }
+  removeEntity(rootEntity)
 }
 
 /**
@@ -147,8 +154,9 @@ export function removeEntityTree(rootEntity: Entity): void {
 export function removeFromEntityTree(rootEntity: Entity): void {
   const children = getComponent(rootEntity, EntityTreeComponent).children.slice()
   for (const child of children) {
-    removeEntityTree(child)
+    removeFromEntityTree(child)
   }
+  removeComponent(rootEntity, EntityTreeComponent)
 }
 
 /**
@@ -192,7 +200,7 @@ export function serializeNodeToWorld(entity: Entity, world = Engine.instance.cur
   const jsonEntity = world.sceneJson.entities[entityTreeNode.uuid]
   if (jsonEntity) {
     jsonEntity.components = serializeEntity(entity)
-    if (entityTreeNode.parentEntity !== world.sceneEntity) {
+    if (entityTreeNode.parentEntity && entityTreeNode.parentEntity !== world.sceneEntity) {
       const parentNode = getComponent(entityTreeNode.parentEntity, EntityTreeComponent)
       jsonEntity.parent = parentNode.uuid
     }
@@ -232,11 +240,11 @@ export function removeEntityNode(entity: Entity, serialize = false) {
  * @param newParent Parent node
  * @param index Index at which passed node will be set as child in parent node's children arrays
  */
-export function reparentEntityNode(entity: Entity, parentEntity: Entity, index?: number): void {
+export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, index?: number): void {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   if (entityTreeNode.parentEntity === parentEntity) return
-  removeComponent(entity, EntityTreeComponent)
-  addEntityNodeChild(entity, parentEntity)
+  if (parentEntity) addEntityNodeChild(entity, parentEntity)
+  else setComponent(entity, EntityTreeComponent, { parentEntity: null, uuid: entityTreeNode.uuid })
 }
 
 /**
@@ -266,7 +274,7 @@ export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: n
 
   for (let i = 0; i < entityTreeNode.children.length; i++) {
     const child = entityTreeNode.children[i]
-    if (child) traverseEntityNode(child, cb, i)
+    traverseEntityNode(child, cb, i)
   }
 }
 
@@ -275,7 +283,7 @@ export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: n
  * @param node Node for which traversal will occur
  * @param cb Callback function which will be called for every traverse
  * @param pred Predicate function which will not process a node or its children if return false
- * @param tree Entity Tree
+ * @param snubChildren If true, will not traverse children of a node if pred returns false
  */
 export function iterateEntityNode(
   entity: Entity,
@@ -327,8 +335,8 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
  * @param tree Entity Tree object
  * @returns Entity Tree node array obtained from passed Entities.
  */
-export function getEntityNodeArrayFromEntities(entities: (Entity | string)[]) {
-  const arr = [] as (Entity | string)[]
+export function getEntityNodeArrayFromEntities(entities: EntityOrObjectUUID[]) {
+  const arr = [] as EntityOrObjectUUID[]
   const scene = Engine.instance.currentWorld.scene
   for (const entity of entities) {
     if (typeof entity === 'string') {
@@ -347,7 +355,7 @@ export function getEntityNodeArrayFromEntities(entities: (Entity | string)[]) {
  * @param node Node to find index of
  * @returns index of the node if found -1 oterhwise.
  */
-export function findIndexOfEntityNode(arr: (Entity | string)[], obj: string | Entity): number {
+export function findIndexOfEntityNode(arr: EntityOrObjectUUID[], obj: EntityOrObjectUUID): number {
   for (let i = 0; i < arr.length; i++) {
     const elt = arr[i]
     if (typeof elt !== typeof obj) continue

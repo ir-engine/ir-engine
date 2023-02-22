@@ -89,7 +89,7 @@ export class World {
 
     this.originEntity = createEntity()
     setComponent(this.originEntity, NameComponent, 'origin')
-    setComponent(this.originEntity, EntityTreeComponent)
+    setComponent(this.originEntity, EntityTreeComponent, { parentEntity: null })
     setTransformComponent(this.originEntity)
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)

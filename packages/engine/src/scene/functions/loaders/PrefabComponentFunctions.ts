@@ -12,7 +12,6 @@ import {
 import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { LoadState, PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { removeEntity } from '../../../ecs/functions/EntityFunctions'
 
 export const unloadPrefab = (entity: Entity) => {
@@ -30,7 +29,7 @@ export const unloadPrefab = (entity: Entity) => {
           children.push(child)
         })
         children.forEach((child) => {
-          removeEntity(child.entity)
+          removeEntity(child)
         })
       }
     })

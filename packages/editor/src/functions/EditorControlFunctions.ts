@@ -188,7 +188,6 @@ const addObject = (
   nodes: EntityOrObjectUUID[],
   parents: EntityOrObjectUUID[],
   befores: EntityOrObjectUUID[],
-  prefabTypes: string[] = [],
   sceneData: SceneJson[] = [],
   updateSelection = true
 ) => {
@@ -200,20 +199,16 @@ const addObject = (
   for (let i = 0; i < rootObjects.length; i++) {
     const object = rootObjects[i]
     if (typeof object !== 'string') {
-      if (prefabTypes.length) {
-        createNewEditorNode(object, prefabTypes[i] ?? prefabTypes[0])
-      } else if (sceneData.length) {
-        const data = sceneData[i] ?? sceneData[0]
+      const data = sceneData[i] ?? sceneData[0]
 
-        traverseEntityNode(object, (entity) => {
-          const node = getComponent(entity, EntityTreeComponent)
-          if (!data.entities[node.uuid]) return
-          const newEntity = createEntity()
-          setComponent(newEntity, EntityTreeComponent, { parentEntity: node.parentEntity, uuid: node.uuid })
-          getComponentState(newEntity, EntityTreeComponent).children.merge([...node.children])
-          deserializeSceneEntity(entity, data.entities[node.uuid])
-        })
-      }
+      traverseEntityNode(object, (entity) => {
+        const node = getComponent(entity, EntityTreeComponent)
+        if (!data.entities[node.uuid]) return
+        const newEntity = createEntity()
+        setComponent(newEntity, EntityTreeComponent, { parentEntity: node.parentEntity, uuid: node.uuid })
+        getComponentState(newEntity, EntityTreeComponent).children.merge([...node.children])
+        deserializeSceneEntity(entity, data.entities[node.uuid])
+      })
     }
 
     let parent = parents.length ? parents[i] ?? parents[0] : world.sceneEntity
@@ -240,6 +235,37 @@ const addObject = (
   dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+}
+
+const createObjectFromPrefab = (
+  prefab: string,
+  parentEntity = Engine.instance.currentWorld.sceneEntity as Entity | null,
+  beforeEntity = null as Entity | null,
+  updateSelection = true
+) => {
+  cancelGrabOrPlacement()
+
+  const newEntity = createEntity()
+  let childIndex = undefined as undefined | number
+  if (beforeEntity) {
+    const beforeNode = getComponent(beforeEntity, EntityTreeComponent)
+    if (beforeNode?.parentEntity && hasComponent(beforeNode.parentEntity, EntityTreeComponent)) {
+      childIndex = getComponent(beforeNode.parentEntity, EntityTreeComponent).children.indexOf(beforeEntity)
+    }
+  }
+  setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
+
+  createNewEditorNode(newEntity, prefab)
+
+  if (updateSelection) {
+    EditorControlFunctions.replaceSelection([newEntity])
+  }
+
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedSceneGraph({}))
+  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+
+  return newEntity
 }
 
 const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
@@ -277,7 +303,7 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
       : serializeWorld(obj, true)
   )
 
-  EditorControlFunctions.addObject(duplicatedObjects, parents, [], [], sceneData, true)
+  EditorControlFunctions.addObject(duplicatedObjects, parents, [], sceneData, true)
 }
 
 const tempMatrix = new Matrix4()
@@ -466,23 +492,18 @@ const scaleObject = (
 
 const reparentObject = (
   nodes: EntityOrObjectUUID[],
-  parents: EntityOrObjectUUID[] = [],
-  befores: EntityOrObjectUUID[] = [],
+  parent = Engine.instance.currentWorld.sceneEntity,
+  before?: Entity | null,
   updateSelection = true
 ) => {
   cancelGrabOrPlacement()
 
   for (let i = 0; i < nodes.length; i++) {
-    const parent = parents[i] ?? parents[0]
-    if (!parent) continue
-
     const node = nodes[i]
-    const before = befores ? befores[i] ?? befores[0] : undefined
     if (typeof node !== 'string') {
       if (node === parent) continue
       const entityTreeComponent = getComponent(node, EntityTreeComponent)
-      const index =
-        before && entityTreeComponent.children ? entityTreeComponent.children.indexOf(before as Entity) : undefined
+      const index = before ? entityTreeComponent.children.indexOf(before as Entity) : undefined
       reparentEntityNode(node, parent as Entity, index)
       reparentObject3D(node, parent as Entity, before as Entity)
     } else {
@@ -505,6 +526,7 @@ const reparentObject = (
   dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
 }
 
+/** @todo - grouping currently doesnt take into account parentEntity or beforeEntity */
 const groupObjects = (
   nodes: EntityOrObjectUUID[],
   parents: EntityOrObjectUUID[] = [],
@@ -513,11 +535,9 @@ const groupObjects = (
 ) => {
   cancelGrabOrPlacement()
 
-  const groupNode = createEntity()
-  setComponent(groupNode, EntityTreeComponent)
-  EditorControlFunctions.addObject([groupNode], parents!, befores!, [ScenePrefabs.group], [], false)
+  const groupNode = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, null, null, false)
 
-  EditorControlFunctions.reparentObject(nodes, [groupNode], [], false)
+  EditorControlFunctions.reparentObject(nodes, groupNode, null, false)
 
   if (updateSelection) {
     EditorControlFunctions.replaceSelection([groupNode])
@@ -625,6 +645,7 @@ export const EditorControlFunctions = {
   modifyObject3d,
   modifyMaterial,
   addObject,
+  createObjectFromPrefab,
   duplicateObject,
   positionObject,
   rotateObject,
