@@ -195,7 +195,7 @@ const Server = () => {
           <InputText
             name="releaseName"
             label={t('admin:components.setting.instanceserverUnreachableTimeoutSeconds')}
-            value={instanceserverUnreachableTimeoutSeconds.value}
+            value={instanceserverUnreachableTimeoutSeconds?.value || ''}
             onChange={(e) => instanceserverUnreachableTimeoutSeconds.set(e.target.value)}
           />
 
