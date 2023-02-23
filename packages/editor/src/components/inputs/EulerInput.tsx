@@ -37,10 +37,8 @@ export const EulerInput = (props: EulerInputProps) => {
   const e = useState(eulerInput)
   _lastQuat.multiply(props.quaternion.clone().invert())
   const rotationChanged = _lastQuat.x + _lastQuat.y + _lastQuat.z + _lastQuat.z != 0
-  console.log(rotationChanged)
   if (e.value.x + e.value.y + e.value.z != 0 && rotationChanged) {
     _euler.copy(e.value)
-    console.log(e.value)
   } else {
     _euler.copy(new Euler().setFromQuaternion(props.quaternion))
   }
