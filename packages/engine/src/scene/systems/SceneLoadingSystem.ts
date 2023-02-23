@@ -1,4 +1,5 @@
 import { cloneDeep, merge } from 'lodash'
+import { useEffect } from 'react'
 import { MathUtils } from 'three'
 import { number } from 'ts-matches'
 
@@ -6,7 +7,7 @@ import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import logger from '@xrengine/common/src/logger'
 import { setLocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState, hookstate, NO_PROXY } from '@xrengine/hyperflux'
+import { dispatchAction, getState, hookstate, NO_PROXY, startReactor } from '@xrengine/hyperflux'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -25,7 +26,8 @@ import {
   removeAllComponents,
   removeComponent,
   removeQuery,
-  setComponent
+  setComponent,
+  useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeNode, getAllEntityTreeNodesByUUID, getEntityTreeNodeByUUID } from '../../ecs/functions/EntityTree'
@@ -357,6 +359,19 @@ export default async function SceneLoadingSystem(world: World) {
     )
   }
 
+  const pendingReactor = startReactor(function (props) {
+    const loadingComponents = useQuery([SceneAssetPendingTagComponent])
+    currentLoaded = 0
+
+    useEffect(() => {
+      for (const entity of loadingComponents) {
+        currentLoaded += getComponent(entity, SceneAssetPendingTagComponent).loadedAmount
+      }
+    })
+
+    return null
+  })
+
   const execute = () => {
     if (!getState(EngineState).sceneLoading.value) return
 
@@ -374,7 +389,6 @@ export default async function SceneLoadingSystem(world: World) {
     }
 
     for (const entity of sceneAssetPendingTagQuery.exit()) {
-      currentLoaded += sizes.get(entity)!
       sizes.delete(entity)
       onComplete(pendingAssets)
       if (pendingAssets === 0) {
@@ -385,6 +399,7 @@ export default async function SceneLoadingSystem(world: World) {
   }
 
   const cleanup = async () => {
+    pendingReactor.stop()
     removeQuery(world, sceneAssetPendingTagQuery)
   }
 

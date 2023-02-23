@@ -1,7 +1,20 @@
 import matches from 'ts-matches'
 
-import { createMappedComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const SceneAssetPendingTagComponent = defineComponent({
-  name: 'SceneAssetPendingTagComponent'
+  name: 'SceneAssetPendingTagComponent',
+
+  onInit: (entity) => {
+    return { loadedAmount: 0 }
+  },
+
+  toJSON: () => {
+    return null! as any
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.number.test(json.loadedAmount)) component.loadedAmount.set(json.loadedAmount)
+  }
 })

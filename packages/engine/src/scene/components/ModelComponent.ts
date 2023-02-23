@@ -105,10 +105,19 @@ function ModelReactor({ root }: EntityReactorProps) {
           case '.gltf':
           case '.fbx':
           case '.usdz':
-            const loadedAsset = await AssetLoader.loadAsync(model.src, {
-              ignoreDisposeGeometry: model.generateBVH,
-              uuid
-            })
+            const loadedAsset = await AssetLoader.loadAsync(
+              model.src,
+              {
+                ignoreDisposeGeometry: model.generateBVH,
+                uuid
+              },
+              (onprogress) => {
+                if (hasComponent(entity, SceneAssetPendingTagComponent)) {
+                  setComponent(entity, SceneAssetPendingTagComponent, onprogress.loaded)
+                  getComponent(entity, SceneAssetPendingTagComponent).loadedAmount = onprogress.loaded
+                }
+              }
+            )
             scene = loadedAsset.scene
             scene.animations = loadedAsset.animations
             break
