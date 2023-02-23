@@ -21,7 +21,8 @@ import styles from '../../styles/admin.module.scss'
 import UserDrawer, { UserDrawerMode } from './UserDrawer'
 
 const UserTable = ({ className, search }: UserProps) => {
-  const [page, setPage] = useState(0)
+  const { t } = useTranslation()
+
   const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
   const [openConfirm, setOpenConfirm] = useState(false)
   const [userId, setUserId] = useState('')
@@ -33,9 +34,11 @@ const UserTable = ({ className, search }: UserProps) => {
   const authState = useAuthState()
   const user = authState.user
   const adminUserState = useUserState()
+  const skip = adminUserState.skip.value
   const adminUsers = adminUserState.users.value
   const adminUserCount = adminUserState.total
-  const { t } = useTranslation()
+
+  const page = skip / USER_PAGE_LIMIT
 
   useEffect(() => {
     AdminUserService.fetchUsersAsAdmin(search, 0, sortField, fieldOrder)
@@ -43,7 +46,6 @@ const UserTable = ({ className, search }: UserProps) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     AdminUserService.fetchUsersAsAdmin(search, newPage, sortField, fieldOrder)
-    setPage(newPage)
   }
 
   useEffect(() => {
@@ -54,7 +56,6 @@ const UserTable = ({ className, search }: UserProps) => {
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
   }
 
   const submitDeleteUser = async () => {

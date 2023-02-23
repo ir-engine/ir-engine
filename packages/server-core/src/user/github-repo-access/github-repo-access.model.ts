@@ -18,8 +18,11 @@ export default (app: Application) => {
       repo: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      hasWriteAccess: {
+        type: DataTypes.BOOLEAN
       }
-    } as any as GithubRepoAccessInterface,
+    },
     {
       hooks: {
         beforeCount(options: any): void {
