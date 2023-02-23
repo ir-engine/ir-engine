@@ -667,7 +667,7 @@ export class Project extends Service {
 
       if (githubIdentityProvider) {
         repoAccess.forEach((item, index) => {
-          if (repoAccess.hasWriteAccess) {
+          if (item.hasWriteAccess) {
             const url = item.repo.toLowerCase()
             repoAccess[index] = url
             repoAccess.push(`${url}.git`)
