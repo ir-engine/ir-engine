@@ -5,6 +5,7 @@ import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDi
 import { Location } from '@xrengine/common/src/interfaces/Location'
 import Avatar from '@xrengine/ui/src/Avatar'
 import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
 import Chip from '@xrengine/ui/src/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
@@ -66,6 +67,7 @@ const LocationTable = ({ className, search }: Props) => {
 
   const handleOpenLocationDrawer =
     (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      event.preventDefault()
       if (
         event.type === 'keydown' &&
         ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
@@ -99,11 +101,10 @@ const LocationTable = ({ className, search }: Props) => {
       videoEnabled,
       action: (
         <>
-          <a href="#" className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
+          <Button className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
-          </a>
-          <a
-            href="#"
+          </Button>
+          <Button
             className={styles.actionStyle}
             onClick={() => {
               setLocationId(id)
@@ -112,7 +113,7 @@ const LocationTable = ({ className, search }: Props) => {
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
-          </a>
+          </Button>
         </>
       )
     }

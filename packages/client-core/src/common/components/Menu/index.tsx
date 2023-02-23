@@ -60,17 +60,19 @@ const Menu = ({
     <>
       {(showBackButton || title || header || showCloseButton) && (
         <DialogTitle className={styles.dialogTitle}>
-          {showBackButton && <IconButton icon={<Icon type="ArrowBack" />} sx={{ mr: 1 }} onClick={onBack} />}
+          <span>
+            {showBackButton && <IconButton icon={<Icon type="ArrowBack" />} sx={{ mr: 1 }} onClick={onBack} />}
 
-          {title && (
-            <Typography variant="h6" sx={{ ml: showBackButton ? undefined : 1.5 }}>
-              {title}
-            </Typography>
-          )}
+            {title && (
+              <Typography variant="h6" sx={{ ml: showBackButton ? undefined : 1.5 }}>
+                {title}
+              </Typography>
+            )}
 
-          {header}
+            {header}
 
-          {showCloseButton && <IconButton icon={<Icon type="Close" />} sx={{ ml: 1 }} onClick={onClose} />}
+            {showCloseButton && <IconButton icon={<Icon type="Close" />} sx={{ ml: 1 }} onClick={onClose} />}
+          </span>
         </DialogTitle>
       )}
 
