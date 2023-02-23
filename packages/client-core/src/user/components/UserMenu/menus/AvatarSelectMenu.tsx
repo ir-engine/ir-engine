@@ -34,11 +34,13 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
   const userId = authState.user?.id?.value
   const userAvatarId = authState.user?.avatarId?.value
 
-  const [page, setPage] = useState(0)
-  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>(userAvatarId)
-
   const avatarState = useAvatarService()
   const { avatarList, search } = avatarState.value
+
+  const [page, setPage] = useState(0)
+  const [localSearchString, setLocalSearchString] = useState(search)
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>(userAvatarId)
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null)
 
   const selectedAvatar = avatarList.find((item) => item.id === selectedAvatarId)
 
@@ -75,6 +77,20 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
     AvatarService.fetchAvatarList(search, 'decrement')
   }
 
+  const handleSearch = async (searchString: string) => {
+    setLocalSearchString(searchString)
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout)
+    }
+
+    const timeout = setTimeout(() => {
+      AvatarService.fetchAvatarList(searchString)
+    }, 1000)
+
+    setSearchTimeout(timeout)
+  }
+
   return (
     <Menu
       open
@@ -106,9 +122,9 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
           <Grid item md={6} sx={{ width: '100%' }}>
             <InputText
               placeholder={t('user:avatar.searchAvatar')}
-              value={search}
+              value={localSearchString}
               sx={{ mt: 1 }}
-              onChange={(e) => AvatarService.fetchAvatarList(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
             />
 
             <IconButton icon={<KeyboardArrowUpIcon />} sx={{ display: 'none' }} onClick={handlePreviousAvatars} />
