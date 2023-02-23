@@ -165,7 +165,7 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   /**@todo replace check for loop aniamtion component with ensuring tpose is only handled once */
   // Try converting to T pose
-  if (!hasComponent(entity, LoopAnimationComponent) && !isSkeletonInTPose(rig)) {
+  if (!hasComponent(entity, LoopAnimationComponent)) {
     makeTPose(rig)
     skinnedMeshes.forEach(applySkeletonPose)
   }
@@ -196,7 +196,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   animationComponent.mixer?.stopAllAction()
   // Mixer has some issues when binding with the target skeleton
   // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
-  const sourceSkeleton = makeDefaultSkinnedMesh().skeleton
+  const sourceSkeleton = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
   animationComponent.mixer = new AnimationMixer(sourceSkeleton.bones[0])
   animationComponent.animations = AnimationManager.instance._animations
 
@@ -248,7 +248,7 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
  * The skeleton created is compatible with default animation tracks
  * @returns SkinnedMesh
  */
-export function makeDefaultSkinnedMesh(): SkinnedMesh {
+export function makeDefaultSkinnedMesh() {
   return makeSkinnedMeshFromBoneData(defaultBonesData)
 }
 
@@ -256,7 +256,7 @@ export function makeDefaultSkinnedMesh(): SkinnedMesh {
  * Creates an empty skinned mesh using list of bones to build skeleton structure
  * @returns SkinnedMesh
  */
-export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
+export function makeSkinnedMeshFromBoneData(bonesData) {
   const bones: Bone[] = []
   bonesData.forEach((data) => {
     const bone = new Bone()
@@ -285,7 +285,7 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
   group.add(skinnedMesh)
   group.add(hipBone)
 
-  return skinnedMesh
+  return group
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
