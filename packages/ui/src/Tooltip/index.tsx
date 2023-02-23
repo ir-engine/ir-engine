@@ -2,6 +2,9 @@ import React from 'react'
 
 import { Tooltip as MuiTooltip, TooltipProps } from '@mui/material'
 
+import Icon from '../Icon'
+import IconButton from '../IconButton'
+
 const Tooltip = ({ children, ...props }: TooltipProps) => (
   <MuiTooltip {...props}>
     <span>{children}</span>
@@ -10,6 +13,8 @@ const Tooltip = ({ children, ...props }: TooltipProps) => (
 
 Tooltip.displayName = 'Tooltip'
 
-Tooltip.defaultProps = {}
+Tooltip.defaultProps = {
+  children: <IconButton icon={<Icon type="Menu" />} />
+}
 
 export default Tooltip

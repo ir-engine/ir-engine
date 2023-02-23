@@ -2,12 +2,12 @@ import { expect } from '@jest/globals'
 import { shallow } from 'enzyme'
 import React from 'react'
 
-import Box from './index'
+import Card from './index'
 import { Default as story } from './index.stories'
 
-describe('Box', () => {
+describe('Card', () => {
   it('- should render', () => {
-    const wrapper = shallow(<Box {...story?.args} />)
+    const wrapper = shallow(<Card {...story?.args} />)
     expect(wrapper).toMatchSnapshot()
   })
 })

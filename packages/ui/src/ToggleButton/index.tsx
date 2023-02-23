@@ -7,7 +7,7 @@ const ToggleButton = (props: ToggleButtonProps) => <MuiToggleButton {...props} /
 ToggleButton.displayName = 'ToggleButton'
 
 ToggleButton.defaultProps = {
-  value: true
+  value: 'default'
 }
 
 export default ToggleButton

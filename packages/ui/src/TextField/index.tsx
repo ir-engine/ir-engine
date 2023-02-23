@@ -7,7 +7,7 @@ const TextField = ({ children, ...props }: TextFieldProps) => <MuiTextField {...
 TextField.displayName = 'TextField'
 
 TextField.defaultProps = {
-  children: null
+  children: 'hello'
 }
 
 export default TextField

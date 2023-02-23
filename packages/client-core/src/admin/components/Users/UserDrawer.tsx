@@ -298,9 +298,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {twitterIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.twitter')} arrow>
-                  <span>
-                    <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {twitterIp.accountIdentifier!}

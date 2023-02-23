@@ -2,12 +2,12 @@ import { expect } from '@jest/globals'
 import { shallow } from 'enzyme'
 import React from 'react'
 
-import SVgIcon from './index'
+import SvgIcon from './index'
 import { Default as story } from './index.stories'
 
-describe('SVgIcon', () => {
+describe('SgIcon', () => {
   it('- should render', () => {
-    const wrapper = shallow(<SVgIcon {...story?.args} />)
+    const wrapper = shallow(<SvgIcon {...story?.args} />)
     expect(wrapper).toMatchSnapshot()
   })
 })

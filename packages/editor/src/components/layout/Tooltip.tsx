@@ -26,7 +26,7 @@ export function InfoTooltip(props: TooltipProps) {
   return (
     <Tooltip {...props} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>
       {/* Span is required to trigger events like hover in safari for disabled elements */}
-      <span>{props.children}</span>
+      {props.children}
     </Tooltip>
   )
 }

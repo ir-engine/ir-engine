@@ -1,25 +1,25 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 import * as React from 'react'
 
-import List from './index'
+import Grid from './index'
 
 const argTypes = {}
 
 export default {
-  title: 'MUI/List',
-  component: List,
+  title: 'MUI/Grid',
+  component: Grid,
   parameters: {
-    componentSubtitle: 'List',
-    jest: 'List.test.tsx',
+    componentSubtitle: 'Grid',
+    jest: 'Grid.test.tsx',
     design: {
       type: 'figma',
       url: ''
     }
   },
   argTypes
-} as ComponentMeta<typeof List>
+} as ComponentMeta<typeof Grid>
 
-const Template: ComponentStory<typeof List> = (args) => <List {...args} />
+const Template: ComponentStory<typeof Grid> = (args) => <Grid {...args} />
 
 export const Default = Template.bind({})
-Default.args = List.defaultProps
+Default.args = Grid.defaultProps
