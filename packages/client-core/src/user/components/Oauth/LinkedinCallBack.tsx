@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, withRouter } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -53,4 +53,4 @@ const LinkedinCallbackComponent = (props): JSX.Element => {
   )
 }
 
-export const LinkedinCallback = withRouter(LinkedinCallbackComponent) as any
+export const LinkedinCallback = LinkedinCallbackComponent as any

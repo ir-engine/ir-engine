@@ -21,7 +21,10 @@ import {
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import {
+  getPostProcessingSceneMetadataState,
+  PostProcessingSceneMetadataLabel
+} from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -61,7 +64,15 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const handOptions = ['left', 'right']
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
-  const postprocessingSettings = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld).enabled)
+
+  const postProcessingSceneMetadataState = Engine.instance.currentWorld.sceneMetadataRegistry[
+    PostProcessingSceneMetadataLabel
+  ]
+    ? getPostProcessingSceneMetadataState(Engine.instance.currentWorld)
+    : undefined
+  const postprocessingSettings = postProcessingSceneMetadataState?.enabled
+    ? useHookstate(postProcessingSceneMetadataState.enabled)
+    : { value: undefined }
 
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
@@ -72,8 +83,17 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
-  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
+  let themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
+
+  // This is done as a fix because previously studio was called editor
+  if (themeModes['editor']) {
+    if (!themeModes['studio']) {
+      themeModes['studio'] = themeModes['editor']
+    }
+
+    delete themeModes['editor']
+  }
 
   const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
 
@@ -120,7 +140,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && !hasAdminAccess) {
       return false
-    } else if (mode === 'editor' && !hasEditorAccess) {
+    } else if (mode === 'studio' && !hasEditorAccess) {
       return false
     }
     return true

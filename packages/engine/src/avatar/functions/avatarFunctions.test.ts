@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { AnimationClip, Bone, Group, Vector3 } from 'three'
+import { AnimationClip, Bone, Group, SkinnedMesh, Vector3 } from 'three'
 
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -69,7 +69,7 @@ describe('avatarFunctions Unit', async () => {
       const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
       setComponent(entity, AvatarComponent, { model })
       setTransformComponent(entity)
-      AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh()
+      AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh().children[0] as SkinnedMesh
       rigAvatarModel(entity)(model)
       assert(animationComponent.rootYRatio > 0)
     })
@@ -97,13 +97,12 @@ describe('avatarFunctions Unit', async () => {
         rootYRatio: 1,
         locomotion: new Vector3()
       })
-      const animationGLTF = await AssetLoader.loadAsync(animGLB)
-      AnimationManager.instance.getAnimations(animationGLTF)
+      await AnimationManager.instance.loadDefaultAnimations(animGLB)
 
       const group = new Group()
       animateAvatarModel(entity)(group)
 
-      const sourceHips = makeDefaultSkinnedMesh().skeleton.bones[0]
+      const sourceHips = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton.bones[0]
       const mixerRoot = getComponent(entity, AnimationComponent).mixer.getRoot() as Bone
 
       assert(mixerRoot.isBone)

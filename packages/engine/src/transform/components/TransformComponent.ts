@@ -16,6 +16,10 @@ export type TransformComponentType = {
 const { f64 } = Types
 export const Vector3Schema = { x: f64, y: f64, z: f64 }
 export const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
+export const PoseSchema = {
+  position: Vector3Schema,
+  rotation: QuaternionSchema
+}
 export const TransformSchema = {
   position: Vector3Schema,
   rotation: QuaternionSchema,

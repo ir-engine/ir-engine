@@ -3,6 +3,7 @@ import ReferenceSpaceTransformSystem from '../transform/systems/ReferenceSpaceTr
 import XRAnchorSystem from '../xr/XRAnchorSystem'
 import AnimationSystem from './AnimationSystem'
 import AvatarAnimationSystem from './AvatarAnimationSystem'
+import AvatarAutopilotSystem from './AvatarAutopilotSystem'
 import AvatarControllerSystem from './AvatarControllerSystem'
 import AvatarInputSystem from './AvatarInputSystem'
 import AvatarLoadingSystem from './AvatarLoadingSystem'
@@ -36,6 +37,11 @@ export function AvatarClientModule() {
       uuid: 'xre.engine.AvatarMovementSystem',
       type: SystemUpdateType.FIXED_EARLY,
       systemLoader: () => Promise.resolve({ default: AvatarMovementSystem })
+    },
+    {
+      uuid: 'xre.engine.AvatarAutopilotSystem',
+      type: SystemUpdateType.FIXED_EARLY,
+      systemLoader: () => Promise.resolve({ default: AvatarAutopilotSystem })
     },
     {
       uuid: 'xre.engine.ReferenceSpaceTransformSystem',
