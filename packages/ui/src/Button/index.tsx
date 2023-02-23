@@ -3,9 +3,7 @@ import React, { ReactNode } from 'react'
 import { ButtonProps, Button as MuiButton } from '@mui/material'
 
 const Button = ({ children, ...props }: ButtonProps & { component?: string }) => (
-  <MuiButton {...props} style={{ border: '2px solid blue' }}>
-    {children}
-  </MuiButton>
+  <MuiButton {...props}>{children}</MuiButton>
 )
 
 Button.displayName = 'Button'

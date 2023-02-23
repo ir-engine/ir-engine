@@ -533,7 +533,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   {authState?.facebook && !oauthConnectedState.facebook && (
                     <IconButton
                       id="facebook"
-                      icon={<Icon type="Facebook" viewBox="0 0 40 40" />}
+                      icon={<FacebookIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
@@ -547,7 +547,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   {authState?.twitter && !oauthConnectedState.twitter && (
                     <IconButton
                       id="twitter"
-                      icon={<Icon type="Twitter" viewBox="0 0 40 40" />}
+                      icon={<TwitterIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}

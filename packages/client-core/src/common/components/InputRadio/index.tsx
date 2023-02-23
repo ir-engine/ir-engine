@@ -47,15 +47,14 @@ const InputRadio = ({ className, disabled, error, id, label, name, options, sx, 
           onChange={onChange}
         >
           {options.map((el, index) => (
-            <>
+            <div key={index}>
               <FormControlLabel
-                key={index}
                 value={el.value}
                 control={<Radio onPointerUp={handleSoundEffect} onPointerEnter={handleSoundEffect} />}
                 label={el.label}
               />
               {el.overflowContent}
-            </>
+            </div>
           ))}
         </RadioGroup>
       </FormControl>

@@ -6,9 +6,6 @@ const Checkbox = (props: CheckboxProps) => <MuiCheckbox {...props} />
 
 Checkbox.displayName = 'Checkbox'
 
-Checkbox.defaultProps = {
-  defaultChecked: true,
-  inputProps: { 'aria-label': 'Checkbox demo' }
-}
+Checkbox.defaultProps = {}
 
 export default Checkbox

@@ -167,10 +167,12 @@ const CreateBot = () => {
   return (
     <Card className={styles.botRootLeft}>
       <Paper className={styles.botHeader} style={{ display: 'flex' }}>
-        <Typography className={styles.botTitle}>
-          <Icon type="Face" />
-          <div className={styles.smFont}>{t('admin:components.bot.createNewBot')}</div>
-        </Typography>
+        <div className={styles.botTitle}>
+          <Typography className={styles.smFont}>
+            <Icon type="Face" />
+            {t('admin:components.bot.createNewBot')}
+          </Typography>
+        </div>
 
         <Button variant="contained" disableElevation type="submit" className={styles.botSaveBtn} onClick={handleSubmit}>
           <Icon type="Save" className={styles.saveBtnIcon} /> {t('social:save')}

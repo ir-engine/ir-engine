@@ -103,7 +103,7 @@ const DisplayBots = () => {
               id={`panel${index}bh-header`}
               className={styles.summary}
             >
-              <Typography className={styles.heading}>{bot.name}</Typography>
+              <Typography className={styles.heading}>{bot?.name}</Typography>
               <Typography className={styles.secondaryHeading}>{bot?.description}</Typography>
             </AccordionSummary>
             <AccordionDetails className={styles.botDetails}>

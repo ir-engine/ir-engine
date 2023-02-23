@@ -6,9 +6,6 @@ const InputBase = (props: InputBaseProps) => <MuiInputBase {...props} />
 
 InputBase.displayName = 'InputBase'
 
-InputBase.defaultProps = {
-  defaultChecked: true,
-  inputProps: { 'aria-label': 'InputBase demo' }
-}
+InputBase.defaultProps = {}
 
 export default InputBase

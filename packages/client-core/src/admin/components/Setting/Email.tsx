@@ -21,6 +21,7 @@ const Email = () => {
   const id = emailSetting?.id
 
   const [showPassword, setShowPassword] = useState(false)
+  const [smsNameCharacterLimit, setSmsNameCharacterLimit] = useState(emailSetting?.smsNameCharacterLimit)
   const [smtp, setSmtp] = useState(emailSetting?.smtp)
   const [auth, setAuth] = useState(emailSetting?.smtp?.auth)
   const [from, setFrom] = useState(emailSetting?.from)
@@ -95,6 +96,7 @@ const Email = () => {
     setAuth(tempAuth)
     setSubject(tempSubject)
     setFrom(emailSetting?.from)
+    setSmsNameCharacterLimit(emailSetting?.smsNameCharacterLimit)
   }
 
   return (
@@ -195,7 +197,7 @@ const Email = () => {
           <InputText
             name="smsNameCharacterLimit"
             label={t('admin:components.setting.smsNameCharLimit')}
-            value={emailSetting?.smsNameCharacterLimit}
+            value={smsNameCharacterLimit}
             disabled
           />
         </Grid>

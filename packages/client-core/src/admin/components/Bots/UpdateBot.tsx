@@ -149,7 +149,12 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
 
   return (
     <div>
-      <Dialog open={open} aria-labelledby="form-dialog-title" classes={{ paper: styles.paperDialog }} onClose={onClose}>
+      <Dialog
+        open={open}
+        aria-labelledby="form-dialog-title"
+        PaperProps={{ className: styles.paperDialog }}
+        onClose={onClose}
+      >
         <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
           <InputText

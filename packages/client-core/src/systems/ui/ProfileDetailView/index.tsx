@@ -438,7 +438,7 @@ const ProfileDetailView = () => {
                   <IconButton
                     id="twitter"
                     onClick={handleOAuthServiceClick}
-                    icon={<Icon type="Twitter" width="40" height="40" viewBox="0 0 40 40" />}
+                    icon={<LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />}
                   />
                 )}
                 {authState?.github && !oauthConnectedState.github && (
