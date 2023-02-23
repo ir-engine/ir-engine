@@ -6,6 +6,9 @@
       "dom",
       "dom.iterable"
     ],
+    "paths": {
+      "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
+    },
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -25,15 +28,18 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
-    "outDir": "./lib"
+    "outDir": "./lib",
+    "types": ["vite/client"]
   },
   "exclude": [
+    "../server-core/src/",
+    "../client-core/src/",
+    "../xrui/core/",
     "../projects/projects/**",
-    "**/node_modules/**"
+    "**/node_modules/**",
   ],
   "include": [
-    "typings",
-    "./**/*.ts",
-    "./**/*.tsx"
+    "./src/**/*.ts",
+    "./serc/**/*.tsx"
   ]
 }
