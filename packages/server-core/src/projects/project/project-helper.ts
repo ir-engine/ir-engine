@@ -435,26 +435,33 @@ export const checkDestination = async (app: Application, url: string, params?: P
 
   try {
     const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token)])
-    const repoAccessible =
-      owner === authUser.data.login ||
-      repos.find(
-        (repo) =>
-          repo.html_url.toLowerCase() === url.toLowerCase() ||
-          repo.ssh_url.toLowerCase() === url.toLowerCase() ||
-          repo.ssh_url.toLowerCase() === `${url.toLowerCase()}.git`
-      )
+    const matchingRepo = repos.find(
+      (repo) =>
+        repo.html_url.toLowerCase() === url.toLowerCase() ||
+        `${repo.html_url.toLowerCase()}.git` === url.toLowerCase() ||
+        repo.ssh_url.toLowerCase() === url.toLowerCase() ||
+        `${repo.ssh_url.toLowerCase()}.git` === url.toLowerCase()
+    )
+    if (!matchingRepo)
+      return {
+        error: 'invalidDestinationURL',
+        text: 'The destination URL is not valid, or you do not have access to it'
+      }
+    const repoAccessible = owner === authUser.data.login || matchingRepo
+
     if (!repoAccessible) {
-      returned.error = 'userNotAuthorizedForRepo'
+      returned.error = 'invalidDestinationURL'
       returned.text = `You do not appear to have access to this repository. If this seems wrong, click the button 
       "Refresh GitHub Repo Access" and try again. If you are only in the organization that owns this repo, make sure that the
       organization has installed the OAuth app associated with this installation, and that your personal GitHub account
       has granted access to the organization: https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps`
     }
-    const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-    if (!repoResponse)
+    returned.destinationValid =
+      matchingRepo.permissions?.push || matchingRepo.permissions?.admin || matchingRepo.permissions?.maintain || false
+    if (!returned.destinationValid)
       return {
-        error: 'invalidDestinationURL',
-        text: 'The destination URL is not valid, or you do not have access to it'
+        error: 'invalidPermission',
+        text: 'You do not have personal push, maintain, or admin access to this repo.'
       }
     let destinationPackage
     try {
@@ -463,18 +470,9 @@ export const checkDestination = async (app: Application, url: string, params?: P
       logger.error('destination package fetch error', err)
       if (err.status !== 404) throw err
     }
-    returned.destinationValid =
-      repoResponse.data?.permissions?.push ||
-      repoResponse.data?.permissions?.admin ||
-      repoResponse.data?.permissions?.maintain ||
-      false
     if (destinationPackage)
       returned.projectName = JSON.parse(Buffer.from(destinationPackage.data.content, 'base64').toString()).name
     else returned.repoEmpty = true
-    if (!returned.destinationValid) {
-      returned.error = 'invalidPermission'
-      returned.text = 'You do not have personal push, maintain, or admin access to this repo.'
-    }
 
     if (inputProjectURL?.length > 0) {
       const projectOctokitResponse = await getOctokitForChecking(app, inputProjectURL, params!)

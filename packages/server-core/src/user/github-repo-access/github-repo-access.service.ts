@@ -108,20 +108,27 @@ export default (app: Application): void => {
               identityProviderId: githubIdentityProvider.id
             }
           })
-          const githubRepos = (await getUserRepos(githubIdentityProvider.oauthToken)).map((repo) => repo.html_url)
+          const githubRepos = await getUserRepos(githubIdentityProvider.oauthToken)
           await Promise.all(
             githubRepos.map(async (repo) => {
-              if (!existingGithubRepoAccesses.find((access) => access.repo === repo))
+              const matchingAccess = existingGithubRepoAccesses.find((access) => access.repo === repo.html_url)
+              const hasWriteAccess = repo.permissions.admin || repo.permissions.maintain || repo.permissions.push
+              if (!matchingAccess)
                 await app.service('github-repo-access').create({
-                  repo: repo,
-                  identityProviderId: githubIdentityProvider.id
+                  repo: repo.html_url,
+                  identityProviderId: githubIdentityProvider.id,
+                  hasWriteAccess
+                })
+              else
+                await app.service('github-repo-access').patch(matchingAccess.id, {
+                  hasWriteAccess
                 })
             })
           )
+          const urlsOnly = githubRepos.map((repo) => repo.html_url)
           await Promise.all(
             existingGithubRepoAccesses.map(async (repoAccess) => {
-              if (githubRepos.indexOf(repoAccess.repo) < 0)
-                await app.service('github-repo-access').remove(repoAccess.id)
+              if (urlsOnly.indexOf(repoAccess.repo) < 0) await app.service('github-repo-access').remove(repoAccess.id)
             })
           )
         }

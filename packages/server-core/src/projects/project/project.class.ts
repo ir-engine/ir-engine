@@ -649,7 +649,7 @@ export class Project extends Service {
             }
           })
         : []
-      const repoPaths = repoAccess.map((item) => item.repo.toLowerCase())
+      const pushRepoPaths = repoAccess.filter((repo) => repo.hasWriteAccess).map((item) => item.repo.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
       allowedProjectGithubRepos = await Promise.all(
         allowedProjectGithubRepos.map(async (project) => {
@@ -661,21 +661,23 @@ export class Project extends Service {
         })
       )
       const pushableAllowedProjects = allowedProjectGithubRepos.filter(
-        (project) => repoPaths.indexOf(project.repositoryPath.toLowerCase().replace(/.git$/, '')) > -1
+        (project) => pushRepoPaths.indexOf(project.repositoryPath.toLowerCase().replace(/.git$/, '')) > -1
       )
       projectPushIds = projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
 
       if (githubIdentityProvider) {
         repoAccess.forEach((item, index) => {
-          const url = item.repo.toLowerCase()
-          repoAccess[index] = url
-          repoAccess.push(`${url}.git`)
-          const regexExec = GITHUB_URL_REGEX.exec(url)
-          if (regexExec) {
-            const split = regexExec[2].split('/')
-            repoAccess.push(`git@github.com:${split[0]}/${split[1]}`)
-            repoAccess.push(`git@github.com:${split[0]}/${split[1]}.git`)
-          }
+          if (item.hasWriteAccess) {
+            const url = item.repo.toLowerCase()
+            repoAccess[index] = url
+            repoAccess.push(`${url}.git`)
+            const regexExec = GITHUB_URL_REGEX.exec(url)
+            if (regexExec) {
+              const split = regexExec[2].split('/')
+              repoAccess.push(`git@github.com:${split[0]}/${split[1]}`)
+              repoAccess.push(`git@github.com:${split[0]}/${split[1]}.git`)
+            }
+          } else repoAccess.splice(index)
         })
 
         const matchingAllowedRepos = await this.app.service('project').Model.findAll({

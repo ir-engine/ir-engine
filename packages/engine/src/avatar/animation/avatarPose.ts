@@ -41,7 +41,13 @@ const quat2 = new Quaternion()
  * @param targetBone target bone to derive angle from
  * @param {1 | -1} side 1 is left, -1 is right
  */
-const conformArmToTpose = (coformingBoneReference: Bone, conformingBone: Bone, targetBone: Bone, side: 1 | -1) => {
+const conformArmToTpose = (
+  coformingBoneReference: Bone | undefined,
+  conformingBone: Bone | undefined,
+  targetBone: Bone | undefined,
+  side: 1 | -1
+) => {
+  if (!coformingBoneReference || !conformingBone || !targetBone) return
   conformingBone.getWorldPosition(vec1)
   targetBone.getWorldPosition(vec2)
   vec2.sub(vec1).normalize()
@@ -69,8 +75,56 @@ export function makeTPose(rig: BoneStructure) {
   conformArmToTpose(rig.LeftShoulder, rig.LeftArm, rig.LeftForeArm, 1)
   conformArmToTpose(rig.LeftArm, rig.LeftForeArm, rig.LeftHand, 1)
 
+  conformArmToTpose(rig.LeftHand, rig.LeftHandThumb1, rig.LeftHandThumb2, 1)
+  conformArmToTpose(rig.LeftHandThumb1, rig.LeftHandThumb2, rig.LeftHandThumb3, 1)
+  conformArmToTpose(rig.LeftHandThumb2, rig.LeftHandThumb3, rig.LeftHandThumb4, 1)
+
+  conformArmToTpose(rig.LeftHand, rig.LeftHandIndex1, rig.LeftHandIndex2, 1)
+  conformArmToTpose(rig.LeftHandIndex1, rig.LeftHandIndex2, rig.LeftHandIndex3, 1)
+  conformArmToTpose(rig.LeftHandIndex2, rig.LeftHandIndex3, rig.LeftHandIndex4, 1)
+  conformArmToTpose(rig.LeftHandIndex3, rig.LeftHandIndex4, rig.LeftHandIndex5, 1)
+
+  conformArmToTpose(rig.LeftHand, rig.LeftHandMiddle1, rig.LeftHandMiddle2, 1)
+  conformArmToTpose(rig.LeftHandMiddle1, rig.LeftHandMiddle2, rig.LeftHandMiddle3, 1)
+  conformArmToTpose(rig.LeftHandMiddle2, rig.LeftHandMiddle3, rig.LeftHandMiddle4, 1)
+  conformArmToTpose(rig.LeftHandMiddle3, rig.LeftHandMiddle4, rig.LeftHandMiddle5, 1)
+
+  conformArmToTpose(rig.LeftHand, rig.LeftHandRing1, rig.LeftHandRing2, 1)
+  conformArmToTpose(rig.LeftHandRing1, rig.LeftHandRing2, rig.LeftHandRing3, 1)
+  conformArmToTpose(rig.LeftHandRing2, rig.LeftHandRing3, rig.LeftHandRing4, 1)
+  conformArmToTpose(rig.LeftHandRing3, rig.LeftHandRing4, rig.LeftHandRing5, 1)
+
+  conformArmToTpose(rig.LeftHand, rig.LeftHandPinky1, rig.LeftHandPinky2, 1)
+  conformArmToTpose(rig.LeftHandPinky1, rig.LeftHandPinky2, rig.LeftHandPinky3, 1)
+  conformArmToTpose(rig.LeftHandPinky2, rig.LeftHandPinky3, rig.LeftHandPinky4, 1)
+  conformArmToTpose(rig.LeftHandPinky3, rig.LeftHandPinky4, rig.LeftHandPinky5, 1)
+
   conformArmToTpose(rig.RightShoulder, rig.RightArm, rig.RightForeArm, -1)
   conformArmToTpose(rig.RightArm, rig.RightForeArm, rig.RightHand, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandThumb1, rig.RightHandThumb2, -1)
+  conformArmToTpose(rig.RightHandThumb1, rig.RightHandThumb2, rig.RightHandThumb3, -1)
+  conformArmToTpose(rig.RightHandThumb2, rig.RightHandThumb3, rig.RightHandThumb4, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandIndex1, rig.RightHandIndex2, -1)
+  conformArmToTpose(rig.RightHandIndex1, rig.RightHandIndex2, rig.RightHandIndex3, -1)
+  conformArmToTpose(rig.RightHandIndex2, rig.RightHandIndex3, rig.RightHandIndex4, -1)
+  conformArmToTpose(rig.RightHandIndex3, rig.RightHandIndex4, rig.RightHandIndex5, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandMiddle1, rig.RightHandMiddle2, -1)
+  conformArmToTpose(rig.RightHandMiddle1, rig.RightHandMiddle2, rig.RightHandMiddle3, -1)
+  conformArmToTpose(rig.RightHandMiddle2, rig.RightHandMiddle3, rig.RightHandMiddle4, -1)
+  conformArmToTpose(rig.RightHandMiddle3, rig.RightHandMiddle4, rig.RightHandMiddle5, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandRing1, rig.RightHandRing2, -1)
+  conformArmToTpose(rig.RightHandRing1, rig.RightHandRing2, rig.RightHandRing3, -1)
+  conformArmToTpose(rig.RightHandRing2, rig.RightHandRing3, rig.RightHandRing4, -1)
+  conformArmToTpose(rig.RightHandRing3, rig.RightHandRing4, rig.RightHandRing5, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandPinky1, rig.RightHandPinky2, -1)
+  conformArmToTpose(rig.RightHandPinky1, rig.RightHandPinky2, rig.RightHandPinky3, -1)
+  conformArmToTpose(rig.RightHandPinky2, rig.RightHandPinky3, rig.RightHandPinky4, -1)
+  conformArmToTpose(rig.RightHandPinky3, rig.RightHandPinky4, rig.RightHandPinky5, -1)
 }
 
 /**

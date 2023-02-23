@@ -1,4 +1,4 @@
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import config from '@xrengine/common/src/config'
@@ -18,10 +18,10 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const retrieveLocationByName = (locationName: string, userId: string) => {
   if (locationName === config.client.lobbyLocationName) {
-    const history = useHistory()
+    const navigate = useNavigate()
     LocationService.getLobby()
       .then((lobby) => {
-        history.replace('/location/' + lobby?.slugifiedName)
+        navigate('/location/' + lobby?.slugifiedName)
       })
       .catch((err) => logger.error(err, 'getLobby'))
   } else {
