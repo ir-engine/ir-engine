@@ -49,7 +49,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(DirectionalLightComponent, 'useInCSM')}
         />
       </InputGroup>
-      <LightShadowProperties node={props.node} comp={DirectionalLightComponent} />
+      <LightShadowProperties entity={props.entity} comp={DirectionalLightComponent} />
       <NumericInputGroup
         name="CameraFar"
         label={t('editor:properties.directionalLight.lbl-cameraFar')}

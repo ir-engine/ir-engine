@@ -88,7 +88,7 @@ export const PropertiesPanelContainer = () => {
     content = (
       <StyledNodeEditor>
         {/* @todo these types are incorrect */}
-        <Object3DNodeEditor multiEdit={multiEdit} node={node as Entity} entity={node as Entity} />
+        <Object3DNodeEditor multiEdit={multiEdit} entity={node as Entity} />
       </StyledNodeEditor>
     )
   } else if (isMaterial) {
@@ -103,20 +103,14 @@ export const PropertiesPanelContainer = () => {
 
     content = (
       <StyledNodeEditor>
-        <CoreNodeEditor node={node as Entity} entity={node as Entity} />
+        <CoreNodeEditor entity={node as Entity} />
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
           // nodeEntity is used as key here to signal to React when the entity has changed,
           // and to prevent state from being recycled between editor instances, which
           // can cause hookstate to throw errors.
           return (
-            <Editor
-              key={`${nodeEntity}-${Editor.name}`}
-              multiEdit={multiEdit}
-              node={node as Entity}
-              entity={node as Entity}
-              component={c}
-            />
+            <Editor key={`${nodeEntity}-${Editor.name}`} multiEdit={multiEdit} entity={node as Entity} component={c} />
           )
         })}
       </StyledNodeEditor>

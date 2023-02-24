@@ -11,6 +11,7 @@ import {
   PortalEffects,
   PortalPreviewTypes
 } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
@@ -58,13 +59,13 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     const portalsDetail: PortalDetail[] = []
     try {
       portalsDetail.push(...(await API.instance.client.service('portal').find()).data)
-      console.log('portalsDetail', portalsDetail, props.node.uuid)
+      console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent))
     } catch (error) {
       throw new Error(error)
     }
     setPortals(
       portalsDetail
-        .filter((portal) => portal.portalEntityId !== props.node.uuid)
+        .filter((portal) => portal.portalEntityId !== getComponent(props.entity, UUIDComponent))
         .map(({ portalEntityId, portalEntityName, sceneName }) => {
           return { value: portalEntityId, label: sceneName + ': ' + portalEntityName }
         })
@@ -74,7 +75,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const bakeCubemap = async () => {
     const url = await uploadCubemapBakeToServer(portalName, transformComponent.position)
     loadPortals()
-    updateProperties(PortalComponent, { previewImageURL: url }, [props.node])
+    updateProperties(PortalComponent, { previewImageURL: url }, [props.entity])
   }
 
   const changeSpawnRotation = (value: Euler) => {

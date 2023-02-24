@@ -52,7 +52,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   const scene: Scene = Engine.instance.currentWorld.scene
   const selectionState = accessSelectionState()
   const materialLibrary = getMaterialLibrary()
-  const obj3d: Object3D = props.node as any
+  const obj3d: Object3D = props.entity as any
   const mesh = obj3d as Mesh
   const instancedMesh = obj3d as InstancedMesh
   //objId: used to track current obj3d

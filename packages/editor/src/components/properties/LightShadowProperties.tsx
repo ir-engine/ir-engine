@@ -38,7 +38,7 @@ const ShadowMapResolutionOptions = [
 
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
-  node: Entity
+  entity: Entity
   comp: Component<any, any>
 }
 
@@ -55,7 +55,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
     updateProperties(props.comp, { shadowMapResolution: resolution })
   }
 
-  const lightComponent = useComponent(props.node, props.comp).value as any
+  const lightComponent = useComponent(props.entity, props.comp).value as any
 
   return (
     <>
@@ -64,7 +64,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
       </InputGroup>
       <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput
-          key={props.node}
+          key={props.entity}
           options={ShadowMapResolutionOptions}
           value={lightComponent.shadowMapResolution?.x}
           onChange={changeShadowMapResolution}

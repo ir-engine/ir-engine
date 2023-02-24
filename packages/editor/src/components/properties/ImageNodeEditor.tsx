@@ -30,8 +30,8 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
         <ImageInput value={imageComponent.source.value} onChange={updateProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.image.error-url')}</div>}
-      <ImageSourceProperties node={props.node} multiEdit={props.multiEdit} />
-      <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
+      <ImageSourceProperties entity={props.entity} multiEdit={props.multiEdit} />
+      <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
     </NodeEditor>
   )
 }

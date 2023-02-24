@@ -54,7 +54,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
         value={lightComponent.decay}
         onChange={updateProperty(PointLightComponent, 'decay')}
       />
-      <LightShadowProperties node={props.node} comp={PointLightComponent} />
+      <LightShadowProperties entity={props.entity} comp={PointLightComponent} />
     </NodeEditor>
   )
 }

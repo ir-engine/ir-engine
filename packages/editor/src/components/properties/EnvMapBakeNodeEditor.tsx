@@ -104,7 +104,7 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
             key={id + '' + propertyid}
             element={property}
             bakeComponent={bakeComponent}
-            node={props.node}
+            entity={props.entity}
           />
         )
       })

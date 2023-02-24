@@ -1,7 +1,7 @@
 import React from 'react'
 
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeTypes'
@@ -16,7 +16,7 @@ import { updateProperty } from './Util'
 type EnvMapBakePropertyEditorProps = {
   bakeComponent: ComponentType<typeof EnvMapBakeComponent>
   element: any
-  node: EntityOrObjectUUID
+  entity: Entity
 }
 
 const envMapBakeSelectTypes = [
@@ -79,7 +79,7 @@ export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
     case BakePropertyTypes.BakeType:
       renderVal = (
         <SelectInput
-          key={props.node}
+          key={props.entity}
           options={envMapBakeSelectTypes}
           onChange={changehandler}
           value={getPropertyValue(propertyName)}
@@ -90,7 +90,7 @@ export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
     case BakePropertyTypes.RefreshMode:
       renderVal = (
         <SelectInput
-          key={props.node}
+          key={props.entity}
           options={envMapBakeRefreshSelectTypes}
           onChange={changehandler}
           value={getPropertyValue(propertyName)}
@@ -101,7 +101,7 @@ export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
     case BakePropertyTypes.Resolution:
       renderVal = (
         <SelectInput
-          key={props.node}
+          key={props.entity}
           options={bakeResolutionTypes}
           onChange={changehandler}
           value={getPropertyValue(propertyName)}

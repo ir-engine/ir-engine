@@ -82,7 +82,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         value={lightComponent.decay}
         onChange={updateProperty(SpotLightComponent, 'decay')}
       />
-      <LightShadowProperties node={props.node} comp={SpotLightComponent} />
+      <LightShadowProperties entity={props.entity} comp={SpotLightComponent} />
     </NodeEditor>
   )
 }

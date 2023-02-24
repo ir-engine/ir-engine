@@ -81,7 +81,7 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   return (
     <PropertiesHeader>
       <NameInputGroupContainer>
-        <NameInputGroup node={props.node} key={props.entity} />
+        <NameInputGroup entity={props.entity} key={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (
           <>
             <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
