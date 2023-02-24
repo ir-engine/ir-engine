@@ -5,7 +5,6 @@ import Avatar from '@xrengine/client-core/src/common/components/Avatar'
 import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
 import Button from '@xrengine/client-core/src/common/components/Button'
 import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
 import InputFile from '@xrengine/client-core/src/common/components/InputFile'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
 import Menu from '@xrengine/client-core/src/common/components/Menu'
@@ -23,14 +22,11 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-
-import CheckIcon from '@mui/icons-material/Check'
-import ClearIcon from '@mui/icons-material/Clear'
-import FileUploadIcon from '@mui/icons-material/FileUpload'
-import PortraitIcon from '@mui/icons-material/Portrait'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import Grid from '@mui/material/Grid'
+import Box from '@xrengine/ui/src/Box'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
+import Grid from '@xrengine/ui/src/Grid'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
@@ -299,7 +295,9 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
         <Box display="flex" width="100%">
           <Button
             disabled={!hasPendingChanges || hasErrors || isSaving}
-            startIcon={isSaving ? <CircularProgress size={24} sx={{ color: 'var(--textColor)' }} /> : <CheckIcon />}
+            startIcon={
+              isSaving ? <CircularProgress size={24} sx={{ color: 'var(--textColor)' }} /> : <Icon type="Check" />
+            }
             size="medium"
             type="gradientRounded"
             title={isSaving ? t('user:common.saving') : t('user:common.save')}
@@ -345,10 +343,10 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
               value={state.avatarUrl}
               error={state.formErrors.avatar}
               sx={{ mt: 2 }}
-              endIcon={state.avatarFile ? <ClearIcon /> : undefined}
+              endIcon={state.avatarFile ? <Icon type="Clear" /> : undefined}
               endControl={
                 <IconButton
-                  icon={<FileUploadIcon />}
+                  icon={<Icon type="FileUpload" />}
                   title={t('admin:components.avatar.selectAvatar')}
                   type="gradient"
                   sx={{ ml: 1 }}
@@ -376,10 +374,10 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
               value={state.thumbnailUrl}
               error={state.formErrors.thumbnail}
               sx={{ mt: 2, mb: 1 }}
-              endIcon={state.thumbnailFile ? <ClearIcon /> : undefined}
+              endIcon={state.thumbnailFile ? <Icon type="Clear" /> : undefined}
               endControl={
                 <IconButton
-                  icon={<FileUploadIcon />}
+                  icon={<Icon type="FileUpload" />}
                   title={t('admin:components.avatar.selectThumbnail')}
                   type="gradient"
                   sx={{ ml: 1 }}
@@ -405,7 +403,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
             <Button
               disabled={!state.avatarUrl}
               fullWidth
-              startIcon={<PortraitIcon />}
+              startIcon={<Icon type="Portrait" />}
               sx={{ mb: 0, mt: 0 }}
               type="gradientRounded"
               onClick={handleGenerateThumbnail}

@@ -5,8 +5,7 @@ import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSyste
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import AnchorIcon from '@mui/icons-material/Anchor'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { AppAction } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -40,7 +39,7 @@ export const ARPlacement = () => {
         onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
-        {!inPlacingMode && <AnchorIcon />}
+        {!inPlacingMode && <Icon type="Anchor" />}
         <div style={{ margin: '3px' }}>{inPlacingMode ? t('common:ar.done') : t('common:ar.placeScene')}</div>
       </button>
     </div>
