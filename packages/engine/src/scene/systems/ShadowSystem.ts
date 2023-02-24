@@ -208,7 +208,6 @@ export default async function ShadowSystem(world: World) {
           const center = groupComponent[0].worldToLocal(sphere.center)
 
           const e = createEntity()
-          addEntityNodeChild(e, Engine.instance.currentWorld.sceneEntity)
           const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
           Engine.instance.currentWorld.scene.add(shadowObject)
           addObjectToGroup(e, shadowObject)

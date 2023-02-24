@@ -40,15 +40,24 @@ import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTa
 import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import { getUniqueName } from '../functions/getUniqueName'
+
+const toCapitalCase = (str: string) =>
+  str
+    .split(' ')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
 
 export const createNewEditorNode = (entityNode: Entity, prefabType: string): void => {
   const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
+  const name = getUniqueName(entityNode, `New ${toCapitalCase(prefabType)}`)
+
   const world = Engine.instance.currentWorld
   addEntityNodeChild(entityNode, world.sceneEntity)
   // Clone the defualt values so that it will not be bound to newly created node
-  deserializeSceneEntity(entityNode, { name: prefabType, components: cloneDeep(components) })
+  deserializeSceneEntity(entityNode, { name, components: cloneDeep(components) })
 }
 
 export const splitLazyLoadedSceneEntities = (json: SceneJson) => {

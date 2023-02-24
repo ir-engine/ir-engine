@@ -12,6 +12,7 @@ import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 
 import traverseEarlyOut from './traverseEarlyOut'
 
+// Returns an array of objects that are not ancestors of any other objects in the array.
 export function getDetachedObjectsRoots(
   objects: EntityOrObjectUUID[],
   target: EntityOrObjectUUID[] = []

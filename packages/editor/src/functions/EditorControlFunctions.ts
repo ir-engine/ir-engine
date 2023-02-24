@@ -35,9 +35,12 @@ import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/Mate
 import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '@xrengine/engine/src/scene/components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { getUniqueName } from '@xrengine/engine/src/scene/functions/getUniqueName'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
-import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import { serializeEntity, serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { createNewEditorNode, deserializeSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
@@ -58,7 +61,6 @@ import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
 import { getSpaceMatrix } from './getSpaceMatrix'
-import makeUniqueName from './makeUniqueName'
 
 /**
  *
@@ -179,64 +181,6 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
    */
 }
 
-/**
- *
- * @param nodes
- * @returns
- */
-const addObject = (
-  nodes: EntityOrObjectUUID[],
-  parents: EntityOrObjectUUID[],
-  befores: EntityOrObjectUUID[],
-  sceneData: SceneJson[] = [],
-  updateSelection = true
-) => {
-  cancelGrabOrPlacement()
-
-  const rootObjects = getDetachedObjectsRoots(nodes)
-  const world = Engine.instance.currentWorld
-
-  for (let i = 0; i < rootObjects.length; i++) {
-    const object = rootObjects[i]
-    if (typeof object !== 'string') {
-      const data = sceneData[i] ?? sceneData[0]
-
-      traverseEntityNode(object, (entity) => {
-        const node = getComponent(entity, EntityTreeComponent)
-        if (!data.entities[node.uuid]) return
-        const newEntity = createEntity()
-        setComponent(newEntity, EntityTreeComponent, { parentEntity: node.parentEntity, uuid: node.uuid })
-        getComponentState(newEntity, EntityTreeComponent).children.merge([...node.children])
-        deserializeSceneEntity(entity, data.entities[node.uuid])
-      })
-    }
-
-    let parent = parents.length ? parents[i] ?? parents[0] : world.sceneEntity
-    let before = befores.length ? befores[i] ?? befores[0] : undefined
-
-    if (typeof parent !== 'string') {
-      if (before && typeof before === 'string' && !hasComponent(parent, GroupComponent)) {
-        addComponent(parent, GroupComponent, [])
-      }
-    }
-    if (typeof parent !== 'string' && typeof object !== 'string') {
-      addEntityNodeChild(object, parent)
-
-      reparentObject3D(object, parent, typeof before === 'string' ? undefined : before)
-
-      traverseEntityNode(object, (node) => makeUniqueName(node))
-    }
-  }
-
-  if (updateSelection) {
-    EditorControlFunctions.replaceSelection(nodes)
-  }
-
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedSceneGraph({}))
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
-}
-
 const createObjectFromPrefab = (
   prefab: string,
   parentEntity = Engine.instance.currentWorld.sceneEntity as Entity | null,
@@ -268,17 +212,15 @@ const createObjectFromPrefab = (
   return newEntity
 }
 
+/**
+ * @todo copying an object should be rooted to which object is currently selected
+ */
 const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
   cancelGrabOrPlacement()
 
-  const roots = getDetachedObjectsRoots(nodes.filter((o) => typeof o !== 'string'))
-  const duplicatedObjects = roots
-    .map((object) => (typeof object === 'string' ? obj3dFromUuid(object).clone().uuid : getAllEntitiesInTree(object)))
-    .flat()
-
   const parents = [] as EntityOrObjectUUID[]
 
-  for (const o of duplicatedObjects) {
+  for (const o of nodes) {
     if (typeof o === 'string') {
       const obj3d = obj3dFromUuid(o)
       if (!obj3d.parent) throw new Error('Parent is not defined')
@@ -292,18 +234,55 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
     }
   }
 
-  const sceneData = duplicatedObjects.map((obj) =>
-    typeof obj === 'string'
-      ? {
-          entities: {} as { [uuid: EntityUUID]: EntityJson },
-          root: '' as EntityUUID,
-          version: 0,
-          metadata: {}
-        }
-      : serializeWorld(obj, true)
-  )
+  const sceneData = nodes.map((obj) => {
+    const data = null!
+    if (typeof obj === 'number') {
+      return serializeWorld(obj)
+    }
+    return data
+  })
 
-  EditorControlFunctions.addObject(duplicatedObjects, parents, [], sceneData, true)
+  const rootObjects = getDetachedObjectsRoots(nodes)
+  const world = Engine.instance.currentWorld
+
+  const copyMap = {} as { [eid: EntityOrObjectUUID]: EntityOrObjectUUID }
+
+  // @todo insert children order
+  for (let i = 0; i < rootObjects.length; i++) {
+    const object = rootObjects[i]
+    if (typeof object !== 'string') {
+      const data = sceneData[i] ?? sceneData[0]
+
+      traverseEntityNode(object, (entity) => {
+        const node = getComponent(entity, EntityTreeComponent)
+        const nodeUUID = getComponent(entity, UUIDComponent)
+        if (!data.entities[nodeUUID]) return
+        const newEntity = createEntity()
+        setComponent(newEntity, EntityTreeComponent, {
+          parentEntity: (node.parentEntity && (copyMap[node.parentEntity] as Entity)) ?? node.parentEntity
+        })
+        deserializeSceneEntity(newEntity, data.entities[nodeUUID])
+        copyMap[entity] = newEntity
+      })
+    } else {
+      // @todo check this is implemented correctly
+      const parent = (parents.length ? parents[i] ?? parents[0] : world.scene.uuid) as string
+      // let before = befores.length ? befores[i] ?? befores[0] : undefined
+
+      const pObj3d = obj3dFromUuid(parent)
+
+      const newObject = obj3dFromUuid(object).clone()
+      copyMap[object] = newObject.uuid
+
+      newObject.parent = copyMap[parent] ? obj3dFromUuid(copyMap[parent] as string) : pObj3d
+    }
+  }
+
+  EditorControlFunctions.replaceSelection(Object.values(copyMap))
+
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedSceneGraph({}))
+  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
 }
 
 const tempMatrix = new Matrix4()
@@ -644,7 +623,6 @@ export const EditorControlFunctions = {
   modifyProperty,
   modifyObject3d,
   modifyMaterial,
-  addObject,
   createObjectFromPrefab,
   duplicateObject,
   positionObject,

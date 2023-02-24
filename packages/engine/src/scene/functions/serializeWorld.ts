@@ -46,7 +46,6 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
 }
 
 export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, world = Engine.instance.currentWorld) => {
-  const entityUuid = {}
   const sceneJson = {
     version: 0,
     metadata: getSceneMetadataChanges(Engine.instance.currentWorld),
@@ -68,16 +67,15 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, wor
 
       const entityTree = getComponent(entity, EntityTreeComponent)
 
-      if (entityTree.parentEntity !== world.sceneEntity) {
+      if (entity !== world.sceneEntity) {
         entityJson.parent = getComponent(entityTree.parentEntity!, UUIDComponent)
         entityJson.index = index
       }
 
-      if (entity === rootEntity || entityTree.parentEntity === world.sceneEntity) {
+      if (entity === rootEntity || !entityTree.parentEntity) {
         sceneJson.root = uuid
       }
 
-      entityUuid[entity] = uuid
       entityJson.name = getComponent(entity, NameComponent)
 
       entityJson.components = serializeEntity(entity, world)
@@ -92,11 +90,6 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, wor
     (node) => !loadedAssets.has(node),
     true
   )
-
-  Object.keys(sceneJson.entities).forEach((key) => {
-    const entity = sceneJson.entities[key]
-    if (entity.parent) entity.parent = entityUuid[entity.parent]
-  })
 
   return sceneJson
 }
