@@ -368,9 +368,6 @@ export default async function SceneLoadingSystem(world: World) {
     useEffect(() => {
       currentLoaded += component.loadedAmount.value
       progressLoad()
-      //temporary console log to demonstrate when effect runs.
-      //progress is shown continually, but load screen does not update to reflect it.
-      console.log(currentLoaded / totalAssetSize)
     }, [component.value])
 
     return null
