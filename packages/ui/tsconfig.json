@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
+    "paths": {
+      "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
+    },
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "module": "CommonJS",
+    "strict": false,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "jsx": "react",
+    "isolatedModules": false,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+    "outDir": "./lib",
+    "types": ["vite/client"]
+  },
+  "exclude": [
+    "../server-core/src/",
+    "../client-core/src/",
+    "../xrui/core/",
+    "../projects/projects/**",
+    "**/node_modules/**",
+  ],
+  "include": [
+    "./src/**/*.ts",
+    "./serc/**/*.tsx"
+  ]
+}

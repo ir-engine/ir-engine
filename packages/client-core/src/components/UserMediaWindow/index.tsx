@@ -33,23 +33,10 @@ import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldStat
 import { MediaSettingsState } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
-
-import {
-  Launch,
-  Mic,
-  MicOff,
-  RecordVoiceOver,
-  Videocam,
-  VideocamOff,
-  VoiceOverOff,
-  VolumeDown,
-  VolumeMute,
-  VolumeOff,
-  VolumeUp
-} from '@mui/icons-material'
-import IconButton from '@mui/material/IconButton'
-import Slider from '@mui/material/Slider'
-import Tooltip from '@mui/material/Tooltip'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Slider from '@xrengine/ui/src/Slider'
+import Tooltip from '@xrengine/ui/src/Tooltip'
 
 import { useMediaInstance, useMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
@@ -691,9 +678,8 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                       [styles.mediaOn]: !videoStreamPaused
                     })}
                     onClick={toggleVideo}
-                  >
-                    {videoStreamPaused ? <VideocamOff /> : <Videocam />}
-                  </IconButton>
+                    icon={<Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />}
+                  />
                 </Tooltip>
               ) : null}
               {enableGlobalMute && !isSelf && audioStream && (
@@ -712,9 +698,8 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                       [styles.mediaOn]: !audioProducerGlobalMute
                     })}
                     onClick={toggleGlobalMute}
-                  >
-                    {audioProducerGlobalMute ? <VoiceOverOff /> : <RecordVoiceOver />}
-                  </IconButton>
+                    icon={<Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />}
+                  />
                 </Tooltip>
               )}
               {audioStream && !audioProducerPaused ? (
@@ -737,19 +722,14 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                       [styles.mediaOn]: !audioStreamPaused
                     })}
                     onClick={toggleAudio}
-                  >
-                    {isSelf ? (
-                      audioStreamPaused ? (
-                        <MicOff />
-                      ) : (
-                        <Mic />
-                      )
-                    ) : audioStreamPaused ? (
-                      <VolumeOff />
-                    ) : (
-                      <VolumeUp />
-                    )}
-                  </IconButton>
+                    icon={
+                      <Icon
+                        type={
+                          isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'
+                        }
+                      />
+                    }
+                  />
                 </Tooltip>
               ) : null}
               <Tooltip title={t('user:person.openPictureInPicture') as string}>
@@ -761,17 +741,16 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
                     e.stopPropagation()
                     togglePiP()
                   }}
-                >
-                  <Launch className={styles.pipBtn} />
-                </IconButton>
+                  icon={<Icon type="Launch" className={styles.pipBtn} />}
+                />
               </Tooltip>
             </div>
             {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
             {audioStream && !audioProducerPaused && !audioProducerGlobalMute && (
               <div className={styles['audio-slider']}>
-                {volume === 0 && <VolumeMute />}
-                {volume > 0 && volume < 0.7 && <VolumeDown />}
-                {volume >= 0.7 && <VolumeUp />}
+                {volume === 0 && <Icon type="VolumeMute" />}
+                {volume > 0 && volume < 0.7 && <Icon type="VolumeDown" />}
+                {volume >= 0.7 && <Icon type="VolumeUp" />}
                 <Slider
                   min={0}
                   max={1}

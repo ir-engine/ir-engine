@@ -6,14 +6,13 @@ import InputText from '@xrengine/client-core/src/common/components/InputText'
 import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-
-import { Autorenew, Save } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
+import Button from '@xrengine/ui/src/Button'
+import Dialog from '@xrengine/ui/src/Dialog'
+import DialogActions from '@xrengine/ui/src/DialogActions'
+import DialogContent from '@xrengine/ui/src/DialogContent'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import Icon from '@xrengine/ui/src/Icon'
+import IconButton from '@xrengine/ui/src/IconButton'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -150,7 +149,12 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
 
   return (
     <div>
-      <Dialog open={open} aria-labelledby="form-dialog-title" classes={{ paper: styles.paperDialog }} onClose={onClose}>
+      <Dialog
+        open={open}
+        aria-labelledby="form-dialog-title"
+        PaperProps={{ className: styles.paperDialog }}
+        onClose={onClose}
+      >
         <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
           <InputText
@@ -177,9 +181,10 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             menu={locationsMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations}>
-                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-              </IconButton>
+              <IconButton
+                onClick={fetchAdminLocations}
+                icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
+              />
             }
           />
 
@@ -190,9 +195,10 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             menu={instancesMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances}>
-                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-              </IconButton>
+              <IconButton
+                onClick={fetchAdminInstances}
+                icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
+              />
             }
           />
         </DialogContent>
@@ -217,7 +223,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             className={styles.gradientButton}
             onClick={handleUpdate}
           >
-            <Save style={{ marginRight: '10px' }} /> {t('admin:components.common.save')}
+            <Icon type="Save" style={{ marginRight: '10px' }} /> {t('admin:components.common.save')}
           </Button>
         </DialogActions>
       </Dialog>

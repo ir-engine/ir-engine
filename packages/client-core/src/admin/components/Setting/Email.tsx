@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
-
-import { Box, Button, Grid, Typography } from '@mui/material'
-import IconButton from '@mui/material/IconButton'
+import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
+import Grid from '@xrengine/ui/src/Grid'
+import IconButton from '@xrengine/ui/src/IconButton'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
@@ -19,6 +21,7 @@ const Email = () => {
   const id = emailSetting?.id
 
   const [showPassword, setShowPassword] = useState(false)
+  const [smsNameCharacterLimit, setSmsNameCharacterLimit] = useState(emailSetting?.smsNameCharacterLimit)
   const [smtp, setSmtp] = useState(emailSetting?.smtp)
   const [auth, setAuth] = useState(emailSetting?.smtp?.auth)
   const [from, setFrom] = useState(emailSetting?.from)
@@ -93,6 +96,7 @@ const Email = () => {
     setAuth(tempAuth)
     setSubject(tempSubject)
     setFrom(emailSetting?.from)
+    setSmsNameCharacterLimit(emailSetting?.smsNameCharacterLimit)
   }
 
   return (
@@ -140,9 +144,12 @@ const Email = () => {
             value={auth?.pass || ''}
             type={showPassword ? 'text' : 'password'}
             endAdornment={
-              <IconButton onClick={() => setShowPassword(!showPassword)}>
-                <Icon icon={showPassword ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'} color="orange" />
-              </IconButton>
+              <IconButton
+                onClick={() => setShowPassword(!showPassword)}
+                icon={
+                  <Icon icon={showPassword ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'} color="orange" />
+                }
+              />
             }
             onChange={(e) => handleUpdateAuth(e, 'pass')}
           />
@@ -190,7 +197,7 @@ const Email = () => {
           <InputText
             name="smsNameCharacterLimit"
             label={t('admin:components.setting.smsNameCharLimit')}
-            value={emailSetting?.smsNameCharacterLimit}
+            value={smsNameCharacterLimit}
             disabled
           />
         </Grid>
