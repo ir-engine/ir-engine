@@ -14,7 +14,7 @@ jobs:
         id: check-secrets
         run: |
           if [ ${{ secrets.PUBLISH_NPM_PACKAGES_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   publish-npm:
     needs:
