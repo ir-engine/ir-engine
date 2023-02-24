@@ -101,7 +101,7 @@ export const PropertiesPanelContainer = () => {
 
     content = (
       <StyledNodeEditor>
-        <CoreNodeEditor node={node as EntityTreeNode} />
+        <CoreNodeEditor node={node as EntityTreeNode} key={(node as EntityTreeNode).entity} />
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
           // nodeEntity is used as key here to signal to React when the entity has changed,

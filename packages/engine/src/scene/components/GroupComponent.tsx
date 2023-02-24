@@ -107,7 +107,7 @@ export const startGroupQueryReactor = (
 ) =>
   startQueryReactor([GroupComponent, ...Components], function (props) {
     const entity = props.root.entity
-    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+    // if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
