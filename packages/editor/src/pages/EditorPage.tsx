@@ -86,7 +86,7 @@ export const EditorPage = () => {
     const world = Engine.instance.currentWorld
     const projects = API.instance.client.service('projects').find()
     ClientModules().then(async () => {
-      initSystems(world, systems)
+      await initSystems(world, systems)
       await loadEngineInjection(world, await projects)
       setEngineReady(true)
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
