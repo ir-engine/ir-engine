@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, withRouter } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import Typography from '@mui/material/Typography'
+import Box from '@xrengine/ui/src/Box'
+import Container from '@xrengine/ui/src/Container'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
@@ -68,4 +68,4 @@ const AuthMagicLinkWrapper = (props: any): JSX.Element => {
   return <AuthMagicLink {...props} token={token} type={type} instanceId={instanceId} path={path} />
 }
 
-export default withRouter(AuthMagicLinkWrapper)
+export default AuthMagicLinkWrapper

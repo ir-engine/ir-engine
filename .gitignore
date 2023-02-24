@@ -166,3 +166,4 @@ packages/server/upload/
 project-package-jsons/*
 
 feathers/*
+/packages/ui/tests/jest-test-results.json

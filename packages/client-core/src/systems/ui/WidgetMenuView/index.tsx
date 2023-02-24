@@ -8,8 +8,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
-
-import { Mic, MicOff, Refresh as RefreshIcon } from '@mui/icons-material'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
@@ -34,13 +33,13 @@ function createWidgetButtonsState() {
 }
 
 type WidgetButtonProps = {
-  Icon: any
+  icon: any
   toggle: () => any
   label: string
   disabled?: boolean
 }
 
-const WidgetButton = ({ Icon, toggle, label, disabled }: WidgetButtonProps) => {
+const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps) => {
   const [mouseOver, setMouseOver] = useState(false)
   return (
     <XRIconButton
@@ -48,7 +47,7 @@ const WidgetButton = ({ Icon, toggle, label, disabled }: WidgetButtonProps) => {
       size="large"
       content={
         <>
-          <Icon className="svgIcon" />
+          <Icon type={name} className="svgIcon" />
           {mouseOver && <div>{label}</div>}
         </>
       }
@@ -132,8 +131,6 @@ const WidgetButtons = () => {
     }
   }
 
-  const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
-
   const activeWidgets = widgets.filter((widget) => widget.enabled && widget.icon)
 
   const additionalWidgetCount = 1 + (mediaInstanceState?.value ? 1 : 0)
@@ -146,10 +143,10 @@ const WidgetButtons = () => {
     <>
       <style>{styleString}</style>
       <div className="container" style={{ gridTemplateColumns }} xr-pixel-ratio="8" xr-layer="true">
-        <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
+        <WidgetButton icon="Refresh" toggle={handleRespawnAvatar} label={'Respawn'} />
         {mediaInstanceState?.value && (
           <WidgetButton
-            Icon={MicIcon}
+            icon={isCamAudioEnabled.value ? 'Mic' : 'MicOff'}
             toggle={handleMicClick}
             label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
           />
@@ -160,7 +157,7 @@ const WidgetButtons = () => {
           label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
         /> */}
         {activeWidgets.map((widget, i) => (
-          <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
+          <WidgetButton key={i} icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
         ))}
       </div>
     </>

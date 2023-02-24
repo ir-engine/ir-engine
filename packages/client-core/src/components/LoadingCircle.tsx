@@ -1,6 +1,6 @@
 import React from 'react'
 
-import CircularProgress from '@mui/material/CircularProgress'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
 
 type Props = {
   message?: string
