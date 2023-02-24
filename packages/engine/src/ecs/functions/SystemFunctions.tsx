@@ -285,7 +285,8 @@ function QueryReactor(props: {
 }
 
 export const startQueryReactor = (Components: QueryComponents, ChildEntityReactor: React.FC<EntityReactorProps>) => {
-  return startReactor(({ root }: ReactorProps) => (
-    <QueryReactor query={Components} ChildEntityReactor={ChildEntityReactor} root={root} />
-  ))
+  if (!ChildEntityReactor.name) Object.defineProperty(ChildEntityReactor, 'name', { value: 'ChildEntityReactor' })
+  return startReactor(function HyperfluxQueryReactor({ root }: ReactorProps) {
+    return <QueryReactor query={Components} ChildEntityReactor={ChildEntityReactor} root={root} />
+  })
 }

@@ -54,7 +54,7 @@ export default async function XRScenePlacementShader(world: World) {
   const xrState = getState(XRState)
 
   const xrScenePlacementReactor = startGroupQueryReactor(
-    function ({ obj }) {
+    function XRScenePLacementReactor({ obj }) {
       const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
       const sessionActive = useHookstate(xrState.sessionActive)
 

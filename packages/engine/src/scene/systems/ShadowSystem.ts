@@ -74,7 +74,7 @@ export default async function ShadowSystem(world: World) {
   csmGroup.name = 'CSM-group'
   Engine.instance.currentWorld.scene.add(csmGroup)
 
-  const csmReactor = startReactor(() => {
+  const csmReactor = startReactor(function CSMReactor() {
     const lightEstimator = useHookstate(xrState.isEstimatingLight)
     const directionalLights = useQuery([DirectionalLightComponent])
     const shadowsEnabled = useShadowsEnabled()
@@ -171,7 +171,7 @@ export default async function ShadowSystem(world: World) {
 
   let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
-  const dropShadowReactor = startReactor(function (props) {
+  const dropShadowReactor = startReactor(function DropShadowReactor(props) {
     const shadowComponents = useQuery([ShadowComponent, GroupComponent])
     const dropShadowComponents = useQuery([DropShadowComponent])
     const useShadows = useShadowsEnabled()

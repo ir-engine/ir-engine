@@ -256,7 +256,7 @@ export default async function XRAnchorSystem(world: World) {
   const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
-  const scenePlacementReactor = startReactor(() => {
+  const scenePlacementReactor = startReactor(function ScenePlancementReactor() {
     const scenePlacementMode = useState(xrState.scenePlacementMode)
     const xrSession = useState(xrState.session)
     const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)

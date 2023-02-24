@@ -105,7 +105,7 @@ export const startGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
   Components: QueryComponents = []
 ) =>
-  startQueryReactor([GroupComponent, ...Components], function (props) {
+  startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
     const entity = props.root.entity
     if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
