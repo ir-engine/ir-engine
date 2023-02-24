@@ -22,7 +22,7 @@ COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/taskserver/package.json ./packages/taskserver/
-COPY packages/ui/package/json ./packages/ui/
+COPY packages/ui/package.json ./packages/ui/
 COPY packages/projects/package.json ./packages/projects/
 COPY project-package-jsons ./
 COPY patches/ ./patches/
