@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
 import InputText from '@xrengine/client-core/src/common/components/InputText'
-
-import { Box, Grid, Typography } from '@mui/material'
+import Box from '@xrengine/ui/src/Box'
+import Grid from '@xrengine/ui/src/Grid'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'

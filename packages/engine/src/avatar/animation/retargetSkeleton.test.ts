@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Bone, Group, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Group, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 
 import { quaternionEqualsEpsilon, quatNearEqual } from '../../../tests/util/MathTestUtils'
 import avatarBoneMatching from '../AvatarBoneMatching'
@@ -28,8 +28,8 @@ const QUAT_EPSILON = 1e-14
 
 describe('retargetSkeleton', () => {
   it('Check retargetSkeleton Rotations', () => {
-    const defaultSkeleton = makeDefaultSkinnedMesh().skeleton
-    const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData)
+    const defaultSkeleton = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
+    const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData).children[0] as SkinnedMesh
     const targetSkeleton = targetMesh.skeleton
     const parent = new Group()
     parent.add(targetMesh)
@@ -58,8 +58,8 @@ describe('retargetSkeleton', () => {
   })
 
   it('Check retargetSkeleton Positions', () => {
-    const defaultSkeleton = makeDefaultSkinnedMesh().skeleton
-    const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData)
+    const defaultSkeleton = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
+    const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData).children[0] as SkinnedMesh
     const targetSkeleton = targetMesh.skeleton
     const parent = new Group()
     parent.add(targetMesh)
@@ -69,7 +69,8 @@ describe('retargetSkeleton', () => {
     const rig = avatarBoneMatching(parent)
     retargetSkeleton(targetSkeleton, defaultSkeleton)
 
-    const targetSkeletonUnmodified = makeSkinnedMeshFromBoneData(targetSkeletonData).skeleton
+    const targetSkeletonUnmodified = (makeSkinnedMeshFromBoneData(targetSkeletonData).children[0] as SkinnedMesh)
+      .skeleton
 
     // Check for same bone world positions with original target skeleton
     rig.Hips.traverse((bone: Bone) => {

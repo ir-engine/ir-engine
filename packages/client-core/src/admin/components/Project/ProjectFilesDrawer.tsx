@@ -7,10 +7,9 @@ import {
   AssetsPreviewPanel
 } from '@xrengine/editor/src/components/assets/AssetsPreviewPanel'
 import FileBrowserContentPanel from '@xrengine/editor/src/components/assets/FileBrowserContentPanel'
-
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
+import Box from '@xrengine/ui/src/Box'
+import Container from '@xrengine/ui/src/Container'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
 
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'

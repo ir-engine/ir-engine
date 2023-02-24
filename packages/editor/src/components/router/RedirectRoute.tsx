@@ -1,5 +1,5 @@
 import React from 'react'
-import { Redirect, Route } from 'react-router-dom'
+import { Navigate, Route } from 'react-router-dom'
 
 /**
  *
@@ -8,7 +8,7 @@ import { Redirect, Route } from 'react-router-dom'
  * @returns
  */
 export function RedirectRoute({ to, ...rest }) {
-  return <Route {...rest} render={() => <Redirect to={to} />} />
+  return <Route {...rest} element={<Navigate to={to} />} />
 }
 
 export default RedirectRoute

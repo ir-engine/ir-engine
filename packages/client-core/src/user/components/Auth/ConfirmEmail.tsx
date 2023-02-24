@@ -1,10 +1,10 @@
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import Typography from '@mui/material/Typography'
+import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import Typography from '@xrengine/ui/src/Typography'
 
 import EmptyLayout from '../../../common/components/EmptyLayout'
 import { AuthService } from '../../services/AuthService'
