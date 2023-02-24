@@ -376,7 +376,12 @@ export default async function SceneLoadingSystem(world: World) {
         removeComponent(entity, SceneAssetPendingTagComponent)
         counter--
       }
-      if (sceneAssetPendingTagQuery().length <= 0) dispatchAction(EngineActions.sceneLoaded({}))
+      if (sceneAssetPendingTagQuery().length <= 0) {
+        currentLoaded = totalAssetSize
+        counter = 0
+        progressLoad()
+        dispatchAction(EngineActions.sceneLoaded({}))
+      }
     }, [component?.finishedLoading])
 
     return null
