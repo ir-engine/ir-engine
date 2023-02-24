@@ -1,17 +1,13 @@
 import { hookstate, useHookstate, useState } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MathUtils as _Math, Euler, Quaternion } from 'three'
 
-import { defineState } from '@xrengine/hyperflux'
+import { defineState, NO_PROXY } from '@xrengine/hyperflux'
 
 import NumericInput from './NumericInput'
 import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
 
 const { RAD2DEG, DEG2RAD } = _Math
-const _euler = new Euler()
-const _empty = Object.freeze(new Euler())
-const _lastQuat = new Quaternion()
-
 /**
  * Type aliase created EulerInputProps.
  *
@@ -24,56 +20,27 @@ type EulerInputProps = {
   unit?: string
 }
 
-//To be set by editor control functions
-export const eulerInput = hookstate(new Euler())
-
 /**
  * FileIEulerInputnput used to show EulerInput.
  *
  * @type {Object}
  */
 export const EulerInput = (props: EulerInputProps) => {
-  const newValueEuler = useHookstate(new Euler())
-  const e = useState(eulerInput)
-  _lastQuat.multiply(props.quaternion.clone().invert())
-  const rotationChanged = _lastQuat.x + _lastQuat.y + _lastQuat.z + _lastQuat.z != 0
-  if (e.value.x + e.value.y + e.value.z != 0 && rotationChanged) {
-    _euler.copy(e.value)
-  } else {
-    _euler.copy(new Euler().setFromQuaternion(props.quaternion))
-  }
-  e.value.copy(_empty)
-
-  const onChange = (x: number, y: number, z: number) => {
-    if (newValueEuler.value) _euler.copy(newValueEuler.value)
-    else _euler.setFromQuaternion(props.quaternion)
-
-    newValueEuler.set(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
-    if (typeof props.onChange === 'function') {
-      props.onChange(newValueEuler.value)
-    }
-  }
-
-  // creating view for component
-  const vx = props.quaternion ? Math.round((_euler.x || 0) * RAD2DEG) : 0
-  const vy = props.quaternion ? Math.round((_euler.y || 0) * RAD2DEG) : 0
-  const vz = props.quaternion ? Math.round((_euler.z || 0) * RAD2DEG) : 0
-
-  _lastQuat.copy(props.quaternion)
+  const euler = useState(new Euler().setFromQuaternion(props.quaternion))
 
   return (
     <Vector3InputContainer>
       <UniformButtonContainer />
       <NumericInput
-        value={vx}
-        onChange={(x) => onChange(x, vy, vz)}
-        onCommit={() => props.onRelease && props.onRelease()}
+        value={euler.x.value}
+        onChange={(x) => euler.x.set(x)}
+        onCommit={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
             tag="div"
-            value={vx}
-            onChange={(x) => onChange(x, vy, vz)}
+            value={euler.x.value}
+            onChange={(x) => euler.x.set(x)}
             axis="x"
             onPointerUp={props.onRelease}
           >
@@ -82,15 +49,15 @@ export const EulerInput = (props: EulerInputProps) => {
         }
       />
       <NumericInput
-        value={vy}
-        onChange={(y) => onChange(vx, y, vz)}
+        value={euler.y.value}
+        onChange={(y) => euler.y.set(y)}
         onCommit={() => props.onRelease && props.onRelease()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
             tag="div"
-            value={vy}
-            onChange={(y) => onChange(vx, y, vz)}
+            value={euler.y.value}
+            onChange={(y) => euler.y.set(y)}
             axis="y"
             onPointerUp={props.onRelease}
           >
@@ -99,15 +66,15 @@ export const EulerInput = (props: EulerInputProps) => {
         }
       />
       <NumericInput
-        value={vz}
-        onChange={(z) => onChange(vx, vy, z)}
+        value={euler.z.value}
+        onChange={(z) => euler.z.set(z)}
         onCommit={() => props.onRelease && props.onRelease()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
             tag="div"
-            value={vz}
-            onChange={(z) => onChange(vx, vy, z)}
+            value={euler.z.value}
+            onChange={(z) => euler.z.set(z)}
             axis="z"
             onPointerUp={props.onRelease}
           >

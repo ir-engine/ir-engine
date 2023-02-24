@@ -51,7 +51,6 @@ import {
 } from '@xrengine/engine/src/transform/systems/TransformSystem'
 import { dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { eulerInput } from '../components/inputs/EulerInput'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction, SelectionState } from '../services/SelectionServices'
@@ -442,8 +441,6 @@ const rotateAround = (nodes: (EntityTreeNode | string)[], axis: Vector3, angle: 
         .premultiply(originToPivotMatrix)
         .premultiply(parentTransform.matrixInverse)
         .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
-
-      eulerInput.value.setFromQuaternion(localTransform.rotation)
 
       updateComponent(node.entity, targetComponent, { rotation: localTransform.rotation })
     }
