@@ -11,6 +11,7 @@ export const UUIDComponent = defineComponent({
 
   onSet: (entity, component, uuid: EntityUUID) => {
     component.set(uuid)
+    UUIDComponent.valueMap[entity] = uuid
     UUIDComponent.entitiesByUUID[uuid].set(entity)
   },
 

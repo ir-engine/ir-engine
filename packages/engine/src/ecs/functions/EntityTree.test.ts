@@ -45,7 +45,8 @@ describe('EntityTreeComponent', () => {
     const world = Engine.instance.currentWorld
 
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: world.sceneEntity, uuid: 'test-uuid' as EntityUUID })
+    const testUUID = 'test-uuid' as EntityUUID
+    setComponent(entity, EntityTreeComponent, { parentEntity: world.sceneEntity, uuid: testUUID })
 
     const node = getComponent(entity, EntityTreeComponent)
 
@@ -53,8 +54,8 @@ describe('EntityTreeComponent', () => {
     assert.equal(node.parentEntity, world.sceneEntity)
     assert.equal(node.rootEntity, world.sceneEntity)
 
-    assert.equal(getComponent(entity, UUIDComponent), 'test-uuid')
-    assert.equal(UUIDComponent.entitiesByUUID['test-uuid'].value, entity)
+    assert.equal(getComponent(entity, UUIDComponent), testUUID)
+    assert.equal(UUIDComponent.entitiesByUUID.value[testUUID], entity)
 
     const parentNode = getComponent(node.parentEntity!, EntityTreeComponent)
     assert.equal(parentNode.children.length, 1)
