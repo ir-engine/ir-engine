@@ -365,7 +365,7 @@ export default async function SceneLoadingSystem(world: World) {
 
     useEffect(() => {
       for (const entity of loadingComponents) {
-        if (!hasComponent(entity, SceneAssetPendingTagComponent))
+        if (hasComponent(entity, SceneAssetPendingTagComponent))
           currentLoaded += getComponent(entity, SceneAssetPendingTagComponent).loadedAmount
       }
     })
