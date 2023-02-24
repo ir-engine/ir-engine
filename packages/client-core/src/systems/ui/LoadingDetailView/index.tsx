@@ -1,20 +1,15 @@
 import { createState, State, useHookstate } from '@hookstate/core'
 import getImagePalette from 'image-palette-core'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
-import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
-import { AppLoadingStates, useLoadingState } from '../../../common/services/AppLoadingService'
 import { useSceneState } from '../../../world/services/SceneService'
-import { LoadingSystemState } from '../../state/LoadingState'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 

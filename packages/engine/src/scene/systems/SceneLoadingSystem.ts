@@ -27,6 +27,8 @@ import {
   removeComponent,
   removeQuery,
   setComponent,
+  useComponent,
+  useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -38,7 +40,7 @@ import {
   removeEntityNodeRecursively,
   updateRootNodeUuid
 } from '../../ecs/functions/EntityTree'
-import { initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
+import { initSystems, startQueryReactor, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -345,30 +347,30 @@ export const deserializeComponent = (
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 export default async function SceneLoadingSystem(world: World) {
-  let totalPendingAssets = 0
   let totalAssetSize = 0
   let currentLoaded = 0
-  const sizes = new Map<Entity, number>()
+  let counter = 0
 
-  const onComplete = (pendingAssets: number) => {
-    const promisesCompleted = totalPendingAssets - pendingAssets
+  const progressLoad = () => {
     dispatchAction(
       EngineActions.sceneLoadingProgress({
-        progress: promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * currentLoaded) / totalAssetSize)
+        progress: counter <= 0 ? 100 : Math.round((100 * currentLoaded) / totalAssetSize)
       })
     )
   }
 
-  const pendingReactor = startReactor(function (props) {
-    const loadingComponents = useQuery([SceneAssetPendingTagComponent])
+  const pendingReactor = startQueryReactor([SceneAssetPendingTagComponent], function (props) {
+    const entity = props.root.entity
+    const component = useOptionalComponent(entity, SceneAssetPendingTagComponent)
+    if (!component) return null
     currentLoaded = 0
-
     useEffect(() => {
-      for (const entity of loadingComponents) {
-        if (hasComponent(entity, SceneAssetPendingTagComponent))
-          currentLoaded += getComponent(entity, SceneAssetPendingTagComponent).loadedAmount
-      }
-    })
+      currentLoaded += component.loadedAmount.value
+      progressLoad()
+      //temporary console log to demonstrate when effect runs.
+      //progress is shown continually, but load screen does not update to reflect it.
+      console.log(currentLoaded / totalAssetSize)
+    }, [component.value])
 
     return null
   })
@@ -376,26 +378,19 @@ export default async function SceneLoadingSystem(world: World) {
   const execute = () => {
     if (!getState(EngineState).sceneLoading.value) return
 
-    const pendingAssets = sceneAssetPendingTagQuery().length
-
     for (const entity of sceneAssetPendingTagQuery.enter()) {
-      totalPendingAssets++
+      counter++
       if (!getState(EngineState).sceneLoaded.value) {
         fetch(getComponent(entity, ModelComponent).src, { method: 'HEAD' }).then((response) => {
           const fileSize = parseInt(response.headers.get('content-length')!)
-          sizes.set(entity, fileSize)
           totalAssetSize += fileSize
         })
       }
     }
 
     for (const entity of sceneAssetPendingTagQuery.exit()) {
-      sizes.delete(entity)
-      onComplete(pendingAssets)
-      if (pendingAssets === 0) {
-        totalPendingAssets = 0
-        dispatchAction(EngineActions.sceneLoaded({}))
-      }
+      counter--
+      if (counter == 0) dispatchAction(EngineActions.sceneLoaded({}))
     }
   }
 
