@@ -360,6 +360,7 @@ export default async function SceneLoadingSystem(world: World) {
   }
 
   const pendingReactor = startQueryReactor([SceneAssetPendingTagComponent], function (props) {
+    if (!props) return null
     const entity = props.root.entity
     const component = useOptionalComponent(entity, SceneAssetPendingTagComponent)
     if (!component) return null
