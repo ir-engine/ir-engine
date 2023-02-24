@@ -68,7 +68,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { SystemInstance } from '../functions/SystemFunctions'
+import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
@@ -410,6 +410,7 @@ export function createWorld() {
 }
 
 export function destroyWorld(world: World) {
+  unloadAllSystems(world)
   /** @todo this is broken - re-enable with next bitecs update */
   // bitecs.deleteWorld(world)
 }

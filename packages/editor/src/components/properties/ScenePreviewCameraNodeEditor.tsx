@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -27,7 +27,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const transform = getComponent(props.entity, LocalTransformComponent)
     transform.position.copy(position)
     transform.rotation.copy(rotation)
-    LocalTransformComponent.mapState[props.entity].set(LocalTransformComponent.map[props.entity])
+    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 
   return (
