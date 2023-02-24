@@ -1,5 +1,5 @@
 import { hookstate, useHookstate, useState } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { MathUtils as _Math, Euler, Quaternion } from 'three'
 
 import { defineState, NO_PROXY } from '@xrengine/hyperflux'
@@ -27,20 +27,26 @@ type EulerInputProps = {
  */
 export const EulerInput = (props: EulerInputProps) => {
   const euler = useState(new Euler().setFromQuaternion(props.quaternion))
-
+  const onSetEuler = useCallback(
+    (component: keyof typeof euler) => (value: number) => {
+      euler[component].set(value * DEG2RAD)
+      props.onChange?.(euler.value)
+    },
+    []
+  )
   return (
     <Vector3InputContainer>
       <UniformButtonContainer />
       <NumericInput
-        value={euler.x.value}
-        onChange={(x) => euler.x.set(x)}
+        value={euler.x.value * RAD2DEG}
+        onChange={onSetEuler('x')}
         onCommit={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
             tag="div"
-            value={euler.x.value}
-            onChange={(x) => euler.x.set(x)}
+            value={euler.x.value * RAD2DEG}
+            onChange={onSetEuler('x')}
             axis="x"
             onPointerUp={props.onRelease}
           >
@@ -49,15 +55,15 @@ export const EulerInput = (props: EulerInputProps) => {
         }
       />
       <NumericInput
-        value={euler.y.value}
-        onChange={(y) => euler.y.set(y)}
-        onCommit={() => props.onRelease && props.onRelease()}
+        value={euler.y.value * RAD2DEG}
+        onChange={onSetEuler('y')}
+        onCommit={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
             tag="div"
-            value={euler.y.value}
-            onChange={(y) => euler.y.set(y)}
+            value={euler.y.value * RAD2DEG}
+            onChange={onSetEuler('y')}
             axis="y"
             onPointerUp={props.onRelease}
           >
@@ -66,15 +72,15 @@ export const EulerInput = (props: EulerInputProps) => {
         }
       />
       <NumericInput
-        value={euler.z.value}
-        onChange={(z) => euler.z.set(z)}
-        onCommit={() => props.onRelease && props.onRelease()}
+        value={euler.z.value * RAD2DEG}
+        onChange={onSetEuler('z')}
+        onCommit={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
             tag="div"
-            value={euler.z.value}
-            onChange={(z) => euler.z.set(z)}
+            value={euler.z.value * RAD2DEG}
+            onChange={onSetEuler('z')}
             axis="z"
             onPointerUp={props.onRelease}
           >
