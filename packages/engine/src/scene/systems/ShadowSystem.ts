@@ -197,6 +197,7 @@ export default async function ShadowSystem(world: World) {
 
     useEffect(() => {
       if (
+        Engine.instance.isEditor ||
         !shadow.cast.value ||
         !shadowMaterial.value ||
         useShadows ||
@@ -235,7 +236,7 @@ export default async function ShadowSystem(world: World) {
     sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Scene] || [])
 
     const useShadows = getShadowsEnabled()
-    if (!useShadows) {
+    if (!useShadows && !Engine.instance.isEditor) {
       for (const entity of dropShadowComponentQuery()) {
         const dropShadow = getComponent(entity, DropShadowComponent)
         const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)
