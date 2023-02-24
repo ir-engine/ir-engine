@@ -43,7 +43,7 @@ const AllowedRoutes = ({ allowedRoutes }) => {
   const matchedRoutes = availableRoutes.filter((r) => {
     return r.route.split('/')[1] === pathname.split('/')[2] && allowedRoutes[r.key]
   })
-  console.log(matchedRoutes)
+
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingAllowed')} />}>
       <Routes>
