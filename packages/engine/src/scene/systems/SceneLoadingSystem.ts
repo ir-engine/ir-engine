@@ -347,8 +347,8 @@ export const deserializeComponent = (
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 export default async function SceneLoadingSystem(world: World) {
-  let totalAssetSize = 0
-  let currentLoaded = 0
+  let totalAssetSize = 1
+  let currentLoaded = 1
   let counter = 0
 
   const progressLoad = () => {
@@ -360,15 +360,24 @@ export default async function SceneLoadingSystem(world: World) {
   }
 
   const pendingReactor = startQueryReactor([SceneAssetPendingTagComponent], function (props) {
-    if (!props) return null
     const entity = props.root.entity
     const component = useOptionalComponent(entity, SceneAssetPendingTagComponent)
-    if (!component) return null
     currentLoaded = 0
     useEffect(() => {
+      if (!component) return
       currentLoaded += component.loadedAmount.value
       progressLoad()
-    }, [component.value])
+    }, [component?.loadedAmount])
+
+    useEffect(() => {
+      if (!component) return
+      console.log(component.finishedLoading.value)
+      if (component.finishedLoading.value) {
+        removeComponent(entity, SceneAssetPendingTagComponent)
+        counter--
+      }
+      if (sceneAssetPendingTagQuery().length <= 0) dispatchAction(EngineActions.sceneLoaded({}))
+    }, [component?.finishedLoading])
 
     return null
   })
@@ -384,11 +393,6 @@ export default async function SceneLoadingSystem(world: World) {
           totalAssetSize += fileSize
         })
       }
-    }
-
-    for (const entity of sceneAssetPendingTagQuery.exit()) {
-      counter--
-      if (counter == 0) dispatchAction(EngineActions.sceneLoaded({}))
     }
   }
 

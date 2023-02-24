@@ -150,8 +150,8 @@ function ModelReactor({ root }: EntityReactorProps) {
     }
     setBoundingBoxComponent(entity)
     enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
-    removeComponent(entity, SceneAssetPendingTagComponent)
-    console.log('loaded')
+    if (hasComponent(entity, SceneAssetPendingTagComponent))
+      setComponent(entity, SceneAssetPendingTagComponent, { finishedLoading: true })
 
     return () => removeObjectFromGroup(entity, scene)
   }, [modelComponent.scene])

@@ -6,7 +6,7 @@ export const SceneAssetPendingTagComponent = defineComponent({
   name: 'SceneAssetPendingTagComponent',
 
   onInit: (entity) => {
-    return { loadedAmount: 0 }
+    return { loadedAmount: 0, finishedLoading: false }
   },
 
   toJSON: () => {
@@ -16,5 +16,6 @@ export const SceneAssetPendingTagComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.number.test(json.loadedAmount)) component.loadedAmount.set(json.loadedAmount)
+    if (matches.boolean.test(json.finishedLoading)) component.finishedLoading.set(json.finishedLoading)
   }
 })
