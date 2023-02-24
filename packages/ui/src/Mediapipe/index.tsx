@@ -1,6 +1,6 @@
 import * as cam from '@mediapipe/camera_utils'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { Pose } from '@mediapipe/pose'
+import { Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import Webcam from 'react-webcam'
 
@@ -9,9 +9,9 @@ const Mediapipe = ({}: {}) => {
   const webcamRef = useRef(null as any)
   const canvasCtxRef = useRef(null as any)
 
-  const onResults = useCallback((results) => {
+  const onResults: ResultsListener = useCallback((results) => {
     if (canvasCtxRef.current !== null && canvasRef.current !== null) {
-      const { poseLandmarks, POSE_CONNECTIONS } = results
+      const { poseLandmarks } = results
       canvasCtxRef.current.save()
       canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
       canvasCtxRef.current.globalCompositeOperation = 'source-over'
@@ -24,12 +24,12 @@ const Mediapipe = ({}: {}) => {
     }
   }, [])
 
-  useEffect(() => {
-    if (canvasRef.current !== null && webcamRef.current !== null) {
-      canvasRef.current.width = webcamRef.current.video.videoWidth
-      canvasRef.current.height = webcamRef.current.video.videoHeight
-    }
-  }, [webcamRef])
+  // useEffect(() => {
+  //   if (canvasRef.current !== null && webcamRef.current !== null) {
+  //     canvasRef.current.width = webcamRef.current.video.videoWidth
+  //     canvasRef.current.height = webcamRef.current.video.videoHeight
+  //   }
+  // }, [webcamRef])
 
   useEffect(() => {
     if (canvasRef.current !== null) {
