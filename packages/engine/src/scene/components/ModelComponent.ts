@@ -112,10 +112,9 @@ function ModelReactor({ root }: EntityReactorProps) {
                 uuid
               },
               (onprogress) => {
-                if (hasComponent(entity, SceneAssetPendingTagComponent)) {
-                  setComponent(entity, SceneAssetPendingTagComponent, onprogress.loaded)
-                  getComponent(entity, SceneAssetPendingTagComponent).loadedAmount = onprogress.loaded
-                }
+                if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
+                setComponent(entity, SceneAssetPendingTagComponent, onprogress.loaded)
+                getComponent(entity, SceneAssetPendingTagComponent).loadedAmount = onprogress.loaded
               }
             )
             scene = loadedAsset.scene
