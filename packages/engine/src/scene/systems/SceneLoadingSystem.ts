@@ -371,7 +371,6 @@ export default async function SceneLoadingSystem(world: World) {
 
     useEffect(() => {
       if (!component) return
-      console.log(component.finishedLoading.value)
       if (component.finishedLoading.value) {
         removeComponent(entity, SceneAssetPendingTagComponent)
         counter--
