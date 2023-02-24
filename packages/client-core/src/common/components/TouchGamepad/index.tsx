@@ -7,8 +7,7 @@ import { ButtonTypes } from '@xrengine/engine/src/input/InputState'
 import { InteractState } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
 import { useIsHeadset } from '@xrengine/engine/src/xr/XRState'
 import { getState } from '@xrengine/hyperflux'
-
-import TouchAppIcon from '@mui/icons-material/TouchApp'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
@@ -70,7 +69,7 @@ export const TouchGamepad = () => {
         onPointerDown={(): void => triggerButton(value.button, true)}
         onPointerUp={(): void => triggerButton(value.button, false)}
       >
-        <TouchAppIcon />
+        <Icon type="TouchApp" />
       </div>
     )
   })

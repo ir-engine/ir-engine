@@ -10,8 +10,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 import { getState } from '@xrengine/hyperflux'
-
-import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService, AvatarState } from '../../../user/services/AvatarService'
@@ -135,7 +134,7 @@ const SelectAvatarMenu = () => {
             className="iconBlock"
             variant="iconOnly"
             onClick={openProfileMenu}
-            content={<ArrowBack />}
+            content={<Icon type="ArrowBack" />}
           />
           <h2>{t('user:avatar.titleUploadAvatar')}</h2>
         </div>
@@ -149,7 +148,7 @@ const SelectAvatarMenu = () => {
             xr-layer="true"
             onClick={loadPreviousAvatars}
             disabled={page === 0}
-            content={<ArrowBackIos className="size" />}
+            content={<Icon type="ArrowBackIos" className="size" />}
           />
           <div className="innerMenuContainer">
             <XRIconButton
@@ -166,20 +165,20 @@ const SelectAvatarMenu = () => {
               backgroundColor="#23af3a"
               onClick={confirmAvatar}
               disabled={selectedAvatar?.avatar?.name == avatarId}
-              content={<Check />}
+              content={<Icon type="Check" />}
             />
             <XRIconButton
               xr-layer="true"
               backgroundColor="rgb(255 255 255 / 70%)"
               onClick={openAvatarSelectMenu}
-              content={<PersonAdd className="size" />}
+              content={<Icon type="PersonAdd" className="size" />}
             />
           </div>
           <XRIconButton
             xr-layer="true"
             onClick={loadNextAvatars}
             disabled={(page + 1) * imgPerPage >= avatarState.total.value}
-            content={<ArrowForwardIos className="size" />}
+            content={<Icon type="ArrowForwardIos" className="size" />}
           />
         </div>
       </div>

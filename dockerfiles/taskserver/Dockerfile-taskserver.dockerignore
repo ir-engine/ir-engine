@@ -22,6 +22,7 @@ packages/instanceserver
 packages/ops
 packages/server
 packages/test
+packages/ui
 
 
 kubernetes/**

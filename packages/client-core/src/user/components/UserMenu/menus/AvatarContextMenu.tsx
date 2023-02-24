@@ -11,8 +11,8 @@ import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
-
-import { Box, Chip } from '@mui/material'
+import Box from '@xrengine/ui/src/Box'
+import Chip from '@xrengine/ui/src/Chip'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'

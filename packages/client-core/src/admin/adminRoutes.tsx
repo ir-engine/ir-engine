@@ -3,13 +3,13 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { dispatchAction } from '@xrengine/hyperflux'
+import Dashboard from '@xrengine/ui/src/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import AdminSystem from '../systems/AdminSystem'
-import Dashboard from '../user/components/Dashboard'
 import { useAuthState } from '../user/services/AuthService'
 import Analytics from './components/Analytics'
 

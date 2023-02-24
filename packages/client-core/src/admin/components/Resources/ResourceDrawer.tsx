@@ -11,16 +11,15 @@ import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
 } from '@xrengine/editor/src/components/assets/AssetsPreviewPanel'
-
-import FileUploadIcon from '@mui/icons-material/FileUpload'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
-import Typography from '@mui/material/Typography'
+import Box from '@xrengine/ui/src/Box'
+import Button from '@xrengine/ui/src/Button'
+import Container from '@xrengine/ui/src/Container'
+import DialogActions from '@xrengine/ui/src/DialogActions'
+import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import FormControl from '@xrengine/ui/src/FormControl'
+import FormHelperText from '@xrengine/ui/src/FormHelperText'
+import Icon from '@xrengine/ui/src/Icon'
+import Typography from '@xrengine/ui/src/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -306,7 +305,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         <>
           <label htmlFor="select-file">
             <InputFile id="select-file" name="resourceFile" onChange={handleChangeFile} />
-            <Button className={styles.gradientButton} component="span" startIcon={<FileUploadIcon />}>
+            <Button className={styles.gradientButton} component="span" startIcon={<Icon type="FileUpload" />}>
               {t('admin:components.resources.selectFile')}
             </Button>
           </label>
