@@ -21,5 +21,5 @@ export const deserializeModel: ComponentDeserializeFunction = (
   /**
    * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
    */
-  addComponent(entity, SceneAssetPendingTagComponent)
+  setComponent(entity, SceneAssetPendingTagComponent)
 }

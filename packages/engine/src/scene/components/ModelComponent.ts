@@ -113,8 +113,7 @@ function ModelReactor({ root }: EntityReactorProps) {
               },
               (onprogress) => {
                 if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
-                setComponent(entity, SceneAssetPendingTagComponent, onprogress.loaded)
-                getComponent(entity, SceneAssetPendingTagComponent).loadedAmount = onprogress.loaded
+                setComponent(entity, SceneAssetPendingTagComponent, { loadedAmount: onprogress.loaded })
               }
             )
             scene = loadedAsset.scene
