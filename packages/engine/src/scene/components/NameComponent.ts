@@ -11,6 +11,7 @@ export const NameComponent = defineComponent({
   onSet: (entity, component, name?: string) => {
     if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')
     component.set(name)
+    NameComponent.valueMap[entity] = name
     const namedEntities = NameComponent.entitiesByName[name]
     const exists = !!namedEntities.value
     exists && namedEntities.set([...namedEntities.value!, entity])

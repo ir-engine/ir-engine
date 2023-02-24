@@ -49,7 +49,7 @@ export const parameters = {
   },
   options: {
     storySort: {
-      order: [],
+      order: ['Expermiental'],
     },
   },
   docs: {
