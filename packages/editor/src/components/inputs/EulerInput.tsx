@@ -10,6 +10,7 @@ import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from '
 const { RAD2DEG, DEG2RAD } = _Math
 const _euler = new Euler()
 const _empty = Object.freeze(new Euler())
+const _lastQuat = new Quaternion()
 
 /**
  * Type aliase created EulerInputProps.
@@ -34,10 +35,12 @@ export const eulerInput = hookstate(new Euler())
 export const EulerInput = (props: EulerInputProps) => {
   const newValueEuler = useHookstate(new Euler())
   const e = useState(eulerInput)
-  if (e.value.x + e.value.y + e.value.z != 0) {
+  _lastQuat.multiply(props.quaternion.clone().invert())
+  const rotationChanged = _lastQuat.x + _lastQuat.y + _lastQuat.z + _lastQuat.z != 0
+  if (e.value.x + e.value.y + e.value.z != 0 && rotationChanged) {
     _euler.copy(e.value)
   } else {
-    _euler.copy(newValueEuler.value)
+    _euler.copy(new Euler().setFromQuaternion(props.quaternion))
   }
   e.value.copy(_empty)
 
@@ -55,6 +58,8 @@ export const EulerInput = (props: EulerInputProps) => {
   const vx = props.quaternion ? Math.round((_euler.x || 0) * RAD2DEG) : 0
   const vy = props.quaternion ? Math.round((_euler.y || 0) * RAD2DEG) : 0
   const vz = props.quaternion ? Math.round((_euler.z || 0) * RAD2DEG) : 0
+
+  _lastQuat.copy(props.quaternion)
 
   return (
     <Vector3InputContainer>

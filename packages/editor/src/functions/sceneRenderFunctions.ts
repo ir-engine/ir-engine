@@ -30,13 +30,11 @@ export const DefaultExportOptions: DefaultExportOptionsType = {
 
 type SceneStateType = {
   isInitialized: boolean
-  transformGizmo: TransformGizmo
   onUpdateStats?: (info: WebGLInfo) => void
 }
 
 export const SceneState: SceneStateType = {
-  isInitialized: false,
-  transformGizmo: null!
+  isInitialized: false
 }
 
 export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
