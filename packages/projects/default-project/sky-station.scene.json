@@ -450,7 +450,7 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "generateBVH": false,
+            "generateBVH": true,
             "matrixAutoUpdate": true
           }
         },
