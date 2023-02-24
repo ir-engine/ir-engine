@@ -33,7 +33,7 @@
     "build:storybook": "build-storybook -c .storybook -o build/",
     "predeploy": "npm run build:storybook",
     "deploy": "gh-pages -d build/",
-    "storybook": "start-storybook -p 6006"
+    "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006"
   },
   "dependencies": {
     "@mui/icons-material": "^5.11.0",
