@@ -30,7 +30,7 @@ export const EulerInput = (props: EulerInputProps) => {
   const onSetEuler = useCallback(
     (component: keyof typeof euler) => (value: number) => {
       const radVal = value * DEG2RAD
-      ;(euler[component].value !== radVal && euler[component].set(radVal)) || props.onChange?.(euler.value)
+      euler[component].value !== radVal && (euler[component].set(radVal) || props.onChange?.(euler.value))
     },
     []
   )
