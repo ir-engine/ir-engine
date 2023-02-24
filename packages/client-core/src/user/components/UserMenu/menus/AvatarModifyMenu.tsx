@@ -23,6 +23,7 @@ import {
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import Box from '@xrengine/ui/src/Box'
+import CircularProgress from '@xrengine/ui/src/CircularProgress'
 import Grid from '@xrengine/ui/src/Grid'
 import Icon from '@xrengine/ui/src/Icon'
 import IconButton from '@xrengine/ui/src/IconButton'
@@ -55,6 +56,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
   const [avatarSrc, setAvatarSrc] = useState('')
   const [showConfirmThumbnail, setShowConfirmThumbnail] = useState(false)
   const [showConfirmChanges, setShowConfirmChanges] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const avatarRef = useRef<HTMLInputElement | null>(null)
   const thumbnailRef = useRef<HTMLInputElement | null>(null)
 
@@ -235,38 +237,46 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
   }
 
   const handleSave = async () => {
-    let avatarBlob: Blob | undefined = undefined
-    let thumbnailBlob: Blob | undefined = undefined
+    setIsSaving(true)
 
-    if (state.avatarFile) {
-      avatarBlob = state.avatarFile
-    } else if (state.avatarUrl) {
-      const avatarData = await fetch(state.avatarUrl)
-      avatarBlob = await avatarData.blob()
+    try {
+      let avatarBlob: Blob | undefined = undefined
+      let thumbnailBlob: Blob | undefined = undefined
+
+      if (state.avatarFile) {
+        avatarBlob = state.avatarFile
+      } else if (state.avatarUrl) {
+        const avatarData = await fetch(state.avatarUrl)
+        avatarBlob = await avatarData.blob()
+      }
+
+      if (state.thumbnailFile) {
+        thumbnailBlob = state.thumbnailFile
+      } else if (state.thumbnailUrl) {
+        const thumbnailData = await fetch(state.thumbnailUrl)
+        thumbnailBlob = await thumbnailData.blob()
+      }
+
+      if (selectedAvatar) {
+        await AvatarService.patchAvatar(
+          selectedAvatar,
+          state.name,
+          selectedAvatar.modelResource?.url !== state.avatarUrl ||
+            selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
+          avatarBlob,
+          thumbnailBlob
+        )
+        changeActiveMenu(Views.AvatarSelect)
+      } else if (avatarBlob && thumbnailBlob) {
+        await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
+
+        changeActiveMenu(Views.Closed)
+      }
+    } catch (err) {
+      console.error(err)
     }
 
-    if (state.thumbnailFile) {
-      thumbnailBlob = state.thumbnailFile
-    } else if (state.thumbnailUrl) {
-      const thumbnailData = await fetch(state.thumbnailUrl)
-      thumbnailBlob = await thumbnailData.blob()
-    }
-
-    if (selectedAvatar) {
-      await AvatarService.patchAvatar(
-        selectedAvatar,
-        state.name,
-        selectedAvatar.modelResource?.url !== state.avatarUrl ||
-          selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
-        avatarBlob,
-        thumbnailBlob
-      )
-      changeActiveMenu(Views.AvatarSelect)
-    } else if (avatarBlob && thumbnailBlob) {
-      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
-
-      changeActiveMenu(Views.Closed)
-    }
+    setIsSaving(false)
   }
 
   const handleBack = () => {
@@ -284,14 +294,16 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
       actions={
         <Box display="flex" width="100%">
           <Button
-            disabled={!hasPendingChanges || hasErrors}
-            startIcon={<Icon type="Check" />}
+            disabled={!hasPendingChanges || hasErrors || isSaving}
+            startIcon={
+              isSaving ? <CircularProgress size={24} sx={{ color: 'var(--textColor)' }} /> : <Icon type="Check" />
+            }
             size="medium"
             type="gradientRounded"
-            title={t('user:common.save')}
+            title={isSaving ? t('user:common.saving') : t('user:common.save')}
             onClick={handleSave}
           >
-            {t('user:common.save')}
+            {isSaving ? t('user:common.saving') : t('user:common.save')}
           </Button>
         </Box>
       }

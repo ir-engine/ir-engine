@@ -46,13 +46,14 @@ import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpda
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
-  TransformComponent
+  TransformComponent,
+  TransformComponentType
 } from '@xrengine/engine/src/transform/components/TransformComponent'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@xrengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
@@ -321,6 +322,7 @@ const positionObject = (
     } else {
       const transform = getComponent(node, TransformComponent)
       const localTransform = getOptionalComponent(node, LocalTransformComponent) ?? transform
+      const targetComponent = hasComponent(node, LocalTransformComponent) ? LocalTransformComponent : TransformComponent
 
       if (space === TransformSpace.Local) {
         if (addToPosition) localTransform.position.add(pos)
@@ -339,7 +341,9 @@ const positionObject = (
         const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
+
         localTransform.position.copy(tempVector)
+        updateComponent(node, targetComponent, { position: localTransform.position })
       }
     }
   }
@@ -359,7 +363,6 @@ const rotateObject = (
     if (typeof node === 'string') {
       const obj3d = obj3dFromUuid(node)
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
-
       if (space === TransformSpace.Local) {
         obj3d.quaternion.copy(T_QUAT_1)
         obj3d.updateMatrix()
@@ -369,12 +372,12 @@ const rotateObject = (
 
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
-
         obj3d.quaternion.copy(newLocalQuaternion)
       }
     } else {
       const transform = getComponent(node, TransformComponent)
       const localTransform = getComponent(node, LocalTransformComponent) || transform
+      const targetComponent = getComponent(node, LocalTransformComponent) ? TransformComponent : LocalTransformComponent
 
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
@@ -391,7 +394,7 @@ const rotateObject = (
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
-        localTransform.rotation.copy(newLocalQuaternion)
+        updateComponent(node, targetComponent, { rotation: newLocalQuaternion })
         computeLocalTransformMatrix(node)
         computeTransformMatrix(node)
       }
@@ -422,6 +425,7 @@ const rotateAround = (nodes: EntityOrObjectUUID[], axis: Vector3, angle: number,
       const parentTransform = entityTreeComponent.parentEntity
         ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
         : transform
+      const targetComponent = hasComponent(node, LocalTransformComponent) ? LocalTransformComponent : TransformComponent
 
       new Matrix4()
         .copy(transform.matrix)
@@ -430,6 +434,8 @@ const rotateAround = (nodes: EntityOrObjectUUID[], axis: Vector3, angle: number,
         .premultiply(originToPivotMatrix)
         .premultiply(parentTransform.matrixInverse)
         .decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+
+      updateComponent(node, targetComponent, { rotation: localTransform.rotation })
     }
   }
 }
@@ -465,7 +471,7 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    setComponent(node as Entity, TransformComponent, { scale: transformComponent.scale })
+    updateComponent(node as Entity, LocalTransformComponent, { scale: transformComponent.scale })
   }
 }
 

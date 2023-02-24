@@ -13,7 +13,7 @@ jobs:
         id: check-secrets
         run: |
           if [ ${{ secrets.UPDATE_DEPS_BRANCH_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   update-deps-branch:
     needs:
