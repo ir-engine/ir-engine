@@ -43,9 +43,12 @@ export const autopilotSetPosition = (entity: Entity) => {
     physicsWorld,
     autopilotRaycastArgs
   )
+
+  if (!castedRay.length) return
+
   const rayNormal = new Vector3(castedRay[0].normal.x, castedRay[0].normal.y, castedRay[0].normal.z)
-  if (!castedRay.length || !assessWalkability(entity, rayNormal, castedRay[0].position as Vector3, physicsWorld))
-    return undefined
+
+  if (!assessWalkability(entity, rayNormal, castedRay[0].position as Vector3, physicsWorld)) return
 
   const autopilotPosition = castedRay[0].position
   markerState.walkTarget.set(autopilotPosition as Vector3)
