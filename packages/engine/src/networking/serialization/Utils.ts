@@ -1,4 +1,5 @@
 import { Entity } from '../../ecs/classes/Entity'
+import { ViewCursor } from './ViewCursor'
 
 export type Vector3SoA = {
   x: Float64Array
@@ -11,6 +12,11 @@ export type Vector4SoA = {
   y: Float64Array
   z: Float64Array
   w: Float64Array
+}
+
+export type SerializationSchema = {
+  read: (v: DataView, entity: Entity) => void | ViewCursor
+  write: (v: DataView, entity: Entity) => void | ViewCursor
 }
 
 /**

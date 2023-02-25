@@ -18,7 +18,14 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
-import { expand, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
+import {
+  expand,
+  QUAT_MAX_RANGE,
+  QUAT_PRECISION_MULT,
+  SerializationSchema,
+  VEC3_MAX_RANGE,
+  VEC3_PRECISION_MULT
+} from './Utils'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
@@ -177,42 +184,42 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
   }
 }
 
-export const readPosition = readVector3(TransformComponent.position)
-export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
+// export const readPosition = readVector3(TransformComponent.position)
+// export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
 
-export const readBodyPosition = readVector3(RigidBodyComponent.position)
-export const readBodyRotation = readCompressedRotation(RigidBodyComponent.rotation)
-export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
-export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
+// export const readBodyPosition = readVector3(RigidBodyComponent.position)
+// export const readBodyRotation = readCompressedRotation(RigidBodyComponent.rotation)
+// export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
+// export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
 
-export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Record<Entity, boolean>) => {
-  const changeMask = readUint8(v)
-  let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
-  dirtyTransforms[entity] = true
-}
+// export const readTransform = (v: ViewCursor, entity: Entity, dirtyTransforms: Record<Entity, boolean>) => {
+//   const changeMask = readUint8(v)
+//   let b = 0
+//   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
+//   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
+//   dirtyTransforms[entity] = true
+// }
 
-export const readRigidBody = (v: ViewCursor, entity: Entity) => {
-  const changeMask = readUint8(v)
-  let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readBodyPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readBodyRotation(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readBodyLinearVelocity(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readBodyAngularVelocity(v, entity)
-  if (hasComponent(entity, RigidBodyComponent)) {
-    const rigidBody = getComponent(entity, RigidBodyComponent)
-    const position = rigidBody.position
-    const rotation = rigidBody.rotation
-    RigidBodyComponent.targetKinematicPosition.x[entity] = position.x
-    RigidBodyComponent.targetKinematicPosition.y[entity] = position.y
-    RigidBodyComponent.targetKinematicPosition.z[entity] = position.z
-    RigidBodyComponent.targetKinematicRotation.x[entity] = rotation.x
-    RigidBodyComponent.targetKinematicRotation.y[entity] = rotation.y
-    RigidBodyComponent.targetKinematicRotation.z[entity] = rotation.z
-    RigidBodyComponent.targetKinematicRotation.w[entity] = rotation.w
-  }
-}
+// export const readRigidBody = (v: ViewCursor, entity: Entity) => {
+//   const changeMask = readUint8(v)
+//   let b = 0
+//   if (checkBitflag(changeMask, 1 << b++)) readBodyPosition(v, entity)
+//   if (checkBitflag(changeMask, 1 << b++)) readBodyRotation(v, entity)
+//   if (checkBitflag(changeMask, 1 << b++)) readBodyLinearVelocity(v, entity)
+//   if (checkBitflag(changeMask, 1 << b++)) readBodyAngularVelocity(v, entity)
+//   if (hasComponent(entity, RigidBodyComponent)) {
+//     const rigidBody = getComponent(entity, RigidBodyComponent)
+//     const position = rigidBody.position
+//     const rotation = rigidBody.rotation
+//     RigidBodyComponent.targetKinematicPosition.x[entity] = position.x
+//     RigidBodyComponent.targetKinematicPosition.y[entity] = position.y
+//     RigidBodyComponent.targetKinematicPosition.z[entity] = position.z
+//     RigidBodyComponent.targetKinematicRotation.x[entity] = rotation.x
+//     RigidBodyComponent.targetKinematicRotation.y[entity] = rotation.y
+//     RigidBodyComponent.targetKinematicRotation.z[entity] = rotation.z
+//     RigidBodyComponent.targetKinematicRotation.w[entity] = rotation.w
+//   }
+// }
 
 export const readXRHeadPosition = readVector3(AvatarHeadIKComponent.target.position)
 export const readXRHeadRotation = readCompressedRotation(AvatarHeadIKComponent.target.rotation)
@@ -244,7 +251,6 @@ export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightRotation(v, entity)
 }
 
-/** @deprecated */
 // export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness: string, bone: string[]) => {
 //   const changeMask = readUint16(v)
 //   let b = 0
@@ -258,7 +264,7 @@ export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
 //     }
 //   })
 // }
-/** @deprecated */
+
 // export const readXRHandBones = (v: ViewCursor, entity: Entity) => {
 //   const changeMask = readUint16(v)
 //   const handednessBitValue = readUint8(v)
@@ -270,7 +276,7 @@ export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
 //     if (checkBitflag(changeMask, 1 << b++)) readXRHandBoneJoints(v, entity, handedness, bone)
 //   })
 // }
-/** @deprecated */
+
 // export const readXRHands = (v: ViewCursor, entity: Entity) => {
 //   const changeMask = readUint16(v)
 //   let b = 0
@@ -280,7 +286,12 @@ export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
 //   }
 // }
 
-export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
+export const readEntity = (
+  v: ViewCursor,
+  world: World,
+  fromUserId: UserId,
+  serializationSchema: SerializationSchema[]
+) => {
   const netId = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
@@ -288,19 +299,25 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
 
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, world.dirtyTransforms)
-  if (checkBitflag(changeMask, 1 << b++)) readRigidBody(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRHead(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRLeftHand(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRRightHand(v, entity)
+
+  for (const component of serializationSchema) {
+    if (checkBitflag(changeMask, 1 << b++)) component.read(v, entity)
+  }
+
+  // if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, world.dirtyTransforms)
+  // if (checkBitflag(changeMask, 1 << b++)) readRigidBody(v, entity)
+  // if (checkBitflag(changeMask, 1 << b++)) readXRHead(v, entity)
+  // if (checkBitflag(changeMask, 1 << b++)) readXRLeftHand(v, entity)
+  // if (checkBitflag(changeMask, 1 << b++)) readXRRightHand(v, entity)
   // if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
 }
 
 export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserID: UserId) => {
+  const entitySchema = Object.values(world.networkSchema)
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, world, fromUserID)
+      readEntity(v, world, fromUserID, entitySchema)
     }
   }
 }
