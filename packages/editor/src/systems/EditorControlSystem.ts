@@ -47,7 +47,7 @@ import {
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
@@ -60,7 +60,7 @@ import {
   toggleTransformPivot,
   toggleTransformSpace
 } from '../functions/transformFunctions'
-import { EditorHelperState } from '../services/EditorHelperState'
+import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
 import EditorHistoryReceptor, { EditorHistoryAction } from '../services/EditorHistory'
 import EditorSelectionReceptor, { SelectionState } from '../services/SelectionServices'
 
@@ -82,7 +82,7 @@ export default async function EditorControlSystem(world: World) {
   const selectionState = getState(SelectionState)
   const editorHelperState = getState(EditorHelperState)
 
-  const gizmoEntity = editorHelperState.value.transformGizmoEntity
+  const gizmoEntity = createTransformGizmo()
 
   const raycaster = new Raycaster()
   const raycasterResults: Intersection<Object3D>[] = []
@@ -272,9 +272,11 @@ export default async function EditorControlSystem(world: World) {
   const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
   const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent).gizmo
+  const changedTransformMode = createActionQueue(EditorHelperAction.changedTransformMode.matches)
 
   const execute = () => {
-    if (world.localClientEntity || !hasComponent(gizmoEntity, TransformGizmoComponent)) return
+    for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
+    if (world.localClientEntity) return
 
     selectedParentEntities = selectionState.selectedParentEntities.value
     selectedEntities = selectionState.selectedEntities.value
@@ -287,8 +289,6 @@ export default async function EditorControlSystem(world: World) {
 
     transformSpaceChanged = transformSpace !== editorHelperState.transformSpace.value
     transformSpace = editorHelperState.transformSpace.value
-
-    if (!gizmoObj) return
 
     const inputState = world.buttons
 

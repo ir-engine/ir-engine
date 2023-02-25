@@ -64,7 +64,6 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      createTransformGizmo()
 
       Engine.instance.store.defaultDispatchDelay = 0
 
@@ -96,7 +95,6 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       rootNode = Engine.instance.currentWorld.sceneEntity
@@ -109,7 +107,6 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       const world = Engine.instance.currentWorld
@@ -136,7 +133,6 @@ describe('EditorControlFunctions', () => {
       assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 1)
       assert.equal(getComponent(rootNode, EntityTreeComponent).children[0], entity)
       assert(hasComponent(entity, GroupComponent))
-      console.log(rootNode)
     })
 
     it('places created prefab before passed objects', () => {
@@ -159,7 +155,6 @@ describe('EditorControlFunctions', () => {
       const entity1 = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, rootNode)
       const entity2 = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, rootNode)
       const entity3 = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, rootNode)
-      console.log(rootNode)
 
       assert.equal(getComponent(entity1, NameComponent), 'New Group')
       assert.equal(getComponent(entity2, NameComponent), 'New Group 2')
@@ -180,7 +175,6 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       const rootNode = Engine.instance.currentWorld.sceneEntity
@@ -216,7 +210,6 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       const world = Engine.instance.currentWorld
@@ -265,7 +258,6 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      createTransformGizmo()
       Engine.instance.store.defaultDispatchDelay = 0
 
       const rootNode = Engine.instance.currentWorld.sceneEntity
