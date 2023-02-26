@@ -1,4 +1,4 @@
-import { createState } from '@hookstate/core'
+import { createState, useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -7,6 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
+import { getState } from '@xrengine/hyperflux'
 import Icon from '@xrengine/ui/src/Icon'
 
 import { MediaInstanceConnectionService } from '../../../common/services/MediaInstanceConnectionService'
@@ -18,7 +19,7 @@ import {
   stopLipsyncTracking
 } from '../../../media/webcam/WebcamInput'
 import { useChatState } from '../../../social/services/ChatService'
-import { MediaStreams } from '../../../transports/MediaStreams'
+import { MediaStreamState } from '../../../transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -46,6 +47,7 @@ const MediaSessionMenuView = () => {
   const { t } = useTranslation()
   const chatState = useChatState()
   const mediastream = useMediaStreamState()
+  const mediaStreamState = useHookstate(getState(MediaStreamState))
 
   const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
@@ -63,8 +65,8 @@ const MediaSessionMenuView = () => {
   const checkEndVideoChat = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (
-      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
+      (mediaStreamState.audioPaused.value || mediaStreamState.camAudioProducer.value == null) &&
+      (mediaStreamState.videoPaused.value || mediaStreamState.camVideoProducer.value == null) &&
       instanceChannel.channelType !== 'instance'
     ) {
       await endVideoChat(mediaNetwork, {})
@@ -78,11 +80,12 @@ const MediaSessionMenuView = () => {
   const handleToggleAudio = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaNetwork, ['audio'])) {
-      if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
+      if (mediaStreamState.camAudioProducer.value == null) await createCamAudioProducer(mediaNetwork)
       else {
-        const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+        const audioPaused = mediaStreamState.audioPaused.value
+        mediaStreamState.audioPaused.set(!audioPaused)
+        if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value)
+        else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value)
         checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
@@ -91,14 +94,14 @@ const MediaSessionMenuView = () => {
 
   const handleToggleFaceTracking = async () => {
     if (isFaceTrackingEnabled.value) {
-      MediaStreams.instance.setFaceTracking(false)
+      mediaStreamState.faceTracking.set(false)
       stopFaceTracking()
       stopLipsyncTracking()
       MediaStreamService.updateFaceTrackingState()
     } else {
       const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       if (await configureMediaTransports(mediaNetwork, ['video', 'audio'])) {
-        MediaStreams.instance.setFaceTracking(true)
+        mediaStreamState.faceTracking.set(true)
         startFaceTracking()
         startLipsyncTracking()
         MediaStreamService.updateFaceTrackingState()
@@ -109,11 +112,12 @@ const MediaSessionMenuView = () => {
   const handleToggleVideo = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaNetwork, ['video'])) {
-      if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
+      if (mediaStreamState.camVideoProducer.value == null) await createCamVideoProducer(mediaNetwork)
       else {
-        const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-        else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
+        const videoPaused = mediaStreamState.videoPaused.value
+        mediaStreamState.videoPaused.set(!videoPaused)
+        if (!videoPaused) await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value)
+        else await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value)
         checkEndVideoChat()
       }
 
@@ -123,7 +127,7 @@ const MediaSessionMenuView = () => {
 
   const handleToggleScreenShare = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (!MediaStreams.instance.screenVideoProducer) await startScreenshare(mediaNetwork)
+    if (!mediaStreamState.screenVideoProducer.value) await startScreenshare(mediaNetwork)
     else await stopScreenshare(mediaNetwork)
   }
 

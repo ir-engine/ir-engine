@@ -13,7 +13,7 @@ import Icon from '@xrengine/ui/src/Icon'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
-import { MediaStreams } from '../../../transports/MediaStreams'
+import { MediaStreamState } from '../../../transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -121,11 +121,13 @@ const WidgetButtons = () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (!mediaNetwork) return
     if (await configureMediaTransports(mediaNetwork, ['audio'])) {
-      if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
+      const mediaStreamState = getState(MediaStreamState)
+      if (mediaStreamState.camAudioProducer.value == null) await createCamAudioProducer(mediaNetwork)
       else {
-        const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+        const audioPaused = mediaStreamState.audioPaused.value
+        mediaStreamState.audioPaused.set(!audioPaused)
+        if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value)
+        else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value)
       }
       MediaStreamService.updateCamAudioState()
     }

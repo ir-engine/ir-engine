@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -39,6 +38,7 @@ import Slider from '@xrengine/ui/src/Slider'
 import Tooltip from '@xrengine/ui/src/Tooltip'
 
 import { useMediaInstance, useMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
+import { MediaStreamState } from '../../transports/MediaStreams'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
@@ -102,6 +102,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const currentChannelInstanceConnection = useMediaInstance()
 
+  const mediaStreamState = useHookstate(getState(MediaStreamState))
   const mediaSettingState = useHookstate(getState(MediaSettingsState))
   const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
   const rendered =
@@ -201,28 +202,28 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const closeProducerListener = (producerId: string) => {
     if (producerId === videoStreamRef?.current?.id) {
       videoRef.current?.srcObject?.getVideoTracks()[0].stop()
-      if (!isScreen) MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
-      else MediaStreams.instance.localScreen.getVideoTracks()[0].stop
+      if (!isScreen) mediaStreamState.videoStream.value!.getVideoTracks()[0].stop()
+      else mediaStreamState.localScreen.value!.getVideoTracks()[0].stop
     }
 
     if (producerId === audioStreamRef?.current?.id) {
       audioRef.current?.srcObject?.getAudioTracks()[0].stop()
-      if (!isScreen) MediaStreams.instance.audioStream.getAudioTracks()[0].stop()
+      if (!isScreen) mediaStreamState.audioStream.value!.getAudioTracks()[0].stop()
     }
   }
 
   useEffect(() => {
     if (isSelf && !isScreen) {
-      setVideoStream(MediaStreams.instance.camVideoProducer)
-      setVideoStreamPaused(MediaStreams.instance.videoPaused)
-    } else if (isSelf && isScreen) setVideoStream(MediaStreams.instance.screenVideoProducer)
+      setVideoStream(mediaStreamState.camVideoProducer.value)
+      setVideoStreamPaused(mediaStreamState.videoPaused.value)
+    } else if (isSelf && isScreen) setVideoStream(mediaStreamState.screenVideoProducer.value)
   }, [isCamVideoEnabled.value])
 
   useEffect(() => {
     if (isSelf && !isScreen) {
-      setAudioStream(MediaStreams.instance.camAudioProducer)
-      setAudioStreamPaused(MediaStreams.instance.audioPaused)
-    } else if (isSelf && isScreen) setAudioStream(MediaStreams.instance.screenAudioProducer)
+      setAudioStream(mediaStreamState.camAudioProducer.value)
+      setAudioStreamPaused(mediaStreamState.audioPaused.value)
+    } else if (isSelf && isScreen) setAudioStream(mediaStreamState.screenAudioProducer.value)
   }, [isCamAudioEnabled.value])
 
   useEffect(() => {
@@ -360,21 +361,21 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   useEffect(() => {
     if (isSelf) {
-      setAudioStreamPaused(MediaStreams.instance.audioPaused)
+      setAudioStreamPaused(mediaStreamState.audioPaused.value)
     }
-  }, [MediaStreams.instance.audioPaused])
+  }, [mediaStreamState.audioPaused])
 
   useEffect(() => {
     if (isSelf) {
-      setVideoStreamPaused(MediaStreams.instance.videoPaused)
+      setVideoStreamPaused(mediaStreamState.videoPaused.value)
       if (videoRef.current != null) {
-        if (MediaStreams.instance.videoPaused) {
+        if (mediaStreamState.videoPaused.value) {
           videoRef.current?.srcObject?.getVideoTracks()[0].stop()
-          MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+          mediaStreamState.videoStream.value!.getVideoTracks()[0].stop()
         }
       }
     }
-  }, [MediaStreams.instance.videoPaused])
+  }, [mediaStreamState.videoPaused])
 
   useEffect(() => {
     if (!isSelf && !videoProducerPaused && videoStream != null && videoRef.current != null) {
@@ -411,7 +412,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [audioProducerPaused])
 
   useEffect(() => {
-    MediaStreams.instance.microphoneGainNode?.gain.setTargetAtTime(
+    mediaStreamState.microphoneGainNode.value?.gain.setTargetAtTime(
       audioState.microphoneGain.value,
       Engine.instance.audioContext.currentTime,
       0.01
@@ -423,18 +424,20 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       if (await configureMediaTransports(mediaNetwork, ['video'])) {
-        if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
+        if (mediaStreamState.camVideoProducer.value == null) await createCamVideoProducer(mediaNetwork)
         else {
-          const videoPaused = MediaStreams.instance.toggleVideoPaused()
-          if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-          else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
+          const videoPaused = mediaStreamState.videoPaused.value
+          mediaStreamState.videoPaused.set(!videoPaused)
+          if (!videoPaused) await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value)
+          else await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value)
         }
         MediaStreamService.updateCamVideoState()
       }
     } else if (isSelf && isScreen) {
-      const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
-      if (videoPaused) await stopScreenshare(mediaNetwork)
-      // else await resumeProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
+      const videoPaused = mediaStreamState.screenShareVideoPaused.value
+      mediaStreamState.screenShareVideoPaused.set(!videoPaused)
+      if (!videoPaused) await stopScreenshare(mediaNetwork)
+      // else await resumeProducer(mediaNetwork, mediaStreamState.screenVideoProducer.value)
       setVideoStreamPaused(videoPaused)
       MediaStreamService.updateScreenAudioState()
       MediaStreamService.updateScreenVideoState()
@@ -456,18 +459,20 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       if (await configureMediaTransports(mediaNetwork, ['audio'])) {
-        if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
+        if (mediaStreamState.camAudioProducer.value == null) await createCamAudioProducer(mediaNetwork)
         else {
-          const audioPaused = MediaStreams.instance.toggleAudioPaused()
-          if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-          else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+          const audioPaused = mediaStreamState.audioPaused.value
+          mediaStreamState.audioPaused.set(!audioPaused)
+          if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value)
+          else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value)
         }
         MediaStreamService.updateCamAudioState()
       }
     } else if (isSelf && isScreen) {
-      const audioPaused = MediaStreams.instance.toggleScreenShareAudioPaused()
-      if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.screenAudioProducer)
-      else await resumeProducer(mediaNetwork, MediaStreams.instance.screenAudioProducer)
+      const audioPaused = mediaStreamState.screenShareAudioPaused.value
+      mediaStreamState.screenShareAudioPaused.set(!audioPaused)
+      if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
+      else await resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
       setAudioStreamPaused(audioPaused)
     } else {
       if (!audioStreamPausedRef.current) {

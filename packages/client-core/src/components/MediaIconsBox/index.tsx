@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -29,6 +28,7 @@ import {
   stopFaceTracking,
   stopLipsyncTracking
 } from '../../media/webcam/WebcamInput'
+import { MediaStreamState } from '../../transports/MediaStreams'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
@@ -38,6 +38,7 @@ export const MediaIconsBox = () => {
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
   const { topShelfStyle } = useShelfStyles()
 
+  const mediaStreamState = useHookstate(getState(MediaStreamState))
   const user = useAuthState().user
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
@@ -76,14 +77,14 @@ export const MediaIconsBox = () => {
 
   const handleFaceClick = async () => {
     if (isFaceTrackingEnabled.value) {
-      MediaStreams.instance.setFaceTracking(false)
+      mediaStreamState.faceTracking.set(false)
       stopFaceTracking()
       stopLipsyncTracking()
       MediaStreamService.updateFaceTrackingState()
     } else {
       const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       if (await configureMediaTransports(mediaNetwork, ['video', 'audio'])) {
-        MediaStreams.instance.setFaceTracking(true)
+        mediaStreamState.faceTracking.set(true)
         startFaceTracking()
         startLipsyncTracking()
         MediaStreamService.updateFaceTrackingState()
@@ -94,11 +95,13 @@ export const MediaIconsBox = () => {
   const handleMicClick = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaNetwork, ['audio'])) {
-      if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
+      if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
       else {
-        const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+        const audioPaused = mediaStreamState.audioPaused.value
+        mediaStreamState.audioPaused.set(!audioPaused)
+        // todo move these calls to a media stream reactor
+        if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+        else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
       }
       MediaStreamService.updateCamAudioState()
     }
@@ -107,11 +110,12 @@ export const MediaIconsBox = () => {
   const handleCamClick = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaNetwork, ['video'])) {
-      if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
+      if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
       else {
-        const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-        else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
+        const videoPaused = mediaStreamState.videoPaused.value
+        mediaStreamState.videoPaused.set(!videoPaused)
+        if (!videoPaused) await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+        else await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       }
 
       MediaStreamService.updateCamVideoState()
@@ -120,7 +124,7 @@ export const MediaIconsBox = () => {
 
   const handleScreenShare = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (!MediaStreams.instance.screenVideoProducer) await startScreenshare(mediaNetwork)
+    if (!mediaStreamState.screenVideoProducer.value) await startScreenshare(mediaNetwork)
     else await stopScreenshare(mediaNetwork)
   }
 

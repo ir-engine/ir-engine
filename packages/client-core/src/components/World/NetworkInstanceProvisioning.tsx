@@ -13,7 +13,6 @@ import {
 import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { ChatAction, ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   NetworkUserService,
@@ -26,6 +25,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { PartyService, usePartyState } from '../../social/services/PartyService'
+import { MediaStreamActions } from '../../transports/MediaStreams'
 import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -51,10 +51,7 @@ export const NetworkInstanceProvisioning = () => {
   useEffect(() => {
     addActionReceptor(MediaServiceReceptor)
     addActionReceptor((action) => {
-      matches(action).when(
-        MediaStreams.actions.triggerUpdateConsumers.matches,
-        MediaStreamService.triggerUpdateConsumers
-      )
+      matches(action).when(MediaStreamActions.triggerUpdateConsumers.matches, MediaStreamService.triggerUpdateConsumers)
     })
     addActionReceptor(NetworkUserServiceReceptor)
     return () => {
