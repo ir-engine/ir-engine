@@ -3,6 +3,7 @@
     "delete": "Delete",
     "edit": "Edit",
     "save": "Save",
+    "saving": "Saving",
     "upload": "Upload",
     "discardChanges": "Discard Changes",
     "confirmDiscardChange": "Changes you made may not be saved."

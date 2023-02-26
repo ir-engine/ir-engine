@@ -75,7 +75,6 @@ export function setTransformComponent(entity: Entity, position?: Vector3, rotati
       matrix: new Matrix4(),
       matrixInverse: new Matrix4()
     })
-    TransformComponent.mapState[entity].set(TransformComponent.map[entity])
   }
 }
 
@@ -107,7 +106,6 @@ export function setLocalTransformComponent(
     scale: proxifyVector3WithDirty(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()),
     matrix: new Matrix4()
   })
-  LocalTransformComponent.mapState[entity].set(LocalTransformComponent.map[entity])
 }
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'

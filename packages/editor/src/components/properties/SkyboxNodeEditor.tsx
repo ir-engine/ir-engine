@@ -60,7 +60,7 @@ const SkyOption = [
  */
 export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const hasError = getEntityErrors(entity, SkyboxComponent)
   const skyboxComponent = useComponent(entity, SkyboxComponent)
 
@@ -198,7 +198,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={SkyOption}
           value={skyboxComponent.backgroundType.value}
           onChange={updateProperty(SkyboxComponent, 'backgroundType')}

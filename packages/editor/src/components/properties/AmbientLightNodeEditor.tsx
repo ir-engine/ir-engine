@@ -22,7 +22,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.node.entity, AmbientLightComponent).value
+  const lightComponent = useComponent(props.entity, AmbientLightComponent).value
 
   return (
     <NodeEditor

@@ -16,8 +16,8 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ShadowProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  if (!hasComponent(props.node.entity, ShadowComponent)) return <></>
-  const shadowComponent = getComponent(props.node.entity, ShadowComponent)
+  if (!hasComponent(props.entity, ShadowComponent)) return <></>
+  const shadowComponent = getComponent(props.entity, ShadowComponent)
   return (
     <NodeEditor component={ShadowComponent} description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Cast Shadow" label={t('editor:properties.model.lbl-castShadow')}>

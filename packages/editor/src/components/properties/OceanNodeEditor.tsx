@@ -23,7 +23,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const OceanNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const entity = props.node.entity
+  const entity = props.entity
   const oceanComponent = useComponent(entity, OceanComponent)
   const errorComponent = getComponent(entity, ErrorComponent)
   const oceanErrors = errorComponent[OceanComponent.name]

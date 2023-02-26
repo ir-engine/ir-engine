@@ -11,9 +11,9 @@ import {
   getComponentState
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -34,7 +34,8 @@ describe('loadGLTFModel', () => {
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
 
     const entity = createEntity()
-    addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
+    addEntityNodeChild(entity, world.sceneEntity)
+    setLocalTransformComponent(entity, world.sceneEntity)
     addComponent(entity, ModelComponent, {
       ...mockComponentData
     })

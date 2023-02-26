@@ -36,8 +36,12 @@
     "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006"
   },
   "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/drawing_utils": "^0.3.1675466124",
+    "@mediapipe/pose": "^0.5.1675469404",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.7",
+    "react-webcam": "^7.0.1",
     "typescript": "^4.9.5"
   },
   "devDependencies": {

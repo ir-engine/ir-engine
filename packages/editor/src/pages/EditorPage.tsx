@@ -18,7 +18,7 @@ import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import EditorCameraSystem from '../systems/EditorCameraSystem'
-import EditorControlSystem from '../systems/EditorControlSystem'
+import EditorControlSystem, { createTransformGizmo } from '../systems/EditorControlSystem'
 import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
 import GizmoSystem from '../systems/GizmoSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
@@ -86,7 +86,7 @@ export const EditorPage = () => {
     const world = Engine.instance.currentWorld
     const projects = API.instance.client.service('projects').find()
     ClientModules().then(async () => {
-      initSystems(world, systems)
+      await initSystems(world, systems)
       await loadEngineInjection(world, await projects)
       setEngineReady(true)
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))

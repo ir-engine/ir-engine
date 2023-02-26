@@ -13,7 +13,7 @@ jobs:
         id: check-secrets
         run: |
           if [ ${{ secrets.PROJECTS_BUILD_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   compile-codebase:
     needs:
@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: 18.x
       - name: restore lerna
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             node_modules

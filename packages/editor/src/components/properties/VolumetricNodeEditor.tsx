@@ -20,7 +20,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const volumetricComponent = useComponent(props.node.entity, VolumetricComponent)
+  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
   return (
     <NodeEditor
