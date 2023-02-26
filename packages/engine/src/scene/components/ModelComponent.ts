@@ -35,7 +35,7 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      generateBVH: false,
+      generateBVH: true,
       scene: undefined as undefined | Scene
     }
   },
