@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
 import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import {
-  configureMediaTransports,
-  createCamAudioProducer,
-  createCamVideoProducer,
-  pauseProducer,
-  resumeProducer,
-  startScreenshare,
-  stopScreenshare
+  toggleFaceTracking,
+  toggleMicrophonePaused,
+  toggleScreenshare,
+  toggleWebcamPaused
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import logger from '@xrengine/common/src/logger'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -22,14 +18,6 @@ import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 import Icon from '@xrengine/ui/src/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
-import {
-  startFaceTracking,
-  startLipsyncTracking,
-  stopFaceTracking,
-  stopLipsyncTracking
-} from '../../media/webcam/WebcamInput'
-import { MediaStreamState } from '../../transports/MediaStreams'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
@@ -38,8 +26,6 @@ export const MediaIconsBox = () => {
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
   const { topShelfStyle } = useShelfStyles()
 
-  const mediaStreamState = useHookstate(getState(MediaStreamState))
-  const user = useAuthState().user
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
   const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
@@ -75,59 +61,6 @@ export const MediaIconsBox = () => {
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
 
-  const handleFaceClick = async () => {
-    if (isFaceTrackingEnabled.value) {
-      mediaStreamState.faceTracking.set(false)
-      stopFaceTracking()
-      stopLipsyncTracking()
-      MediaStreamService.updateFaceTrackingState()
-    } else {
-      const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-      if (await configureMediaTransports(mediaNetwork, ['video', 'audio'])) {
-        mediaStreamState.faceTracking.set(true)
-        startFaceTracking()
-        startLipsyncTracking()
-        MediaStreamService.updateFaceTrackingState()
-      }
-    }
-  }
-
-  const handleMicClick = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (await configureMediaTransports(mediaNetwork, ['audio'])) {
-      if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
-      else {
-        const audioPaused = mediaStreamState.audioPaused.value
-        mediaStreamState.audioPaused.set(!audioPaused)
-        // todo move these calls to a media stream reactor
-        if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
-        else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
-      }
-      MediaStreamService.updateCamAudioState()
-    }
-  }
-
-  const handleCamClick = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (await configureMediaTransports(mediaNetwork, ['video'])) {
-      if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
-      else {
-        const videoPaused = mediaStreamState.videoPaused.value
-        mediaStreamState.videoPaused.set(!videoPaused)
-        if (!videoPaused) await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
-        else await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
-      }
-
-      MediaStreamService.updateCamVideoState()
-    }
-  }
-
-  const handleScreenShare = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (!mediaStreamState.screenVideoProducer.value) await startScreenshare(mediaNetwork)
-    else await stopScreenshare(mediaNetwork)
-  }
-
   const xrSessionActive = xrState.sessionActive.value
   const handleExitSpectatorClick = () => dispatchAction(EngineActions.exitSpectate({}))
 
@@ -141,7 +74,7 @@ export const MediaIconsBox = () => {
           type="button"
           id="UserAudio"
           className={styles.iconContainer + ' ' + (isCamAudioEnabled.value ? styles.on : '')}
-          onClick={handleMicClick}
+          onClick={toggleMicrophonePaused}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
@@ -157,7 +90,7 @@ export const MediaIconsBox = () => {
             type="button"
             id="UserVideo"
             className={styles.iconContainer + ' ' + (isCamVideoEnabled.value ? styles.on : '')}
-            onClick={handleCamClick}
+            onClick={toggleWebcamPaused}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
@@ -167,7 +100,7 @@ export const MediaIconsBox = () => {
             type="button"
             id="UserFaceTracking"
             className={styles.iconContainer + ' ' + (isFaceTrackingEnabled.value ? styles.on : '')}
-            onClick={handleFaceClick}
+            onClick={toggleFaceTracking}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
@@ -177,7 +110,7 @@ export const MediaIconsBox = () => {
             type="button"
             id="UserScreenSharing"
             className={styles.iconContainer + ' ' + (isScreenVideoEnabled.value ? styles.on : '')}
-            onClick={handleScreenShare}
+            onClick={toggleScreenshare}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >

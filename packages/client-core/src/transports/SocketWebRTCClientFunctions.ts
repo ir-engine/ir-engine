@@ -41,10 +41,18 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import {
   accessMediaInstanceConnectionState,
-  MediaInstanceConnectionAction
+  MediaInstanceConnectionAction,
+  MediaInstanceConnectionService
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
-import { MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
+import { MediaState, MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
+import {
+  startFaceTracking,
+  startLipsyncTracking,
+  stopFaceTracking,
+  stopLipsyncTracking
+} from '../media/webcam/WebcamInput'
+import { ChatState } from '../social/services/ChatService'
 import { accessAuthState } from '../user/services/AuthService'
 import { MediaStreamService as _MediaStreamService, MediaStreamActions, MediaStreamState } from './MediaStreams'
 import { ConsumerExtension, ProducerExtension, SocketWebRTCClientNetwork } from './SocketWebRTCClientNetwork'
@@ -941,6 +949,108 @@ export async function closeConsumer(network: SocketWebRTCClientNetwork, consumer
   await network.request(MessageTypes.WebRTCCloseConsumer.toString(), {
     consumerId: consumer.id
   })
+}
+
+const checkEndVideoChat = async () => {
+  const mediaStreamState = getState(MediaStreamState)
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  const chatState = getState(ChatState)
+  const channelState = chatState.channels
+  const channels = channelState.channels.value
+
+  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
+  const instanceChannel = channelEntries.find(
+    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
+  )
+  if (
+    (mediaStreamState.audioPaused.value || mediaStreamState.camAudioProducer.value == null) &&
+    (mediaStreamState.videoPaused.value || mediaStreamState.camVideoProducer.value == null) &&
+    instanceChannel.channelType !== 'instance'
+  ) {
+    await endVideoChat(mediaNetwork, {})
+    if (!mediaNetwork.primus?.disconnect) {
+      await leaveNetwork(mediaNetwork, false)
+      await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
+    }
+  }
+}
+
+export const toggleFaceTracking = async () => {
+  const mediaStreamState = getState(MediaStreamState)
+  const mediaState = getState(MediaState)
+  if (mediaState.isFaceTrackingEnabled.value) {
+    mediaStreamState.faceTracking.set(false)
+    stopFaceTracking()
+    stopLipsyncTracking()
+    MediaStreamService.updateFaceTrackingState()
+  } else {
+    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    if (await configureMediaTransports(mediaNetwork, ['video', 'audio'])) {
+      mediaStreamState.faceTracking.set(true)
+      startFaceTracking()
+      startLipsyncTracking()
+      MediaStreamService.updateFaceTrackingState()
+    }
+  }
+}
+
+export const toggleMicrophonePaused = async () => {
+  const mediaStreamState = getState(MediaStreamState)
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  if (await configureMediaTransports(mediaNetwork, ['audio'])) {
+    if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
+    else {
+      const audioPaused = mediaStreamState.audioPaused.value
+      mediaStreamState.audioPaused.set(!audioPaused)
+      if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+      else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+      checkEndVideoChat()
+    }
+    MediaStreamService.updateCamAudioState()
+  }
+}
+
+export const toggleWebcamPaused = async () => {
+  const mediaStreamState = getState(MediaStreamState)
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  if (await configureMediaTransports(mediaNetwork, ['video'])) {
+    if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
+    else {
+      const videoPaused = mediaStreamState.videoPaused.value
+      mediaStreamState.videoPaused.set(!videoPaused)
+      if (!videoPaused) await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+      else await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+    }
+
+    MediaStreamService.updateCamVideoState()
+  }
+}
+
+export const toggleScreenshare = async () => {
+  const mediaStreamState = getState(MediaStreamState)
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  if (!mediaStreamState.screenVideoProducer.value) await startScreenshare(mediaNetwork)
+  else await stopScreenshare(mediaNetwork)
+}
+
+export const toggleScreenshareAudioPaused = async () => {
+  const mediaStreamState = getState(MediaStreamState)
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  const audioPaused = mediaStreamState.screenShareAudioPaused.value
+  mediaStreamState.screenShareAudioPaused.set(!audioPaused)
+  if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
+  else await resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
+  MediaStreamService.updateScreenAudioState()
+}
+
+export const toggleScreenshareVideoPaused = async () => {
+  const mediaStreamState = getState(MediaStreamState)
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  const videoPaused = mediaStreamState.screenShareVideoPaused.value
+  mediaStreamState.screenShareVideoPaused.set(!videoPaused)
+  if (!videoPaused) await stopScreenshare(mediaNetwork)
+  else await resumeProducer(mediaNetwork, mediaStreamState.screenVideoProducer.value!)
+  MediaStreamService.updateScreenVideoState()
 }
 
 export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolean) {

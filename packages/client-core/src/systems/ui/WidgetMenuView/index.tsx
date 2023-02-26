@@ -11,16 +11,9 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import Icon from '@xrengine/ui/src/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
+import { useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
-import { MediaStreamState } from '../../../transports/MediaStreams'
-import {
-  configureMediaTransports,
-  createCamAudioProducer,
-  pauseProducer,
-  resumeProducer
-} from '../../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
+import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
 
@@ -117,22 +110,6 @@ const WidgetButtons = () => {
     dispatchAction(WidgetAppActions.showWidget({ id: toggledWidget.id, shown: !visible }))
   }
 
-  const handleMicClick = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (!mediaNetwork) return
-    if (await configureMediaTransports(mediaNetwork, ['audio'])) {
-      const mediaStreamState = getState(MediaStreamState)
-      if (mediaStreamState.camAudioProducer.value == null) await createCamAudioProducer(mediaNetwork)
-      else {
-        const audioPaused = mediaStreamState.audioPaused.value
-        mediaStreamState.audioPaused.set(!audioPaused)
-        if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value)
-        else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value)
-      }
-      MediaStreamService.updateCamAudioState()
-    }
-  }
-
   const activeWidgets = widgets.filter((widget) => widget.enabled && widget.icon)
 
   const additionalWidgetCount = 1 + (mediaInstanceState?.value ? 1 : 0)
@@ -149,7 +126,7 @@ const WidgetButtons = () => {
         {mediaInstanceState?.value && (
           <WidgetButton
             icon={isCamAudioEnabled.value ? 'Mic' : 'MicOff'}
-            toggle={handleMicClick}
+            toggle={toggleMicrophonePaused}
             label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
           />
         )}
