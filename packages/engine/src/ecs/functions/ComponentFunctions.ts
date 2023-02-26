@@ -426,7 +426,7 @@ export function useComponent<C extends Component<any>>(
 ) {
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   if (!hasComponent) throw new Error(`${Component.name} does not exist on entity ${entity}`)
-  return useHookstate(Component.stateMap[entity]) as State<ComponentType<C>>
+  return useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
 }
 
 /**
@@ -439,7 +439,7 @@ export function useOptionalComponent<C extends Component<any>>(
 ) {
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined)
-  const component = useHookstate(Component.stateMap[entity]) as State<ComponentType<C>>
+  const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }
 

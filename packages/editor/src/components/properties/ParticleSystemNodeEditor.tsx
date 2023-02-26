@@ -43,7 +43,7 @@ import { EditorComponentType } from './Util'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const particleSystemState = useComponent(entity, ParticleSystemComponent)
   const particleSystem = particleSystemState.value
 

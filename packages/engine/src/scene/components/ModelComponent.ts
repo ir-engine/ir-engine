@@ -8,12 +8,14 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   defineComponent,
+  getComponent,
   hasComponent,
   removeComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -25,6 +27,7 @@ import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { MediaComponent } from './MediaComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { UUIDComponent } from './UUIDComponent'
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
@@ -71,7 +74,6 @@ function ModelReactor({ root }: EntityReactorProps) {
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
-  const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   // update src
   useEffect(() => {
     if (model.src === model.scene?.userData?.src) return
@@ -90,9 +92,9 @@ function ModelReactor({ root }: EntityReactorProps) {
           }
         }
         if (!model.src) return
-        if (!nodeMap.has(entity)) return
+        if (!hasComponent(entity, EntityTreeComponent)) return
 
-        const uuid = nodeMap.get(entity)!.uuid
+        const uuid = getComponent(entity, UUIDComponent)
         DependencyTree.add(uuid)
         let scene: Scene
         const fileExtension = /\.[\d\s\w]+$/.exec(model.src)?.[0]

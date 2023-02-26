@@ -131,7 +131,8 @@ export function FileBrowserItem({
 
   const placeObjectAtOrigin = async () => {
     const node = await addMediaNode(item.url)
-    const transformComponent = getComponent(node.entity, TransformComponent)
+    if (!node) return
+    const transformComponent = getComponent(node, TransformComponent)
     if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
 
     handleClose()

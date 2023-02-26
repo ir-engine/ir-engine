@@ -42,7 +42,7 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { RendererState } from '../../renderer/RendererState'

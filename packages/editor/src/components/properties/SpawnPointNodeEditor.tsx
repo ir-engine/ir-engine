@@ -18,7 +18,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const SpawnPointNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const spawnComponent = getComponent(props.node.entity, SpawnPointComponent)
+  const spawnComponent = getComponent(props.entity, SpawnPointComponent)
   // initializing iconComponent icon name
   return (
     <NodeEditor
