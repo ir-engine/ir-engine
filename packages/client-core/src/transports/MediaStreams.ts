@@ -152,18 +152,19 @@ export const MediaStreamService = {
    * Get user video stream.
    * @returns Whether stream is active or not.
    */
-  async getVideoStream(): Promise<boolean> {
+  async getVideoStream() {
     const state = getState(MediaStreamState)
     try {
       logger.info('Getting video stream %o', localVideoConstraints)
-      state.videoStream.set(await navigator.mediaDevices.getUserMedia(localVideoConstraints))
+      const videoStream = await navigator.mediaDevices.getUserMedia(localVideoConstraints)
+      state.videoStream.set(videoStream)
       if (state.camVideoProducer.value && !state.camVideoProducer.value.closed) {
         await state.camVideoProducer.value.replaceTrack({
           track: state.videoStream.value!.getVideoTracks()[0]
         })
       }
       if (state.videoStream.value!.active) {
-        state.videoPaused.set(state.camVideoProducer != null)
+        state.videoPaused.set(state.camVideoProducer.value != null)
         return true
       }
       state.videoPaused.set(true)
@@ -178,17 +179,18 @@ export const MediaStreamService = {
    * Get user video stream.
    * @returns Whether stream is active or not.
    */
-  async getAudioStream(): Promise<boolean> {
+  async getAudioStream() {
     const state = getState(MediaStreamState)
     try {
       logger.info('Getting audio stream %o', localAudioConstraints)
-      state.audioStream.set(await navigator.mediaDevices.getUserMedia(localAudioConstraints))
+      const audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
+      state.audioStream.set(audioStream)
       if (state.camAudioProducer.value && !state.camAudioProducer.value.closed)
         await state.camAudioProducer.value.replaceTrack({
           track: state.audioStream.value!.getAudioTracks()[0]
         })
       if (state.audioStream.value!.active) {
-        state.audioPaused.set(state.camAudioProducer != null)
+        state.audioPaused.set(state.camAudioProducer.value != null)
         return true
       }
       state.audioPaused.set(true)

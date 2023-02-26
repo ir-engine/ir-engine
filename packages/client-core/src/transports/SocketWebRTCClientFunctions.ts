@@ -223,6 +223,8 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
 }
 
 export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwork) {
+  const mediaStreamState = getState(MediaStreamState)
+
   async function webRTCPauseConsumerHandler(consumerId) {
     const consumer = network.consumers.find((c) => c.id === consumerId)
     consumer?.pause()
@@ -251,10 +253,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     channelType: ChannelType
     channelId: string
   }) {
-    const selfProducerIds = [
-      getState(MediaStreamState).camVideoProducer.value?.id,
-      getState(MediaStreamState).camAudioProducer.value?.id
-    ]
+    const selfProducerIds = [mediaStreamState.camVideoProducer.value?.id, mediaStreamState.camAudioProducer.value?.id]
     const channelConnectionState = accessMediaInstanceConnectionState()
     const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
 
@@ -283,7 +282,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   }
 
   async function reconnectHandler() {
-    const mediaStreamState = getState(MediaStreamState)
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
     network.reconnecting = false
     await onConnectToInstance(network)
@@ -653,16 +651,19 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
           if (!mediaStreamState.camVideoProducer.value || mediaStreamState.camVideoProducer.value.closed) {
             if (!produceInProgress) {
               produceInProgress = true
-              mediaStreamState.camVideoProducer.set(
-                (await transport.produce({
-                  track: mediaStreamState.videoStream.value!.getVideoTracks()[0],
-                  encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-                  codecOptions: {
-                    videoGoogleStartBitrate: 1000
-                  },
-                  appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
-                })) as any as ProducerExtension
-              )
+              console.log('creating video producer')
+              console.log(mediaStreamState.camVideoProducer.value)
+              console.log(mediaStreamState.videoStream.value)
+              console.log(mediaStreamState.videoStream.value!.getVideoTracks()[0])
+              const producer = (await transport.produce({
+                track: mediaStreamState.videoStream.value!.getVideoTracks()[0],
+                encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+                codecOptions: {
+                  videoGoogleStartBitrate: 1000
+                },
+                appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
+              })) as any as ProducerExtension
+              mediaStreamState.camVideoProducer.set(producer)
             }
           } else {
             clearInterval(waitForProducer)
@@ -671,10 +672,10 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
           }
         }, 100)
       })
+      console.log(mediaStreamState.videoPaused.value)
       if (mediaStreamState.videoPaused.value) await mediaStreamState.camVideoProducer.value!.pause()
-      else
-        (await mediaStreamState.camVideoProducer.value) &&
-          (await resumeProducer(network, mediaStreamState.camVideoProducer.value!))
+      else if (mediaStreamState.camVideoProducer.value)
+        await resumeProducer(network, mediaStreamState.camVideoProducer.value!)
     } catch (err) {
       logger.error(err, 'Error producing video')
     }
@@ -1000,8 +1001,8 @@ export const toggleMicrophonePaused = async () => {
   if (await configureMediaTransports(mediaNetwork, ['audio'])) {
     if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
     else {
+      mediaStreamState.audioPaused.set(!mediaStreamState.audioPaused.value)
       const audioPaused = mediaStreamState.audioPaused.value
-      mediaStreamState.audioPaused.set(!audioPaused)
       if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
       else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
       checkEndVideoChat()
@@ -1016,8 +1017,8 @@ export const toggleWebcamPaused = async () => {
   if (await configureMediaTransports(mediaNetwork, ['video'])) {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
+      mediaStreamState.videoPaused.set(!mediaStreamState.videoPaused.value)
       const videoPaused = mediaStreamState.videoPaused.value
-      mediaStreamState.videoPaused.set(!videoPaused)
       if (!videoPaused) await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       else await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
     }
@@ -1036,18 +1037,19 @@ export const toggleScreenshare = async () => {
 export const toggleScreenshareAudioPaused = async () => {
   const mediaStreamState = getState(MediaStreamState)
   const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  mediaStreamState.screenShareAudioPaused.set(!mediaStreamState.screenShareAudioPaused.value)
   const audioPaused = mediaStreamState.screenShareAudioPaused.value
-  mediaStreamState.screenShareAudioPaused.set(!audioPaused)
   if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   else await resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   MediaStreamService.updateScreenAudioState()
+  mediaStreamState.screenShareAudioPaused.set(!audioPaused)
 }
 
 export const toggleScreenshareVideoPaused = async () => {
   const mediaStreamState = getState(MediaStreamState)
   const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  mediaStreamState.screenShareVideoPaused.set(!mediaStreamState.screenShareVideoPaused.value)
   const videoPaused = mediaStreamState.screenShareVideoPaused.value
-  mediaStreamState.screenShareVideoPaused.set(!videoPaused)
   if (!videoPaused) await stopScreenshare(mediaNetwork)
   else await resumeProducer(mediaNetwork, mediaStreamState.screenVideoProducer.value!)
   MediaStreamService.updateScreenVideoState()

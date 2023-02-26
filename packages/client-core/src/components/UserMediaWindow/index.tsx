@@ -46,6 +46,7 @@ interface Props {
   type?: 'screen' | 'cam'
 }
 
+/** @todo separate all media state from UI state and move it to hookstate record keyed to peerID */
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
