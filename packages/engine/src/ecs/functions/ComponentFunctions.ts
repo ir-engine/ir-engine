@@ -194,12 +194,12 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(world, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
+  let value = args
   if (!hasComponent(entity, Component)) {
-    const c = Component.onInit(entity, world) ?? args
+    value = Component.onInit(entity, world) ?? args
     Component.existenceMap[entity].set(true)
-    if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(c)
-    else Component.stateMap[entity]!.set(c)
-    Component.valueMap[entity] = c
+    if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(value)
+    else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
       const root = startReactor(Component.reactor) as EntityReactorRoot
@@ -207,6 +207,7 @@ export const setComponent = <C extends Component>(
       Component.reactorMap.set(entity, root)
     }
   }
+  Component.valueMap[entity] = value
   startTransition(() => {
     Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
     const root = Component.reactorMap.get(entity)
