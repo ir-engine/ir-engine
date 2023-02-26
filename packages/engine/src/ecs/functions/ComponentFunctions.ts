@@ -203,7 +203,7 @@ export const setComponent = <C extends Component>(
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
       if (!Component.reactor.name || Component.reactor.name === 'reactor')
-        Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor` })
+        Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor-${entity}` })
       const root = startReactor(Component.reactor) as EntityReactorRoot
       root.entity = entity
       Component.reactorMap.set(entity, root)
