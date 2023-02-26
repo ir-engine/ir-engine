@@ -651,10 +651,6 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
           if (!mediaStreamState.camVideoProducer.value || mediaStreamState.camVideoProducer.value.closed) {
             if (!produceInProgress) {
               produceInProgress = true
-              console.log('creating video producer')
-              console.log(mediaStreamState.camVideoProducer.value)
-              console.log(mediaStreamState.videoStream.value)
-              console.log(mediaStreamState.videoStream.value!.getVideoTracks()[0])
               const producer = (await transport.produce({
                 track: mediaStreamState.videoStream.value!.getVideoTracks()[0],
                 encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
@@ -723,12 +719,11 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
           if (!mediaStreamState.camAudioProducer.value || mediaStreamState.camAudioProducer.value.closed) {
             if (!produceInProgress) {
               produceInProgress = true
-              mediaStreamState.camAudioProducer.set(
-                (await transport.produce({
-                  track: mediaStreamState.audioStream.value!.getAudioTracks()[0],
-                  appData: { mediaTag: 'cam-audio', channelType: channelType, channelId: channelId }
-                })) as any as ProducerExtension
-              )
+              const producer = (await transport.produce({
+                track: mediaStreamState.audioStream.value!.getAudioTracks()[0],
+                appData: { mediaTag: 'cam-audio', channelType: channelType, channelId: channelId }
+              })) as any as ProducerExtension
+              mediaStreamState.camAudioProducer.set(producer)
             }
           } else {
             clearInterval(waitForProducer)
@@ -739,9 +734,8 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
       })
 
       if (mediaStreamState.audioPaused.value) mediaStreamState.camAudioProducer.value!.pause()
-      else
-        (await mediaStreamState.camAudioProducer.value) &&
-          resumeProducer(network, mediaStreamState.camAudioProducer.value!)
+      else if (mediaStreamState.camAudioProducer.value)
+        await resumeProducer(network, mediaStreamState.camAudioProducer.value!)
     } catch (err) {
       logger.error(err, 'Error producing video')
     }
