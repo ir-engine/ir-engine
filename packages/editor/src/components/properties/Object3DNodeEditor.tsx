@@ -39,20 +39,26 @@ import Well from '../layout/Well'
 import MaterialEditor from '../materials/MaterialEditor'
 import styles from '../styles.module.scss'
 import NodeEditor from './NodeEditor'
+import PropertyGroup from './PropertyGroup'
 import { EditorComponentType } from './Util'
+
+type Object3DProps = {
+  obj3d: Object3D
+  multiEdit: boolean
+}
 
 /**
  * Object3DNodeEditor component used to provide the editor view to customize Object3D properties inside a model.
  *
  * @type {Class component}
  */
-export const Object3DNodeEditor: EditorComponentType = (props) => {
+export const Object3DNodeEditor = (props: Object3DProps) => {
   const { t } = useTranslation()
   console.log(props)
   const scene: Scene = Engine.instance.currentWorld.scene
   const selectionState = accessSelectionState()
   const materialLibrary = getMaterialLibrary()
-  const obj3d: Object3D = props.entity as any
+  const obj3d: Object3D = props.obj3d as any
   const mesh = obj3d as Mesh
   const instancedMesh = obj3d as InstancedMesh
   //objId: used to track current obj3d
@@ -160,7 +166,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor
+    <PropertyGroup
       {...props}
       name={t('editor:properties.object3d.name')}
       description={t('editor:properties.object3d.description')}
@@ -338,7 +344,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
           src={obj3d.userData}
         />
       </div>
-    </NodeEditor>
+    </PropertyGroup>
   )
 }
 

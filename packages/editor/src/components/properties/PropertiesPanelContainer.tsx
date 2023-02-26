@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
+import { Object3D } from 'three'
 
 import { useForceUpdate } from '@xrengine/common/src/utils/useForceUpdate'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -88,7 +89,7 @@ export const PropertiesPanelContainer = () => {
     content = (
       <StyledNodeEditor>
         {/* @todo these types are incorrect */}
-        <Object3DNodeEditor multiEdit={multiEdit} entity={node as Entity} />
+        <Object3DNodeEditor multiEdit={multiEdit} obj3d={node as Object3D} />
       </StyledNodeEditor>
     )
   } else if (isMaterial) {
