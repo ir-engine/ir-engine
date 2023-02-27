@@ -283,7 +283,7 @@ export default async function CameraSystem(world: World) {
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
   const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
 
-  const reactor = startReactor(() => {
+  const reactor = startReactor(function CameraReactor() {
     const cameraSettings = useHookstate(getCameraSceneMetadataState(world))
 
     useEffect(() => {

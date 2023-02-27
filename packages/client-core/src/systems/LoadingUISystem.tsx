@@ -59,7 +59,7 @@ export default async function LoadingUISystem(world: World) {
   const appLoadingState = getState(AppLoadingState)
   const engineState = getState(EngineState)
 
-  const reactor = startReactor(() => {
+  const reactor = startReactor(function LoadingReactor() {
     const loadingState = useHookstate(appLoadingState)
 
     useEffect(() => {

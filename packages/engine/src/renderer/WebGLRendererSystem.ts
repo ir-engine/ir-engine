@@ -337,7 +337,7 @@ export default async function WebGLRendererSystem(world: World) {
 
   const rendererState = getState(RendererState)
 
-  const reactor = startReactor(() => {
+  const reactor = startReactor(function RendererReactor() {
     const renderSettings = useHookstate(getRendererSceneMetadataState(world))
     const engineRendererSettings = useHookstate(rendererState)
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))

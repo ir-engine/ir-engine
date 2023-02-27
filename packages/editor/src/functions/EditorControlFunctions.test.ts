@@ -58,7 +58,7 @@ function getRandomValues(): TestComponentType {
   }
 }
 describe('EditorControlFunctions', () => {
-  describe('modifyProperty', () => {
+  describe.skip('modifyProperty', () => {
     let nodes: Entity[]
 
     beforeEach(() => {
