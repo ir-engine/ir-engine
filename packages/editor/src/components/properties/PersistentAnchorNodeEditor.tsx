@@ -12,7 +12,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const anchor = useComponent(props.node.entity, PersistentAnchorComponent)
+  const anchor = useComponent(props.entity, PersistentAnchorComponent)
 
   return (
     <NodeEditor

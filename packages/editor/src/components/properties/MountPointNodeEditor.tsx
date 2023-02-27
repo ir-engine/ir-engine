@@ -14,7 +14,7 @@ const MountPointTypes = [{ label: 'Seat', value: MountPoint.seat }]
 export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
   const { t } = useTranslation()
 
-  const mountPointComponent = getComponent(props.node.entity, MountPointComponent)
+  const mountPointComponent = getComponent(props.entity, MountPointComponent)
 
   return (
     <NodeEditor
@@ -24,7 +24,7 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
     >
       <InputGroup name="Type" label={t('editor:properties.mountPoint.lbl-type')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={MountPointTypes}
           value={mountPointComponent.type}
           onChange={updateProperty(MountPointComponent, 'type')}

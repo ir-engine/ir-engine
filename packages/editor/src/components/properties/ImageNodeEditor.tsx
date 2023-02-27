@@ -16,9 +16,9 @@ import { EditorComponentType, updateProperty } from './Util'
 
 export const ImageNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const imageComponent = useComponent(entity, ImageComponent)
-  const errors = getEntityErrors(props.node.entity, ImageComponent)
+  const errors = getEntityErrors(props.entity, ImageComponent)
 
   return (
     <NodeEditor
@@ -30,8 +30,8 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
         <ImageInput value={imageComponent.source.value} onChange={updateProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.image.error-url')}</div>}
-      <ImageSourceProperties node={props.node} multiEdit={props.multiEdit} />
-      <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
+      <ImageSourceProperties entity={props.entity} multiEdit={props.multiEdit} />
+      <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
     </NodeEditor>
   )
 }

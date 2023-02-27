@@ -22,7 +22,7 @@ import {
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EntityTreeNode } from '../../ecs/functions/EntityTree'
+import { Entity } from '../../ecs/classes/Entity'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
@@ -336,7 +336,7 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.pu
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
   uuid?: string
-  assetRoot?: EntityTreeNode
+  assetRoot?: Entity
 }
 
 const load = (

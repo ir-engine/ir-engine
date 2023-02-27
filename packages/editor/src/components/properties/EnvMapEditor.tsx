@@ -39,7 +39,7 @@ const EnvMapTextureOptions = Object.values(EnvMapTextureType).map((value) => {
  */
 export const EnvMapEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
@@ -50,7 +50,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   let envmapComponent = useComponent(entity, EnvmapComponent)
 
-  const errors = getEntityErrors(props.node.entity, EnvmapComponent)
+  const errors = getEntityErrors(props.entity, EnvmapComponent)
 
   return (
     <NodeEditor
@@ -61,7 +61,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Envmap Source" label="Envmap Source">
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={EnvMapSourceOptions}
           value={envmapComponent.type.value}
           onChange={updateProperty(EnvmapComponent, 'type')}
@@ -79,7 +79,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         <div>
           <InputGroup name="Texture Type" label="Texture Type">
             <SelectInput
-              key={props.node.entity}
+              key={props.entity}
               options={EnvMapTextureOptions}
               value={envmapComponent.envMapTextureType.value}
               onChange={updateProperty(EnvmapComponent, 'envMapTextureType')}

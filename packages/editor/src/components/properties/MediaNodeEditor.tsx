@@ -39,8 +39,8 @@ const PlayModeOptions = [
 export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const media = useComponent(props.node.entity, MediaComponent)
-  const errors = getEntityErrors(props.node.entity, MediaComponent)
+  const media = useComponent(props.entity, MediaComponent)
+  const errors = getEntityErrors(props.entity, MediaComponent)
 
   const toggle = () => {
     media.paused.set(!media.paused.value)
@@ -97,7 +97,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       ></ArrayInputGroup>
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={PlayModeOptions}
           value={media.playMode.value}
           onChange={updateProperty(MediaComponent, 'playMode')}

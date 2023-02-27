@@ -22,7 +22,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.node.entity, SpotLightComponent).value
+  const lightComponent = useComponent(props.entity, SpotLightComponent).value
 
   return (
     <NodeEditor {...props} description={t('editor:properties.spotLight.description')}>
@@ -82,7 +82,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         value={lightComponent.decay}
         onChange={updateProperty(SpotLightComponent, 'decay')}
       />
-      <LightShadowProperties node={props.node} comp={SpotLightComponent} />
+      <LightShadowProperties entity={props.entity} comp={SpotLightComponent} />
     </NodeEditor>
   )
 }
