@@ -99,11 +99,11 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="3">
             {engineState.loadingProgress.value}%
           </div>
-          <div id="progress-container" xr-layer="true">
+          <div id="progress-container" xr-layer="true" xr-scalable="true">
             <ProgressBar
               bgColor={colors.alternate.value}
-              completed={engineState.loadingProgress.value}
-              height="1px"
+              completed={100}
+              height="2px"
               baseBgColor="#000000"
               isLabelVisible={false}
             />

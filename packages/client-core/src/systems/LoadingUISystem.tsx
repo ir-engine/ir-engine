@@ -1,9 +1,19 @@
-import type { WebLayer3D } from '@xrfoundation/xrui'
+import { WebLayer3D } from '@xrfoundation/xrui'
 import { useEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
+import {
+  BoxGeometry,
+  DoubleSide,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  PlaneGeometry,
+  SphereGeometry,
+  Texture
+} from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   addComponent,
@@ -23,8 +33,16 @@ import {
 } from '@xrengine/engine/src/transform/components/ComputedTransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
+import { XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@xrengine/hyperflux'
+import {
+  createActionQueue,
+  getState,
+  removeActionQueue,
+  startReactor,
+  StateMethods,
+  useHookstate
+} from '@xrengine/hyperflux'
 
 import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
 import { SceneActions } from '../world/services/SceneService'
@@ -71,6 +89,15 @@ export default async function LoadingUISystem(world: World) {
     return null
   })
 
+  const setLoadingProgress = (percentage: number, progressBar: Object3D) => {
+    const scaleMultiplier = 0.01
+    const centerOffset = 0.05
+    progressBar.scale.x = percentage * scaleMultiplier
+    progressBar.position.x += percentage * scaleMultiplier * centerOffset - centerOffset
+  }
+
+  const xrui = getComponent(ui.entity, XRUIComponent)
+
   const execute = () => {
     for (const action of currentSceneChangedQueue()) {
       const thumbnailUrl = action.sceneData.thumbnailUrl.replace('thumbnail.jpeg', 'envmap.png')
@@ -101,7 +128,8 @@ export default async function LoadingUISystem(world: World) {
       return
     }
 
-    const xrui = getComponent(ui.entity, XRUIComponent)
+    const progressBar = xrui.getObjectByName('progress-container')
+    if (progressBar) setLoadingProgress(engineState.loadingProgress.value, progressBar)
 
     if (transition.state === 'IN' && transition.alpha === 1) {
       setComputedTransformComponent(ui.entity, world.cameraEntity, () => {

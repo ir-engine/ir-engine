@@ -61,13 +61,14 @@ export class WebLayer3D extends Object3D {
     // compressed textures need flipped geometry]
     const geometry = this._webLayer.isMediaElement ? WebLayer3D.GEOMETRY : WebLayer3D.FLIPPED_GEOMETRY
 
+    const scalable = this.element.hasAttribute('xr-scalable')
     this.contentMesh = new Mesh(
       geometry,
       new MeshBasicMaterial({
         side: DoubleSide,
         depthWrite: false,
         transparent: true,
-        alphaTest: 0.001,
+        alphaTest: scalable ? 0.5 : 0.001,
         opacity: 1,
         toneMapped: false
       })

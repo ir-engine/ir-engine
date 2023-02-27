@@ -365,7 +365,7 @@ export default async function SceneLoadingSystem(world: World) {
     currentLoaded = 0
     useEffect(() => {
       if (!component) return
-      currentLoaded += component.loadedAmount.value
+      currentLoaded = Math.min(currentLoaded + component.loadedAmount.value, totalAssetSize)
       progressLoad()
     }, [component?.loadedAmount])
 
