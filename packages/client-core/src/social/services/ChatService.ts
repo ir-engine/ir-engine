@@ -27,7 +27,7 @@ interface ChatMessageProps {
 
 //State
 
-const ChatState = defineState({
+export const ChatState = defineState({
   name: 'ChatState',
   initial: () => ({
     channels: {
