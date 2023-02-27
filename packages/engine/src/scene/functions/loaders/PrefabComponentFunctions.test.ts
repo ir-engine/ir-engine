@@ -15,8 +15,8 @@ import {
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
-  EntityTreeComponent,
-  removeEntityNodeRecursively
+  destroyEntityTree,
+  EntityTreeComponent
 } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
@@ -206,7 +206,7 @@ describe('PrefabComponentFunctions', async () => {
       //call load
       await loadPrefab(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       //delete entity
-      removeEntityNodeRecursively(entity)
+      destroyEntityTree(entity)
       //wait one fixed frame
       await nextFixedStep
       assert.equal(getAllComponentsOfType(PrefabComponent, world).length, 0, 'no Asset components in scene')
