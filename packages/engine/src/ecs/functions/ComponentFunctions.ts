@@ -207,9 +207,9 @@ export const setComponent = <C extends Component>(
       Component.reactorMap.set(entity, root)
     }
   }
-  Component.valueMap[entity] = value
   startTransition(() => {
     Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
+    Component.valueMap[entity] = Component.stateMap[entity]!.get(NO_PROXY)
     const root = Component.reactorMap.get(entity)
     if (!root?.isRunning) root?.run()
   })

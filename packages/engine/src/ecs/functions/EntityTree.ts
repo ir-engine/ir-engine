@@ -260,6 +260,7 @@ export function getAllEntitiesInTree(entity: Entity) {
 
 /**
  * Traverse child nodes of the given node. Traversal will start from the passed node
+ * note - does not support removing the current node during traversal
  * @param entity Node to be traverse
  * @param cb Callback function which will be called for every traverse
  * @param index index of the curren node in it's parent
@@ -267,6 +268,8 @@ export function getAllEntitiesInTree(entity: Entity) {
  */
 export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: number) => void, index = 0): void {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
+
+  if (!entityTreeNode) return
 
   cb(entity, index)
 
