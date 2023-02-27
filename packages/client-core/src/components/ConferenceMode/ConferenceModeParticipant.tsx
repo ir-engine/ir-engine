@@ -23,8 +23,6 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
     isScreen,
     username,
     selfUser,
-    audioRef,
-    videoRef,
     isSelf,
     videoStream,
     audioStream,
@@ -69,9 +67,9 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
             draggable={false}
           />
         )}
-        <video key={peerID + '_cam'} ref={videoRef} draggable={false} />
+        <span key={peerID + '-video-container'} id={peerID + '-video-container'} />
       </div>
-      <audio key={peerID + '_audio'} ref={audioRef} />
+      <span key={peerID + '-audio-container'} id={peerID + '-audio-container'} />
       <div className={styles['user-controls']}>
         <div className={styles['username']}>{username}</div>
         <div className={styles['controls']}>

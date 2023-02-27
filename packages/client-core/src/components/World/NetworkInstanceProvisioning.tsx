@@ -24,6 +24,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
+import { usePeerMedia } from '../../media/usePeerMedia'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
 import { MediaStreamActions } from '../../transports/MediaStreams'
 import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
@@ -61,6 +62,7 @@ export const NetworkInstanceProvisioning = () => {
   }, [])
 
   useRoomCodeURLParam(false, true)
+  usePeerMedia()
 
   // 2. once we have the location, provision the instance server
   useEffect(() => {

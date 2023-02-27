@@ -27,6 +27,7 @@ import {
 } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { receiveJoinMediaServer } from '@xrengine/engine/src/networking/functions/receiveJoinMediaServer'
 import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   addActionReceptor,
@@ -147,6 +148,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   if (!network.mediasoupDevice.loaded) await network.mediasoupDevice.load(connectToWorldResponse)
 
   if (isWorldConnection) receiveJoinWorld(connectToWorldResponse)
+  else receiveJoinMediaServer(connectToWorldResponse)
 
   if (isWorldConnection) await onConnectToWorldInstance(network)
   else await onConnectToMediaInstance(network)
@@ -995,10 +997,10 @@ export const toggleMicrophonePaused = async () => {
   if (await configureMediaTransports(mediaNetwork, ['audio'])) {
     if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
     else {
-      mediaStreamState.audioPaused.set(!mediaStreamState.audioPaused.value)
       const audioPaused = mediaStreamState.audioPaused.value
-      if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
-      else await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+      if (audioPaused) await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+      else await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+      mediaStreamState.audioPaused.set(!audioPaused)
       checkEndVideoChat()
     }
     MediaStreamService.updateCamAudioState()
@@ -1011,10 +1013,10 @@ export const toggleWebcamPaused = async () => {
   if (await configureMediaTransports(mediaNetwork, ['video'])) {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
-      mediaStreamState.videoPaused.set(!mediaStreamState.videoPaused.value)
       const videoPaused = mediaStreamState.videoPaused.value
-      if (!videoPaused) await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
-      else await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+      if (videoPaused) await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+      else await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+      mediaStreamState.videoPaused.set(!videoPaused)
     }
 
     MediaStreamService.updateCamVideoState()
@@ -1024,19 +1026,18 @@ export const toggleWebcamPaused = async () => {
 export const toggleScreenshare = async () => {
   const mediaStreamState = getState(MediaStreamState)
   const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-  if (!mediaStreamState.screenVideoProducer.value) await startScreenshare(mediaNetwork)
-  else await stopScreenshare(mediaNetwork)
+  if (mediaStreamState.screenVideoProducer.value) await stopScreenshare(mediaNetwork)
+  else await startScreenshare(mediaNetwork)
 }
 
 export const toggleScreenshareAudioPaused = async () => {
   const mediaStreamState = getState(MediaStreamState)
   const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-  mediaStreamState.screenShareAudioPaused.set(!mediaStreamState.screenShareAudioPaused.value)
   const audioPaused = mediaStreamState.screenShareAudioPaused.value
   if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   else await resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
-  MediaStreamService.updateScreenAudioState()
   mediaStreamState.screenShareAudioPaused.set(!audioPaused)
+  MediaStreamService.updateScreenAudioState()
 }
 
 export const toggleScreenshareVideoPaused = async () => {
