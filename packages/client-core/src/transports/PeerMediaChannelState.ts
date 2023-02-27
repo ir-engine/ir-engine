@@ -16,8 +16,8 @@ export interface PeerMediaStreamInterface {
   audioElement: HTMLAudioElement
 }
 
-export const PeerMediaStreamState = defineState({
-  name: 'PeerMediaStreamState',
+export const PeerMediaChannelState = defineState({
+  name: 'PeerMediaChannelState',
   initial: {} as {
     [peerID: PeerID]: {
       cam: PeerMediaStreamInterface
@@ -26,9 +26,9 @@ export const PeerMediaStreamState = defineState({
   }
 })
 
-export const createPeerMediaStream = (peerID: PeerID) => {
-  console.log('createPeerMediaStream', peerID)
-  const state = getState(PeerMediaStreamState)
+export const createPeerMediaChannels = (peerID: PeerID) => {
+  console.log('createPeerMediaChannels', peerID)
+  const state = getState(PeerMediaChannelState)
   state[peerID].set({
     cam: {
       videoStream: null,
@@ -57,8 +57,8 @@ export const createPeerMediaStream = (peerID: PeerID) => {
   })
 }
 
-export const removePeerMediaStream = (peerID: PeerID) => {
-  console.log('removePeerMediaStream', peerID)
-  const state = getState(PeerMediaStreamState)
+export const removePeerMediaChannels = (peerID: PeerID) => {
+  console.log('removePeerMediaChannels', peerID)
+  const state = getState(PeerMediaChannelState)
   state[peerID].set(none)
 }

@@ -1034,8 +1034,8 @@ export const toggleScreenshareAudioPaused = async () => {
   const mediaStreamState = getState(MediaStreamState)
   const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
   const audioPaused = mediaStreamState.screenShareAudioPaused.value
-  if (!audioPaused) await pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
-  else await resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
+  if (audioPaused) await resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
+  else await pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   mediaStreamState.screenShareAudioPaused.set(!audioPaused)
   MediaStreamService.updateScreenAudioState()
 }
@@ -1045,8 +1045,8 @@ export const toggleScreenshareVideoPaused = async () => {
   const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
   mediaStreamState.screenShareVideoPaused.set(!mediaStreamState.screenShareVideoPaused.value)
   const videoPaused = mediaStreamState.screenShareVideoPaused.value
-  if (!videoPaused) await stopScreenshare(mediaNetwork)
-  else await resumeProducer(mediaNetwork, mediaStreamState.screenVideoProducer.value!)
+  if (videoPaused) await resumeProducer(mediaNetwork, mediaStreamState.screenVideoProducer.value!)
+  else await stopScreenshare(mediaNetwork)
   MediaStreamService.updateScreenVideoState()
 }
 
@@ -1124,6 +1124,8 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     })
   )
 
+  console.log('local screen', mediaStreamState.localScreen.value)
+
   const channelConnectionState = accessMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId].ornull
   const channelType = currentChannelInstanceConnection.channelType.value
@@ -1141,6 +1143,8 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
       appData: { mediaTag: 'screen-video', channelType: channelType, channelId: channelId }
     })) as any as ProducerExtension
   )
+
+  console.log('screen producer', mediaStreamState.screenVideoProducer.value)
 
   // create a producer for audio, if we have it
   if (mediaStreamState.localScreen.value!.getAudioTracks().length) {

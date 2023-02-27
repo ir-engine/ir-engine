@@ -1,18 +1,18 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
 import { getState } from '@xrengine/hyperflux'
 
-import { PeerMediaStreamInterface, PeerMediaStreamState } from '../../transports/PeerMediaStreamState'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import UserMediaWindow from '../UserMediaWindow'
 import styles from './index.module.scss'
 
 export const UserMediaWindows = () => {
-  const peerMediaStreamState = useHookstate(getState(PeerMediaStreamState))
+  const peerMediaChannelState = useHookstate(getState(PeerMediaChannelState))
 
-  const consumers = Object.entries(peerMediaStreamState.get({ noproxy: true })) as [
+  const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
     PeerID,
     { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
   ][]
@@ -39,10 +39,10 @@ export const UserMediaWindows = () => {
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
         {windows
-          .filter(({ peerID }) => peerMediaStreamState[peerID].value)
-          .map(({ peerID, type }) => {
-            return <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
-          })}
+          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+          .map(({ peerID, type }) => (
+            <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+          ))}
       </div>
     </div>
   )
