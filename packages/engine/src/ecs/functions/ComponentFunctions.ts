@@ -202,6 +202,8 @@ export const setComponent = <C extends Component>(
     else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
+      if (!Component.reactor.name || Component.reactor.name === 'reactor')
+        Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor-${entity}` })
       const root = startReactor(Component.reactor) as EntityReactorRoot
       root.entity = entity
       Component.reactorMap.set(entity, root)
@@ -401,7 +403,7 @@ export function useQuery(components: QueryComponents) {
   // create an effect that forces an update when any components in the query change
   useEffect(() => {
     const entities = [...state.value]
-    const root = startReactor(() => {
+    const root = startReactor(function useQueryReactor() {
       for (const entity of entities) {
         components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
       }
