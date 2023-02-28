@@ -1,5 +1,5 @@
 import * as bitECS from 'bitecs'
-import React, { startTransition, useEffect } from 'react'
+import React, { startTransition, useEffect, useLayoutEffect } from 'react'
 
 import config from '@xrengine/common/src/config'
 import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
@@ -386,13 +386,17 @@ export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Co
 export function useQuery(components: QueryComponents) {
   const world = Engine.instance.currentWorld
 
-  const state = useHookstate([] as Entity[])
+  const result = useHookstate([] as Entity[])
   const forceUpdate = useForceUpdate()
 
-  useEffect(() => {
+  // Use an immediate (layout) effect to ensure that `queryResult`
+  // is deleted from the `reactiveQueryStates` map immediately when the current
+  // component is unmounted, before any other code attempts to set it
+  // (component state can't be modified after a component is unmounted)
+  useLayoutEffect(() => {
     const query = defineQuery(components)
-    state.set(query(world))
-    const queryState = { query, state, components }
+    result.set(query(world))
+    const queryState = { query, result, components }
     world.reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(world, query)
@@ -402,7 +406,7 @@ export function useQuery(components: QueryComponents) {
 
   // create an effect that forces an update when any components in the query change
   useEffect(() => {
-    const entities = [...state.value]
+    const entities = [...result.value]
     const root = startReactor(function useQueryReactor() {
       for (const entity of entities) {
         components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
@@ -413,9 +417,9 @@ export function useQuery(components: QueryComponents) {
     return () => {
       root.stop()
     }
-  }, [state])
+  }, [result])
 
-  return state.value
+  return result.value
 }
 
 /**

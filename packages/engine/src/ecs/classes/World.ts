@@ -267,7 +267,7 @@ export class World {
 
   buttons = {} as Readonly<ButtonInputStateType>
 
-  reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]>; components: QueryComponents }>()
+  reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
@@ -389,11 +389,11 @@ export class World {
 
     for (const entity of this.#entityRemovedQuery(this)) removeEntity(entity as Entity, true, this)
 
-    for (const { query, state } of this.reactiveQueryStates) {
+    for (const { query, result } of this.reactiveQueryStates) {
       const entitiesAdded = query.enter().length
       const entitiesRemoved = query.exit().length
       if (entitiesAdded || entitiesRemoved) {
-        state.set(query())
+        result.set(query())
       }
     }
 
