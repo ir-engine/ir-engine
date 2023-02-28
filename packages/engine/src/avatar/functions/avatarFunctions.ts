@@ -26,6 +26,7 @@ import { UpdatableCallback, UpdatableComponent } from '../../scene/components/Up
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
+import { XRState } from '../../xr/XRState'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
@@ -77,7 +78,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 export const loadAvatarForUser = async (
   entity: Entity,
   avatarURL: string,
-  loadingEffect = getState(EngineState).avatarLoadingEffect.value
+  loadingEffect = getState(EngineState).avatarLoadingEffect.value && !getState(XRState).sessionActive.value
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     return
