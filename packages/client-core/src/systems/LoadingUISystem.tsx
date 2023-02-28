@@ -2,6 +2,7 @@ import { WebLayer3D } from '@xrfoundation/xrui'
 import { useEffect } from 'react'
 import {
   BoxGeometry,
+  Color,
   DoubleSide,
   Mesh,
   MeshBasicMaterial,
@@ -45,9 +46,10 @@ import {
 } from '@xrengine/hyperflux'
 
 import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
+import { getAppTheme } from '../common/services/AppThemeState'
 import { SceneActions } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
-import { createLoaderDetailView } from './ui/LoadingDetailView'
+import { createLoaderDetailView, themeColors } from './ui/LoadingDetailView'
 
 export default async function LoadingUISystem(world: World) {
   const transitionPeriodSeconds = 1
@@ -97,6 +99,11 @@ export default async function LoadingUISystem(world: World) {
   }
 
   const xrui = getComponent(ui.entity, XRUIComponent)
+
+  const mainThemeColor = new Color()
+  const defaultColorHex = '#' + parseInt(getAppTheme()!.textColor.substring(1))
+  console.log(defaultColorHex)
+  const defaultColor = new Color('#585858')
 
   const execute = () => {
     for (const action of currentSceneChangedQueue()) {
@@ -152,6 +159,12 @@ export default async function LoadingUISystem(world: World) {
     // }
 
     const loadingState = getState(LoadingSystemState).loadingScreenOpacity
+
+    mainThemeColor.setHex(parseInt(themeColors.main.substring(1)))
+    xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+      const mat = layer.contentMesh.material as MeshBasicMaterial
+      mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress.value * 0.01)
+    })
 
     transition.update(world.deltaSeconds, (opacity) => {
       if (opacity !== loadingState.value) loadingState.set(opacity)

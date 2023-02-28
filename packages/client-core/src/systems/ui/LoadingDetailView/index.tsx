@@ -28,10 +28,10 @@ export function createLoaderDetailView(transition: ReturnType<typeof createTrans
 
 const col = new Color()
 
-function setDefaultPalette(colors) {
-  colors.main.set('black')
-  colors.background.set('white')
-  colors.alternate.set('black')
+export const themeColors = {
+  main: '',
+  background: '',
+  alternate: ''
 }
 
 const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
@@ -40,14 +40,9 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
   const engineState = useEngineState()
 
   const theme = getAppTheme()
-  const color = theme ? theme.textColor : ''
+  const defaultColorHex = theme ? theme.textColor : '#000'
 
   const { t } = useTranslation()
-  const colors = useHookstate({
-    main: color,
-    background: color,
-    alternate: color
-  })
 
   useEffect(() => {
     const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value
@@ -60,17 +55,13 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
         uiState.imageHeight.set(img.naturalHeight)
         const palette = getImagePalette(img)
         if (palette) {
-          colors.main.set(palette.color)
-          colors.background.set(palette.backgroundColor)
-          col.set(colors.background.value)
-          colors.alternate.set(palette.alternativeColor)
-        } else {
-          setDefaultPalette(colors)
+          themeColors.main = palette.color
+          themeColors.background = palette.backgroundColor
+          col.set(themeColors.background)
+          themeColors.alternate = palette.alternativeColor
         }
       }
       img.src = thumbnailUrl
-    } else {
-      setDefaultPalette(colors)
     }
 
     return () => {
@@ -88,7 +79,7 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
 
   return (
     <>
-      <LoadingDetailViewStyle col={col} colors={colors} />
+      <LoadingDetailViewStyle />
       <div id="loading-container" xr-layer="true">
         {/* <div id="thumbnail">
           <img xr-layer="true" xr-pixel-ratio="1" src={thumbnailUrl} crossOrigin="anonymous" />
@@ -101,13 +92,7 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
             {engineState.loadingProgress.value}%
           </div>
           <div id="progress-container" xr-layer="true" xr-scalable="true">
-            <ProgressBar
-              bgColor={colors.alternate.value}
-              completed={100}
-              height="2px"
-              baseBgColor="#000000"
-              isLabelVisible={false}
-            />
+            <ProgressBar bgColor={'#fff'} completed={100} height="2px" baseBgColor="#000000" isLabelVisible={false} />
           </div>
           <div id="loading-details" xr-layer="true" xr-pixel-ratio="3">
             {loadingDetails}
