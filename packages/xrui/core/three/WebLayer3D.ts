@@ -58,17 +58,18 @@ export class WebLayer3D extends Object3D {
     this._webLayer = WebRenderer.getClosestLayer(element)!
     ;(element as any).layer = this
 
+    this.scalable = this.element.hasAttribute('xr-scalable')
+
     // compressed textures need flipped geometry]
     const geometry = this._webLayer.isMediaElement ? WebLayer3D.GEOMETRY : WebLayer3D.FLIPPED_GEOMETRY
 
-    const scalable = this.element.hasAttribute('xr-scalable')
     this.contentMesh = new Mesh(
       geometry,
       new MeshBasicMaterial({
         side: DoubleSide,
         depthWrite: false,
         transparent: true,
-        alphaTest: scalable ? 0.5 : 0.001,
+        alphaTest: this.scalable ? 0.5 : 0.001,
         opacity: 1,
         toneMapped: false
       })
@@ -113,6 +114,8 @@ export class WebLayer3D extends Object3D {
   private _previousTexture?: VideoTexture | CompressedTexture | Texture
 
   private _textureMap = new Map<string, ThreeTextureData>()
+
+  scalable = false
 
   get allStateHashes() {
     return this._webLayer.allStateHashes
@@ -332,6 +335,8 @@ export class WebLayer3D extends Object3D {
   /** INTERNAL */
   private [ON_BEFORE_UPDATE]() {}
 
+  private positioned = false
+
   protected _doUpdate() {
     this[ON_BEFORE_UPDATE]()
 
@@ -482,6 +487,8 @@ export class WebLayer3D extends Object3D {
     }
   }
 
+  private hasPositioned = false
+
   private _updateDOMLayout() {
     if (this.needsRemoval) {
       return
@@ -495,9 +502,11 @@ export class WebLayer3D extends Object3D {
 
     const isMedia = this._webLayer.isMediaElement
 
-    this.domLayout.position.set(0, 0, 0)
-    this.domLayout.scale.set(1, 1, 1)
-    this.domLayout.quaternion.set(0, 0, 0, 1)
+    if (!this.scalable) {
+      this.domLayout.position.set(0, 0, 0)
+      this.domLayout.scale.set(1, 1, 1)
+      this.domLayout.quaternion.set(0, 0, 0, 1)
+    }
 
     const bounds = this.bounds.copy(currentBounds)
     const margin = this.margin.copy(currentMargin)
@@ -524,11 +533,14 @@ export class WebLayer3D extends Object3D {
     const parentLeftEdge = -parentFullWidth / 2 + parentMargin.left
     const parentTopEdge = parentFullHeight / 2 - parentMargin.top
 
-    this.domLayout.position.set(
-      pixelSize * (parentLeftEdge + fullWidth / 2 + bounds.left - marginLeft),
-      pixelSize * (parentTopEdge - fullHeight / 2 - bounds.top + marginTop),
-      0
-    )
+    if (!this.scalable || !this.hasPositioned) {
+      this.domLayout.position.set(
+        pixelSize * (parentLeftEdge + fullWidth / 2 + bounds.left - marginLeft),
+        pixelSize * (parentTopEdge - fullHeight / 2 - bounds.top + marginTop),
+        0
+      )
+      this.hasPositioned = true
+    }
 
     if (cssTransform) {
       this.domLayout.updateMatrix()

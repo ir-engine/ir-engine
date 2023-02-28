@@ -9,11 +9,12 @@ import {
   Object3D,
   PlaneGeometry,
   SphereGeometry,
-  Texture
+  Texture,
+  Vector3
 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
@@ -42,7 +43,8 @@ import {
   removeActionQueue,
   startReactor,
   StateMethods,
-  useHookstate
+  useHookstate,
+  useState
 } from '@xrengine/hyperflux'
 
 import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
@@ -81,6 +83,8 @@ export default async function LoadingUISystem(world: World) {
 
   const reactor = startReactor(() => {
     const loadingState = useHookstate(appLoadingState)
+    const state = useHookstate(engineState)
+    let progressBar = xrui.getObjectByName('progress-container') as WebLayer3D
 
     useEffect(() => {
       if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
@@ -88,15 +92,20 @@ export default async function LoadingUISystem(world: World) {
       }
     }, [loadingState.state])
 
+    useEffect(() => {
+      if (!progressBar) progressBar = xrui.getObjectByName('progress-container') as WebLayer3D
+      if (progressBar) {
+        console.log(progressBar.domLayout.position.x)
+        const percentage = state.loadingProgress.value
+        const scaleMultiplier = 0.01
+        const centerOffset = 0.05
+        progressBar.domLayout.scale.setX(percentage * scaleMultiplier)
+        progressBar.domLayout.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
+      }
+    }, [state.loadingProgress])
+
     return null
   })
-
-  const setLoadingProgress = (percentage: number, progressBar: Object3D) => {
-    const scaleMultiplier = 0.01
-    const centerOffset = 0.05
-    progressBar.scale.x = percentage * scaleMultiplier
-    progressBar.position.x += percentage * scaleMultiplier * centerOffset - centerOffset
-  }
 
   const xrui = getComponent(ui.entity, XRUIComponent)
 
@@ -132,9 +141,6 @@ export default async function LoadingUISystem(world: World) {
       removeComponent(ui.entity, ComputedTransformComponent)
       return
     }
-
-    const progressBar = xrui.getObjectByName('progress-container')
-    if (progressBar) setLoadingProgress(engineState.loadingProgress.value, progressBar)
 
     if (transition.state === 'IN' && transition.alpha === 1) {
       setComputedTransformComponent(ui.entity, world.cameraEntity, () => {
