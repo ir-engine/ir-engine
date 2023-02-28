@@ -101,9 +101,7 @@ export default async function LoadingUISystem(world: World) {
   const xrui = getComponent(ui.entity, XRUIComponent)
 
   const mainThemeColor = new Color()
-  const defaultColorHex = '#' + parseInt(getAppTheme()!.textColor.substring(1))
-  console.log(defaultColorHex)
-  const defaultColor = new Color('#585858')
+  const defaultColor = new Color()
 
   const execute = () => {
     for (const action of currentSceneChangedQueue()) {
@@ -159,8 +157,8 @@ export default async function LoadingUISystem(world: World) {
     // }
 
     const loadingState = getState(LoadingSystemState).loadingScreenOpacity
-
-    mainThemeColor.setHex(parseInt(themeColors.main.substring(1)))
+    defaultColor.set(getAppTheme()!.textColor)
+    mainThemeColor.set(themeColors.alternate)
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress.value * 0.01)
