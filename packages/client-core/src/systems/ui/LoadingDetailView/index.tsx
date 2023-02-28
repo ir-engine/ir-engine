@@ -9,6 +9,7 @@ import { createTransitionState } from '@xrengine/engine/src/xrui/functions/creat
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
+import { getAppTheme } from '../../../common/services/AppThemeState'
 import { useSceneState } from '../../../world/services/SceneService'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
@@ -38,11 +39,14 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
   const sceneState = useSceneState()
   const engineState = useEngineState()
 
+  const theme = getAppTheme()
+  const color = theme ? theme.textColor : ''
+
   const { t } = useTranslation()
   const colors = useHookstate({
-    main: '',
-    background: '',
-    alternate: ''
+    main: color,
+    background: color,
+    alternate: color
   })
 
   useEffect(() => {
@@ -50,9 +54,6 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
     const img = new Image()
 
     if (thumbnailUrl) {
-      colors.main.set('')
-      colors.background.set('')
-      colors.alternate.set('')
       img.crossOrigin = 'anonymous'
       img.onload = function () {
         uiState.imageWidth.set(img.naturalWidth)
