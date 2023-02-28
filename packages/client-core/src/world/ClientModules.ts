@@ -4,6 +4,7 @@ import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModu
 import { CameraModule } from '@xrengine/engine/src/camera/CameraModule'
 import { DebugModule } from '@xrengine/engine/src/debug/DebugModule'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ECSSerializationModule } from '@xrengine/engine/src/ecs/ECSSerializationModule'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { InputModule } from '@xrengine/engine/src/input/InputModule'
 import { InteractionModule } from '@xrengine/engine/src/interaction/InteractionModule'
@@ -19,6 +20,7 @@ export function ClientModules() {
   return initSystems(Engine.instance.currentWorld, [
     ...XRModule(),
     ...TransformModule(),
+    ...ECSSerializationModule(),
     ...RendererModule(),
     ...MediaModule(),
     ...InputModule(),
