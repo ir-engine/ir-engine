@@ -9,7 +9,6 @@ import { createTransitionState } from '@xrengine/engine/src/xrui/functions/creat
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
-import { getAppTheme } from '../../../common/services/AppThemeState'
 import { useSceneState } from '../../../world/services/SceneService'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
@@ -28,19 +27,20 @@ export function createLoaderDetailView(transition: ReturnType<typeof createTrans
 
 const col = new Color()
 
+function setDefaultPalette(colors) {
+  colors.main.set('black')
+  colors.background.set('white')
+  colors.alternate.set('black')
+}
 export const themeColors = {
   main: '',
   background: '',
   alternate: ''
 }
-
 const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
-
-  const theme = getAppTheme()
-  const defaultColorHex = theme ? theme.textColor : '#000'
 
   const { t } = useTranslation()
 
@@ -57,11 +57,14 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
         if (palette) {
           themeColors.main = palette.color
           themeColors.background = palette.backgroundColor
-          col.set(themeColors.background)
           themeColors.alternate = palette.alternativeColor
+        } else {
+          setDefaultPalette(themeColors)
         }
       }
       img.src = thumbnailUrl
+    } else {
+      setDefaultPalette(themeColors)
     }
 
     return () => {
@@ -91,8 +94,14 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="3">
             {engineState.loadingProgress.value}%
           </div>
-          <div id="progress-container" xr-layer="true" xr-scalable="true">
-            <ProgressBar bgColor={'#fff'} completed={100} height="2px" baseBgColor="#000000" isLabelVisible={false} />
+          <div id="progress-container" xr-layer="true" xr-scalable="true" xr-apply-dom-layout="false">
+            <ProgressBar
+              bgColor={'#ffffff'}
+              completed={100}
+              height="2px"
+              baseBgColor="#000000"
+              isLabelVisible={false}
+            />
           </div>
           <div id="loading-details" xr-layer="true" xr-pixel-ratio="3">
             {loadingDetails}

@@ -84,7 +84,7 @@ export default async function LoadingUISystem(world: World) {
   const reactor = startReactor(() => {
     const loadingState = useHookstate(appLoadingState)
     const state = useHookstate(engineState)
-    let progressBar = xrui.getObjectByName('progress-container') as WebLayer3D
+    let progressBar = undefined! as WebLayer3D
 
     useEffect(() => {
       if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
@@ -95,12 +95,11 @@ export default async function LoadingUISystem(world: World) {
     useEffect(() => {
       if (!progressBar) progressBar = xrui.getObjectByName('progress-container') as WebLayer3D
       if (progressBar) {
-        console.log(progressBar.domLayout.position.x)
         const percentage = state.loadingProgress.value
         const scaleMultiplier = 0.01
         const centerOffset = 0.05
-        progressBar.domLayout.scale.setX(percentage * scaleMultiplier)
-        progressBar.domLayout.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
+        progressBar.scale.setX(percentage * scaleMultiplier)
+        progressBar.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
       }
     }, [state.loadingProgress])
 

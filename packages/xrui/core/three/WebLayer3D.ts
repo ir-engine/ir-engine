@@ -44,9 +44,14 @@ export class WebLayer3D extends Object3D {
 
   static shouldApplyDOMLayout(layer: WebLayer3D) {
     const should = layer.shouldApplyDOMLayout
+    console.log(should)
     if ((should as any) === 'always' || should === true) return true
     if ((should as any) === 'never' || should === false) return false
     if (should === 'auto' && layer.parentWebLayer && layer.parent === layer.parentWebLayer) return true
+    if (should === 'once') {
+      layer.shouldApplyDOMLayout = false
+      return true
+    }
     return false
   }
 
@@ -59,6 +64,8 @@ export class WebLayer3D extends Object3D {
     ;(element as any).layer = this
 
     this.scalable = this.element.hasAttribute('xr-scalable')
+
+    console.log(this.shouldApplyDOMLayout)
 
     // compressed textures need flipped geometry]
     const geometry = this._webLayer.isMediaElement ? WebLayer3D.GEOMETRY : WebLayer3D.FLIPPED_GEOMETRY
@@ -255,7 +262,7 @@ export class WebLayer3D extends Object3D {
    *
    * Defaults to `auto`
    */
-  shouldApplyDOMLayout: true | false | 'auto' = 'auto'
+  shouldApplyDOMLayout: true | false | string = 'auto'
 
   /**
    * Refresh from DOM (potentially slow, call only when needed)
@@ -487,8 +494,6 @@ export class WebLayer3D extends Object3D {
     }
   }
 
-  private hasPositioned = false
-
   private _updateDOMLayout() {
     if (this.needsRemoval) {
       return
@@ -502,11 +507,9 @@ export class WebLayer3D extends Object3D {
 
     const isMedia = this._webLayer.isMediaElement
 
-    if (!this.scalable) {
-      this.domLayout.position.set(0, 0, 0)
-      this.domLayout.scale.set(1, 1, 1)
-      this.domLayout.quaternion.set(0, 0, 0, 1)
-    }
+    this.domLayout.position.set(0, 0, 0)
+    this.domLayout.scale.set(1, 1, 1)
+    this.domLayout.quaternion.set(0, 0, 0, 1)
 
     const bounds = this.bounds.copy(currentBounds)
     const margin = this.margin.copy(currentMargin)
@@ -533,14 +536,11 @@ export class WebLayer3D extends Object3D {
     const parentLeftEdge = -parentFullWidth / 2 + parentMargin.left
     const parentTopEdge = parentFullHeight / 2 - parentMargin.top
 
-    if (!this.scalable || !this.hasPositioned) {
-      this.domLayout.position.set(
-        pixelSize * (parentLeftEdge + fullWidth / 2 + bounds.left - marginLeft),
-        pixelSize * (parentTopEdge - fullHeight / 2 - bounds.top + marginTop),
-        0
-      )
-      this.hasPositioned = true
-    }
+    this.domLayout.position.set(
+      pixelSize * (parentLeftEdge + fullWidth / 2 + bounds.left - marginLeft),
+      pixelSize * (parentTopEdge - fullHeight / 2 - bounds.top + marginTop),
+      0
+    )
 
     if (cssTransform) {
       this.domLayout.updateMatrix()

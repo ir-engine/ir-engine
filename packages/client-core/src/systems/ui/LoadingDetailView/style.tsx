@@ -20,7 +20,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         left: 50%;
         transform: translate(-50%, -50%);
         filter: blur(5px);
-        color: #fff;
+        color: #FFFFFF;
       }
 
       #loading-ui {
@@ -31,7 +31,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         z-index: 2;
         padding: 2px;
         text-align: center;
-        text-shadow: 1px 1px 1px: #000;
+        text-shadow: 1px 1px 1px ${'#000'};
         -webkit-font-smoothing: antialiased;
       }
 
@@ -40,7 +40,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         margin: auto;
         text-align: center;
         padding: 2px;
-        color: #fff;
+        color: #FFFFFF;
       }
       
       #progress-text {
@@ -48,7 +48,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         margin: auto;
         text-align: center;
         padding: 2px;
-        color: #fff;
+        color: #FFFFFF;
       }
 
       #progress-container {
@@ -63,7 +63,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         margin: auto;
         text-align: center;
         padding: 2px;
-        color: #fff;
+        color: #FFFFFF;
       }
       
     `}</style>
