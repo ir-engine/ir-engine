@@ -6,7 +6,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { accessMediaInstanceConnectionState } from '../common/services/MediaInstanceConnectionService'
 import { accessMediaStreamState, MediaStreamService } from '../media/services/MediaStreamService'
 import { NetworkUserService } from '../user/services/NetworkUserService'
-import { MediaStreams } from './MediaStreams'
+import { MediaStreamActions } from './MediaStreams'
 
 export const updateNearbyAvatars = () => {
   const network = Engine.instance.currentWorld.mediaNetwork
@@ -32,7 +32,7 @@ export const updateNearbyAvatars = () => {
 
   network?.consumers.forEach((consumer) => {
     if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
-      dispatchAction(MediaStreams.actions.closeConsumer({ consumer }))
+      dispatchAction(MediaStreamActions.closeConsumer({ consumer }))
     }
   })
 }

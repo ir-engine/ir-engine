@@ -1,6 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 /**
@@ -17,15 +18,15 @@ export const filterParentEntities = (
   entityList: (Entity | string)[],
   parentEntityList: (Entity | string)[] = [],
   filterUnremovable = true,
-  filterUntransformable = true,
-  tree = Engine.instance.currentWorld.entityTree
+  filterUntransformable = true
 ): (Entity | string)[] => {
   parentEntityList.length = 0
 
   // Recursively find the nodes in the tree with the lowest depth
   const traverseParentOnly = (entity: Entity) => {
-    const node = tree.entityNodeMap.get(entity)
-    if (!node) return
+    if (!entity) return
+
+    const node = getComponent(entity, EntityTreeComponent)
 
     if (
       entityList.includes(entity) &&
@@ -43,7 +44,7 @@ export const filterParentEntities = (
     }
   }
 
-  traverseParentOnly(tree.rootNode.entity)
+  traverseParentOnly(Engine.instance.currentWorld.sceneEntity)
 
   return parentEntityList
 }

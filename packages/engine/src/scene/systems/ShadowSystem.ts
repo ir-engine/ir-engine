@@ -42,7 +42,7 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { RendererState } from '../../renderer/RendererState'
@@ -131,7 +131,7 @@ export default async function ShadowSystem(world: World) {
     return null
   }
 
-  const csmReactor = startReactor(() => {
+  const csmReactor = startReactor(function CSMReactor() {
     const lightEstimator = useHookstate(xrState.isEstimatingLight)
     const directionalLights = useQuery([DirectionalLightComponent])
 
@@ -188,7 +188,7 @@ export default async function ShadowSystem(world: World) {
   const sphere = new Sphere()
   const box3 = new Box3()
 
-  const dropShadowReactor = startQueryReactor([ShadowComponent], function (props) {
+  const dropShadowReactor = startQueryReactor([ShadowComponent], function DropShadowReactor(props) {
     const entity = props.root.entity
     const useShadows = useShadowsEnabled()
     const shadowMaterial = useHookstate(shadowState)

@@ -9,7 +9,7 @@ import {
   setComponent,
   useOptionalComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
@@ -59,20 +59,20 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const editorState = useEditorState()
 
-  useOptionalComponent(props.node.entity, VisibleComponent)
-  useOptionalComponent(props.node.entity, PreventBakeTagComponent)
+  useOptionalComponent(props.entity, VisibleComponent)
+  useOptionalComponent(props.entity, PreventBakeTagComponent)
 
   const onChangeVisible = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n !== 'string'
-    ) as EntityTreeNode[]
+    ) as EntityOrObjectUUID[]
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
   const onChangeBakeStatic = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
-      (n) => typeof n === 'object'
-    ) as EntityTreeNode[]
+      (n) => typeof n === 'number'
+    ) as EntityOrObjectUUID[]
     EditorControlFunctions.addOrRemoveComponent(nodes, PreventBakeTagComponent, value)
   }
 
@@ -81,24 +81,21 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   return (
     <PropertiesHeader>
       <NameInputGroupContainer>
-        <NameInputGroup node={props.node} key={props.node.entity} />
-        {!hasComponent(props.node.entity, SceneTagComponent) && (
+        <NameInputGroup entity={props.entity} key={props.entity} />
+        {!hasComponent(props.entity, SceneTagComponent) && (
           <>
             <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
-              <BooleanInput value={hasComponent(props.node.entity, VisibleComponent)} onChange={onChangeVisible} />
+              <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={onChangeVisible} />
             </VisibleInputGroup>
             <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
-              <BooleanInput
-                value={hasComponent(props.node.entity, PreventBakeTagComponent)}
-                onChange={onChangeBakeStatic}
-              />
+              <BooleanInput value={hasComponent(props.entity, PreventBakeTagComponent)} onChange={onChangeBakeStatic} />
             </VisibleInputGroup>
           </>
         )}
       </NameInputGroupContainer>
 
       {/** @todo #7258 */}
-      {editorState.advancedMode.value && typeof props.node.entity === 'number' && (
+      {editorState.advancedMode.value && typeof props.entity === 'number' && (
         <div style={{ pointerEvents: 'auto' }}>
           <MainMenu
             icon={AddIcon}
@@ -111,7 +108,7 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
                 if (!sceneComponentID) return console.warn('could not find component name', sceneComponentID)
                 if (!ComponentMap.get(sceneComponentID))
                   return console.warn('could not find component', sceneComponentID)
-                setComponent(props.node.entity, ComponentMap.get(sceneComponentID)!)
+                setComponent(props.entity, ComponentMap.get(sceneComponentID)!)
                 dispatchAction(SelectionAction.forceUpdate({}))
               }
             }))}

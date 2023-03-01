@@ -17,8 +17,7 @@ import { EditorComponentType, updateProperty } from './Util'
 
 export const PrefabNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
-  const node = props.node
+  const entity = props.entity
   const prefab = useComponent(entity, PrefabComponent)
   const isLoaded = prefab.loaded.value
 
@@ -41,7 +40,7 @@ export const PrefabNodeEditor: EditorComponentType = (props) => {
   }
 
   const onExportAsset = async () => {
-    await exportPrefab(node)
+    await exportPrefab(entity)
   }
 
   return (

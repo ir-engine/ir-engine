@@ -108,7 +108,7 @@ export default async function PositionalAudioSystem(world: World) {
 
   const positionalAudioPannerReactor = startQueryReactor(
     [PositionalAudioComponent, TransformComponent],
-    function (props) {
+    function PositionalAudioPannerReactor(props) {
       const entity = props.root.entity
 
       const mediaElement = useOptionalComponent(entity, MediaElementComponent)

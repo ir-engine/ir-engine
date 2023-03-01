@@ -16,7 +16,7 @@ import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import { Grid } from '@mui/material'
 
 const LoadVolumeNodeEditor: EditorComponentType = (props) => {
-  const loadVolumeComponent = getComponent(props.node.entity, LoadVolumeComponent)
+  const loadVolumeComponent = getComponent(props.entity, LoadVolumeComponent)
   const targets = loadVolumeComponent.targets
   /*function onEditTargets(index) {
     return (value) => {

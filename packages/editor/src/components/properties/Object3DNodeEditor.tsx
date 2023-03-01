@@ -9,6 +9,8 @@ import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
 import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
@@ -37,20 +39,26 @@ import Well from '../layout/Well'
 import MaterialEditor from '../materials/MaterialEditor'
 import styles from '../styles.module.scss'
 import NodeEditor from './NodeEditor'
+import PropertyGroup from './PropertyGroup'
 import { EditorComponentType } from './Util'
+
+type Object3DProps = {
+  obj3d: Object3D
+  multiEdit: boolean
+}
 
 /**
  * Object3DNodeEditor component used to provide the editor view to customize Object3D properties inside a model.
  *
  * @type {Class component}
  */
-export const Object3DNodeEditor: EditorComponentType = (props) => {
+export const Object3DNodeEditor = (props: Object3DProps) => {
   const { t } = useTranslation()
   console.log(props)
   const scene: Scene = Engine.instance.currentWorld.scene
   const selectionState = accessSelectionState()
   const materialLibrary = getMaterialLibrary()
-  const obj3d: Object3D = props.node as any
+  const obj3d: Object3D = props.obj3d as any
   const mesh = obj3d as Mesh
   const instancedMesh = obj3d as InstancedMesh
   //objId: used to track current obj3d
@@ -148,10 +156,9 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
 
   function selectParentEntityNode() {
     let walker = obj3d as Object3DWithEntity
-    const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
     while (walker) {
-      if (walker.entity && nodeMap.has(walker.entity)) {
-        EditorControlFunctions.replaceSelection([nodeMap.get(walker.entity)!])
+      if (walker.entity && hasComponent(walker.entity, EntityTreeComponent)) {
+        EditorControlFunctions.replaceSelection([walker.entity!])
         break
       }
       walker = walker.parent as Object3DWithEntity
@@ -159,7 +166,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor
+    <PropertyGroup
       {...props}
       name={t('editor:properties.object3d.name')}
       description={t('editor:properties.object3d.description')}
@@ -337,7 +344,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
           src={obj3d.userData}
         />
       </div>
-    </NodeEditor>
+    </PropertyGroup>
   )
 }
 

@@ -12,6 +12,7 @@ export default async function MediaStreamSystem(world: World) {
       const buffer = network.mediasoupOperationQueue.pop() as any
       if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
         try {
+          console.log(buffer)
           if (buffer.action === 'resume') buffer.object.resume()
           else if (buffer.action === 'pause') buffer.object.pause()
           executeInProgress = false

@@ -120,7 +120,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const avatarIKTargetsActionQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
 
-  const reactor = startReactor(() => {
+  const reactor = startReactor(function AvatarAnimationReactor() {
     const state = useHookstate(getState(AvatarAnimationState))
     const isHeadset = useIsHeadset()
 

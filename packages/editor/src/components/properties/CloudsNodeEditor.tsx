@@ -22,8 +22,8 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const CloudsNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const cloudComponent = useComponent(props.node.entity, CloudComponent)
-  const hasError = !!useOptionalComponent(props.node.entity, ErrorComponent)
+  const cloudComponent = useComponent(props.entity, CloudComponent)
+  const hasError = !!useOptionalComponent(props.entity, ErrorComponent)
 
   return (
     <NodeEditor

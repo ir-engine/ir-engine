@@ -145,7 +145,7 @@ export class EngineActions {
    **/
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.Engine.SCENE_OBJECT_UPDATE' as const,
-    entities: matches.array as Validator<unknown, Entity[]>
+    entities: matches.any as Validator<unknown, Entity[]>
   })
 
   static avatarModelChanged = defineAction({

@@ -1,13 +1,4 @@
-import {
-  DoubleSide,
-  Mesh,
-  MeshStandardMaterial,
-  PlaneGeometry,
-  sRGBEncoding,
-  Vector3,
-  Vector4,
-  VideoTexture
-} from 'three'
+import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, sRGBEncoding, Vector4, VideoTexture } from 'three'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
@@ -18,6 +9,13 @@ import { ScreenshareTargetComponent } from '../components/ScreenshareTargetCompo
 import { fitTexture } from './fitTexture'
 
 const screenshareTargetQuery = defineQuery([ScreenshareTargetComponent])
+
+const getAspectRatioFromBufferGeometry = (mesh: Mesh<BufferGeometry>) => {
+  mesh.geometry.computeBoundingBox()
+  const boundingBox = mesh.geometry.boundingBox!
+  const bb = boundingBox.clone().applyMatrix4(mesh.matrixWorld)
+  return (bb.max.x - bb.min.x) / (bb.max.y - bb.min.y)
+}
 
 export const applyVideoToTexture = (
   video: HTMLVideoElement,
@@ -32,9 +30,7 @@ export const applyVideoToTexture = (
   obj.material.map.encoding = sRGBEncoding
 
   const imageAspect = video.videoWidth / video.videoHeight
-  // todo: include goemetry in calculation of
-  const worldScale = obj.getWorldScale(new Vector3())
-  const screenAspect = obj.geometry instanceof PlaneGeometry ? worldScale.x / worldScale.y : 1
+  const screenAspect = getAspectRatioFromBufferGeometry(obj)
 
   addOBCPlugin(obj.material, {
     id: OBCType.UVCLIP,

@@ -4,10 +4,17 @@ import { useTranslation } from 'react-i18next'
 
 import { camelCaseToSpacedString } from '@xrengine/common/src/utils/camelCaseToSpacedString'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { ComponentType, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  ComponentType,
+  defineQuery,
+  getComponent,
+  hasComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { CallbackComponent } from '@xrengine/engine/src/scene/components/CallbackComponent'
 import { ColliderComponent, supportedColliderShapes } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
 
 import PanToolIcon from '@mui/icons-material/PanTool'
 
@@ -45,7 +52,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [options, setOptions] = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
 
-  const colliderComponent = getComponent(props.node.entity, ColliderComponent)
+  const colliderComponent = getComponent(props.entity, ColliderComponent)
 
   useEffect(() => {
     const options = [] as OptionsType
@@ -54,13 +61,12 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       value: 'Self',
       callbacks: []
     })
-    const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
     for (const entity of callbackQuery()) {
-      if (entity === props.node.entity || !eNodeMap.has(entity)) continue
+      if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
-        value: eNodeMap.get(entity)!.uuid,
+        value: getComponent(entity, UUIDComponent),
         callbacks: Object.keys(callbacks).map((cb) => {
           return { label: cb, value: cb }
         })
@@ -96,7 +102,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       <>
         <InputGroup name="Target" label={t('editor:properties.triggereVolume.lbl-target')}>
           <SelectInput
-            key={props.node.entity}
+            key={props.entity}
             value={colliderComponent.target ?? 'Self'}
             onChange={onChangeTarget}
             options={options}
@@ -112,7 +118,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
             />
           ) : (
             <SelectInput
-              key={props.node.entity}
+              key={props.entity}
               value={colliderComponent.onEnter!}
               onChange={updateProperty(ColliderComponent, 'onEnter') as any}
               options={targetOption?.callbacks ? targetOption.callbacks : []}
@@ -130,7 +136,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
             />
           ) : (
             <SelectInput
-              key={props.node.entity}
+              key={props.entity}
               value={colliderComponent.onExit!}
               onChange={updateProperty(ColliderComponent, 'onExit') as any}
               options={targetOption?.callbacks ? targetOption.callbacks : []}

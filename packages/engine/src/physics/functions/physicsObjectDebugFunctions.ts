@@ -13,7 +13,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '@xrengine/engine/src/physics/types/PhysicsTypes'
@@ -169,8 +168,7 @@ export const generatePhysicsObject = (
     // body.addTorque(defaultTorqueForce, true)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
-    const node = world.entityTree.entityNodeMap.get(entity)
-    if (node) {
+    if (entity) {
       dispatchAction(
         WorldNetworkAction.spawnObject({
           prefab: 'physics_debug',
