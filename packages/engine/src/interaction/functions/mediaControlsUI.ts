@@ -1,4 +1,4 @@
-import { WebLayer3D } from '@xrfoundation/xrui'
+import { WebLayer3D } from '@xrengine/xrui'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
