@@ -133,8 +133,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
 
 export const getOptionalComponentState = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>,
-  world = Engine.instance.currentWorld
+  component: Component<ComponentType, {}, unknown>
 ): State<ComponentType> | undefined => {
   // if (entity === UndefinedEntity) return undefined
   if (component.existenceMap[entity].value) return component.stateMap[entity]
@@ -143,10 +142,9 @@ export const getOptionalComponentState = <ComponentType>(
 
 export const getComponentState = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>,
-  world = Engine.instance.currentWorld
+  component: Component<ComponentType, {}, unknown>
 ): State<ComponentType> => {
-  const componentState = getOptionalComponentState(entity, component, world)!
+  const componentState = getOptionalComponentState(entity, component)!
   // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
   // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
   return componentState
@@ -154,16 +152,14 @@ export const getComponentState = <ComponentType>(
 
 export const getOptionalComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>,
-  world = Engine.instance.currentWorld
+  component: Component<ComponentType, {}, unknown>
 ): ComponentType | undefined => {
   return component.valueMap[entity] as ComponentType | undefined
 }
 
 export const getComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>,
-  world = Engine.instance.currentWorld
+  component: Component<ComponentType, {}, unknown>
 ): ComponentType => {
   return component.valueMap[entity] as ComponentType
 }
@@ -182,15 +178,12 @@ export const getComponent = <ComponentType>(
 export const setComponent = <C extends Component>(
   entity: Entity,
   Component: C,
-  args: SetComponentType<C> | undefined = undefined,
-  world = Engine.instance.currentWorld
+  args: SetComponentType<C> | undefined = undefined
 ) => {
   if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
-  if (!world) {
-    throw new Error('[setComponent]: world is undefined')
-  }
+  const world = Engine.instance.currentWorld
   if (!bitECS.entityExists(world, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
@@ -223,12 +216,11 @@ export const setComponent = <C extends Component>(
 export const updateComponent = <C extends Component>(
   entity: Entity,
   Component: C,
-  props: Partial<SerializedComponentType<C>>,
-  world = Engine.instance.currentWorld
+  props: Partial<SerializedComponentType<C>>
 ) => {
   if (typeof props === 'undefined') return
 
-  const comp = getComponentState(entity, Component, world)
+  const comp = getComponentState(entity, Component)
   if (!comp) {
     throw new Error('[updateComponent]: component does not exist')
   }
@@ -268,37 +260,22 @@ export const updateComponent = <C extends Component>(
 export const addComponent = <C extends Component>(
   entity: Entity,
   Component: C,
-  args: SetComponentType<C> | undefined = undefined,
-  world = Engine.instance.currentWorld
+  args: SetComponentType<C> | undefined = undefined
 ) => {
-  if (hasComponent(entity, Component, world)) throw new Error(`${Component.name} already exists on entity ${entity}`)
-  setComponent(entity, Component, args, world)
+  if (hasComponent(entity, Component)) throw new Error(`${Component.name} already exists on entity ${entity}`)
+  setComponent(entity, Component, args)
 }
 
-export const hasComponent = <C extends Component>(
-  entity: Entity,
-  component: C,
-  world = Engine.instance.currentWorld
-) => {
-  return bitECS.hasComponent(world, component, entity)
+export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
+  return bitECS.hasComponent(Engine.instance.currentWorld, component, entity)
 }
 
-export const getOrAddComponent = <C extends Component>(
-  entity: Entity,
-  component: C,
-  args?: SetComponentType<C>,
-  world = Engine.instance.currentWorld
-) => {
-  return hasComponent(entity, component, world)
-    ? getComponent(entity, component, world)
-    : addComponent(entity, component, args, world)
+export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
+  return hasComponent(entity, component) ? getComponent(entity, component) : addComponent(entity, component, args)
 }
 
-export const removeComponent = <C extends Component>(
-  entity: Entity,
-  component: C,
-  world = Engine.instance.currentWorld
-) => {
+export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
+  const world = Engine.instance.currentWorld
   if (!bitECS.entityExists(world, entity) || !bitECS.hasComponent(world, component, entity)) return
   component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(world, component, entity, false)
@@ -344,10 +321,11 @@ export const getAllComponentsOfType = <C extends Component<any>>(
   })
 }
 
-export const removeAllComponents = (entity: Entity, world = Engine.instance.currentWorld) => {
+export const removeAllComponents = (entity: Entity) => {
   try {
+    const world = Engine.instance.currentWorld
     for (const component of bitECS.getEntityComponents(world, entity)) {
-      removeComponent(entity, component as Component, world)
+      removeComponent(entity, component as Component)
     }
   } catch (_) {
     logger.warn('Components of entity already removed')
@@ -372,10 +350,10 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   return wrappedQuery
 }
 
-export function removeQuery(world: World, query: ReturnType<typeof defineQuery>) {
-  bitECS.removeQuery(world, query._query)
-  bitECS.removeQuery(world, query._enterQuery)
-  bitECS.removeQuery(world, query._exitQuery)
+export function removeQuery(query: ReturnType<typeof defineQuery>) {
+  bitECS.removeQuery(Engine.instance.currentWorld, query._query)
+  bitECS.removeQuery(Engine.instance.currentWorld, query._enterQuery)
+  bitECS.removeQuery(Engine.instance.currentWorld, query._exitQuery)
 }
 
 export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Component)[]
@@ -399,7 +377,7 @@ export function useQuery(components: QueryComponents) {
     const queryState = { query, result, components }
     world.reactiveQueryStates.add(queryState)
     return () => {
-      removeQuery(world, query)
+      removeQuery(query)
       world.reactiveQueryStates.delete(queryState)
     }
   }, [])
@@ -425,11 +403,7 @@ export function useQuery(components: QueryComponents) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<C extends Component<any>>(
-  entity: Entity,
-  Component: C,
-  world = Engine.instance.currentWorld
-) {
+export function useComponent<C extends Component<any>>(entity: Entity, Component: C) {
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   if (!hasComponent) throw new Error(`${Component.name} does not exist on entity ${entity}`)
   return useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
@@ -438,11 +412,7 @@ export function useComponent<C extends Component<any>>(
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useOptionalComponent<C extends Component<any>>(
-  entity: Entity,
-  Component: C,
-  world = Engine.instance.currentWorld
-) {
+export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined)
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
