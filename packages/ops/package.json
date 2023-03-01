@@ -1,9 +1,9 @@
 {
-  "name": "@xrengine/ops",
+  "name": "@etherealengine/ops",
   "version": "1.1.2",
   "private": true,
-  "description": "Dev Ops tooling for XREngine",
-  "repository": "http://github.com/XRFoundation/XREngine",
-  "author": "XREngine",
+  "description": "Dev Ops tooling for Ethereal Engine",
+  "repository": "http://github.com/etherealengine/etherealengine",
+  "author": "Ethereal Engine",
   "license": "MIT"
 }

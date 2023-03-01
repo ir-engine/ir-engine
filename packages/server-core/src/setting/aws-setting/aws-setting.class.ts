@@ -1,7 +1,7 @@
 import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminAwsSetting as AdminAwsSettingInterface } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+import { AdminAwsSetting as AdminAwsSettingInterface } from '@etherealengine/common/src/interfaces/AdminAwsSetting'
 
 import { Application } from '../../../declarations'
 

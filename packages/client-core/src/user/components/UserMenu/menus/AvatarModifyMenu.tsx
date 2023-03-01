@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import InputFile from '@xrengine/client-core/src/common/components/InputFile'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import { isValidHttpUrl } from '@xrengine/client-core/src/common/utils'
-import { getCanvasBlob } from '@xrengine/client-core/src/common/utils'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import AvatarPreview from '@etherealengine/client-core/src/common/components/AvatarPreview'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { isValidHttpUrl } from '@etherealengine/client-core/src/common/utils'
+import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
@@ -19,14 +19,14 @@ import {
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
-} from '@xrengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import Box from '@xrengine/ui/src/Box'
-import CircularProgress from '@xrengine/ui/src/CircularProgress'
-import Grid from '@xrengine/ui/src/Grid'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
+} from '@etherealengine/common/src/constants/AvatarConstants'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import Box from '@etherealengine/ui/src/Box'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'

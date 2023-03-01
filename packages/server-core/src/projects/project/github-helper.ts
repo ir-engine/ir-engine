@@ -4,15 +4,15 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   AudioFileTypes,
   ImageFileTypes,
   VideoFileTypes,
   VolumetricFileTypes
-} from '@xrengine/engine/src/assets/constants/fileTypes'
+} from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

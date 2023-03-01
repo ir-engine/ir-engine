@@ -1,4 +1,4 @@
-Thank you for installing Rippled by XRFoundation
+Thank you for installing Rippled
 
 1. Rippled is configured based on rippled.cfg and validators.txt files in ./config folder of charts.
 2. You can exec into rippled pod to run cli commands.
@@ -26,5 +26,5 @@ Thank you for installing Rippled by XRFoundation
 {{- end }}
 
 We would love to hear your feedback:
-- contact us on https://xrfoundation.io/
+- contact us on https://etherealengine.org/
 - join our Discord on https://discord.gg/xrf

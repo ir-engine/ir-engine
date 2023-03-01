@@ -2,15 +2,15 @@ import { BadRequest } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
-import { OEmbed } from '@xrengine/common/src/interfaces/OEmbed'
-import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
+import { ClientSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
+import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
+import { ServerSetting } from '@etherealengine/common/src/interfaces/ServerSetting'
 
 import { Application } from '../../../declarations'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
 import hooks from './oembed.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     oembed: any
   }

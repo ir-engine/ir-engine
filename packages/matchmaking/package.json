@@ -1,9 +1,9 @@
 {
-  "name": "@xrengine/matchmaking",
+  "name": "@etherealengine/matchmaking",
   "version": "1.1.2",
   "author": {
-    "name": "XRFoundation Collective",
-    "email": "hello@xrfoundation.io"
+    "name": "Ethereal Engine Collective",
+    "email": "hello@etherealengine.org"
   },
   "publishConfig": {
     "access": "public"
@@ -16,7 +16,7 @@
   "npmClient": "npm",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XRFoundation/XREngine.git"
+    "url": "git+https://github.com/etherealengine/etherealengine.git"
   },
   "scripts": {
     "check-errors": "tsc --noemit",
@@ -28,8 +28,7 @@
     "local-minikube-stop": "minikube stop",
     "open-frontend-service-port": "kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504",
     "ts-node": "10.8.2",
-    "typescript": "4.9.5",
-    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+    "typescript": "4.9.5"
   },
   "dependencies": {
     "abort-controller": "^3.0.0",

@@ -1,7 +1,14 @@
 import { Material } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineAction, defineState, dispatchAction, getState, StateDefinition, useState } from '@xrengine/hyperflux'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getState,
+  StateDefinition,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'

@@ -1,6 +1,6 @@
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { EditorErrorAction } from '../services/EditorErrorServices'
 import { accessSelectionState } from '../services/SelectionServices'

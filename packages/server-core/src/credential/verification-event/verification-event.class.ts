@@ -1,7 +1,7 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import moment from 'moment'
 
-import { VerificationEventInterface } from '@xrengine/common/src/dbmodels/VerificationEvent'
+import { VerificationEventInterface } from '@etherealengine/common/src/dbmodels/VerificationEvent'
 
 import { Application } from '../../../declarations'
 

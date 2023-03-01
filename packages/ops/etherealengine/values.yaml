@@ -1,0 +1,326 @@
+# Default values for etherealengine.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+domain: etherealengine.dev
+
+# This is used to define cluster environment type. Currently its used when deployed in local environment.
+# For Minikube set this as "minikube"
+# For Microk8s set this as "microk8s"
+# For other environments keeps this as empty
+clusterType: ""
+
+client:
+  enabled: true
+  name: etherealengine-client
+
+  replicaCount: 1
+  image:
+    repository: lagunalabs/etherealengine
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: xrsocial.local
+        paths: ["/"]
+    # tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  extraEnv:
+    SITE_TITLE: Ethereal Engine
+    SITE_DESC: Connected Worlds for Everyone
+    APP_ENV: production
+
+release:
+  name: dev
+
+api:
+  enabled: true
+  name: etherealengine-api
+
+  replicaCount: 1
+  image:
+    repository: lagunalabs/etherealengine
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  service:
+    type: ClusterIP
+    port: 3030
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: api.social.local
+        paths: ["/"]
+    # tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  fileServer:
+    # This is the path of file server upload folder in your host machine. Its is required when deployed 
+    # in local environment.
+    #
+    # For MicroK8s: it will be similar to '/home/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload' 
+    # or '<ENGINE_FULL_PATH>/packages/server/upload'
+    #
+    # For Minikube: it will be similar to '/hosthome/<OS_USER_NAME>/<ENGINE_FOLDER>/packages/server/upload'
+    # The folder must be in home folder and make sure to use /hosthome/ instead of home in path. 
+    # Ref: https://stackoverflow.com/a/48535001/2077741
+    hostUploadFolder: ""
+
+  # Extra Environment variables to configure xrsocial
+  extraEnv:
+    # ENV_VAR1: val1
+    # ENV_VAR2: val2
+
+    # automatically filled by chart.. ignore
+    # MYSQL_PORT: 3306
+    # MYSQL_DATABASE: etherealengine
+    # MYSQL_USER: server
+    # MYSQL_PASSWORD: password
+
+    SMTP_HOST: ""
+    SMTP_PORT: ""
+    SMTP_USER: ""
+    SMTP_PASS: ""
+
+    GITHUB_CLIENT_ID: ""
+    GITHUB_CLIENT_SECRET: ""
+    GITHUB_CALLBACK_URL: http://127.0.0.1:3000/oauth/github
+
+    FACEBOOK_CLIENT_ID: ""
+    FACEBOOK_CLIENT_SECRET: ""
+    FACEBOOK_CALLBACK_URL: http://127.0.0.1:3000/oauth/facebook
+
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRET: ""
+    GOOGLE_CALLBACK_URL: http://127.0.0.1:3000/oauth/google
+
+
+    STORAGE_PROVIDER: local
+    STORAGE_S3_BUCKET_NAME: ""
+    STORAGE_S3_PUBLIC_VIDEO_PATH: "/"
+    STORAGE_S3_PUBLIC_VIDEO_BUCKET: ""
+    STORAGE_S3_REGION: ""
+    STORAGE_S3_CLOUDFRONT_DOMAIN: ""
+    STORAGE_AWS_ACCESS_KEY_ID: ""
+    STORAGE_AWS_ACCESS_KEY_SECRET: ""
+
+    AWS_SMS_REGION: ""
+    AWS_SMS_ACCESS_KEY_ID: ""
+    AWS_SMS_SECRET_ACCESS_KEY: ""
+    AWS_SMS_TOPIC_ARN: ""
+    # SERVER_MODE: "api"
+
+
+media:
+  enabled: true
+  name: etherealengine-media
+
+  replicaCount: 1
+  image:
+    repository: lagunalabs/etherealengine
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  service:
+    type: ClusterIP
+    port: 3030
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: api.xrsocial.local
+        paths: ["/video"]
+    # tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  # Extra Environment variables to configure xrsocial
+  extraEnv:
+    # ENV_VAR1: val1
+    # ENV_VAR2: val2
+
+    # automatically filled by chart.. ignore
+    # MYSQL_PORT: 3306
+    # MYSQL_DATABASE: etherealengine
+    # MYSQL_USER: server
+    # MYSQL_PASSWORD: password
+
+    SMTP_HOST: ""
+    SMTP_PORT: ""
+    SMTP_USER: ""
+    SMTP_PASS: ""
+
+    GITHUB_CLIENT_ID: ""
+    GITHUB_CLIENT_SECRET: ""
+    GITHUB_CALLBACK_URL: http://127.0.0.1:3000/oauth/github
+
+    FACEBOOK_CLIENT_ID: ""
+    FACEBOOK_CLIENT_SECRET: ""
+    FACEBOOK_CALLBACK_URL: http://127.0.0.1:3000/oauth/facebook
+
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRET: ""
+    GOOGLE_CALLBACK_URL: http://127.0.0.1:3000/oauth/google
+
+
+    STORAGE_PROVIDER: local
+    STORAGE_S3_BUCKET_NAME: ""
+    STORAGE_S3_PUBLIC_VIDEO_PATH: "/"
+    STORAGE_S3_PUBLIC_VIDEO_BUCKET: ""
+    STORAGE_S3_REGION: ""
+    STORAGE_S3_CLOUDFRONT_DOMAIN: ""
+    STORAGE_AWS_ACCESS_KEY_ID: ""
+    STORAGE_AWS_ACCESS_KEY_SECRET: ""
+
+    AWS_SMS_REGION: ""
+    AWS_SMS_ACCESS_KEY_ID: ""
+    AWS_SMS_SECRET_ACCESS_KEY: ""
+    AWS_SMS_TOPIC_ARN: ""
+    # SERVER_MODE: "media"
+
+instanceserver:
+  enabled: true
+  name: instanceserver
+
+  replicaCount: 1
+  image:
+    repository: lagunalabs/etherealengine
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 3031
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
+
+########### Subcharts - values here will overwrite the subchart
+
+sql:
+  database: etherealengine
+  user: server
+  password: password
+  host: host.minikube.internal
+  port: 3304
+
+agones:
+  enabled: false
+
+redis:
+  enabled: false
+
+taskserver:
+  enabled: false
+  name: etherealengine-taskserver
+
+  replicaCount: 1
+  image:
+    repository: lagunalabs/etherealengine
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 3030
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:

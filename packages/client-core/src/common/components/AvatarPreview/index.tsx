@@ -1,20 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import Text from '@xrengine/client-core/src/common/components/Text'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import Text from '@etherealengine/client-core/src/common/components/Text'
 import {
   loadAvatarForPreview,
   resetAnimationLogic,
   validate
-} from '@xrengine/client-core/src/user/components/Panel3D/helperFunctions'
-import { useRender3DPanelSystem } from '@xrengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import Box from '@xrengine/ui/src/Box'
-import Icon from '@xrengine/ui/src/Icon'
-import Tooltip from '@xrengine/ui/src/Tooltip'
+} from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

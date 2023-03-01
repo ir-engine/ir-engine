@@ -11,10 +11,10 @@ import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
 
-import { isDev } from '@xrengine/common/src/config'
-import { pipe } from '@xrengine/common/src/utils/pipe'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { createEngine, initializeNode, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
+import { isDev } from '@etherealengine/common/src/config'
+import { pipe } from '@etherealengine/common/src/utils/pipe'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createEngine, initializeNode, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
 
 import { Application, ServerTypeMode } from '../declarations'
 import appConfig from './appconfig'
@@ -37,8 +37,8 @@ export const configureOpenAPI = () => (app: Application) => {
       // TODO: Relate to server config, don't hardcode this here
       specs: {
         info: {
-          title: 'XREngine API Surface',
-          description: 'APIs for the XREngine application',
+          title: 'Ethereal Engine API Surface',
+          description: 'APIs for the Ethereal Engine application',
           version: '1.0.0'
         },
         schemes: ['https'],

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import Box from '@xrengine/ui/src/Box'
-import Icon from '@xrengine/ui/src/Icon'
-import Tooltip from '@xrengine/ui/src/Tooltip'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
 
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'

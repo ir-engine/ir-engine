@@ -1,0 +1,64 @@
+{{- if (.Values.api).enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "etherealengine.api.fullname" . }}
+  labels:
+    {{- include "etherealengine.api.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+      - endpoints
+      - deployments
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+      - patch
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - patch
+      - update
+      - delete
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
+      - cronjobs
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - patch
+      - update
+      - delete
+  - apiGroups:
+      - "agones.dev"
+    resources:
+      - fleets
+      - fleet
+      - fleets.agones.dev
+      - gameservers
+      - gameserver
+      - gameservers.agones.dev
+      - gameserversets
+    verbs:
+      - get
+      - list
+      - watch
+{{- end }}

@@ -2,8 +2,8 @@ import { Params } from '@feathersjs/feathers'
 import fs from 'fs'
 import path from 'path'
 
-import { ActiveRoutesInterface, InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
-import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
+import { ActiveRoutesInterface, InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -12,7 +12,7 @@ import routeDocs from './route.docs'
 import hooks from './route.hooks'
 import createModel from './route.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     route: Route
   }
@@ -43,7 +43,7 @@ export const getInstalledRoutes = (): any => {
         try {
           if (fs.existsSync(path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`))) {
             const projectConfig: ProjectConfigInterface = (
-              await import(`@xrengine/projects/projects/${project}/xrengine.config.ts`)
+              await import(`@etherealengine/projects/projects/${project}/xrengine.config.ts`)
             ).default
             data.push({
               routes: Object.keys(projectConfig.routes!),

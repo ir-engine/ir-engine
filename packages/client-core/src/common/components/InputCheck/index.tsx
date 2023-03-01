@@ -1,9 +1,9 @@
 import React from 'react'
 
-import Text from '@xrengine/client-core/src/common/components/Text'
-import Box from '@xrengine/ui/src/Box'
-import Checkbox from '@xrengine/ui/src/Checkbox'
-import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import Box from '@etherealengine/ui/src/Box'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

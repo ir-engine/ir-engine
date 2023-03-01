@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: 18.x
           registry-url: https://npm.pkg.github.com/
-          scope: '@XRFoundation'
+          scope: '@etherealengine'
       - name: Config npm registry token
         run: npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
         env:
@@ -35,7 +35,7 @@ jobs:
       - name: Set git username
         run: git config user.name "CI Bot"
       - name: Set git email
-        run: git config user.email ci-bot@xrengine.io
+        run: git config user.email ci-bot@etherealengine.org
       - name: Set pr_branch_name environment variable
         run: echo pr_branch_name=version-increment-${{ github.event.release.tag_name }} >> $GITHUB_ENV
       - name: Switch to branch ${{ env.pr_branch_name }}
@@ -71,8 +71,6 @@ jobs:
         run: npm run publish-no-verify
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Update package repo to GitHub Packages
-        run: npm run update-name-gh-package
       - name: Run git add
         run: git add .
       - name: Commit changes

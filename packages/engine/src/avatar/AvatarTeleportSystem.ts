@@ -13,7 +13,7 @@ import {
   Vector3
 } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { CameraActions } from '../camera/CameraState'
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'

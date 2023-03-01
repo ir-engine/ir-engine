@@ -1,12 +1,12 @@
 import classNames from 'classnames'
 import React from 'react'
 
-import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
-import Slider from '@xrengine/ui/src/Slider'
-import Tooltip from '@xrengine/ui/src/Tooltip'
+import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/components/UserMenu/util'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Slider from '@etherealengine/ui/src/Slider'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
 
 import { useUserMediaWindowHook } from '../UserMediaWindow'
 import styles from './index.module.scss'

@@ -3,7 +3,7 @@ import { Sms } from './sms.class'
 import smsDocs from './sms.docs'
 import hooks from './sms.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     sms: Sms
   }

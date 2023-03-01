@@ -1,4 +1,4 @@
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 /**
  * Put object parameters interface for adding to storage.

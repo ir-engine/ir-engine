@@ -1,6 +1,6 @@
 # Rippled
 
-Rippled charts for [XREngine](https://xrfoundation.io/).
+Rippled charts for [Ethereal Engine](https://etherealengine.org/).
 
 ## Installing the Chart
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import multiLogger from '@xrengine/common/src/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 
 import styles from './index.module.scss'
 

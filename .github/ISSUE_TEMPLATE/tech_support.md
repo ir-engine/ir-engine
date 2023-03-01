@@ -1,6 +1,6 @@
 ---
 name: Installation Tech Support
-about: I'm having difficulty installing XREngine
+about: I'm having difficulty installing Ethereal Engine
 title: '[Ticket]: '
 labels: '[ticket]'
 assignees: ''
@@ -9,7 +9,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for using XREngine! Let's figure out the problem.
+        Thanks for using Ethereal Engine! Let's figure out the problem.
   - type: input
     id: os
     attributes:

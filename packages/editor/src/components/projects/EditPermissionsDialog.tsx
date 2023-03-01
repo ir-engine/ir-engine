@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'

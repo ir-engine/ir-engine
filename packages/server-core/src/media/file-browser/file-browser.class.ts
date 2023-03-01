@@ -4,9 +4,9 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'

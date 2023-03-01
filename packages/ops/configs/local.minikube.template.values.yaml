@@ -13,7 +13,7 @@ client:
     VITE_INSTANCESERVER_HOST: instanceserver-local.etherealengine.com
     VITE_INSTANCESERVER_PORT: "3031"
   image:
-    repository: xrengine
+    repository: etherealengine
     pullPolicy: IfNotPresent
   ingress:
     annotations:
@@ -28,7 +28,7 @@ client:
 domain: etherealengine.com
 clusterType: minikube
 sql:
-  database: xrengine
+  database: etherealengine
   password: password
   user: server
   host: host.minikube.internal
@@ -107,7 +107,7 @@ api:
     VITE_INSTANCESERVER_PORT: "3031"
     USE_IPFS: "true"
   image:
-    repository: xrengine
+    repository: etherealengine
     pullPolicy: IfNotPresent
   ingress:
     annotations:
@@ -218,7 +218,7 @@ media:
     STORAGE_S3_REGION: <S3_REGION>
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_BUCKET_NAME>
   image:
-    repository: xrengine
+    repository: etherealengine
     pullPolicy: IfNotPresent
   ingress:
     annotations:
@@ -241,7 +241,7 @@ release:
 
 instanceserver:
   image:
-    repository: xrengine
+    repository: etherealengine
     pullPolicy: IfNotPresent
   extraEnv:
     APP_HOST: local.etherealengine.com
@@ -268,7 +268,7 @@ instanceserver:
     STORAGE_CLOUDFRONT_DOMAIN: resources.etherealengine.com
     STORAGE_S3_REGION: <S3_REGION>
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_BUCKET_NAME>
-    TS_NODE_IGNORE: (?:^|\/)node_modules\/(?!(@xrengine))
+    TS_NODE_IGNORE: (?:^|\/)node_modules\/(?!(@etherealengine))
   ingress:
     disabled: false
     host: instanceserver-local.etherealengine.com
@@ -329,7 +329,7 @@ builder:
     VITE_MEDIATOR_SERVER: https://authn.io
     VITE_ETH_MARKETPLACE: <ETH_MARKETPLACE_ADDRESS>
   image:
-    repository: lagunalabs/xrengine-builder
+    repository: lagunalabs/etherealengine-builder
   service:
     type: NodePort
   replicaCount: 1
@@ -338,5 +338,5 @@ testbot:
   extraEnv:
     APP_HOST: local.etherealengine.com
   image:
-    repository: xrengine-testbot
+    repository: etherealengine-testbot
     pullPolicy: IfNotPresent

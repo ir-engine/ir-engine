@@ -1,6 +1,6 @@
 apiVersion: v2
 name: rippled
-description: A Helm chart of rippled server by XRFoundation
+description: A Helm chart of rippled server by Ethereal Engine
 type: application
 appVersion: "1.8.4"
 

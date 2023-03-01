@@ -1,15 +1,14 @@
 {
-  "name": "@xrengine/projects",
+  "name": "@etherealengine/projects",
   "version": "1.1.2",
   "main": "index.ts",
   "private": true,
   "description": "",
   "scripts": {
-    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/XRFoundation/XREngine.git"
+    "url": "git://github.com/etherealengine/etherealengine.git"
   },
   "publishConfig": {
     "access": "public"
@@ -17,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/XRFoundation/XREngine/issues"
+    "url": "https://github.com/etherealengine/etherealengine/issues"
   },
-  "homepage": "https://github.com/XRFoundation/XREngine#readme"
+  "homepage": "https://github.com/etherealengine/etherealengine#readme"
 }

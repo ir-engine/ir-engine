@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ScopeInterface } from '@xrengine/common/src/dbmodels/Scope'
+import { ScopeInterface } from '@etherealengine/common/src/dbmodels/Scope'
 
 import { Application } from '../../../declarations'
 

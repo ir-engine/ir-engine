@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "etherealengine.client.fullname" . }}-test-connection"
+  labels:
+    {{- include "etherealengine.client.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "etherealengine.client.fullname" . }}:{{ .Values.client.service.port }}']
+  restartPolicy: Never

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
-import config from '@xrengine/common/src/config'
-import { dispatchAction, getState, startReactor } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { dispatchAction, getState, startReactor } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'

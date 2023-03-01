@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BuildStatus } from '@xrengine/common/src/interfaces/BuildStatus'
-import Box from '@xrengine/ui/src/Box'
-import Container from '@xrengine/ui/src/Container'
-import DialogTitle from '@xrengine/ui/src/DialogTitle'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
+import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
+import Box from '@etherealengine/ui/src/Box'
+import Container from '@etherealengine/ui/src/Container'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'

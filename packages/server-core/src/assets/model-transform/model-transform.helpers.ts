@@ -20,7 +20,7 @@ import sharp from 'sharp'
 import { MathUtils } from 'three'
 import util from 'util'
 
-import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 
 import { getContentType } from '../../util/fileUtils'
 import { EEMaterial } from '../extensions/EE_MaterialTransformer'

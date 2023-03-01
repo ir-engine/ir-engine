@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { LocationType as LocationTypeInterface } from '@xrengine/common/src/interfaces/LocationType'
+import { LocationType as LocationTypeInterface } from '@etherealengine/common/src/interfaces/LocationType'
 
 import { Application } from '../../../declarations'
 

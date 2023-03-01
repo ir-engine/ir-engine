@@ -1,6 +1,6 @@
 # IPFS
 
-IPFS charts for [XREngine](https://xrfoundation.io/).
+IPFS charts for [Ethereal Engine](https://etherealengine.org/).
 
 ## Installing the Chart
 

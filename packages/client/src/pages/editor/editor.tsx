@@ -1,10 +1,10 @@
 import { t } from 'i18next'
 import React, { Suspense } from 'react'
 
-import FormDialog from '@xrengine/client-core/src/admin/common/SubmitDialog'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { userHasAccessHook } from '@xrengine/client-core/src/user/userHasAccess'
-import ProjectEditor from '@xrengine/editor/src/pages/editor'
+import FormDialog from '@etherealengine/client-core/src/admin/common/SubmitDialog'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { userHasAccessHook } from '@etherealengine/client-core/src/user/userHasAccess'
+import ProjectEditor from '@etherealengine/editor/src/pages/editor'
 
 const EditorProtectedRoutes = () => {
   const isSceneAllowed = userHasAccessHook('editor:write')

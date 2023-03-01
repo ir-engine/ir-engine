@@ -1,11 +1,11 @@
 import { t } from 'i18next'
 
-import { resolveUser } from '@xrengine/common/src/interfaces/User'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { resolveUser } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'

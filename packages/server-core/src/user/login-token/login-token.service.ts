@@ -6,7 +6,7 @@ import hooks from './login-token.hooks'
 import createModel from './login-token.model'
 
 // Add this service to the service type index
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'login-token': LoginToken
   }

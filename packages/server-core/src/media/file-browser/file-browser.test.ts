@@ -3,7 +3,7 @@ import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'

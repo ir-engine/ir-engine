@@ -1,6 +1,6 @@
 import matches from 'ts-matches'
 
-import { defineAction, defineState } from '@xrengine/hyperflux'
+import { defineAction, defineState } from '@etherealengine/hyperflux'
 
 export const CameraSettings = defineState({
   name: 'xre.engine.CameraSettings',

@@ -1,6 +1,6 @@
 import assert from 'assert'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { createEngine } from '../../initializeEngine'
 import { NameComponent } from '../../scene/components/NameComponent'

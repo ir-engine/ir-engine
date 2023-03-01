@@ -1,6 +1,6 @@
 import { Box3, Object3D, Vector3 } from 'three'
 
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
 import { AvatarStates } from '../../avatar/animation/Util'

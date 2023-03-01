@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import Box from '@xrengine/ui/src/Box'
-import Checkbox from '@xrengine/ui/src/Checkbox'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import Box from '@etherealengine/ui/src/Box'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

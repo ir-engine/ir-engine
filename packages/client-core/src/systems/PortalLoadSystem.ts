@@ -1,11 +1,11 @@
 import { Euler, Texture } from 'three'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 
 import { API } from '../API'
 

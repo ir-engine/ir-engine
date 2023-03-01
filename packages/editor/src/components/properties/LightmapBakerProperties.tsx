@@ -2,12 +2,12 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LinearFilter, TextureFilter, WebGLRenderer } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { BoolArg, FloatArg, ObjectArg } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { useHookstate } from '@xrengine/hyperflux'
-import { State } from '@xrengine/hyperflux/functions/StateFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { BoolArg, FloatArg, ObjectArg } from '@etherealengine/engine/src/renderer/materials/constants/DefaultArgs'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Typography } from '@mui/material'
 

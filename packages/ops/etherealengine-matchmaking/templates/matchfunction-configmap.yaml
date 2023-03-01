@@ -1,0 +1,16 @@
+{{- if (.Values.matchfunction).enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "etherealengine.matchfunction.fullname" . }}
+  namespace: {{ include "etherealengine.matchmaking-namespace" . }}
+  labels:
+    {{- include "etherealengine.matchfunction.labels" . | nindent 4 }}
+data:
+{{- if .Values.matchfunction.extraEnv }}
+{{ toYaml .Values.matchfunction.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.matchfunction.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.matchfunction.config }}'
+{{- end }}
+{{- end -}}

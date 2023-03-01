@@ -1,6 +1,6 @@
 import { diff } from 'deep-object-diff'
 
-import { NO_PROXY } from '@xrengine/hyperflux'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 
 import { World } from '../classes/World'
 

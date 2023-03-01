@@ -1,4 +1,4 @@
-Thank you for installing IPFS by XRFoundation
+Thank you for installing IPFS by Ethereal Engine
 
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
@@ -14,6 +14,6 @@ Thank you for installing IPFS by XRFoundation
 {{- end }}
 
 We would love to hear your feedback:
-- contact us on https://xrfoundation.io/
+- contact us on https://etherealengine.org/
 - join our Discord on https://discord.gg/xrf
 

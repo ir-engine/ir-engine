@@ -1,10 +1,13 @@
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { StaticResourceFilterResult, StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import {
+  StaticResourceFilterResult,
+  StaticResourceResult
+} from '@etherealengine/common/src/interfaces/StaticResourceResult'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

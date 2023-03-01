@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
 
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { addOutgoingTopicIfNecessary, useState } from '@xrengine/hyperflux'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { receiveJoinWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { addOutgoingTopicIfNecessary, useState } from '@etherealengine/hyperflux'
 
 import InstanceServerWarnings from './InstanceServerWarnings'
 

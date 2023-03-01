@@ -2,9 +2,9 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
-import Modal from '@xrengine/ui/src/Modal'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Modal from '@etherealengine/ui/src/Modal'
 
 import styles from './index.module.scss'
 

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: ipfs
-description: A Helm chart of IPFS by XRFoundation
+description: A Helm chart of IPFS by Ethereal Engine
 type: application
 appVersion: "1.0.1"
 

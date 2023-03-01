@@ -1,6 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -9,7 +9,7 @@ import identityProviderDocs from './identity-provider.docs'
 import hooks from './identity-provider.hooks'
 import createModel from './identity-provider.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'identity-provider': IdentityProvider
     'generate-token': any

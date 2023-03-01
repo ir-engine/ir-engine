@@ -7,7 +7,7 @@ import {
   DiscreteEventPriority
 } from 'react-reconciler/constants'
 
-import { isDev } from '@xrengine/common/src/config'
+import { isDev } from '@etherealengine/common/src/config'
 
 const ReactorReconciler = Reconciler({
   getPublicInstance: (instance) => instance,

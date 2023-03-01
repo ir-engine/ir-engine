@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 
-import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import { Views } from '@etherealengine/client-core/src/user/components/UserMenu/util'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 
 import { Person } from '@mui/icons-material'
 import { Box, IconButton, Popover } from '@mui/material'

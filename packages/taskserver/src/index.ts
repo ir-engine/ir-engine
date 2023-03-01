@@ -1,4 +1,4 @@
-import { updateAppConfig } from '@xrengine/server-core/src/updateAppConfig'
+import { updateAppConfig } from '@etherealengine/server-core/src/updateAppConfig'
 
 const init = async () => {
   await updateAppConfig()

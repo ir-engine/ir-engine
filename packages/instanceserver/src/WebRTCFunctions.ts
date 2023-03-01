@@ -14,13 +14,13 @@ import {
 import os from 'os'
 import { Spark } from 'primus'
 
-import { MediaStreamAppData, MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import config from '@xrengine/server-core/src/appconfig'
-import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
-import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
+import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import config from '@etherealengine/server-core/src/appconfig'
+import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {

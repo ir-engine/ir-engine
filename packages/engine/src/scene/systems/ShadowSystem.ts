@@ -20,8 +20,8 @@ import {
   Vector3
 } from 'three'
 
-import config from '@xrengine/common/src/config'
-import { getState, hookstate, startReactor, useHookstate } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { getState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'

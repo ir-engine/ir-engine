@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { ThemeOptions } from '@xrengine/common/src/interfaces/ClientSetting'
+import { ThemeOptions } from '@etherealengine/common/src/interfaces/ClientSetting'
 
 interface DemoStyleProps {
   theme: ThemeOptions

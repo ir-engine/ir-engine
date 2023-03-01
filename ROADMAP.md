@@ -1,10 +1,10 @@
-# XRFoundation Ecosystem Roadmap
+# Ethereal Engine Ecosystem Roadmap
 
 ## 2022
 
 Q2
 
-- [x] XREngine Cluster Control Center
+- [x] Ethereal Engine Cluster Control Center
 - [x] Coil Integration
 - [x] Inverse Kinematics
 - [x] Light & Dark Mode

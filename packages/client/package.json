@@ -1,10 +1,10 @@
 {
-  "name": "@xrengine/client",
+  "name": "@etherealengine/client",
   "version": "1.1.2",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git://github.com/XRFoundation/XREngine.git"
+    "url": "git://github.com/etherealengine/etherealengine.git"
   },
   "engines": {
     "node": ">= 18.12.0"
@@ -39,13 +39,13 @@
     "@mui/styled-engine-sc": "5.11.0",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@swc/core": "^1.2.210",
-    "@xrengine/client-core": "^1.1.2",
-    "@xrengine/common": "^1.1.2",
-    "@xrengine/editor": "^1.1.2",
-    "@xrengine/engine": "^1.1.2",
-    "@xrengine/hyperflux": "^1.1.2",
-    "@xrengine/matchmaking": "^1.1.2",
-    "@xrengine/projects": "^1.1.2",
+    "@etherealengine/client-core": "^1.1.2",
+    "@etherealengine/common": "^1.1.2",
+    "@etherealengine/editor": "^1.1.2",
+    "@etherealengine/engine": "^1.1.2",
+    "@etherealengine/hyperflux": "^1.1.2",
+    "@etherealengine/matchmaking": "^1.1.2",
+    "@etherealengine/projects": "^1.1.2",
     "app-root-path": "3.0.0",
     "classnames": "2.3.1",
     "cli": "1.0.1",

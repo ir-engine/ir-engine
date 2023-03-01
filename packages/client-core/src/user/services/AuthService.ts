@@ -5,21 +5,21 @@ import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import config from '@xrengine/common/src/config'
-import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
-import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import config from '@etherealengine/common/src/config'
+import { AuthStrategies } from '@etherealengine/common/src/interfaces/AuthStrategies'
+import { AuthUser, AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
+import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import {
   resolveUser,
   resolveWalletUser,
   UserInterface,
   UserSeed,
   UserSetting
-} from '@xrengine/common/src/interfaces/User'
-import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+} from '@etherealengine/common/src/interfaces/User'
+import { UserApiKey } from '@etherealengine/common/src/interfaces/UserApiKey'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   defineAction,
   defineState,
@@ -27,7 +27,7 @@ import {
   getState,
   syncStateWithLocalStorage,
   useState
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

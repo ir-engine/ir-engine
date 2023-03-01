@@ -7,7 +7,7 @@ import {
   Registry
 } from 'behave-graph'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { BehaveGraphSystemState } from '../systems/BehaveGraphSystem'

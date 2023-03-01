@@ -3,7 +3,7 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 import { HookReturn } from 'sequelize/types/hooks'
 
-import { LocationSettingsInterface } from '@xrengine/common/src/dbmodels/LocationSettings'
+import { LocationSettingsInterface } from '@etherealengine/common/src/dbmodels/LocationSettings'
 
 import { Application } from '../../../declarations'
 

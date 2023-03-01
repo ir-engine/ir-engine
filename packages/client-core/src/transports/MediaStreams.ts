@@ -1,9 +1,12 @@
 import { Producer } from 'mediasoup-client/lib/Producer'
 
-import multiLogger from '@xrengine/common/src/logger'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { localAudioConstraints, localVideoConstraints } from '@xrengine/engine/src/networking/constants/VideoConstants'
-import { defineAction, defineState, getState } from '@xrengine/hyperflux'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import {
+  localAudioConstraints,
+  localVideoConstraints
+} from '@etherealengine/engine/src/networking/constants/VideoConstants'
+import { defineAction, defineState, getState } from '@etherealengine/hyperflux'
 
 import { ProducerExtension } from './SocketWebRTCClientNetwork'
 

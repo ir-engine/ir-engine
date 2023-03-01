@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'

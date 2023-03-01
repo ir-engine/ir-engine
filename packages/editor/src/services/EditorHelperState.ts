@@ -1,11 +1,15 @@
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { hasComponent, useComponent, useOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import {
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import {
   SnapMode,
   SnapModeType,
@@ -14,8 +18,8 @@ import {
   TransformPivot,
   TransformPivotType,
   TransformSpace
-} from '@xrengine/engine/src/scene/constants/transformConstants'
-import { defineAction, defineState, getState, startReactor, syncStateWithLocalStorage } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { defineAction, defineState, getState, startReactor, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { createTransformGizmo } from '../systems/EditorControlSystem'
 

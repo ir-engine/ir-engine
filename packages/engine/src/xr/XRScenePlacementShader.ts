@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Material, Mesh } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { World } from '../ecs/classes/World'
 import { Object3DWithEntity, startGroupQueryReactor } from '../scene/components/GroupComponent'

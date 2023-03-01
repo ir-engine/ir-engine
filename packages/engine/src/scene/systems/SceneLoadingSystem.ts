@@ -1,12 +1,12 @@
 import { cloneDeep, merge } from 'lodash'
 import { MathUtils } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import logger from '@xrengine/common/src/logger'
-import { setLocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState, NO_PROXY } from '@xrengine/hyperflux'
-import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import logger from '@etherealengine/common/src/logger'
+import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'

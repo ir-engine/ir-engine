@@ -1,9 +1,9 @@
 import { Matrix4 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { accessSelectionState } from '../services/SelectionServices'
 

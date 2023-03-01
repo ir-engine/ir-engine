@@ -1,7 +1,7 @@
 version: '2.3'
 services:
-  rts:    #xrengine-realtime-server
-    image: xrengine/realtime-server
+  rts:    #etherealengine-realtime-server
+    image: etherealengine/realtime-server
     restart: always
     environment:
       NAF_LISTEN_PORT: 8081
@@ -9,19 +9,19 @@ services:
       - '8081:8081'
 
   server:
-    image: xrengine/server
+    image: etherealengine/server
     restart: always
     environment:
       PORT: 3030
       # take care, db not 127.0.0.1, because compose uses an intenal DNS
-      MYSQL_URL: mysql://server:password@db:3306/xrengine 
+      MYSQL_URL: mysql://server:password@db:3306/etherealengine 
     ports:
       - '3030:3030'
     depends_on: 
       - db
   
   client:
-    image: xrengine/client
+    image: etherealengine/client
     restart: always
     ports:
       - '3000:3000'
@@ -31,8 +31,8 @@ services:
     image: mariadb:10.7
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd
-      MYSQL_DATABASE: xrengine
+      MYSQL_ROOT_PASSWORD: etherealengine-root-pa$$w0rd
+      MYSQL_DATABASE: etherealengine
       MYSQL_USER: server
       MYSQL_PASSWORD: password
     ports:

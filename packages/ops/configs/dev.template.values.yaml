@@ -336,7 +336,7 @@ redis:
 
 taskserver:
   enabled: false
-  name: xrengine-taskserver
+  name: etherealengine-taskserver
   replicaCount: 1
   image:
     repository: <repository_name>
@@ -404,7 +404,7 @@ builder:
     VITE_MEDIATOR_SERVER: https://authn.io
     VITE_ETH_MARKETPLACE: <ETH_MARKETPLACE_ADDRESS>
   image:
-    repository: <ECR_URL>/xrengine-dev-builder
+    repository: <ECR_URL>/etherealengine-dev-builder
   service:
     type: NodePort
   affinity:

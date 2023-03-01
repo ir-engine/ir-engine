@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import { generateDefaults } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
+import { generateDefaults } from '@etherealengine/engine/src/renderer/materials/constants/DefaultArgs'
 
 import BooleanInput from './BooleanInput'
 import ColorInput from './ColorInput'

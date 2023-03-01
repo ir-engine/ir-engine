@@ -1,16 +1,16 @@
 {
-  "name": "@xrengine/hyperflux",
+  "name": "@etherealengine/hyperflux",
   "version": "1.1.2",
   "main": "index.ts",
-  "description": "State Management for XREngine",
+  "description": "State Management for Ethereal Engine",
   "repository": {
     "type": "git",
-    "url": "git://github.com/XRFoundation/XREngine.git"
+    "url": "git://github.com/etherealengine/etherealengine.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/XRFoundation/XREngine/issues"
+    "url": "https://github.com/etherealengine/etherealengine/issues"
   },
   "dependencies": {
     "@hookstate/core": "4.0.0-rc21",
@@ -21,7 +21,6 @@
     "cross-env": "^7.0.3"
   },
   "scripts": {
-    "test": "cross-env TEST=true mocha --config .mocharc.js",
-    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+    "test": "cross-env TEST=true mocha --config .mocharc.js"
   }
 }

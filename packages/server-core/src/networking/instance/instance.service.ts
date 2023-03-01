@@ -1,7 +1,7 @@
 import { Params } from '@feathersjs/feathers/lib'
 
-import { LocationInterface } from '@xrengine/common/src/dbmodels/Location'
-import { Instance as InstanceInterface } from '@xrengine/common/src/interfaces/Instance'
+import { LocationInterface } from '@etherealengine/common/src/dbmodels/Location'
+import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -12,7 +12,7 @@ import instanceDocs from './instance.docs'
 import hooks from './instance.hooks'
 import createModel from './instance.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     instance: Instance
     'instances-active': {

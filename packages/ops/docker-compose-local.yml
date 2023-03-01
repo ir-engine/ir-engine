@@ -1,9 +1,9 @@
 version: '2.3'
 services:
-  rts:    #xrengine-realtime-server
+  rts:    #etherealengine-realtime-server
     build: 
       context: ../xrsocial-realtime-server
-    image: xrengine/realtime-server
+    image: etherealengine/realtime-server
     restart: always
     environment:
       NAF_LISTEN_PORT: 8081
@@ -14,12 +14,12 @@ services:
   server:
     build: 
       context: ../xrsocial
-    image: xrengine/server
+    image: etherealengine/server
     restart: always
     environment:
       PORT: 3030
       # take care, db not 127.0.0.1, because compose uses an intenal DNS
-      MYSQL_URL: mysql://server:password@db:3306/xrengine 
+      MYSQL_URL: mysql://server:password@db:3306/etherealengine 
     ports:
       - '3030:3030'
     depends_on: 
@@ -28,7 +28,7 @@ services:
   client:
     build: 
       context: ../xrsocial-client
-    image: xrengine/client
+    image: etherealengine/client
     environment:
         SITE_TITLE: Ethereal Engine
         SITE_DESC: Connected Worlds for Everyone
@@ -42,8 +42,8 @@ services:
     image: mariadb:10.7
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd
-      MYSQL_DATABASE: xrengine
+      MYSQL_ROOT_PASSWORD: etherealengine-root-pa$$w0rd
+      MYSQL_DATABASE: etherealengine
       MYSQL_USER: server
       MYSQL_PASSWORD: password
     ports:

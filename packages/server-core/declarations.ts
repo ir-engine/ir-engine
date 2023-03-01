@@ -5,7 +5,7 @@ import '@feathersjs/transport-commons'
 
 import * as k8s from '@kubernetes/client-node'
 
-import { ServiceTypes } from '@xrengine/common/declarations'
+import { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerNetwork'
 
