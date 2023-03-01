@@ -140,7 +140,8 @@ function ModelReactor({ root }: EntityReactorProps) {
       scene.traverse(generateMeshBVH)
     }
     setBoundingBoxComponent(entity)
-    enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
+    /** @todo - improve BVH implementation */
+    // enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
     removeComponent(entity, SceneAssetPendingTagComponent)
 
     return () => removeObjectFromGroup(entity, scene)
