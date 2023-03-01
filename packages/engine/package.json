@@ -37,7 +37,7 @@
     "@xrengine/common": "^1.1.0",
     "@xrengine/hyperflux": "^1.1.0",
     "@xrfoundation/volumetric": "1.0.11",
-    "@xrfoundation/xrui": "^1.1.0",
+    "@xrengine/xrui": "^1.1.0",
     "behave-graph": "^0.9.10",
     "bitecs": "git://github.com/NateTheGreatt/bitECS.git#056c637e05327aab8e355ebf25e9ff202b67e495",
     "comlink": "4.3.1",
