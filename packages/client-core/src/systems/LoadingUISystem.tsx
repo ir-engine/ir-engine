@@ -1,4 +1,3 @@
-import type { WebLayer3D } from '@xrfoundation/xrui'
 import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
@@ -25,6 +24,7 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@xrengine/hyperflux'
+import type { WebLayer3D } from '@xrengine/xrui'
 
 import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
 import { SceneActions } from '../world/services/SceneService'
