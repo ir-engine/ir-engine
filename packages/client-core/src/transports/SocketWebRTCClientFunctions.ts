@@ -688,7 +688,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
   const mediaStreamState = getState(MediaStreamState)
   if (mediaStreamState.audioStream.value !== null) {
     //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
-    //This Gain is saved on MediaStreamSystem so it can be accessed from the user's component and controlled.
+    //This Gain is saved on MediaStreamState so it can be accessed from the user's component and controlled.
     const audioTrack = mediaStreamState.audioStream.value.getAudioTracks()[0]
     const ctx = new AudioContext()
     const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]))
@@ -885,44 +885,35 @@ export async function pauseConsumer(network: SocketWebRTCClientNetwork, consumer
   await network.request(MessageTypes.WebRTCPauseConsumer.toString(), {
     consumerId: consumer.id
   })
-  if (consumer && typeof consumer.pause === 'function')
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'pause'
-    })
+
+  if (consumer && typeof consumer.pause === 'function' && !consumer.closed && !(consumer as any)._closed)
+    await consumer.pause()
 }
 
 export async function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   await network.request(MessageTypes.WebRTCResumeConsumer.toString(), {
     consumerId: consumer.id
   })
-  if (consumer && typeof consumer.resume === 'function')
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'resume'
-    })
+  if (consumer && typeof consumer.resume === 'function' && !consumer.closed && !(consumer as any)._closed)
+    await consumer.resume()
 }
 
 export async function pauseProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   await network.request(MessageTypes.WebRTCPauseProducer.toString(), {
     producerId: producer.id
   })
-  if (producer && typeof producer.pause === 'function')
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'pause'
-    })
+
+  if (producer && typeof producer.pause === 'function' && !producer.closed && !(producer as any)._closed)
+    await producer.pause()
 }
 
 export async function resumeProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   await network.request(MessageTypes.WebRTCResumeProducer.toString(), {
     producerId: producer.id
   })
-  if (producer && typeof producer.resume === 'function')
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'resume'
-    })
+
+  if (producer && typeof producer.resume === 'function' && !producer.closed && !(producer as any)._closed)
+    await producer.resume()
 }
 
 export async function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
