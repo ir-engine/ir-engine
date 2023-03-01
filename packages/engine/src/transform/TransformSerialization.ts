@@ -2,7 +2,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { hasComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag, readCompressedRotation, readVector3 } from '../networking/serialization/DataReader'
-import { writePosition, writeRotation } from '../networking/serialization/DataWriter'
+import { writeCompressedRotation, writeVector3 } from '../networking/serialization/DataWriter'
 import { readUint8, rewindViewCursor, spaceUint8, ViewCursor } from '../networking/serialization/ViewCursor'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { TransformComponent } from './components/TransformComponent'
@@ -17,6 +17,9 @@ export const readTransform = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
   Engine.instance.currentWorld.dirtyTransforms[entity] = true
 }
+
+export const writePosition = writeVector3(TransformComponent.position)
+export const writeRotation = writeCompressedRotation(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, TransformComponent) || hasComponent(entity, RigidBodyComponent)) return
