@@ -16,24 +16,21 @@ import {
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { getState, useHookstate } from '@xrengine/hyperflux'
-
-import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
-import GridOnIcon from '@mui/icons-material/GridOn'
-import Refresh from '@mui/icons-material/Refresh'
-import SelectAllIcon from '@mui/icons-material/SelectAll'
-import SquareFootIcon from '@mui/icons-material/SquareFoot'
+import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
   useHookstate(getState(EngineState).frameTime).value
-  const engineRendererState = useHookstate(getState(EngineRendererState))
+  const rendererState = useHookstate(getState(RendererState))
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
@@ -47,23 +44,34 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleDebug = () => {
-    engineRendererState.debugEnable.set(!engineRendererState.debugEnable.value)
+    rendererState.debugEnable.set(!rendererState.debugEnable.value)
   }
 
-  const tree = Engine.instance.currentWorld.entityTree
-
-  const renderEntityTree = (node: EntityTreeNode) => {
+  const renderEntityTreeRoots = () => {
     return {
-      entity: node.entity,
-      uuid: node.uuid,
-      components: renderEntityComponents(node.entity),
+      ...Object.keys(EntityTreeComponent.roots.value).reduce(
+        (r, child, i) =>
+          Object.assign(r, {
+            [`${i} - ${
+              getComponent(child as any as Entity, NameComponent) ?? getComponent(child as any as Entity, UUIDComponent)
+            }`]: renderEntityTree(child as any as Entity)
+          }),
+        {}
+      )
+    }
+  }
+
+  const renderEntityTree = (entity: Entity) => {
+    const node = getComponent(entity, EntityTreeComponent)
+    return {
+      entity,
+      components: renderEntityComponents(entity),
       children: {
         ...node.children.reduce(
           (r, child, i) =>
             Object.assign(r, {
-              [`${i} - ${getComponent(child, NameComponent) ?? tree.entityNodeMap.get(child)?.uuid}`]: renderEntityTree(
-                tree.entityNodeMap.get(child)!
-              )
+              [`${i} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
+                renderEntityTree(child)
             }),
           {}
         )
@@ -93,10 +101,12 @@ export const Debug = ({ showingStateRef }) => {
       ...Object.fromEntries(
         [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
-            const name = getOptionalComponent(eid, NameComponent)
             try {
               return [
-                '(eid:' + eid + ') ' + (name ?? tree.entityNodeMap.get(eid)?.uuid ?? ''),
+                '(eid:' +
+                  eid +
+                  ') ' +
+                  (getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''),
                 renderEntityComponents(eid)
               ]
             } catch (e) {
@@ -109,19 +119,19 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleNodeHelpers = () => {
-    getState(EngineRendererState).nodeHelperVisibility.set(!getState(EngineRendererState).nodeHelperVisibility.value)
+    getState(RendererState).nodeHelperVisibility.set(!getState(RendererState).nodeHelperVisibility.value)
   }
 
   const toggleGridHelper = () => {
-    getState(EngineRendererState).gridVisibility.set(!getState(EngineRendererState).gridVisibility.value)
+    getState(RendererState).gridVisibility.set(!getState(RendererState).gridVisibility.value)
   }
 
   const namedEntities = useHookstate({})
-  const entityTree = useHookstate({})
+  const entityTree = useHookstate({} as any)
   const pipelines = Engine.instance.currentWorld.pipelines
 
   namedEntities.set(renderAllEntities())
-  entityTree.set(renderEntityTree(tree.rootNode))
+  entityTree.set(renderEntityTreeRoots())
   return (
     <div className={styles.debugContainer}>
       <div className={styles.debugOptionContainer}>
@@ -131,40 +141,38 @@ export const Debug = ({ showingStateRef }) => {
             <button
               type="button"
               onClick={toggleDebug}
-              className={styles.flagBtn + (engineRendererState.debugEnable.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.debugEnable.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
             >
-              <SquareFootIcon fontSize="small" />
+              <Icon type="SquareFoot" fontSize="small" />
             </button>
             <button
               type="button"
               onClick={toggleNodeHelpers}
-              className={styles.flagBtn + (engineRendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.nodeHelperDebug')}
             >
-              <SelectAllIcon fontSize="small" />
+              <Icon type="SelectAll" fontSize="small" />
             </button>
             <button
               type="button"
               onClick={toggleGridHelper}
-              className={styles.flagBtn + (engineRendererState.gridVisibility.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.gridVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.gridDebug')}
             >
-              <GridOnIcon fontSize="small" />
+              <Icon type="GridOn" fontSize="small" />
             </button>
             <button
               type="button"
-              onClick={() =>
-                engineRendererState.forceBasicMaterials.set(!engineRendererState.forceBasicMaterials.value)
-              }
-              className={styles.flagBtn + (engineRendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
+              onClick={() => rendererState.forceBasicMaterials.set(!rendererState.forceBasicMaterials.value)}
+              className={styles.flagBtn + (rendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
               title={t('common:debug.forceBasicMaterials')}
             >
-              <FormatColorResetIcon fontSize="small" />
+              <Icon type="FormatColorReset" fontSize="small" />
             </button>
             {hasActiveControlledAvatar && (
               <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
-                <Refresh />
+                <Icon type="Refresh" />
               </button>
             )}
           </div>
@@ -217,7 +225,13 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
-        <JSONTree data={entityTree.value} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree
+          data={entityTree.value}
+          postprocessValue={(v) => v?.value ?? v}
+          shouldExpandNode={(keyPath, data, level) =>
+            !!data.components && !!data.children && typeof data.entity === 'number'
+          }
+        />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>

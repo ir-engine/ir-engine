@@ -122,7 +122,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     createAvatarCollider(entity)
   }
 
-  addComponent(entity, ShadowComponent, { receive: true, cast: true, castDropShadow: true })
+  setComponent(entity, ShadowComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

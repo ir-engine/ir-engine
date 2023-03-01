@@ -16,7 +16,7 @@ jobs:
         id: check-secrets
         run: |
           if [ ${{ secrets.DOCUMENTATION_BUILD_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   checks:
     if: github.event_name != 'push'

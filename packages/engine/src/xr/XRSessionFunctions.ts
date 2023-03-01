@@ -16,7 +16,7 @@ import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { getCameraMode, ReferenceSpace, XRAction, XRState } from './XRState'
+import { getCameraMode, hasMovementControls, ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -104,6 +104,12 @@ export const setupXRSession = async (requestedMode) => {
 
   await xrManager.setSession(xrSession, framebufferScaleFactor)
 
+  /** Hide the canvas - do not do this for the WebXR emulator */
+  /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
+  if (typeof xrSession.visibilityState === 'string') {
+    EngineRenderer.instance.renderer.domElement.style.display = 'none'
+  }
+
   xrState.session.set(xrSession)
 
   xrState.requestingSession.set(false)
@@ -115,10 +121,16 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
   const world = Engine.instance.currentWorld
   const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
   const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
+  const xrState = getState(XRState)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
-  worldOriginTransform.position.copy(rigidBody.position)
-  worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
+  if (xrState.sessionMode.value === 'immersive-ar') {
+    worldOriginTransform.position.copy(rigidBody.position)
+    worldOriginTransform.rotation.copy(quat180y)
+  } else {
+    worldOriginTransform.position.copy(rigidBody.position)
+    worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
+  }
 
   /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
   xrSession.requestReferenceSpace('local-floor').then((space) => {
@@ -188,8 +200,6 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
 export const setupVRSession = (world = Engine.instance.currentWorld) => {}
 
 export const setupARSession = (world = Engine.instance.currentWorld) => {
-  EngineRenderer.instance.renderer.domElement.style.display = 'none'
-
   const session = getState(XRState).session.value!
 
   /**
@@ -200,7 +210,9 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
     ;(world.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   session.addEventListener('selectend', (inputSource) => {
-    ;(world.buttons as ButtonInputStateType).PrimaryClick!.up = true
+    const buttons = world.buttons as ButtonInputStateType
+    if (!buttons.PrimaryClick) return
+    buttons.PrimaryClick!.up = true
   })
 
   world.scene.background = null

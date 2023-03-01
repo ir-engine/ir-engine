@@ -223,7 +223,8 @@
       "lbl-shadowmapResolution": "Shadow Map Resolution",
       "lbl-shadowBias": "Shadow Bias",
       "lbl-shadowRadius": "Shadow Radius",
-      "lbl-showCameraHelper": "Show Camera Helper"
+      "lbl-showCameraHelper": "Show Camera Helper",
+      "lbl-castShadows": "Cast Shadows"
     },
     "groundPlane": {
       "name": "Ground Plane",
@@ -255,7 +256,6 @@
       "lbl-isEquippable": "Is Equippable",
       "lbl-castShadow": "Cast Shadow",
       "lbl-receiveShadow": "Receive Shadow",
-      "lbl-dropShadow": "Cast Drop Shadow",
       "lbl-interactable": "Interactable",
       "lbl-generateBVH": "Generate BVH",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",

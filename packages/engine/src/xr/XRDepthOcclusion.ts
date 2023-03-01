@@ -239,7 +239,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   let depthSupported = false
 
   const depthOcclusionReactor = startGroupQueryReactor(
-    function ({ obj }) {
+    function DepthOcclusionReactor({ obj }) {
       const depthDataTexture = useHookstate(xrState.depthDataTexture)
 
       useEffect(() => {

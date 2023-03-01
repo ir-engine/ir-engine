@@ -13,7 +13,7 @@ jobs:
         id: check-secrets-run
         run: |
           if [ ${{ secrets.DEPLOYMENTS_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   secrets-gate-webhook:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
         id: check-secrets-webhook
         run: |
           if [ ${{ secrets.SEND_FINISHED_WEBHOOK }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   qat-deploy:
     needs:

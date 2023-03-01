@@ -24,12 +24,12 @@ import {
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { portalTriggerEnter } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
-import { ColliderComponent, ColliderComponentType } from './ColliderComponent'
+import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
@@ -53,7 +53,7 @@ export const SCENE_COMPONENT_PORTAL_COLLIDER_VALUES = {
   collisionMask: CollisionGroups.Avatars,
   target: '',
   onEnter: 'teleport'
-} as ColliderComponentType
+}
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',
@@ -119,7 +119,7 @@ export const PortalComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, PortalComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
     const portalComponent = useComponent(root.entity, PortalComponent)
 
     useEffect(() => {

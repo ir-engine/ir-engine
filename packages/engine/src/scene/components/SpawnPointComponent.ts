@@ -7,7 +7,7 @@ import { getState, none, useHookstate } from '@xrengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -43,7 +43,7 @@ export const SpawnPointComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, SpawnPointComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
     const spawnPoint = useComponent(root.entity, SpawnPointComponent)
 
     useEffect(() => {

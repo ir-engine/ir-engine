@@ -17,7 +17,7 @@ import config from './config'
 
 const logRequestCache = new LruCache({
   max: 1000,
-  maxAge: 1000 * 5 // 5 seconds cache expiry
+  ttl: 1000 * 5 // 5 seconds cache expiry
 })
 
 const baseComponent = 'client-core'

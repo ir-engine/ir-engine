@@ -16,8 +16,8 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ShadowProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  if (!hasComponent(props.node.entity, ShadowComponent)) return <></>
-  const shadowComponent = getComponent(props.node.entity, ShadowComponent)
+  if (!hasComponent(props.entity, ShadowComponent)) return <></>
+  const shadowComponent = getComponent(props.entity, ShadowComponent)
   return (
     <NodeEditor component={ShadowComponent} description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Cast Shadow" label={t('editor:properties.model.lbl-castShadow')}>
@@ -25,12 +25,6 @@ export const ShadowProperties: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Receive Shadow" label={t('editor:properties.model.lbl-receiveShadow')}>
         <BooleanInput value={shadowComponent.receive} onChange={updateProperty(ShadowComponent, 'receive')} />
-      </InputGroup>
-      <InputGroup name="Drop Shadows" label={t('editor:properties.model.lbl-dropShadow')}>
-        <BooleanInput
-          value={shadowComponent.castDropShadow}
-          onChange={updateProperty(ShadowComponent, 'castDropShadow')}
-        />
       </InputGroup>
     </NodeEditor>
   )

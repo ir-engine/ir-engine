@@ -66,13 +66,9 @@ export const createGeometryFromPolygon = (plane: XRPlane) => {
 let planeId = 0
 
 export const updatePlaneGeometry = (entity: Entity, plane: XRPlane) => {
-  const lastKnownTime = planesLastChangedTimes.get(plane) ?? 0
-  if (plane.lastChangedTime > lastKnownTime) {
-    planesLastChangedTimes.set(plane, plane.lastChangedTime)
-    const entity = detectedPlanesMap.get(plane)!
-    const geometry = createGeometryFromPolygon(plane)
-    getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
-  }
+  planesLastChangedTimes.set(plane, plane.lastChangedTime)
+  const geometry = createGeometryFromPolygon(plane)
+  getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
 }
 
 export const updatePlanePose = (entity: Entity, plane: XRPlane) => {
@@ -120,7 +116,7 @@ export const foundPlane = (world: World, plane: XRPlane) => {
 
   setComponent(entity, XRPlaneComponent, { shadowMesh, occlusionMesh, placementHelper, geometry, plane })
 
-  return entity
+  detectedPlanesMap.set(plane, entity)
 }
 
 export const lostPlane = (plane: XRPlane, entity: Entity) => {
@@ -163,8 +159,7 @@ export default async function XRDetectedPlanesSystem(world: World) {
 
     for (const plane of frame.detectedPlanes) {
       if (!detectedPlanesMap.has(plane)) {
-        const entity = foundPlane(world, plane)
-        detectedPlanesMap.set(plane, entity)
+        foundPlane(world, plane)
       }
       const entity = detectedPlanesMap.get(plane)!
       planesQueue.addPriority(entity, 1)
@@ -174,7 +169,7 @@ export default async function XRDetectedPlanesSystem(world: World) {
 
     for (const entity of planesQueue.priorityEntities) {
       const plane = getComponent(entity, XRPlaneComponent).plane
-      const lastKnownTime = planesLastChangedTimes.get(plane) ?? 0
+      const lastKnownTime = planesLastChangedTimes.get(plane)!
       if (plane.lastChangedTime > lastKnownTime) {
         updatePlaneGeometry(entity, getComponent(entity, XRPlaneComponent).plane)
       }

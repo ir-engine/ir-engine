@@ -16,6 +16,10 @@ export type TransformComponentType = {
 const { f64 } = Types
 export const Vector3Schema = { x: f64, y: f64, z: f64 }
 export const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
+export const PoseSchema = {
+  position: Vector3Schema,
+  rotation: QuaternionSchema
+}
 export const TransformSchema = {
   position: Vector3Schema,
   rotation: QuaternionSchema,
@@ -71,7 +75,6 @@ export function setTransformComponent(entity: Entity, position?: Vector3, rotati
       matrix: new Matrix4(),
       matrixInverse: new Matrix4()
     })
-    TransformComponent.mapState[entity].set(TransformComponent.map[entity])
   }
 }
 
@@ -103,7 +106,6 @@ export function setLocalTransformComponent(
     scale: proxifyVector3WithDirty(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()),
     matrix: new Matrix4()
   })
-  LocalTransformComponent.mapState[entity].set(LocalTransformComponent.map[entity])
 }
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'

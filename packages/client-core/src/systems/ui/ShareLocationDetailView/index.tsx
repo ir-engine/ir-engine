@@ -6,8 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-
-import { FileCopy, Send } from '@mui/icons-material'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { useShareMenuHooks } from '../../../user/components/UserMenu/menus/ShareMenu'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
@@ -58,7 +57,7 @@ const ShareLocationDetailView = () => {
             disabled={true}
             type="text"
             value={shareLink}
-            endIcon={<FileCopy />}
+            endIcon={<Icon type="FileCopy" />}
             endIconClick={copyLinkToClipboard}
           />
           <XRInput
@@ -67,7 +66,7 @@ const ShareLocationDetailView = () => {
             type="text"
             value={token}
             onChange={(e) => handleChangeToken(e)}
-            endIcon={<Send />}
+            endIcon={<Icon type="Send" />}
             endIconClick={packageInvite}
           />
           {isShareAvailable ? (

@@ -21,9 +21,9 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const InteriorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const interiorComponent = getComponent(entity, InteriorComponent)
-  const errors = getEntityErrors(props.node.entity, InteriorComponent)
+  const errors = getEntityErrors(props.entity, InteriorComponent)
 
   return (
     <NodeEditor

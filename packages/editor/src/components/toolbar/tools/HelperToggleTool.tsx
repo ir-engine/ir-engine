@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'
@@ -10,14 +10,14 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
-  const engineRendererState = useHookstate(getState(EngineRendererState))
+  const rendererState = useHookstate(getState(RendererState))
 
   const toggleDebug = () => {
-    engineRendererState.debugEnable.set(!engineRendererState.debugEnable.value)
+    rendererState.debugEnable.set(!rendererState.debugEnable.value)
   }
 
   const toggleNodeHelpers = () => {
-    engineRendererState.nodeHelperVisibility.set(!engineRendererState.nodeHelperVisibility.value)
+    rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)
   }
 
   return (
@@ -26,7 +26,7 @@ export const HelperToggleTool = () => {
         <InfoTooltip title="Toggle Helpers">
           <button
             onClick={toggleDebug}
-            className={styles.toolButton + ' ' + (engineRendererState.debugEnable.value ? styles.selected : '')}
+            className={styles.toolButton + ' ' + (rendererState.debugEnable.value ? styles.selected : '')}
           >
             <SquareFootIcon fontSize="small" />
           </button>
@@ -36,9 +36,7 @@ export const HelperToggleTool = () => {
         <InfoTooltip title="Toggle Node Helpers">
           <button
             onClick={toggleNodeHelpers}
-            className={
-              styles.toolButton + ' ' + (engineRendererState.nodeHelperVisibility.value ? styles.selected : '')
-            }
+            className={styles.toolButton + ' ' + (rendererState.nodeHelperVisibility.value ? styles.selected : '')}
           >
             <SelectAllIcon fontSize="small" />
           </button>

@@ -2,7 +2,7 @@ import React from 'react'
 
 import { RenderModesType } from '@xrengine/engine/src/renderer/constants/RenderModes'
 import { RenderModes } from '@xrengine/engine/src/renderer/constants/RenderModes'
-import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
@@ -12,7 +12,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
-  const engineRendererState = useHookstate(getState(EngineRendererState))
+  const rendererState = useHookstate(getState(RendererState))
   const options = [] as { label: string; value: string }[]
 
   for (let key of Object.keys(RenderModes)) {
@@ -23,7 +23,7 @@ const RenderModeTool = () => {
   }
 
   const onChangeRenderMode = (mode: RenderModesType) => {
-    engineRendererState.renderMode.set(mode)
+    rendererState.renderMode.set(mode)
   }
 
   return (
@@ -34,11 +34,11 @@ const RenderModeTool = () => {
         </div>
       </InfoTooltip>
       <SelectInput
-        key={engineRendererState.renderMode.value}
+        key={rendererState.renderMode.value}
         className={styles.selectInput}
         onChange={onChangeRenderMode}
         options={options}
-        value={engineRendererState.renderMode.value}
+        value={rendererState.renderMode.value}
         creatable={false}
         isSearchable={false}
       />

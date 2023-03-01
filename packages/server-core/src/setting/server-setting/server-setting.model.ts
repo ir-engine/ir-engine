@@ -6,7 +6,7 @@ import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ServerSetting = sequelizeClient.define<Model<ServerSettingInterface>>(
+  return sequelizeClient.define<Model<ServerSettingInterface>>(
     'serverSetting',
     {
       id: {
@@ -90,6 +90,9 @@ export default (app: Application) => {
       instanceserverUnreachableTimeoutSeconds: {
         type: DataTypes.INTEGER,
         defaultValue: 2
+      },
+      githubWebhookSecret: {
+        type: DataTypes.STRING
       }
     },
     {
@@ -100,6 +103,4 @@ export default (app: Application) => {
       }
     }
   )
-
-  return ServerSetting
 }

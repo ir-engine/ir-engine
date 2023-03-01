@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { Bone, Object3D } from 'three'
+import { Bone, Object3D, Vector3 } from 'three'
 
-import { NO_PROXY } from '@xrengine/hyperflux'
-
+import { isClient } from '../../common/functions/isClient'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   createMappedComponent,
@@ -11,7 +11,7 @@ import {
   hasComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
+import { PoseSchema, QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const EPSILON = 1e-6
@@ -48,11 +48,6 @@ export type AvatarHeadIKComponentType = {
   rotationClamp: number
 }
 
-const PoseSchema = {
-  position: Vector3Schema,
-  quaternion: QuaternionSchema
-}
-
 const XRHeadIKSchema = {
   target: PoseSchema
 }
@@ -78,14 +73,99 @@ const HandIKSchema = {
   target: PoseSchema
 }
 
-export const AvatarLeftHandIKComponent = createMappedComponent<AvatarHandsIKComponentType, typeof HandIKSchema>(
-  'AvatarLeftHandIKComponent',
-  HandIKSchema
-)
-export const AvatarRightHandIKComponent = createMappedComponent<AvatarHandsIKComponentType, typeof HandIKSchema>(
-  'AvatarRightHandIKComponent',
-  HandIKSchema
-)
+const _vec = new Vector3()
+
+export const AvatarLeftArmIKComponent = defineComponent({
+  name: 'AvatarLeftArmIKComponent',
+
+  schema: HandIKSchema,
+
+  onInit(entity, world) {
+    const leftHint = new Object3D()
+    leftHint.name = `ik-left-hint-${entity}`
+    const leftOffset = new Object3D()
+    leftOffset.name = `ik-left-offset-${entity}`
+
+    const rig = getComponent(entity, AvatarRigComponent)
+
+    leftOffset.rotation.set(-Math.PI * 0.5, Math.PI, 0)
+
+    if (isClient) {
+      rig.rig.LeftShoulder.getWorldPosition(leftHint.position)
+      rig.rig.LeftArm.getWorldPosition(_vec)
+      _vec.subVectors(_vec, leftHint.position).normalize()
+      leftHint.position.add(_vec)
+      rig.rig.LeftShoulder.attach(leftHint)
+      leftHint.updateMatrixWorld(true)
+    }
+
+    const target = new Object3D()
+    target.name = `ik-right-target-${entity}`
+
+    proxifyVector3(AvatarLeftArmIKComponent.target.position, entity, target.position)
+    proxifyQuaternion(AvatarLeftArmIKComponent.target.rotation, entity, target.quaternion)
+
+    return {
+      target,
+      hint: leftHint,
+      targetOffset: leftOffset,
+      targetPosWeight: 1,
+      targetRotWeight: 1,
+      hintWeight: 1
+    }
+  },
+
+  onRemove(entity, world) {
+    const leftHand = getComponent(entity, AvatarLeftArmIKComponent)
+    leftHand?.hint?.removeFromParent()
+  }
+})
+
+export const AvatarRightArmIKComponent = defineComponent({
+  name: 'AvatarLeftArmIKComponent',
+  schema: HandIKSchema,
+  onInit(entity, world) {
+    const rightHint = new Object3D()
+    rightHint.name = `ik-right-hint-${entity}`
+    const rightOffset = new Object3D()
+    rightOffset.name = `ik-right-offset-${entity}`
+
+    const rig = getComponent(entity, AvatarRigComponent)
+
+    rightOffset.rotation.set(-Math.PI * 0.5, 0, 0)
+    rightOffset.updateMatrix()
+    rightOffset.updateMatrixWorld(true)
+
+    if (isClient) {
+      rig.rig.RightShoulder.getWorldPosition(rightHint.position)
+      rig.rig.RightArm.getWorldPosition(_vec)
+      _vec.subVectors(_vec, rightHint.position).normalize()
+      rightHint.position.add(_vec)
+      rig.rig.RightShoulder.attach(rightHint)
+      rightHint.updateMatrixWorld(true)
+    }
+
+    const target = new Object3D()
+    target.name = `ik-right-target-${entity}`
+
+    proxifyVector3(AvatarRightArmIKComponent.target.position, entity, target.position)
+    proxifyQuaternion(AvatarRightArmIKComponent.target.rotation, entity, target.quaternion)
+
+    return {
+      target,
+      hint: rightHint,
+      targetOffset: rightOffset,
+      targetPosWeight: 1,
+      targetRotWeight: 1,
+      hintWeight: 1
+    }
+  },
+
+  onRemove(entity, world) {
+    const rightHand = getComponent(entity, AvatarRightArmIKComponent)
+    rightHand?.hint?.removeFromParent()
+  }
+})
 
 export type AvatarIKTargetsType = {
   head: boolean
@@ -104,13 +184,13 @@ export const AvatarIKTargetsComponent = createMappedComponent<AvatarIKTargetsTyp
 export const getHandTarget = (entity: Entity, hand: XRHandedness): Object3D | null => {
   switch (hand) {
     case 'left':
-      if (hasComponent(entity, AvatarLeftHandIKComponent))
-        return getComponent(entity, AvatarLeftHandIKComponent).target as Object3D
+      if (hasComponent(entity, AvatarLeftArmIKComponent))
+        return getComponent(entity, AvatarLeftArmIKComponent).target as Object3D
       if (hasComponent(entity, AvatarRigComponent)) return getComponent(entity, AvatarRigComponent).rig.LeftHand as Bone
       break
     case 'right':
-      if (hasComponent(entity, AvatarRightHandIKComponent))
-        return getComponent(entity, AvatarRightHandIKComponent).target as Object3D
+      if (hasComponent(entity, AvatarRightArmIKComponent))
+        return getComponent(entity, AvatarRightArmIKComponent).target as Object3D
       if (hasComponent(entity, AvatarRigComponent))
         return getComponent(entity, AvatarRigComponent).rig.RightHand as Bone
       break

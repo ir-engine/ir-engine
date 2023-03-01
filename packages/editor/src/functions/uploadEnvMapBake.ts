@@ -54,7 +54,7 @@ const getScenePositionForBake = (world: World, entity: Entity | null) => {
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const world = Engine.instance.currentWorld
-  const isSceneEntity = entity === world.entityTree.rootNode.entity
+  const isSceneEntity = entity === world.sceneEntity
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {

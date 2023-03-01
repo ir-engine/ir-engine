@@ -332,9 +332,7 @@ export default (app: Application): void => {
       targetIds = _.uniq(targetIds)
       return Promise.all(
         targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({
-            project: data
-          })
+          return app.channel(`userIds/${userId}`).send(data)
         })
       )
     } catch (err) {

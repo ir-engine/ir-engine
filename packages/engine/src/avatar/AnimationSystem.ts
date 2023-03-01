@@ -53,7 +53,6 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
-      world.dirtyTransforms[entity] = true
     }
   }
 

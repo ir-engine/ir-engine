@@ -24,11 +24,7 @@ import {
 } from '../components/CloudComponent'
 import { EnvMapBakeComponent, SCENE_COMPONENT_ENVMAP_BAKE } from '../components/EnvMapBakeComponent'
 import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '../components/EnvmapComponent'
-import {
-  GroundPlaneComponent,
-  SCENE_COMPONENT_GROUND_PLANE,
-  SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
-} from '../components/GroundPlaneComponent'
+import { GroundPlaneComponent, SCENE_COMPONENT_GROUND_PLANE } from '../components/GroundPlaneComponent'
 import { GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
 import { ImageComponent, SCENE_COMPONENT_IMAGE } from '../components/ImageComponent'
 import {
@@ -75,14 +71,13 @@ import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/Visible
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
-import { deserializeGround, serializeGroundPlane, updateGroundPlane } from '../functions/loaders/GroundPlaneFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
-import { deserializeSkybox, serializeSkybox, updateSkybox } from '../functions/loaders/SkyboxFunctions'
+import { updateSkybox } from '../functions/loaders/SkyboxFunctions'
 import { deserializeSpline, serializeSpline } from '../functions/loaders/SplineFunctions'
 import { deserializeWater } from '../functions/loaders/WaterFunctions'
 
@@ -126,7 +121,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ShadowComponent.name, SCENE_COMPONENT_SHADOW)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {
-    defaultData: SCENE_COMPONENT_SHADOW_DEFAULT_VALUES
+    defaultData: true
   })
 
   world.sceneComponentRegistry.set(PreventBakeTagComponent.name, SCENE_COMPONENT_PREVENT_BAKE)
@@ -205,9 +200,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(SkyboxComponent.name, SCENE_COMPONENT_SKYBOX)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
-    defaultData: {},
-    deserialize: deserializeSkybox,
-    serialize: serializeSkybox
+    defaultData: {}
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
@@ -259,15 +252,15 @@ export default async function SceneObjectUpdateSystem(world: World) {
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.groundPlane, [
-    ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_GROUND_PLANE, props: SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_SHADOW, props: { receive: true, cast: false } },
+    { name: SCENE_COMPONENT_GROUND_PLANE, props: {} }
   ])
 
   world.sceneComponentRegistry.set(GroundPlaneComponent.name, SCENE_COMPONENT_GROUND_PLANE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
-    defaultData: SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES,
-    deserialize: deserializeGround,
-    serialize: serializeGroundPlane
+    defaultData: {}
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.image, [
@@ -377,7 +370,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
       for (const entity of action.entities) {
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, GroupComponent)) updateEnvMap(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
-        if (hasComponent(entity, GroundPlaneComponent)) updateGroundPlane(entity)
         if (hasComponent(entity, LoopAnimationComponent)) updateLoopAnimation(entity)
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
@@ -389,7 +381,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
     for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')
-    for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)

@@ -1,4 +1,4 @@
-import type { WebLayer3D } from '@etherealjs/web-layer/three'
+import type { WebLayer3D } from '@xrfoundation/xrui'
 import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
@@ -59,7 +59,7 @@ export default async function LoadingUISystem(world: World) {
   const appLoadingState = getState(AppLoadingState)
   const engineState = getState(EngineState)
 
-  const reactor = startReactor(() => {
+  const reactor = startReactor(function LoadingReactor() {
     const loadingState = useHookstate(appLoadingState)
 
     useEffect(() => {

@@ -42,6 +42,11 @@ export const FileBrowserServiceReceptor = (action) => {
         retrieving: true
       })
     })
+    .when(FileBrowserAction.setUpdateNeeded.matches, (action) => {
+      return s.merge({
+        updateNeeded: action.updateNeeded
+      })
+    })
 }
 
 export const accessFileBrowserState = () => getState(FileBrowserState)
@@ -61,6 +66,11 @@ export class FileBrowserAction {
   static filesDeleted = defineAction({
     type: 'xre.client.FileBrowser.FILES_DELETED' as const,
     contentPath: matches.any
+  })
+
+  static setUpdateNeeded = defineAction({
+    type: 'xre.editor.FileBrowser.SET_UPDATE_NEEDED' as const,
+    updateNeeded: matches.boolean
   })
 }
 
@@ -82,9 +92,6 @@ export const FileBrowserService = {
       .service('file-browser')
       .get(directory, params)) as Paginated<FileContentType>
     dispatchAction(FileBrowserAction.filesFetched({ files }))
-  },
-  putContent: async (fileName: string, path: string, body: Buffer, contentType: string) => {
-    return API.instance.client.service('file-browser').patch(null, { fileName, path, body, contentType })
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
     return API.instance.client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })

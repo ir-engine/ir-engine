@@ -13,13 +13,11 @@ import {
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
-import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
+import Icon from '@xrengine/ui/src/Icon'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
@@ -39,7 +37,7 @@ function createSettingDetailState() {
 // TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getState(EngineRendererState))
+  const rendererState = useHookstate(getState(RendererState))
   const audioState = useAudioState()
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
   const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
@@ -137,7 +135,7 @@ const SettingDetailView = () => {
           <section className="audioSection">
             <h4 className="title">{t('user:usermenu.setting.audio')}</h4>
             <div className="sectionRow">
-              <VolumeUp />
+              <Icon type="VolumeUp" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-volume')}
                 min="0"
@@ -150,7 +148,7 @@ const SettingDetailView = () => {
               />
             </div>
             <div className="sectionRow">
-              <Mic />
+              <Icon type="Mic" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-microphone')}
                 min="0"
@@ -171,7 +169,7 @@ const SettingDetailView = () => {
             {showAudioDetails && (
               <>
                 <div className="sectionRow">
-                  <SurroundSoundIcon />
+                  <Icon type="SurroundSound" />
                   <XRCheckboxButton
                     labelContent={t('user:usermenu.setting.use-positional-media')}
                     checked={audioState.positionalMedia.value}
@@ -181,7 +179,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-media-instance')}
                     min="0"
@@ -194,7 +192,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-notification')}
                     min="0"
@@ -207,7 +205,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-sound-effect')}
                     min="0"
@@ -220,7 +218,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-background-music-volume')}
                     min="0"
@@ -242,7 +240,7 @@ const SettingDetailView = () => {
           <section className="graphicsSection">
             <h4 className="title">{t('user:usermenu.setting.graphics')}</h4>
             <div className="sectionRow">
-              <BlurLinear />
+              <Icon type="BlurLinear" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-resolution')}
                 min="1"

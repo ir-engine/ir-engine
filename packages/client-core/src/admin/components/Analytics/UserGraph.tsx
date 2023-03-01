@@ -1,13 +1,12 @@
 import ApexCharts from 'apexcharts'
+import { t } from 'i18next'
 import React from 'react'
 import ReactApexChart from 'react-apexcharts'
-import { useTranslation } from 'react-i18next'
 
 import { useAdminAnalyticsState } from '../../services/AnalyticsService'
 
 const UserGraph = ({ startDate, endDate }) => {
   const analyticsState = useAdminAnalyticsState()
-  const { t } = useTranslation()
 
   let maxY = 0
   let minX = new Date(startDate).getTime()

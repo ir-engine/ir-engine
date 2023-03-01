@@ -67,7 +67,8 @@ export function AssetDropZone() {
 
           assets.map(async (asset) => {
             const node = await addMediaNode(asset)
-            const transformComponent = getComponent(node.entity, TransformComponent)
+            if (!node) return
+            const transformComponent = getComponent(node, TransformComponent)
             if (transformComponent) {
               getCursorSpawnPosition(mousePos, transformComponent.position)
               dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: 'position' }))
@@ -77,7 +78,8 @@ export function AssetDropZone() {
       } else {
         // When user drags files from files panel
         const node = await addMediaNode(item.url)
-        const transformComponent = getComponent(node.entity, TransformComponent)
+        if (!node) return
+        const transformComponent = getComponent(node, TransformComponent)
         if (transformComponent) {
           getCursorSpawnPosition(mousePos, transformComponent.position)
           dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: 'position' }))

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { EngineRendererState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
@@ -11,19 +11,10 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const engineRendererState = useHookstate(getState(EngineRendererState))
-  const [gridHeight, setGridHeight] = useState(engineRendererState.gridHeight)
-
-  useEffect(() => {
-    updateGridHeight(engineRendererState.gridHeight)
-  }, [engineRendererState.gridHeight])
-
-  const updateGridHeight = (val) => {
-    setGridHeight(val)
-  }
+  const rendererState = useHookstate(getState(RendererState))
 
   const onToggleGridVisible = () => {
-    engineRendererState.gridVisibility.set(!engineRendererState.gridVisibility.value)
+    rendererState.gridVisibility.set(!rendererState.gridVisibility.value)
   }
 
   const onChangeGridHeight = (value) => {
@@ -35,14 +26,14 @@ const GridTool = () => {
       <InfoTooltip title="Toggle Grid Visibility">
         <button
           onClick={onToggleGridVisible}
-          className={styles.toolButton + ' ' + (engineRendererState.gridVisibility ? styles.selected : '')}
+          className={styles.toolButton + ' ' + (rendererState.gridVisibility ? styles.selected : '')}
         >
           <GridOnIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <NumericStepperInput
         className={styles.toolbarNumericStepperInput}
-        value={gridHeight}
+        value={rendererState.gridHeight.value}
         onChange={onChangeGridHeight}
         precision={0.01}
         smallStep={0.5}

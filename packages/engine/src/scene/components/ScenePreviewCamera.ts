@@ -5,7 +5,7 @@ import { getState, none, useHookstate } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/WebGLRendererSystem'
+import { RendererState } from '../../renderer/RendererState'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -39,7 +39,7 @@ export const ScenePreviewCameraComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, ScenePreviewCameraComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
     const camera = useComponent(root.entity, ScenePreviewCameraComponent)
 
     useEffect(() => {

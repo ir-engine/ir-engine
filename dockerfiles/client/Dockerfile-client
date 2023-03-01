@@ -10,6 +10,7 @@ COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/editor/package.json ./packages/editor/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
+COPY packages/ui/package.json ./packages/ui/
 COPY patches/ ./patches/
 
 ARG NODE_ENV

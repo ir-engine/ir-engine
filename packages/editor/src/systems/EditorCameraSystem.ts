@@ -58,9 +58,7 @@ export default async function EditorCameraSystem(world: World) {
           box.makeEmpty()
           for (const object of cameraComponent.focusedObjects) {
             const group =
-              typeof object === 'string'
-                ? [obj3dFromUuid(object)]
-                : getOptionalComponent(object.entity, GroupComponent) || []
+              typeof object === 'string' ? [obj3dFromUuid(object)] : getOptionalComponent(object, GroupComponent) || []
             for (const obj of group) {
               box.expandByObject(obj)
             }
@@ -71,8 +69,8 @@ export default async function EditorCameraSystem(world: World) {
 
             if (typeof object === 'string') {
               cameraComponent.center.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
-            } else if (hasComponent(object.entity, TransformComponent)) {
-              const position = getComponent(object.entity, TransformComponent).position
+            } else if (hasComponent(object, TransformComponent)) {
+              const position = getComponent(object, TransformComponent).position
               cameraComponent.center.copy(position)
             }
             distance = 0.1

@@ -1,7 +1,9 @@
 import i18n from 'i18next'
 
 import config from '@xrengine/common/src/config'
+import { dispatchAction } from '@xrengine/hyperflux'
 
+import { FileBrowserAction } from '../common/services/FileBrowserService'
 import { accessAuthState } from '../user/services/AuthService'
 import { RethrownError } from './errors'
 
@@ -78,6 +80,9 @@ export const uploadToFeathersService = (
       request.open('post', `${config.client.serverUrl}/${service}`, true)
       request.setRequestHeader('Authorization', `Bearer ${token}`)
       request.send(formData)
+      setTimeout(() => {
+        dispatchAction(FileBrowserAction.setUpdateNeeded({ updateNeeded: true }))
+      }, 2000)
     })
   }
 }

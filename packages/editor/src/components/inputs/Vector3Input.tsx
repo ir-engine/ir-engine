@@ -72,7 +72,8 @@ export const Vector3Input = ({
 }: Vector3InputProp) => {
   const id = uniqueId++
   const [uniformEnabled, setUniformEnabled] = useState(uniformScaling)
-  const newValue = useHookstate(new Vector3())
+  const newValue = useHookstate(new Vector3(0, 0, 0))
+  newValue.value.set(0, 0, 0)
 
   const onToggleUniform = () => {
     setUniformEnabled(!uniformEnabled)
@@ -80,7 +81,7 @@ export const Vector3Input = ({
 
   const processChange = (field, fieldValue) => {
     if (uniformEnabled) {
-      newValue.set(new Vector3(fieldValue, fieldValue, fieldValue))
+      newValue.value.set(fieldValue, fieldValue, fieldValue)
     } else {
       const x = value ? value.x : 0
       const y = value ? value.y : 0

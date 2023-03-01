@@ -44,7 +44,7 @@ const initializeProjectUpdateReceptor = (action: typeof ProjectUpdateActions.ini
     selectedSHA: '',
     projectName: '',
     submitDisabled: true,
-    triggerSetDestination: false,
+    triggerSetDestination: '',
     updateType: 'none' as ProjectUpdateType,
     updateSchedule: DefaultUpdateSchedule
   })

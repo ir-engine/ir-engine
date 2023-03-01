@@ -27,12 +27,6 @@ import {
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import {
-  deserializeCollider,
-  serializeCollider,
-  updateCollider,
-  updateModelColliders
-} from '../../scene/functions/loaders/ColliderFunctions'
-import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
@@ -125,9 +119,7 @@ export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, sub
 export default async function PhysicsSystem(world: World) {
   world.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
-    defaultData: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES,
-    deserialize: deserializeCollider,
-    serialize: serializeCollider
+    defaultData: {}
   })
 
   world.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
@@ -137,26 +129,6 @@ export default async function PhysicsSystem(world: World) {
   ])
 
   const engineState = getState(EngineState)
-
-  const modelColliderReactor = startQueryReactor(
-    [TransformComponent, ColliderComponent],
-    function ModelColliderReactor(props) {
-      const { entity } = props.root
-
-      if (!hasComponent(entity, TransformComponent) || !hasComponent(entity, ColliderComponent)) throw props.root.stop()
-
-      const transformComponent = useComponent(entity, TransformComponent)
-      const colliderComponent = useComponent(entity, ColliderComponent)
-      const gltfLoadedComponent = useOptionalComponent(entity, GLTFLoadedComponent)
-
-      useEffect(() => {
-        if (hasComponent(entity, GLTFLoadedComponent)) updateModelColliders(entity)
-        else updateCollider(entity)
-      }, [transformComponent, colliderComponent, gltfLoadedComponent])
-
-      return null
-    }
-  )
 
   const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
   const collisionQuery = defineQuery([CollisionComponent])
@@ -182,19 +154,6 @@ export default async function PhysicsSystem(world: World) {
   const drainContacts = Physics.drainContactEventQueue(world.physicsWorld)
 
   const execute = () => {
-    for (const action of modifyPropertyActionQueue()) {
-      for (const entity of action.entities) {
-        if (hasComponent(entity, ColliderComponent)) {
-          if (hasComponent(entity, GLTFLoadedComponent)) {
-            /** @todo we currently have no reason to support this, and it breaks live scene updates */
-            // updateMeshCollider(entity)
-          } else {
-            updateCollider(entity)
-          }
-        }
-      }
-    }
-
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     const allRigidBodies = allRigidBodyQuery()
@@ -290,7 +249,6 @@ export default async function PhysicsSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
     world.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
 
-    modelColliderReactor.stop()
     removeQuery(world, allRigidBodyQuery)
     removeQuery(world, collisionQuery)
 

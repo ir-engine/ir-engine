@@ -11,10 +11,11 @@ import { getComponent, getComponentState, removeComponent, setComponent } from '
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
-import { EngineRendererState } from '../renderer/WebGLRendererSystem'
+import { RendererState } from '../renderer/RendererState'
 import { hasMovementControls } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
+import { autopilotSetPosition } from './functions/autopilotFunctions'
 import { translateAndRotateAvatar } from './functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -114,15 +115,26 @@ export default async function AvatarInputSystem(world: World) {
   }
 
   const onKeyP = () => {
-    getState(EngineRendererState).debugEnable.set(!getState(EngineRendererState).debugEnable.value)
+    getState(RendererState).debugEnable.set(!getState(RendererState).debugEnable.value)
   }
 
+  let mouseMovedDuringPrimaryClick = false
   const execute = () => {
     const { inputSources, localClientEntity } = world
     if (!localClientEntity) return
 
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
     const buttons = world.buttons
+
+    if (buttons.PrimaryClick?.touched) {
+      let mouseMoved = world.pointerState.movement.lengthSq() > 0
+      if (mouseMoved) mouseMovedDuringPrimaryClick = true
+
+      if (buttons.PrimaryClick.up) {
+        if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(world.localClientEntity)
+        else mouseMovedDuringPrimaryClick = false
+      }
+    }
 
     if (buttons.ShiftLeft?.down) onShiftLeft()
     if (buttons.KeyE?.down) onKeyE()
