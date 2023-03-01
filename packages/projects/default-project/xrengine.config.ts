@@ -27,6 +27,9 @@ const config: ProjectConfigInterface = {
     },
     '/room': {
       component: () => import('@etherealengine/client/src/pages/room')
+    },
+    '/record': {
+      component: () => import('@etherealengine/ui/src/Mediapipe')
     }
   },
   services: undefined,

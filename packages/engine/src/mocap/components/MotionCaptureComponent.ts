@@ -3,6 +3,7 @@ import { defineComponent, Types } from 'bitecs'
 import { useEffect } from 'react'
 
 import { matches } from '../../common/functions/MatchesUtils'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 
@@ -26,20 +27,7 @@ export const MotionCaptureSchema = {
 export const MotionCaptureComponent = defineComponent({
   name: 'MotionCaptureComponent',
   schema: MotionCaptureSchema,
-  onInit() {
-    return {
-      data: [{ x: 0, y: 0, z: 0, visibility: 0 }] as NormalizedLandmark[]
-    }
-  },
-  toJSON: (entity, component) => {
-    return {
-      data: component?.data?.value
-    }
-  },
-  onSet: (entity, component, json) => {
-    if (!json) return
-    component.data = json?.data
-  }
+  onInit: () => ({})
 })
 
 globalThis.MotionCaptureComponent = MotionCaptureComponent
@@ -53,9 +41,9 @@ globalThis.MotionCaptureComponent = MotionCaptureComponent
  * @returns
  */
 export function setMotionCaptureData(entity: Entity, data?: []) {
-  // @ts-ignore
-  const mocap = useComponent(entity, MotionCaptureComponent)
   debugger
+  // @ts-ignore
+  const mocap = useComponent(entity, MotionCaptureComponent, Engine.instance?.currentWorld)
   useEffect(() => {
     mocap.value.data = data
   }, [mocap])

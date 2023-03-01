@@ -1,22 +1,15 @@
 import * as cam from '@mediapipe/camera_utils'
-// import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
+import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
 import React, { useCallback, useEffect, useRef } from 'react'
 import Webcam from 'react-webcam'
 
 import { MotionCaptureService, MotionCaptureState } from '@xrengine/client-core/src/mocap/services/MotionCaptureService'
-import { MotionCaptureComponent } from '@xrengine/engine/src/mocap/components/MotionCaptureComponent'
 import { MotionCaptureAction } from '@xrengine/engine/src/mocap/functions/MotionCaptureAction'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 const Mediapipe = ({}: {}) => {
   const motionCaptureState = useHookstate(getState(MotionCaptureState))
-
-  useEffect(() => {
-    if (MotionCaptureService) {
-      console.log(MotionCaptureService.getPose())
-    }
-  }, [MotionCaptureService])
 
   const canvasRef = useRef(null as any)
   const webcamRef = useRef(null as any)
@@ -33,24 +26,27 @@ const Mediapipe = ({}: {}) => {
   )
 
   useEffect(() => {
-    if (canvasCtxRef.current !== null && canvasRef.current !== null) {
+    if (canvasCtxRef.current !== null && motionCaptureState.value?.data !== null) {
       //draw!!!
-      // canvasCtxRef.current.save()
-      // canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-      // canvasCtxRef.current.globalCompositeOperation = 'source-over'
-      // // drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
-      // //   color: '#fff' /*'#00FF00'*/,
-      // //   lineWidth: 4
-      // // })
-      // drawLandmarks(canvasCtxRef.current, poseLandmarks, { color: '#fff' /*'#FF0000'*/, lineWidth: 2 })
-      // canvasCtxRef.current.restore()
+      canvasCtxRef.current.save()
+      canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+      canvasCtxRef.current.globalCompositeOperation = 'source-over'
+      drawConnectors(canvasCtxRef.current, motionCaptureState.value?.data.value, POSE_CONNECTIONS, {
+        color: '#fff' /*'#00FF00'*/,
+        lineWidth: 4
+      })
+      drawLandmarks(canvasCtxRef.current, motionCaptureState.value?.data.value, {
+        color: '#fff' /*'#FF0000'*/,
+        lineWidth: 2
+      })
+      canvasCtxRef.current.restore()
     }
-  }, [canvasCtxRef])
+  }, [canvasCtxRef, motionCaptureState.value?.data])
 
   // useEffect(() => {
   //   if (canvasRef.current !== null && webcamRef.current !== null) {
-  //     canvasRef.current.width = webcamRef.current.video.videoWidth
-  //     canvasRef.current.height = webcamRef.current.video.videoHeight
+  //     canvasRef.current.width = webcamRef?.current?.video?.width
+  //     canvasRef.current.height = webcamRef?.current?.video?.height
   //   }
   // }, [webcamRef])
 
@@ -92,7 +88,7 @@ const Mediapipe = ({}: {}) => {
 
   // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
   return (
-    <div>
+    <div style={{ width: '100vw', height: '100vh' }}>
       <Webcam ref={webcamRef} style={{ position: 'absolute', top: 0, left: 0 }} width="640px" height="480px" />
       <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0 }} width="640px" height="480px" />
     </div>
