@@ -96,6 +96,7 @@ export default async function LoadingUISystem(world: World) {
       if (!progressBar) progressBar = xrui.getObjectByName('progress-container') as WebLayer3D
       if (progressBar) {
         const percentage = state.loadingProgress.value
+        if (percentage == 0) progressBar.shouldApplyDOMLayout = 'once'
         const scaleMultiplier = 0.01
         const centerOffset = 0.05
         progressBar.scale.setX(percentage * scaleMultiplier)
