@@ -233,7 +233,7 @@ export default async function ShadowSystem(world: World) {
   const shadowOffset = new Vector3(0, 0.01, 0)
 
   const execute = () => {
-    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Scene] || [])
+    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
     if (!useShadows && !Engine.instance.isEditor) {
