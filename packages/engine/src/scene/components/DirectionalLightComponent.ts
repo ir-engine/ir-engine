@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Color, DirectionalLight, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, Vector2 } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import {

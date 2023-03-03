@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { InviteType as InviteTypeInterface } from '@xrengine/common/src/interfaces/InviteType'
+import { InviteType as InviteTypeInterface } from '@etherealengine/common/src/interfaces/InviteType'
 
 import { Application } from '../../../declarations'
 

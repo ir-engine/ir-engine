@@ -1,10 +1,10 @@
 import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
-import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Invite, SendInvite } from '@etherealengine/common/src/interfaces/Invite'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'

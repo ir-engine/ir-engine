@@ -1,7 +1,7 @@
 import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
 
-import { NO_PROXY } from '@xrengine/hyperflux'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'

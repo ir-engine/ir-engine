@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { getComponent, getOptionalComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import {
+  getComponent,
+  getOptionalComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 
 import { useSelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'

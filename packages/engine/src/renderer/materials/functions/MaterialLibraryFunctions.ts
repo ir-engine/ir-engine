@@ -1,6 +1,6 @@
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { dispatchAction, getState, none } from '@xrengine/hyperflux'
+import { dispatchAction, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'

@@ -1,8 +1,8 @@
 import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
-import groupUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-user-permission-authenticate'
+import groupPermissionAuthenticate from '@etherealengine/server-core/src/hooks/group-permission-authenticate'
+import groupUserPermissionAuthenticate from '@etherealengine/server-core/src/hooks/group-user-permission-authenticate'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'

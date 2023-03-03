@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 

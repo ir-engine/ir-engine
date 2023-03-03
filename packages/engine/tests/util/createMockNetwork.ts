@@ -1,4 +1,4 @@
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../src/ecs/classes/Engine'
 import { Network, NetworkTopics } from '../../src/networking/classes/Network'

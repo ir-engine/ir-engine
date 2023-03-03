@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { RouteInterface } from '@xrengine/common/src/dbmodels/Route'
+import { RouteInterface } from '@etherealengine/common/src/dbmodels/Route'
 
 import { Application } from '../../../declarations'
 

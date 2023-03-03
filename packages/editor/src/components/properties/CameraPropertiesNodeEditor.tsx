@@ -1,11 +1,11 @@
 import { t } from 'i18next'
 import React from 'react'
 
-import { getCameraSceneMetadataState } from '@xrengine/engine/src/camera/systems/CameraSystem'
-import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
-import { ProjectionType } from '@xrengine/engine/src/camera/types/ProjectionType'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useHookstate } from '@xrengine/hyperflux'
+import { getCameraSceneMetadataState } from '@etherealengine/engine/src/camera/systems/CameraSystem'
+import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
+import { ProjectionType } from '@etherealengine/engine/src/camera/types/ProjectionType'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 

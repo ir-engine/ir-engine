@@ -1,7 +1,7 @@
 import { MathUtils } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { getState, hookstate, NO_PROXY, none } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntity, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NameComponent } from '../../scene/components/NameComponent'

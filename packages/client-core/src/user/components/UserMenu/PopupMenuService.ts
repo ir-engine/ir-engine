@@ -1,6 +1,6 @@
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, none } from '@xrengine/hyperflux'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getState, none } from '@etherealengine/hyperflux'
 
 import { Views } from './util'
 

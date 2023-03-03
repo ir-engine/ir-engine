@@ -3,8 +3,8 @@
 import * as bitECS from 'bitecs'
 import React from 'react'
 
-import multiLogger from '@xrengine/common/src/logger'
-import { ReactorProps, ReactorRoot, startReactor } from '@xrengine/hyperflux'
+import multiLogger from '@etherealengine/common/src/logger'
+import { ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'

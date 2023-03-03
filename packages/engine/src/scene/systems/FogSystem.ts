@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial } from 'three'
 
-import { hookstate, startReactor, State, useHookstate } from '@xrengine/hyperflux'
+import { hookstate, startReactor, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'

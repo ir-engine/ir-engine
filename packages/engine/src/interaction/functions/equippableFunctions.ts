@@ -1,4 +1,4 @@
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'

@@ -1,11 +1,11 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AvatarResult } from '@etherealengine/common/src/interfaces/AvatarResult'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 

@@ -1,13 +1,13 @@
 import React from 'react'
 
-import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import Box from '@xrengine/ui/src/Box'
-import FormControl from '@xrengine/ui/src/FormControl'
-import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
-import FormHelperText from '@xrengine/ui/src/FormHelperText'
-import FormLabel from '@xrengine/ui/src/FormLabel'
-import Radio from '@xrengine/ui/src/Radio'
-import RadioGroup from '@xrengine/ui/src/RadioGroup'
+import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import Box from '@etherealengine/ui/src/Box'
+import FormControl from '@etherealengine/ui/src/FormControl'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
+import FormHelperText from '@etherealengine/ui/src/FormHelperText'
+import FormLabel from '@etherealengine/ui/src/FormLabel'
+import Radio from '@etherealengine/ui/src/Radio'
+import RadioGroup from '@etherealengine/ui/src/RadioGroup'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

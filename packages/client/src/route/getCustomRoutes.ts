@@ -1,8 +1,8 @@
 import i18n from 'i18next'
 import { lazy } from 'react'
 
-import { API } from '@xrengine/client-core/src/API'
-import { loadRoute } from '@xrengine/projects/loadRoute'
+import { API } from '@etherealengine/client-core/src/API'
+import { loadRoute } from '@etherealengine/projects/loadRoute'
 
 export type CustomRoute = {
   route: string

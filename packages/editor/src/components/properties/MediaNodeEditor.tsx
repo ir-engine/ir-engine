@@ -1,11 +1,11 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
-import { PlayMode } from '@xrengine/engine/src/scene/constants/PlayMode'
+import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'

@@ -1,8 +1,8 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 
-import Box from '@xrengine/ui/src/Box'
-import Checkbox from '@xrengine/ui/src/Checkbox'
-import CircularProgress from '@xrengine/ui/src/CircularProgress'
+import Box from '@etherealengine/ui/src/Box'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

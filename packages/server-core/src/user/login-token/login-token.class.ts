@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import moment from 'moment'
 
-import { LoginTokenInterface } from '@xrengine/common/src/dbmodels/LoginToken'
+import { LoginTokenInterface } from '@etherealengine/common/src/dbmodels/LoginToken'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

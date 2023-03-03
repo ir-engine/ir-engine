@@ -1,16 +1,16 @@
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
-import { ComponentDeserializeFunction } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
+import { ComponentDeserializeFunction } from '@etherealengine/engine/src/common/constants/PrefabFunctionType'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentType,
   getComponent,
   getComponentState,
   hasComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { LoadState, PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 
 import { removeEntity } from '../../../ecs/functions/EntityFunctions'
 

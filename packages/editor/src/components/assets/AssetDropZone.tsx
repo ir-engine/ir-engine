@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Vector2 } from 'three'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 

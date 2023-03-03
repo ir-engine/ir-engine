@@ -1,8 +1,8 @@
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'

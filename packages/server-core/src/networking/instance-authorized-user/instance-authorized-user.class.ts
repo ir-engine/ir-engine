@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { InstanceAuthorizedUser as InstanceAuthorizedUserInterface } from '@xrengine/common/src/interfaces/InstanceAuthorizedUser'
+import { InstanceAuthorizedUser as InstanceAuthorizedUserInterface } from '@etherealengine/common/src/interfaces/InstanceAuthorizedUser'
 
 import { Application } from '../../../declarations'
 

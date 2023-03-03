@@ -23,7 +23,7 @@ describe('invite service', () => {
   //
   //   // Create test user
   //   const type = 'password'
-  //   const token = `${v1()}@xrengine.io`
+  //   const token = `${v1()}@etherealengine.io`
   //   const password = 'test@123'
   //
   //   user = await app.service('identity-provider').create(
@@ -52,7 +52,7 @@ describe('invite service', () => {
   //
   // it('should create an invite with friend', async () => {
   //   const inviteType = 'friend'
-  //   const token = `${v1()}@xrengine.io`
+  //   const token = `${v1()}@etherealengine.io`
   //   const identityProviderType = 'email'
   //
   //   const item = (await app.service('invite').create({
@@ -74,7 +74,7 @@ describe('invite service', () => {
   //
   // it('should create an invite with group', async () => {
   //   const inviteType = 'group'
-  //   const token = `${v1()}@xrengine.io`
+  //   const token = `${v1()}@etherealengine.io`
   //   const identityProviderType = 'email'
   //
   //   const item = (await app.service('invite').create({
@@ -96,7 +96,7 @@ describe('invite service', () => {
   //
   // it('should create an invite with party', async () => {
   //   const inviteType = 'party'
-  //   const token = `${v1()}@xrengine.io`
+  //   const token = `${v1()}@etherealengine.io`
   //   const identityProviderType = 'email'
   //
   //   const item = (await app.service('invite').create({

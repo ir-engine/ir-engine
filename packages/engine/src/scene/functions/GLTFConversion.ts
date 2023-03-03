@@ -1,18 +1,18 @@
 import { Color, MathUtils, Object3D } from 'three'
 
-import config from '@xrengine/common/src/config'
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import config from '@etherealengine/common/src/config'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   getAllComponents,
   getComponent,
   getComponentState,
   serializeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getState } from '@etherealengine/hyperflux'
 
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'

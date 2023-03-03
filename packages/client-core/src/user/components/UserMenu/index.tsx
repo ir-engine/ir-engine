@@ -7,8 +7,8 @@ import {
   NO_PROXY,
   removeActionReceptor,
   useHookstate
-} from '@xrengine/hyperflux'
-import IconButton from '@xrengine/ui/src/IconButton'
+} from '@etherealengine/hyperflux'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { Groups, Person } from '@mui/icons-material'
 import ClickAwayListener from '@mui/material/ClickAwayListener'

@@ -14,7 +14,7 @@ then
   echo "module name is required"
 fi
 
-MODULE=xrengine-matchmaking-$1
+MODULE=etherealengine-matchmaking-$1
 
 pushd "./open-match-custom-pods/$1" || exit
 

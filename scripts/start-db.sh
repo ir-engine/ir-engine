@@ -6,8 +6,8 @@ then
     then
         echo "✅ Docker & Docker-Compose Detected:"
         echo -e "\e[32m💾 Initializing mariadb docker image..."
-        docker stop xrengine
-        docker rm xrengine
+        docker stop etherealengine
+        docker rm etherealengine
         docker-compose up
     else
         echo "❌ Please install docker-compose..."

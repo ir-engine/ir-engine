@@ -4,7 +4,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { CreateEditUser, UserInterface, UserScope } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser, UserInterface, UserScope } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

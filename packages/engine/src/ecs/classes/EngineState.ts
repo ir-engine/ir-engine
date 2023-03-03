@@ -1,4 +1,4 @@
-import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState, useState } from '@etherealengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'

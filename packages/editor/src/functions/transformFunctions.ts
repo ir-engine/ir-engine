@@ -1,7 +1,7 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   SnapMode,
   TransformMode,
@@ -9,9 +9,9 @@ import {
   TransformPivot,
   TransformPivotType,
   TransformSpace
-} from '@xrengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
 import { accessSelectionState } from '../services/SelectionServices'

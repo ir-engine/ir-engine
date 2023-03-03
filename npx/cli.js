@@ -17,7 +17,7 @@ const runCommand = (command) => {
 
 // Checkout repo
 console.log(`Cloning as ${repoName}...`);
-const gitCheckoutCommand = `git clone --depth 1 https://github.com/XRFoundation/XREngine ${repoName}`;
+const gitCheckoutCommand = `git clone --depth 1 https://github.com/etherealengine/etherealengine ${repoName}`;
 const checkedOut = runCommand(gitCheckoutCommand);
 if (!checkedOut) process.exitCode = -1;
 

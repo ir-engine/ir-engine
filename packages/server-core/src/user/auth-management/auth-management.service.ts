@@ -7,7 +7,7 @@ import notifier from './auth-management.notifier'
 /**
  * A function which register service for auth management
  */
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     authManagement: InstanceType<ReturnType<typeof authManagement>>
   }

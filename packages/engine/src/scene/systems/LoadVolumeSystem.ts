@@ -1,4 +1,4 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 
 import { LoadVolumeComponent, SCENE_COMPONENT_LOAD_VOLUME } from '../components/LoadVolumeComponent'
 import { ScenePrefabs } from './SceneObjectUpdateSystem'

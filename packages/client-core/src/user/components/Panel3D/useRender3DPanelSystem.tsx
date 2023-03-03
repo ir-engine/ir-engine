@@ -1,16 +1,16 @@
 import { useEffect } from 'react'
 import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, sRGBEncoding, WebGLRenderer } from 'three'
 
-import { useHookstateFromFactory } from '@xrengine/common/src/utils/useHookstateFromFactory'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { initSystems, unloadSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { initSystems, unloadSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
+import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 const initialize3D = () => {
   const camera = new PerspectiveCamera(60, 1, 0.25, 20)

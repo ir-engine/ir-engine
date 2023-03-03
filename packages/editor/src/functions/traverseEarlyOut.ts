@@ -1,6 +1,6 @@
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 
 export default function traverseEarlyOut(node: EntityOrObjectUUID, cb: (node: EntityOrObjectUUID) => boolean): boolean {
   let stopTravel = cb(node)

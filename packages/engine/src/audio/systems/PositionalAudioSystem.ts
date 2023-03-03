@@ -2,7 +2,7 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, removeActionQueue, useHookstate } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'

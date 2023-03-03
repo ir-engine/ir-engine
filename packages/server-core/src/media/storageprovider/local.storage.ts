@@ -4,7 +4,7 @@ import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path/posix'
 
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
 import logger from '../../ServerLogger'

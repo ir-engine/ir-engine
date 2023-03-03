@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-import Button from '@xrengine/ui/src/Button'
-import Container from '@xrengine/ui/src/Container'
-import DialogActions from '@xrengine/ui/src/DialogActions'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import Button from '@etherealengine/ui/src/Button'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'

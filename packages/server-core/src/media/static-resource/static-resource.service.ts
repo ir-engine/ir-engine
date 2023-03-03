@@ -1,4 +1,4 @@
-import { StaticResourceInterface } from '@xrengine/common/src/dbmodels/StaticResource'
+import { StaticResourceInterface } from '@etherealengine/common/src/dbmodels/StaticResource'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -8,7 +8,7 @@ import staticResourceDocs from './static-resource.docs'
 import hooks from './static-resource.hooks'
 import createModel from './static-resource.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'static-resource': StaticResource
     'static-resource-filters': any

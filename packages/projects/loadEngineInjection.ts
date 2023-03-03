@@ -1,4 +1,4 @@
-import type { World } from '@xrengine/engine/src/ecs/classes/World'
+import type { World } from '@etherealengine/engine/src/ecs/classes/World'
 
 import { loadConfigForProject } from './loadConfigForProject'
 import type { ProjectConfigInterface } from './ProjectConfigInterface'

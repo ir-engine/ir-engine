@@ -3,7 +3,7 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 import { HookReturn } from 'sequelize/types/hooks'
 
-import { LocationBanInterface } from '@xrengine/common/src/dbmodels/LocationBan'
+import { LocationBanInterface } from '@etherealengine/common/src/dbmodels/LocationBan'
 
 import { Application } from '../../../declarations'
 

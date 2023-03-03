@@ -1,6 +1,6 @@
 import { Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'

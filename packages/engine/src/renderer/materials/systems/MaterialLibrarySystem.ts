@@ -1,4 +1,4 @@
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue } from '@etherealengine/hyperflux'
 
 import { World } from '../../../ecs/classes/World'
 import { defineQuery, removeQuery } from '../../../ecs/functions/ComponentFunctions'

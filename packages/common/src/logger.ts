@@ -46,7 +46,7 @@ const multiLogger = {
   /**
    * Usage:
    *
-   * import multiLogger from '@xrengine/common/src/logger'
+   * import multiLogger from '@etherealengine/common/src/logger'
    * const logger = multiLogger.child({ component: 'client-core:authentication' })
    *
    * logger.info('Logging in...')

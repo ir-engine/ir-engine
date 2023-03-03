@@ -2,8 +2,8 @@ import React, { Component, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { RandomizedProperty } from '@xrengine/engine/src/scene/components/InstancingComponent'
-import { State } from '@xrengine/hyperflux'
+import { RandomizedProperty } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { State } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 

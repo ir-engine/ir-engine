@@ -1,9 +1,9 @@
 import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getState } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getState } from '@etherealengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
 import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'

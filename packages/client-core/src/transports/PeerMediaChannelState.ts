@@ -1,5 +1,5 @@
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { defineState, getState, none } from '@xrengine/hyperflux'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { defineState, getState, none } from '@etherealengine/hyperflux'
 
 import { ConsumerExtension, ProducerExtension } from './SocketWebRTCClientNetwork'
 

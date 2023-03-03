@@ -1,6 +1,6 @@
 import { DirectionalLight } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'

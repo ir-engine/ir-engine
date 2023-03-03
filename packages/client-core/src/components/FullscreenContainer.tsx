@@ -1,8 +1,8 @@
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
-import { FullscreenContext } from '@xrengine/client-core/src/components/useFullscreen'
-import { iOS } from '@xrengine/engine/src/common/functions/isMobile'
+import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
+import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 

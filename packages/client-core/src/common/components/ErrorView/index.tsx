@@ -1,10 +1,10 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@xrengine/client-core/src/common/components/Button'
-import Box from '@xrengine/ui/src/Box'
-import Icon from '@xrengine/ui/src/Icon'
-import Typography from '@xrengine/ui/src/Typography'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { Variant } from '@mui/material/styles/createTypography'
 

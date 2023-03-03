@@ -4,7 +4,7 @@ import avatarDocs from './avatar.docs'
 import hooks from './avatar.hooks'
 import createModel from './avatar.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   /**
    * Interface for users input
    */

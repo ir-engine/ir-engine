@@ -2,7 +2,7 @@ import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
+import { AdminAnalyticsResult } from '@etherealengine/common/src/interfaces/AdminAnalyticsData'
 
 import { Application } from '../../../declarations'
 

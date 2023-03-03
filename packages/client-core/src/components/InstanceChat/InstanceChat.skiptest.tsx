@@ -3,8 +3,8 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { act } from 'react-dom/test-utils'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createEngine } from '@xrengine/engine/src/initializeEngine'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 
 import { InstanceChat } from '.'
 import { createDOM } from '../../../tests/createDOM'
@@ -12,7 +12,7 @@ import { createMockAPI } from '../../../tests/createMockAPI'
 import { API } from '../../API'
 import { accessChatState } from '../../social/services/ChatService'
 
-import '@xrengine/engine/src/patchEngineNode'
+import '@etherealengine/engine/src/patchEngineNode'
 
 describe('Instance Chat Component', () => {
   let rootContainer: HTMLDivElement

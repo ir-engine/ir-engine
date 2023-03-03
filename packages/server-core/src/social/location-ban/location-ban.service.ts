@@ -7,7 +7,7 @@ import hooks from './location-ban.hooks'
 import createModel from './location-ban.model'
 
 // Add this service to the service type index
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'location-ban': LocationBan
   }

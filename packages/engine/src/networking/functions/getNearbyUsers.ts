@@ -1,6 +1,6 @@
 import { Not } from 'bitecs'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'

@@ -1,8 +1,8 @@
 import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
-import { PeerID, SelfPeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { PeerID, SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'

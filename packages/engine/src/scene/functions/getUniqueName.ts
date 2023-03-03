@@ -1,6 +1,6 @@
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 
 const namePattern = new RegExp('(.*) \\d+$')
 

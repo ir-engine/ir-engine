@@ -6,15 +6,15 @@ import fs from 'fs'
 import path from 'path'
 import Sequelize, { Op } from 'sequelize'
 
-import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
+import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
-import templateProjectJson from '@xrengine/projects/template-project/package.json'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

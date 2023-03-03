@@ -20,12 +20,12 @@ import {
   Vector2
 } from 'three'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { getState } from '@xrengine/hyperflux'
-import { createState, hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { ComponentJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
+import { createState, hookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'

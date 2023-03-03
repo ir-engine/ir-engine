@@ -16,14 +16,14 @@
 - [Contributing](#contributing)
   - [Let's build it together](#lets-build-it-together)
 - [License](#license)
-- [Releases](https://github.com/XRFoundation/XREngine/releases)
+- [Releases](https://github.com/etherealengine/etherealengine/releases)
 - [Roadmap](/ROADMAP.md)
 
 ## Background
 
 https://user-images.githubusercontent.com/507127/142818955-51d7757f-a432-45da-8f8f-56037358ad58.mp4
 
-We ([Ethereal Engine](https://github.com/xrfoundation)) believe that the Metaverse, 
+We ([Ethereal Engine](https://github.com/etherealengine)) believe that the Metaverse, 
 Web AR, VR, and XR should be easy.
 
 We want a Star Trek future where participating in immersive communication 
@@ -59,11 +59,11 @@ Host Demos
 
 ## XRModule
 
-### [Library of XRModules](https://github.com/XRFoundation?q=xre-project)
+### [Library of XRModules](https://github.com/etherealengine?q=project)
 
 Create composable plug-ins for Ethereal Engine scenes with XRModule Projects
 
-### [Create XRModule Projects](https://xrfoundation.github.io/ethereal-engine-docs/docs/concepts/projects_api)
+### [Create XRModule Projects](https://etherealengine.github.io/etherealengine-docs/docs/concepts/projects_api)
 
 XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
 
@@ -73,7 +73,7 @@ In a production environment, the builder process will install all projects accor
 
 ## Launch Ethereal Engine with Control Center Install - ***RECOMMENDED***
 
-### [Use Metaverse Control Plane Managment GUI](https://github.com/XRFoundation/XREngine-Control-Center)
+### [Use Metaverse Control Plane Managment GUI](https://github.com/etherealengine/etherealengine-Control-Center)
 
 Best for simple self hosting, advanced editor content creation, and XRProject Pack Project development.
 
@@ -99,24 +99,24 @@ To install Ethereal Engine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](https://xrfoundation.github.io/ethereal-engine-docs/docs/installation/)
+See the [Installation instructions](https://etherealengine.github.io/etherealengine-docs/docs/installation/)
 for more details.
 
 ## Usage
 
 ### Documentation
 
-* [General Ethereal Engine documentation](https://xrfoundation.github.io/ethereal-engine-docs/docs)
-* [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/ethereal-engine-docs/docs/generated/common/)
-* [Avatar, Scene & Asset Pipeline](https://github.com/XRFoundation/XREngine/wiki/Avatar,-Scene-&-Asset-Pipeline)
-* [Why are we building Ethereal Engine?](https://xrfoundation.github.io/ethereal-engine-docs/docs/)
+* [General Ethereal Engine documentation](https://etherealengine.github.io/etherealengine-docs/docs)
+* [Auto-generated (tsdoc) API reference](https://etherealengine.github.io/etherealengine-docs/docs/generated/common/)
+* [Avatar, Scene & Asset Pipeline](https://github.com/etherealengine/etherealengine/wiki/Avatar,-Scene-&-Asset-Pipeline)
+* [Why are we building Ethereal Engine?](https://etherealengine.github.io/etherealengine-docs/docs/)
 
 ## Contributing
 
 * We expect contributors and community members to follow our
   [Code of Conduct](CODE_OF_CONDUCT.md).
 * See the **[Contributing Guide](CONTRIBUTING.md)** and corresponding
-  [wiki entry](https://github.com/XRFoundation/XREngine/wiki/Contributing)
+  [wiki entry](https://github.com/etherealengine/etherealengine/wiki/Contributing)
   for more details.
 * Version numbering of the Ethereal Engine monorepo follows the
   [Semantic versioning](http://semver.org/) approach.

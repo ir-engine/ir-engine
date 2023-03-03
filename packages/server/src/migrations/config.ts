@@ -1,4 +1,4 @@
-import { db } from '@xrengine/server-core/src/appconfig'
+import { db } from '@etherealengine/server-core/src/appconfig'
 
 const env = process.env.APP_ENV || 'development'
 

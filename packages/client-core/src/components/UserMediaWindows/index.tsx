@@ -1,8 +1,8 @@
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { getState } from '@xrengine/hyperflux'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { getState } from '@etherealengine/hyperflux'
 
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'

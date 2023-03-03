@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
+import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'

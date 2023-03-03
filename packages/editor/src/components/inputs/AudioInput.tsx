@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { AudioFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { AudioFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'

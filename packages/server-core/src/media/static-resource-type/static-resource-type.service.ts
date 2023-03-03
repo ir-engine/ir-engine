@@ -4,7 +4,7 @@ import staticResourceTypeDocs from './static-resource-type.docs'
 import hooks from './static-resource-type.hooks'
 import createModel from './static-resource-type.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'static-resource-type': StaticResourceType
   }
