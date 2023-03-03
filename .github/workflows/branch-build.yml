@@ -40,7 +40,7 @@ jobs:
       - name: Config npm registry token
         run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
       - run: npm run check-errors
