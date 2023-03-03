@@ -63,7 +63,7 @@ Host Demos
 
 Create composable plug-ins for Ethereal Engine scenes with XRModule Projects
 
-### [Create XRModule Projects](https://etherealengine.github.io/ethereal-engine-docs/docs/concepts/projects_api)
+### [Create XRModule Projects](https://etherealengine.github.io/etherealengine-docs/docs/concepts/projects_api)
 
 XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
 
@@ -73,7 +73,7 @@ In a production environment, the builder process will install all projects accor
 
 ## Launch Ethereal Engine with Control Center Install - ***RECOMMENDED***
 
-### [Use Metaverse Control Plane Managment GUI](https://github.com/etherealengine/Ethereal-Engine-Control-Center)
+### [Use Metaverse Control Plane Managment GUI](https://github.com/etherealengine/etherealengine-Control-Center)
 
 Best for simple self hosting, advanced editor content creation, and XRProject Pack Project development.
 
@@ -99,17 +99,17 @@ To install Ethereal Engine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](https://etherealengine.github.io/ethereal-engine-docs/docs/installation/)
+See the [Installation instructions](https://etherealengine.github.io/etherealengine-docs/docs/installation/)
 for more details.
 
 ## Usage
 
 ### Documentation
 
-* [General Ethereal Engine documentation](https://etherealengine.github.io/ethereal-engine-docs/docs)
-* [Auto-generated (tsdoc) API reference](https://etherealengine.github.io/ethereal-engine-docs/docs/generated/common/)
+* [General Ethereal Engine documentation](https://etherealengine.github.io/etherealengine-docs/docs)
+* [Auto-generated (tsdoc) API reference](https://etherealengine.github.io/etherealengine-docs/docs/generated/common/)
 * [Avatar, Scene & Asset Pipeline](https://github.com/etherealengine/etherealengine/wiki/Avatar,-Scene-&-Asset-Pipeline)
-* [Why are we building Ethereal Engine?](https://etherealengine.github.io/ethereal-engine-docs/docs/)
+* [Why are we building Ethereal Engine?](https://etherealengine.github.io/etherealengine-docs/docs/)
 
 ## Contributing
 
