@@ -105,15 +105,6 @@ const OfficialProjectData = [
     thumbnail: '/static/etherealengine.png',
     description: 'Enhance your virtual worlds with GPT-3 backed AI agents!',
     needsRebuild: true
-  },
-  {
-    id: '1570ae15-889a-11ec-886e-b126f7590685',
-    name: 'Harmony Chat',
-    repositoryPath: 'https://github.com/etherealengine/ee-harmony-chat',
-    thumbnail: '/static/etherealengine.png',
-    description:
-      'An elegant and minimalist messenger client with group text, audio, video and screensharing capabilities.',
-    needsRebuild: true
   }
 ]
 
