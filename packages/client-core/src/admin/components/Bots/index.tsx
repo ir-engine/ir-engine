@@ -25,7 +25,7 @@ const Bots = () => {
             <Paper className={styles.botHeader}>
               <Typography className={styles.botTitle}>
                 <Icon type="List" className={styles.pTop5} />
-                <span className={styles.mLeft10}> {t('admin:components.bot.xrEngineBots')} </span>
+                <span className={styles.mLeft10}> {t('admin:components.bot.engineBots')} </span>
               </Typography>
             </Paper>
             <DisplayBots />
