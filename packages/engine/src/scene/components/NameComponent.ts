@@ -6,7 +6,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const NameComponent = defineComponent({
   name: 'NameComponent',
 
-  onInit: () => '',
+  onInit: () => undefined as any as string,
 
   onSet: (entity, component, name?: string) => {
     if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')
