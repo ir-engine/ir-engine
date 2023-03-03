@@ -105,6 +105,14 @@ export class WebLayer3D extends Object3D {
     this.container.options.manager.layersByMesh.set(this.contentMesh, this)
   }
 
+  async setupPrerasterizedMeshes() {
+    const mesh = this.contentMesh.clone()
+    mesh.material = new MeshBasicMaterial({ color: '#FF0000' })
+    mesh.visible = true
+    mesh.scale.copy(this.domSize)
+    this.add(mesh)
+  }
+
   protected _webLayer: WebLayer
 
   private _localZ = 0
@@ -151,6 +159,12 @@ export class WebLayer3D extends Object3D {
         this._mediaTexture = t
       }
       return t
+    }
+
+    //const textureURL = manager.prerasterizedImages.get()
+    if (manager.prerasterized) {
+      //manager.getTextureByCharacter(1)
+      return
     }
 
     const textureHash = this._webLayer.currentDOMState?.texture?.hash

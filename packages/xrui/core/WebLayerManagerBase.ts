@@ -136,6 +136,8 @@ export class WebLayerManagerBase {
 
   ktx2Encoder = new KTX2Encoder() as any as KTX2EncoderType
 
+  prerasterizedImages: Map<number, string> = new Map()
+
   private _unsavedTextureData = new Map<TextureHash, TextureStoreData>()
   private _stateData = new Map<StateHash | HTMLMediaElement, StateData>()
   private _textureData = new Map<TextureHash, TextureData>()
@@ -516,7 +518,9 @@ export class WebLayerManagerBase {
 
     result.needsRasterize = !layer.isMediaElement && fullWidth * fullHeight > 0 && !data.texture?.hash
     result.svgUrl =
-      result.needsRasterize && svgDoc ? 'data:image/svg+xml;utf8,' + encodeURIComponent(svgDoc) : undefined
+      (result.needsRasterize && svgDoc) || this.prerasterized
+        ? 'data:image/svg+xml;utf8,' + encodeURIComponent(svgDoc)
+        : undefined
     layer.lastSVGUrl = result.svgUrl
 
     return result
@@ -555,6 +559,7 @@ export class WebLayerManagerBase {
     const hashData = this.getImageData(hashCanvas)
     const textureHashBuffer = await crypto.subtle.digest('SHA-1', hashData.data)
     const textureHash = bufferToHex(textureHashBuffer) + '?w=' + textureWidth + ';h=' + textureHeight
+    if (this.prerasterized) this.lastHash = textureHash
 
     const previousCanvasHash = stateData.texture?.hash
     // stateData.texture.hash = textureHash
@@ -577,7 +582,7 @@ export class WebLayerManagerBase {
       ((500 + Math.random() * 1000) * 2) ^ stateData.renderAttempts
     )
 
-    if (stateData.texture.canvas) return
+    if (stateData.texture.canvas && !this.prerasterized) return
 
     stateData.texture.canvas = await this.rasterizeToCanvas(
       svgImage,
@@ -593,6 +598,9 @@ export class WebLayerManagerBase {
       this._imagePool.push(svgImage)
     }
   }
+
+  prerasterized = false
+  lastHash = ''
 
   async rasterizeToCanvas(
     svgImage: HTMLImageElement,
@@ -617,7 +625,7 @@ export class WebLayerManagerBase {
     //     resizeQuality: 'high'
     // })
     // ctx.drawImage(imageBitmap, 0, 0, sourceWidth, sourceHeight, 0, 0, textureWidth, textureHeight)
-    ctx.drawImage(svgImage, 0, 0, textureWidth, textureHeight)
+    if (!this.prerasterized) ctx.drawImage(svgImage, 0, 0, textureWidth, textureHeight)
 
     return canvas
   }

@@ -40,8 +40,32 @@ export class WebLayerManager extends WebLayerManagerBase {
   ktx2Loader = new KTX2Loader()
 
   texturesByHash = new Map<string, ThreeTextureData>()
+  texturesByCharacter = new Map<number, ThreeTextureData>()
   layersByElement = new WeakMap<Element, WebLayer3D>()
   layersByMesh = new WeakMap<THREE.Mesh, WebLayer3D>()
+
+  getTextureByCharacter(character: number) {
+    const ktx2Url = this.prerasterizedImages.get(character)
+    if (this.texturesByCharacter.has(character)) return
+    if (!ktx2Url) return
+    new Promise((resolve) => {
+      this.ktx2Loader
+        .loadAsync(ktx2Url)
+        .then((t) => {
+          t.wrapS = ClampToEdgeWrapping
+          t.wrapT = ClampToEdgeWrapping
+          t.minFilter = LinearMipmapLinearFilter
+          t.encoding = this.textureEncoding
+          console.log(t)
+          const textureData = {} as ThreeTextureData
+          textureData.compressedTexture = t
+          this.texturesByCharacter.set(character, textureData)
+        })
+        .finally(() => {
+          resolve(undefined)
+        })
+    })
+  }
 
   getTexture(textureHash: TextureHash) {
     const textureData = this.getTextureState(textureHash)

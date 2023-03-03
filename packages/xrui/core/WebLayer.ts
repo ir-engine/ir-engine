@@ -1,3 +1,6 @@
+import _ from 'lodash'
+import { string } from 'ts-matches'
+
 import { Bounds, Edges, traverseChildElements } from './dom-utils'
 import { WebLayerManagerBase } from './WebLayerManagerBase'
 import { WebRenderer } from './WebRenderer'
@@ -16,6 +19,12 @@ export class WebLayer {
     this.isVideoElement = element.nodeName === 'VIDEO'
     this.isMediaElement = this.isVideoElement || element.nodeName === 'IMG' || element.nodeName === 'CANVAS'
     this.eventCallback('layercreated', { target: element })
+    const prerasterizedElement = element.getAttribute('xr-prerasterized')
+    if (prerasterizedElement) {
+      const split = prerasterizedElement.split('-')
+      this.prerasterizedRange = _.range(parseInt(split[0]), parseInt(split[1]) + 1)
+      this.prerasterizeRange()
+    }
   }
 
   desiredPseudoState = {
@@ -23,6 +32,34 @@ export class WebLayer {
     active: false,
     focus: false,
     target: false
+  }
+
+  //Only supports digits right now
+  //TO DO: Add alphabetical range support, specific characters
+  prerasterizedRange = [] as number[]
+
+  async prerasterizeRange() {
+    this.manager.prerasterized = true
+
+    const startTime = Date.now()
+
+    for (let i = 0; i < this.prerasterizedRange.length; i++) {
+      this.element.textContent = this.prerasterizedRange[i].toString()
+      const result = await this.manager.addToSerializeQueue(this)
+      if (typeof result.stateKey === 'string' && result.svgUrl) {
+        await this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl)
+        //serialize a new element with text value set to a value from the range
+        //pass serialized in to rasterization queue
+        //then await it to be rasterized
+        //when it is finished add the url to the images map
+        this.manager.prerasterizedImages.set(
+          this.prerasterizedRange[i],
+          this.manager.getTextureState(this.manager.lastHash).ktx2Url!
+        )
+      }
+    }
+
+    console.log('image pushed, time spent:', Date.now() - startTime)
   }
 
   needsRefresh = true
@@ -144,9 +181,15 @@ export class WebLayer {
     this.needsRefresh = false
     this._updateParentAndChildLayers()
 
+    if (this.prerasterizedRange.length) {
+      return
+    }
+
     const result = await this.manager.addToSerializeQueue(this)
-    if (result.needsRasterize && typeof result.stateKey === 'string' && result.svgUrl)
+
+    if (result.needsRasterize && typeof result.stateKey === 'string' && result.svgUrl) {
       await this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl)
+    }
   }
 
   private _updateParentAndChildLayers() {
