@@ -37,6 +37,8 @@ jobs:
             package-lock.json
           key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
       - run: cp .env.local.default .env.local
+      - name: Config npm registry token
+        run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
       - run: npm run check-errors
