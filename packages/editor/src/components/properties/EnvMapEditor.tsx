@@ -87,7 +87,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           </InputGroup>
           <InputGroup name="Texture URL" label="Texture URL">
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
-              <FolderInput value={envmapComponent.envMapSourceURL} onChange={onChangeCubemapURLSource} />
+              <FolderInput value={envmapComponent.envMapSourceURL.value} onChange={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
               <ImagePreviewInput
