@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ include "etherealengine.matchmaking-namespace" . }}
-  labels:
-    app: {{ include "etherealengine.matchmaking-namespace" . }}
-    release: {{ .Release.Name }}
