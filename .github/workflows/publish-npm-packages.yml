@@ -69,6 +69,7 @@ jobs:
       - name: Publish to GitHub Packages
         run: npm run publish-github
         env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Move npmrc file for publishing to npm
         run: mv .npmrc .mpmrc
