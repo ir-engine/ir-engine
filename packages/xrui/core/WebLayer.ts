@@ -37,6 +37,7 @@ export class WebLayer {
   //Only supports digits right now
   //TO DO: Add alphabetical range support, specific characters
   prerasterizedRange = [] as number[]
+  prerasterizedImages: Map<number, string> = new Map()
 
   async prerasterizeRange() {
     this.manager.prerasterized = true
@@ -58,6 +59,8 @@ export class WebLayer {
         )
       }
     }
+
+    this.manager.prerasterized = false
 
     console.log('image pushed, time spent:', Date.now() - startTime)
   }

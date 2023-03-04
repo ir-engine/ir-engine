@@ -46,7 +46,7 @@ export class WebLayerManager extends WebLayerManagerBase {
 
   getTextureByCharacter(character: number) {
     const ktx2Url = this.prerasterizedImages.get(character)
-    if (this.texturesByCharacter.has(character)) return
+    if (this.texturesByCharacter.has(character)) return this.texturesByCharacter.get(character)
     if (!ktx2Url) return
     new Promise((resolve) => {
       this.ktx2Loader
@@ -56,15 +56,16 @@ export class WebLayerManager extends WebLayerManagerBase {
           t.wrapT = ClampToEdgeWrapping
           t.minFilter = LinearMipmapLinearFilter
           t.encoding = this.textureEncoding
-          console.log(t)
           const textureData = {} as ThreeTextureData
           textureData.compressedTexture = t
           this.texturesByCharacter.set(character, textureData)
+          return this.texturesByCharacter.get(character)
         })
         .finally(() => {
           resolve(undefined)
         })
     })
+    return this.texturesByCharacter.get(character)
   }
 
   getTexture(textureHash: TextureHash) {

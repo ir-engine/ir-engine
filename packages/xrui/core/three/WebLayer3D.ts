@@ -105,14 +105,6 @@ export class WebLayer3D extends Object3D {
     this.container.options.manager.layersByMesh.set(this.contentMesh, this)
   }
 
-  async setupPrerasterizedMeshes() {
-    const mesh = this.contentMesh.clone()
-    mesh.material = new MeshBasicMaterial({ color: '#FF0000' })
-    mesh.visible = true
-    mesh.scale.copy(this.domSize)
-    this.add(mesh)
-  }
-
   protected _webLayer: WebLayer
 
   private _localZ = 0
@@ -138,6 +130,8 @@ export class WebLayer3D extends Object3D {
     return this._webLayer.currentDOMState
   }
 
+  characterMap: Map<number, ThreeTextureData> = new Map()
+
   get texture() {
     const manager = this.container.manager
     const _layer = this._webLayer
@@ -161,10 +155,25 @@ export class WebLayer3D extends Object3D {
       return t
     }
 
-    //const textureURL = manager.prerasterizedImages.get()
-    if (manager.prerasterized) {
-      //manager.getTextureByCharacter(1)
-      return
+    //gonna need to store the texture data without the url
+    if (this._webLayer.prerasterizedRange.length) {
+      const char = 3
+      manager.getTextureByCharacter(char)
+      const textureData = manager.texturesByCharacter.get(char)
+      if (textureData) {
+        if (!this.characterMap.has(char)) this.characterMap.set(char, textureData)
+        const clonedTexture = this.characterMap.get(char)!
+        if (textureData.compressedTexture && !clonedTexture?.compressedTexture) {
+          clonedTexture?.canvasTexture?.dispose()
+          clonedTexture.canvasTexture = undefined
+          clonedTexture.compressedTexture = textureData.compressedTexture.clone()
+          clonedTexture.compressedTexture.needsUpdate = true
+        }
+
+        console.log(textureData)
+        return clonedTexture.compressedTexture
+      }
+      return undefined
     }
 
     const textureHash = this._webLayer.currentDOMState?.texture?.hash

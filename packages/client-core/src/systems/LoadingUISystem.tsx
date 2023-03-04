@@ -171,7 +171,7 @@ export default async function LoadingUISystem(world: World) {
       mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress.value * 0.01)
     })
 
-    transition.update(world.deltaSeconds, (opacity) => {
+    /*transition.update(world.deltaSeconds, (opacity) => {
       if (opacity !== loadingState.value) loadingState.set(opacity)
       mesh.material.opacity = opacity
       mesh.visible = opacity > 0
@@ -183,6 +183,7 @@ export default async function LoadingUISystem(world: World) {
       })
       if (opacity < 0.001) setVisibleComponent(ui.entity, false)
     })
+  */
   }
 
   const cleanup = async () => {

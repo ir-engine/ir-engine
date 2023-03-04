@@ -625,7 +625,7 @@ export class WebLayerManagerBase {
     //     resizeQuality: 'high'
     // })
     // ctx.drawImage(imageBitmap, 0, 0, sourceWidth, sourceHeight, 0, 0, textureWidth, textureHeight)
-    if (!this.prerasterized) ctx.drawImage(svgImage, 0, 0, textureWidth, textureHeight)
+    ctx.drawImage(svgImage, 0, 0, textureWidth, textureHeight)
 
     return canvas
   }
