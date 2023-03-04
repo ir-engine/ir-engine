@@ -82,6 +82,6 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish to npm
-        run: npm run publish-no-verify
+        run: npm run publish-npm
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

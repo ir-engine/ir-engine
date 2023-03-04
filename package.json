@@ -75,7 +75,7 @@
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "pretest": "cross-env TEST=true npm run dev-reinit",
     "publish": "lerna publish from-package --yes --registry https://registry.npmjs.org",
-    "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://registry.npmjs.org",
+    "publish-npm": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://registry.npmjs.org",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "list-client-s3-files-to-delete": "cross-env APP_ENV=production ts-node --swc scripts/get-deletable-client-files.ts",
     "delete-old-s3-files": "cross-env APP_ENV=production ts-node --swc scripts/delete-old-s3-files.ts",
