@@ -26,7 +26,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          registry-url: https://npm.pkg.github.com/
           scope: '@etherealengine'
       - name: Config npm registry token
         run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
