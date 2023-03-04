@@ -48,6 +48,10 @@ jobs:
       - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
+      - name: Config github npm registry token
+        run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release to GitHub Pages
         env:
           NODE_OPTIONS: --max_old_space_size=8192
