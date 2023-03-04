@@ -1,11 +1,10 @@
 {
   "name": "@etherealengine/projects",
-  "version": "1.1.3",
+  "version": "1.2.0-rc6",
   "main": "index.ts",
   "private": true,
   "description": "",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://github.com/etherealengine/etherealengine.git"
