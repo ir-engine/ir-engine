@@ -276,8 +276,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     network.peerIndexCount++,
     hostId,
     network.userIndexCount++,
-    'server-' + hostId,
-    Engine.instance.currentWorld
+    'server-' + hostId
   )
   dispatchAction(EngineActions.joinedWorld({}))
 }

@@ -34,8 +34,7 @@ export const OfflineLocation = () => {
         peerIndex,
         userId,
         userIndex,
-        authState.user.name.value,
-        world
+        authState.user.name.value
       )
 
       receiveJoinWorld({

@@ -1076,7 +1076,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       world.hostIds.media.set(none)
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
     } else {
-      NetworkPeerFunctions.destroyAllPeers(network, world)
+      NetworkPeerFunctions.destroyAllPeers(network)
       world.networks.delete(network.hostId)
       world.hostIds.world.set(none)
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))

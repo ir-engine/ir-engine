@@ -25,13 +25,13 @@ import { uploadProjectFiles } from './assetFunctions'
 
 const query = defineQuery([ScenePreviewCameraComponent, TransformComponent])
 
-const getScenePositionForBake = (world: World, entity: Entity | null) => {
+const getScenePositionForBake = (entity: Entity | null) => {
   if (entity) {
     const transformComponent = getComponent(entity, TransformComponent)
     return transformComponent.position
   }
   let entityToBakeFrom: Entity
-  entityToBakeFrom = query(world)[0]
+  entityToBakeFrom = query()[0]
 
   // fall back somewhere behind the world origin
   if (entityToBakeFrom) {
@@ -63,7 +63,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   }
 
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
-  const position = getScenePositionForBake(world, isSceneEntity ? null : entity)
+  const position = getScenePositionForBake(isSceneEntity ? null : entity)
 
   // inject bpcem logic into material
   Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
