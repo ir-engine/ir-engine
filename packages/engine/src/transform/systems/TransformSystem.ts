@@ -57,7 +57,7 @@ export const computeLocalTransformMatrix = (entity: Entity) => {
   localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
 }
 
-export const computeTransformMatrix = (entity: Entity, world = Engine.instance.currentWorld) => {
+export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   updateTransformFromComputedTransform(entity)
   updateTransformFromLocalTransform(entity)
@@ -315,7 +315,7 @@ export default async function TransformSystem(world: World) {
     const dirtyFixedRigidbodyEntities = fixedRigidBodyQuery().filter(isDirty)
 
     for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
-    for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity, world)
+    for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
     for (const entity of dirtyFixedRigidbodyEntities) copyTransformToRigidBody(entity)
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
@@ -393,11 +393,11 @@ export default async function TransformSystem(world: World) {
 
     removeActionQueue(modifyPropertyActionQueue)
 
-    removeQuery(world, transformQuery)
-    removeQuery(world, staticBoundingBoxQuery)
-    removeQuery(world, dynamicBoundingBoxQuery)
-    removeQuery(world, distanceFromLocalClientQuery)
-    removeQuery(world, distanceFromCameraQuery)
+    removeQuery(transformQuery)
+    removeQuery(staticBoundingBoxQuery)
+    removeQuery(dynamicBoundingBoxQuery)
+    removeQuery(distanceFromLocalClientQuery)
+    removeQuery(distanceFromCameraQuery)
     Skeleton.prototype.update = skeletonUpdate
   }
 

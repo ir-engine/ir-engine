@@ -60,11 +60,7 @@ export interface Component<
   isComponent: true
   name: string
   schema?: Schema
-  onInit: (
-    this: SoAComponentType<Schema>,
-    entity: Entity,
-    world: World
-  ) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
@@ -189,7 +185,7 @@ export const setComponent = <C extends Component>(
   }
   let value = args
   if (!hasComponent(entity, Component)) {
-    value = Component.onInit(entity, world) ?? args
+    value = Component.onInit(entity) ?? args
     Component.existenceMap[entity].set(true)
     if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(value)
     else Component.stateMap[entity]!.set(value)
@@ -292,30 +288,21 @@ export const getAllComponents = (entity: Entity, world = Engine.instance.current
   return bitECS.getEntityComponents(world, entity) as Component[]
 }
 
-export const getAllComponentData = (
-  entity: Entity,
-  world = Engine.instance.currentWorld
-): { [name: string]: ComponentType<any> } => {
-  return Object.fromEntries(getAllComponents(entity, world).map((C) => [C.name, getComponent(entity, C)]))
+export const getAllComponentData = (entity: Entity): { [name: string]: ComponentType<any> } => {
+  return Object.fromEntries(getAllComponents(entity).map((C) => [C.name, getComponent(entity, C)]))
 }
 
-export const getComponentCountOfType = <C extends Component>(
-  component: C,
-  world = Engine.instance.currentWorld
-): number => {
+export const getComponentCountOfType = <C extends Component>(component: C): number => {
   const query = defineQuery([component])
-  const length = query(world).length
-  bitECS.removeQuery(world, query._query)
+  const length = query().length
+  bitECS.removeQuery(Engine.instance.currentWorld, query._query)
   return length
 }
 
-export const getAllComponentsOfType = <C extends Component<any>>(
-  component: C,
-  world = Engine.instance.currentWorld
-): ComponentType<C>[] => {
+export const getAllComponentsOfType = <C extends Component<any>>(component: C): ComponentType<C>[] => {
   const query = defineQuery([component])
-  const entities = query(world)
-  bitECS.removeQuery(world, query._query)
+  const entities = query()
+  bitECS.removeQuery(Engine.instance.currentWorld, query._query)
   return entities.map((e) => {
     return getComponent(e, component)!
   })
@@ -323,8 +310,7 @@ export const getAllComponentsOfType = <C extends Component<any>>(
 
 export const removeAllComponents = (entity: Entity) => {
   try {
-    const world = Engine.instance.currentWorld
-    for (const component of bitECS.getEntityComponents(world, entity)) {
+    for (const component of bitECS.getEntityComponents(Engine.instance.currentWorld, entity)) {
       removeComponent(entity, component as Component)
     }
   } catch (_) {
@@ -341,9 +327,9 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   const query = bitECS.defineQuery([...components, bitECS.Not(EntityRemovedComponent)]) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
-  const wrappedQuery = (world = Engine.instance.currentWorld) => query(world) as Entity[]
-  wrappedQuery.enter = (world = Engine.instance.currentWorld) => enterQuery(world) as Entity[]
-  wrappedQuery.exit = (world = Engine.instance.currentWorld) => exitQuery(world) as Entity[]
+  const wrappedQuery = () => query(Engine.instance.currentWorld) as Entity[]
+  wrappedQuery.enter = () => enterQuery(Engine.instance.currentWorld) as Entity[]
+  wrappedQuery.exit = () => exitQuery(Engine.instance.currentWorld) as Entity[]
   wrappedQuery._query = query
   wrappedQuery._enterQuery = enterQuery
   wrappedQuery._exitQuery = exitQuery
@@ -373,7 +359,7 @@ export function useQuery(components: QueryComponents) {
   // (component state can't be modified after a component is unmounted)
   useLayoutEffect(() => {
     const query = defineQuery(components)
-    result.set(query(world))
+    result.set(query())
     const queryState = { query, result, components }
     world.reactiveQueryStates.add(queryState)
     return () => {

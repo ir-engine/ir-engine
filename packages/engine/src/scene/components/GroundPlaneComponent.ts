@@ -16,7 +16,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
 
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       color: new Color(),
       visible: true,

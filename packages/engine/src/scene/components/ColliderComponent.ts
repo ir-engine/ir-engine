@@ -21,7 +21,7 @@ import { GroupComponent } from './GroupComponent'
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
 
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       bodyType: RigidBodyType.Fixed,
       shapeType: ShapeType.Cuboid,
@@ -118,7 +118,7 @@ export const ColliderComponent = defineComponent({
           Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
         }
 
-        computeTransformMatrix(entity, Engine.instance.currentWorld)
+        computeTransformMatrix(entity)
         if (hasComponent(entity, GroupComponent)) {
           updateGroupChildren(entity)
         }

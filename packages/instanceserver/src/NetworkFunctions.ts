@@ -420,7 +420,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
       }
     )
 
-    NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
+    NetworkPeerFunctions.destroyPeer(network, peerID)
     network.updatePeers()
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
@@ -442,7 +442,7 @@ export async function handleLeaveWorld(
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if (transport.appData.peerID === peerID) closeTransport(network, transport)
   if (network.peers.has(peerID)) {
-    NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
+    NetworkPeerFunctions.destroyPeer(network, peerID)
     network.updatePeers()
   }
   spark.write({ type: MessageTypes.LeaveWorld.toString(), id: messageId })

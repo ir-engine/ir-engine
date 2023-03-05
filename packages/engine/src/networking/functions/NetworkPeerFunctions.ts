@@ -21,8 +21,7 @@ function createPeer(
   peerIndex: number,
   userID: UserId,
   userIndex: number,
-  name: string,
-  world = Engine.instance.currentWorld
+  name: string
 ) {
   console.log('[Network]: Create Peer', network.topic, peerID, peerIndex, userID, userIndex, name)
 
@@ -42,7 +41,7 @@ function createPeer(
   worldState.userNames[userID].set(name)
 }
 
-function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.currentWorld) {
+function destroyPeer(network: Network, peerID: PeerID) {
   console.log('[Network]: Destroy Peer', network.topic, peerID)
   if (!network.peers.has(peerID))
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove client with peerID ${peerID} that doesn't exit`)
@@ -65,6 +64,7 @@ function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.c
    * we want to remove them from world.users
    */
   if (network.topic === 'world') {
+    const world = Engine.instance.currentWorld
     const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
       .map(([id, network]: [string, Network]) => {
         return network.peers.has(peerID)
@@ -81,8 +81,8 @@ function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.c
   }
 }
 
-const destroyAllPeers = (network: Network, world = Engine.instance.currentWorld) => {
-  for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId, world)
+const destroyAllPeers = (network: Network) => {
+  for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId)
 }
 
 function clearActionsHistoryForUser(userId: UserId) {
