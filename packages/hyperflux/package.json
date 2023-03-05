@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/react-reconciler": "^0.28.0",
     "cross-env": "^7.0.3",
-    "ts-matches": "^5.4.1"
+    "ts-matches": "5.3.0"
   },
   "scripts": {
     "test": "cross-env TEST=true mocha --config .mocharc.js"
