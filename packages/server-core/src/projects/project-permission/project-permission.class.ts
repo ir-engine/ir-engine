@@ -2,7 +2,7 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
+import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

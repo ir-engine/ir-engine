@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { useRender3DPanelSystem } from '@xrengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import { loadAvatarModelAsset } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
 
 import styles from '../styles.module.scss'
 

@@ -3,9 +3,9 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
-import { getFogSceneMetadataState } from '@xrengine/engine/src/scene/systems/FogSystem'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
+import { getFogSceneMetadataState } from '@etherealengine/engine/src/scene/systems/FogSystem'
 
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'

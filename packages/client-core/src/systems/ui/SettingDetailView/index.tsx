@@ -2,22 +2,22 @@ import { createState } from '@hookstate/core'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
-import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
-import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
+import { UserSetting } from '@etherealengine/common/src/interfaces/User'
+import { AudioSettingAction, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarAxesControlScheme,
   AvatarControllerType,
   AvatarInputSettingsAction,
   AvatarInputSettingsState
-} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-import Icon from '@xrengine/ui/src/Icon'
+} from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'

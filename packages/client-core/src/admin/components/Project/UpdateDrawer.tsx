@@ -2,21 +2,21 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-import Button from '@xrengine/ui/src/Button'
-import Checkbox from '@xrengine/ui/src/Checkbox'
-import Container from '@xrengine/ui/src/Container'
-import DialogActions from '@xrengine/ui/src/DialogActions'
-import DialogTitle from '@xrengine/ui/src/DialogTitle'
-import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
-import Icon from '@xrengine/ui/src/Icon'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import Button from '@etherealengine/ui/src/Button'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'

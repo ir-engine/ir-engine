@@ -1,4 +1,4 @@
-# xrengine-matchmaking
+# etherealengine-matchmaking
 
 ##first run:
 start minikube and install open-match pods, configs and services
@@ -20,7 +20,7 @@ then build custom pods
 ```bash
 cd packages/matchmaking/
 
-kubectl create namespace xrengine-matchmaking
+kubectl create namespace etherealengine-matchmaking
 
 #this line for localhost development
 eval $(minikube docker-env)
@@ -64,8 +64,8 @@ team size is probably here:
 ###cleanup
 delete custom pods
 ```bash
-kubectl -n xrengine-matchmaking delete pod,svc --all
-kubectl delete namespace xrengine-matchmaking
+kubectl -n etherealengine-matchmaking delete pod,svc --all
+kubectl delete namespace etherealengine-matchmaking
 ```
 
 delete open-match

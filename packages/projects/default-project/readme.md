@@ -1,3 +1,3 @@
-### XREngine Project
+### Ethereal Engine Project
 
-This is the xrengine default project. It contains some basic starter assets, avatars and scenes.
+This is the Ethereal Engine default project. It contains some basic starter assets, avatars and scenes.

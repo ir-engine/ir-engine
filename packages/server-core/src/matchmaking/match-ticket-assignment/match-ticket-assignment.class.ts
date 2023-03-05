@@ -1,8 +1,8 @@
 import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
-import { getTicketsAssignment } from '@xrengine/matchmaking/src/functions'
-import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
+import { OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

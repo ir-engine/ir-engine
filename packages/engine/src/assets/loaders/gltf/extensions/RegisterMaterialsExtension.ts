@@ -1,7 +1,7 @@
 import { Mesh, Object3D } from 'three'
 import { GLTFParser } from 'three/examples/jsm/loaders/GLTFLoader'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
 import { registerMaterial } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'

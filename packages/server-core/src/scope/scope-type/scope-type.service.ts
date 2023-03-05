@@ -4,7 +4,7 @@ import scopeTypeDocs from './scope-type.docs'
 import hooks from './scope-type.hooks'
 import createModel from './scope-type.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'scope-type': ScopeType
   }

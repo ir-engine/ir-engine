@@ -1,7 +1,7 @@
-import type { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore, getState } from '@xrengine/hyperflux'
-import * as Hyperflux from '@xrengine/hyperflux'
-import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
+import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { createHyperStore, getState } from '@etherealengine/hyperflux'
+import * as Hyperflux from '@etherealengine/hyperflux'
+import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { NetworkTopics } from '../../networking/classes/Network'
 import type { World } from '../classes/World'

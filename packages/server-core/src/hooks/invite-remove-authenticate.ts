@@ -1,8 +1,8 @@
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import Paginated from '../types/PageObject'
 

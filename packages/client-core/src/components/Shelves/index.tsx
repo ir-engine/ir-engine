@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-import Icon from '@xrengine/ui/src/Icon'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AppAction, AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'

@@ -1,15 +1,15 @@
 import { useEffect } from 'react'
 import { AxesHelper, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { isDev } from '@xrengine/common/src/config'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { isDev } from '@etherealengine/common/src/config'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import {
   AvatarInputSettingsAction,
   AvatarInputSettingsState
-} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { V_001, V_010, V_111 } from '@xrengine/engine/src/common/constants/MathConstants'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+} from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants/MathConstants'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   getComponent,
@@ -17,27 +17,31 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
-} from '@xrengine/engine/src/transform/components/ComputedTransformComponent'
+} from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import {
   LocalTransformComponent,
   setLocalTransformComponent,
   TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
-import { getPreferredInputSource, isHeadset, ReferenceSpace, XRState } from '@xrengine/engine/src/xr/XRState'
-import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { WidgetAppActions, WidgetAppServiceReceptor, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getPreferredInputSource, isHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
+import {
+  WidgetAppActions,
+  WidgetAppServiceReceptor,
+  WidgetAppState
+} from '@etherealengine/engine/src/xrui/WidgetAppService'
 import {
   addActionReceptor,
   createActionQueue,
@@ -46,7 +50,7 @@ import {
   removeActionQueue,
   startReactor,
   useHookstate
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'

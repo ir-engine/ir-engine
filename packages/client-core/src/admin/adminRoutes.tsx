@@ -2,18 +2,18 @@ import { t } from 'i18next'
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction } from '@xrengine/hyperflux'
-import Dashboard from '@xrengine/ui/src/Dashboard'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { dispatchAction } from '@etherealengine/hyperflux'
+import Dashboard from '@etherealengine/ui/src/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import AdminSystem from '../systems/AdminSystem'
 import { useAuthState } from '../user/services/AuthService'
 import Analytics from './components/Analytics'
 
-const $allowed = lazy(() => import('@xrengine/client-core/src/admin/allowedRoutes'))
+const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminSystemInjection = {
   uuid: 'core.admin.AdminSystem',

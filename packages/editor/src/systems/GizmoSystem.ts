@@ -1,8 +1,8 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 const GIZMO_SIZE = 10
 

@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { World } from '../../ecs/classes/World'
 import { PersistentAnchorActions } from '../XRAnchorComponents'

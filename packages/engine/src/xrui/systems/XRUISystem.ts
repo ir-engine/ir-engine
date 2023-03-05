@@ -15,8 +15,8 @@ import {
   Vector3
 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
-import { WebContainer3D } from '@xrengine/xrui'
+import { getState } from '@etherealengine/hyperflux'
+import { WebContainer3D } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -79,7 +79,7 @@ export default async function XRUISystem(world: World) {
   // todo - hoist to hyperflux state
   const maxXruiPointerDistanceSqr = 3 * 3
 
-  const xrui = (XRUIManager.instance = new XRUIManager(await import('@xrengine/xrui')))
+  const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealengine/xrui')))
   xrui.WebLayerModule.WebLayerManager.initialize(renderer)
   xrui.WebLayerModule.WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 

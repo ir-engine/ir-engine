@@ -1,5 +1,5 @@
-import config from '@xrengine/server-core/src/appconfig'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
+import config from '@etherealengine/server-core/src/appconfig'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 const logger = multiLogger.child({ component: 'taskserver:collect-analytics' })
 

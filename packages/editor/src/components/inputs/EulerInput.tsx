@@ -2,7 +2,7 @@ import { hookstate, useHookstate, useState } from '@hookstate/core'
 import React, { useCallback, useEffect } from 'react'
 import { MathUtils as _Math, Euler, Quaternion } from 'three'
 
-import { defineState, NO_PROXY } from '@xrengine/hyperflux'
+import { defineState, NO_PROXY } from '@etherealengine/hyperflux'
 
 import NumericInput from './NumericInput'
 import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'

@@ -1,8 +1,8 @@
 import assert from 'assert'
 import nock from 'nock'
 
-import { FRONTEND_SERVICE_URL } from '@xrengine/matchmaking/src/functions'
-import type { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
+import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
+import type { OpenMatchTicket } from '@etherealengine/matchmaking/src/interfaces'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'

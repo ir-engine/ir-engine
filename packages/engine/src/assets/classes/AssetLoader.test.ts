@@ -2,7 +2,7 @@ import assert from 'assert'
 import Sinon from 'sinon'
 import { Mesh } from 'three'
 
-import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
+import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
 
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'

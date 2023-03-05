@@ -1,14 +1,14 @@
 import React from 'react'
 
-import Box from '@xrengine/ui/src/Box'
-import Table from '@xrengine/ui/src/Table'
-import TableBody from '@xrengine/ui/src/TableBody'
-import TableCell from '@xrengine/ui/src/TableCell'
-import TableContainer from '@xrengine/ui/src/TableContainer'
-import TableHead from '@xrengine/ui/src/TableHead'
-import TablePagination from '@xrengine/ui/src/TablePagination'
-import TableRow from '@xrengine/ui/src/TableRow'
-import TableSortLabel from '@xrengine/ui/src/TableSortLabel'
+import Box from '@etherealengine/ui/src/Box'
+import Table from '@etherealengine/ui/src/Table'
+import TableBody from '@etherealengine/ui/src/TableBody'
+import TableCell from '@etherealengine/ui/src/TableCell'
+import TableContainer from '@etherealengine/ui/src/TableContainer'
+import TableHead from '@etherealengine/ui/src/TableHead'
+import TablePagination from '@etherealengine/ui/src/TablePagination'
+import TableRow from '@etherealengine/ui/src/TableRow'
+import TableSortLabel from '@etherealengine/ui/src/TableSortLabel'
 
 import { visuallyHidden } from '@mui/utils'
 

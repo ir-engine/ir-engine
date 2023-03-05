@@ -3,8 +3,8 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 import { merge } from 'lodash'
 import { initReactI18next } from 'react-i18next'
 
-import getClientCoreI18nConfigs from '@xrengine/client-core/src/i18n'
-import { getI18nConfigs } from '@xrengine/client-core/src/i18nImporter'
+import getClientCoreI18nConfigs from '@etherealengine/client-core/src/i18n'
+import { getI18nConfigs } from '@etherealengine/client-core/src/i18nImporter'
 
 //@ts-ignore
 const projects = import.meta.glob('../../projects/projects/**/i18n/**/*.json', { eager: true })

@@ -4,27 +4,27 @@ import fs from 'fs'
 import path from 'path'
 import Sinon from 'sinon'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   getAllComponentsOfType,
   getComponent,
   hasComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
   destroyEntityTree,
   EntityTreeComponent
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
 
-import '@xrengine/engine/src/patchEngineNode'
+import '@etherealengine/engine/src/patchEngineNode'
 
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { LoadState, PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
-import { loadPrefab, unloadPrefab } from '@xrengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'

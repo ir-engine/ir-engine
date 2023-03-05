@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDrop } from 'react-dnd'
 
-import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
+import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'

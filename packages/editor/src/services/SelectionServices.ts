@@ -1,12 +1,16 @@
 import { useState } from '@hookstate/core'
 
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { hasComponent, removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import {
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SystemDefintion } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
+import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'

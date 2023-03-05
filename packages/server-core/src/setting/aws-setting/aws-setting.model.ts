@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { AwsInterface } from '@xrengine/common/src/dbmodels/Aws'
+import { AwsInterface } from '@etherealengine/common/src/dbmodels/Aws'
 
 import { Application } from '../../../declarations'
 

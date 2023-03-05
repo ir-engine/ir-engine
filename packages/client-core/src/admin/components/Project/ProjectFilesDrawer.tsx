@@ -1,15 +1,15 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
-} from '@xrengine/editor/src/components/assets/AssetsPreviewPanel'
-import FileBrowserContentPanel from '@xrengine/editor/src/components/assets/FileBrowserContentPanel'
-import Box from '@xrengine/ui/src/Box'
-import Container from '@xrengine/ui/src/Container'
-import DialogTitle from '@xrengine/ui/src/DialogTitle'
+} from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowserContentPanel'
+import Box from '@etherealengine/ui/src/Box'
+import Container from '@etherealengine/ui/src/Container'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
 
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'

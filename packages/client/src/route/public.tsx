@@ -6,35 +6,39 @@ import {
   AuthSettingsService,
   AuthSettingsServiceReceptor,
   useAuthSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/AuthSettingService'
+} from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import {
   ClientSettingsServiceReceptor,
   useClientSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
-import { AppLoadingServiceReceptor } from '@xrengine/client-core/src/common/services/AppLoadingService'
-import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/AppService'
-import { DialogServiceReceptor } from '@xrengine/client-core/src/common/services/DialogService'
-import { MediaInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { ProjectServiceReceptor } from '@xrengine/client-core/src/common/services/ProjectService'
-import { RouterServiceReceptor, RouterState, useRouter } from '@xrengine/client-core/src/common/services/RouterService'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { FriendServiceReceptor } from '@xrengine/client-core/src/social/services/FriendService'
-import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
-import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
-import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
+import { AppLoadingServiceReceptor } from '@etherealengine/client-core/src/common/services/AppLoadingService'
+import { AppServiceReceptor } from '@etherealengine/client-core/src/common/services/AppService'
+import { DialogServiceReceptor } from '@etherealengine/client-core/src/common/services/DialogService'
+import { MediaInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
+import {
+  RouterServiceReceptor,
+  RouterState,
+  useRouter
+} from '@etherealengine/client-core/src/common/services/RouterService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { FriendServiceReceptor } from '@etherealengine/client-core/src/social/services/FriendService'
+import { InviteService, InviteServiceReceptor } from '@etherealengine/client-core/src/social/services/InviteService'
+import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
+import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
-const $index = lazy(() => import('@xrengine/client/src/pages'))
-const $auth = lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
-const $offline = lazy(() => import('@xrengine/client/src/pages/offline/offline'))
-const $custom = lazy(() => import('@xrengine/client/src/route/customRoutes'))
-const $admin = lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
+const $index = lazy(() => import('@etherealengine/client/src/pages'))
+const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoutes'))
+const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
+const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
+const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])

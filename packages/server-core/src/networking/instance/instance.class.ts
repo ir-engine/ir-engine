@@ -2,7 +2,7 @@ import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
-import { Instance as InstanceInterface } from '@xrengine/common/src/interfaces/Instance'
+import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 
 import { Application } from '../../../declarations'
 

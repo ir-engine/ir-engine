@@ -2,19 +2,22 @@ import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { camelCaseToSpacedString } from '@xrengine/common/src/utils/camelCaseToSpacedString'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   ComponentType,
   defineQuery,
   getComponent,
   hasComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { CallbackComponent } from '@xrengine/engine/src/scene/components/CallbackComponent'
-import { ColliderComponent, supportedColliderShapes } from '@xrengine/engine/src/scene/components/ColliderComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { CallbackComponent } from '@etherealengine/engine/src/scene/components/CallbackComponent'
+import {
+  ColliderComponent,
+  supportedColliderShapes
+} from '@etherealengine/engine/src/scene/components/ColliderComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 
 import PanToolIcon from '@mui/icons-material/PanTool'
 

@@ -2,15 +2,18 @@ import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 import { Material } from 'three'
 
-import { pathResolver } from '@xrengine/engine/src/assets/functions/pathResolver'
-import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
+import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
 import {
   MaterialPrototypeComponent,
   MaterialPrototypeComponentType
-} from '@xrengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
-import { MaterialSourceComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
-import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
-import { entryId, hashMaterialSource } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+} from '@etherealengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
+import { MaterialSourceComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
+import {
+  entryId,
+  hashMaterialSource
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'

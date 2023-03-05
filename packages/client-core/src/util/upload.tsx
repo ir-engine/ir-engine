@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 
-import config from '@xrengine/common/src/config'
-import { dispatchAction } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { FileBrowserAction } from '../common/services/FileBrowserService'
 import { accessAuthState } from '../user/services/AuthService'

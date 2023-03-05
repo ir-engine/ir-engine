@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Typography from '@xrengine/ui/src/Typography'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { SxProps, Theme } from '@mui/material/styles'
 import { Variant } from '@mui/material/styles/createTypography'

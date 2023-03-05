@@ -5,11 +5,11 @@ import path from 'path'
 import { MathUtils } from 'three'
 import util from 'util'
 
-import { KTX2EncodeArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
+import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 
 import { Application } from '../../../declarations'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'ktx2-encode': {
       create: (data: KTX2EncodeArguments) => Promise<string>
