@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import {
+  BufferAttribute,
   BufferGeometry,
   CompressedTexture,
   DoubleSide,
+  InterleavedBufferAttribute,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -105,7 +107,7 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 }
 
 function flipNormals<G extends BufferGeometry>(geometry: G) {
-  const uvs = geometry.attributes.uv.array
+  const uvs = (geometry.attributes.uv as BufferAttribute | InterleavedBufferAttribute).array
   for (let i = 1; i < uvs.length; i += 2) {
     // @ts-ignore
     uvs[i] = 1 - uvs[i]

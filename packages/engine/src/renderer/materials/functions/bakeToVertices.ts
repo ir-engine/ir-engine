@@ -34,7 +34,7 @@ export default async function bakeToVertices<T extends Material>(
         .map((map) => {
           const texture = material[map.field] as Texture
           const canvas = document.createElement('canvas')
-          const uv = mesh.geometry.getAttribute(map.attribName)
+          const uv = mesh.geometry.getAttribute(map.attribName) as BufferAttribute
           return new Promise<Color[]>(async (resolve) => {
             const image = (
               (await createReadableTexture(texture, { keepTransform: true, flipX: false, flipY: true })) as Texture
