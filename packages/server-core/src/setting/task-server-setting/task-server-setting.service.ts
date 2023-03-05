@@ -4,7 +4,7 @@ import { TaskServerSetting } from './task-server-setting.class'
 import hooks from './task-server-setting.hooks'
 import createModel from './task-server-setting.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'task-server-setting': TaskServerSetting
   }

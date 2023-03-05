@@ -1,6 +1,6 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'

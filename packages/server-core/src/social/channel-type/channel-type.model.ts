@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ChannelTypeInterface } from '@xrengine/common/src/dbmodels/ChannelType'
+import { ChannelTypeInterface } from '@etherealengine/common/src/dbmodels/ChannelType'
 
 import { Application } from '../../../declarations'
 

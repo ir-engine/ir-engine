@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { validatePath } from '@xrengine/common/src/utils/validatePath'
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemComponent'
+import { validatePath } from '@etherealengine/common/src/utils/validatePath'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
+import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 import ExtensionIcon from '@mui/icons-material/Extension'
 

@@ -1,35 +1,35 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
   createMappedComponent,
   getComponent,
   hasComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeChild, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { GroupComponent, SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { addEntityNodeChild, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { GroupComponent, SCENE_COMPONENT_GROUP } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
-import { applyIncomingActions } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { applyIncomingActions } from '@etherealengine/hyperflux'
 
 import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
-import '@xrengine/engine/src/patchEngineNode'
+import '@etherealengine/engine/src/patchEngineNode'
 
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { deserializeGroup } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { deserializeGroup } from '@etherealengine/engine/src/scene/functions/loaders/GroupFunctions'
 
 import { createTransformGizmo } from '../systems/EditorControlSystem'
 

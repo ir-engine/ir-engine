@@ -1,5 +1,5 @@
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 

@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { AuthenticationInterface } from '@xrengine/common/src/dbmodels/Authentication'
+import { AuthenticationInterface } from '@etherealengine/common/src/dbmodels/Authentication'
 
 import { Application } from '../../../declarations'
 

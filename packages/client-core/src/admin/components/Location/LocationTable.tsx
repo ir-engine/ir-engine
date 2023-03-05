@@ -1,12 +1,12 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import Avatar from '@xrengine/ui/src/Avatar'
-import Box from '@xrengine/ui/src/Box'
-import Button from '@xrengine/ui/src/Button'
-import Chip from '@xrengine/ui/src/Chip'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { Location } from '@etherealengine/common/src/interfaces/Location'
+import Avatar from '@etherealengine/ui/src/Avatar'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Chip from '@etherealengine/ui/src/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

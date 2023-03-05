@@ -1,8 +1,8 @@
 import { Not } from 'bitecs'
 import { Color } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import {
   LoopAnimationComponent,

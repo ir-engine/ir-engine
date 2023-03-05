@@ -1,10 +1,10 @@
 {
-  "name": "@xrengine/taskserver",
+  "name": "@etherealengine/taskserver",
   "description": "Task server for EtherealEngine platform",
-  "version": "1.1.0",
+  "version": "1.2.0-rc6",
   "repository": {
     "type": "git",
-    "url": "git://github.com/XRFoundation/XREngine.git"
+    "url": "git://github.com/etherealengine/etherealengine.git"
   },
   "homepage": "a",
   "publishConfig": {
@@ -23,8 +23,8 @@
     "vr"
   ],
   "author": {
-    "name": "XRFoundation Collective",
-    "email": "hello@xrfoundation.io"
+    "name": "Ethereal Engine Collective",
+    "email": "hello@etherealengine.org"
   },
   "contributors": [],
   "bugs": {},
@@ -36,15 +36,14 @@
     "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
     "dev": "cross-env APP_ENV=development NODE_OPTIONS='--inspect' ts-node --swc src/index.ts",
     "test": "exit 0",
-    "validate": "npm run build && npm run test",
-    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+    "validate": "npm run build && npm run test"
   },
   "dependencies": {
+    "@etherealengine/server-core": "^1.2.0-rc6",
     "@feathersjs/express": "5.0.0-pre.29",
     "@feathersjs/feathers": "5.0.0-pre.29",
     "@feathersjs/primus": "4.5.15",
     "@swc/core": "^1.2.210",
-    "@xrengine/server-core": "^1.1.0",
     "compression": "1.7.4",
     "cors": "2.8.5",
     "cross-env": "7.0.3",

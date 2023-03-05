@@ -1,6 +1,6 @@
-import { DialogSeed } from '@xrengine/common/src/interfaces/Dialog'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { DialogSeed } from '@etherealengine/common/src/interfaces/Dialog'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 //State
 const DialogState = defineState({

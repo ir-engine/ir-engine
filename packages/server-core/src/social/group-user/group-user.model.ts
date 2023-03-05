@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { GroupUserInterface } from '@xrengine/common/src/dbmodels/GroupUser'
+import { GroupUserInterface } from '@etherealengine/common/src/dbmodels/GroupUser'
 
 import { Application } from '../../../declarations'
 

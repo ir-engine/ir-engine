@@ -2,8 +2,8 @@ import { createState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import Icon from '@xrengine/ui/src/Icon'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'

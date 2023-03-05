@@ -20,8 +20,8 @@ import {
   Vector3
 } from 'three'
 
-import config from '@xrengine/common/src/config'
-import { getState, hookstate, startReactor, useHookstate } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { getState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
@@ -233,7 +233,7 @@ export default async function ShadowSystem(world: World) {
   const shadowOffset = new Vector3(0, 0.01, 0)
 
   const execute = () => {
-    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Scene] || [])
+    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
     if (!useShadows && !Engine.instance.isEditor) {

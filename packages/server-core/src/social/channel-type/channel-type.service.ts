@@ -4,7 +4,7 @@ import channelTypeDocs from './channel-type.docs'
 import hooks from './channel-type.hooks'
 import createModel from './channel-type.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'channel-type': ChannelType
   }

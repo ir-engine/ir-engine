@@ -1,7 +1,7 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { WidgetName, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
 import { createMediaSessionMenuView } from './ui/MediaSessionMenuView'
 

@@ -1,9 +1,9 @@
 import React from 'react'
 
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
-import InputBase from '@xrengine/ui/src/InputBase'
-import Paper from '@xrengine/ui/src/Paper'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import InputBase from '@etherealengine/ui/src/InputBase'
+import Paper from '@etherealengine/ui/src/Paper'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

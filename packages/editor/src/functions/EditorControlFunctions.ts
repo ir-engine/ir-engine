@@ -1,12 +1,12 @@
 import { command } from 'cli'
 import { Euler, Material, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import logger from '@xrengine/common/src/logger'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import logger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   Component,
@@ -18,8 +18,8 @@ import {
   SerializedComponentType,
   setComponent,
   updateComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
   EntityOrObjectUUID,
@@ -29,31 +29,34 @@ import {
   removeEntityNodeRecursively,
   reparentEntityNode,
   traverseEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
-import { GLTFLoadedComponent } from '@xrengine/engine/src/scene/components/GLTFLoadedComponent'
-import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { getUniqueName } from '@xrengine/engine/src/scene/functions/getUniqueName'
-import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
-import { serializeEntity, serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
-import { createNewEditorNode, deserializeSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
+import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
+import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { getUniqueName } from '@etherealengine/engine/src/scene/functions/getUniqueName'
+import { reparentObject3D } from '@etherealengine/engine/src/scene/functions/ReparentFunction'
+import { serializeEntity, serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import {
+  createNewEditorNode,
+  deserializeSceneEntity
+} from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
   TransformComponent,
   TransformComponentType
-} from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
-} from '@xrengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getState, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'

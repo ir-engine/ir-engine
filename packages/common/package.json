@@ -1,20 +1,19 @@
 {
-  "name": "@xrengine/common",
-  "version": "1.1.0",
+  "name": "@etherealengine/common",
+  "version": "1.2.0-rc6",
   "main": "lib/common.umd.js",
   "module": "lib/common.es.js",
   "types": "lib/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Shared types for other XREngine packages",
+  "description": "Shared types for other Ethereal Engine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --jobs 1",
-    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+    "test": "mocha --jobs 1"
   },
-  "repository": "http://github.com/XRFoundation/XREngine",
-  "author": "XREngine",
+  "repository": "http://github.com/etherealengine/etherealengine",
+  "author": "Ethereal Engine",
   "license": "MIT",
   "dependencies": {
     "@digitalbazaar/did-method-key": "^3.0.0",

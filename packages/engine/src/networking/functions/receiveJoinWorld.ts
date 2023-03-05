@@ -1,10 +1,10 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'

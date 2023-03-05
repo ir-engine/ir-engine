@@ -1,20 +1,20 @@
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
-import { CameraComponent } from '@xrengine/engine/src/camera/components/CameraComponent'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeQuery
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
   TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 

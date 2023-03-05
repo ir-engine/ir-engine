@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { LocationBan as LocationBanInterface } from '@xrengine/common/src/interfaces/LocationBan'
+import { LocationBan as LocationBanInterface } from '@etherealengine/common/src/interfaces/LocationBan'
 
 import { Application } from '../../../declarations'
 

@@ -1,9 +1,9 @@
 {
-  "name": "@xrengine/client-core",
-  "version": "1.1.0",
+  "name": "@etherealengine/client-core",
+  "version": "1.2.0-rc6",
   "repository": {
     "type": "git",
-    "url": "git://github.com/XRFoundation/XREngine.git"
+    "url": "git://github.com/etherealengine/etherealengine.git"
   },
   "engines": {
     "node": ">= 18.12.0"
@@ -17,8 +17,7 @@
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --config .mocharc.js",
-    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+    "test": "mocha --config .mocharc.js"
   },
   "resolutions": {
     "@types/react": "18.0.19",
@@ -30,6 +29,9 @@
   },
   "dependencies": {
     "@digitalcredentials/ed25519-signature-2020": "^3.0.2",
+    "@etherealengine/common": "^1.2.0-rc6",
+    "@etherealengine/engine": "^1.2.0-rc6",
+    "@etherealengine/hyperflux": "^1.2.0-rc6",
     "@feathersjs/authentication-client": "5.0.0-pre.29",
     "@feathersjs/client": "5.0.0-pre.29",
     "@feathersjs/primus-client": "4.5.15",
@@ -42,9 +44,6 @@
     "@mui/material": "5.11.0",
     "@mui/styled-engine-sc": "5.11.0",
     "@mui/x-date-pickers": "5.0.0-beta.4",
-    "@xrengine/common": "^1.1.0",
-    "@xrengine/engine": "^1.1.0",
-    "@xrengine/hyperflux": "^1.1.0",
     "apexcharts": "^3.28.3",
     "axios": "0.26.1",
     "classnames": "2.3.1",

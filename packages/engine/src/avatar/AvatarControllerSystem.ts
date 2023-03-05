@@ -1,4 +1,4 @@
-import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { Engine } from '../ecs/classes/Engine'

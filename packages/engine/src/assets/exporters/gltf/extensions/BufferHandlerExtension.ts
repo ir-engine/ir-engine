@@ -2,7 +2,7 @@ import { Event, LoaderUtils, Object3D } from 'three'
 import { generateUUID } from 'three/src/math/MathUtils'
 import matches, { Validator } from 'ts-matches'
 
-import { defineAction, dispatchAction } from '@xrengine/hyperflux'
+import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../classes/AssetLoader'
 import { getFileName, getProjectName, modelResourcesPath } from '../../../functions/pathResolver'

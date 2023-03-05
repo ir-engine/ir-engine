@@ -1,11 +1,11 @@
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Relationship } from '@etherealengine/common/src/interfaces/Relationship'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

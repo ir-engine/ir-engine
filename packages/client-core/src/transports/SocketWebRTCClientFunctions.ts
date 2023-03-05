@@ -8,27 +8,30 @@ import {
 } from 'mediasoup-client/lib/types'
 import { v4 as uuidv4 } from 'uuid'
 
-import config from '@xrengine/common/src/config'
-import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
-import { MediaStreamAppData, MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { PeerID, PeersUpdateType } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
+import config from '@etherealengine/common/src/config'
+import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
+import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
+import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
+import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
   CAM_VIDEO_SIMULCAST_ENCODINGS,
   SCREEN_SHARE_SIMULCAST_ENCODINGS
-} from '@xrengine/engine/src/networking/constants/VideoConstants'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { receiveJoinMediaServer } from '@xrengine/engine/src/networking/functions/receiveJoinMediaServer'
-import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+} from '@etherealengine/engine/src/networking/constants/VideoConstants'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { receiveJoinMediaServer } from '@etherealengine/engine/src/networking/functions/receiveJoinMediaServer'
+import {
+  JoinWorldRequestData,
+  receiveJoinWorld
+} from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   addActionReceptor,
   dispatchAction,
@@ -36,8 +39,8 @@ import {
   none,
   removeActionReceptor,
   removeActionsForTopic
-} from '@xrengine/hyperflux'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+} from '@etherealengine/hyperflux'
+import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import {
@@ -688,7 +691,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
   const mediaStreamState = getState(MediaStreamState)
   if (mediaStreamState.audioStream.value !== null) {
     //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
-    //This Gain is saved on MediaStreamSystem so it can be accessed from the user's component and controlled.
+    //This Gain is saved on MediaStreamState so it can be accessed from the user's component and controlled.
     const audioTrack = mediaStreamState.audioStream.value.getAudioTracks()[0]
     const ctx = new AudioContext()
     const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]))
@@ -885,44 +888,35 @@ export async function pauseConsumer(network: SocketWebRTCClientNetwork, consumer
   await network.request(MessageTypes.WebRTCPauseConsumer.toString(), {
     consumerId: consumer.id
   })
-  if (consumer && typeof consumer.pause === 'function')
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'pause'
-    })
+
+  if (consumer && typeof consumer.pause === 'function' && !consumer.closed && !(consumer as any)._closed)
+    await consumer.pause()
 }
 
 export async function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   await network.request(MessageTypes.WebRTCResumeConsumer.toString(), {
     consumerId: consumer.id
   })
-  if (consumer && typeof consumer.resume === 'function')
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'resume'
-    })
+  if (consumer && typeof consumer.resume === 'function' && !consumer.closed && !(consumer as any)._closed)
+    await consumer.resume()
 }
 
 export async function pauseProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   await network.request(MessageTypes.WebRTCPauseProducer.toString(), {
     producerId: producer.id
   })
-  if (producer && typeof producer.pause === 'function')
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'pause'
-    })
+
+  if (producer && typeof producer.pause === 'function' && !producer.closed && !(producer as any)._closed)
+    await producer.pause()
 }
 
 export async function resumeProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   await network.request(MessageTypes.WebRTCResumeProducer.toString(), {
     producerId: producer.id
   })
-  if (producer && typeof producer.resume === 'function')
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'resume'
-    })
+
+  if (producer && typeof producer.resume === 'function' && !producer.closed && !(producer as any)._closed)
+    await producer.resume()
 }
 
 export async function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {

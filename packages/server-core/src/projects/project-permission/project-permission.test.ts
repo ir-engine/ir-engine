@@ -3,8 +3,8 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
-import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'

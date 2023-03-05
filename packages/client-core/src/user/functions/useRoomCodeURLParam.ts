@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getState } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getState } from '@etherealengine/hyperflux'
 
 import { LocationInstanceState, useWorldInstance } from '../../common/services/LocationInstanceConnectionService'
 

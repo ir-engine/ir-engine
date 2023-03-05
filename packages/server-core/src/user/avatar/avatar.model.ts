@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { AvatarInterface } from '@xrengine/common/src/dbmodels/AvatarResource'
+import { AvatarInterface } from '@etherealengine/common/src/dbmodels/AvatarResource'
 
 import { Application } from '../../../declarations'
 

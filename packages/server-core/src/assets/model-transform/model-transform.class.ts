@@ -2,8 +2,8 @@ import { Id, NullableId, Params, Query, ServiceMethods } from '@feathersjs/feath
 import appRootPath from 'app-root-path'
 import path from 'path'
 
-import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
-import { Application } from '@xrengine/server-core/declarations'
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { Application } from '@etherealengine/server-core/declarations'
 
 import { transformModel } from './model-transform.helpers'
 

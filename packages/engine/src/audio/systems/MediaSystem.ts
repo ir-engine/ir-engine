@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import logger from '@xrengine/common/src/logger'
+import logger from '@etherealengine/common/src/logger'
 import {
   addActionReceptor,
   createActionQueue,
@@ -8,7 +8,7 @@ import {
   hookstate,
   removeActionQueue,
   State
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'

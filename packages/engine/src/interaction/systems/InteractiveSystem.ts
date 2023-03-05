@@ -1,8 +1,8 @@
-import { WebLayer3D } from '@xrfoundation/xrui'
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
+import { WebLayer3D } from '@etherealengine/xrui'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'

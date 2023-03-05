@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 
 import LightbulbIcon from '@mui/icons-material/Lightbulb'
 

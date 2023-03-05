@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { CameraHelper, PerspectiveCamera } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'

@@ -9,7 +9,7 @@ import partyUserDocs from './party-user.docs'
 import hooks from './party-user.hooks'
 import createModel from './party-user.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'party-user': PartyUser
   }

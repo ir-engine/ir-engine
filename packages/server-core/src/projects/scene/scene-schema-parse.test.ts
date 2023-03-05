@@ -1,7 +1,7 @@
 import assert from 'assert'
 import _ from 'lodash'
 
-import config from '@xrengine/common/src/config'
+import config from '@etherealengine/common/src/config'
 
 import { createDefaultStorageProvider, getStorageProvider } from '../../media/storageprovider/storageprovider'
 import {

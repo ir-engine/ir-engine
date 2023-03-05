@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 
-import Button from '@xrengine/ui/src/Button'
-import Grid from '@xrengine/ui/src/Grid'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import Search from '../../common/Search'

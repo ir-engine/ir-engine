@@ -4,7 +4,7 @@ import groupUserRankDocs from './group-user-rank.docs'
 import hooks from './group-user-rank.hooks'
 import createModel from './group-user-rank.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'group-user-rank': GroupUserRank
   }

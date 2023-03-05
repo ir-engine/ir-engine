@@ -3,7 +3,7 @@ import { Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import axios from 'axios'
 import { SequelizeServiceOptions } from 'feathers-sequelize/types'
 
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

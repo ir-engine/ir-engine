@@ -1,7 +1,7 @@
 import { Quaternion } from 'three'
 
-import { isDev } from '@xrengine/common/src/config'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { isDev } from '@etherealengine/common/src/config'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'

@@ -5,7 +5,7 @@ export class XRUIManager {
 
   interactionRays = [] as Array<Ray | Object3D>
 
-  constructor(public WebLayerModule: typeof import('@xrfoundation/xrui')) {}
+  constructor(public WebLayerModule: typeof import('@etherealengine/xrui')) {}
 
-  // layoutSystem: import('@xrfoundation/xrui').EtherealLayoutSystem
+  // layoutSystem: import('@etherealengine/xrui').EtherealLayoutSystem
 }

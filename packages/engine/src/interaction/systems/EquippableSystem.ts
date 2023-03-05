@@ -9,7 +9,7 @@ import {
   removeActionQueue,
   startReactor,
   useHookstate
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { isClient } from '../../common/functions/isClient'

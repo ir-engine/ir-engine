@@ -1,7 +1,7 @@
 /** Functions to provide engine level functionalities. */
 import { Object3D } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { Engine } from '../classes/Engine'

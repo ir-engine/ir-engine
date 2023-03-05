@@ -4,7 +4,7 @@ import fetch from 'node-fetch'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
 import { getCachedURL } from './getCachedURL'

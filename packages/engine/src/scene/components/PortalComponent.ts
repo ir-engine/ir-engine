@@ -12,7 +12,7 @@ import {
   Vector3
 } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import {

@@ -1,4 +1,4 @@
-import type { WebContainer3D } from '@xrfoundation/xrui'
+import type { WebContainer3D } from '@etherealengine/xrui'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIManager } from '../classes/XRUIManager'

@@ -1,4 +1,4 @@
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { PartyActions, PartyServiceReceptors } from '../../social/services/PartyService'
 

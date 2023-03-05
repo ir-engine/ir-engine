@@ -1,19 +1,19 @@
 {
-  "name": "@xrengine/ui",
-  "version": "1.1.0",
+  "name": "@etherealengine/ui",
+  "version": "1.2.0-rc6",
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
-  "homepage": "https://github.com/XRFoundation/XREngine#readme",
+  "homepage": "https://github.com/etherealengine/etherealengine#readme",
   "author": {
-    "name": "XRFoundation Collective",
-    "email": "hello@xrfoundation.io",
-    "url": "http://github.com/XRFoundation"
+    "name": "Ethereal Engine Collective",
+    "email": "hello@etherealengine.org",
+    "url": "http://github.com/etherealengine"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/XRFoundation/XREngine.git"
+    "url": "git://github.com/etherealengine/etherealengine.git"
   },
   "bugs": {
-    "url": "https://github.com/XRFoundation/XREngine/issues"
+    "url": "https://github.com/etherealengine/etherealengine/issues"
   },
   "engines": {
     "node": ">= 18.12.0"
@@ -39,10 +39,10 @@
     "@mediapipe/camera_utils": "^0.3.1675466862",
     "@mediapipe/drawing_utils": "^0.3.1675466124",
     "@mediapipe/pose": "^0.5.1675469404",
-    "@mui/icons-material": "^5.11.0",
-    "@mui/material": "^5.11.7",
+    "@mui/icons-material": "5.11.0",
+    "@mui/material": "5.11.0",
     "react-webcam": "^7.0.1",
-    "typescript": "^4.9.5"
+    "typescript": "4.9.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

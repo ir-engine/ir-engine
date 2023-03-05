@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 

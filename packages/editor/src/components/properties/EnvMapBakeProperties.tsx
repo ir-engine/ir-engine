@@ -1,10 +1,10 @@
 import React from 'react'
 
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvMapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeRefreshTypes'
-import { EnvMapBakeTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeTypes'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
+import { EnvMapBakeRefreshTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeRefreshTypes'
+import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'

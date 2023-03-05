@@ -1,4 +1,4 @@
-import { WebLayer3D } from '@xrfoundation/xrui'
+import { WebLayer3D } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'

@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'

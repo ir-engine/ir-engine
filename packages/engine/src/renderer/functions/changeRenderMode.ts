@@ -1,8 +1,8 @@
 import { RenderPass } from 'postprocessing'
 import { Light, MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getState } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getState } from '@etherealengine/hyperflux'
 
 import { RenderModes } from '../constants/RenderModes'
 import { RendererState } from '../RendererState'

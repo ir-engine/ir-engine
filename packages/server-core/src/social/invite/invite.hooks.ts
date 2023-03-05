@@ -1,9 +1,9 @@
 import { disallow } from 'feathers-hooks-common'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import inviteRemoveAuthenticate from '@xrengine/server-core/src/hooks/invite-remove-authenticate'
-import attachOwnerIdInBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
-import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
+import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invite-remove-authenticate'
+import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'

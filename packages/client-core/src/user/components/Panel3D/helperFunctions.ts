@@ -1,15 +1,15 @@
 import { t } from 'i18next'
 import { AnimationMixer, Box3, Camera, Mesh, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
 
-import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
-import { AvatarAnimationComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { loadAvatarModelAsset, setupAvatarModel } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { addObjectToGroup, removeGroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { MAX_ALLOWED_TRIANGLES } from '@etherealengine/common/src/constants/AvatarConstants'
+import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
+import { AvatarAnimationComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { loadAvatarModelAsset, setupAvatarModel } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { addObjectToGroup, removeGroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 export const validate = (obj: Object3D, renderer: WebGLRenderer, scene: Scene, camera: Camera) => {
   const objBoundingBox = new Box3().setFromObject(obj)

@@ -1,8 +1,8 @@
 import React from 'react'
 
-import Box from '@xrengine/ui/src/Box'
-import CircularProgress from '@xrengine/ui/src/CircularProgress'
-import Typography from '@xrengine/ui/src/Typography'
+import Box from '@etherealengine/ui/src/Box'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { SxProps, Theme } from '@mui/material/styles'
 import { Variant } from '@mui/material/styles/createTypography'
