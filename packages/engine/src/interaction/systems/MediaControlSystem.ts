@@ -43,7 +43,7 @@ export default async function MediaControlSystem(world: World) {
   const update = onUpdate(world)
 
   const execute = () => {
-    for (const entity of mediaQuery.enter(world)) {
+    for (const entity of mediaQuery.enter()) {
       if (!getComponent(entity, MediaComponent).controls) continue
       addInteractableUI(entity, createMediaControlsUI(entity), update)
       const transition = createTransitionState(0.25)
@@ -51,13 +51,13 @@ export default async function MediaControlSystem(world: World) {
       MediaFadeTransitions.set(entity, transition)
     }
 
-    for (const entity of mediaQuery.exit(world)) {
+    for (const entity of mediaQuery.exit()) {
       if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
     }
   }
 
   const cleanup = async () => {
-    removeQuery(world, mediaQuery)
+    removeQuery(mediaQuery)
   }
 
   return { execute, cleanup }

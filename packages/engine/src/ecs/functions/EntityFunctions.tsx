@@ -12,19 +12,19 @@ export const createEntity = (world = Engine.instance.currentWorld): Entity => {
   return entity as Entity
 }
 
-export const removeEntity = (entity: Entity, immediately = false, world = Engine.instance.currentWorld) => {
-  if (!entityExists(entity, world)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
+export const removeEntity = (entity: Entity, immediately = false) => {
+  if (!entityExists(entity)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
-  removeAllComponents(entity, world)
+  removeAllComponents(entity)
   setComponent(entity, EntityRemovedComponent, true)
 
   if (immediately) {
-    bitECS.removeEntity(world, entity)
+    bitECS.removeEntity(Engine.instance.currentWorld, entity)
   }
 }
 
-export const entityExists = (entity: Entity, world = Engine.instance.currentWorld) => {
-  return bitECS.entityExists(world, entity)
+export const entityExists = (entity: Entity) => {
+  return bitECS.entityExists(Engine.instance.currentWorld, entity)
 }
 
 export interface EntityReactorRoot extends ReactorRoot {

@@ -63,8 +63,8 @@ describe('loadGLTFModel', () => {
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
 
-    const [mockModelEntity] = modelQuery(world)
-    const [mockSpawnPointEntity] = childQuery(world)
+    const [mockModelEntity] = modelQuery()
+    const [mockSpawnPointEntity] = childQuery()
 
     assert.equal(typeof mockModelEntity, 'number')
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))

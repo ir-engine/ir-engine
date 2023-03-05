@@ -44,12 +44,12 @@ export default async function AnimationSystem(world: World) {
 
     for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
 
-    for (const entity of tweenQuery(world)) {
+    for (const entity of tweenQuery()) {
       const tween = getComponent(entity, TweenComponent)
       tween.tween.update()
     }
 
-    for (const entity of animationQuery(world)) {
+    for (const entity of animationQuery()) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
@@ -57,8 +57,8 @@ export default async function AnimationSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, tweenQuery)
-    removeQuery(world, animationQuery)
+    removeQuery(tweenQuery)
+    removeQuery(animationQuery)
     removeActionQueue(avatarAnimationQueue)
   }
 

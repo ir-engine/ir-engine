@@ -157,8 +157,8 @@ export default async function InteractiveSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, allInteractablesQuery)
-    removeQuery(world, interactableQuery)
+    removeQuery(allInteractablesQuery)
+    removeQuery(interactableQuery)
   }
 
   return { execute, cleanup }

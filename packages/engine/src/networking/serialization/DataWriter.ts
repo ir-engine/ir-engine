@@ -401,7 +401,8 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
   else v.cursor = 0 // nothing written
 }
 
-export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID, world: World) => {
+export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID) => {
+  const world = Engine.instance.currentWorld
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
   writeUint32(v, world.fixedTick)
@@ -410,8 +411,8 @@ export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, p
 export const createDataWriter = (size: number = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
-  return (world: World, network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
-    writeMetadata(view, network, userId, peerID, world)
+  return (network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
+    writeMetadata(view, network, userId, peerID)
     writeEntities(view, entities)
     return sliceViewCursor(view)
   }

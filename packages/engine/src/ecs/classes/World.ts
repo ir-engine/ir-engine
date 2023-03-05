@@ -317,7 +317,7 @@ export class World {
    * @param ownerId
    */
   getOwnedNetworkObjects(ownerId: UserId) {
-    return this.networkObjectQuery(this).filter((eid) => getComponent(eid, NetworkObjectComponent).ownerId === ownerId)
+    return this.networkObjectQuery().filter((eid) => getComponent(eid, NetworkObjectComponent).ownerId === ownerId)
   }
 
   /**
@@ -326,7 +326,7 @@ export class World {
    */
   getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity {
     return (
-      this.networkObjectQuery(this).find((eid) => {
+      this.networkObjectQuery().find((eid) => {
         const networkObject = getComponent(eid, NetworkObjectComponent)
         return networkObject.networkId === networkId && networkObject.ownerId === ownerId
       }) || UndefinedEntity
@@ -351,7 +351,7 @@ export class World {
   getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
     return (
       this.getOwnedNetworkObjects(userId).find((eid) => {
-        return hasComponent(eid, component, this)
+        return hasComponent(eid, component)
       }) || UndefinedEntity
     )
   }
@@ -387,7 +387,7 @@ export class World {
     for (const system of this.pipelines[SystemUpdateType.RENDER]) system.enabled && system.execute()
     for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
 
-    for (const entity of this.#entityRemovedQuery(this)) removeEntity(entity as Entity, true, this)
+    for (const entity of this.#entityRemovedQuery(this)) removeEntity(entity as Entity, true)
 
     for (const { query, result } of this.reactiveQueryStates) {
       const entitiesAdded = query.enter().length

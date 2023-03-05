@@ -209,8 +209,8 @@ describe('PrefabComponentFunctions', async () => {
       destroyEntityTree(entity)
       //wait one fixed frame
       await nextFixedStep
-      assert.equal(getAllComponentsOfType(PrefabComponent, world).length, 0, 'no Asset components in scene')
-      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
+      assert.equal(getAllComponentsOfType(PrefabComponent).length, 0, 'no Asset components in scene')
+      assert.equal(getAllComponentsOfType(ModelComponent).length, 0, 'no ModelComponents in scene')
     })
   })
 
@@ -250,7 +250,7 @@ describe('PrefabComponentFunctions', async () => {
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
       //check that asset child hierarchy is removed
       assert.equal(assetComp.roots.length, 0, 'Asset has no roots')
-      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
+      assert.equal(getAllComponentsOfType(ModelComponent).length, 0, 'no ModelComponents in scene')
     })
 
     it('Correctly handles unloading empty asset', async () => {

@@ -31,7 +31,7 @@ describe('NetworkPeerFunctions', () => {
       const peerIndex = 2
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName, world)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
 
       const worldState = getState(WorldState)
 
@@ -62,14 +62,14 @@ describe('NetworkPeerFunctions', () => {
 
       const worldState = getState(WorldState)
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName, world)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       assert.equal(network.peers.get(peerID)!.userId, userId)
       assert.equal(network.peers.get(peerID)!.userIndex, userIndex)
       assert.equal(network.peers.get(peerID)!.peerID, peerID)
       assert.equal(network.peers.get(peerID)!.peerIndex, peerIndex)
       assert.equal(worldState.userNames[userId].value, userName)
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex2, userId, userIndex2, userName2, world)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex2, userId, userIndex2, userName2)
       assert.equal(network.peers.get(peerID)!.userId, userId)
       assert.equal(network.peers.get(peerID)!.userIndex, userIndex2)
       assert.equal(network.peers.get(peerID)!.peerID, peerID)
@@ -89,8 +89,8 @@ describe('NetworkPeerFunctions', () => {
       const peerIndex = 2
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName, world)
-      NetworkPeerFunctions.destroyPeer(network, peerID, world)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
+      NetworkPeerFunctions.destroyPeer(network, peerID)
 
       assert(!network.peers.get(peerID))
 
@@ -110,7 +110,7 @@ describe('NetworkPeerFunctions', () => {
       const peerIndex = 5
       const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName, world)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       const networkId = 2 as NetworkId
 
       const entity = createEntity()
@@ -122,7 +122,7 @@ describe('NetworkPeerFunctions', () => {
 
       // process remove actions and execute entity removal
       Engine.instance.store.defaultDispatchDelay = 0
-      NetworkPeerFunctions.destroyPeer(network, peerID, world)
+      NetworkPeerFunctions.destroyPeer(network, peerID)
 
       clearOutgoingActions(network.topic)
       applyIncomingActions()

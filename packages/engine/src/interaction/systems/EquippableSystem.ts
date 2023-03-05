@@ -236,8 +236,8 @@ export default async function EquippableSystem(world: World) {
     removeActionQueue(transferAuthorityOfObjectQueue)
     removeActionQueue(setEquippedObjectQueue)
 
-    removeQuery(world, equipperQuery)
-    removeQuery(world, equippableQuery)
+    removeQuery(equipperQuery)
+    removeQuery(equippableQuery)
   }
 
   return { execute, cleanup }

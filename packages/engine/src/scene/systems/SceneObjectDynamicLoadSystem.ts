@@ -70,7 +70,7 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
   const cleanup = async () => {
     world.sceneComponentRegistry.delete(SceneDynamicLoadTagComponent.name)
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_DYNAMIC_LOAD)
-    removeQuery(world, sceneObjectQuery)
+    removeQuery(sceneObjectQuery)
   }
 
   return { execute, cleanup }

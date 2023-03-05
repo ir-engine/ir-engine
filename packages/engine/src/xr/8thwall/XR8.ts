@@ -375,7 +375,7 @@ export default async function XR8System(world: World) {
     if (cameraCanvas) cameraCanvas.remove()
     revertXRSessionFunctions()
     vpsReactor.stop()
-    removeQuery(world, vpsQuery)
+    removeQuery(vpsQuery)
   }
 
   return {

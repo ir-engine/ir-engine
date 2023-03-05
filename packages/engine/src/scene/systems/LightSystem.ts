@@ -107,7 +107,7 @@ export default async function LightSystem(world: World) {
     world.scenePrefabRegistry.delete(LightPrefabs.pointLight)
     world.scenePrefabRegistry.delete(LightPrefabs.spotLight)
 
-    removeQuery(world, directionalLightSelectQuery)
+    removeQuery(directionalLightSelectQuery)
   }
 
   return { execute, cleanup }

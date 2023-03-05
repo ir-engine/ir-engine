@@ -245,11 +245,11 @@ export default async function AvatarAnimationSystem(world: World) {
      * 2 - Apply avatar animations
      */
 
-    const avatarAnimationEntities = avatarAnimationQuery(world).filter(filterPriorityEntities)
-    const headIKEntities = headIKQuery(world).filter(filterPriorityEntities)
-    const leftArmEntities = leftArmQuery(world).filter(filterPriorityEntities)
-    const rightArmEntities = rightArmQuery(world).filter(filterPriorityEntities)
-    const loopAnimationEntities = loopAnimationQuery(world).filter(filterPriorityEntities)
+    const avatarAnimationEntities = avatarAnimationQuery().filter(filterPriorityEntities)
+    const headIKEntities = headIKQuery().filter(filterPriorityEntities)
+    const leftArmEntities = leftArmQuery().filter(filterPriorityEntities)
+    const rightArmEntities = rightArmQuery().filter(filterPriorityEntities)
+    const loopAnimationEntities = loopAnimationQuery().filter(filterPriorityEntities)
 
     for (const entity of avatarAnimationEntities) {
       /**
@@ -405,14 +405,14 @@ export default async function AvatarAnimationSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, leftArmQuery)
-    removeQuery(world, rightArmQuery)
-    removeQuery(world, leftHandQuery)
-    removeQuery(world, rightHandQuery)
-    removeQuery(world, localHeadIKQuery)
-    removeQuery(world, headIKQuery)
-    removeQuery(world, armsTwistCorrectionQuery)
-    removeQuery(world, avatarAnimationQuery)
+    removeQuery(leftArmQuery)
+    removeQuery(rightArmQuery)
+    removeQuery(leftHandQuery)
+    removeQuery(rightHandQuery)
+    removeQuery(localHeadIKQuery)
+    removeQuery(headIKQuery)
+    removeQuery(armsTwistCorrectionQuery)
+    removeQuery(avatarAnimationQuery)
     reactor.stop()
   }
 

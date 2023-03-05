@@ -390,7 +390,7 @@ export default async function SceneLoadingSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, sceneAssetPendingTagQuery)
+    removeQuery(sceneAssetPendingTagQuery)
   }
 
   return { execute, cleanup }

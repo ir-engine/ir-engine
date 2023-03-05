@@ -105,8 +105,8 @@ export default async function HyperspacePortalSystem(world: World) {
 
   const cleanup = async () => {
     PortalEffects.delete(HyperspacePortalEffect)
-    removeQuery(world, sceneAssetPendingTagQuery)
-    removeQuery(world, hyperspaceTagComponent)
+    removeQuery(sceneAssetPendingTagQuery)
+    removeQuery(hyperspaceTagComponent)
   }
 
   return { execute, cleanup }

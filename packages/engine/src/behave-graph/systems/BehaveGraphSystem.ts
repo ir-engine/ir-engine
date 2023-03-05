@@ -83,8 +83,8 @@ export default async function BehaveGraphSystem(world: World) {
   }
 
   async function cleanup() {
-    removeQuery(world, graphQuery)
-    removeQuery(world, runtimeQuery)
+    removeQuery(graphQuery)
+    removeQuery(runtimeQuery)
     removeActionQueue(executeQueue)
     removeActionQueue(stopQueue)
 

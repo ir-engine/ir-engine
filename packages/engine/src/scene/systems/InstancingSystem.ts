@@ -58,7 +58,7 @@ export default async function ScatterSystem(world: World) {
     for (const entity of stagingQuery.enter()) {
       const executeStaging = () =>
         stageInstancing(entity).then(() => {
-          removeComponent(entity, InstancingStagingComponent, world)
+          removeComponent(entity, InstancingStagingComponent)
           const instancingState = getComponentState(entity, InstancingComponent)
           instancingState.state.set(ScatterState.STAGED)
         })
@@ -71,7 +71,7 @@ export default async function ScatterSystem(world: World) {
 
     for (const entity of unstagingQuery.enter()) {
       unstageInstancing(entity)
-      removeComponent(entity, InstancingUnstagingComponent, world)
+      removeComponent(entity, InstancingUnstagingComponent)
       const instancingState = getComponentState(entity, InstancingComponent)
       instancingState.state.set(ScatterState.UNSTAGED)
     }
@@ -82,9 +82,9 @@ export default async function ScatterSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_INSTANCING)
     world.scenePrefabRegistry.delete(ScenePrefabs.instancing)
 
-    removeQuery(world, instancingQuery)
-    removeQuery(world, stagingQuery)
-    removeQuery(world, unstagingQuery)
+    removeQuery(instancingQuery)
+    removeQuery(stagingQuery)
+    removeQuery(unstagingQuery)
 
     removeActionQueue(modifyPropertyActionQueue)
   }

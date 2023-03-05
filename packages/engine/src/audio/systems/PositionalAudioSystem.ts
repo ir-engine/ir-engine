@@ -276,8 +276,8 @@ export default async function PositionalAudioSystem(world: World) {
 
   const cleanup = async () => {
     removeActionQueue(modifyPropertyActionQueue)
-    removeQuery(world, positionalAudioQuery)
-    removeQuery(world, networkedAvatarAudioQuery)
+    removeQuery(positionalAudioQuery)
+    removeQuery(networkedAvatarAudioQuery)
     removeActionQueue(setMediaStreamVolumeActionQueue)
     positionalAudioPannerReactor.stop()
   }

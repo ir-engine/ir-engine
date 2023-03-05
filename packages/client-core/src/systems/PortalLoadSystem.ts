@@ -44,7 +44,7 @@ export default async function PortalLoadSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, portalQuery)
+    removeQuery(portalQuery)
   }
 
   return { execute, cleanup }

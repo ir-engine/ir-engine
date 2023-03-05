@@ -40,8 +40,8 @@ describe('WorldNetworkActionReceptors', () => {
       const network = world.worldNetwork
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host', world)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
@@ -60,8 +60,8 @@ describe('WorldNetworkActionReceptors', () => {
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntities = networkObjectQuery(world)
-      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+      const networkObjectEntities = networkObjectQuery()
+      const networkObjectOwnedEntities = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
@@ -83,8 +83,8 @@ describe('WorldNetworkActionReceptors', () => {
       const network = world.worldNetwork
       network.peerID = peerID2
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host', world)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objParams = 123
       const objNetId = 3 as NetworkId
@@ -102,8 +102,8 @@ describe('WorldNetworkActionReceptors', () => {
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntities = networkObjectQuery(world)
-      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+      const networkObjectEntities = networkObjectQuery()
+      const networkObjectOwnedEntities = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 1)
@@ -126,9 +126,9 @@ describe('WorldNetworkActionReceptors', () => {
       const network = world.worldNetwork
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world', world)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
-      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name')
 
       const objParams = {
         position: new Vector3(),
@@ -151,8 +151,8 @@ describe('WorldNetworkActionReceptors', () => {
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntities = networkObjectQuery(world)
-      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+      const networkObjectEntities = networkObjectQuery()
+      const networkObjectOwnedEntities = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
@@ -171,7 +171,7 @@ describe('WorldNetworkActionReceptors', () => {
       const network = world.worldNetwork
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
       const action = WorldNetworkAction.spawnAvatar({
         networkId: 42 as NetworkId,

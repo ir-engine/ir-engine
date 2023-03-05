@@ -25,7 +25,7 @@ export default async function HighlightSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, highlightedObjectQuery)
+    removeQuery(highlightedObjectQuery)
   }
 
   return { execute, cleanup }

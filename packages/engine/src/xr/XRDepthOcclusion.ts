@@ -282,7 +282,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, groupQuery)
+    removeQuery(groupQuery)
     removeActionQueue(xrSessionChangedQueue)
     depthOcclusionReactor.stop()
   }

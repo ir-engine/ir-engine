@@ -60,7 +60,7 @@ export async function VPSSystem(world: World) {
     removeActionQueue(vpsAnchorFoundQueue)
     removeActionQueue(vpsAnchorUpdatedQueue)
     removeActionQueue(vpsAnchorLostQueue)
-    removeQuery(world, vpsAnchorQuery)
+    removeQuery(vpsAnchorQuery)
   }
 
   return { execute, cleanup, subsystems: [] }

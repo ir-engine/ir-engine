@@ -38,7 +38,7 @@ export const updateWorldOrigin = () => {
 
 export const computeAndUpdateWorldOrigin = () => {
   const world = Engine.instance.currentWorld
-  computeTransformMatrix(world.originEntity, world)
+  computeTransformMatrix(world.originEntity)
   world.dirtyTransforms[world.originEntity] = false
   updateWorldOrigin()
 }

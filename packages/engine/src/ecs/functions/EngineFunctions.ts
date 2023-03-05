@@ -15,7 +15,8 @@ import { unloadAllSystems } from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 
-export const unloadScene = async (world: World) => {
+export const unloadScene = async () => {
+  const world = Engine.instance.currentWorld
   const entitiesToRemove = [] as Entity[]
   const sceneObjectsToRemove = [] as Object3D[]
 

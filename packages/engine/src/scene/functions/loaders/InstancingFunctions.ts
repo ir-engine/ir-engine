@@ -754,11 +754,11 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   dispatchAction(InstancingActions.instancingStaged({ uuid: getComponent(entity, UUIDComponent) }))
 }
 
-export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
+export function unstageInstancing(entity: Entity) {
   const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
   const group = getComponent(entity, GroupComponent)
   const obj3d = group.pop()
   obj3d?.removeFromParent()
-  if (group.length === 0) removeComponent(entity, GroupComponent, world)
+  if (group.length === 0) removeComponent(entity, GroupComponent)
   comp.state = ScatterState.UNSTAGED
 }

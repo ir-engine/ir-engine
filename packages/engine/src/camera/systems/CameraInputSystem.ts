@@ -201,7 +201,7 @@ export default async function CameraInputSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, inputQuery)
+    removeQuery(inputQuery)
   }
 
   return { execute, cleanup }

@@ -151,7 +151,7 @@ export default async function AvatarTeleportSystem(world: World) {
       dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
       // }
     }
-    for (const entity of avatarTeleportQuery.exit(world)) {
+    for (const entity of avatarTeleportQuery.exit()) {
       visibleSegments = 1
       transition.setState('OUT')
       if (canTeleport) {
@@ -159,11 +159,11 @@ export default async function AvatarTeleportSystem(world: World) {
         dispatchAction(CameraActions.fadeToBlack({ in: true }))
       }
     }
-    for (const entity of avatarTeleportQuery.enter(world)) {
+    for (const entity of avatarTeleportQuery.enter()) {
       setVisibleComponent(guidelineEntity, true)
       transition.setState('IN')
     }
-    for (const entity of avatarTeleportQuery(world)) {
+    for (const entity of avatarTeleportQuery()) {
       const side = getComponent(world.localClientEntity, AvatarTeleportComponent).side
       const referenceSpace = ReferenceSpace.origin!
 
@@ -235,7 +235,7 @@ export default async function AvatarTeleportSystem(world: World) {
   const cleanup = async () => {
     removeEntity(guidelineEntity)
     removeEntity(guideCursorEntity)
-    removeQuery(world, avatarTeleportQuery)
+    removeQuery(avatarTeleportQuery)
   }
 
   return { execute, cleanup }

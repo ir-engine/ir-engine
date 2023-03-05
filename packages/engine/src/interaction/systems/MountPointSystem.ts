@@ -122,7 +122,7 @@ export default async function MountPointSystem(world: World) {
       }
     }
 
-    for (const entity of sittingIdleQuery(world)) {
+    for (const entity of sittingIdleQuery()) {
       const controller = getComponent(entity, AvatarControllerComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const avatarComponent = getComponent(entity, AvatarComponent)
@@ -173,8 +173,8 @@ export default async function MountPointSystem(world: World) {
     world.sceneComponentRegistry.delete(MountPointComponent.name)
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
     removeActionQueue(mountPointActionQueue)
-    removeQuery(world, mountPointQuery)
-    removeQuery(world, sittingIdleQuery)
+    removeQuery(mountPointQuery)
+    removeQuery(sittingIdleQuery)
   }
 
   return { execute, cleanup }

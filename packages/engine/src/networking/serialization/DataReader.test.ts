@@ -496,7 +496,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readEntity(view, Engine.instance.currentWorld, userId)
+    readEntity(view, userId)
 
     strictEqual(TransformComponent.position.x[entity], posX)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -517,7 +517,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readEntity(view, Engine.instance.currentWorld, userId)
+    readEntity(view, userId)
 
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -563,7 +563,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, Engine.instance.currentWorld, userId)
+    readEntity(view, userId)
 
     // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -609,7 +609,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, Engine.instance.currentWorld, userId)
+    readEntity(view, userId)
 
     // should no repopulate as entity is not listed in network entities
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -680,7 +680,7 @@ describe('DataReader', () => {
     const packet = sliceViewCursor(writeView)
 
     const readView = createViewCursor(packet)
-    readEntities(readView, Engine.instance.currentWorld, packet.byteLength, userId)
+    readEntities(readView, packet.byteLength, userId)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -733,7 +733,7 @@ describe('DataReader', () => {
       })
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     const readView = createViewCursor(packet)
 
@@ -783,7 +783,7 @@ describe('DataReader', () => {
 
     const read = createDataReader()
 
-    read(Engine.instance.currentWorld, network, packet)
+    read(network, packet)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -831,7 +831,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -874,7 +874,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 376)
   })
@@ -911,7 +911,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    let packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    let packet = write(network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -927,7 +927,7 @@ describe('DataReader', () => {
     TransformComponent.position.y[entity] = 1
     TransformComponent.position.z[entity] = 1
 
-    packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    packet = write(network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 47)
 

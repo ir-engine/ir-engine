@@ -354,9 +354,9 @@ export default async function CameraSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, followCameraQuery)
-    removeQuery(world, ownedNetworkCamera)
-    removeQuery(world, spectatorQuery)
+    removeQuery(followCameraQuery)
+    removeQuery(ownedNetworkCamera)
+    removeQuery(spectatorQuery)
     removeActionQueue(cameraSpawnActions)
     removeActionQueue(spectateUserActions)
     reactor.stop()

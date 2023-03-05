@@ -18,7 +18,7 @@ export default async function GizmoSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, gizmoQuery)
+    removeQuery(gizmoQuery)
   }
 
   return { execute, cleanup }

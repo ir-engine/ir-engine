@@ -53,7 +53,7 @@ export default async function TriggerSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, collisionQuery)
+    removeQuery(collisionQuery)
   }
 
   return { execute, cleanup }

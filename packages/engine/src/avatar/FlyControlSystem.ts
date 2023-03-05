@@ -91,7 +91,7 @@ export default async function FlyControlSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, flyControlQuery)
+    removeQuery(flyControlQuery)
   }
 
   return { execute, cleanup }

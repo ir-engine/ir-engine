@@ -122,7 +122,7 @@ export default async function EditorCameraSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, cameraQuery)
+    removeQuery(cameraQuery)
   }
 
   return { execute, cleanup }

@@ -96,8 +96,8 @@ export default async function AvatarControllerSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, localControllerQuery)
-    removeQuery(world, controllerQuery)
+    removeQuery(localControllerQuery)
+    removeQuery(controllerQuery)
   }
 
   return { execute, cleanup }

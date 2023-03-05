@@ -83,7 +83,7 @@ export default async function AvatarSpawnSystem(world: World) {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
 
     // Keep a list of spawn points so we can send our user to one
-    for (const entity of spawnPointQuery.enter(world)) {
+    for (const entity of spawnPointQuery.enter()) {
       if (!hasComponent(entity, TransformComponent)) {
         console.warn("Can't add spawn point, no transform component on entity")
         continue
@@ -92,7 +92,7 @@ export default async function AvatarSpawnSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, spawnPointQuery)
+    removeQuery(spawnPointQuery)
     removeActionQueue(avatarSpawnQueue)
     removeActionQueue(avatarDetailsQueue)
   }

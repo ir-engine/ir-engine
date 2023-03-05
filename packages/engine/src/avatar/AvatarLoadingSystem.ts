@@ -179,11 +179,11 @@ export default async function AvatarLoadingSystem(world: World) {
       })
     }
 
-    for (const entity of growQuery(world)) {
+    for (const entity of growQuery()) {
       world.dirtyTransforms[entity] = true
     }
 
-    for (const entity of commonQuery(world)) {
+    for (const entity of commonQuery()) {
       const group = getComponent(entity, GroupComponent)
       const opacityMultiplier = getComponent(entity, AvatarEffectComponent).opacityMultiplier
 
@@ -214,13 +214,13 @@ export default async function AvatarLoadingSystem(world: World) {
       }
     }
 
-    for (const entity of dissolveQuery.enter(world)) {
+    for (const entity of dissolveQuery.enter()) {
       const effectComponent = getComponent(entity, AvatarEffectComponent)
       if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
         getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
     }
 
-    for (const entity of dissolveQuery(world)) {
+    for (const entity of dissolveQuery()) {
       const disolveEffect = getComponent(entity, AvatarDissolveComponent).effect
 
       if (disolveEffect.update(delta)) {
@@ -285,10 +285,10 @@ export default async function AvatarLoadingSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, effectQuery)
-    removeQuery(world, growQuery)
-    removeQuery(world, commonQuery)
-    removeQuery(world, dissolveQuery)
+    removeQuery(effectQuery)
+    removeQuery(growQuery)
+    removeQuery(commonQuery)
+    removeQuery(dissolveQuery)
   }
 
   return { execute, cleanup }

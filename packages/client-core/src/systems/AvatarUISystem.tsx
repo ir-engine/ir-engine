@@ -249,7 +249,7 @@ export default async function AvatarUISystem(world: World) {
 
   const cleanup = async () => {
     removeEntity(AvatarContextMenuUI.entity)
-    removeQuery(world, userQuery)
+    removeQuery(userQuery)
   }
 
   return { execute, cleanup }

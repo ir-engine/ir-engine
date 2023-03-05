@@ -8,6 +8,7 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarLeftArmIKComponent, AvatarRightArmIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -280,9 +281,10 @@ export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
 //   }
 // }
 
-export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
+export const readEntity = (v: ViewCursor, fromUserId: UserId) => {
   const netId = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
+  const world = Engine.instance.currentWorld
 
   let entity = world.getNetworkObject(fromUserId, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
@@ -296,11 +298,11 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   // if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
 }
 
-export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserID: UserId) => {
+export const readEntities = (v: ViewCursor, byteLength: number, fromUserID: UserId) => {
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, world, fromUserID)
+      readEntity(v, fromUserID)
     }
   }
 }
@@ -314,12 +316,13 @@ export const readMetadata = (v: ViewCursor, world: World) => {
 }
 
 export const createDataReader = () => {
-  return (world: World, network: Network, packet: ArrayBuffer) => {
+  return (network: Network, packet: ArrayBuffer) => {
+    const world = Engine.instance.currentWorld
     const view = createViewCursor(packet)
     const { userIndex, peerIndex } = readMetadata(view, world)
     const fromUserID = network.userIndexToUserID.get(userIndex)
     const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
     const isLoopback = fromPeerID && fromPeerID === network.peerID
-    if (fromUserID && !isLoopback) readEntities(view, world, packet.byteLength, fromUserID)
+    if (fromUserID && !isLoopback) readEntities(view, packet.byteLength, fromUserID)
   }
 }

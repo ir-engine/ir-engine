@@ -268,9 +268,9 @@ export default async function MediaSystem(world: World) {
 
     removeActionQueue(userInteractActionQueue)
 
-    removeQuery(world, mediaQuery)
-    removeQuery(world, videoQuery)
-    removeQuery(world, volumetricQuery)
+    removeQuery(mediaQuery)
+    removeQuery(videoQuery)
+    removeQuery(volumetricQuery)
 
     for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
   }

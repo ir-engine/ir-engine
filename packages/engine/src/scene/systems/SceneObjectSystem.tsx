@@ -160,8 +160,8 @@ export default async function SceneObjectSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, groupQuery)
-    removeQuery(world, updatableQuery)
+    removeQuery(groupQuery)
+    removeQuery(updatableQuery)
     groupReactor.stop()
   }
 

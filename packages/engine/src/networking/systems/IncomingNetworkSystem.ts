@@ -4,17 +4,18 @@ import { World } from '../../ecs/classes/World'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
 import { createDataReader } from '../serialization/DataReader'
 
-export const applyUnreliableQueueFast = (deserialize: Function) => (world: World) => {
-  if (!world.worldNetwork) return
+export const applyUnreliableQueueFast = (deserialize: Function) => () => {
+  const network = Engine.instance.currentWorld.worldNetwork
+  if (!network) return
 
-  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = world.worldNetwork
+  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = network
 
   while (incomingMessageQueueUnreliable.getBufferLength() > 0) {
     // we may need producer IDs at some point, likely for p2p netcode, for now just consume it
     incomingMessageQueueUnreliableIDs.pop()
     const packet = incomingMessageQueueUnreliable.pop()
 
-    deserialize(world, world.worldNetwork, packet)
+    deserialize(network, packet)
   }
 }
 
@@ -28,9 +29,9 @@ export default async function IncomingNetworkSystem(world: World) {
 
   const execute = () => {
     if (!engineState.isEngineInitialized.value) return
-    applyIncomingNetworkState(world)
+    applyIncomingNetworkState()
     if (world.worldNetwork?.isHosting && world.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
-      validateNetworkObjects(world, world.worldNetwork)
+      validateNetworkObjects(world.worldNetwork)
   }
 
   const cleanup = async () => {}

@@ -523,7 +523,7 @@ describe('DataWriter', () => {
     })
 
     const network = Engine.instance.currentWorld.worldNetwork
-    const packet = write(world, network, Engine.instance.userId, peerID, entities)
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =
       4 * Uint32Array.BYTES_PER_ELEMENT +

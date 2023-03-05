@@ -249,8 +249,8 @@ export default async function PhysicsSystem(world: World) {
     world.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
     world.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
 
-    removeQuery(world, allRigidBodyQuery)
-    removeQuery(world, collisionQuery)
+    removeQuery(allRigidBodyQuery)
+    removeQuery(collisionQuery)
 
     removeActionQueue(teleportObjectQueue)
     removeActionQueue(modifyPropertyActionQueue)
