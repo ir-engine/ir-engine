@@ -130,7 +130,7 @@ export class WebLayerManagerBase {
 
   store: LayerStore
 
-  serializeQueue = [] as { layer: WebLayer; resolve: (val: any) => void; promise: any }[]
+  serializeQueue = [] as { layer: WebLayer; element?: HTMLElement; resolve: (val: any) => void; promise: any }[]
   rasterizeQueue = [] as {
     hash: StateHash
     svgUrl: string
@@ -379,8 +379,8 @@ export class WebLayerManagerBase {
 
     while (serializeQueue.length > 0 && this.serializePendingCount < this.MAX_SERIALIZE_TASK_COUNT) {
       this.serializePendingCount++
-      const { layer, resolve } = serializeQueue.shift()!
-      this.serialize(layer).then((val) => {
+      const { layer, element, resolve } = serializeQueue.shift()!
+      this.serialize(layer, element).then((val) => {
         this.serializePendingCount--
         resolve(val)
       })
@@ -403,14 +403,17 @@ export class WebLayerManagerBase {
     this.tasksPending = false
   }
 
-  addToSerializeQueue(layer: WebLayer): ReturnType<typeof WebLayerManagerBase.prototype.serialize> {
+  addToSerializeQueue(
+    layer: WebLayer,
+    element?: HTMLElement
+  ): ReturnType<typeof WebLayerManagerBase.prototype.serialize> {
     const inQueue = this.serializeQueue.find((v) => v.layer === layer)
     if (inQueue) return inQueue.promise
     let resolve!: (v: any) => any
     const promise = new Promise((r) => {
       resolve = r
     })
-    this.serializeQueue.push({ layer, resolve, promise })
+    this.serializeQueue.push({ layer, element, resolve, promise })
     return promise as Promise<any>
   }
 
@@ -422,9 +425,10 @@ export class WebLayerManagerBase {
     getBorder(layer.element, metrics.border)
   }
 
-  async serialize(layer: WebLayer) {
+  async serialize(layer: WebLayer, element?: HTMLElement) {
     this.updateDOMMetrics(layer)
     const layerElement = layer.element as HTMLElement
+    if (element) layerElement.textContent = element.textContent
     const metrics = layer.domMetrics
 
     const { top, left, width, height } = metrics.bounds
