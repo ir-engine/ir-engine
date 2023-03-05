@@ -155,27 +155,6 @@ export class WebLayer3D extends Object3D {
       return t
     }
 
-    //gonna need to store the texture data without the url
-    if (this._webLayer.prerasterizedRange.length) {
-      const char = 3
-      manager.getTextureByCharacter(char)
-      const textureData = manager.texturesByCharacter.get(char)
-      if (textureData) {
-        if (!this.characterMap.has(char)) this.characterMap.set(char, textureData)
-        const clonedTexture = this.characterMap.get(char)!
-        if (textureData.compressedTexture && !clonedTexture?.compressedTexture) {
-          clonedTexture?.canvasTexture?.dispose()
-          clonedTexture.canvasTexture = undefined
-          clonedTexture.compressedTexture = textureData.compressedTexture.clone()
-          clonedTexture.compressedTexture.needsUpdate = true
-        }
-
-        console.log(textureData)
-        return clonedTexture.compressedTexture
-      }
-      return undefined
-    }
-
     const textureHash = this._webLayer.currentDOMState?.texture?.hash
 
     if (textureHash) {
@@ -196,6 +175,33 @@ export class WebLayer3D extends Object3D {
     }
 
     return undefined
+  }
+
+  private getCharacterTexture(char: number) {
+    const manager = this.container.manager
+    const _layer = this._webLayer
+    if (_layer.prerasterizedRange.length) {
+      const hash = this._webLayer.prerasterizedImages.get(char)
+      const textureData = manager.getTexture(hash!)
+      console.log(textureData, char)
+      if (textureData) {
+        if (!this.characterMap.has(char)) this.characterMap.set(char, textureData)
+        const clonedTexture = this.characterMap.get(char)!
+        if (textureData.compressedTexture && !clonedTexture?.compressedTexture) {
+          clonedTexture?.canvasTexture?.dispose()
+          clonedTexture.canvasTexture = undefined
+          clonedTexture.compressedTexture = textureData.compressedTexture.clone()
+          clonedTexture.compressedTexture.needsUpdate = true
+        }
+        if (textureData.canvasTexture && !clonedTexture.canvasTexture) {
+          clonedTexture.canvasTexture = textureData.canvasTexture.clone()
+          clonedTexture.canvasTexture.needsUpdate = true
+        }
+
+        return clonedTexture.compressedTexture ?? clonedTexture.canvasTexture
+      }
+      return undefined
+    }
   }
 
   contentMesh: Mesh
@@ -329,22 +335,47 @@ export class WebLayer3D extends Object3D {
     }
   }
 
+  private characterMeshes: Map<number, Mesh> = new Map()
+
   private updateContent() {
     if (this.parentWebLayer && !this.parentWebLayer.domLayout) return
 
     const mesh = this.contentMesh
-    const texture = this.texture
-    const material = mesh.material as THREE.MeshBasicMaterial
-    if (texture && material.map !== texture) {
-      const contentScale = this.contentMesh.scale
-      const aspect = Math.abs(((contentScale.x * this.scale.x) / contentScale.y) * this.scale.y)
-      const targetAspect = this.domSize.x / this.domSize.y
-      // swap texture when the aspect ratio matches
-      if (Math.abs(targetAspect - aspect) < 1e3) {
-        material.map = texture
-        this.depthMaterial['map'] = texture
-        material.needsUpdate = true
-        this.depthMaterial.needsUpdate = true
+
+    if (this._webLayer.prerasterizedRange.length) {
+      const characters = this.element.textContent
+      const currentChar = 1
+      if (!this.characterMeshes.has(currentChar)) {
+        const texture = this.getCharacterTexture(currentChar)
+        if (texture) {
+          mesh.visible = true
+          const characterMesh = mesh.clone()
+          characterMesh.visible = true
+          characterMesh.position.set(0.025 * mesh.children.length, 0, 0)
+
+          const material = characterMesh.material as MeshBasicMaterial
+          material.map = texture
+          material.needsUpdate = true
+
+          mesh.add(characterMesh)
+          console.log(currentChar)
+          this.characterMeshes.set(currentChar, characterMesh)
+        }
+      }
+    } else {
+      const texture = this.texture
+      const material = mesh.material as THREE.MeshBasicMaterial
+      if (texture && material.map !== texture) {
+        const contentScale = this.contentMesh.scale
+        const aspect = Math.abs(((contentScale.x * this.scale.x) / contentScale.y) * this.scale.y)
+        const targetAspect = this.domSize.x / this.domSize.y
+        // swap texture when the aspect ratio matches
+        if (Math.abs(targetAspect - aspect) < 1e3) {
+          material.map = texture
+          this.depthMaterial['map'] = texture
+          material.needsUpdate = true
+          this.depthMaterial.needsUpdate = true
+        }
       }
     }
 

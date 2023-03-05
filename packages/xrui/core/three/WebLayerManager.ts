@@ -44,30 +44,6 @@ export class WebLayerManager extends WebLayerManagerBase {
   layersByElement = new WeakMap<Element, WebLayer3D>()
   layersByMesh = new WeakMap<THREE.Mesh, WebLayer3D>()
 
-  getTextureByCharacter(character: number) {
-    const ktx2Url = this.prerasterizedImages.get(character)
-    if (this.texturesByCharacter.has(character)) return this.texturesByCharacter.get(character)
-    if (!ktx2Url) return
-    new Promise((resolve) => {
-      this.ktx2Loader
-        .loadAsync(ktx2Url)
-        .then((t) => {
-          t.wrapS = ClampToEdgeWrapping
-          t.wrapT = ClampToEdgeWrapping
-          t.minFilter = LinearMipmapLinearFilter
-          t.encoding = this.textureEncoding
-          const textureData = {} as ThreeTextureData
-          textureData.compressedTexture = t
-          this.texturesByCharacter.set(character, textureData)
-          return this.texturesByCharacter.get(character)
-        })
-        .finally(() => {
-          resolve(undefined)
-        })
-    })
-    return this.texturesByCharacter.get(character)
-  }
-
   getTexture(textureHash: TextureHash) {
     const textureData = this.getTextureState(textureHash)
     if (!this.texturesByHash.has(textureHash)) {

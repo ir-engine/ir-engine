@@ -39,30 +39,32 @@ export class WebLayer {
   prerasterizedRange = [] as number[]
   prerasterizedImages: Map<number, string> = new Map()
 
+  private currentRasterizationCharacter = -1
+
   async prerasterizeRange() {
     this.manager.prerasterized = true
 
     const startTime = Date.now()
 
     for (let i = 0; i < this.prerasterizedRange.length; i++) {
-      this.element.textContent = this.prerasterizedRange[i].toString()
+      this.currentRasterizationCharacter = this.prerasterizedRange[i]
       const result = await this.manager.addToSerializeQueue(this)
       if (typeof result.stateKey === 'string' && result.svgUrl) {
-        await this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl)
+        this.element.textContent = this.currentRasterizationCharacter.toString()
+        this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl, this, this.currentRasterizationCharacter)
+        console.log(Date.now() - startTime)
         //serialize a new element with text value set to a value from the range
         //pass serialized in to rasterization queue
         //then await it to be rasterized
         //when it is finished add the url to the images map
-        this.manager.prerasterizedImages.set(
-          this.prerasterizedRange[i],
-          this.manager.getTextureState(this.manager.lastHash).ktx2Url!
-        )
       }
     }
 
     this.manager.prerasterized = false
 
     console.log('image pushed, time spent:', Date.now() - startTime)
+
+    this.currentRasterizationCharacter = -1
   }
 
   needsRefresh = true
@@ -159,6 +161,10 @@ export class WebLayer {
   }
 
   update() {
+    if (this.currentRasterizationCharacter != -1) {
+      this.element.textContent = this.currentRasterizationCharacter.toString()
+    }
+
     if (this.desiredDOMStateKey !== this.currentDOMStateKey) {
       const desired = this.desiredDOMState
 
@@ -183,10 +189,7 @@ export class WebLayer {
   async refresh() {
     this.needsRefresh = false
     this._updateParentAndChildLayers()
-
-    if (this.prerasterizedRange.length) {
-      return
-    }
+    if (this.element.hasAttribute('xr-prerasterized')) return
 
     const result = await this.manager.addToSerializeQueue(this)
 
