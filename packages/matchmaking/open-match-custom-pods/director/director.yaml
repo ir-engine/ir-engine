@@ -15,11 +15,11 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: xrengine-matchmaking-director
-  namespace: xrengine-matchmaking
+  name: etherealengine-matchmaking-director
+  namespace: etherealengine-matchmaking
 spec:
   containers:
-  - name: xrengine-matchmaking-director
-    image: REGISTRY_PLACEHOLDER/xrengine-matchmaking-director:latest
+  - name: etherealengine-matchmaking-director
+    image: REGISTRY_PLACEHOLDER/etherealengine-matchmaking-director:latest
     imagePullPolicy: Always
-  hostname: xrengine-matchmaking-director
+  hostname: etherealengine-matchmaking-director

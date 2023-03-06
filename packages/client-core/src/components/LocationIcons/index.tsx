@@ -1,11 +1,11 @@
 import React from 'react'
 
-import { TouchGamepad } from '@xrengine/client-core/src/common/components/TouchGamepad'
-import { UserMenu } from '@xrengine/client-core/src/user/components/UserMenu'
-import { iOS } from '@xrengine/engine/src/common/functions/isMobile'
-import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getCameraMode, XRState } from '@xrengine/engine/src/xr/XRState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { TouchGamepad } from '@etherealengine/client-core/src/common/components/TouchGamepad'
+import { UserMenu } from '@etherealengine/client-core/src/user/components/UserMenu'
+import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { getCameraMode, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import { ARPlacement } from '../ARPlacement'

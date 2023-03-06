@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
-import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
-import GoogleIcon from '@mui/icons-material/Google'
-import Button from '@mui/material/Button'
-import CardMedia from '@mui/material/CardMedia'
+import Button from '@etherealengine/ui/src/Button'
+import CardMedia from '@etherealengine/ui/src/CardMedia'
+import Icon from '@etherealengine/ui/src/Icon'
+import Typography from '@etherealengine/ui/src/Typography'
+
 import Fab from '@mui/material/Fab'
-import Typography from '@mui/material/Typography'
 
 import { AuthSettingsService, useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
@@ -147,7 +146,7 @@ const FlatSignIn = (props: Props) => {
     <section className={styles.loginPage}>
       {view !== 'login' && (
         <Button variant="text" className={styles.backButton} onClick={() => setView('login')}>
-          <ArrowBackIosIcon />
+          <Icon type="ArrowBackIos" />
           {t('social:login.back')}
         </Button>
       )}
@@ -164,12 +163,12 @@ const FlatSignIn = (props: Props) => {
         <section className={styles.socialIcons}>
           {enableGoogleSocial && (
             <Fab>
-              <GoogleIcon onClick={(e) => handleGoogleLogin(e)} />
+              <Icon type="Google" onClick={(e) => handleGoogleLogin(e)} />
             </Fab>
           )}
           {enableFacebookSocial && (
             <Fab>
-              <FacebookOutlinedIcon onClick={(e) => handleFacebookLogin(e)} />
+              <Icon type="FacebookOutlined" onClick={(e) => handleFacebookLogin(e)} />
             </Fab>
           )}
         </section>

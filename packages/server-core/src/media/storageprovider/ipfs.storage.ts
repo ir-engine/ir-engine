@@ -5,7 +5,7 @@ import path from 'path'
 import * as stream from 'stream'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
 import {

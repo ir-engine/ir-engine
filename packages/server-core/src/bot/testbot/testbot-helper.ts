@@ -1,13 +1,13 @@
-import { SpawnTestBot, TestBot } from '@xrengine/common/src/interfaces/TestBot'
-import config from '@xrengine/server-core/src/appconfig'
-import serverLogger from '@xrengine/server-core/src/ServerLogger'
+import { SpawnTestBot, TestBot } from '@etherealengine/common/src/interfaces/TestBot'
+import config from '@etherealengine/server-core/src/appconfig'
+import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { Application } from '../../../declarations'
 
 export const getTestbotPod = async (app: Application) => {
   if (app.k8DefaultClient) {
     try {
-      const jobName = `${config.server.releaseName}-xrengine-testbot`
+      const jobName = `${config.server.releaseName}-etherealengine-testbot`
       const podsResult = await app.k8DefaultClient.listNamespacedPod('default')
       let pods: TestBot[] = []
       for (const pod of podsResult.body.items) {
@@ -37,7 +37,7 @@ export const getTestbotPod = async (app: Application) => {
 export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => {
   if (app.k8BatchClient) {
     try {
-      const jobName = `${config.server.releaseName}-xrengine-testbot`
+      const jobName = `${config.server.releaseName}-etherealengine-testbot`
       const oldJobResult = await app.k8BatchClient.readNamespacedJob(jobName, 'default')
 
       if (oldJobResult && oldJobResult.body) {

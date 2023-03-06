@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import FilterListIcon from '@mui/icons-material/FilterList'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-import Popover from '@mui/material/Popover'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Popover from '@etherealengine/ui/src/Popover'
 
 import Search from '../../common/Search'
 import { AdminUserService } from '../../services/UserService'
@@ -73,9 +73,8 @@ const Users = () => {
               aria-controls={openMenu ? 'account-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={openMenu ? 'true' : undefined}
-            >
-              <FilterListIcon color="info" fontSize="large" />
-            </IconButton>
+              icon={<Icon type="FilterList" color="info" fontSize="large" />}
+            />
           </Box>
         </Grid>
       </Grid>

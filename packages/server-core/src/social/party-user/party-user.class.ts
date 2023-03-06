@@ -2,8 +2,8 @@ import { Params } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { PartyUser as PartyUserDataType } from '@xrengine/common/src/interfaces/PartyUser'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { PartyUser as PartyUserDataType } from '@etherealengine/common/src/interfaces/PartyUser'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

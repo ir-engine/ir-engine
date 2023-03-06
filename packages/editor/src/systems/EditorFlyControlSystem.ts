@@ -1,15 +1,15 @@
 import { MathUtils, Matrix3, Vector3 } from 'three'
 
-import { FlyControlComponent } from '@xrengine/engine/src/avatar/components/FlyControlComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { FlyControlComponent } from '@etherealengine/engine/src/avatar/components/FlyControlComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   getComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchAction } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { EditorHelperAction } from '../services/EditorHelperState'

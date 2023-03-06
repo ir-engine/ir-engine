@@ -1,17 +1,15 @@
-import { getState } from '@xrengine/hyperflux'
-
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { getEntityTreeNodeByUUID, removeEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   SCENE_COMPONENT_DYNAMIC_LOAD,
   SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES,
   SceneDynamicLoadTagComponent
 } from '../components/SceneDynamicLoadTagComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 import { updateSceneEntitiesFromJSON } from '../systems/SceneLoadingSystem'
 
 export default async function SceneObjectDynamicLoadSystem(world: World) {
@@ -49,22 +47,20 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
         const dynamicLoadComponent = getComponent(entity, SceneDynamicLoadTagComponent)
         const distanceToAvatar = position.distanceToSquared(avatarPosition)
         const loadDistance = dynamicLoadComponent.distance * dynamicLoadComponent.distance * distanceMultiplier
-        const entityNode = world.entityTree.entityNodeMap.get(entity)!
+        const entityUUID = getComponent(entity, UUIDComponent)
 
         /** Load unloaded entities */
         if (!dynamicLoadComponent.loaded && distanceToAvatar < loadDistance) {
           // check if entities already loaded
-          updateSceneEntitiesFromJSON(entityNode.uuid!, world)
+          updateSceneEntitiesFromJSON(entityUUID, world)
           dynamicLoadComponent.loaded = true
         }
 
         /** Unloaded loaded entities */
         if (dynamicLoadComponent.loaded && distanceToAvatar > loadDistance) {
           // unload all children
-          const nodes = getEntityTreeNodeByUUID(entityNode.uuid!)?.children.map(
-            (entity) => world.entityTree.entityNodeMap.get(entity)!
-          )!
-          for (const node of nodes) removeEntityNodeRecursively(node, true, world.entityTree)
+          const nodes = getComponent(entity, EntityTreeComponent).children
+          for (const node of nodes) removeEntityNodeRecursively(node, true)
           dynamicLoadComponent.loaded = false
         }
       }

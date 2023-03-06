@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { StaticResourceTypeInterface } from '@xrengine/common/src/dbmodels/StaticResourceType'
+import { StaticResourceTypeInterface } from '@etherealengine/common/src/dbmodels/StaticResourceType'
 
 import { Application } from '../../../declarations'
 

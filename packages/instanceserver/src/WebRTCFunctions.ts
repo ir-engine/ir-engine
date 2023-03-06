@@ -14,13 +14,13 @@ import {
 import os from 'os'
 import { Spark } from 'primus'
 
-import { MediaStreamAppData, MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import config from '@xrengine/server-core/src/appconfig'
-import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
-import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
+import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import config from '@etherealengine/server-core/src/appconfig'
+import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
@@ -841,10 +841,7 @@ export async function handleWebRtcPauseConsumer(
   const { consumerId } = data
   const consumer = network.consumers.find((c) => c.id === consumerId)
   if (consumer) {
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'pause'
-    })
+    if (typeof consumer.pause === 'function' && !consumer.closed && !(consumer as any)._closed) await consumer.pause()
     spark.write({ type: MessageTypes.WebRTCPauseConsumer.toString(), data: consumer.id })
   }
   spark.write({ type: MessageTypes.WebRTCPauseConsumer.toString(), data: { paused: true }, id: messageId })
@@ -859,10 +856,7 @@ export async function handleWebRtcResumeConsumer(
   const { consumerId } = data
   const consumer = network.consumers.find((c) => c.id === consumerId)
   if (consumer) {
-    network.mediasoupOperationQueue.add({
-      object: consumer,
-      action: 'resume'
-    })
+    if (typeof consumer.resume === 'function' && !consumer.closed && !(consumer as any)._closed) await consumer.resume()
     spark.write({ type: MessageTypes.WebRTCResumeConsumer.toString(), data: consumer.id })
   }
   spark.write({ type: MessageTypes.WebRTCResumeConsumer.toString(), data: { resumed: true }, id: messageId })
@@ -906,10 +900,7 @@ export async function handleWebRtcResumeProducer(
   const producer = network.producers.find((p) => p.id === producerId)
   logger.info('resume-producer: %o', producer?.appData)
   if (producer) {
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'resume'
-    })
+    if (typeof producer.resume === 'function' && !producer.closed && !(producer as any)._closed) await producer.resume()
     // await producer.resume();
     if (peerID && network.peers.has(peerID)) {
       network.peers.get(peerID)!.media![producer.appData.mediaTag as any].paused = false
@@ -938,10 +929,7 @@ export async function handleWebRtcPauseProducer(
   const { producerId, globalMute } = data
   const producer = network.producers.find((p) => p.id === producerId)
   if (producer) {
-    network.mediasoupOperationQueue.add({
-      object: producer,
-      action: 'pause'
-    })
+    if (typeof producer.pause === 'function' && !producer.closed && !(producer as any)._closed) await producer.pause()
     if (peerID && network.peers.has(peerID) && network.peers.get(peerID)!.media![producer.appData.mediaTag as any]) {
       network.peers.get(peerID)!.media![producer.appData.mediaTag as any].paused = true
       network.peers.get(peerID)!.media![producer.appData.mediaTag as any].globalMute = globalMute || false

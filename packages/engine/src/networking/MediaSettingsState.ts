@@ -1,5 +1,5 @@
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { AudioState, getPositionalMedia } from '../audio/AudioState'
 import { getMediaSceneMetadataState } from '../audio/systems/MediaSystem'

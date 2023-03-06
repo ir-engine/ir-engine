@@ -1,4 +1,4 @@
-import { applyIncomingActions } from '@xrengine/hyperflux'
+import { applyIncomingActions } from '@etherealengine/hyperflux'
 
 import { World } from '../../ecs/classes/World'
 

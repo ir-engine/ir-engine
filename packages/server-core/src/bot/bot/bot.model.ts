@@ -15,7 +15,7 @@ export default (app: Application) => {
       },
       name: {
         type: DataTypes.STRING,
-        defaultValue: (): string => 'xrengine bot' + Math.floor(Math.random() * (999 - 100 + 1) + 100),
+        defaultValue: (): string => 'etherealengine bot' + Math.floor(Math.random() * (999 - 100 + 1) + 100),
         allowNull: false
       },
       description: {

@@ -1,10 +1,10 @@
 import { strictEqual } from 'assert'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
@@ -17,17 +17,21 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  readRotation,
+  TransformSerialization,
+  writePosition,
+  writeRotation,
+  writeTransform
+} from '../../transform/TransformSerialization'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { readCompressedVector3, readRotation } from './DataReader'
+import { readCompressedVector3 } from './DataReader'
 import {
   createDataWriter,
   writeComponent,
   writeCompressedVector3,
   writeEntities,
   writeEntity,
-  writePosition,
-  writeRotation,
-  writeTransform,
   writeVector3
   // writeXRHands
 } from './DataWriter'
@@ -45,6 +49,10 @@ describe('DataWriter', () => {
   before(() => {
     createEngine()
     createMockNetwork()
+    Engine.instance.currentWorld.networkSchema['ee.core.transform'] = {
+      read: TransformSerialization.readTransform,
+      write: TransformSerialization.writeTransform
+    }
   })
 
   it('should writeComponent', () => {
@@ -362,7 +370,7 @@ describe('DataWriter', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    writeEntity(writeView, networkId, entity)
+    writeEntity(writeView, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
 
     const readView = createViewCursor(writeView.buffer)
 

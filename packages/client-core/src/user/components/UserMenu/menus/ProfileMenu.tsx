@@ -4,33 +4,27 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import { DiscordIcon } from '@xrengine/client-core/src/common/components/Icons/DiscordIcon'
-import { FacebookIcon } from '@xrengine/client-core/src/common/components/Icons/FacebookIcon'
-import { GoogleIcon } from '@xrengine/client-core/src/common/components/Icons/GoogleIcon'
-import { LinkedInIcon } from '@xrengine/client-core/src/common/components/Icons/LinkedInIcon'
-import { TwitterIcon } from '@xrengine/client-core/src/common/components/Icons/TwitterIcon'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-// import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
-import multiLogger from '@xrengine/common/src/logger'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@xrengine/hyperflux'
-
-import CheckIcon from '@mui/icons-material/Check'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import SendIcon from '@mui/icons-material/Send'
-import SettingsIcon from '@mui/icons-material/Settings'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
+import { FacebookIcon } from '@etherealengine/client-core/src/common/components/Icons/FacebookIcon'
+import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
+import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
+import { TwitterIcon } from '@etherealengine/client-core/src/common/components/Icons/TwitterIcon'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+// import { requestVcForEvent, vpRequestQuery } from '@etherealengine/common/src/credentials/credentials'
+import multiLogger from '@etherealengine/common/src/logger'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { getState } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { useAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
@@ -396,7 +390,8 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
               background="var(--textColor)"
               sizePx={80}
               icon={
-                <SettingsIcon
+                <Icon
+                  type="Settings"
                   sx={{
                     display: 'block',
                     width: '100%',
@@ -417,7 +412,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
           value={username || ''}
           error={errorUsername}
           sx={{ mt: 4 }}
-          endIcon={<CheckIcon />}
+          endIcon={<Icon type="Check" />}
           onEndIconClick={updateUserName}
           onChange={handleUsernameChange}
           onKeyDown={(e) => {
@@ -431,7 +426,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
             label={t('user:usermenu.profile.userIcon.userId')}
             value={userId}
             sx={{ mt: 2 }}
-            endIcon={<ContentCopyIcon />}
+            endIcon={<Icon type="ContentCopy" />}
             onEndIconClick={() => {
               navigator.clipboard.writeText(userId)
               NotificationService.dispatchNotify(t('user:usermenu.profile.userIdCopied'), {
@@ -446,8 +441,8 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
             label={t('user:usermenu.profile.apiKey')}
             value={apiKey}
             sx={{ mt: 2 }}
-            endIcon={<ContentCopyIcon />}
-            startIcon={<RefreshIcon />}
+            endIcon={<Icon type="ContentCopy" />}
+            startIcon={<Icon type="Refresh" />}
             startIconTitle={t('user:usermenu.profile.refreshApiKey')}
             onStartIconClick={refreshApiKey}
             onEndIconClick={() => {
@@ -469,7 +464,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   placeholder={getConnectPlaceholder()}
                   error={error ? getErrorText() : undefined}
                   sx={{ mt: 2 }}
-                  endIcon={<SendIcon />}
+                  endIcon={<Icon type="Send" />}
                   onEndIconClick={handleGuestSubmit}
                   onBlur={validate}
                   onChange={handleInputChange}
@@ -538,7 +533,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   {authState?.facebook && !oauthConnectedState.facebook && (
                     <IconButton
                       id="facebook"
-                      icon={<FacebookIcon viewBox="0 0 40 40" />}
+                      icon={<FacebookIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
@@ -552,12 +547,12 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   {authState?.twitter && !oauthConnectedState.twitter && (
                     <IconButton
                       id="twitter"
-                      icon={<TwitterIcon viewBox="0 0 40 40" />}
+                      icon={<TwitterIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
                   {authState?.github && !oauthConnectedState.github && (
-                    <IconButton id="github" icon={<GitHubIcon />} onClick={handleOAuthServiceClick} />
+                    <IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleOAuthServiceClick} />
                   )}
                 </div>
 
@@ -585,7 +580,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   {authState?.facebook && oauthConnectedState.facebook && (
                     <IconButton
                       id="facebook"
-                      icon={<FacebookIcon viewBox="0 0 40 40" />}
+                      icon={<Icon type="Facebook" viewBox="0 0 40 40" />}
                       onClick={handleRemoveOAuthServiceClick}
                     />
                   )}
@@ -599,12 +594,12 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   {authState?.twitter && oauthConnectedState.twitter && (
                     <IconButton
                       id="twitter"
-                      icon={<TwitterIcon viewBox="0 0 40 40" />}
+                      icon={<Icon type="Twitter" viewBox="0 0 40 40" />}
                       onClick={handleRemoveOAuthServiceClick}
                     />
                   )}
                   {authState?.github && oauthConnectedState.github && (
-                    <IconButton id="github" icon={<GitHubIcon />} onClick={handleRemoveOAuthServiceClick} />
+                    <IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleRemoveOAuthServiceClick} />
                   )}
                 </div>
               </>

@@ -2,8 +2,8 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
+import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -39,6 +39,7 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../components/RigidBodyComponent'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 export function teleportObject(entity: Entity, position: Vector3, rotation: Quaternion) {
@@ -153,6 +154,11 @@ export default async function PhysicsSystem(world: World) {
   const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
   const drainContacts = Physics.drainContactEventQueue(world.physicsWorld)
 
+  world.networkSchema['ee.core.physics'] = {
+    read: PhysicsSerialization.readRigidBody,
+    write: PhysicsSerialization.writeRigidBody
+  }
+
   const execute = () => {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
@@ -256,6 +262,8 @@ export default async function PhysicsSystem(world: World) {
     removeActionQueue(modifyPropertyActionQueue)
 
     world.physicsWorld.free()
+
+    delete world.networkSchema['ee.core.physics']
   }
 
   return { execute, cleanup }

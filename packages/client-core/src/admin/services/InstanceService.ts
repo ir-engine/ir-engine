@@ -2,9 +2,9 @@ import { Paginated } from '@feathersjs/feathers'
 import { useState } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

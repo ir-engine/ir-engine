@@ -1,5 +1,5 @@
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@etherealengine/hyperflux'
 
 export const AppState = defineState({
   name: 'AppState',

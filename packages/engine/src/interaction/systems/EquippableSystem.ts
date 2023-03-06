@@ -9,7 +9,7 @@ import {
   removeActionQueue,
   startReactor,
   useHookstate
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { isClient } from '../../common/functions/isClient'
@@ -33,6 +33,7 @@ import {
   RigidBodyKinematicPositionBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EquippableComponent, SCENE_COMPONENT_EQUIPPABLE } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -209,7 +210,7 @@ export default async function EquippableSystem(world: World) {
     for (const entity of equippableQuery.enter()) {
       if (isClient) addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
       if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
-        const objectUuid = world.entityTree.entityNodeMap.get(entity)?.uuid!
+        const objectUuid = getComponent(entity, UUIDComponent)
         dispatchAction(WorldNetworkAction.registerSceneObject({ objectUuid }))
       }
     }

@@ -2,8 +2,8 @@ import _ from 'lodash'
 import { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import {
   createActionQueue,
   dispatchAction,
@@ -12,7 +12,7 @@ import {
   startReactor,
   State,
   useHookstate
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
@@ -283,7 +283,7 @@ export default async function CameraSystem(world: World) {
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
   const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
 
-  const reactor = startReactor(() => {
+  const reactor = startReactor(function CameraReactor() {
     const cameraSettings = useHookstate(getCameraSceneMetadataState(world))
 
     useEffect(() => {

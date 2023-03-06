@@ -10,7 +10,7 @@ case "$(uname -s)" in
    Linux)
     mkdir -p ../certs
     openssl req -nodes -new -x509 -keyout ../certs/key.pem -out ../certs/cert.pem
-    cp ../certs/cert.pem /usr/local/share/ca-certificates/xrengine-local-certificate.crt
+    cp ../certs/cert.pem /usr/local/share/ca-certificates/etherealengine-local-certificate.crt
     dpkg-reconfigure ca-certificates
      ;;
    CYGWIN*|MINGW32*|MSYS*|MINGW*)

@@ -1,6 +1,6 @@
 import assert from 'assert'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'

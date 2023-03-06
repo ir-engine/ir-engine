@@ -1,6 +1,6 @@
 import { NativeTypes } from 'react-dnd-html5-backend'
 
-import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
+import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 
 /**
  * ItemTypes object containing types of items used.

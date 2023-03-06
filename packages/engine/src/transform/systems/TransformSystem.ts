@@ -1,8 +1,8 @@
 import { Not } from 'bitecs'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
+import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -38,6 +38,7 @@ import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
 } from '../components/TransformComponent'
+import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
@@ -254,6 +255,11 @@ export default async function TransformSystem(world: World) {
     }
   }
 
+  world.networkSchema['ee.core.transform'] = {
+    read: TransformSerialization.readTransform,
+    write: TransformSerialization.writeTransform
+  }
+
   const execute = () => {
     const { localClientEntity } = world
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
@@ -399,6 +405,8 @@ export default async function TransformSystem(world: World) {
     removeQuery(world, distanceFromLocalClientQuery)
     removeQuery(world, distanceFromCameraQuery)
     Skeleton.prototype.update = skeletonUpdate
+
+    delete world.networkSchema['ee.core.transform']
   }
 
   return { execute, cleanup }

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BufferGeometry, Mesh } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../common/functions/MatchesUtils'
 import { defineComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'

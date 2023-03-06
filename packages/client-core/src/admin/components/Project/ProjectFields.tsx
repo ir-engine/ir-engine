@@ -2,31 +2,26 @@ import classNames from 'classnames'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Autocomplete from '@xrengine/client-core/src/common/components/AutoCompleteSingle'
-import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
-import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
+import Autocomplete from '@etherealengine/client-core/src/common/components/AutoCompleteSingle'
+import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-
-import { Difference } from '@mui/icons-material'
-import Cancel from '@mui/icons-material/Cancel'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import HelpIcon from '@mui/icons-material/Help'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import TextField from '@mui/material/TextField'
-import Tooltip from '@mui/material/Tooltip'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import Box from '@etherealengine/ui/src/Box'
+import Container from '@etherealengine/ui/src/Container'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import TextField from '@etherealengine/ui/src/TextField'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -419,9 +414,11 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                     onBlur={handleChangeSourceRepo}
                   />
                   <Tooltip title="Copy From Destination">
-                    <IconButton className={styles.gradientButton} onClick={copyDestination}>
-                      <Difference />
-                    </IconButton>
+                    <IconButton
+                      className={styles.gradientButton}
+                      onClick={copyDestination}
+                      icon={<Icon type="Difference" />}
+                    />
                   </Tooltip>
                 </div>
               ) : (
@@ -501,7 +498,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
             projectUpdateStatus.value?.commitData.length > 0 &&
             !matchesEngineVersion && (
               <div className={styles.projectMismatchWarning}>
-                <WarningAmberIcon />
+                <Icon type="WarningAmber" />
                 {t('admin:components.project.mismatchedProjectWarning')}
               </div>
             )}
@@ -517,8 +514,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               [styles.invalid]: !projectUpdateStatus.value?.destinationValid
             })}
           >
-            {projectUpdateStatus.value?.destinationValid && <CheckCircle />}
-            {!projectUpdateStatus.value?.destinationValid && <Cancel />}
+            {projectUpdateStatus.value?.destinationValid && <Icon type="CheckCircle" />}
+            {!projectUpdateStatus.value?.destinationValid && <Icon type="Cancel" />}
             {t('admin:components.project.destinationURLValid')}
           </div>
 
@@ -530,8 +527,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 [styles.invalid]: !projectUpdateStatus.value?.sourceValid
               })}
             >
-              {projectUpdateStatus.value?.sourceValid && <CheckCircle />}
-              {!projectUpdateStatus.value?.sourceValid && <Cancel />}
+              {projectUpdateStatus.value?.sourceValid && <Icon type="CheckCircle" />}
+              {!projectUpdateStatus.value?.sourceValid && <Icon type="Cancel" />}
               {t('admin:components.project.sourceURLValid')}
             </div>
           )}
@@ -544,8 +541,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 [styles.invalid]: !projectUpdateStatus.value?.sourceProjectMatchesDestination
               })}
             >
-              {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CheckCircle />}
-              {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <Cancel />}
+              {projectUpdateStatus.value?.sourceProjectMatchesDestination && <Icon type="CheckCircle" />}
+              {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <Icon type="Cancel" />}
               {t('admin:components.project.sourceMatchesDestination')}
             </div>
           )}
@@ -583,7 +580,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {t('admin:components.project.prod')}
                         <Tooltip title={t('admin:components.project.prodTooltip')} arrow>
-                          <HelpIcon sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
+                          <Icon type="Help" sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
                         </Tooltip>
                       </Box>
                     )
@@ -594,7 +591,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {t('admin:components.project.dev')}
                         <Tooltip title={t('admin:components.project.devTooltip')} arrow>
-                          <HelpIcon sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
+                          <Icon type="Help" sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
                         </Tooltip>
                       </Box>
                     )

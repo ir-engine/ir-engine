@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 
-import { ServerInfoInterface } from '@xrengine/common/src/interfaces/ServerInfo'
+import { ServerInfoInterface } from '@etherealengine/common/src/interfaces/ServerInfo'
 
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 

@@ -1,13 +1,12 @@
 import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 
-import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
-import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-
-import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material'
-import { Button } from '@mui/material'
+import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
+import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import Button from '@etherealengine/ui/src/Button'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
@@ -180,7 +179,7 @@ const EmoteDetailView = () => {
               disabled={page === 0}
               size="medium"
               variant="iconOnly"
-              content={<ArrowBackIos />}
+              content={<Icon type="ArrowBackIos" />}
             />
           </div>
           <div
@@ -199,7 +198,7 @@ const EmoteDetailView = () => {
               disabled={(page + 1) * imgPerPage >= items.length}
               size="medium"
               variant="iconOnly"
-              content={<ArrowForwardIos />}
+              content={<Icon type="ArrowForwardIos" />}
             />
           </div>
         </div>

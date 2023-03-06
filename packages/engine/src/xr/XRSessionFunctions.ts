@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'

@@ -2,16 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
-import { API } from '@xrengine/client-core/src/API'
-import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { API } from '@etherealengine/client-core/src/API'
+import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import {
   PortalComponent,
   PortalEffects,
   PortalPreviewTypes
-} from '@xrengine/engine/src/scene/components/PortalComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
@@ -47,8 +48,8 @@ const rotation = new Quaternion()
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const { t } = useTranslation()
-  const portalName = getComponent(props.node.entity, NameComponent)
-  const transformComponent = getComponent(props.node.entity, TransformComponent)
+  const portalName = getComponent(props.entity, NameComponent)
+  const transformComponent = getComponent(props.entity, TransformComponent)
 
   useEffect(() => {
     loadPortals()
@@ -58,13 +59,13 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     const portalsDetail: PortalDetail[] = []
     try {
       portalsDetail.push(...(await API.instance.client.service('portal').find()).data)
-      console.log('portalsDetail', portalsDetail, props.node.uuid)
+      console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent))
     } catch (error) {
       throw new Error(error)
     }
     setPortals(
       portalsDetail
-        .filter((portal) => portal.portalEntityId !== props.node.uuid)
+        .filter((portal) => portal.portalEntityId !== getComponent(props.entity, UUIDComponent))
         .map(({ portalEntityId, portalEntityName, sceneName }) => {
           return { value: portalEntityId, label: sceneName + ': ' + portalEntityName }
         })
@@ -74,7 +75,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const bakeCubemap = async () => {
     const url = await uploadCubemapBakeToServer(portalName, transformComponent.position)
     loadPortals()
-    updateProperties(PortalComponent, { previewImageURL: url }, [props.node])
+    updateProperties(PortalComponent, { previewImageURL: url }, [props.entity])
   }
 
   const changeSpawnRotation = (value: Euler) => {
@@ -88,7 +89,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     loadPortals()
   }
 
-  const portalComponent = getComponent(props.node.entity, PortalComponent)
+  const portalComponent = getComponent(props.entity, PortalComponent)
 
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
@@ -97,7 +98,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={portals}
           value={portalComponent.linkedPortalId}
           onChange={updateProperty(PortalComponent, 'linkedPortalId')}
@@ -108,7 +109,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Effect Type" label={t('editor:properties.portal.lbl-effectType')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={Array.from(PortalEffects.keys()).map((val) => {
             return { value: val, label: val }
           })}
@@ -118,7 +119,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Preview Type" label={t('editor:properties.portal.lbl-previewType')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={Array.from(PortalPreviewTypes.values()).map((val) => {
             return { value: val, label: val }
           })}

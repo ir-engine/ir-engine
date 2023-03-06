@@ -1,38 +1,36 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@xrengine/client-core/src/common/components/Button'
-import InputCheck from '@xrengine/client-core/src/common/components/InputCheck'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputSlider from '@xrengine/client-core/src/common/components/InputSlider'
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Tabs from '@xrengine/client-core/src/common/components/Tabs'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { AuthService, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { AudioSettingAction, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
   AvatarInputSettingsAction,
   AvatarInputSettingsState
-} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
+} from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import {
   getPostProcessingSceneMetadataState,
   PostProcessingSceneMetadataLabel
-} from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
-import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
-import Box from '@mui/material/Box'
-import Collapse from '@mui/material/Collapse'
-import Grid from '@mui/material/Grid'
+} from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Collapse from '@etherealengine/ui/src/Collapse'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { useClientSettingState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
@@ -350,7 +348,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
 
             <InputCheck
               type="wide"
-              icon={<SurroundSoundIcon />}
+              icon={<Icon type="SurroundSound" />}
               label={t('user:usermenu.setting.use-positional-media')}
               checked={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
@@ -359,7 +357,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.masterVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-volume')}
               max={1}
               min={0}
@@ -371,7 +369,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.microphoneGain.value == 0 ? <MicOff /> : <Mic />}
+              icon={<Icon type={audioState.microphoneGain.value == 0 ? 'MicOff' : 'Mic'} />}
               label={t('user:usermenu.setting.lbl-microphone')}
               max={1}
               min={0}
@@ -395,7 +393,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               <> */}
 
             <InputSlider
-              icon={audioState.mediaStreamVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.mediaStreamVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-media-instance')}
               max={1}
               min={0}
@@ -407,7 +405,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.notificationVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.notificationVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-notification')}
               max={1}
               min={0}
@@ -419,7 +417,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.soundEffectsVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.soundEffectsVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-sound-effect')}
               max={1}
               min={0}
@@ -431,7 +429,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.backgroundMusicVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.backgroundMusicVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-background-music-volume')}
               max={1}
               min={0}
@@ -450,7 +448,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
         {selectedTab === 'graphics' && (
           <>
             <InputSlider
-              icon={<BlurLinear sx={{ ml: '-3px' }} />}
+              icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}
               label={t('user:usermenu.setting.lbl-resolution')}
               max={5}
               min={1}

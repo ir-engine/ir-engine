@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
-import PermIdentityIcon from '@mui/icons-material/PermIdentity'
-import CardMedia from '@mui/material/CardMedia'
+import CardMedia from '@etherealengine/ui/src/CardMedia'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import styles from './index.module.scss'
 
@@ -69,6 +69,6 @@ export const LazyImage = ({ src, alt }) => {
       className={styles.lazyImage}
     />
   ) : (
-    <PermIdentityIcon color="primary" className={styles.lazyImage} />
+    <Icon type="PermIdentity" color="primary" className={styles.lazyImage} />
   )
 }

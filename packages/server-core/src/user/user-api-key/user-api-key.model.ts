@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
+import { UserApiKeyInterface } from '@etherealengine/common/src/dbmodels/UserApiKey'
 
 import { Application } from '../../../declarations'
 

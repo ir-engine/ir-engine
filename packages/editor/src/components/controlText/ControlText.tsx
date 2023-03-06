@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 
 import { useEditorHelperState } from '../../services/EditorHelperState'
 import { useSelectionState } from '../../services/SelectionServices'

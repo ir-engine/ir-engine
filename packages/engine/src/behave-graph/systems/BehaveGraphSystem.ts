@@ -1,7 +1,7 @@
 import { ILifecycleEventEmitter, ILogger, Registry } from 'behave-graph'
 import { matches, Validator } from 'ts-matches'
 
-import { createActionQueue, defineAction, defineState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, defineAction, defineState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'

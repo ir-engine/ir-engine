@@ -2,10 +2,10 @@ import assert, { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
 import { Group, Quaternion, Vector3 } from 'three'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
@@ -26,6 +26,15 @@ import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  readPosition,
+  readRotation,
+  readTransform,
+  TransformSerialization,
+  writePosition,
+  writeRotation,
+  writeTransform
+} from '../../transform/TransformSerialization'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -37,9 +46,6 @@ import {
   readCompressedVector3,
   readEntities,
   readEntity,
-  readPosition,
-  readRotation,
-  readTransform,
   readVector3,
   readVector4
   // readXRHands
@@ -49,9 +55,6 @@ import {
   writeCompressedVector3,
   writeEntities,
   writeEntity,
-  writePosition,
-  writeRotation,
-  writeTransform,
   writeVector3,
   writeVector4
   // writeXRHands
@@ -71,6 +74,10 @@ describe('DataReader', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+    Engine.instance.currentWorld.networkSchema['ee.core.transform'] = {
+      read: TransformSerialization.readTransform,
+      write: TransformSerialization.writeTransform
+    }
   })
 
   it('should checkBitflag', () => {
@@ -348,7 +355,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readTransform(view, entity, Engine.instance.currentWorld.dirtyTransforms)
+    readTransform(view, entity)
 
     strictEqual(TransformComponent.position.x[entity], posX)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -369,7 +376,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readTransform(view, entity, Engine.instance.currentWorld.dirtyTransforms)
+    readTransform(view, entity)
 
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -484,7 +491,7 @@ describe('DataReader', () => {
       ownerId: userId
     })
 
-    writeEntity(view, networkId, entity)
+    writeEntity(view, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
 
     transform.position.x = 0
     transform.position.y = 0
@@ -496,7 +503,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readEntity(view, Engine.instance.currentWorld, userId)
+    readEntity(view, Engine.instance.currentWorld, userId, Object.values(Engine.instance.currentWorld.networkSchema))
 
     strictEqual(TransformComponent.position.x[entity], posX)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -511,13 +518,13 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    writeEntity(view, networkId, entity)
+    writeEntity(view, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
 
     transform.position.x = posX
 
     view.cursor = 0
 
-    readEntity(view, Engine.instance.currentWorld, userId)
+    readEntity(view, Engine.instance.currentWorld, userId, Object.values(Engine.instance.currentWorld.networkSchema))
 
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -554,7 +561,7 @@ describe('DataReader', () => {
 
     setComponent(entity, NetworkObjectAuthorityTag)
 
-    writeEntity(view, networkId, entity)
+    writeEntity(view, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
 
     view.cursor = 0
 
@@ -563,7 +570,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, Engine.instance.currentWorld, userId)
+    readEntity(view, Engine.instance.currentWorld, userId, Object.values(Engine.instance.currentWorld.networkSchema))
 
     // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -600,7 +607,7 @@ describe('DataReader', () => {
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
-    writeEntity(view, networkId, entity)
+    writeEntity(view, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
 
     view.cursor = 0
 
@@ -609,7 +616,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, Engine.instance.currentWorld, userId)
+    readEntity(view, Engine.instance.currentWorld, userId, Object.values(Engine.instance.currentWorld.networkSchema))
 
     // should no repopulate as entity is not listed in network entities
     strictEqual(TransformComponent.position.x[entity], 0)

@@ -1,7 +1,7 @@
 {
     "info": {
-      "title": "XREngine API Surface",
-      "description": "APIs for the XREngine application",
+      "title": "Ethereal Engine API Surface",
+      "description": "APIs for the Ethereal Engine application",
       "version": "1.0.0"
     },
     "paths": {

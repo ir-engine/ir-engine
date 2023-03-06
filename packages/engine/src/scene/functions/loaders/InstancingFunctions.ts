@@ -23,8 +23,8 @@ import {
 } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { defineAction, dispatchAction, State } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, dispatchAction, State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../../assets/classes/DependencyTree'
@@ -46,10 +46,9 @@ import {
   removeComponent,
   useComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { getEntityTreeNodeByUUID, iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { setCallback } from '../../components/CallbackComponent'
 import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 import {
@@ -68,6 +67,7 @@ import {
   VertexProperties
 } from '../../components/InstancingComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
+import { UUIDComponent } from '../../components/UUIDComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
 import LogarithmicDepthBufferMaterialChunk from '../LogarithmicDepthBufferMaterialChunk'
@@ -324,12 +324,15 @@ export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
   }
   const scatterProps = getComponent(entity, InstancingComponent)
   if (scatterProps.surface) {
-    const eNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+    const eNode = entity
     DependencyTree.add(
       scatterProps.surface,
       new Promise<void>((resolve) => {
         matchActionOnce(
-          InstancingActions.instancingStaged.matches.validate((action) => action.uuid === eNode.uuid, ''),
+          InstancingActions.instancingStaged.matches.validate(
+            (action) => action.uuid === getComponent(eNode, UUIDComponent),
+            ''
+          ),
           () => resolve()
         )
       })
@@ -748,8 +751,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   result.frustumCulled = false
   obj3d.add(result)
   scatterState.state.set(ScatterState.STAGED)
-  const eNode = world.entityTree.entityNodeMap.get(entity)!
-  dispatchAction(InstancingActions.instancingStaged({ uuid: eNode.uuid }))
+  dispatchAction(InstancingActions.instancingStaged({ uuid: getComponent(entity, UUIDComponent) }))
 }
 
 export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {

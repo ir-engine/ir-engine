@@ -16,8 +16,8 @@ import {
   Vector3
 } from 'three'
 
-import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
-import { createActionQueue, getState, removeActionQueue, startReactor, useState } from '@xrengine/hyperflux'
+import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
+import { createActionQueue, getState, removeActionQueue, startReactor, useState } from '@etherealengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -256,7 +256,7 @@ export default async function XRAnchorSystem(world: World) {
   const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
   const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
-  const scenePlacementReactor = startReactor(() => {
+  const scenePlacementReactor = startReactor(function ScenePlancementReactor() {
     const scenePlacementMode = useState(xrState.scenePlacementMode)
     const xrSession = useState(xrState.session)
     const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)

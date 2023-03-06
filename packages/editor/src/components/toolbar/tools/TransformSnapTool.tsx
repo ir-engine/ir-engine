@@ -1,8 +1,8 @@
 import React from 'react'
 
-import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction } from '@xrengine/hyperflux'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 

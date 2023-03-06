@@ -1,7 +1,7 @@
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
-import channelPermissionAuthenticate from '@xrengine/server-core/src/hooks/channel-permission-authenticate'
-import messagePermissionAuthenticate from '@xrengine/server-core/src/hooks/message-permission-authenticate'
-import removeMessageStatuses from '@xrengine/server-core/src/hooks/remove-message-statuses'
+import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
+import channelPermissionAuthenticate from '@etherealengine/server-core/src/hooks/channel-permission-authenticate'
+import messagePermissionAuthenticate from '@etherealengine/server-core/src/hooks/message-permission-authenticate'
+import removeMessageStatuses from '@etherealengine/server-core/src/hooks/remove-message-statuses'
 
 import authenticate from '../../hooks/authenticate'
 

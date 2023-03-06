@@ -2,19 +2,18 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { v4 as uuidv4 } from 'uuid'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { BotCommands, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-
-import { Autorenew, Face, Save } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import IconButton from '@mui/material/IconButton'
-import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { BotCommands, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import Button from '@etherealengine/ui/src/Button'
+import Card from '@etherealengine/ui/src/Card'
+import CardContent from '@etherealengine/ui/src/CardContent'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Paper from '@etherealengine/ui/src/Paper'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -168,13 +167,15 @@ const CreateBot = () => {
   return (
     <Card className={styles.botRootLeft}>
       <Paper className={styles.botHeader} style={{ display: 'flex' }}>
-        <Typography className={styles.botTitle}>
-          <Face />
-          <div className={styles.smFont}>{t('admin:components.bot.createNewBot')}</div>
-        </Typography>
+        <div className={styles.botTitle}>
+          <Typography className={styles.smFont}>
+            <Icon type="Face" />
+            {t('admin:components.bot.createNewBot')}
+          </Typography>
+        </div>
 
         <Button variant="contained" disableElevation type="submit" className={styles.botSaveBtn} onClick={handleSubmit}>
-          <Save className={styles.saveBtnIcon} /> {t('social:save')}
+          <Icon type="Save" className={styles.saveBtnIcon} /> {t('social:save')}
         </Button>
       </Paper>
       <CardContent>
@@ -206,9 +207,10 @@ const CreateBot = () => {
             menu={locationMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations}>
-                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-              </IconButton>
+              <IconButton
+                onClick={fetchAdminLocations}
+                icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
+              />
             }
           />
 
@@ -220,9 +222,10 @@ const CreateBot = () => {
             menu={instanceMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances}>
-                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-              </IconButton>
+              <IconButton
+                onClick={fetchAdminInstances}
+                icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
+              />
             }
           />
 

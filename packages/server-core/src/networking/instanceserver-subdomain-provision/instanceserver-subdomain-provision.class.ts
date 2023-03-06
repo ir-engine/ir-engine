@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { InstanceserverSubdomainProvisionInterface } from '@xrengine/common/src/dbmodels/InstanceserverSubdomainProvision'
+import { InstanceserverSubdomainProvisionInterface } from '@etherealengine/common/src/dbmodels/InstanceserverSubdomainProvision'
 
 import { Application } from '../../../declarations'
 

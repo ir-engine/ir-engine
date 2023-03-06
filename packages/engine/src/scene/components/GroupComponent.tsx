@@ -2,7 +2,7 @@ import * as bitECS from 'bitecs'
 import React from 'react'
 import { Camera, Material, Mesh, Object3D } from 'three'
 
-import { none } from '@xrengine/hyperflux'
+import { none } from '@etherealengine/hyperflux'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
@@ -105,9 +105,9 @@ export const startGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
   Components: QueryComponents = []
 ) =>
-  startQueryReactor([GroupComponent, ...Components], function (props) {
+  startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
     const entity = props.root.entity
-    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+    // if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 

@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Visibility, VisibilityOff } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import OutlinedInput from '@mui/material/OutlinedInput'
+import Button from '@etherealengine/ui/src/Button'
+import Container from '@etherealengine/ui/src/Container'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import InputAdornment from '@etherealengine/ui/src/InputAdornment'
+import OutlinedInput from '@etherealengine/ui/src/OutlinedInput'
 
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -72,9 +72,8 @@ export const PasswordLoginApp = (): JSX.Element => {
                       onMouseDown={handleMouseDownPassword}
                       color="secondary"
                       size="large"
-                    >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
+                      icon={<Icon type={showPassword ? 'Visibility' : 'VisibilityOff'} />}
+                    />
                   </InputAdornment>
                 }
               />

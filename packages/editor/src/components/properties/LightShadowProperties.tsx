@@ -1,17 +1,13 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Vector2 } from 'three'
 
-import { Component, getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Component, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { InfoTooltip } from '../layout/Tooltip'
 import { updateProperties, updateProperty } from './Util'
 
 /**
@@ -42,7 +38,7 @@ const ShadowMapResolutionOptions = [
 
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
-  node: EntityTreeNode
+  entity: Entity
   comp: Component<any, any>
 }
 
@@ -59,7 +55,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
     updateProperties(props.comp, { shadowMapResolution: resolution })
   }
 
-  const lightComponent = useComponent(props.node.entity, props.comp).value as any
+  const lightComponent = useComponent(props.entity, props.comp).value as any
 
   return (
     <>
@@ -68,7 +64,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
       </InputGroup>
       <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={ShadowMapResolutionOptions}
           value={lightComponent.shadowMapResolution?.x}
           onChange={changeShadowMapResolution}

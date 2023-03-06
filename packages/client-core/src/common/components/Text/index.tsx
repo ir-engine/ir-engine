@@ -1,8 +1,9 @@
 import React from 'react'
 
+import Typography from '@etherealengine/ui/src/Typography'
+
 import { SxProps, Theme } from '@mui/material/styles'
 import { Variant } from '@mui/material/styles/createTypography'
-import Typography from '@mui/material/Typography'
 
 import { handleSoundEffect } from '../../utils'
 import styles from './index.module.scss'

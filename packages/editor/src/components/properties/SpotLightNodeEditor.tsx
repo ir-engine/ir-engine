@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { SpotLightComponent } from '@xrengine/engine/src/scene/components/SpotLightComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 
 import AdjustIcon from '@mui/icons-material/Adjust'
 
@@ -22,7 +22,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.node.entity, SpotLightComponent).value
+  const lightComponent = useComponent(props.entity, SpotLightComponent).value
 
   return (
     <NodeEditor {...props} description={t('editor:properties.spotLight.description')}>
@@ -82,7 +82,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         value={lightComponent.decay}
         onChange={updateProperty(SpotLightComponent, 'decay')}
       />
-      <LightShadowProperties node={props.node} comp={SpotLightComponent} />
+      <LightShadowProperties entity={props.entity} comp={SpotLightComponent} />
     </NodeEditor>
   )
 }

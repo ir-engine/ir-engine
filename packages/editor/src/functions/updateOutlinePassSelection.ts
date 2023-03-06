@@ -1,10 +1,10 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent, getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent, getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
+import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 
 import { accessSelectionState } from '../services/SelectionServices'
 

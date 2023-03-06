@@ -3,8 +3,8 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import _ from 'lodash'
 import { Op } from 'sequelize'
 
-import { Channel as ChannelInterface } from '@xrengine/common/src/interfaces/Channel'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

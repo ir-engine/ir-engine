@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-
-import EmailIcon from '@mui/icons-material/Email'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import PhoneIcon from '@mui/icons-material/Phone'
-import Box from '@mui/material/Box'
-import Tooltip from '@mui/material/Tooltip'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
 
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
@@ -95,52 +92,42 @@ const UserTable = ({ className, search }: UserProps) => {
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           {discordIp && (
             <Tooltip title={discordIp.accountIdentifier!} arrow>
-              <span>
-                <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {googleIp && (
             <Tooltip title={googleIp.accountIdentifier!} arrow>
-              <span>
-                <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {facebookIp && (
             <Tooltip title={facebookIp.accountIdentifier!} arrow>
-              <span>
-                <FacebookIcon width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {twitterIp && (
             <Tooltip title={twitterIp.accountIdentifier!} arrow>
-              <span>
-                <TwitterIcon width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {linkedinIp && (
             <Tooltip title={linkedinIp.accountIdentifier!} arrow>
-              <span>
-                <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
-              </span>
+              <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {githubIp && (
             <Tooltip title={githubIp.accountIdentifier!} arrow>
-              <GitHubIcon width="20px" height="20px" />
+              <Icon type="GitHub" width="20px" height="20px" />
             </Tooltip>
           )}
           {emailIp && (
             <Tooltip title={emailIp.accountIdentifier!} arrow>
-              <EmailIcon width="20px" height="20px" />
+              <Icon type="Email" width="20px" height="20px" />
             </Tooltip>
           )}
           {smsIp && (
             <Tooltip title={smsIp.accountIdentifier!} arrow>
-              <PhoneIcon width="20px" height="20px" />
+              <Icon type="Phone" width="20px" height="20px" />
             </Tooltip>
           )}
         </Box>

@@ -1,14 +1,14 @@
 import React from 'react'
 
-import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import Box from '@etherealengine/ui/src/Box'
+import FormControl from '@etherealengine/ui/src/FormControl'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
+import FormHelperText from '@etherealengine/ui/src/FormHelperText'
+import FormLabel from '@etherealengine/ui/src/FormLabel'
+import Radio from '@etherealengine/ui/src/Radio'
+import RadioGroup from '@etherealengine/ui/src/RadioGroup'
 
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormHelperText from '@mui/material/FormHelperText'
-import FormLabel from '@mui/material/FormLabel'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
@@ -47,15 +47,14 @@ const InputRadio = ({ className, disabled, error, id, label, name, options, sx, 
           onChange={onChange}
         >
           {options.map((el, index) => (
-            <>
+            <div key={index}>
               <FormControlLabel
-                key={index}
                 value={el.value}
                 control={<Radio onPointerUp={handleSoundEffect} onPointerEnter={handleSoundEffect} />}
                 label={el.label}
               />
               {el.overflowContent}
-            </>
+            </div>
           ))}
         </RadioGroup>
       </FormControl>

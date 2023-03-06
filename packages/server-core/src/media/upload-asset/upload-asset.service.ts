@@ -4,13 +4,13 @@ import multer from 'multer'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'
 
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import {
   AdminAssetUploadArgumentsType,
   AssetUploadType,
   UploadFile
-} from '@xrengine/common/src/interfaces/UploadAssetInterface'
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
+} from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
@@ -22,7 +22,7 @@ import hooks from './upload-asset.hooks'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'upload-asset': any
   }

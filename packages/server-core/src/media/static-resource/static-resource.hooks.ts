@@ -1,8 +1,8 @@
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
-import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
-import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
+import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
+import replaceThumbnailLink from '@etherealengine/server-core/src/hooks/replace-thumbnail-link'
+import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'

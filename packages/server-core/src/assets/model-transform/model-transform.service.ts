@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { ModelTransform } from './model-transform.class'
 import hooks from './model-transform.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'model-transform': ModelTransform
   }

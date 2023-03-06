@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import Search from '../../common/Search'

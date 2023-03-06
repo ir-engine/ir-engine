@@ -6,7 +6,7 @@ import fs from 'fs'
 import {
   createDefaultStorageProvider,
   getStorageProvider
-} from '@xrengine/server-core/src/media/storageprovider/storageprovider'
+} from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 
 cli.enable('status')
 

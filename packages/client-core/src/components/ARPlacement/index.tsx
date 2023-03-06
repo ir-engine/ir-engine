@@ -1,12 +1,11 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import AnchorIcon from '@mui/icons-material/Anchor'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AppAction } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -40,7 +39,7 @@ export const ARPlacement = () => {
         onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
-        {!inPlacingMode && <AnchorIcon />}
+        {!inPlacingMode && <Icon type="Anchor" />}
         <div style={{ margin: '3px' }}>{inPlacingMode ? t('common:ar.done') : t('common:ar.placeScene')}</div>
       </button>
     </div>

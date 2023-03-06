@@ -1,8 +1,8 @@
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { AdminAuthSetting as AdminAuthSettingInterface } from '@etherealengine/common/src/interfaces/AdminAuthSetting'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -99,7 +99,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
       try {
         logger.info('Attempting to refresh API pods')
         const refreshApiPodResponse = await this.app.k8AppsClient.patchNamespacedDeployment(
-          `${config.server.releaseName}-xrengine-api`,
+          `${config.server.releaseName}-etherealengine-api`,
           'default',
           {
             spec: {

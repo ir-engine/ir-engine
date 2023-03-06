@@ -4,18 +4,18 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
-import exportMaterialsGLTF from '@xrengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
-import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
+import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
   entryId,
   hashMaterialSource,
   materialFromId,
   registerMaterial
-} from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { useMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, getState, removeActionQueue, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { useMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { createActionQueue, getState, removeActionQueue, useState } from '@etherealengine/hyperflux'
 
 import { Divider, Grid, Stack } from '@mui/material'
 

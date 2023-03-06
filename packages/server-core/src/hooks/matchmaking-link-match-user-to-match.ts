@@ -1,6 +1,6 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+import { OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
 
 import logger from '../ServerLogger'
 

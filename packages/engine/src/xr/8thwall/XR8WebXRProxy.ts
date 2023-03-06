@@ -1,6 +1,6 @@
 import { EventDispatcher, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { V_111 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'

@@ -1,6 +1,6 @@
 import { Event, Object3D } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import {
   ComponentMap,

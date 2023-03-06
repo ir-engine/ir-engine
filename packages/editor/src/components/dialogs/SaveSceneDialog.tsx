@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { dispatchAction, useState } from '@xrengine/hyperflux'
+import { dispatchAction, useState } from '@etherealengine/hyperflux'
 
 import Box from '@mui/material/Box'
 

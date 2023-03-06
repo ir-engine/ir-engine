@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { MatchInstanceInterface } from '@xrengine/common/src/dbmodels/MatchInstance'
+import { MatchInstanceInterface } from '@etherealengine/common/src/dbmodels/MatchInstance'
 
 import { Application } from '../../../declarations'
 

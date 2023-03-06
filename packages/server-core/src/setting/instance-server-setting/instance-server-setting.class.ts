@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { InstanceServerSetting as InstanceServerSettingInterface } from '@xrengine/common/src/interfaces/InstanceServerSetting'
+import { InstanceServerSetting as InstanceServerSettingInterface } from '@etherealengine/common/src/interfaces/InstanceServerSetting'
 
 import { Application } from '../../../declarations'
 

@@ -1,6 +1,6 @@
 import { BatchedParticleRenderer } from 'three.quarks'
 
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   createActionQueue,
   defineAction,
@@ -9,7 +9,7 @@ import {
   getState,
   NO_PROXY,
   removeActionQueue
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'

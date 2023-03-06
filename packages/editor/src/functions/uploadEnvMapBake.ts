@@ -1,24 +1,24 @@
 import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
 
-import { addOBCPlugin, removeOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeCompilePlugin'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   defineQuery,
   getComponent,
   hasComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
-import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
-import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { beforeMaterialCompile } from '@etherealengine/engine/src/scene/classes/BPCEMShader'
+import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
+import { convertCubemapToEquiImageData } from '@etherealengine/engine/src/scene/classes/ImageUtils'
+import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { accessEditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
@@ -54,7 +54,7 @@ const getScenePositionForBake = (world: World, entity: Entity | null) => {
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const world = Engine.instance.currentWorld
-  const isSceneEntity = entity === world.entityTree.rootNode.entity
+  const isSceneEntity = entity === world.sceneEntity
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {

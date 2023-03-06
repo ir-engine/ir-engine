@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import CloseIcon from '@mui/icons-material/Close'
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
+import { dispatchAction } from '@etherealengine/hyperflux'
+import Dialog from '@etherealengine/ui/src/Dialog'
+import DialogContent from '@etherealengine/ui/src/DialogContent'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { useDialogState } from '../../services/DialogService'
 import { DialogAction } from '../../services/DialogService'
@@ -33,9 +32,13 @@ const UIDialog = (): JSX.Element => {
     <Dialog open={isOpened.value} onClose={handleClose} aria-labelledby="xr-dialog" color="background">
       <DialogTitle className={styles.dialogTitle}>
         <Typography variant="h6">{(content && content?.value?.title) ?? ''}</Typography>
-        <IconButton aria-label="close" className={styles.dialogCloseButton} onClick={handleClose} size="large">
-          <CloseIcon />
-        </IconButton>
+        <IconButton
+          aria-label="close"
+          className={styles.dialogCloseButton}
+          onClick={handleClose}
+          size="large"
+          icon={<Icon type="Close" />}
+        />
       </DialogTitle>
       <DialogContent className={styles.dialogContent}>{content && content?.value?.children}</DialogContent>
     </Dialog>

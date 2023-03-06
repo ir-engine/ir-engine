@@ -5,13 +5,13 @@ import fs from 'fs'
 import path from 'path'
 import { DataTypes, Sequelize } from 'sequelize'
 
-import config from '@xrengine/server-core/src/appconfig'
-import { getCacheDomain } from '@xrengine/server-core/src/media/storageprovider/getCacheDomain'
+import config from '@etherealengine/server-core/src/appconfig'
+import { getCacheDomain } from '@etherealengine/server-core/src/media/storageprovider/getCacheDomain'
 import {
   createDefaultStorageProvider,
   getStorageProvider
-} from '@xrengine/server-core/src/media/storageprovider/storageprovider'
-import { getContentType } from '@xrengine/server-core/src/util/fileUtils'
+} from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { getContentType } from '@etherealengine/server-core/src/util/fileUtils'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 if (!kubernetesEnabled) {
@@ -24,7 +24,7 @@ if (!kubernetesEnabled) {
 const db = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrengine',
+  database: process.env.MYSQL_DATABASE ?? 'etherealengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql'

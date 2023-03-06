@@ -1,6 +1,6 @@
 {
-  "appId": "com.xrengine.client",
-  "appName": "@xrengine/client",
+  "appId": "org.etherealengine.client",
+  "appName": "@etherealengine/client",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

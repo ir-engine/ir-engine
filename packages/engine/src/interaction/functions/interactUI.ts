@@ -1,9 +1,9 @@
-import { WebLayer3D } from '@xrfoundation/xrui'
+import { WebLayer3D } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -14,7 +14,7 @@ export function createInteractUI(entity: Entity, interactMessage: string) {
   const nameComponent = getComponent(entity, NameComponent)
   addComponent(ui.entity, NameComponent, 'interact-ui-' + nameComponent)
 
-  addEntityNodeChild(createEntityNode(ui.entity), Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
+  addEntityNodeChild(ui.entity, entity)
 
   const xrui = getComponent(ui.entity, XRUIComponent)
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {

@@ -1,10 +1,10 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { LocationType } from '@etherealengine/common/src/interfaces/LocationType'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

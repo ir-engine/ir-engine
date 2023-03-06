@@ -1,11 +1,11 @@
 import { MathUtils } from 'three'
 import { matches, Validator } from 'ts-matches'
 
-import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
 
 import { HyperFlux } from './StoreFunctions'
 

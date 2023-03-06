@@ -1,6 +1,6 @@
 import { AnimationMixer, Group, LoopOnce } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerType, AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
