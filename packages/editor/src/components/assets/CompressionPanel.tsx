@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { API } from '@xrengine/client-core/src/API'
-import { KTX2EncodeArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
-import { State } from '@xrengine/hyperflux'
+import { API } from '@etherealengine/client-core/src/API'
+import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { State } from '@etherealengine/hyperflux'
 
 import { Button, Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 
