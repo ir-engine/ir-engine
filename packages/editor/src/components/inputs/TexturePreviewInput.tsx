@@ -12,6 +12,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
 import { ImageContainer } from './ImagePreviewInput'
 import InputGroup from './InputGroup'
+import { StringInputProps } from './StringInput'
 import Vector2Input from './Vector2Input'
 
 /**
@@ -21,7 +22,7 @@ import Vector2Input from './Vector2Input'
  * @param       {any} rest
  * @constructor
  */
-export function TextureInput({ onChange, ...rest }) {
+export function TextureInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={[...ImageFileTypes, ...VideoFileTypes]}

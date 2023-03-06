@@ -4,6 +4,7 @@ import { CustomScriptFileTypes } from '@etherealengine/engine/src/assets/constan
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
+import { StringInputProps } from './StringInput'
 
 /**
  * ScriptInput used to render component view for script inputs.
@@ -12,7 +13,7 @@ import FileBrowserInput from './FileBrowserInput'
  * @param       {any} rest
  * @constructor
  */
-export function ScriptInput({ onChange, ...rest }) {
+export function ScriptInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={CustomScriptFileTypes}

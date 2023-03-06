@@ -1,6 +1,6 @@
 import { entityExists } from 'bitecs'
 import { useEffect } from 'react'
-import { Object3D, Scene } from 'three'
+import { Mesh, Object3D, Scene } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../assets/classes/DependencyTree'
@@ -9,6 +9,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import {
   defineComponent,
   getComponent,
+  getComponentState,
   hasComponent,
   removeComponent,
   useComponent,
@@ -36,6 +37,7 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       generateBVH: true,
+      avoidCameraOcclusion: false,
       scene: undefined as undefined | Scene
     }
   },
@@ -43,7 +45,8 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      generateBVH: component.generateBVH.value
+      generateBVH: component.generateBVH.value,
+      avoidCameraOcclusion: component.avoidCameraOcclusion.value
     }
   },
 
@@ -128,24 +131,45 @@ function ModelReactor({ root }: EntityReactorProps) {
     loadModel()
   }, [modelComponent.src])
 
-  // update scene
   useEffect(() => {
     const scene = modelComponent.scene.value
-    if (!scene || groupComponent?.value?.find((group: any) => group === scene)) return
+    if (!scene) return
+    enableObjectLayer(scene, ObjectLayers.Camera, model.avoidCameraOcclusion)
+  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
 
+  // update scene
+  useEffect(() => {
+    const scene = modelComponent.scene.get({ noproxy: true })
+
+    if (!scene) return
     addObjectToGroup(entity, scene)
-    parseGLTFModel(entity)
 
-    if (model.generateBVH) {
-      scene.traverse(generateMeshBVH)
-    }
+    if (groupComponent?.value?.find((group: any) => group === scene)) return
+    parseGLTFModel(entity)
     setBoundingBoxComponent(entity)
-    /** @todo - improve BVH implementation */
-    // enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
     removeComponent(entity, SceneAssetPendingTagComponent)
 
-    return () => removeObjectFromGroup(entity, scene)
-  }, [modelComponent.scene])
+    let active = true
+
+    if (model.generateBVH) {
+      const bvhDone = [] as Promise<void>[]
+      scene.traverse((obj: Mesh) => {
+        if (obj.geometry?.boundsTree) return
+        bvhDone.push(generateMeshBVH(obj))
+      })
+      // trigger group state invalidation when bvh is done
+      Promise.all(bvhDone).then(() => {
+        if (!active) return
+        const group = getComponentState(entity, GroupComponent)
+        if (group) group.set([...group.value])
+      })
+    }
+
+    return () => {
+      removeObjectFromGroup(entity, scene)
+      active = false
+    }
+  }, [modelComponent.scene, model.generateBVH])
 
   return null
 }

@@ -258,6 +258,7 @@
       "lbl-receiveShadow": "Receive Shadow",
       "lbl-interactable": "Interactable",
       "lbl-generateBVH": "Generate BVH",
+      "lbl-avoidCameraOcclusion": "Avoid Camera Occlusion",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
       "lbl-name": "Name",
       "lbl-url": "Model Url",

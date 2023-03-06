@@ -151,7 +151,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
       parentNode = entityTreeComponent?.parentEntity
       const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-      if (!node.lastChild && parentNode && parentTreeComponent.children.length > node.childIndex + 1) {
+      if (!node.lastChild && parentNode && parentTreeComponent?.children.length > node.childIndex + 1) {
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
       }
     } else {

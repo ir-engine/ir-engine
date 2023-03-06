@@ -36,6 +36,7 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { ButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { SerializationSchema } from '../../networking/serialization/Utils'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -174,6 +175,11 @@ export class Engine {
   // _mediaHostId = null! as UserId
 
   networks = new Map<string, Network>()
+
+  /** a map of component names to a read/write function pairfor network component serialization */
+  networkSchema: {
+    [key: string]: SerializationSchema
+  } = {}
 
   publicPath = ''
   gltfLoader: GLTFLoader = null!

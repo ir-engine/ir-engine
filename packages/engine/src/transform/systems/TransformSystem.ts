@@ -37,6 +37,7 @@ import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
 } from '../components/TransformComponent'
+import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
@@ -256,6 +257,11 @@ export default async function TransformSystem() {
     }
   }
 
+  Engine.instance.networkSchema['ee.core.transform'] = {
+    read: TransformSerialization.readTransform,
+    write: TransformSerialization.writeTransform
+  }
+
   const execute = () => {
     const { localClientEntity } = Engine.instance
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
@@ -406,6 +412,8 @@ export default async function TransformSystem() {
     removeQuery(distanceFromLocalClientQuery)
     removeQuery(distanceFromCameraQuery)
     Skeleton.prototype.update = skeletonUpdate
+
+    delete Engine.instance.networkSchema['ee.core.transform']
   }
 
   return { execute, cleanup }

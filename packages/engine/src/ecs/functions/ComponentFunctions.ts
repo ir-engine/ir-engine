@@ -1,3 +1,4 @@
+import { subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
 import React, { startTransition, useEffect, useLayoutEffect } from 'react'
 
@@ -180,8 +181,13 @@ export const setComponent = <C extends Component>(
   if (!hasComponent(entity, Component)) {
     value = Component.onInit(entity) ?? args
     Component.existenceMap[entity].set(true)
-    if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(value)
-    else Component.stateMap[entity]!.set(value)
+    if (!Component.stateMap[entity]) {
+      const state = hookstate(value, subscribable())
+      Component.stateMap[entity] = state
+      state.subscribe((value) => {
+        Component.valueMap[entity] = value
+      })
+    } else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
       if (!Component.reactor.name || Component.reactor.name === 'reactor')

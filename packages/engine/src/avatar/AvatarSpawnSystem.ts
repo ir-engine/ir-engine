@@ -13,6 +13,7 @@ import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 import { spawnAvatarReceptor } from './functions/spawnAvatarReceptor'
+import { IKSerialization } from './IKSerialization'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -74,6 +75,21 @@ export default async function AvatarSpawnSystem() {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
 
+  Engine.instance.networkSchema['ee.core.xrhead'] = {
+    read: IKSerialization.readXRHead,
+    write: IKSerialization.writeXRHead
+  }
+
+  Engine.instance.networkSchema['ee.core.xrLeftHand'] = {
+    read: IKSerialization.readXRLeftHand,
+    write: IKSerialization.writeXRLeftHand
+  }
+
+  Engine.instance.networkSchema['ee.core.xrRightHand'] = {
+    read: IKSerialization.readXRRightHand,
+    write: IKSerialization.writeXRRightHand
+  }
+
   const execute = () => {
     for (const action of avatarSpawnQueue()) spawnAvatarReceptor(action)
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
@@ -91,6 +107,10 @@ export default async function AvatarSpawnSystem() {
     removeQuery(spawnPointQuery)
     removeActionQueue(avatarSpawnQueue)
     removeActionQueue(avatarDetailsQueue)
+
+    delete Engine.instance.networkSchema['ee.core.xrHead']
+    delete Engine.instance.networkSchema['ee.core.xrLeftHand']
+    delete Engine.instance.networkSchema['ee.core.xrRightHand']
   }
 
   return { execute, cleanup }

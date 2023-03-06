@@ -112,6 +112,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'generateBVH')}
         />
       </InputGroup>
+      <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
+        <BooleanInput
+          value={modelComponent.avoidCameraOcclusion.value}
+          onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
+        />
+      </InputGroup>
       <InputGroup name="Is Equippable" label={t('editor:properties.model.lbl-isEquippable')}>
         <BooleanInput value={isEquippable} onChange={onChangeEquippable} />
       </InputGroup>
