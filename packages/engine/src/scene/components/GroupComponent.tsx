@@ -2,7 +2,7 @@ import * as bitECS from 'bitecs'
 import React from 'react'
 import { Camera, Material, Mesh, Object3D } from 'three'
 
-import { none } from '@xrengine/hyperflux'
+import { none } from '@etherealengine/hyperflux'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'

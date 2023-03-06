@@ -1,7 +1,7 @@
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useHookstate } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { isMobile } from '../common/functions/isMobile'

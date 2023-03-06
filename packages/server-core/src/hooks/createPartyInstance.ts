@@ -1,8 +1,8 @@
 import { HookContext } from '@feathersjs/feathers'
 import _ from 'lodash'
 
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 
 import config from '../appconfig'
 import getLocalServerIp, { ServerAddress } from '../util/get-local-server-ip'

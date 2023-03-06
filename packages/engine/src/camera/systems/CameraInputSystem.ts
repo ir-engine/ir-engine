@@ -2,7 +2,7 @@ import { clamp } from 'lodash'
 import { useEffect } from 'react'
 import { Vector2 } from 'three'
 
-import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'

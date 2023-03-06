@@ -1,4 +1,4 @@
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { ProjectUpdateActions, ProjectUpdateReceptors } from '../admin/services/ProjectUpdateService'
 

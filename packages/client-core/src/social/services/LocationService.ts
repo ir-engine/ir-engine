@@ -1,9 +1,9 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Location, LocationSeed } from '@etherealengine/common/src/interfaces/Location'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

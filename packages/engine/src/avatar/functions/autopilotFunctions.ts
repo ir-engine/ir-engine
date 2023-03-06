@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
 import { Vector3 } from 'three'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'

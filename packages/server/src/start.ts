@@ -4,11 +4,11 @@ import path from 'path'
 import psList from 'ps-list'
 import favicon from 'serve-favicon'
 
-import { ServerMode } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
-import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
-import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
+import { ServerMode } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/server-core/src/appconfig'
+import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { StartCorsServer } from '@etherealengine/server-core/src/createCorsServer'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import channels from './channels'
 
@@ -47,7 +47,7 @@ export const start = async (): Promise<void> => {
       // Check for child process with mac OSX
       // exec("docker ps | grep mariadb", (err, stdout, stderr) => {
       //   if(!stdout.includes("mariadb")){
-      //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xrengine/scripts/start-db.sh and restart server\x1b[0m');
+      //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run etherealengine/scripts/start-db.sh and restart server\x1b[0m');
       //   }
       // });
     }

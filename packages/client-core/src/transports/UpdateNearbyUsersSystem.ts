@@ -1,7 +1,7 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { accessMediaInstanceConnectionState } from '../common/services/MediaInstanceConnectionService'
 import { accessMediaStreamState, MediaStreamService } from '../media/services/MediaStreamService'

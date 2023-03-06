@@ -1,4 +1,4 @@
-![xrengine](https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png)
+![Ethereal Engine](https://github.com/etherealengine/etherealengine/raw/dev/etherealengine%20black.png)
 
 # Github Actions
 
@@ -26,8 +26,8 @@ This action builds the codebase builder Docker image, pushes that to a specified
 deploys it to a dev Kubernetes cluster using kubectl and Helm. It assumes that `dev` is the main branch and that anything 
 pushed to `dev` should be deployed to a dev deployment. In particular, this action:
 
-* Installs kubectl and Helm via a Snapcraft Snap, then downloads the XREngine Helm repo
-* Builds the XREngine Builder Docker image
+* Installs kubectl and Helm via a Snapcraft Snap, then downloads the Ethereal Engine Helm repo
+* Builds the Ethereal Engine Builder Docker image
 * Installs aws-sdk
 * Pushes the Builder image to the dev-builder repo in ECR
 * Uses Helm to upgrade the dev builder deployment with the dev-builder image  
@@ -37,7 +37,7 @@ There are two secrets controlling this action:
 *`SEND_FINISHED_WEBHOOK` - setting it to true will enable sending a webhook notification if everything
 is successful; if `DEPLOYMENTS_ENABLED` is not true, this step will never be reached
 
-As of this writing, deployment of XREngine is only officially supported on AWS' EKS. As a result, several
+As of this writing, deployment of Ethereal Engine is only officially supported on AWS' EKS. As a result, several
 variables and scripts deal with AWS SDKs. If you want to deploy to GKE or another cloud provider, you'll
 have to modify some of these variables, downloads, and calls to use another service.
 
@@ -49,11 +49,11 @@ This action uses several other secrets to control what repo it is interacting wi
 *`DOCKER_LABEL`: In the builder service, this is the name of a Docker Hub repo that the final image
 will be published to. Everywhere else, it's just a default label for the Docker images as they're built.
 Must be set, but can be anything as long as you're not planning to publish to Docker Hub.
-*`DEV_REPO_NAME`: The name of the repo that this built image will be deployed to; most easily set to `xrengine-dev-builder`
-(also have a repo `xrengine-dev` for the final built image)
+*`DEV_REPO_NAME`: The name of the repo that this built image will be deployed to; most easily set to `etherealengine-dev-builder`
+(also have a repo `etherealengine-dev` for the final built image)
 *`ECR_URL`: The URL of the ECR registry that this built image will be pushed to. Do *not* include the repo name;
-if you are pushing the image to `12345.dkr.ecr.us-west-1.amazonaws.com/xrengine-dev-builder`, then `ECR_URL`
-should be `12345.dkr.ecr.us-west-1.amazonaws.com` and `REPO_NAME` should be `xrengine-dev-builder`.
+if you are pushing the image to `12345.dkr.ecr.us-west-1.amazonaws.com/etherealengine-dev-builder`, then `ECR_URL`
+should be `12345.dkr.ecr.us-west-1.amazonaws.com` and `REPO_NAME` should be `etherealengine-dev-builder`.
 *`PRIVATE_ECR`: Set to `true` if the ECR registry you're pushing to is private, otherwise don't set this
 or set it to anything else other than `true`
 *`WEBHOOK_URL`: The URL of the webhook that should be called when the action finishes (no need to set
@@ -72,8 +72,8 @@ deploys it to a prod Kubernetes cluster using kubectl and Helm. It assumes that 
 production-ready branch and that anything pushed to `prod` should be deployed to a prod deployment. 
 In particular, this action:
 
-* Installs kubectl and Helm via a Snapcraft Snap, then downloads the XREngine Helm repo
-* Builds the XREngine Builder Docker image
+* Installs kubectl and Helm via a Snapcraft Snap, then downloads the Ethereal Engine Helm repo
+* Builds the Ethereal Engine Builder Docker image
 * Installs aws-sdk
 * Pushes the Builder image to the prod-builder repo in ECR
 * Uses Helm to upgrade the prod builder deployment with the prod-builder image
@@ -83,7 +83,7 @@ There are two secrets controlling this action:
 *`SEND_FINISHED_WEBHOOK` - setting it to true will enable sending a webhook notification if everything
 is successful; if `DEPLOYMENTS_ENABLED` is not true, this step will never be reached
 
-As of this writing, deployment of XREngine is only officially supported on AWS' EKS. As a result, several
+As of this writing, deployment of Ethereal Engine is only officially supported on AWS' EKS. As a result, several
 variables and scripts deal with AWS SDKs. If you want to deploy to GKE or another cloud provider, you'll
 have to modify some of these variables, downloads, and calls to use another service.
 
@@ -95,11 +95,11 @@ This action uses several other secrets to control what repo it is interacting wi
 *`DOCKER_LABEL`: In the builder service, this is the name of a Docker Hub repo that the final image
 will be published to. Everywhere else, it's just a default label for the Docker images as they're built.
 Must be set, but can be anything as long as you're not planning to publish to Docker Hub.
-*`PROD_REPO_NAME`: The name of the repo that this built image will be deployed to; most easily set to `xrengine-prod-builder`
-(also have a repo `xrengine-prod` for the final built image)
+*`PROD_REPO_NAME`: The name of the repo that this built image will be deployed to; most easily set to `etherealengine-prod-builder`
+(also have a repo `etherealengine-prod` for the final built image)
 *`ECR_URL`: The URL of the ECR registry that this built image will be pushed to. Do *not* include the repo name;
-if you are pushing the image to `12345.dkr.ecr.us-west-1.amazonaws.com/xrengine-prod-builder`, then `ECR_URL`
-should be `12345.dkr.ecr.us-west-1.amazonaws.com` and `REPO_NAME` should be `xrengine-prod-builder`.
+if you are pushing the image to `12345.dkr.ecr.us-west-1.amazonaws.com/etherealengine-prod-builder`, then `ECR_URL`
+should be `12345.dkr.ecr.us-west-1.amazonaws.com` and `REPO_NAME` should be `etherealengine-prod-builder`.
 *`PRIVATE_ECR`: Set to `true` if the ECR registry you're pushing to is private, otherwise don't set this
 or set it to anything else other than `true`
 *`WEBHOOK_URL`: The URL of the webhook that should be called when the action finishes (no need to set
@@ -131,7 +131,7 @@ There is one secret controlling this action:
 *`PUBLISH_NPM_PACKAGES_ENABLED` - setting it to true will enable the action
 
 ##update-deps-branch.yml
-Most of XREngine's dependencies are version-locked in the respective package.jsons, and the main repo has
+Most of Ethereal Engine's dependencies are version-locked in the respective package.jsons, and the main repo has
 renovate make PRs when new versions of dependencies have been published. To prevent a constant stream of minor
 version bumps interrupting build caches, the main repo has renovate automatically merge these updates to
 the branch `deps`, and at a later date many of these updates can be reviewed and merged in in one go.

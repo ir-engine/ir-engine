@@ -2,7 +2,7 @@
 // for more of what you can do here.
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { LoginTokenInterface } from '@xrengine/common/src/dbmodels/LoginToken'
+import { LoginTokenInterface } from '@etherealengine/common/src/dbmodels/LoginToken'
 
 import { Application } from '../../../declarations'
 

@@ -2,23 +2,23 @@ import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { API } from '@xrengine/client-core/src/API'
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import { API } from '@etherealengine/client-core/src/API'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   FileBrowserService,
   FileBrowserServiceReceptor,
   FILES_PAGE_LIMIT,
   useFileBrowserState
-} from '@xrengine/client-core/src/common/services/FileBrowserService'
-import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
-import { KTX2EncodeArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
-import { KTX2EncodeDefaultArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
-import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import { useState as useHFState } from '@xrengine/hyperflux'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { useState as useHFState } from '@etherealengine/hyperflux'
+import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'

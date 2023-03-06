@@ -1,5 +1,5 @@
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getState, useState } from '@etherealengine/hyperflux'
 
 export const AppLoadingStates = {
   START_STATE: 'START_STATE' as const,

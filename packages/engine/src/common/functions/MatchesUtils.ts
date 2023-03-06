@@ -1,10 +1,10 @@
 import { Quaternion, Vector3 } from 'three'
 import { matches, Validator } from 'ts-matches'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { Entity } from '../../ecs/classes/Entity'
 

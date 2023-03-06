@@ -1,14 +1,18 @@
 import { Object3D } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   EntityOrObjectUUID,
   EntityTreeComponent,
   findIndexOfEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
-import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 
 import traverseEarlyOut from './traverseEarlyOut'
 

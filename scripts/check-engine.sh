@@ -1,7 +1,7 @@
 #!/bin/bash
 
-apiName="${RELEASE_NAME}-xrengine-api"
-clientName="${RELEASE_NAME}-xrengine-client"
+apiName="${RELEASE_NAME}-etherealengine-api"
+clientName="${RELEASE_NAME}-etherealengine-client"
 instanceserverName="${RELEASE_NAME}-instanceserver"
 
 apiCount=$(kubectl get deploy $apiName -o jsonpath='{.status.availableReplicas}')
@@ -46,5 +46,5 @@ until [ "${instanceserverCount}" -ge 1 ]; do
     echo "Instanceserver ready count: $instanceserverCount"
 done
 
-echo "XREngine is now ready"
+echo "Ethereal Engine is now ready"
 exit 0

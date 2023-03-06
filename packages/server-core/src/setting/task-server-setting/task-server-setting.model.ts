@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { TaskServerSettingInterface } from '@xrengine/common/src/dbmodels/TaskServerSetting'
+import { TaskServerSettingInterface } from '@etherealengine/common/src/dbmodels/TaskServerSetting'
 
 import { Application } from '../../../declarations'
 

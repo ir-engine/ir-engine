@@ -20,7 +20,7 @@ import {
 
 import * as fflate from 'fflate';
 
-import { flipBufferGeometryNormals } from '@xrengine/engine/src/assets/functions/flipBufferGeometryNormals';
+import { flipBufferGeometryNormals } from '@etherealengine/engine/src/assets/functions/flipBufferGeometryNormals';
 
 class USDAParser {
 

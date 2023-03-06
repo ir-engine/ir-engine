@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "ipfs.configmapEnvName" . }}
-  labels:
-    {{- include "ipfs.labels" . | nindent 4 }}
-data:
-  bootstrap-peer-id: {{ .Values.bootstrapPeerId }}

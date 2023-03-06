@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import Icon from '@xrengine/ui/src/Icon'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { useFullscreen } from '../useFullscreen'

@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { BoxGeometry, BoxHelper, Mesh, Scene } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'

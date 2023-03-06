@@ -1,7 +1,7 @@
-package com.xrengine.client;
+package org.etherealengine.client;
 
 import android.os.Bundle;
-import com.xrengine.xr.XRPlugin;
+import org.etherealengine.xr.XRPlugin;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.Plugin;

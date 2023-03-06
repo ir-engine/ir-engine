@@ -76,20 +76,5 @@
     "xr": "XR",
     "foundation": "Foundation",
     "description": "FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY"
-  },
-  "xrengineContact": {
-    "header": "Get In Touch!",
-    "description": "We’d love to help you with your virtual events, digital retail, entertainment and other needs.",
-    "lbl-name": "Name",
-    "lbl-email": "Email",
-    "lbl-company": "Company",
-    "lbl-project": "Describe your Project",
-    "lbl-send": "Send",
-    "lbl-ok": "Ok",
-    "lbl-success": "Message Sent, We'll get back to you shortly.",
-    "lbl-failure": "An error occured, Plese try again",
-    "err-username": "Please enter you name.",
-    "err-email": "Email is require.",
-    "err-msg": "Provide some brief description of your project."
   }
 }

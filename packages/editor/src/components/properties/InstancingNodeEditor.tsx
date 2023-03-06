@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mesh, Object3D, Scene, Texture } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
   ComponentType,
@@ -11,8 +11,8 @@ import {
   getOrAddComponent,
   hasComponent,
   useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
   InstancingStagingComponent,
@@ -24,16 +24,16 @@ import {
   SourceProperties,
   TextureRef,
   VertexProperties
-} from '@xrengine/engine/src/scene/components/InstancingComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
+} from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   MESH_PROPERTIES_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
-import getFirstMesh from '@xrengine/engine/src/scene/util/getFirstMesh'
-import { State, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/functions/loaders/InstancingFunctions'
+import getFirstMesh from '@etherealengine/engine/src/scene/util/getFirstMesh'
+import { State, useState } from '@etherealengine/hyperflux'
 
 import AcUnitIcon from '@mui/icons-material/AcUnit'
 

@@ -2,8 +2,8 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import dotenv from 'dotenv-flow'
 
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/projects/scene/scene-parser'
+import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { parseSceneDataCacheURLs } from '@etherealengine/server-core/src/projects/scene/scene-parser'
 
 import sceneJson from '../../../projects/default-project/default.scene.json'
 

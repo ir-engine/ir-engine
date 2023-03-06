@@ -8,27 +8,30 @@ import {
 } from 'mediasoup-client/lib/types'
 import { v4 as uuidv4 } from 'uuid'
 
-import config from '@xrengine/common/src/config'
-import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
-import { MediaStreamAppData, MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { PeerID, PeersUpdateType } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
+import config from '@etherealengine/common/src/config'
+import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
+import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
+import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
+import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
   CAM_VIDEO_SIMULCAST_ENCODINGS,
   SCREEN_SHARE_SIMULCAST_ENCODINGS
-} from '@xrengine/engine/src/networking/constants/VideoConstants'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { receiveJoinMediaServer } from '@xrengine/engine/src/networking/functions/receiveJoinMediaServer'
-import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+} from '@etherealengine/engine/src/networking/constants/VideoConstants'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { receiveJoinMediaServer } from '@etherealengine/engine/src/networking/functions/receiveJoinMediaServer'
+import {
+  JoinWorldRequestData,
+  receiveJoinWorld
+} from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   addActionReceptor,
   dispatchAction,
@@ -36,8 +39,8 @@ import {
   none,
   removeActionReceptor,
   removeActionsForTopic
-} from '@xrengine/hyperflux'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+} from '@etherealengine/hyperflux'
+import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import {

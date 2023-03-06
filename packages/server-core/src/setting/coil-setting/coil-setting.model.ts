@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { CoilSettingInterface } from '@xrengine/common/src/dbmodels/CoilSetting'
+import { CoilSettingInterface } from '@etherealengine/common/src/dbmodels/CoilSetting'
 
 import { Application } from '../../../declarations'
 

@@ -1,10 +1,10 @@
 import React from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import { ControlledStringInput } from './StringInput'

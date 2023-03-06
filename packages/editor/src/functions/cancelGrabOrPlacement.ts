@@ -1,6 +1,6 @@
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { getState } from '@xrengine/hyperflux'
+import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { getState } from '@etherealengine/hyperflux'
 
 import { accessEditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'

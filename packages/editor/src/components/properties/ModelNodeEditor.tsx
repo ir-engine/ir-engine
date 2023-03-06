@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
-import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
+import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
@@ -14,13 +14,13 @@ import {
   hasComponent,
   removeComponent,
   useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
-import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
+import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
+import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../declarations'
 import AnalyticsServices from './analytics/services'

@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 // TODO: Make one hook by combine this with "set-loggedin-user-in-body"
 // This will attach the loggedIn user id in the query property

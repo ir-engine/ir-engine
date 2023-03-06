@@ -7,7 +7,7 @@ import {
 } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'

@@ -1,4 +1,4 @@
-import { defineState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
+import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../common/functions/isMobile'
 import { RenderModes, RenderModesType } from './constants/RenderModes'

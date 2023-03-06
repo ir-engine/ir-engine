@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import multiLogger from '@xrengine/common/src/logger'
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import multiLogger from '@etherealengine/common/src/logger'
+import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'
 import { accessEditorState } from '../../services/EditorServices'

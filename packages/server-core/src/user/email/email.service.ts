@@ -7,7 +7,7 @@ import { Email } from './email.class'
 import emailDocs from './email.docs'
 import hooks from './email.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     email: Email
   }

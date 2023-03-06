@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { BotCommandInterface } from '@xrengine/common/src/dbmodels/BotCommand'
+import { BotCommandInterface } from '@etherealengine/common/src/dbmodels/BotCommand'
 
 import { Application } from '../../../declarations'
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Vector3 } from 'three'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
-import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'

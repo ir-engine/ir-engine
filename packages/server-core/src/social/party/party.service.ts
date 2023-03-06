@@ -1,4 +1,4 @@
-import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
+import { Party as PartyDataType } from '@etherealengine/common/src/interfaces/Party'
 
 import { Application, ServerMode } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -7,7 +7,7 @@ import partyDocs from './party.docs'
 import hooks from './party.hooks'
 import createModel from './party.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     party: Party
   }

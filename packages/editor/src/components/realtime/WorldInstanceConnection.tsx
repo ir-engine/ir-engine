@@ -6,12 +6,12 @@ import {
   LocationInstanceConnectionServiceReceptor,
   useLocationInstanceConnectionState,
   useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientNetwork'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import DoneIcon from '@mui/icons-material/Done'

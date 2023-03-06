@@ -1,9 +1,9 @@
 import React from 'react'
 
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-import Box from '@xrengine/ui/src/Box'
-import FormControlLabel from '@xrengine/ui/src/FormControlLabel'
-import Switch from '@xrengine/ui/src/Switch'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import Box from '@etherealengine/ui/src/Box'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
+import Switch from '@etherealengine/ui/src/Switch'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

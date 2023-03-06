@@ -1,4 +1,4 @@
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'

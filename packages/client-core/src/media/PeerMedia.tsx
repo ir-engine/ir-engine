@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 
-import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'

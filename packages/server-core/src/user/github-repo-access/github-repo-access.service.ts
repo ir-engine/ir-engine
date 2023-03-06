@@ -3,8 +3,8 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import crypto from 'crypto'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { ServerSettingInterface } from '@xrengine/common/src/dbmodels/ServerSetting'
-import logger from '@xrengine/common/src/logger'
+import { ServerSettingInterface } from '@etherealengine/common/src/dbmodels/ServerSetting'
+import logger from '@etherealengine/common/src/logger'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -16,7 +16,7 @@ import githubRepoAccessDocs from './github-repo-access.docs'
 import hooks from './github-repo-access.hooks'
 import createModel from './github-repo-access.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'github-repo-access': any
     'github-repo-access-webhook': any

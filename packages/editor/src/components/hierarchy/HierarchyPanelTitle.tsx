@@ -1,7 +1,7 @@
 import { t } from 'i18next'
 import React from 'react'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import { Checkbox } from '@mui/material'

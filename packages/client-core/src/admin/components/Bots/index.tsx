@@ -1,11 +1,11 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Card from '@xrengine/ui/src/Card'
-import Grid from '@xrengine/ui/src/Grid'
-import Icon from '@xrengine/ui/src/Icon'
-import Paper from '@xrengine/ui/src/Paper'
-import Typography from '@xrengine/ui/src/Typography'
+import Card from '@etherealengine/ui/src/Card'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import Paper from '@etherealengine/ui/src/Paper'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import styles from '../../styles/admin.module.scss'
 import CreateBot from './CreateBot'
@@ -25,7 +25,7 @@ const Bots = () => {
             <Paper className={styles.botHeader}>
               <Typography className={styles.botTitle}>
                 <Icon type="List" className={styles.pTop5} />
-                <span className={styles.mLeft10}> {t('admin:components.bot.xrEngineBots')} </span>
+                <span className={styles.mLeft10}> {t('admin:components.bot.engineBots')} </span>
               </Typography>
             </Paper>
             <DisplayBots />

@@ -1,6 +1,6 @@
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import authenticate from '../../hooks/authenticate'
 import createInstance from '../../hooks/matchmaking-create-instance'

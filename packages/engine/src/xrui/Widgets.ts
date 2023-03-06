@@ -1,5 +1,5 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { Entity } from '../ecs/classes/Entity'
 import { createXRUI } from './functions/createXRUI'

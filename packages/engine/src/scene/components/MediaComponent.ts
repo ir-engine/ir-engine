@@ -2,7 +2,7 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'

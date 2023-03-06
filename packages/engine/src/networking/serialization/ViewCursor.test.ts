@@ -1,6 +1,6 @@
 import assert, { strictEqual } from 'assert'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'

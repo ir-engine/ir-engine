@@ -1,10 +1,10 @@
 import React, { useImperativeHandle, useState } from 'react'
 import styled from 'styled-components'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
-import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
-import { useHookstate } from '@xrengine/hyperflux'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
+import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'

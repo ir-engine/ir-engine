@@ -1,7 +1,7 @@
 import { MathUtils } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'

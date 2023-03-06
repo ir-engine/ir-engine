@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
-import { API } from '@xrengine/client-core/src/API'
-import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { API } from '@etherealengine/client-core/src/API'
+import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import {
   PortalComponent,
   PortalEffects,
   PortalPreviewTypes
-} from '@xrengine/engine/src/scene/components/PortalComponent'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 

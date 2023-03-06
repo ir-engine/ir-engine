@@ -4,7 +4,7 @@ import projectPermissionDocs from './project-permission.docs'
 import hooks from './project-permission.hooks'
 import createModel from './project-permission.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'project-permission': ProjectPermission
   }

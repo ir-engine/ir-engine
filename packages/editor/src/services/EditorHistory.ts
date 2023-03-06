@@ -1,19 +1,19 @@
-import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, getState, NO_PROXY } from '@xrengine/hyperflux'
+import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { SystemDefintion } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { defineAction, defineState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 import {
   createActionQueue,
   dispatchAction,
   removeActionQueue,
   Topic
-} from '@xrengine/hyperflux/functions/ActionFunctions'
+} from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { SelectionAction, SelectionState } from './SelectionServices'
 

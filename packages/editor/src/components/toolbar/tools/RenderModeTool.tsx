@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { RenderModesType } from '@xrengine/engine/src/renderer/constants/RenderModes'
-import { RenderModes } from '@xrengine/engine/src/renderer/constants/RenderModes'
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { RenderModesType } from '@etherealengine/engine/src/renderer/constants/RenderModes'
+import { RenderModes } from '@etherealengine/engine/src/renderer/constants/RenderModes'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 

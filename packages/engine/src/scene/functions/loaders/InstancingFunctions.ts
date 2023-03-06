@@ -23,8 +23,8 @@ import {
 } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { defineAction, dispatchAction, State } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, dispatchAction, State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../../assets/classes/DependencyTree'

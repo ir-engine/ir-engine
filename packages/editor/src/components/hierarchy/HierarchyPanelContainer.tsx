@@ -6,19 +6,23 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 import { Object3D } from 'three'
 
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   EntityTreeComponent,
   getEntityNodeArrayFromEntities,
   traverseEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'

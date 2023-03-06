@@ -1,13 +1,13 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@xrengine/client-core/src/common/components/Button'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import Dialog from '@xrengine/ui/src/Dialog'
-import DialogActions from '@xrengine/ui/src/DialogActions'
-import DialogContent from '@xrengine/ui/src/DialogContent'
-import DialogContentText from '@xrengine/ui/src/DialogContentText'
-import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import Dialog from '@etherealengine/ui/src/Dialog'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogContent from '@etherealengine/ui/src/DialogContent'
+import DialogContentText from '@etherealengine/ui/src/DialogContentText'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
 
 import styles from './index.module.scss'
 

@@ -1,7 +1,7 @@
 import { createState, SetInitialStateAction, State } from '@hookstate/core'
 
-import multiLogger from '@xrengine/common/src/logger'
-import { isNode } from '@xrengine/engine/src/common/functions/getEnvironment'
+import multiLogger from '@etherealengine/common/src/logger'
+import { isNode } from '@etherealengine/engine/src/common/functions/getEnvironment'
 
 import { HyperFlux, HyperStore } from './StoreFunctions'
 

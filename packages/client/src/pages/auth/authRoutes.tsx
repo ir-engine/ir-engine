@@ -2,7 +2,7 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import $confirm from './confirm'
 import $forgotpassword from './forgotpassword'
