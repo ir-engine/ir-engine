@@ -23,7 +23,6 @@ export enum AssetType {
   Script = 'script',
   DDS = 'dds',
   KTX2 = 'ktx2',
-  DDS = 'dds',
   USDZ = 'usdz',
   M3U8 = 'm3u8'
 }
