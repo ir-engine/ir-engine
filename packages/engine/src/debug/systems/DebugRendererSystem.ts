@@ -20,7 +20,7 @@ export default async function DebugRendererSystem() {
   let enabled = false
 
   InfiniteGridHelper.instance = new InfiniteGridHelper()
-  Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
+  Engine.instance.scene.add(InfiniteGridHelper.instance)
 
   const debugLines = new Set<Line<BufferGeometry, LineBasicMaterial>>()
   const debugLineLifetime = 1000 // 1 second
@@ -29,7 +29,7 @@ export default async function DebugRendererSystem() {
   const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
   _lineSegments.frustumCulled = false
   setObjectLayers(_lineSegments, ObjectLayers.PhysicsHelper)
-  Engine.instance.currentWorld.scene.add(_lineSegments)
+  Engine.instance.scene.add(_lineSegments)
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
 
@@ -57,13 +57,13 @@ export default async function DebugRendererSystem() {
           new LineBasicMaterial({ color: 0x0000ff })
         )
         line.position.copy(raycastQuery.origin)
-        Engine.instance.currentWorld.scene.add(line)
+        Engine.instance.scene.add(line)
         debugLines.add(line)
         line.userData.originTime = Date.now()
       }
     } else {
       for (const line of debugLines) {
-        Engine.instance.currentWorld.scene.remove(line)
+        Engine.instance.scene.remove(line)
         line.material.dispose()
         line.geometry.dispose()
       }
@@ -73,7 +73,7 @@ export default async function DebugRendererSystem() {
     for (const line of debugLines) {
       line.updateMatrixWorld()
       if (Date.now() - line.userData.originTime > debugLineLifetime) {
-        Engine.instance.currentWorld.scene.remove(line)
+        Engine.instance.scene.remove(line)
         line.material.dispose()
         line.geometry.dispose()
         debugLines.delete(line)
@@ -86,7 +86,7 @@ export default async function DebugRendererSystem() {
   const cleanup = async () => {
     _lineSegments.removeFromParent()
     removeActionQueue(sceneLoadQueue)
-    Engine.instance.currentWorld.scene.remove(InfiniteGridHelper.instance)
+    Engine.instance.scene.remove(InfiniteGridHelper.instance)
     InfiniteGridHelper.instance = null!
   }
 

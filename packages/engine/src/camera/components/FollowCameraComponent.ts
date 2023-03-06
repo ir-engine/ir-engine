@@ -58,7 +58,7 @@ export const FollowCameraComponent = defineComponent({
         arrow.setColor('red')
         coneDebugHelpers.push(arrow)
         setObjectLayers(arrow, ObjectLayers.Gizmos)
-        Engine.instance.currentWorld.scene.add(arrow)
+        Engine.instance.scene.add(arrow)
       }
     }
 

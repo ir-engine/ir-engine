@@ -206,7 +206,7 @@ export default async function XRUISystem() {
         pointer.add(cursor)
         cursor.visible = false
         pointers.set(inputSource, pointer)
-        Engine.instance.currentWorld.scene.add(pointer)
+        Engine.instance.scene.add(pointer)
       }
 
       const pointer = pointers.get(inputSource)!
@@ -236,7 +236,7 @@ export default async function XRUISystem() {
     const inputSources = Array.from(Engine.instance.inputSources.values())
     for (const [pointerSource, pointer] of pointers) {
       if (!inputSources.includes(pointerSource)) {
-        Engine.instance.currentWorld.scene.remove(pointer)
+        Engine.instance.scene.remove(pointer)
         pointers.delete(pointerSource)
       }
     }

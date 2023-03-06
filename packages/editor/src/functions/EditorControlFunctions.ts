@@ -123,7 +123,7 @@ const modifyProperty = <C extends Component<any, any>>(
 }
 
 const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => {
-  const scene = Engine.instance.currentWorld.scene
+  const scene = Engine.instance.scene
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') return
@@ -247,7 +247,6 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
   })
 
   const rootObjects = getDetachedObjectsRoots(nodes)
-  const world = Engine.instance.currentWorld
 
   const copyMap = {} as { [eid: EntityOrObjectUUID]: EntityOrObjectUUID }
 
@@ -270,7 +269,7 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
       })
     } else {
       // @todo check this is implemented correctly
-      const parent = (parents.length ? parents[i] ?? parents[0] : world.scene.uuid) as string
+      const parent = (parents.length ? parents[i] ?? parents[0] : Engine.instance.scene.uuid) as string
       // let before = befores.length ? befores[i] ?? befores[0] : undefined
 
       const pObj3d = obj3dFromUuid(parent)
@@ -553,7 +552,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
     })
   }
   const removedParentNodes = getEntityNodeArrayFromEntities(filterParentEntities(nodes, undefined, true, false))
-  const scene = Engine.instance.currentWorld.scene
+  const scene = Engine.instance.scene
   for (let i = 0; i < removedParentNodes.length; i++) {
     const node = removedParentNodes[i]
     if (typeof node === 'string') {

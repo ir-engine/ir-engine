@@ -244,7 +244,6 @@ export default async function XR8System() {
       xrState.is8thWallActive.set(true)
       xrState.requestingSession.set(true)
 
-      const world = Engine.instance.currentWorld
       try {
         /** Initialize 8th wall if not previously initialized */
         if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
@@ -263,7 +262,7 @@ export default async function XR8System() {
       xrState.session.set(xrSession)
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
-      world.scene.background = null
+      Engine.instance.scene.background = null
 
       getReferenceSpaces(xrSession)
 
@@ -334,7 +333,7 @@ export default async function XR8System() {
     return null
   })
 
-  let lastSeenBackground = Engine.instance.currentWorld.scene.background
+  let lastSeenBackground = Engine.instance.scene.background
 
   const execute = () => {
     if (!XR8) return
@@ -345,10 +344,9 @@ export default async function XR8System() {
      */
     const sessionActive = xrState.sessionActive.value
     const xr8scene = XR8.Threejs.xrScene()
-    const world = Engine.instance.currentWorld
     if (sessionActive && xr8scene) {
-      if (world.scene.background) lastSeenBackground = world.scene.background
-      world.scene.background = null
+      if (Engine.instance.scene.background) lastSeenBackground = Engine.instance.scene.background
+      Engine.instance.scene.background = null
       const { camera } = xr8scene
       /** update the camera in world space as updateXRInput will update it to local space */
       Engine.instance.camera.position.copy(camera.position)
@@ -356,7 +354,7 @@ export default async function XR8System() {
       /** 8thwall always expects the camera to be unscaled */
       Engine.instance.camera.scale.set(1, 1, 1)
     } else {
-      if (!world.scene.background && lastSeenBackground) world.scene.background = lastSeenBackground
+      if (!Engine.instance.scene.background && lastSeenBackground) Engine.instance.scene.background = lastSeenBackground
       lastSeenBackground = null
       return
     }

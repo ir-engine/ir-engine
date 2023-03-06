@@ -20,7 +20,7 @@ export default async function XRLightProbeSystem() {
   const xrState = getState(XRState)
   xrState.lightEstimator.set(xrLight)
 
-  let previousEnvironment = Engine.instance.currentWorld.scene.environment
+  let previousEnvironment = Engine.instance.scene.environment
 
   xrLight.addEventListener('estimationstart', () => {
     if (xrState.sessionMode.value !== 'immersive-ar') return
@@ -29,8 +29,8 @@ export default async function XRLightProbeSystem() {
 
     // The estimated lighting also provides an environment cubemap, which we can apply here.
     if (xrLight.environment) {
-      previousEnvironment = Engine.instance.currentWorld.scene.environment
-      Engine.instance.currentWorld.scene.environment = xrLight.environment
+      previousEnvironment = Engine.instance.scene.environment
+      Engine.instance.scene.environment = xrLight.environment
     }
 
     xrState.isEstimatingLight.set(true)
@@ -39,7 +39,7 @@ export default async function XRLightProbeSystem() {
   xrLight.addEventListener('estimationend', () => {
     if (xrState.sessionMode.value !== 'immersive-ar') return
     xrLight.removeFromParent()
-    Engine.instance.currentWorld.scene.environment = previousEnvironment
+    Engine.instance.scene.environment = previousEnvironment
     xrState.isEstimatingLight.set(false)
   })
 

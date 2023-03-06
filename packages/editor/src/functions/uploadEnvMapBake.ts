@@ -66,7 +66,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const position = getScenePositionForBake(isSceneEntity ? null : entity)
 
   // inject bpcem logic into material
-  Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material?.userData) return
     child.material.userData.BPCEMPlugin = beforeMaterialCompile(
       bakeComponent.bakeScale,
@@ -77,20 +77,20 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   const cubemapCapturer = new CubemapCapturer(
     EngineRenderer.instance.renderer,
-    Engine.instance.currentWorld.scene,
+    Engine.instance.scene,
     bakeComponent.resolution
   )
   const renderTarget = cubemapCapturer.update(position)
 
   // remove injected bpcem logic from material
-  Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (typeof child.material?.userData?.BPCEMPlugin === 'function') {
       removeOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
       delete child.material.userData.BPCEMPlugin
     }
   })
 
-  if (isSceneEntity) Engine.instance.currentWorld.scene.environment = renderTarget.texture
+  if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
   const blob = (await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
@@ -124,11 +124,7 @@ const resolution = 1024
  */
 
 export const uploadCubemapBakeToServer = async (name: string, position: Vector3) => {
-  const cubemapCapturer = new CubemapCapturer(
-    EngineRenderer.instance.renderer,
-    Engine.instance.currentWorld.scene,
-    resolution
-  )
+  const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
   const renderTarget = cubemapCapturer.update(position)
 
   const blob = (await convertCubemapToEquiImageData(

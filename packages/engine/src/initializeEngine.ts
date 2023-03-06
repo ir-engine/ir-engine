@@ -26,7 +26,6 @@ export const createEngine = () => {
     destroyWorld(Engine.instance.currentWorld)
   }
   Engine.instance = new Engine()
-  createWorld()
   EngineRenderer.instance = new EngineRenderer()
   addActionReceptor(EngineEventReceptor)
   Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
@@ -61,7 +60,6 @@ export const initializeBrowser = () => {
   Engine.instance.audioContext = audioContext
   Engine.instance.cameraGainNode = audioContext.createGain()
   Engine.instance.cameraGainNode.connect(audioContext.destination)
-  const world = Engine.instance.currentWorld
   Engine.instance.camera.layers.disableAll()
   Engine.instance.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)

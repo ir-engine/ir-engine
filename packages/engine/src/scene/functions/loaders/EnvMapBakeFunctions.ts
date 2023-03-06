@@ -8,7 +8,7 @@ import { GroupComponent } from '../../components/GroupComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 
 export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene => {
-  const scene = world.scene.clone(false)
+  const scene = Engine.instance.scene.clone(false)
   const parents = {
     [world.sceneEntity]: scene
   } as { [key: Entity]: Object3D }

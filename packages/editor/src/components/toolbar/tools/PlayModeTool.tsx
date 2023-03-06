@@ -20,7 +20,6 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
-  const world = Engine.instance.currentWorld
   const editorHelperState = useEditorHelperState()
   const authState = useAuthState()
 

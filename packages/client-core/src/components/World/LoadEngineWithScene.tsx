@@ -112,7 +112,6 @@ export const usePortalTeleport = () => {
   useEffect(() => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
-      const world = Engine.instance.currentWorld
       const activePortal = Engine.instance.activePortal
 
       if (!activePortal) return

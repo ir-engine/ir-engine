@@ -30,8 +30,6 @@ describe.skip('Equippables Integration Tests', () => {
   })
 
   it('Can equip and unequip', async () => {
-    const world = Engine.instance.currentWorld
-
     const hostUserId = 'world' as UserId & PeerID
     Engine.instance.worldNetwork.hostId = hostUserId
     const hostIndex = 0

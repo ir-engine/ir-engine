@@ -69,7 +69,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     EngineRenderer.instance.effectComposer.render()
     configureEffectComposer(false, Engine.instance.camera)
   } else {
-    EngineRenderer.instance.renderer.render(Engine.instance.currentWorld.scene, scenePreviewCamera)
+    EngineRenderer.instance.renderer.render(Engine.instance.scene, scenePreviewCamera)
   }
   const blob = await getCanvasBlob(getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height))
 

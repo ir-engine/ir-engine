@@ -54,7 +54,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   getComponentState(entity, GroupComponent).merge([obj])
 
   const transform = getComponent(entity, TransformComponent)
-  const world = Engine.instance.currentWorld
   obj.position.copy(transform.position)
   obj.quaternion.copy(transform.rotation)
   obj.scale.copy(transform.scale)
@@ -63,7 +62,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrix
   obj.matrixWorldInverse = transform.matrixInverse
-  if (object !== Engine.instance.currentWorld.scene) Engine.instance.currentWorld.scene.add(object)
+  if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies

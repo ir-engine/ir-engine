@@ -30,7 +30,6 @@ describe('spawnAvatarReceptor', () => {
   })
 
   it('check the create avatar function', () => {
-    const world = Engine.instance.currentWorld
     Engine.instance.userId = 'user' as UserId
 
     // mock entity to apply incoming unreliable updates to

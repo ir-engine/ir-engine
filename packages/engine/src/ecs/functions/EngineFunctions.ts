@@ -24,7 +24,7 @@ export const unloadScene = async () => {
 
   removeEntityNodeRecursively(world.sceneEntity)
 
-  Engine.instance.currentWorld.scene.traverse((o: any) => {
+  Engine.instance.scene.traverse((o: any) => {
     if (!o.entity) return
     if (!entitiesToRemove.includes(o.entity)) return
 
@@ -45,7 +45,7 @@ export const unloadScene = async () => {
     sceneObjectsToRemove.push(o)
   })
 
-  for (const o of sceneObjectsToRemove) Engine.instance.currentWorld.scene.remove(o)
+  for (const o of sceneObjectsToRemove) Engine.instance.scene.remove(o)
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
   await unloadAllSystems(true)

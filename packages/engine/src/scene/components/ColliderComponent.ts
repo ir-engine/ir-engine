@@ -100,7 +100,6 @@ export const ColliderComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    const world = Engine.instance.currentWorld
     const entity = root.entity
 
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)

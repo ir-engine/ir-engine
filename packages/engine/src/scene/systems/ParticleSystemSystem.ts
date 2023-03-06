@@ -16,7 +16,7 @@ export default async function ParticleSystem() {
   const sceneLoadListener = createActionQueue(EngineActions.sceneLoaded.matches)
   function execute() {
     for (const action of sceneLoadListener()) {
-      batchRenderer!.parent === null && Engine.instance.currentWorld.scene.add(batchRenderer!)
+      batchRenderer!.parent === null && Engine.instance.scene.add(batchRenderer!)
     }
 
     batchRenderer && batchRenderer.update(Engine.instance.deltaSeconds)
@@ -24,7 +24,7 @@ export default async function ParticleSystem() {
 
   async function cleanup() {
     removeActionQueue(sceneLoadListener)
-    batchRenderer!.parent !== null && Engine.instance.currentWorld.scene.remove(batchRenderer!)
+    batchRenderer!.parent !== null && Engine.instance.scene.remove(batchRenderer!)
     batchRenderer = null
   }
 

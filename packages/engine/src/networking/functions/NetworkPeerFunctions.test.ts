@@ -22,7 +22,6 @@ describe('NetworkPeerFunctions', () => {
 
   describe('addPeers', () => {
     it('should add peer', () => {
-      const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       const peerID = 'peer id' as PeerID
       Engine.instance.userId = 'another user id' as UserId & PeerID
@@ -48,7 +47,6 @@ describe('NetworkPeerFunctions', () => {
     })
 
     it('should udpate peer if it already exists', () => {
-      const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       const peerID = 'peer id' as PeerID
       Engine.instance.userId = 'another user id' as UserId
@@ -80,7 +78,6 @@ describe('NetworkPeerFunctions', () => {
 
   describe('removePeer', () => {
     it('should remove peer', () => {
-      const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       const peerID = 'peer id' as PeerID
       Engine.instance.userId = 'another user id' as UserId
@@ -101,7 +98,6 @@ describe('NetworkPeerFunctions', () => {
     })
 
     it('should remove peer and owned network objects', () => {
-      const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       const peerID = 'peer id' as PeerID
       Engine.instance.userId = 'another user id' as UserId

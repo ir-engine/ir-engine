@@ -55,7 +55,6 @@ export const InteractableTransitions = new Map<Entity, ReturnType<typeof createT
 const vec3 = new Vector3()
 
 export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-  const world = Engine.instance.currentWorld
   const transform = getComponent(xrui.entity, TransformComponent)
   if (!transform || !getComponent(Engine.instance.localClientEntity, TransformComponent)) return
   transform.position.copy(getComponent(entity, TransformComponent).position)

@@ -42,10 +42,7 @@ import { changeHand, equipEntity, unequipEntity } from '../functions/equippableF
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
 
-export function setEquippedObjectReceptor(
-  action: ReturnType<typeof WorldNetworkAction.setEquippedObject>,
-  world = Engine.instance.currentWorld
-) {
+export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetworkAction.setEquippedObject>) {
   const equippedEntity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
   if (action.$from === Engine.instance.userId) {
     const equipperEntity = Engine.instance.localClientEntity
@@ -73,8 +70,7 @@ export function setEquippedObjectReceptor(
 }
 
 export function transferAuthorityOfObjectReceptor(
-  action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>,
-  world = Engine.instance.currentWorld
+  action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
   if (action.newAuthority !== Engine.instance.worldNetwork?.peerID) return
   const equippableEntity = Engine.instance.getNetworkObject(action.ownerId, action.networkId)!
@@ -94,7 +90,7 @@ export function transferAuthorityOfObjectReceptor(
 }
 
 // since equippables are all client authoritative, we don't need to recompute this for all users
-export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance.currentWorld) {
+export function equipperQueryAll(equipperEntity: Entity) {
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   const equippedEntity = equipperComponent.equippedEntity
   if (!equippedEntity) return
@@ -109,7 +105,7 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
   target.getWorldQuaternion(equippableTransform.rotation)
 }
 
-export function equipperQueryExit(entity: Entity, world = Engine.instance.currentWorld) {
+export function equipperQueryExit(entity: Entity) {
   // const equipperComponent = getComponent(entity, EquipperComponent, true)
   // const equippedEntity = equipperComponent.equippedEntity
   // removeComponent(equippedEntity, EquippedComponent)
@@ -118,8 +114,7 @@ export function equipperQueryExit(entity: Entity, world = Engine.instance.curren
 const vec3 = new Vector3()
 
 // export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-//   const world = Engine.instance.currentWorld
-
+//
 //   const transform = getComponent(xrui.entity, TransformComponent)
 //   if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
 //   transform.position.copy(getComponent(entity, TransformComponent).position)

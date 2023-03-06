@@ -96,9 +96,9 @@ export const ObjectFitFunctions = {
       // todo: figure out how to scale this properly
       // container.scale.x = container.scale.y = 0.5 * scale
       // todo: use handedness option to settings
-      if (container.parent !== Engine.instance.currentWorld.scene) {
+      if (container.parent !== Engine.instance.scene) {
         container.removeFromParent()
-        Engine.instance.currentWorld.scene.add(container)
+        Engine.instance.scene.add(container)
       }
 
       _pos.copy(avatarAnimationComponent.rig.LeftHand.position)

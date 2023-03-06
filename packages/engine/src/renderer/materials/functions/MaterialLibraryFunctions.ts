@@ -215,7 +215,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
-  Engine.instance.currentWorld.scene.traverse((mesh: Mesh) => {
+  Engine.instance.scene.traverse((mesh: Mesh) => {
     if (!mesh?.isMesh) return
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {

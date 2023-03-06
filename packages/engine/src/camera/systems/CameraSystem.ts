@@ -114,7 +114,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)

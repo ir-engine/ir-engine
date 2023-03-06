@@ -7,7 +7,7 @@ import { UUIDComponent } from '../components/UUIDComponent'
 export default function obj3dFromUuid(uuid: string) {
   const entity = UUIDComponent.entitiesByUUID[uuid].value
   if (!entity) {
-    const result = Engine.instance.currentWorld.scene.getObjectByProperty('uuid', uuid)
+    const result = Engine.instance.scene.getObjectByProperty('uuid', uuid)
     if (result) return result
     else throw Error('Error finding entity node with uuid ' + uuid)
   }

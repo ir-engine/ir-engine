@@ -13,7 +13,7 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
 
   if (!EngineRenderer.instance.renderPass) {
     // we always want to have at least the render pass enabled
-    const renderPass = new RenderPass(Engine.instance.currentWorld.scene, camera)
+    const renderPass = new RenderPass(Engine.instance.scene, camera)
     EngineRenderer.instance.effectComposer.addPass(renderPass)
     EngineRenderer.instance.renderPass = renderPass
   }
@@ -34,7 +34,7 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
   const effects: any[] = []
   const effectKeys = EffectMap.keys()
 
-  const normalPass = new NormalPass(Engine.instance.currentWorld.scene, camera, {
+  const normalPass = new NormalPass(Engine.instance.scene, camera, {
     renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
@@ -64,7 +64,7 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSREffect) {
-      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, effect)
+      const eff = new effectClass(Engine.instance.scene, camera, effect)
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
@@ -72,7 +72,7 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.OutlineEffect) {
-      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, effect)
+      const eff = new effectClass(Engine.instance.scene, camera, effect)
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else {

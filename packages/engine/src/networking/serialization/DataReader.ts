@@ -284,7 +284,6 @@ export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
 export const readEntity = (v: ViewCursor, fromUserId: UserId) => {
   const netId = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
-  const world = Engine.instance.currentWorld
 
   let entity = Engine.instance.getNetworkObject(fromUserId, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
@@ -317,7 +316,6 @@ export const readMetadata = (v: ViewCursor) => {
 
 export const createDataReader = () => {
   return (network: Network, packet: ArrayBuffer) => {
-    const world = Engine.instance.currentWorld
     const view = createViewCursor(packet)
     const { userIndex, peerIndex } = readMetadata(view)
     const fromUserID = network.userIndexToUserID.get(userIndex)

@@ -72,7 +72,7 @@ export default async function ShadowSystem() {
 
   const csmGroup = new Group()
   csmGroup.name = 'CSM-group'
-  Engine.instance.currentWorld.scene.add(csmGroup)
+  Engine.instance.scene.add(csmGroup)
 
   const UpdateCSMFromActiveDirectionalLight = (props: {
     activeLightEntity: Entity
@@ -108,7 +108,7 @@ export default async function ShadowSystem() {
           light: activeLight
         })
         // helper = new CSMHelper(EngineRenderer.instance.csm)
-        // Engine.instance.currentWorld.scene.add(helper)
+        // Engine.instance.scene.add(helper)
       }
 
       const activeLightParent = activeLight.parent
@@ -182,7 +182,7 @@ export default async function ShadowSystem() {
 
   const dropShadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
-  let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+  let sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
   const minRadius = 0.15
   const sphere = new Sphere()
@@ -233,7 +233,7 @@ export default async function ShadowSystem() {
   const shadowOffset = new Vector3(0, 0.01, 0)
 
   const execute = () => {
-    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+    sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
     if (!useShadows && !Engine.instance.isEditor) {

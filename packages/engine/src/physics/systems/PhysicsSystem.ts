@@ -59,10 +59,7 @@ export function teleportObject(entity: Entity, position: Vector3, rotation: Quat
 }
 
 // Receptor
-export function teleportObjectReceptor(
-  action: ReturnType<typeof WorldNetworkAction.teleportObject>,
-  world = Engine.instance.currentWorld
-) {
+export function teleportObjectReceptor(action: ReturnType<typeof WorldNetworkAction.teleportObject>) {
   const entity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
   teleportObject(entity, action.position, action.rotation)
 }

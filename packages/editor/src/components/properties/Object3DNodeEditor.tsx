@@ -55,7 +55,7 @@ type Object3DProps = {
 export const Object3DNodeEditor = (props: Object3DProps) => {
   const { t } = useTranslation()
   console.log(props)
-  const scene: Scene = Engine.instance.currentWorld.scene
+  const scene: Scene = Engine.instance.scene
   const selectionState = accessSelectionState()
   const materialLibrary = getMaterialLibrary()
   const obj3d: Object3D = props.obj3d as any
@@ -106,7 +106,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
   const currentMaterialId = useHookstate(materialIds.value.length > 0 ? 0 : -1)
   function getGeometries() {
     const result: Geometry[] = []
-    Engine.instance.currentWorld.scene.traverse((child: Mesh<Geometry>) => {
+    Engine.instance.scene.traverse((child: Mesh<Geometry>) => {
       if (!child?.isMesh) return
       if (child.geometry) {
         result.push(child.geometry)

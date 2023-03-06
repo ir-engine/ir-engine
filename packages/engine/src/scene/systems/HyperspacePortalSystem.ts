@@ -59,8 +59,8 @@ export default async function HyperspacePortalSystem() {
       hyperspaceEffect.quaternion.copy(playerTransform.rotation)
       Engine.instance.camera.zoom = 1.5
 
-      Engine.instance.currentWorld.scene.add(light)
-      Engine.instance.currentWorld.scene.add(hyperspaceEffect)
+      Engine.instance.scene.add(light)
+      Engine.instance.scene.add(hyperspaceEffect)
     }
 
     for (const entity of hyperspaceTagComponent()) {
@@ -76,7 +76,7 @@ export default async function HyperspacePortalSystem() {
           /**
            * hide scene, render just the hyperspace effect and avatar
            */
-          Engine.instance.currentWorld.scene.background = new Color('black')
+          Engine.instance.scene.background = new Color('black')
           Engine.instance.camera.layers.enable(ObjectLayers.Portal)
           Engine.instance.camera.layers.disable(ObjectLayers.Scene)
           sceneVisible = false

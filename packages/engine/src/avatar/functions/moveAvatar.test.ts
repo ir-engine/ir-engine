@@ -35,7 +35,7 @@ describe('moveAvatar function tests', () => {
       rotation: new Quaternion()
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -68,7 +68,7 @@ describe('moveAvatar function tests', () => {
       rotation: new Quaternion()
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -103,7 +103,7 @@ describe('moveAvatar function tests', () => {
       rotation: new Quaternion()
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -135,7 +135,7 @@ describe('moveAvatar function tests', () => {
       rotation: new Quaternion()
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)

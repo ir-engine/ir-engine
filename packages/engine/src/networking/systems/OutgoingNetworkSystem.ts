@@ -18,7 +18,6 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 ])
 
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
-  const world = Engine.instance.currentWorld
   const ents = Engine.instance.isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId

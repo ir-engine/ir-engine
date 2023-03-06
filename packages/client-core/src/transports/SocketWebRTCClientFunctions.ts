@@ -1051,8 +1051,6 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
     // All we need to do on the client is null all references.
     network.close()
 
-    const world = Engine.instance.currentWorld
-
     if (network.topic === NetworkTopics.media) {
       if (mediaStreamState.audioStream.value) {
         const audioTracks = mediaStreamState.audioStream.value?.getTracks()

@@ -6,13 +6,13 @@ import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { Network, NetworkTopics } from '../../networking/classes/Network'
-import type { World } from '../classes/World'
+import { createWorld, World } from '../classes/World'
 
 import '../utils/threejsPatches'
 
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import { Not } from 'bitecs'
-import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Raycaster, Vector2 } from 'three'
+import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Object3D, Raycaster, Scene, Shader, Vector2 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -63,7 +63,12 @@ export class Engine {
   static instance: Engine
 
   constructor() {
+    Engine.instance = this
     bitecs.createWorld(this)
+
+    this.scene.matrixAutoUpdate = false
+    this.scene.matrixWorldAutoUpdate = false
+    this.scene.layers.set(ObjectLayers.Scene)
 
     this.originEntity = createEntity()
     setComponent(this.originEntity, NameComponent, 'origin')
@@ -84,6 +89,8 @@ export class Engine {
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
+
+    this.currentWorld = createWorld()
   }
 
   tickRate = 60
@@ -208,6 +215,17 @@ export class Engine {
 
   physicsWorld: PhysicsWorld
   physicsCollisionEventQueue: EventQueue
+
+  /**
+   * Reference to the three.js scene object.
+   */
+  scene = new Scene()
+
+  /**
+   * Map of object lists by layer
+   * (automatically updated by the SceneObjectSystem)
+   */
+  objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
    * The xr origin reference space entity

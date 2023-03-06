@@ -60,10 +60,7 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { posit
   return getRandomSpawnPoint(userId)
 }
 
-export function avatarDetailsReceptor(
-  action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
-  world = Engine.instance.currentWorld
-) {
+export function avatarDetailsReceptor(action: ReturnType<typeof WorldNetworkAction.avatarDetails>) {
   const userAvatarDetails = getState(WorldState).userAvatarDetails
   userAvatarDetails[action.$from].set(action.avatarDetail)
   if (isClient && action.avatarDetail.avatarURL) {

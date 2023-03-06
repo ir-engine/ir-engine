@@ -48,7 +48,6 @@ export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawnAvatar.matches._TYPE) => {
-  const world = Engine.instance.currentWorld
   const userId = spawnAction.$from
   const existingAvatarEntity = Engine.instance.getUserAvatarEntity(spawnAction.$from)
 

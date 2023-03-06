@@ -34,7 +34,6 @@ describe.skip('EquippableSystem Integration Tests', () => {
   })
 
   it('system test', async () => {
-    const world = Engine.instance.currentWorld
     const player = createEntity()
     const item = createEntity()
 

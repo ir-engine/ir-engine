@@ -42,9 +42,7 @@ export const SceneState: SceneStateType = {
 export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
   SceneState.isInitialized = false
 
-  const world = Engine.instance.currentWorld
-
-  if (!world.scene) world.scene = new Scene()
+  if (!Engine.instance.scene) Engine.instance.scene = new Scene()
 
   // getting scene data
   await updateSceneFromJSON(sceneData)
@@ -76,9 +74,9 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   })
 
   // Require when changing scene
-  if (!world.scene.children.includes(InfiniteGridHelper.instance)) {
+  if (!Engine.instance.scene.children.includes(InfiniteGridHelper.instance)) {
     InfiniteGridHelper.instance = new InfiniteGridHelper()
-    world.scene.add(InfiniteGridHelper.instance)
+    Engine.instance.scene.add(InfiniteGridHelper.instance)
   }
 
   SceneState.isInitialized = true
@@ -152,11 +150,11 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
-  if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
-    ;(Engine.instance.currentWorld.scene as any).entity = Engine.instance.currentWorld.sceneEntity
+  if ((Engine.instance.scene as any).entity == undefined) {
+    ;(Engine.instance.scene as any).entity = Engine.instance.currentWorld.sceneEntity
   }
 
-  const clonedScene = serializeForGLTFExport(Engine.instance.currentWorld.scene)
+  const clonedScene = serializeForGLTFExport(Engine.instance.scene)
 
   if (shouldCombineMeshes) await MeshCombinationGroup.combineMeshes(clonedScene)
   if (shouldRemoveUnusedObjects) removeUnusedObjects(clonedScene)

@@ -36,7 +36,6 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userId = userId
-      const world = Engine.instance.currentWorld
       const network = Engine.instance.worldNetwork
       network.peerID = peerID
 
@@ -53,8 +52,7 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: network.peerID
-        }),
-        world
+        })
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
@@ -79,7 +77,6 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
 
-      const world = Engine.instance.currentWorld
       const network = Engine.instance.worldNetwork
       network.peerID = peerID2
 
@@ -122,7 +119,6 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID3 = 'peer id 3' as PeerID
 
       Engine.instance.userId = userId
-      const world = Engine.instance.currentWorld
       const network = Engine.instance.worldNetwork
       network.peerID = peerID
 
@@ -144,8 +140,7 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world
-        }),
-        world
+        })
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
@@ -167,7 +162,6 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID = 'peer id' as PeerID
 
       Engine.instance.userId = userId
-      const world = Engine.instance.currentWorld
       const network = Engine.instance.worldNetwork
       network.peerID = peerID
 
@@ -197,8 +191,7 @@ describe('WorldNetworkActionReceptors', () => {
 
   //     // Run as host
   //     Engine.instance.userId = hostUserId
-  //     const world = Engine.instance.currentWorld
-  //     const network = Engine.instance.worldNetwork
+  //     //     const network = Engine.instance.worldNetwork
 
   //     Engine.instance.store.defaultDispatchDelay = 0
 
@@ -265,8 +258,7 @@ describe('WorldNetworkActionReceptors', () => {
   //     const userIndex = 1
   //     Engine.instance.userId = userId
 
-  //     const world = Engine.instance.currentWorld
-  //     const network = Engine.instance.worldNetwork
+  //     //     const network = Engine.instance.worldNetwork
 
   //     NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
 

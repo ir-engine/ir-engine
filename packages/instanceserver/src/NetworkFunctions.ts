@@ -287,8 +287,6 @@ export async function handleJoinWorld(
 ) {
   logger.info('Connect to world from ' + userId)
 
-  const world = Engine.instance.currentWorld
-
   const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId)
 
   const peerID = spark.id as PeerID
@@ -317,8 +315,6 @@ const getUserSpawnFromInvite = async (
   inviteCode: string,
   iteration = 0
 ) => {
-  const world = Engine.instance.currentWorld
-
   if (inviteCode) {
     const result = (await network.app.service('user').find({
       query: {

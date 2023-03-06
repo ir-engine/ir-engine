@@ -48,7 +48,7 @@ export const updateEnvMap = async (entity: Entity) => {
 
   switch (component.type) {
     case EnvMapSourceType.Skybox:
-      applyEnvMap(obj3d, Engine.instance.currentWorld.scene.background as Texture | null)
+      applyEnvMap(obj3d, Engine.instance.scene.background as Texture | null)
       break
 
     case EnvMapSourceType.Color:

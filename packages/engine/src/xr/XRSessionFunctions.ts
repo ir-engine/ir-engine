@@ -31,7 +31,6 @@ export const onSessionEnd = () => {
   xrState.sceneScale.set(1)
 
   Engine.instance.xrFrame = null
-  const world = Engine.instance.currentWorld
 
   EngineRenderer.instance.renderer.domElement.style.display = ''
   setVisibleComponent(Engine.instance.localClientEntity, true)
@@ -118,7 +117,6 @@ export const setupXRSession = async (requestedMode) => {
 }
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
-  const world = Engine.instance.currentWorld
   const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   const rigidBody = getComponent(Engine.instance.localClientEntity, RigidBodyComponent)
   const xrState = getState(XRState)
@@ -157,13 +155,12 @@ export const requestXRSession = createHookableFunction(
 
     try {
       const xrSession = await setupXRSession(action.mode)
-      const world = Engine.instance.currentWorld
 
       getReferenceSpaces(xrSession)
 
       const mode = xrState.sessionMode.value
-      if (mode === 'immersive-ar') setupARSession(world)
-      if (mode === 'immersive-vr') setupVRSession(world)
+      if (mode === 'immersive-ar') setupARSession()
+      if (mode === 'immersive-vr') setupVRSession()
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
 
@@ -197,9 +194,9 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const setupVRSession = (world = Engine.instance.currentWorld) => {}
+export const setupVRSession = () => {}
 
-export const setupARSession = (world = Engine.instance.currentWorld) => {
+export const setupARSession = () => {
   const session = getState(XRState).session.value!
 
   /**
@@ -215,5 +212,5 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
     buttons.PrimaryClick!.up = true
   })
 
-  world.scene.background = null
+  Engine.instance.scene.background = null
 }

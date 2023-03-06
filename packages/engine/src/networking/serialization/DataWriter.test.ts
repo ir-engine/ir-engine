@@ -485,7 +485,6 @@ describe('DataWriter', () => {
   })
 
   it('should createDataWriter', () => {
-    const world = Engine.instance.currentWorld
     const peerID = 'peerID' as PeerID
 
     const write = createDataWriter()

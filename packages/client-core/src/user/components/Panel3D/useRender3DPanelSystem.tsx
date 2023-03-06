@@ -71,8 +71,6 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
   }
 
   useEffect(() => {
-    const world = Engine.instance.currentWorld
-
     window.addEventListener('resize', resize)
     resize()
 

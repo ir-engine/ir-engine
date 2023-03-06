@@ -44,7 +44,6 @@ describe('Physics', () => {
   })
 
   it('should create & remove rigidBody', async () => {
-    const world = Engine.instance.currentWorld
     const physicsWorld = Engine.instance.physicsWorld
 
     const entity = createEntity()
@@ -69,7 +68,6 @@ describe('Physics', () => {
   })
 
   it('component type should match rigid body type', async () => {
-    const world = Engine.instance.currentWorld
     const physicsWorld = Engine.instance.physicsWorld
     const entity = createEntity()
 
@@ -118,7 +116,6 @@ describe('Physics', () => {
   })
 
   it('should create rigid body from input mesh & config data', async () => {
-    const world = Engine.instance.currentWorld
     const physicsWorld = Engine.instance.physicsWorld
 
     const entity = createEntity()
@@ -154,7 +151,6 @@ describe('Physics', () => {
   })
 
   it('should change rigidBody type', async () => {
-    const world = Engine.instance.currentWorld
     const physicsWorld = Engine.instance.physicsWorld
 
     const entity = createEntity()
@@ -184,7 +180,6 @@ describe('Physics', () => {
   })
 
   it('should cast ray and hit rigidbody', async () => {
-    const world = Engine.instance.currentWorld
     const physicsWorld = Engine.instance.physicsWorld
 
     const entity = createEntity()
@@ -214,7 +209,6 @@ describe('Physics', () => {
   })
 
   it('should generate a collision event', async () => {
-    const world = Engine.instance.currentWorld
     const physicsWorld = Engine.instance.physicsWorld
 
     const entity1 = createEntity()
@@ -272,7 +266,6 @@ describe('Physics', () => {
   })
 
   it('should generate a trigger event', async () => {
-    const world = Engine.instance.currentWorld
     const physicsWorld = Engine.instance.physicsWorld
 
     const entity1 = createEntity()

@@ -505,7 +505,7 @@ export default function HierarchyPanel({
           )}
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
-        {Engine.instance.currentWorld.scene && (
+        {Engine.instance.scene && (
           <div style={{ height: '100%' }}>
             <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
           </div>

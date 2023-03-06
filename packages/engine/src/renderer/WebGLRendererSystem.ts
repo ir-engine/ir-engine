@@ -234,7 +234,7 @@ export class EngineRenderer {
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
-      this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.camera)
+      this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
       const state = getState(RendererState)
       const engineState = getEngineState()
@@ -268,7 +268,7 @@ export class EngineRenderer {
         this.effectComposer.render(delta)
       } else {
         this.renderer.autoClear = true
-        this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.camera)
+        this.renderer.render(Engine.instance.scene, Engine.instance.camera)
       }
     }
   }

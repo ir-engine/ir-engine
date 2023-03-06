@@ -30,10 +30,7 @@ import {
 } from '../components/NetworkObjectComponent'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
-const receiveSpawnObject = (
-  action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
+const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
   const existingAvatar =
     WorldNetworkAction.spawnAvatar.matches.test(action) && !!Engine.instance.getUserAvatarEntity(action.$from)
   if (existingAvatar) return
@@ -71,10 +68,7 @@ const receiveSpawnObject = (
   action.rotation = transform.rotation
 }
 
-const receiveRegisterSceneObject = (
-  action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
+const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE) => {
   const entity = UUIDComponent.entitiesByUUID[action.objectUuid]?.value!
 
   if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
@@ -95,17 +89,11 @@ const receiveRegisterSceneObject = (
   }
 }
 
-const receiveSpawnDebugPhysicsObject = (
-  action: typeof WorldNetworkAction.spawnDebugPhysicsObject.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
+const receiveSpawnDebugPhysicsObject = (action: typeof WorldNetworkAction.spawnDebugPhysicsObject.matches._TYPE) => {
   generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
 }
 
-const receiveDestroyObject = (
-  action: ReturnType<typeof WorldNetworkAction.destroyObject>,
-  world = Engine.instance.currentWorld
-) => {
+const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destroyObject>) => {
   const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
   if (!entity)
     return console.log(
@@ -115,8 +103,7 @@ const receiveDestroyObject = (
 }
 
 const receiveRequestAuthorityOverObject = (
-  action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE,
-  world = Engine.instance.currentWorld
+  action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
 ) => {
   // Authority request can only be processed by owner
   if (Engine.instance.userId !== action.ownerId) return
@@ -142,8 +129,7 @@ const receiveRequestAuthorityOverObject = (
 }
 
 const receiveTransferAuthorityOfObject = (
-  action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE,
-  world = Engine.instance.currentWorld
+  action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE
 ) => {
   // Authority request can only be processed by owner
   if (action.$from !== action.ownerId) return
@@ -167,10 +153,7 @@ const receiveTransferAuthorityOfObject = (
   }
 }
 
-const receiveSetUserTyping = (
-  action: typeof WorldNetworkAction.setUserTyping.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
+const receiveSetUserTyping = (action: typeof WorldNetworkAction.setUserTyping.matches._TYPE) => {
   getEngineState().usersTyping[action.$from].set(action.typing ? true : none)
 }
 

@@ -340,7 +340,7 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
  */
 export function getEntityNodeArrayFromEntities(entities: EntityOrObjectUUID[]) {
   const arr = [] as EntityOrObjectUUID[]
-  const scene = Engine.instance.currentWorld.scene
+  const scene = Engine.instance.scene
   for (const entity of entities) {
     if (typeof entity === 'string') {
       scene.getObjectByProperty('uuid', entity) && arr.push(entity)

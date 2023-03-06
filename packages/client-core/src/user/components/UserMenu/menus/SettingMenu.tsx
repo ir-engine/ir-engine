@@ -76,8 +76,6 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.user_setting.value
 
-  const world = Engine.instance.currentWorld
-
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')

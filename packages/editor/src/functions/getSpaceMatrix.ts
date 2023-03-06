@@ -18,10 +18,7 @@ export function getSpaceMatrix() {
   const isUuid = typeof lastSelectedEntity === 'string'
 
   if (isUuid) {
-    return (
-      Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelectedEntity)?.parent?.matrixWorld ||
-      IDENTITY_MAT_4
-    )
+    return Engine.instance.scene.getObjectByProperty('uuid', lastSelectedEntity)?.parent?.matrixWorld || IDENTITY_MAT_4
   } else {
     const entityNode = getComponent(lastSelectedEntity, EntityTreeComponent)
     const parentEntity = entityNode?.parentEntity || lastSelectedEntity

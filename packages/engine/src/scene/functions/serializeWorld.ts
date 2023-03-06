@@ -19,7 +19,7 @@ import { NameComponent } from '../components/NameComponent'
 import { LoadState, PrefabComponent } from '../components/PrefabComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
-export const serializeEntity = (entity: Entity, world = Engine.instance.currentWorld) => {
+export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
   const jsonComponents = [] as ComponentJson[]
@@ -78,7 +78,7 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, wor
 
       entityJson.name = getComponent(entity, NameComponent)
 
-      entityJson.components = serializeEntity(entity, world)
+      entityJson.components = serializeEntity(entity)
 
       if (hasComponent(entity, PrefabComponent)) {
         const asset = getComponent(entity, PrefabComponent)

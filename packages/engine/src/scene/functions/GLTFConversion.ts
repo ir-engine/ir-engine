@@ -188,7 +188,7 @@ const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) =
   obj3d.userData.gltfExtensions[data.name] = componentProps
 }
 
-export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = Engine.instance.currentWorld) => {
+export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity) => {
   const name = getComponent(obj3d.entity, NameComponent)
   if (name) obj3d.name = name
 

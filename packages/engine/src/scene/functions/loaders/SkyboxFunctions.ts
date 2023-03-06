@@ -26,12 +26,12 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
 
   switch (component.backgroundType) {
     case SkyTypeEnum.color:
-      Engine.instance.currentWorld.scene.background = component.backgroundColor
+      Engine.instance.scene.background = component.backgroundColor
       break
     case SkyTypeEnum.cubemap:
       const onLoad = (texture: CubeTexture) => {
         texture.encoding = sRGBEncoding
-        Engine.instance.currentWorld.scene.background = getPmremGenerator().fromCubemap(texture).texture
+        Engine.instance.scene.background = getPmremGenerator().fromCubemap(texture).texture
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
       const loadArgs: [
@@ -54,7 +54,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
         {},
         (texture) => {
           texture.encoding = sRGBEncoding
-          Engine.instance.currentWorld.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
+          Engine.instance.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
           removeError(entity, SkyboxComponent, 'FILE_ERROR')
         },
         undefined,
@@ -77,7 +77,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
       component.sky.luminance = component.skyboxProps.luminance
 
       EngineRenderer.instance.csm?.lightDirection.copy(component.sky.sunPosition).multiplyScalar(-1)
-      Engine.instance.currentWorld.scene.background = getPmremGenerator().fromCubemap(
+      Engine.instance.scene.background = getPmremGenerator().fromCubemap(
         component.sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
       ).texture
 

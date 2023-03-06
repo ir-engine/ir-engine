@@ -30,7 +30,6 @@ describe('FixedPipelineSystem', () => {
   it.skip('can run multiple fixed ticks to catch up to elapsed time', async () => {
     createEngine()
     setupEngineActionSystems()
-    const world = Engine.instance.currentWorld
 
     const injectedSystems = [
       {
@@ -60,7 +59,6 @@ describe('FixedPipelineSystem', () => {
   it('can skip fixed ticks to catch up to elapsed time', async () => {
     createEngine()
     setupEngineActionSystems()
-    const world = Engine.instance.currentWorld
 
     const injectedSystems = [
       {

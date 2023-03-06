@@ -159,8 +159,6 @@ export const generatePhysicsObject = (
 
   Physics.createRigidBodyForGroup(entity, Engine.instance.physicsWorld, mesh.userData)
 
-  const world = Engine.instance.currentWorld
-
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
 

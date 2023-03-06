@@ -35,7 +35,6 @@ export const autopilotSetPosition = (entity: Entity) => {
   if (avatarControllerComponent.gamepadLocalInput.lengthSq() > 0) return
 
   const physicsWorld = Engine.instance.physicsWorld
-  const world = Engine.instance.currentWorld
 
   const castedRay = Physics.castRayFromCamera(
     Engine.instance.camera,
@@ -70,7 +69,7 @@ const setupMarker = () => {
   const material = new MeshBasicMaterial({ color: '#FFF' })
   const mesh = new Mesh(markerGeometry, material)
   mesh.visible = false
-  Engine.instance.currentWorld.scene.add(mesh)
+  Engine.instance.scene.add(mesh)
   markerState.merge({ markerObject: mesh })
 }
 

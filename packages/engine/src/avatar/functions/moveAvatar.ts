@@ -49,7 +49,6 @@ const finalAvatarMovement = new Vector3()
 const avatarHeadPosition = new Vector3()
 
 export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
-  const world = Engine.instance.currentWorld
   const entity = Engine.instance.localClientEntity
   const xrFrame = Engine.instance.xrFrame
 
@@ -133,7 +132,6 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 }
 
 export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
-  const world = Engine.instance.currentWorld
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   originTransform.position.add(movement)
   computeAndUpdateWorldOrigin()
@@ -196,7 +194,6 @@ export const applyAutopilotInput = (entity: Entity) => {
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
-  const world = Engine.instance.currentWorld
   const camera = Engine.instance.camera
   const deltaSeconds = Engine.instance.fixedDeltaSeconds
   const controller = getComponent(entity, AvatarControllerComponent)
@@ -287,7 +284,6 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
   rigidBody.targetKinematicRotation.multiply(rotation)
 
   if (getCameraMode() === 'attached') {
-    const world = Engine.instance.currentWorld
     const avatarTransform = getComponent(entity, TransformComponent)
     const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
 
@@ -349,7 +345,6 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 }
 
 export const updateLocalAvatarRotation = () => {
-  const world = Engine.instance.currentWorld
   const entity = Engine.instance.localClientEntity
   if (getCameraMode() === 'attached') {
     _updateLocalAvatarRotationAttachedMode()

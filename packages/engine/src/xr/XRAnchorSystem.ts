@@ -52,7 +52,6 @@ import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
-  const world = Engine.instance.currentWorld
   const xrFrame = Engine.instance.xrFrame!
   const hitTest = getComponentState(entity, XRHitTestComponent)
   const localTransform = getComponent(entity, LocalTransformComponent)
@@ -94,7 +93,7 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 // const orient = new Quaternion()
 
 /** AR placement for immersive session */
-// export const getHitTestFromController = (world = Engine.instance.currentWorld) => {
+// export const getHitTestFromController = () => {
 //   const referenceSpace = ReferenceSpace.origin!
 //   const pose = Engine.instance.xrFrame!.getPose(Engine.instance.inputSources[0].targetRaySpace, referenceSpace)!
 //   const { position, orientation } = pose.transform
@@ -120,7 +119,7 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 // }
 
 /** AR placement for non immersive / mobile session */
-// export const getHitTestFromViewer = (world = Engine.instance.currentWorld) => {
+// export const getHitTestFromViewer = () => {
 //   const xrState = getState(XRState)
 
 //   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
@@ -201,7 +200,6 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
 
   if (!localTransform || !xrFrame || !xrSession) return
 
-  const world = Engine.instance.currentWorld
   const lerpAlpha = smootheLerpAlpha(5, Engine.instance.deltaSeconds)
 
   const targetScale = getTargetWorldSize(localTransform)
@@ -277,7 +275,7 @@ export default async function XRAnchorSystem() {
       if (scenePlacementMode.value === 'placing') {
         // create a hit test source for the viewer when the interaction mode is 'screen-space'
         if (xrSession.value.interactionMode === 'screen-space') {
-          Engine.instance.currentWorld.scene.add(worldOriginPinpointAnchor)
+          Engine.instance.scene.add(worldOriginPinpointAnchor)
           setComponent(scenePlacementEntity, XRHitTestComponent, {
             space: ReferenceSpace.viewer!,
             entityTypes: ['plane', 'point', 'mesh']

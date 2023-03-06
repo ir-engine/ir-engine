@@ -103,7 +103,7 @@ export default async function SceneObjectSystem() {
 
     useEffect(() => {
       return () => {
-        const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
+        const layers = Object.values(Engine.instance.objectLayerList)
         for (const layer of layers) {
           if (layer.has(obj)) layer.delete(obj)
         }

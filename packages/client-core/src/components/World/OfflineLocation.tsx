@@ -18,7 +18,6 @@ export const OfflineLocation = () => {
   /** OFFLINE */
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
-      const world = Engine.instance.currentWorld
       const userId = Engine.instance.userId
       const userIndex = 1
       const peerID = 'peerID' as PeerID

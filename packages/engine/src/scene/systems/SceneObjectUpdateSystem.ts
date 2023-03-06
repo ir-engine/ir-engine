@@ -380,7 +380,7 @@ export default async function SceneObjectUpdateSystem() {
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
-    for (const _ of skyboxQuery.exit()) Engine.instance.currentWorld.scene.background = new Color('black')
+    for (const _ of skyboxQuery.exit()) Engine.instance.scene.background = new Color('black')
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)

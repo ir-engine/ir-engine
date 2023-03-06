@@ -25,7 +25,7 @@ export const setTransformMode = (mode: TransformModeType): void => {
     // Dont allow grabbing / placing objects with transform disabled.
     for (const entity of selectedEntities) {
       const isUuid = typeof entity === 'string'
-      const node = isUuid ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', entity) : entity
+      const node = isUuid ? Engine.instance.scene.getObjectByProperty('uuid', entity) : entity
 
       if (!isUuid && node) {
         traverseEntityNode(node as Entity, (child) => {

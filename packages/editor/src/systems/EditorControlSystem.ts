@@ -237,7 +237,7 @@ export default async function EditorControlSystem() {
     raycaster.setFromCamera(coords, Engine.instance.camera)
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
-    const scene = Engine.instance.currentWorld.scene
+    const scene = Engine.instance.scene
 
     const excludeObjects = [] as Object3D[]
     for (const e of selectionState.selectedParentEntities.value) {
@@ -250,7 +250,7 @@ export default async function EditorControlSystem() {
       }
     }
 
-    findIntersectObjects(Engine.instance.currentWorld.scene, excludeObjects, raycastIgnoreLayers)
+    findIntersectObjects(Engine.instance.scene, excludeObjects, raycastIgnoreLayers)
     findIntersectObjects(InfiniteGridHelper.instance)
 
     raycasterResults.sort((a, b) => a.distance - b.distance)
@@ -302,7 +302,7 @@ export default async function EditorControlSystem() {
       const isUuid = typeof lastSelection === 'string'
 
       const lastSelectedTransform = isUuid
-        ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)
+        ? Engine.instance.scene.getObjectByProperty('uuid', lastSelection)
         : getOptionalComponent(lastSelection as Entity, TransformComponent)
 
       if (lastSelectedTransform) {
@@ -321,7 +321,7 @@ export default async function EditorControlSystem() {
               const parentEnt = selectedParentEntities[i]
               const isUuid = typeof parentEnt === 'string'
               if (isUuid) {
-                box.expandByObject(Engine.instance.currentWorld.scene.getObjectByProperty('uuid', parentEnt)!)
+                box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
               } else {
                 box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
               }
@@ -477,7 +477,7 @@ export default async function EditorControlSystem() {
             selectedAxisInfo.startMarkerLocal!.position.copy(gizmoObj.position)
             selectedAxisInfo.startMarkerLocal!.quaternion.copy(gizmoObj.quaternion)
             selectedAxisInfo.startMarkerLocal!.scale.copy(gizmoObj.scale)
-            Engine.instance.currentWorld.scene.add(selectedAxisInfo.startMarkerLocal!)
+            Engine.instance.scene.add(selectedAxisInfo.startMarkerLocal!)
           }
         }
 
@@ -500,7 +500,7 @@ export default async function EditorControlSystem() {
           selectedAxisInfo.rotationTarget!.rotation.set(0, 0, 0)
           if (transformSpace !== TransformSpace.World) {
             const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-            if (startMarkerLocal) Engine.instance.currentWorld.scene.remove(startMarkerLocal)
+            if (startMarkerLocal) Engine.instance.scene.remove(startMarkerLocal)
           }
         }
       } else if (transformMode === TransformMode.Scale) {
