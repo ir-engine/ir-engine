@@ -1,6 +1,6 @@
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
@@ -62,9 +62,6 @@ export class Network {
 
   /** Buffer holding all incoming Messages. */
   incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
-
-  /** Buffer holding Mediasoup operations */
-  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
   /** Connected peers */
   peers = new Map() as Map<PeerID, NetworkPeer>

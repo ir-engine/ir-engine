@@ -1,6 +1,6 @@
 import { Mesh, Object3D } from 'three'
 
-import multiLogger from '@xrengine/common/src/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import iterateObject3D from '../../../scene/util/iterateObject3D'

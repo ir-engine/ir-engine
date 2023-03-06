@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AdminRedisSetting } from '@etherealengine/common/src/interfaces/AdminRedisSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'

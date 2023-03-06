@@ -1,8 +1,8 @@
 import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
-import { PeerID, SelfPeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { PeerID, SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
@@ -16,8 +16,8 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { getEntityTreeNodeByUUID } from '../../ecs/functions/EntityTree'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import {
   setLocalTransformComponent,
   setTransformComponent,
@@ -75,7 +75,7 @@ const receiveRegisterSceneObject = (
   action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
-  const entity = getEntityTreeNodeByUUID(action.objectUuid)?.entity!
+  const entity = UUIDComponent.entitiesByUUID[action.objectUuid]?.value!
 
   if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
 

@@ -1,16 +1,16 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
-import { getEntityTreeNodeByUUID } from '../ecs/functions/EntityTree'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 import { spawnAvatarReceptor } from './functions/spawnAvatarReceptor'
@@ -44,7 +44,7 @@ export function getRandomSpawnPoint(userId: UserId): { position: Vector3; rotati
 }
 
 export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { position: Vector3; rotation: Quaternion } {
-  const entity = getEntityTreeNodeByUUID(spawnPointNodeId)?.entity
+  const entity = UUIDComponent.entitiesByUUID[spawnPointNodeId].value
   if (entity) {
     const spawnTransform = getComponent(entity, TransformComponent)
     const spawnComponent = getComponent(entity, SpawnPointComponent)

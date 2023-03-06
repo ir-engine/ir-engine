@@ -1,8 +1,8 @@
 import { Not } from 'bitecs'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
+import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'

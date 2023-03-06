@@ -4,10 +4,10 @@ import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState,
   useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useHookstate } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 export const useEditorNetworkInstanceProvisioning = () => {
   const engineState = useEngineState()

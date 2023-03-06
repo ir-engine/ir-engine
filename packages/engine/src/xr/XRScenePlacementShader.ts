@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Material, Mesh } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { World } from '../ecs/classes/World'
 import { Object3DWithEntity, startGroupQueryReactor } from '../scene/components/GroupComponent'
@@ -54,7 +54,7 @@ export default async function XRScenePlacementShader(world: World) {
   const xrState = getState(XRState)
 
   const xrScenePlacementReactor = startGroupQueryReactor(
-    function ({ obj }) {
+    function XRScenePLacementReactor({ obj }) {
       const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
       const sessionActive = useHookstate(xrState.sessionActive)
 

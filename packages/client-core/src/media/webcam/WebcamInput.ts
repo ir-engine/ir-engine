@@ -1,24 +1,24 @@
 import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
 import * as Comlink from 'comlink'
 
-import { isDev } from '@xrengine/common/src/config'
-import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { isDev } from '@etherealengine/common/src/config'
+import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
   hasComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { WebcamInputComponent } from '@xrengine/engine/src/input/components/WebcamInputComponent'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { createActionQueue } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
+import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { createActionQueue, getState } from '@etherealengine/hyperflux'
 
-import { MediaStreams } from '../../transports/MediaStreams'
+import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1
 const PUCKER_EXPRESSION_THRESHOLD = 0.8
@@ -79,7 +79,7 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = MediaStreams.instance.videoStream
+  faceVideo.srcObject = getState(MediaStreamState).videoStream.value
   faceVideo.muted = true
   faceVideo.play()
 }
@@ -128,7 +128,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(MediaStreams.instance.audioStream)
+  const inputStream = audioContext.createMediaStreamSource(getState(MediaStreamState).audioStream.value!)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)

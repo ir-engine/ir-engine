@@ -1,14 +1,18 @@
+import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Vector3 } from 'three'
+import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
+import { useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
+import { GroupComponent, startGroupQueryReactor } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -35,6 +39,44 @@ export default async function DebugRendererSystem(world: World) {
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
 
   const debugEnable = getState(RendererState).debugEnable
+  const visualizers = [] as MeshBVHVisualizer[]
+
+  startGroupQueryReactor(function DebugReactor(props) {
+    const entity = props.entity
+    const group = useOptionalComponent(entity, GroupComponent)
+    const debug = useHookstate(debugEnable)
+
+    // add MeshBVHVisualizer to meshes when debugEnable is true
+    useEffect(() => {
+      const groupVisualizers = [] as MeshBVHVisualizer[]
+
+      function addMeshVVHVisualizer(obj: THREE.Mesh) {
+        const mesh = obj as any as THREE.Mesh
+        if (mesh.isMesh && mesh.geometry?.boundsTree) {
+          const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
+          mesh.parent!.add(meshBVHVisualizer)
+          visualizers.push(meshBVHVisualizer)
+          groupVisualizers.push(meshBVHVisualizer)
+          meshBVHVisualizer.depth = 20
+          meshBVHVisualizer.displayParents = false
+          meshBVHVisualizer.update()
+          return meshBVHVisualizer
+        }
+      }
+
+      if (debug.value && group) {
+        for (const obj of group.value) obj.traverse(addMeshVVHVisualizer)
+        return () => {
+          for (const visualizer of groupVisualizers) {
+            visualizer.removeFromParent()
+            visualizers.splice(visualizers.indexOf(visualizer), 1)
+          }
+        }
+      }
+    }, [group, debug])
+
+    return null
+  })
 
   const execute = () => {
     const _enabled = debugEnable.value
@@ -69,6 +111,10 @@ export default async function DebugRendererSystem(world: World) {
         line.geometry.dispose()
       }
       debugLines.clear()
+    }
+
+    for (const visualizer of visualizers) {
+      visualizer.updateMatrixWorld(true)
     }
 
     for (const line of debugLines) {

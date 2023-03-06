@@ -1,8 +1,8 @@
 ## HyperFlux
 
-HyperFlux brings together various state management strategies in XREngine, in a way that makes it easy to introspect and test. 
+HyperFlux brings together various state management strategies in Ethereal Engine, in a way that makes it easy to introspect and test. 
 
-In XREngine, we define 3 different stores
+In Ethereal Engine, we define 3 different stores
 
 The ENGINE store is, meaning actions are dispatched directly on the _**incoming**_ queue, and run on the Engine timer. 
 
@@ -16,7 +16,7 @@ createHyperStore({
 
 ```ts
 // IncomingActionSystem
-import { applyIncomingActions } from '@xrengine/hyperflux'
+import { applyIncomingActions } from '@etherealengine/hyperflux'
 export default async function IncomingActionSystem(world) {
   return () => {
     applyIncomingActions(Engine.instance.store)

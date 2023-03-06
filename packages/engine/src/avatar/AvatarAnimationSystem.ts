@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Bone, MathUtils, Object3D, Vector3 } from 'three'
 
-import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
+import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import {
   createActionQueue,
   defineState,
@@ -9,7 +9,7 @@ import {
   getState,
   startReactor,
   useHookstate
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
@@ -120,7 +120,7 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const avatarIKTargetsActionQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
 
-  const reactor = startReactor(() => {
+  const reactor = startReactor(function AvatarAnimationReactor() {
     const state = useHookstate(getState(AvatarAnimationState))
     const isHeadset = useIsHeadset()
 

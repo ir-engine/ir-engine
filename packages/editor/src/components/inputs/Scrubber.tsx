@@ -2,7 +2,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { ReactNode, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 
-import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
+import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
 
 import MultipleStopIcon from '@mui/icons-material/MultipleStop'
 

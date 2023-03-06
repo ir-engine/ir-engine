@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, CatmullRomCurve3, Line, LineBasicMaterial, Object3D, Vector3 } from 'three'
 
-import { removeElementFromArray } from '@xrengine/common/src/utils/removeElementFromArray'
+import { removeElementFromArray } from '@etherealengine/common/src/utils/removeElementFromArray'
 
 import { ObjectLayers } from '../constants/ObjectLayers'
 import SplineHelper from './SplineHelper'

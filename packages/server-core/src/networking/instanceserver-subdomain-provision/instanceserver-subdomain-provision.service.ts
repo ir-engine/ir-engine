@@ -6,7 +6,7 @@ import hooks from './instanceserver-subdomain-provision.hooks'
 import createModel from './instanceserver-subdomain-provision.model'
 
 // Add this service to the service type index
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'instanceserver-subdomain-provision': InstanceserverSubdomainProvision
   }

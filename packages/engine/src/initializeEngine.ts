@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
-import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
+import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
+import { addActionReceptor, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'

@@ -1,14 +1,15 @@
+import { subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
-import React, { startTransition, useEffect } from 'react'
+import React, { startTransition, useEffect, useLayoutEffect } from 'react'
 
-import config from '@xrengine/common/src/config'
-import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
-import multiLogger from '@xrengine/common/src/logger'
-import { HookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
-import { getNestedObject } from '@xrengine/common/src/utils/getNestedProperty'
-import { useForceUpdate } from '@xrengine/common/src/utils/useForceUpdate'
-import { startReactor } from '@xrengine/hyperflux'
-import { hookstate, NO_PROXY, none, State, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
+import config from '@etherealengine/common/src/config'
+import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
+import multiLogger from '@etherealengine/common/src/logger'
+import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
+import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
+import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { startReactor } from '@etherealengine/hyperflux'
+import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
@@ -198,18 +199,25 @@ export const setComponent = <C extends Component>(
   if (!hasComponent(entity, Component)) {
     value = Component.onInit(entity, world) ?? args
     Component.existenceMap[entity].set(true)
-    if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(value)
-    else Component.stateMap[entity]!.set(value)
+    if (!Component.stateMap[entity]) {
+      const state = hookstate(value, subscribable())
+      Component.stateMap[entity] = state
+      state.subscribe((value) => {
+        Component.valueMap[entity] = value
+      })
+    } else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
+      if (!Component.reactor.name || Component.reactor.name === 'reactor')
+        Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor-${entity}` })
       const root = startReactor(Component.reactor) as EntityReactorRoot
       root.entity = entity
       Component.reactorMap.set(entity, root)
     }
   }
-  Component.valueMap[entity] = value
   startTransition(() => {
     Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
+    Component.valueMap[entity] = Component.stateMap[entity]!.get(NO_PROXY)
     const root = Component.reactorMap.get(entity)
     if (!root?.isRunning) root?.run()
   })
@@ -384,13 +392,17 @@ export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Co
 export function useQuery(components: QueryComponents) {
   const world = Engine.instance.currentWorld
 
-  const state = useHookstate([] as Entity[])
+  const result = useHookstate([] as Entity[])
   const forceUpdate = useForceUpdate()
 
-  useEffect(() => {
+  // Use an immediate (layout) effect to ensure that `queryResult`
+  // is deleted from the `reactiveQueryStates` map immediately when the current
+  // component is unmounted, before any other code attempts to set it
+  // (component state can't be modified after a component is unmounted)
+  useLayoutEffect(() => {
     const query = defineQuery(components)
-    state.set(query(world))
-    const queryState = { query, state, components }
+    result.set(query(world))
+    const queryState = { query, result, components }
     world.reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(world, query)
@@ -400,8 +412,8 @@ export function useQuery(components: QueryComponents) {
 
   // create an effect that forces an update when any components in the query change
   useEffect(() => {
-    const entities = [...state.value]
-    const root = startReactor(() => {
+    const entities = [...result.value]
+    const root = startReactor(function useQueryReactor() {
       for (const entity of entities) {
         components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
       }
@@ -411,9 +423,9 @@ export function useQuery(components: QueryComponents) {
     return () => {
       root.stop()
     }
-  }, [state])
+  }, [result])
 
-  return state.value
+  return result.value
 }
 
 /**
@@ -426,7 +438,7 @@ export function useComponent<C extends Component<any>>(
 ) {
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   if (!hasComponent) throw new Error(`${Component.name} does not exist on entity ${entity}`)
-  return useHookstate(Component.stateMap[entity]) as State<ComponentType<C>>
+  return useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
 }
 
 /**
@@ -439,7 +451,7 @@ export function useOptionalComponent<C extends Component<any>>(
 ) {
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined)
-  const component = useHookstate(Component.stateMap[entity]) as State<ComponentType<C>>
+  const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }
 

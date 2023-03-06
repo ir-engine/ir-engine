@@ -2,25 +2,18 @@ import { createState, useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
-import Icon from '@xrengine/ui/src/Icon'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
+import { useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
-import { MediaStreams } from '../../../transports/MediaStreams'
-import {
-  configureMediaTransports,
-  createCamAudioProducer,
-  pauseProducer,
-  resumeProducer
-} from '../../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
+import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
 
@@ -117,20 +110,6 @@ const WidgetButtons = () => {
     dispatchAction(WidgetAppActions.showWidget({ id: toggledWidget.id, shown: !visible }))
   }
 
-  const handleMicClick = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (!mediaNetwork) return
-    if (await configureMediaTransports(mediaNetwork, ['audio'])) {
-      if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
-      else {
-        const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-      }
-      MediaStreamService.updateCamAudioState()
-    }
-  }
-
   const activeWidgets = widgets.filter((widget) => widget.enabled && widget.icon)
 
   const additionalWidgetCount = 1 + (mediaInstanceState?.value ? 1 : 0)
@@ -147,7 +126,7 @@ const WidgetButtons = () => {
         {mediaInstanceState?.value && (
           <WidgetButton
             icon={isCamAudioEnabled.value ? 'Mic' : 'MicOff'}
-            toggle={handleMicClick}
+            toggle={toggleMicrophonePaused}
             label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
           />
         )}

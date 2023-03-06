@@ -4,7 +4,7 @@ import cli from 'cli'
 import fs from 'fs'
 import path from 'path'
 
-import { copyFolderRecursiveSync, deleteFolderRecursive } from '@xrengine/server-core/src/util/fsHelperFunctions'
+import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/server-core/src/util/fsHelperFunctions'
 
 cli.enable('status')
 

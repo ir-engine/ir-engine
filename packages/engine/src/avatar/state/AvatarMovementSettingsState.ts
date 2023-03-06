@@ -1,4 +1,4 @@
-import { defineState } from '@xrengine/hyperflux'
+import { defineState } from '@etherealengine/hyperflux'
 
 export const AvatarMovementSettingsState = defineState({
   name: 'AvatarMovementSettingsState',

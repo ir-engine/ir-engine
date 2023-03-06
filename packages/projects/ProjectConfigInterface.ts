@@ -1,6 +1,6 @@
-import { OEmbed } from '@xrengine/common/src/interfaces/OEmbed'
-import type { World } from '@xrengine/engine/src/ecs/classes/World'
-import type { Application } from '@xrengine/server-core/declarations'
+import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
+import type { World } from '@etherealengine/engine/src/ecs/classes/World'
+import type { Application } from '@etherealengine/server-core/declarations'
 
 export interface ProjectConfigInterface {
   /**

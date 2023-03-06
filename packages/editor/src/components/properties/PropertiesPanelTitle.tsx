@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'
@@ -42,7 +42,7 @@ export const PropertiesPanelTitle = () => {
                         lockPropertiesPanel:
                           typeof currentEntity === 'string'
                             ? (currentEntity as EntityUUID)
-                            : Engine.instance.currentWorld.entityTree.entityNodeMap.get(currentEntity)!.uuid
+                            : getComponent(currentEntity, UUIDComponent)
                       })
                     )
                   }

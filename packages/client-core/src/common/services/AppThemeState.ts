@@ -1,7 +1,7 @@
-import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { ThemeOptions } from '@xrengine/common/src/interfaces/ClientSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, useHookstate } from '@xrengine/hyperflux'
+import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import { ThemeOptions } from '@etherealengine/common/src/interfaces/ClientSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'

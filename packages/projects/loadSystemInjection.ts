@@ -1,7 +1,7 @@
-import type { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { isClient } from '@xrengine/engine/src/common/functions/isClient'
-import type { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import type { SystemComponentType } from '@xrengine/engine/src/scene/components/SystemComponent'
+import type { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { isClient } from '@etherealengine/engine/src/common/functions/isClient'
+import type { SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import type { SystemComponentType } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 export const getSystemsFromSceneData = (project: string, sceneData: SceneJson): SystemModuleType<any>[] => {
   const systems: SystemModuleType<any>[] = []

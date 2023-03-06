@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-import Box from '@xrengine/ui/src/Box'
-import FormControl from '@xrengine/ui/src/FormControl'
-import FormHelperText from '@xrengine/ui/src/FormHelperText'
-import IconButton from '@xrengine/ui/src/IconButton'
-import InputLabel from '@xrengine/ui/src/InputLabel'
-import OutlinedInput from '@xrengine/ui/src/OutlinedInput'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import Box from '@etherealengine/ui/src/Box'
+import FormControl from '@etherealengine/ui/src/FormControl'
+import FormHelperText from '@etherealengine/ui/src/FormHelperText'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import InputLabel from '@etherealengine/ui/src/InputLabel'
+import OutlinedInput from '@etherealengine/ui/src/OutlinedInput'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

@@ -1,6 +1,6 @@
 import { Color, Mesh, PlaneGeometry, ShaderMaterial } from 'three'
 
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { World } from '../../ecs/classes/World'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-import FormControl from '@xrengine/ui/src/FormControl'
-import FormHelperText from '@xrengine/ui/src/FormHelperText'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import FormControl from '@etherealengine/ui/src/FormControl'
+import FormHelperText from '@etherealengine/ui/src/FormHelperText'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { useAutocomplete } from '@mui/base/AutocompleteUnstyled'
 

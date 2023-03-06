@@ -1,7 +1,7 @@
 import { BufferGeometry, Color, Material, MathUtils, Mesh, Texture } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { State } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { State } from '@etherealengine/hyperflux'
 
 import { createMappedComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
 import {

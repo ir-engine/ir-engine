@@ -1,7 +1,7 @@
 {
-  "name": "@xrengine/instanceserver",
-  "description": "Multiplayer Instanceserver for XREngine",
-  "version": "1.0.0",
+  "name": "@etherealengine/instanceserver",
+  "description": "Multiplayer Instanceserver for Ethereal Engine",
+  "version": "1.2.0-rc6",
   "private": true,
   "homepage": "",
   "main": "./src",
@@ -18,8 +18,8 @@
     "vr"
   ],
   "author": {
-    "name": "XRFoundation Collective",
-    "email": "hello@xrfoundation.io"
+    "name": "Ethereal Engine Collective",
+    "email": "hello@etherealengine.io"
   },
   "contributors": [],
   "bugs": {},
@@ -42,6 +42,9 @@
   },
   "types": "lib/",
   "dependencies": {
+    "@etherealengine/engine": "^1.2.0-rc6",
+    "@etherealengine/projects": "^1.2.0-rc6",
+    "@etherealengine/server-core": "^1.2.0-rc6",
     "@feathersjs/express": "5.0.0-pre.29",
     "@feathersjs/feathers": "5.0.0-pre.29",
     "@feathersjs/primus-client": "4.5.15",
@@ -49,9 +52,6 @@
     "@google-cloud/agones-sdk": "1.22.0",
     "@kubernetes/client-node": "0.16.3",
     "@swc/core": "^1.2.210",
-    "@xrengine/engine": "^1.0.0",
-    "@xrengine/projects": "^1.0.0",
-    "@xrengine/server-core": "^1.0.0",
     "aws-sdk": "2.1113.0",
     "compression": "1.7.4",
     "cors": "2.8.5",
@@ -63,7 +63,7 @@
     "serve-favicon": "2.5.0",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.8.2",
-    "typescript": "4.8.3"
+    "typescript": "4.9.5"
   },
   "devDependencies": {
     "@types/compression": "1.7.2",

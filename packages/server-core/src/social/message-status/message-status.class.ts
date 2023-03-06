@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { MessageStatus as MessageStatusDataType } from '@xrengine/common/src/interfaces/MessageStatus'
+import { MessageStatus as MessageStatusDataType } from '@etherealengine/common/src/interfaces/MessageStatus'
 
 import { Application } from '../../../declarations'
 

@@ -2,12 +2,13 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mesh } from 'three'
 
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { MeshProperties } from '@xrengine/engine/src/scene/components/InstancingComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import iterateObject3D from '@xrengine/engine/src/scene/util/iterateObject3D'
-import { State } from '@xrengine/hyperflux'
+import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { MeshProperties } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
+import { State } from '@etherealengine/hyperflux'
 
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -29,7 +30,7 @@ export default function InstancingMeshProperties({
 
   const initialMeshes = traverseScene(
     (node) => {
-      const group = getComponent(node.entity, GroupComponent)
+      const group = getComponent(node, GroupComponent)
       const meshes = group
         .map((obj3d) =>
           iterateObject3D(
@@ -41,11 +42,11 @@ export default function InstancingMeshProperties({
         .flat()
       return meshes.length > 0 ? node : null
     },
-    (node) => hasComponent(node.entity, GroupComponent)
+    (node) => hasComponent(node, GroupComponent)
   )
     .filter((x) => x !== null)
     .map((node) => {
-      return { label: getComponent(node!.entity, NameComponent), value: node!.uuid }
+      return { label: getComponent(node!, NameComponent), value: getComponent(node!, UUIDComponent) }
     })
 
   const updateProp = useCallback((prop: keyof MeshProperties) => {

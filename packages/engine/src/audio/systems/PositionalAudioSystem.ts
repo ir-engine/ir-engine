@@ -2,7 +2,7 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, removeActionQueue, useHookstate } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -108,7 +108,7 @@ export default async function PositionalAudioSystem(world: World) {
 
   const positionalAudioPannerReactor = startQueryReactor(
     [PositionalAudioComponent, TransformComponent],
-    function (props) {
+    function PositionalAudioPannerReactor(props) {
       const entity = props.root.entity
 
       const mediaElement = useOptionalComponent(entity, MediaElementComponent)

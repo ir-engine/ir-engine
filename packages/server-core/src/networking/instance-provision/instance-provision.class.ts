@@ -5,8 +5,8 @@ import _ from 'lodash'
 import fetch from 'node-fetch'
 import Sequelize, { Op } from 'sequelize'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

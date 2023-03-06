@@ -1,1 +1,1 @@
-export const BotUserAgent = 'XREngine Puppeteer'
+export const BotUserAgent = 'Ethereal Engine Puppeteer'

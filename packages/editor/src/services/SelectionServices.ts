@@ -1,23 +1,16 @@
 import { useState } from '@hookstate/core'
-import { Euler } from 'three'
 
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
-  getComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
-import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SystemDefintion } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
+import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
@@ -26,8 +19,8 @@ import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelect
 const transformProps = ['position', 'rotation', 'scale', 'matrix']
 
 type SelectionServiceStateType = {
-  selectedEntities: (Entity | string)[]
-  selectedParentEntities: (Entity | string)[]
+  selectedEntities: EntityOrObjectUUID[]
+  selectedParentEntities: EntityOrObjectUUID[]
   selectionCounter: number
   objectChangeCounter: number
   sceneGraphChangeCounter: number
@@ -108,7 +101,7 @@ export const SelectionService = {}
 export class SelectionAction {
   static changedObject = defineAction({
     type: 'xre.editor.Selection.OBJECT_CHANGED',
-    objects: matches.array as Validator<unknown, (EntityTreeNode | string)[]>,
+    objects: matches.array as Validator<unknown, EntityOrObjectUUID[]>,
     propertyName: matches.string
   })
 
@@ -118,7 +111,7 @@ export class SelectionAction {
 
   static updateSelection = defineAction({
     type: 'xre.editor.Selection.SELECTION_CHANGED',
-    selectedEntities: matches.array as Validator<unknown, (Entity | string)[]>
+    selectedEntities: matches.array as Validator<unknown, EntityOrObjectUUID[]>
   })
 
   static forceUpdate = defineAction({

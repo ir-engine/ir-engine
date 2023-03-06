@@ -127,8 +127,8 @@ dist
 # TernJS port file
 .tern-port
 
-**/xrengine-secrets.env
-**/xrengine-dev-secrets.env
+**/etherealengine-secrets.env
+**/etherealengine-dev-secrets.env
 lib/
 bin/
 

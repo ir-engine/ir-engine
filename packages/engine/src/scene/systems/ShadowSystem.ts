@@ -20,8 +20,8 @@ import {
   Vector3
 } from 'three'
 
-import config from '@xrengine/common/src/config'
-import { getState, hookstate, startReactor, useHookstate } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { getState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
@@ -42,7 +42,7 @@ import {
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { RendererState } from '../../renderer/RendererState'
@@ -131,7 +131,7 @@ export default async function ShadowSystem(world: World) {
     return null
   }
 
-  const csmReactor = startReactor(() => {
+  const csmReactor = startReactor(function CSMReactor() {
     const lightEstimator = useHookstate(xrState.isEstimatingLight)
     const directionalLights = useQuery([DirectionalLightComponent])
 
@@ -188,7 +188,7 @@ export default async function ShadowSystem(world: World) {
   const sphere = new Sphere()
   const box3 = new Box3()
 
-  const dropShadowReactor = startQueryReactor([ShadowComponent], function (props) {
+  const dropShadowReactor = startQueryReactor([ShadowComponent], function DropShadowReactor(props) {
     const entity = props.root.entity
     const useShadows = useShadowsEnabled()
     const shadowMaterial = useHookstate(shadowState)
@@ -233,7 +233,7 @@ export default async function ShadowSystem(world: World) {
   const shadowOffset = new Vector3(0, 0.01, 0)
 
   const execute = () => {
-    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Scene] || [])
+    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
     if (!useShadows && !Engine.instance.isEditor) {

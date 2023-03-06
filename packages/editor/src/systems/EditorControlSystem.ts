@@ -13,11 +13,11 @@ import {
   Vector3
 } from 'three'
 
-import { V_010 } from '@xrengine/engine/src/common/constants/MathConstants'
-import { throttle } from '@xrengine/engine/src/common/functions/FunctionHelpers'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
+import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -27,15 +27,15 @@ import {
   removeComponent,
   removeQuery,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { addObjectToGroup, GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
-import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGizmo'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
   SnapMode,
   TransformAxis,
@@ -44,10 +44,13 @@ import {
   TransformModeType,
   TransformPivot,
   TransformPivotType
-} from '@xrengine/engine/src/scene/constants/transformConstants'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import {
+  setTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { createActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
@@ -60,7 +63,7 @@ import {
   toggleTransformPivot,
   toggleTransformSpace
 } from '../functions/transformFunctions'
-import { EditorHelperState } from '../services/EditorHelperState'
+import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
 import EditorHistoryReceptor, { EditorHistoryAction } from '../services/EditorHistory'
 import EditorSelectionReceptor, { SelectionState } from '../services/SelectionServices'
 
@@ -82,7 +85,7 @@ export default async function EditorControlSystem(world: World) {
   const selectionState = getState(SelectionState)
   const editorHelperState = getState(EditorHelperState)
 
-  const gizmoEntity = editorHelperState.value.transformGizmoEntity
+  const gizmoEntity = createTransformGizmo()
 
   const raycaster = new Raycaster()
   const raycasterResults: Intersection<Object3D>[] = []
@@ -272,9 +275,11 @@ export default async function EditorControlSystem(world: World) {
   const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
   const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent).gizmo
+  const changedTransformMode = createActionQueue(EditorHelperAction.changedTransformMode.matches)
 
   const execute = () => {
-    if (world.localClientEntity || !hasComponent(gizmoEntity, TransformGizmoComponent)) return
+    for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
+    if (world.localClientEntity) return
 
     selectedParentEntities = selectionState.selectedParentEntities.value
     selectedEntities = selectionState.selectedEntities.value
@@ -287,8 +292,6 @@ export default async function EditorControlSystem(world: World) {
 
     transformSpaceChanged = transformSpace !== editorHelperState.transformSpace.value
     transformSpace = editorHelperState.transformSpace.value
-
-    if (!gizmoObj) return
 
     const inputState = world.buttons
 

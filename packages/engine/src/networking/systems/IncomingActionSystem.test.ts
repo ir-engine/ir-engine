@@ -1,13 +1,13 @@
 import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getState } from '@etherealengine/hyperflux'
 import {
   ActionRecipients,
   addActionReceptor,
   applyIncomingActions
-} from '@xrengine/hyperflux/functions/ActionFunctions'
+} from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'

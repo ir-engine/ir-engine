@@ -17,9 +17,9 @@ import results from '../tests/jest-test-results.json'
 
 import { withThemes } from '@react-theming/storybook-addon'
 
-import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
+import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
 
-import { theme as defaultTheme, useTheme } from '@xrengine/client-core/src/theme'
+import { theme as defaultTheme, useTheme } from '@etherealengine/client-core/src/theme'
 
 // const providerFn = ({ theme, children }) => {
 //   const compliledTheme = useTheme(theme)

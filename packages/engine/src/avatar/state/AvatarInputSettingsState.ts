@@ -1,5 +1,5 @@
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/XRUserSettings'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@etherealengine/engine/src/xr/XRUserSettings'
 import {
   defineAction,
   defineState,
@@ -7,7 +7,7 @@ import {
   getState,
   syncStateWithLocalStorage,
   useState
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 export const AvatarAxesControlScheme = {
   Move: 'AvatarControlScheme_Move' as const,

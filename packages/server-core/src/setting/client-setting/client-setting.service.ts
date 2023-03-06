@@ -4,7 +4,7 @@ import { ClientSetting } from './client-setting.class'
 import hooks from './client-setting.hooks'
 import createModel from './client-setting.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'client-setting': ClientSetting
   }

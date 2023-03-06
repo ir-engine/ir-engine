@@ -1,11 +1,11 @@
 import React, { createRef, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { API } from '@xrengine/client-core/src/API'
-import { FullscreenContainer } from '@xrengine/client-core/src/components/FullscreenContainer'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { createEngine, initializeBrowser, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
+import { API } from '@etherealengine/client-core/src/API'
+import { FullscreenContainer } from '@etherealengine/client-core/src/components/FullscreenContainer'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createEngine, initializeBrowser, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
 
 import { initializei18n } from './util'
 

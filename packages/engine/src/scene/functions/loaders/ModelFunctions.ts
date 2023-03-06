@@ -1,4 +1,4 @@
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { EngineState } from '../../../ecs/classes/EngineState'

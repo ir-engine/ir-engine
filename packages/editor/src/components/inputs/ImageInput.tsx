@@ -1,10 +1,10 @@
 import React from 'react'
 
-import { ImageFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { ImageFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
-import { StringInputProp } from './StringInput'
+import { StringInputProps } from './StringInput'
 
 /**
  * ImageInput used to render component view for image inputs.
@@ -13,7 +13,7 @@ import { StringInputProp } from './StringInput'
  * @param       {any} rest
  * @constructor
  */
-export function ImageInput({ onChange, ...rest }: StringInputProp) {
+export function ImageInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={ImageFileTypes}

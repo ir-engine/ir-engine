@@ -8,21 +8,23 @@ import {
 } from '@dimforge/rapier3d-compat'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
-// import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
-import { ColliderDescOptions } from '@xrengine/engine/src/physics/types/PhysicsTypes'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFModel'
-import { createNewEditorNode } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+// import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/CollisionGroups'
+import { ColliderDescOptions } from '@etherealengine/engine/src/physics/types/PhysicsTypes'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { parseGLTFModel } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
+import { createNewEditorNode } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import {
+  setTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../../networking/classes/Network'
@@ -169,8 +171,7 @@ export const generatePhysicsObject = (
     // body.addTorque(defaultTorqueForce, true)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
-    const node = world.entityTree.entityNodeMap.get(entity)
-    if (node) {
+    if (entity) {
       dispatchAction(
         WorldNetworkAction.spawnObject({
           prefab: 'physics_debug',

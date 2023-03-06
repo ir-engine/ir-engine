@@ -2,12 +2,12 @@ import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers/lib'
 import path from 'path'
 
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { OEmbed } from '@xrengine/common/src/interfaces/OEmbed'
-import { ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
-import { Application } from '@xrengine/server-core/declarations'
-import { getStorageProvider } from '@xrengine/server-core/src/media/storageprovider/storageprovider'
-import { installAvatarsFromProject } from '@xrengine/server-core/src/user/avatar/avatar-helper'
+import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
+import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
+import { Application } from '@etherealengine/server-core/declarations'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
 
 const avatarsFolder = path.resolve(__dirname, 'public/avatars')
 

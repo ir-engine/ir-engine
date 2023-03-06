@@ -1,4 +1,4 @@
-import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 
 export const clientSeed = {
   path: 'client-setting',
@@ -25,7 +25,7 @@ export const clientSeed = {
       appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
       appSocialLinks: JSON.stringify([
         { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
-        { icon: 'static/github.svg', link: 'https://github.com/XRFoundation' }
+        { icon: 'static/github.svg', link: 'https://github.com/etherealengine' }
       ]),
       themeSettings: JSON.stringify(defaultThemeSettings),
       themeModes: JSON.stringify(defaultThemeModes),

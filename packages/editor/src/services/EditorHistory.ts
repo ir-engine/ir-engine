@@ -1,19 +1,19 @@
-import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { SystemDefintion } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, getState, NO_PROXY } from '@xrengine/hyperflux'
+import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { SystemDefintion } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { defineAction, defineState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 import {
   createActionQueue,
   dispatchAction,
   removeActionQueue,
   Topic
-} from '@xrengine/hyperflux/functions/ActionFunctions'
+} from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { SelectionAction, SelectionState } from './SelectionServices'
 
@@ -68,7 +68,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     for (const action of clearHistoryQueue()) {
       state.merge({
         index: 0,
-        history: [{ data: { scene: serializeWorld(world.entityTree.rootNode) } as any as SceneData }]
+        history: [{ data: { scene: serializeWorld(world.sceneEntity) } as any as SceneData }]
       })
     }
 
@@ -91,7 +91,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     /** Local only - serialize world then push to CRDT */
     for (const action of modifyQueue()) {
       if (action.modify) {
-        const data = { scene: serializeWorld(world.entityTree.rootNode) } as any as SceneData
+        const data = { scene: serializeWorld(world.sceneEntity) } as any as SceneData
         state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { data }])
         state.index.set(state.index.value + 1)
       } else if (state.includeSelection.value) {

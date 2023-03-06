@@ -6,7 +6,7 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { createActionQueue, getState, removeActionQueue, useHookstate } from '@xrengine/hyperflux'
+import { createActionQueue, getState, removeActionQueue, useHookstate } from '@etherealengine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
@@ -239,7 +239,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   let depthSupported = false
 
   const depthOcclusionReactor = startGroupQueryReactor(
-    function ({ obj }) {
+    function DepthOcclusionReactor({ obj }) {
       const depthDataTexture = useHookstate(xrState.depthDataTexture)
 
       useEffect(() => {

@@ -1,4 +1,4 @@
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'

@@ -1,17 +1,26 @@
 import { Object3D } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTree, EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { findIndexOfEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
-import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  EntityOrObjectUUID,
+  EntityTreeComponent,
+  findIndexOfEntityNode
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 
 import traverseEarlyOut from './traverseEarlyOut'
 
+// Returns an array of objects that are not ancestors of any other objects in the array.
 export function getDetachedObjectsRoots(
-  objects: (EntityTreeNode | string)[],
-  target: (EntityTreeNode | string)[] = []
-): (string | EntityTreeNode)[] {
+  objects: EntityOrObjectUUID[],
+  target: EntityOrObjectUUID[] = []
+): EntityOrObjectUUID[] {
   // Initially all objects are candidates
   for (let i = 0; i < objects.length; i++) target.push(objects[i])
 
@@ -39,11 +48,11 @@ export function getDetachedObjectsRoots(
   return target
 }
 
-export const isAncestor = (parent: EntityTreeNode | string, potentialChild: EntityTreeNode | string): boolean => {
+export const isAncestor = (parent: EntityOrObjectUUID, potentialChild: EntityOrObjectUUID): boolean => {
   if (!potentialChild) return false
   if (parent === potentialChild) return false
-  let parentNode: EntityTreeNode
-  let childNode: EntityTreeNode
+  let parentNode: EntityOrObjectUUID
+  let childNode: EntityOrObjectUUID
   if (typeof parent === 'string' && typeof potentialChild === 'string') {
     parentNode = getEntityNode(parent)
     childNode = getEntityNode(potentialChild)
@@ -57,25 +66,28 @@ export const isAncestor = (parent: EntityTreeNode | string, potentialChild: Enti
     }
     return false
   } else if (typeof parent === 'string') {
-    //child is implicitly an EntityTreeNode
+    //child is implicitly an EntityTree entity
     parentNode = getEntityNode(parent)
     return isAncestor(parentNode, potentialChild)
   } else if (typeof potentialChild === 'string') {
-    //parent is implicitly an EntityTreeNode
+    //parent is implicitly an EntityTree entity
     childNode = getEntityNode(potentialChild)
     return isAncestor(parent, childNode)
   }
-  if (parent.entity === potentialChild?.entity) return false
-  return traverseEarlyOut(parent, (child) => child.entity === potentialChild.entity)
+  if (parent === potentialChild) return false
+  return traverseEarlyOut(parent, (child) => child === potentialChild)
 }
 
 const getEntityNode = (uuid: string) => {
-  const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
+  const world = Engine.instance.currentWorld
   let obj3d = obj3dFromUuid(uuid) as Object3DWithEntity
   while (obj3d) {
-    if (obj3d.entity !== undefined && nodeMap.has(obj3d.entity)) return nodeMap.get(obj3d.entity)!
+    if (
+      obj3d.entity !== undefined &&
+      getOptionalComponent(obj3d.entity, EntityTreeComponent)?.rootEntity === world.sceneEntity
+    )
+      return obj3d.entity
     obj3d = obj3d.parent as Object3DWithEntity
   }
   throw new Error('no Entity Node found')
-  return Engine.instance.currentWorld.entityTree.rootNode
 }

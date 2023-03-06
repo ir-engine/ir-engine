@@ -1,5 +1,5 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'

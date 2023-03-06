@@ -2,7 +2,7 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 const CustomRoutes = ({ customRoutes }) => {
   if (customRoutes === null) return <Routes></Routes>

@@ -1,15 +1,21 @@
 import { PerspectiveCamera } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
-import { EngineRenderer, getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { setTransformComponent, TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { addComponent, defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
+import {
+  EngineRenderer,
+  getPostProcessingSceneMetadataState
+} from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import {
+  setTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { getCanvasBlob } from './thumbnails'
 
@@ -45,7 +51,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
     setTransformComponent(entity, position, rotation)
     addObjectToGroup(entity, scenePreviewCamera)
-    addEntityNodeChild(createEntityNode(entity), Engine.instance.currentWorld.entityTree.rootNode)
+    addEntityNodeChild(entity, Engine.instance.currentWorld.sceneEntity)
     scenePreviewCamera.updateMatrixWorld(true)
   }
 

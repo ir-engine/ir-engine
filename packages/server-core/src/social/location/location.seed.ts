@@ -1,4 +1,4 @@
-import { Location } from '@xrengine/common/src/interfaces/Location'
+import { Location } from '@etherealengine/common/src/interfaces/Location'
 
 import { locationSettingsSeed } from '../location-settings/location-settings.seed'
 

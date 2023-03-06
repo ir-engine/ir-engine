@@ -1,4 +1,4 @@
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 

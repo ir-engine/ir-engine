@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { TaskServerSetting as TaskServerSettingInterface } from '@xrengine/common/src/interfaces/TaskServerSetting'
+import { TaskServerSetting as TaskServerSettingInterface } from '@etherealengine/common/src/interfaces/TaskServerSetting'
 
 import { Application } from '../../../declarations'
 

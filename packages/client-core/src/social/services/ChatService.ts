@@ -2,16 +2,16 @@ import { Paginated } from '@feathersjs/feathers'
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { Group } from '@xrengine/common/src/interfaces/Group'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { Message } from '@xrengine/common/src/interfaces/Message'
-import { Party } from '@xrengine/common/src/interfaces/Party'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { Group } from '@etherealengine/common/src/interfaces/Group'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { Message } from '@etherealengine/common/src/interfaces/Message'
+import { Party } from '@etherealengine/common/src/interfaces/Party'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -27,7 +27,7 @@ interface ChatMessageProps {
 
 //State
 
-const ChatState = defineState({
+export const ChatState = defineState({
   name: 'ChatState',
   initial: () => ({
     channels: {

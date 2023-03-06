@@ -1,7 +1,7 @@
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminScope as AdminScopeInterface } from '@xrengine/common/src/interfaces/AdminScope'
+import { AdminScope as AdminScopeInterface } from '@etherealengine/common/src/interfaces/AdminScope'
 
 import { Application } from '../../../declarations'
 

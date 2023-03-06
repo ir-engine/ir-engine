@@ -1,5 +1,5 @@
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
-import { none } from '@xrengine/hyperflux/functions/StateFunctions'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { matches, Validator } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
