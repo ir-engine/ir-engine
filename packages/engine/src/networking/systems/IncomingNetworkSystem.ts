@@ -1,6 +1,5 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
 import { createDataReader } from '../serialization/DataReader'
 

@@ -5,7 +5,6 @@ import { dispatchAction, getState, startReactor } from '@etherealengine/hyperflu
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
 import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'

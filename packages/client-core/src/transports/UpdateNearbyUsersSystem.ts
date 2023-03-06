@@ -1,5 +1,4 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { dispatchAction } from '@etherealengine/hyperflux'
 

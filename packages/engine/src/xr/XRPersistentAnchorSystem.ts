@@ -3,7 +3,6 @@ import { Quaternion, Vector3 } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { VPSSystem } from './VPSSystem'
 import { ReferenceSpace, XRState } from './XRState'
 

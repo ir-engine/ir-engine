@@ -6,13 +6,23 @@ import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createWorld, World } from '../classes/World'
+import { createScene, Scene } from '../classes/Scene'
 
 import '../utils/threejsPatches'
 
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import { Not } from 'bitecs'
-import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Object3D, Raycaster, Scene, Shader, Vector2 } from 'three'
+import {
+  BoxGeometry,
+  Group,
+  Mesh,
+  MeshNormalMaterial,
+  Object3D,
+  Raycaster,
+  Shader,
+  Scene as THREEScene,
+  Vector2
+} from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -90,7 +100,7 @@ export class Engine {
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
 
-    this.currentWorld = createWorld()
+    this.currentScene = createScene()
   }
 
   tickRate = 60
@@ -135,7 +145,7 @@ export class Engine {
   /**
    * The current world
    */
-  currentWorld: World = null!
+  currentScene: Scene = null!
 
   /**
    * get the default world network
@@ -219,7 +229,7 @@ export class Engine {
   /**
    * Reference to the three.js scene object.
    */
-  scene = new Scene()
+  scene = new THREEScene()
 
   /**
    * Map of object lists by layer

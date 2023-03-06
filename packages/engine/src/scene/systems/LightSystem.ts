@@ -1,5 +1,4 @@
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,

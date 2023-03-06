@@ -187,7 +187,7 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 
 const createObjectFromPrefab = (
   prefab: string,
-  parentEntity = Engine.instance.currentWorld.sceneEntity as Entity | null,
+  parentEntity = Engine.instance.currentScene.sceneEntity as Entity | null,
   beforeEntity = null as Entity | null,
   updateSelection = true
 ) => {
@@ -479,7 +479,7 @@ const scaleObject = (
 
 const reparentObject = (
   nodes: EntityOrObjectUUID[],
-  parent = Engine.instance.currentWorld.sceneEntity,
+  parent = Engine.instance.currentScene.sceneEntity,
   before?: Entity | null,
   updateSelection = true
 ) => {

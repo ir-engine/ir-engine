@@ -2,7 +2,6 @@ import { AmbientLight, Color } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,

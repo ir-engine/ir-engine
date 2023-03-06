@@ -2,7 +2,7 @@ import assert from 'assert'
 import * as bitecs from 'bitecs'
 
 import { Engine } from '../../src/ecs/classes/Engine'
-import { World } from '../../src/ecs/classes/World'
+import { Scene } from '../../src/ecs/classes/Scene'
 import {
   addComponent,
   defineComponent,
@@ -41,14 +41,14 @@ const MocksystemLoader = async () => {
   }
 }
 
-const MockSystemState = new Map<World, Array<number>>()
+const MockSystemState = new Map<Scene, Array<number>>()
 
 async function MockSystemInitialiser(args: {}) {
   const mockQuery = defineQuery([MockComponent])
-  MockSystemState.set(Engine.instance.currentWorld, [])
+  MockSystemState.set(Engine.instance.currentScene, [])
 
   const execute = () => {
-    const mockState = MockSystemState.get(Engine.instance.currentWorld)!
+    const mockState = MockSystemState.get(Engine.instance.currentScene)!
 
     for (const entity of mockQuery.enter()) {
       mockState.push(entity)
@@ -68,7 +68,7 @@ async function MockSystemInitialiser(args: {}) {
 describe('ECS', () => {
   beforeEach(async () => {
     createEngine()
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
     await initSystems([
       {
         uuid: 'Mock',
@@ -79,11 +79,11 @@ describe('ECS', () => {
   })
 
   // afterEach(() => {
-  //   // deletEngine.instance.currentWorld
+  //   // deletEngine.instance.currentScene
   // })
 
   it('should create ECS world', () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
     assert(world)
     const entities = Engine.instance.entityQuery()
     assert(entities.includes(world.sceneEntity))
@@ -91,12 +91,12 @@ describe('ECS', () => {
   })
 
   it('should add systems', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
     assert.strictEqual(Engine.instance.pipelines[SystemUpdateType.UPDATE].length, 1)
   })
 
   it('should add entity', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
     const entityLengthBeforeCreate = Engine.instance.entityQuery().length
     const entity = createEntity()
     const entitiesAfterCreate = Engine.instance.entityQuery()
@@ -164,7 +164,7 @@ describe('ECS', () => {
   })
 
   it('should query component in systems', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     const entity = createEntity()
     const mockValue = Math.random()
@@ -182,7 +182,7 @@ describe('ECS', () => {
   })
 
   it('should remove and clean up component', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     const entity = createEntity()
     const mockValue = Math.random()
@@ -200,7 +200,7 @@ describe('ECS', () => {
   })
 
   it('should re-add component', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
     const entity = createEntity()
     const state = MockSystemState.get(world)!
 
@@ -212,9 +212,9 @@ describe('ECS', () => {
     assert.deepStrictEqual(state, [])
 
     const newMockValue = 1 + Math.random()
-    assert.equal(bitecs.hasComponent(Engine.instance.currentWorld!, MockComponent, entity), false)
+    assert.equal(bitecs.hasComponent(Engine.instance.currentScene!, MockComponent, entity), false)
     addComponent(entity, MockComponent, { mockValue: newMockValue })
-    assert.equal(bitecs.hasComponent(Engine.instance.currentWorld!, MockComponent, entity), true)
+    assert.equal(bitecs.hasComponent(Engine.instance.currentScene!, MockComponent, entity), true)
     const component = getComponent(entity, MockComponent)
     assert(component)
     assert.strictEqual(component.mockValue, newMockValue)
@@ -224,7 +224,7 @@ describe('ECS', () => {
   })
 
   it('should remove and clean up entity', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     const entity = createEntity()
     const mockValue = Math.random()
@@ -239,7 +239,7 @@ describe('ECS', () => {
   })
 
   it('should tolerate removal of same entity multiple times', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
     createEntity()
     createEntity()
     createEntity()

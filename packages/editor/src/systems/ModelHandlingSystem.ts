@@ -1,5 +1,4 @@
 import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'

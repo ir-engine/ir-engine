@@ -16,7 +16,6 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,

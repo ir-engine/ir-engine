@@ -106,7 +106,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const mediaStreamState = useHookstate(getState(MediaStreamState))
   const mediaSettingState = useHookstate(getState(MediaSettingsState))
-  const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
+  const mediaState = getMediaSceneMetadataState(Engine.instance.currentScene)
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
     (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)

@@ -124,17 +124,17 @@ export type EntityOrObjectUUID = Entity | string
 
 /**
  * Initialize the world with enity tree
- * @param world World
+ * @param scene World
  */
-export function initializeSceneEntity(world = Engine.instance.currentWorld): void {
-  if (world.sceneEntity && entityExists(world.sceneEntity)) removeEntity(world.sceneEntity, true)
+export function initializeSceneEntity(scene = Engine.instance.currentScene): void {
+  if (scene.sceneEntity && entityExists(scene.sceneEntity)) removeEntity(scene.sceneEntity, true)
 
-  world.sceneEntity = createEntity()
-  setComponent(world.sceneEntity, NameComponent, 'scene')
-  setComponent(world.sceneEntity, VisibleComponent, true)
-  setComponent(world.sceneEntity, SceneTagComponent, true)
-  setTransformComponent(world.sceneEntity)
-  setComponent(world.sceneEntity, EntityTreeComponent, { parentEntity: null })
+  scene.sceneEntity = createEntity()
+  setComponent(scene.sceneEntity, NameComponent, 'scene')
+  setComponent(scene.sceneEntity, VisibleComponent, true)
+  setComponent(scene.sceneEntity, SceneTagComponent, true)
+  setTransformComponent(scene.sceneEntity)
+  setComponent(scene.sceneEntity, EntityTreeComponent, { parentEntity: null })
 }
 
 /**
@@ -195,7 +195,7 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
   // }
 }
 
-export function serializeNodeToWorld(entity: Entity, world = Engine.instance.currentWorld) {
+export function serializeNodeToWorld(entity: Entity, world = Engine.instance.currentScene) {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   const jsonEntity = world.sceneJson.entities[entityTreeNode.uuid]
   if (jsonEntity) {

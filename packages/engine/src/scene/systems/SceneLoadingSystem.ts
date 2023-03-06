@@ -11,7 +11,6 @@ import { getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInje
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   ComponentMap,
   defineQuery,
@@ -54,7 +53,7 @@ export const createNewEditorNode = (entityNode: Entity, prefabType: string): voi
 
   const name = getUniqueName(entityNode, `New ${toCapitalCase(prefabType)}`)
 
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   addEntityNodeChild(entityNode, world.sceneEntity)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, { name, components: cloneDeep(components) })
@@ -102,7 +101,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
   const idMap = new Map<EntityUUID, EntityUUID>()
   const loadedEntities = UUIDComponent.entitiesByUUID.get(NO_PROXY)
 
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   const rootEntity = assetRoot ?? world.sceneEntity
   const rootId = sceneData.root
 
@@ -166,7 +165,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
  * @param parent
  * @param world
  */
-export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.instance.currentWorld) => {
+export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.instance.currentScene) => {
   const entitiesToLoad = Object.entries(world.sceneJson.entities).filter(
     ([uuid, entity]) => entity.parent === parent
   ) as [EntityUUID, EntityJson][]
@@ -198,7 +197,7 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
  * @param sceneData
  */
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   getState(EngineState).sceneLoading.set(true)
 
   const systemsToLoad = [] as SystemModuleType<any>[]
@@ -267,7 +266,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
  * @param entityJson
  * @param world
  */
-export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
+export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, world = Engine.instance.currentScene) => {
   try {
     const existingEntity = UUIDComponent.entitiesByUUID[uuid].value
     if (existingEntity) {
@@ -297,7 +296,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, worl
 export const deserializeSceneEntity = (
   entity: Entity,
   sceneEntity: EntityJson,
-  world = Engine.instance.currentWorld
+  world = Engine.instance.currentScene
 ): Entity => {
   setComponent(entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
 
@@ -329,7 +328,7 @@ export const deserializeSceneEntity = (
 export const deserializeComponent = (
   entity: Entity,
   component: ComponentJson,
-  world = Engine.instance.currentWorld
+  world = Engine.instance.currentScene
 ): void => {
   const sceneComponent = Engine.instance.sceneLoadingRegistry.get(component.name)
 

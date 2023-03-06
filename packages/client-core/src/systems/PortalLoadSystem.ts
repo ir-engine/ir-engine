@@ -2,7 +2,6 @@ import { Euler, Texture } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'

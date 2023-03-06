@@ -1,5 +1,4 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'

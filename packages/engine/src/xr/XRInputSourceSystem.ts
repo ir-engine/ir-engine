@@ -1,5 +1,4 @@
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { ReferenceSpace } from './XRState'
 
 export default async function XRInputSourceSystem() {

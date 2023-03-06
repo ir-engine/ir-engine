@@ -17,7 +17,6 @@ import { isClient } from '../common/functions/isClient'
 import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { World } from '../ecs/classes/World'
 import {
   defineQuery,
   getComponent,

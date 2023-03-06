@@ -3,7 +3,6 @@ import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'th
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   getComponent,

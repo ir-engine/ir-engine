@@ -51,7 +51,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
     setTransformComponent(entity, position, rotation)
     addObjectToGroup(entity, scenePreviewCamera)
-    addEntityNodeChild(entity, Engine.instance.currentWorld.sceneEntity)
+    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
     scenePreviewCamera.updateMatrixWorld(true)
   }
 
@@ -64,7 +64,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   // Rendering the scene to the new canvas with given size
-  if (getPostProcessingSceneMetadataState(Engine.instance.currentWorld).enabled.value) {
+  if (getPostProcessingSceneMetadataState(Engine.instance.currentScene).enabled.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.render()
     configureEffectComposer(false, Engine.instance.camera)

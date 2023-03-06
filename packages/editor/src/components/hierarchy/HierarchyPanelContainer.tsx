@@ -164,7 +164,7 @@ export default function HierarchyPanel({
   }
 
   const updateNodeHierarchy = useCallback(
-    (world = Engine.instance.currentWorld) => {
+    (world = Engine.instance.currentScene) => {
       setNodes(
         getModelNodesFromTreeWalker(
           Array.from(heirarchyTreeWalker(world.sceneEntity, selectionState.selectedEntities.value, collapsedNodes)),
@@ -447,7 +447,7 @@ export default function HierarchyPanel({
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = Engine.instance.currentWorld
+        const world = Engine.instance.currentScene
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, world.sceneEntity))
           : isAncestor(item.value, world.sceneEntity))

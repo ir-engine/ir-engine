@@ -149,7 +149,7 @@ const anchorMeshLost = (
  */
 function PersistentAnchorReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
 
   const originalParentEntityUUID = useHookstate('' as EntityUUID)
   const meshes = useHookstate([] as Mesh[])

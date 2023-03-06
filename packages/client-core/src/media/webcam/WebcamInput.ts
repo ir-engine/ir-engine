@@ -6,7 +6,6 @@ import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,

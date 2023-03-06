@@ -14,7 +14,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
+import { Scene } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -108,7 +108,7 @@ export type MediaState = State<typeof DefaultMediaState>
 
 export const MediaSceneMetadataLabel = 'mediaSettings'
 
-export const getMediaSceneMetadataState = (world: World) =>
+export const getMediaSceneMetadataState = (world: Scene) =>
   world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
 
 export default async function MediaSystem() {
@@ -140,7 +140,7 @@ export default async function MediaSystem() {
     EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
   }
 
-  Engine.instance.currentWorld.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
+  Engine.instance.currentScene.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
     state: hookstate(_.cloneDeep(DefaultMediaState)),
     default: DefaultMediaState
   }

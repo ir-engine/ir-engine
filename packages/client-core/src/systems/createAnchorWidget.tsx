@@ -1,4 +1,3 @@
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ReferenceSpace, XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'

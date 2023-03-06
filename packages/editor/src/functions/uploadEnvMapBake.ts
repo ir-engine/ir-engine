@@ -3,7 +3,6 @@ import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
 import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -53,7 +52,7 @@ const getScenePositionForBake = (entity: Entity | null) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   const isSceneEntity = entity === world.sceneEntity
 
   if (isSceneEntity) {

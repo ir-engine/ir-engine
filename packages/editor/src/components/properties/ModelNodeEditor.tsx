@@ -58,7 +58,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
-  traverseEntityNode(Engine.instance.currentWorld.sceneEntity, (node) => {
+  traverseEntityNode(Engine.instance.currentScene.sceneEntity, (node) => {
     if (entity === entity) return
 
     textureOverrideEntities.push({

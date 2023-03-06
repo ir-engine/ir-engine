@@ -12,7 +12,7 @@ describe('EngineFunctions', () => {
   describe('unloadScene', () => {
     it('can unload all scene entities', async () => {
       createEngine()
-      const world = Engine.instance.currentWorld
+      const world = Engine.instance.currentScene
       const groupQuery = defineQuery([GroupComponent])
       const sceneObjectQuery = defineQuery([SceneObjectComponent])
 

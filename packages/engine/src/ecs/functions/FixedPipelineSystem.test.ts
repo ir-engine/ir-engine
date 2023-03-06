@@ -4,7 +4,6 @@ import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
-import { World } from '../classes/World'
 import { initSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 

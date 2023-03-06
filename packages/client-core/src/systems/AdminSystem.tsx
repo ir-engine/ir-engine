@@ -1,4 +1,3 @@
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'

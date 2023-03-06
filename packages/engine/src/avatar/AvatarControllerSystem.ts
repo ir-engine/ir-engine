@@ -2,7 +2,6 @@ import { addActionReceptor, createActionQueue, dispatchAction } from '@ethereale
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import {
   defineQuery,
   getComponent,

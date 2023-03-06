@@ -2,8 +2,6 @@ import { useEffect } from 'react'
 import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, sRGBEncoding, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { initSystems, unloadSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'

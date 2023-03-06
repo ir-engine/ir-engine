@@ -10,7 +10,7 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
+import { Scene } from '../classes/Scene'
 import { createEntity } from '../functions/EntityFunctions'
 import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import {
@@ -42,7 +42,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set given values', () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     const entity = createEntity()
     const testUUID = 'test-uuid' as EntityUUID
@@ -63,7 +63,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set child at a given index', () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     setComponent(createEntity(), EntityTreeComponent, {
       parentEntity: world.sceneEntity,
@@ -106,7 +106,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should remove entity from maps', () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, { parentEntity: world.sceneEntity, uuid: 'test-uuid' as EntityUUID })
@@ -121,12 +121,12 @@ describe('EntityTreeComponent', () => {
 })
 
 describe('EntityTreeFunctions', () => {
-  let world: World
+  let world: Scene
   let root: Entity
 
   beforeEach(() => {
     createEngine()
-    world = Engine.instance.currentWorld
+    world = Engine.instance.currentScene
 
     root = world.sceneEntity
   })

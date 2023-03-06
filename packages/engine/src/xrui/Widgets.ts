@@ -1,4 +1,3 @@
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'

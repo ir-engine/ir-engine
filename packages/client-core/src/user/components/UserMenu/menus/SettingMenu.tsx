@@ -63,10 +63,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
 
-  const postProcessingSceneMetadataState = Engine.instance.currentWorld.sceneMetadataRegistry[
+  const postProcessingSceneMetadataState = Engine.instance.currentScene.sceneMetadataRegistry[
     PostProcessingSceneMetadataLabel
   ]
-    ? getPostProcessingSceneMetadataState(Engine.instance.currentWorld)
+    ? getPostProcessingSceneMetadataState(Engine.instance.currentScene)
     : undefined
   const postprocessingSettings = postProcessingSceneMetadataState?.enabled
     ? useHookstate(postProcessingSceneMetadataState.enabled)

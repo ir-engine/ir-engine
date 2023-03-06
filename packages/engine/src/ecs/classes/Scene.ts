@@ -6,15 +6,16 @@ import { initializeSceneEntity } from '../functions/EntityTree'
 import { unloadAllSystems } from '../functions/SystemFunctions'
 import { Entity, UndefinedEntity } from './Entity'
 
-export const CreateWorld = Symbol('CreateWorld')
+export const CreateScene = Symbol('CreateScene')
+
 /** @todo rename Scene */
-export class World {
+export class Scene {
   private constructor() {
     // @todo do this as the scene loads instead of world creation
     initializeSceneEntity(this)
   }
 
-  static [CreateWorld] = () => new World()
+  static [CreateScene] = () => new Scene()
 
   /**
    * The scene entity
@@ -33,12 +34,10 @@ export class World {
   >
 }
 
-export function createWorld() {
-  return World[CreateWorld]()
+export function createScene() {
+  return Scene[CreateScene]()
 }
 
-export function destroyWorld(world: World) {
+export function destroyScene(scene: Scene) {
   unloadAllSystems(true)
-  /** @todo this is broken - re-enable with next bitecs update */
-  // bitecs.deleteWorld(world)
 }

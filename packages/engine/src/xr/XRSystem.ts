@@ -1,7 +1,6 @@
 import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import XR8 from './8thwall/XR8'
-import { World } from './../ecs/classes/World'
 import { VPSSystem } from './VPSSystem'
 import XRAnchorSystem from './XRAnchorSystem'
 import XRCameraSystem from './XRCameraSystem'

@@ -26,7 +26,7 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
     return
   }
 
-  const postprocessing = getPostProcessingSceneMetadataState(Engine.instance.currentWorld).get(NO_PROXY)
+  const postprocessing = getPostProcessingSceneMetadataState(Engine.instance.currentScene).get(NO_PROXY)
   if (!postprocessing.enabled) return
 
   const postProcessingEffects = postprocessing.effects as EffectPropsSchema

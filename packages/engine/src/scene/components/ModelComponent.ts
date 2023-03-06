@@ -114,7 +114,7 @@ function ModelReactor({ root }: EntityReactorProps) {
             throw new Error(`Model type '${fileExtension}' not supported`)
         }
 
-        if (!entityExists(Engine.instance.currentWorld, entity)) return
+        if (!entityExists(Engine.instance.currentScene, entity)) return
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
         if (scene.userData.type === 'glb') delete scene.userData.type

@@ -28,7 +28,6 @@ import { CSM } from '../../assets/csm/CSM'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -88,7 +87,7 @@ export default async function ShadowSystem() {
     const activeLightFromEntity = useOptionalComponent(activeLightEntity, DirectionalLightComponent)?.value.light
     if (!activeLight) activeLight = activeLightFromEntity
 
-    const csmEnabled = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld).csm).value
+    const csmEnabled = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene).csm).value
 
     const shadowsEnabled = useShadowsEnabled()
     const useCSM = shadowsEnabled && csmEnabled

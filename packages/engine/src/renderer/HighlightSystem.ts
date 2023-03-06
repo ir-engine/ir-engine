@@ -1,6 +1,5 @@
 import { Object3D } from 'three'
 
-import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { HighlightComponent } from './components/HighlightComponent'

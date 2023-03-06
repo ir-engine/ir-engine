@@ -47,7 +47,7 @@ import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
-import { World } from '../ecs/classes/World'
+import { Scene } from '../ecs/classes/Scene'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
@@ -319,18 +319,18 @@ export type PostProcessingState = State<typeof DefaultPostProcessingState>
 export const RendererSceneMetadataLabel = 'renderSettings'
 export const PostProcessingSceneMetadataLabel = 'postprocessing'
 
-export const getRendererSceneMetadataState = (world: World) =>
+export const getRendererSceneMetadataState = (world: Scene) =>
   world.sceneMetadataRegistry[RendererSceneMetadataLabel].state as RenderSettingsState
-export const getPostProcessingSceneMetadataState = (world: World) =>
+export const getPostProcessingSceneMetadataState = (world: Scene) =>
   world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
 
 export default async function WebGLRendererSystem() {
-  Engine.instance.currentWorld.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
+  Engine.instance.currentScene.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
     state: hookstate(_.cloneDeep(DefaultRenderSettingsState)),
     default: DefaultRenderSettingsState
   }
 
-  Engine.instance.currentWorld.sceneMetadataRegistry[PostProcessingSceneMetadataLabel] = {
+  Engine.instance.currentScene.sceneMetadataRegistry[PostProcessingSceneMetadataLabel] = {
     state: hookstate(_.cloneDeep(DefaultPostProcessingState)),
     default: DefaultPostProcessingState
   }
@@ -338,9 +338,9 @@ export default async function WebGLRendererSystem() {
   const rendererState = getState(RendererState)
 
   const reactor = startReactor(function RendererReactor() {
-    const renderSettings = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld))
+    const renderSettings = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene))
     const engineRendererSettings = useHookstate(rendererState)
-    const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld))
+    const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentScene))
     const xrState = useHookstate(getState(XRState))
 
     useEffect(() => {

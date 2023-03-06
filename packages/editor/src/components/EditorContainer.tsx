@@ -285,7 +285,7 @@ const EditorContainer = () => {
           )
         })) as any
         if (result && projectName.value) {
-          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.sceneEntity)
+          await uploadBPCEMBakeToServer(Engine.instance.currentScene.sceneEntity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatchAction(EditorAction.sceneModified({ modified: false }))
         }
@@ -417,7 +417,7 @@ const EditorContainer = () => {
         if (result.generateThumbnails) {
           const blob = await takeScreenshot(512, 320)
 
-          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.sceneEntity)
+          await uploadBPCEMBakeToServer(Engine.instance.currentScene.sceneEntity)
           await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
         } else {
           await saveScene(projectName.value, sceneName.value, null, abortController.signal)

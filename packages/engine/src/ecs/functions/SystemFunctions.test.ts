@@ -2,7 +2,6 @@ import assert from 'assert'
 
 import { createEngine } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
-import { World } from '../classes/World'
 import { initSystems, unloadAllSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 

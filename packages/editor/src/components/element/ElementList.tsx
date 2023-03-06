@@ -47,7 +47,7 @@ const getPrefabList = () => {
 
 export const addPrefabElement = (
   item: PrefabItemType,
-  parent = Engine.instance.currentWorld.sceneEntity,
+  parent = Engine.instance.currentScene.sceneEntity,
   before?: Entity
 ) => {
   const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)

@@ -9,7 +9,6 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   ComponentType,

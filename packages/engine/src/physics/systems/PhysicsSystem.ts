@@ -8,7 +8,6 @@ import { createActionQueue, getState, removeActionQueue } from '@etherealengine/
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,

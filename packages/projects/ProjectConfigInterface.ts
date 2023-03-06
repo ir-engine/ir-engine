@@ -1,5 +1,4 @@
 import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
-import type { World } from '@etherealengine/engine/src/ecs/classes/World'
 import type { Application } from '@etherealengine/server-core/declarations'
 
 export interface ProjectConfigInterface {

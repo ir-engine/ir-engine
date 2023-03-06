@@ -22,7 +22,7 @@ import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
+import { Scene } from '../../ecs/classes/Scene'
 import {
   defineQuery,
   getComponent,
@@ -264,11 +264,11 @@ export type CameraState = State<typeof DefaultCameraState>
 
 export const CameraSceneMetadataLabel = 'camera'
 
-export const getCameraSceneMetadataState = (world: World) =>
+export const getCameraSceneMetadataState = (world: Scene) =>
   world.sceneMetadataRegistry[CameraSceneMetadataLabel].state as CameraState
 
 export default async function CameraSystem() {
-  Engine.instance.currentWorld.sceneMetadataRegistry[CameraSceneMetadataLabel] = {
+  Engine.instance.currentScene.sceneMetadataRegistry[CameraSceneMetadataLabel] = {
     state: hookstate(_.cloneDeep(DefaultCameraState)),
     default: DefaultCameraState
   }
@@ -281,7 +281,7 @@ export default async function CameraSystem() {
   const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
 
   const reactor = startReactor(function CameraReactor() {
-    const cameraSettings = useHookstate(getCameraSceneMetadataState(Engine.instance.currentWorld))
+    const cameraSettings = useHookstate(getCameraSceneMetadataState(Engine.instance.currentScene))
 
     useEffect(() => {
       const camera = Engine.instance.camera as PerspectiveCamera

@@ -5,7 +5,6 @@ import { createActionQueue, getState, removeActionQueue } from '@etherealengine/
 
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'

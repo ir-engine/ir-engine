@@ -7,7 +7,6 @@ import { ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperfl
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
-import { World } from '../classes/World'
 import { defineQuery, Query, QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityReactorProps } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'

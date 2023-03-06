@@ -45,10 +45,10 @@ export const serializeEntity = (entity: Entity) => {
   return jsonComponents
 }
 
-export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, world = Engine.instance.currentWorld) => {
+export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, world = Engine.instance.currentScene) => {
   const sceneJson = {
     version: 0,
-    metadata: getSceneMetadataChanges(Engine.instance.currentWorld),
+    metadata: getSceneMetadataChanges(Engine.instance.currentScene),
     entities: {},
     root: null! as EntityUUID
   }

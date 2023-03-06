@@ -1,9 +1,5 @@
 import { createActionQueue } from '@etherealengine/hyperflux'
 
-import { World } from '../../../ecs/classes/World'
-import { defineQuery, removeQuery } from '../../../ecs/functions/ComponentFunctions'
-import { MaterialComponent } from '../components/MaterialComponent'
-import { MaterialPrototypeComponent } from '../components/MaterialPrototypeComponent'
 import { registerMaterial, registerMaterialPrototype } from '../functions/MaterialLibraryFunctions'
 import {
   initializeMaterialLibrary,

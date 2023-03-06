@@ -17,7 +17,6 @@ import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   defineQuery,

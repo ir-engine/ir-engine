@@ -7,7 +7,7 @@ import { EntityTreeComponent, traverseEntityNode } from '../../../ecs/functions/
 import { GroupComponent } from '../../components/GroupComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 
-export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene => {
+export const prepareSceneForBake = (world = Engine.instance.currentScene): Scene => {
   const scene = Engine.instance.scene.clone(false)
   const parents = {
     [world.sceneEntity]: scene

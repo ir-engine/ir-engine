@@ -9,7 +9,6 @@ import {
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   getComponent,

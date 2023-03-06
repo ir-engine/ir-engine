@@ -1,6 +1,5 @@
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'

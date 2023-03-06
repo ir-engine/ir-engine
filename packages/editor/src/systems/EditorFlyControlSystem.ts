@@ -2,7 +2,6 @@ import { MathUtils, Matrix3, Vector3 } from 'three'
 
 import { FlyControlComponent } from '@etherealengine/engine/src/avatar/components/FlyControlComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   getComponent,
   hasComponent,

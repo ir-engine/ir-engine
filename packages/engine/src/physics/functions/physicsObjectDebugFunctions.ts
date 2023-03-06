@@ -10,7 +10,6 @@ import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3
 
 // import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'

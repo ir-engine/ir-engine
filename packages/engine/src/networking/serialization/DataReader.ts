@@ -10,7 +10,6 @@ import { AvatarLeftArmIKComponent, AvatarRightArmIKComponent } from '../../avata
 import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'

@@ -1,7 +1,6 @@
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XREstimatedLight } from './XREstimatedLight'
 import { XRState } from './XRState'

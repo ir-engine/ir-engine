@@ -11,7 +11,6 @@ import {
 } from '../../avatar/components/LoopAnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,

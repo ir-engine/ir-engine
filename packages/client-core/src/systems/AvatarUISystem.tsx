@@ -10,7 +10,6 @@ import { easeOutElastic } from '@etherealengine/engine/src/common/functions/Math
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,

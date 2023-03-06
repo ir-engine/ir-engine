@@ -4,7 +4,6 @@ ECS stands for Entity Component System. It is a pattern for organising data and 
 
 ```ts
 import { createEntity } from "@etherealengine/engine/src/ecs/functions/EntityFunctions"
-import { World } from "@etherealengine/engine/src/ecs/classes/World"
 import { 
   addComponent,
   createMappedComponent,
@@ -24,7 +23,7 @@ export default async function TimerSystem() {
   return () => {
     const { delta } = Engine.instance
 
-    for (const entity of timerQuery(world)) {
+    for (const entity of timerQuery()) {
       const timerComponent = getComponent(entity, TimerComponent)
       timerComponent.time += delta
     }

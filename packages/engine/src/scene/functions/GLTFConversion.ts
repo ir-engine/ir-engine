@@ -5,7 +5,6 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   getAllComponents,
   getComponent,
@@ -42,7 +41,7 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
     entities: {},
     root: rootUuid,
     version: 2.0,
-    metadata: getSceneMetadataChanges(Engine.instance.currentWorld)
+    metadata: getSceneMetadataChanges(Engine.instance.currentScene)
   }
   result.entities[rootUuid] = nodeToEntityJson(rootGL)
   const lookupNode = (idx) => gltf.nodes[idx]

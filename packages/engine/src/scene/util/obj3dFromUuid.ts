@@ -1,5 +1,4 @@
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../components/GroupComponent'
 import { UUIDComponent } from '../components/UUIDComponent'

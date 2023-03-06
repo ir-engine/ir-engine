@@ -10,7 +10,6 @@ import { createActionQueue, getState, removeActionQueue, useHookstate } from '@e
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { defineQuery, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent, startGroupQueryReactor } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'

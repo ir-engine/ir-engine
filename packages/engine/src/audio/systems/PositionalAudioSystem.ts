@@ -8,7 +8,6 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
 import {
   ComponentType,
   defineQuery,
@@ -139,7 +138,7 @@ export default async function PositionalAudioSystem() {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.mediaNetwork
     const immersiveMedia = shouldUseImmersiveMedia()
-    const positionalAudioSettings = getMediaSceneMetadataState(Engine.instance.currentWorld).value
+    const positionalAudioSettings = getMediaSceneMetadataState(Engine.instance.currentScene).value
 
     /**
      * Scene Objects
