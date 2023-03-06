@@ -3,18 +3,17 @@ import { createState, useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import config, { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import multiLogger from '@xrengine/common/src/logger'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { getState } from '@xrengine/hyperflux'
-
-import { Check, Create, GitHub, Refresh } from '@mui/icons-material'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import CircularProgress from '@mui/material/CircularProgress'
+import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import multiLogger from '@etherealengine/common/src/logger'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import { getState } from '@etherealengine/hyperflux'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { useClientSettingState } from '../../../admin/services/Setting/ClientSettingService'
@@ -294,7 +293,7 @@ const ProfileDetailView = () => {
                 className="avatarBtn"
                 id="select-avatar"
                 onClick={handleOpenSelectAvatarWidget}
-                content={<Create />}
+                content={<Icon type="Create" />}
               />
             </div>
             <div className="headerBlock">
@@ -307,7 +306,7 @@ const ProfileDetailView = () => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') updateUserName(e)
                 }}
-                endIcon={<Check />}
+                endIcon={<Icon type="Check" />}
                 endIconClick={updateUserName}
               />
               <div className="detailsContainer">
@@ -347,7 +346,7 @@ const ProfileDetailView = () => {
                 disabled={true}
                 type="text"
                 value={userId}
-                endIcon={<ContentCopyIcon />}
+                endIcon={<Icon type="ContentCopy" />}
                 endIconClick={() => {
                   navigator.clipboard.writeText(userId)
                   NotificationService.dispatchNotify('User ID copied', {
@@ -366,9 +365,9 @@ const ProfileDetailView = () => {
                 disabled={true}
                 type="text"
                 value={apiKey}
-                startIcon={<Refresh />}
+                startIcon={<Icon type="Refresh" />}
                 startIconClick={refreshApiKey}
-                endIcon={<ContentCopyIcon />}
+                endIcon={<Icon type="ContentCopy" />}
                 endIconClick={() => {
                   navigator.clipboard.writeText(apiKey)
                   NotificationService.dispatchNotify('API Key copied', {
@@ -389,7 +388,7 @@ const ProfileDetailView = () => {
                 placeholder={getConnectPlaceholder()}
                 onChange={handleInputChange}
                 onBlur={validate}
-                endIcon={<ContentCopyIcon />}
+                endIcon={<Icon type="ContentCopy" />}
                 endIconClick={handleGuestSubmit}
               />
               {loading && (
@@ -408,34 +407,42 @@ const ProfileDetailView = () => {
               )}
               <div className="socialContainer">
                 {authState?.discord && !oauthConnectedState.discord && (
-                  <a href="#" id="discord" onClick={handleOAuthServiceClick}>
-                    <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
+                  <IconButton
+                    id="discord"
+                    onClick={handleOAuthServiceClick}
+                    icon={<DiscordIcon width="40" height="40" viewBox="0 0 40 40" />}
+                  />
                 )}
                 {authState?.google && !oauthConnectedState.google && (
-                  <a href="#" id="google" onClick={handleOAuthServiceClick}>
-                    <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
+                  <IconButton
+                    id="google"
+                    onClick={handleOAuthServiceClick}
+                    icon={<GoogleIcon width="40" height="40" viewBox="0 0 40 40" />}
+                  />
                 )}
                 {authState?.facebook && !oauthConnectedState.facebook && (
-                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
+                  <IconButton
+                    id="facebook"
+                    onClick={handleOAuthServiceClick}
+                    icon={<FacebookIcon width="40" height="40" viewBox="0 0 40 40" />}
+                  />
                 )}
                 {authState?.linkedin && !oauthConnectedState.linkedin && (
-                  <a href="#" id="linkedin" onClick={handleOAuthServiceClick}>
-                    <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
+                  <IconButton
+                    id="linkedin"
+                    onClick={handleOAuthServiceClick}
+                    icon={<LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />}
+                  />
                 )}
                 {authState?.twitter && !oauthConnectedState.twitter && (
-                  <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
-                    <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
+                  <IconButton
+                    id="twitter"
+                    onClick={handleOAuthServiceClick}
+                    icon={<LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />}
+                  />
                 )}
                 {authState?.github && !oauthConnectedState.github && (
-                  <a href="#" id="github" onClick={handleOAuthServiceClick}>
-                    <GitHub />
-                  </a>
+                  <IconButton id="github" onClick={handleOAuthServiceClick} icon={<Icon type="GitHub" />} />
                 )}
               </div>
               {!selfUser?.isGuest.value && removeSocial && (
@@ -444,34 +451,42 @@ const ProfileDetailView = () => {
               {!selfUser?.isGuest.value && removeSocial && (
                 <div className="socialContainer">
                   {authState?.discord && oauthConnectedState.discord && (
-                    <a href="#" id="discord" onClick={handleRemoveOAuthServiceClick}>
-                      <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
-                    </a>
+                    <IconButton
+                      id="discord"
+                      onClick={handleRemoveOAuthServiceClick}
+                      icon={<DiscordIcon width="40" height="40" viewBox="0 0 40 40" />}
+                    />
                   )}
                   {authState?.google && oauthConnectedState.google && (
-                    <a href="#" id="google" onClick={handleRemoveOAuthServiceClick}>
-                      <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
-                    </a>
+                    <IconButton
+                      id="google"
+                      onClick={handleRemoveOAuthServiceClick}
+                      icon={<GoogleIcon width="40" height="40" viewBox="0 0 40 40" />}
+                    />
                   )}
                   {authState?.facebook && oauthConnectedState.facebook && (
-                    <a href="#" id="facebook" onClick={handleRemoveOAuthServiceClick}>
-                      <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                    </a>
+                    <IconButton
+                      id="facebook"
+                      onClick={handleRemoveOAuthServiceClick}
+                      icon={<Icon type="Facebook" width="40" height="40" viewBox="0 0 40 40" />}
+                    />
                   )}
                   {authState?.linkedin && oauthConnectedState.linkedin && (
-                    <a href="#" id="linkedin" onClick={handleRemoveOAuthServiceClick}>
-                      <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
-                    </a>
+                    <IconButton
+                      id="linkedin"
+                      onClick={handleRemoveOAuthServiceClick}
+                      icon={<LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />}
+                    />
                   )}
                   {authState?.twitter && oauthConnectedState.twitter && (
-                    <a href="#" id="twitter" onClick={handleRemoveOAuthServiceClick}>
-                      <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
-                    </a>
+                    <IconButton
+                      id="twitter"
+                      onClick={handleRemoveOAuthServiceClick}
+                      icon={<Icon type="Twitter" width="40" height="40" viewBox="0 0 40 40" />}
+                    />
                   )}
                   {authState?.github && oauthConnectedState.github && (
-                    <a href="#" id="github" onClick={handleRemoveOAuthServiceClick}>
-                      <GitHub />
-                    </a>
+                    <IconButton id="github" onClick={handleRemoveOAuthServiceClick} icon={<Icon type="GitHub" />} />
                   )}
                 </div>
               )}

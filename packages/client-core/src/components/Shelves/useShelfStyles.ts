@@ -1,6 +1,6 @@
 import { useHookstate } from '@hookstate/core'
 
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AppState } from '../../common/services/AppService'
 import shelfStyles from './index.module.scss'

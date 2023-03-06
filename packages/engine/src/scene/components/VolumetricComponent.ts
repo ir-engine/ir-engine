@@ -1,4 +1,4 @@
-import { StateMethodsDestroy } from '@xrengine/hyperflux/functions/StateFunctions'
+import { StateMethodsDestroy } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 

@@ -7,6 +7,8 @@ import {
   DiscreteEventPriority
 } from 'react-reconciler/constants'
 
+import { isDev } from '@etherealengine/common/src/config'
+
 const ReactorReconciler = Reconciler({
   getPublicInstance: (instance) => instance,
   getRootHostContext: () => null,
@@ -44,6 +46,12 @@ const ReactorReconciler = Reconciler({
   clearContainer: () => {}
 })
 
+ReactorReconciler.injectIntoDevTools({
+  bundleType: isDev ? 1 : 0,
+  rendererPackageName: '@etherealengine/hyperflux-reactor',
+  version: '18.2.0'
+})
+
 export interface ReactorRoot {
   fiber: any
   isRunning: boolean
@@ -71,6 +79,8 @@ export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
     onRecoverableError,
     null
   )
+
+  if (!Reactor.name) Object.defineProperty(Reactor, 'name', { value: 'HyperFluxReactor' })
 
   const reactorRoot = {
     fiber: fiberRoot,

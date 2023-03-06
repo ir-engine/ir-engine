@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanComponent'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { OceanComponent } from '@etherealengine/engine/src/scene/components/OceanComponent'
 
 import WaterIcon from '@mui/icons-material/Water'
 
@@ -23,7 +23,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const OceanNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const entity = props.node.entity
+  const entity = props.entity
   const oceanComponent = useComponent(entity, OceanComponent)
   const errorComponent = getComponent(entity, ErrorComponent)
   const oceanErrors = errorComponent[OceanComponent.name]

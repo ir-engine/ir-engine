@@ -1,13 +1,12 @@
 import { createState, useHookstate } from '@hookstate/core'
 import React, { Fragment, useRef, useState } from 'react'
 
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { getState } from '@xrengine/hyperflux'
-
-import { Send } from '@mui/icons-material'
-import Avatar from '@mui/material/Avatar'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { getState } from '@etherealengine/hyperflux'
+import Avatar from '@etherealengine/ui/src/Avatar'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { useChatHooks } from '../../../components/InstanceChat'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
@@ -104,7 +103,7 @@ const ChatDetailView = () => {
             value={composingMessage}
             onChange={handleComposingMessageChange}
             onKeyDown={(evt) => handleComposingMessageChange(evt)}
-            endIcon={<Send fontSize="small" />}
+            endIcon={<Icon type="Send" fontSize="small" />}
             endIconClick={packageMessage}
             border={false}
           />

@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { Component, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { RandomizedProperty } from '@xrengine/engine/src/scene/components/InstancingComponent'
+import { RandomizedProperty } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { State } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 
@@ -19,15 +20,30 @@ const PropertyContainer = (styled as any).div`
   padding: 4px;
 `
 
-export default function RandomizedPropertyInputGroup({ name, label, value, onChange, ...rest }) {
+export default function RandomizedPropertyInputGroup({
+  name,
+  label,
+  state,
+  onChange,
+  ...rest
+}: {
+  name: string
+  label: string
+  state: State<RandomizedProperty>
+  onChange: (value: RandomizedProperty) => void
+}) {
+  const value = state.value
   const { t } = useTranslation()
   const prop = value as RandomizedProperty
-  function onChangeProp(key: keyof RandomizedProperty) {
-    return (val) => {
-      prop[key] = val
-      onChange(value)
-    }
-  }
+  const onChangeProp = useCallback(
+    (key: keyof RandomizedProperty) => {
+      return (val) => {
+        const value = { ...prop, [key]: val }
+        onChange(value)
+      }
+    },
+    [onChange, value]
+  )
   return (
     <InputGroup name={name} label={label}>
       <PropertyContainer>

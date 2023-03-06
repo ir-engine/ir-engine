@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { MatchUserInterface } from '@xrengine/common/src/dbmodels/MatchUser'
+import { MatchUserInterface } from '@etherealengine/common/src/dbmodels/MatchUser'
 
 import { Application } from '../../../declarations'
 

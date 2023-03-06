@@ -2,11 +2,10 @@ import { createState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-
-import { Group, Groups, Newspaper, QrCode2 } from '@mui/icons-material'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
@@ -44,19 +43,19 @@ const SocialsMenuView = () => {
       <div className="container" xr-layer="true">
         <h3 className="heading">{t('user:usermenu.socials.containerHeading')}</h3>
         <XRTextButton onClick={handleOpenFriendMenuWidget}>
-          <Group />
+          <Icon type="Group" />
           {t('user:usermenu.socials.btn-friend')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenPartyGroupMenuWidget}>
-          <Groups />
+          <Icon type="Groups" />
           {t('user:usermenu.socials.btn-party-group')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenMediaSessionsMenuWidget}>
-          <Newspaper />
+          <Icon type="Newspaper" />
           {t('user:usermenu.socials.btn-mediaSession')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenShareLocationMenuWidget}>
-          <QrCode2 />
+          <Icon type="QrCode2" />
           {t('user:usermenu.socials.btn-share-invite')}
         </XRTextButton>
       </div>

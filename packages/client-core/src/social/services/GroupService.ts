@@ -1,10 +1,10 @@
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
-import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
+import { GroupUser } from '@etherealengine/common/src/interfaces/GroupUser'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

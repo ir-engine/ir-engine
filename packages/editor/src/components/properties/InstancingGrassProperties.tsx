@@ -1,9 +1,10 @@
-import React, { Fragment, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Texture } from 'three'
 
-import { GrassProperties } from '@xrengine/engine/src/scene/components/InstancingComponent'
+import { GrassProperties, TextureRef } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { State, useState } from '@etherealengine/hyperflux'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { Box, Collapse, IconButton, IconButtonProps } from '@mui/material'
@@ -17,52 +18,51 @@ import RandomizedPropertyInputGroup from '../inputs/RandomizedPropertyInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import ExpandMore from '../layout/ExpandMore'
 
-export default function InstancingGrassProperties({ value, onChange, ...rest }) {
+export default function InstancingGrassProperties({
+  state,
+  onChange,
+  ...rest
+}: {
+  state: State<GrassProperties>
+  onChange: (value: GrassProperties) => void
+}) {
+  const value = state.value
   const props = value as GrassProperties
 
   const { t } = useTranslation()
 
-  const texPath = (tex) => {
-    if ((tex as Texture).isTexture) return tex.source.data?.src ?? ''
-    if (typeof tex === 'string') return tex
-    console.error('unknown texture type for', tex)
+  const texPath = (tex: TextureRef) => {
+    if (tex.texture?.isTexture) return tex.texture.source.data?.src ?? ''
+    return tex.src ?? ''
   }
 
-  const [grass, setGrass] = useState(texPath(props.grassTexture))
-  const [alpha, setAlpha] = useState(texPath(props.alphaMap))
-
   function onChangeGrass(val) {
-    setGrass(val)
-    props.grassTexture = val
-    onChange(props)
+    state.grassTexture.src.set(val)
   }
 
   function onChangeAlpha(val) {
-    setAlpha(val)
-    props.alphaMap = val
-    onChange(props)
+    state.alphaMap.src.set(val)
   }
 
-  function onChangeProp(prop) {
+  const onChangeProp = useCallback((prop) => {
     return (_value) => {
-      props[prop] = _value
-      onChange(props)
+      state[prop].set(_value)
     }
-  }
+  }, [])
 
   return (
-    <CollapsibleBlock label={t('editor:properties.instancing.grass.properties')}>
+    <CollapsibleBlock label={t('editor:properties.instancing.grass.properties')} {...rest}>
       <RandomizedPropertyInputGroup
         name="Blade Height"
         label={t('editor:properties.instancing.grass.bladeHeight')}
         onChange={onChangeProp('bladeHeight')}
-        value={props.bladeHeight}
+        state={state.bladeHeight}
       />
       <RandomizedPropertyInputGroup
         name="Blade Width"
         label={t('editor:properties.instancing.grass.bladeWidth')}
         onChange={onChangeProp('bladeWidth')}
-        value={props.bladeWidth}
+        state={state.bladeWidth}
       />
       <NumericInputGroup
         name="Joints"
@@ -79,13 +79,13 @@ export default function InstancingGrassProperties({ value, onChange, ...rest }) 
         name="Alpha Map"
         label={t('editor:properties.instancing.grass.alphaMap')}
         onChange={onChangeAlpha}
-        value={alpha}
+        value={props.alphaMap.src}
       />
       <ImagePreviewInputGroup
         name="Grass Texture"
         label={t('editor:properties.instancing.grass.texture')}
         onChange={onChangeGrass}
-        value={grass}
+        value={props.grassTexture.src}
       />
       <NumericInputGroup
         name="ambientStrength"

@@ -127,8 +127,8 @@ dist
 # TernJS port file
 .tern-port
 
-**/xrengine-secrets.env
-**/xrengine-dev-secrets.env
+**/etherealengine-secrets.env
+**/etherealengine-dev-secrets.env
 lib/
 bin/
 
@@ -166,3 +166,5 @@ packages/server/upload/
 project-package-jsons/*
 
 feathers/*
+/packages/ui/tests/jest-test-results.json
+packages/ui/tests/jest-test-results.json

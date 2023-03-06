@@ -1,11 +1,11 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
-import { PlayMode } from '@xrengine/engine/src/scene/constants/PlayMode'
+import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
@@ -39,8 +39,8 @@ const PlayModeOptions = [
 export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const media = useComponent(props.node.entity, MediaComponent)
-  const errors = getEntityErrors(props.node.entity, MediaComponent)
+  const media = useComponent(props.entity, MediaComponent)
+  const errors = getEntityErrors(props.entity, MediaComponent)
 
   const toggle = () => {
     media.paused.set(!media.paused.value)
@@ -97,7 +97,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       ></ArrayInputGroup>
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={PlayModeOptions}
           value={media.playMode.value}
           onChange={updateProperty(MediaComponent, 'playMode')}

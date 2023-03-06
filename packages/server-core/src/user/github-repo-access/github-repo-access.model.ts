@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { GithubRepoAccessInterface } from '@xrengine/common/src/dbmodels/GithubRepoAccess'
+import { GithubRepoAccessInterface } from '@etherealengine/common/src/dbmodels/GithubRepoAccess'
 
 import { Application } from '../../../declarations'
 
@@ -18,8 +18,11 @@ export default (app: Application) => {
       repo: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      hasWriteAccess: {
+        type: DataTypes.BOOLEAN
       }
-    } as any as GithubRepoAccessInterface,
+    },
     {
       hooks: {
         beforeCount(options: any): void {

@@ -1,12 +1,12 @@
 import { TypedArray } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarLeftHandIKComponent, AvatarRightHandIKComponent } from '../../avatar/components/AvatarIKComponents'
+import { AvatarLeftArmIKComponent, AvatarRightArmIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -14,8 +14,8 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHandsInputComponent } from '../../xr/XRComponents'
-import { XRHandBones } from '../../xr/XRHandBones'
+// import { XRHandsInputComponent } from '../../xr/XRComponents'
+// import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
 import { expand, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
@@ -215,13 +215,13 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
 }
 
 export const readXRHeadPosition = readVector3(AvatarHeadIKComponent.target.position)
-export const readXRHeadRotation = readCompressedRotation(AvatarHeadIKComponent.target.quaternion)
+export const readXRHeadRotation = readCompressedRotation(AvatarHeadIKComponent.target.rotation)
 
-export const readXRControllerLeftPosition = readVector3(AvatarLeftHandIKComponent.target.position)
-export const readXRControllerLeftRotation = readCompressedRotation(AvatarLeftHandIKComponent.target.quaternion)
+export const readXRControllerLeftPosition = readVector3(AvatarLeftArmIKComponent.target.position)
+export const readXRControllerLeftRotation = readCompressedRotation(AvatarLeftArmIKComponent.target.rotation)
 
-export const readXRControllerRightPosition = readVector3(AvatarRightHandIKComponent.target.position)
-export const readXRControllerRightRotation = readCompressedRotation(AvatarRightHandIKComponent.target.quaternion)
+export const readXRControllerRightPosition = readVector3(AvatarRightArmIKComponent.target.position)
+export const readXRControllerRightRotation = readCompressedRotation(AvatarRightArmIKComponent.target.rotation)
 
 export const readXRHead = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
@@ -245,40 +245,40 @@ export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
 }
 
 /** @deprecated */
-export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness: string, bone: string[]) => {
-  const changeMask = readUint16(v)
-  let b = 0
+// export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness: string, bone: string[]) => {
+//   const changeMask = readUint16(v)
+//   let b = 0
 
-  bone.forEach((jointName) => {
-    if (checkBitflag(changeMask, 1 << b++)) {
-      readVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity)
-    }
-    if (checkBitflag(changeMask, 1 << b++)) {
-      readCompressedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
-    }
-  })
-}
+//   bone.forEach((jointName) => {
+//     if (checkBitflag(changeMask, 1 << b++)) {
+//       readVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity)
+//     }
+//     if (checkBitflag(changeMask, 1 << b++)) {
+//       readCompressedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
+//     }
+//   })
+// }
 /** @deprecated */
-export const readXRHandBones = (v: ViewCursor, entity: Entity) => {
-  const changeMask = readUint16(v)
-  const handednessBitValue = readUint8(v)
-  let b = 0
+// export const readXRHandBones = (v: ViewCursor, entity: Entity) => {
+//   const changeMask = readUint16(v)
+//   const handednessBitValue = readUint8(v)
+//   let b = 0
 
-  const handedness = handednessBitValue === 0 ? 'left' : 'right'
+//   const handedness = handednessBitValue === 0 ? 'left' : 'right'
 
-  XRHandBones.forEach((bone) => {
-    if (checkBitflag(changeMask, 1 << b++)) readXRHandBoneJoints(v, entity, handedness, bone)
-  })
-}
+//   XRHandBones.forEach((bone) => {
+//     if (checkBitflag(changeMask, 1 << b++)) readXRHandBoneJoints(v, entity, handedness, bone)
+//   })
+// }
 /** @deprecated */
-export const readXRHands = (v: ViewCursor, entity: Entity) => {
-  const changeMask = readUint16(v)
-  let b = 0
+// export const readXRHands = (v: ViewCursor, entity: Entity) => {
+//   const changeMask = readUint16(v)
+//   let b = 0
 
-  for (let i = 0; i < 2; i++) {
-    if (checkBitflag(changeMask, 1 << b++)) readXRHandBones(v, entity)
-  }
-}
+//   for (let i = 0; i < 2; i++) {
+//     if (checkBitflag(changeMask, 1 << b++)) readXRHandBones(v, entity)
+//   }
+// }
 
 export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const netId = readUint32(v) as NetworkId

@@ -3,7 +3,7 @@ import { updateAppConfig } from '../../updateAppConfig'
 import { ProjectSetting } from './project-setting.class'
 import hooks from './project-setting.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'project-setting': ProjectSetting
   }

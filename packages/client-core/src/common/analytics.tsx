@@ -1,6 +1,6 @@
 import ReactGA from 'react-ga4'
 
-import config from '@xrengine/common/src/config'
+import config from '@etherealengine/common/src/config'
 
 export const initGA = () => {
   if (config.client.gaMeasurementId && config.client.gaMeasurementId.length > 0)

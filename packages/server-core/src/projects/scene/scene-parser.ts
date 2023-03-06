@@ -1,6 +1,6 @@
-import config from '@xrengine/common/src/config'
-import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import config from '@etherealengine/common/src/config'
+import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
+import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 

@@ -1,4 +1,4 @@
-import { defineAction } from '@xrengine/hyperflux'
+import { defineAction } from '@etherealengine/hyperflux'
 
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {

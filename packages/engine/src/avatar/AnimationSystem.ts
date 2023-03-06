@@ -1,6 +1,6 @@
 import { Euler } from 'three'
 
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
@@ -53,7 +53,6 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
-      world.dirtyTransforms[entity] = true
     }
   }
 

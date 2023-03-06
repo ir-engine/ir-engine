@@ -1,7 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'

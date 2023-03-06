@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
-import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
+import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
@@ -14,12 +14,13 @@ import {
   hasComponent,
   removeComponent,
   useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
-import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
+import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -43,35 +44,35 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
+  const [isEquippable, setEquippable] = useState(hasComponent(props.entity, EquippableComponent))
 
-  const entity = props.node.entity
+  const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const [exporting, setExporting] = useState(false)
   const [exportPath, setExportPath] = useState(modelComponent?.src.value)
 
   if (!modelComponent) return <></>
-  const errors = getEntityErrors(props.node.entity, ModelComponent)
+  const errors = getEntityErrors(props.entity, ModelComponent)
   const obj3d = modelComponent.value.scene
 
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
-  traverseEntityNode(Engine.instance.currentWorld.entityTree.rootNode, (node) => {
-    if (node.entity === entity) return
+  traverseEntityNode(Engine.instance.currentWorld.sceneEntity, (node) => {
+    if (entity === entity) return
 
     textureOverrideEntities.push({
-      label: hasComponent(node.entity, NameComponent) ? getComponent(node.entity, NameComponent) : node.uuid,
-      value: node.uuid
+      label: getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent),
+      value: getComponent(entity, UUIDComponent)
     })
   })
 
   const onChangeEquippable = () => {
     if (isEquippable) {
-      removeComponent(props.node.entity, EquippableComponent)
+      removeComponent(props.entity, EquippableComponent)
       setEquippable(false)
     } else {
-      addComponent(props.node.entity, EquippableComponent, true)
+      addComponent(props.entity, EquippableComponent, true)
       setEquippable(true)
     }
   }
@@ -116,7 +117,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={animationOptions}
           value={loopAnimationComponent?.activeClipIndex}
           onChange={updateProperty(LoopAnimationComponent, 'activeClipIndex')}
@@ -128,8 +129,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
-      <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
-      <ShadowProperties node={props.node} />
+      <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
+      <ShadowProperties entity={props.entity} />
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting && modelComponent.src.value && (
         <Well>

@@ -1,12 +1,12 @@
 import { Vector3 } from 'three'
 
-import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { createMappedComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 
 export type EditorCameraComponentType = {
   center: Vector3
   zoomDelta: number
-  focusedObjects: (string | EntityTreeNode)[]
+  focusedObjects: EntityOrObjectUUID[]
   isPanning: boolean
   cursorDeltaX: number
   cursorDeltaY: number

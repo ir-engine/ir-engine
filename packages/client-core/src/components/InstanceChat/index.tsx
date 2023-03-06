@@ -5,26 +5,31 @@ import { useTranslation } from 'react-i18next'
 import {
   useLocationInstanceConnectionState,
   useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
-import { getState } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  ChatService,
+  ChatServiceReceptor,
+  useChatState
+} from '@etherealengine/client-core/src/social/services/ChatService'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import multiLogger from '@etherealengine/common/src/logger'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
+import Avatar from '@etherealengine/ui/src/Avatar'
+import Badge from '@etherealengine/ui/src/Badge'
+import Card from '@etherealengine/ui/src/Card'
+import CardContent from '@etherealengine/ui/src/CardContent'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import TextField from '@etherealengine/ui/src/TextField'
 
-import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
-import { IconButton } from '@mui/material'
-import Avatar from '@mui/material/Avatar'
-import Badge from '@mui/material/Badge'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
-import TextField from '@mui/material/TextField'
 
 import { AppAction } from '../../common/services/AppService'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
@@ -390,9 +395,8 @@ export const InstanceChat = ({
                         onClick={packageMessage}
                         className={styles.sendButton}
                         focusRipple={false}
-                      >
-                        <Send fontSize="small" />
-                      </IconButton>
+                        icon={<Icon type="Send" fontSize="small" />}
+                      />
                     )
                   }}
                 />

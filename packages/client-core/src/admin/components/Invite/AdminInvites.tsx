@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { InviteInterface } from '@xrengine/common/src/interfaces/Invite'
-
-import Checkbox from '@mui/material/Checkbox'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
 
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
 import TableComponent from '../../common/Table'

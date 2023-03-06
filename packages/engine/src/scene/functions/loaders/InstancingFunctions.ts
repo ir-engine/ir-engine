@@ -15,13 +15,16 @@ import {
   PlaneGeometry,
   Quaternion,
   RawShaderMaterial,
+  ShaderChunk,
+  ShaderMaterial,
   Texture,
   Vector2,
   Vector3
 } from 'three'
 import matches from 'ts-matches'
 
-import { defineAction, dispatchAction } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, dispatchAction, State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../../assets/classes/DependencyTree'
@@ -37,14 +40,15 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
+  getComponentState,
   getOptionalComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  useComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { getEntityTreeNodeByUUID, iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { setCallback } from '../../components/CallbackComponent'
 import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 import {
@@ -53,16 +57,17 @@ import {
   InstancingComponentType,
   InstancingStagingComponent,
   MeshProperties,
-  NodeProperties,
   SampleMode,
   SampleProperties,
   sampleVar,
   ScatterMode,
   ScatterProperties,
   ScatterState,
+  TextureRef,
   VertexProperties
 } from '../../components/InstancingComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
+import { UUIDComponent } from '../../components/UUIDComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
 import LogarithmicDepthBufferMaterialChunk from '../LogarithmicDepthBufferMaterialChunk'
@@ -72,8 +77,14 @@ export const GRASS_PROPERTIES_DEFAULT_VALUES: GrassProperties = {
   bladeHeight: { mu: 0.3, sigma: 0.05 },
   bladeWidth: { mu: 0.03, sigma: 0.01 },
   joints: 4,
-  grassTexture: 'https://resources-dev.etherealengine.com/assets/grass/blade_diffuse.jpg',
-  alphaMap: 'https://resources-dev.etherealengine.com/assets/grass/blade_alpha.jpg',
+  grassTexture: {
+    src: 'https://resources-dev.etherealengine.com/assets/grass/blade_diffuse.jpg',
+    texture: null
+  },
+  alphaMap: {
+    src: 'https://resources-dev.etherealengine.com/assets/grass/blade_alpha.jpg',
+    texture: null
+  },
   ambientStrength: 0.5,
   diffuseStrength: 1,
   shininess: 128,
@@ -82,41 +93,39 @@ export const GRASS_PROPERTIES_DEFAULT_VALUES: GrassProperties = {
 
 export const MESH_PROPERTIES_DEFAULT_VALUES: MeshProperties = {
   isMeshProperties: true,
-  instancedMesh: ''
+  instancedMesh: '' as EntityUUID
 }
 
 export const SCATTER_PROPERTIES_DEFAULT_VALUES: ScatterProperties = {
   isScatterProperties: true,
-  densityMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
+  densityMap: {
+    src: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
+    texture: null
+  },
   densityMapStrength: 0.5,
-  heightMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
+  heightMap: {
+    src: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
+    texture: null
+  },
   heightMapStrength: 0.5
 }
 
 export const VERTEX_PROPERTIES_DEFAULT_VALUES: VertexProperties = {
   isVertexProperties: true,
   vertexColors: false,
-  densityMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
+  densityMap: {
+    src: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
+    texture: null
+  },
   densityMapStrength: 0.5,
-  heightMap: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
+  heightMap: {
+    src: 'https://resources-dev.etherealengine.com/assets/grass/perlinFbm.jpg',
+    texture: null
+  },
   heightMapStrength: 0.5
 }
 
-export const NODE_PROPERTIES_DEFAULT_VALUES: NodeProperties = {
-  isNodeProperties: true,
-  root: ''
-}
-
 export const SCENE_COMPONENT_INSTANCING = 'instancing'
-export const SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES: InstancingComponentType = {
-  count: 5000,
-  surface: '',
-  sampling: SampleMode.SCATTER,
-  mode: ScatterMode.GRASS,
-  state: ScatterState.UNSTAGED,
-  sampleProperties: SCATTER_PROPERTIES_DEFAULT_VALUES,
-  sourceProperties: GRASS_PROPERTIES_DEFAULT_VALUES
-}
 
 const grassVertexSource = `
 precision mediump float;
@@ -141,7 +150,7 @@ uniform float vHeight;
   uniform float heightMapStrength;
   uniform sampler2D heightMap;
 #endif
-#include <logdepthbuf_pars_vertex>
+${ShaderChunk.logdepthbuf_pars_vertex}
 ${LogarithmicDepthBufferMaterialChunk}
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
@@ -163,6 +172,7 @@ return 2.0 * cross(q.xyz, v * q.w + cross(q.xyz, v)) + v;
 float rand(float x) {
   return fract(sin(x * 10000.0) * 20000.0);
 }
+
 
 void main() {
 #ifdef DENSITY_MAPPED
@@ -212,7 +222,7 @@ vNormal = rotateVectorByQuaternion(vNormal, direction);
 idx = index;
 
 gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition + offset, 1.0);
-#include <logdepthbuf_vertex>
+${ShaderChunk.logdepthbuf_vertex}
 }`
 
 const grassFragmentSource = `
@@ -242,8 +252,6 @@ varying float frc;
 #ifdef DENSITY_MAPPED
   varying float doClip;
 #endif
-
-#include <logdepthbuf_pars_fragment>
 
 vec3 ACESFilm(vec3 x){
     float a = 2.51;
@@ -298,8 +306,10 @@ float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
 vec3 skyLight = sky * vec3(0.12, 0.29, 0.55);
 vec3 col = 0.3 * skyLight * textureColor + diffuse * diffuseStrength + ambient * ambientStrength;
 gl_FragColor = vec4(col, 1.0);
-#include <logdepthbuf_fragment>
 }`
+
+//${ShaderChunk.logdepthbuf_fragment}
+//}`
 
 export class InstancingActions {
   static instancingStaged = defineAction({
@@ -308,26 +318,21 @@ export class InstancingActions {
   })
 }
 
-export const deserializeInstancing: ComponentDeserializeFunction = (entity: Entity, data: InstancingComponentType) => {
-  const scatterProps = parseInstancingProperties(data)
-  if (scatterProps.state === ScatterState.STAGING) {
-    scatterProps.state = ScatterState.UNSTAGED
-  }
-  addComponent(entity, InstancingComponent, scatterProps)
-}
-
 export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
   if (!getOptionalComponent(entity, GroupComponent)?.[0]) {
     addObjectToGroup(entity, new Object3D())
   }
   const scatterProps = getComponent(entity, InstancingComponent)
   if (scatterProps.surface) {
-    const eNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+    const eNode = entity
     DependencyTree.add(
       scatterProps.surface,
       new Promise<void>((resolve) => {
         matchActionOnce(
-          InstancingActions.instancingStaged.matches.validate((action) => action.uuid === eNode.uuid, ''),
+          InstancingActions.instancingStaged.matches.validate(
+            (action) => action.uuid === getComponent(eNode, UUIDComponent),
+            ''
+          ),
           () => resolve()
         )
       })
@@ -343,117 +348,27 @@ export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
   }
 }
 
-function parseInstancingProperties(props): InstancingComponentType {
-  let result: InstancingComponentType = {
-    ...SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES,
-    ...props
-  }
-  const processProps = (props, defaults) => {
-    return Object.fromEntries(
-      Object.entries(props)
-        .filter(([k, _]) => defaults[k] !== undefined)
-        .map(([k, v]) => {
-          if ((defaults[k] as Color).isColor && !(v as Color).isColor) {
-            return [k, new Color(v as ColorRepresentation)]
-          } else {
-            return [k, v]
-          }
-        })
-    )
-  }
-  result = processProps(result, SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES) as InstancingComponentType
-  switch (result.mode) {
-    case ScatterMode.GRASS:
-      result.sourceProperties = processProps(
-        result.sourceProperties,
-        GRASS_PROPERTIES_DEFAULT_VALUES
-      ) as GrassProperties
-      break
-    case ScatterMode.MESH:
-      result.sourceProperties = processProps(result.sourceProperties, MESH_PROPERTIES_DEFAULT_VALUES) as MeshProperties
-      break
-  }
-  switch (result.sampling) {
-    case SampleMode.SCATTER:
-      result.sampleProperties = processProps(
-        result.sampleProperties,
-        SCATTER_PROPERTIES_DEFAULT_VALUES
-      ) as ScatterProperties
-      break
-    case SampleMode.VERTICES:
-      result.sampleProperties = processProps(
-        result.sampleProperties,
-        VERTEX_PROPERTIES_DEFAULT_VALUES
-      ) as VertexProperties
-      break
-    case SampleMode.NODES:
-      result.sampleProperties = processProps(result.sampleProperties, NODE_PROPERTIES_DEFAULT_VALUES) as NodeProperties
-      break
-  }
-  return result
+const loadTex = async (props: State<TextureRef>) => {
+  const texture = (await AssetLoader.loadAsync(props.src.value)) as Texture
+  props.texture.set(texture)
 }
 
-export const serializeInstancing: ComponentSerializeFunction = (entity) => {
-  const comp = getOptionalComponent(entity, InstancingComponent) as InstancingComponentType
-  if (!comp) return
-  const toSave = { ...comp }
-  if (comp.state === ScatterState.STAGING) toSave.state = ScatterState.UNSTAGED
-  const formatData = (props) => {
-    for (const [k, v] of Object.entries(props)) {
-      if ((v as Texture)?.isTexture) {
-        props[k] = (v as Texture).source.data?.src ?? ''
-      } else if ((v as Color)?.isColor) {
-        props[k] = (v as Color).getHex()
-      } else {
-        props[k] = v
-      }
-    }
-  }
-  const srcProps = comp.sourceProperties
-  const _srcProps: GrassProperties | MeshProperties | any = { ...srcProps }
-  const sampleProps = comp.sampleProperties
-  const _sampleProps = { ...sampleProps }
-  formatData(toSave)
-  formatData(_srcProps)
-  formatData(_sampleProps)
-  toSave.sourceProperties = _srcProps
-  toSave.sampleProperties = _sampleProps
-  return toSave
+async function loadSampleTextures(props: State<ScatterProperties & VertexProperties>) {
+  await Promise.all([props.densityMap, props.heightMap].map(loadTex))
 }
 
-const loadTex = async <T>(props: T, prop: keyof T) => {
-  let path = props[prop] as any
-  if (typeof path !== 'string' || ![AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(path))) {
-    console.error('invalid texture path', path)
-  }
-  props[prop] = await AssetLoader.loadAsync(path)
-}
-
-async function loadSampleTextures(props: ScatterProperties & VertexProperties) {
-  if (typeof props.densityMap === 'string' && props.densityMap !== '') {
-    await loadTex(props, 'densityMap')
-  }
-  if (typeof props.heightMap === 'string' && props.heightMap !== '') {
-    await loadTex(props, 'heightMap')
-  }
-}
-
-async function loadGrassTextures(props: GrassProperties) {
-  if (typeof props.alphaMap === 'string' && props.alphaMap !== '') {
-    await loadTex(props, 'alphaMap')
-  }
-  if (typeof props.grassTexture === 'string' && props.grassTexture !== '') {
-    await loadTex(props, 'grassTexture')
-  }
+async function loadGrassTextures(props: State<GrassProperties>) {
+  await Promise.all([props.alphaMap, props.grassTexture].map(loadTex))
 }
 
 export async function stageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
   const scatter = getComponent(entity, InstancingComponent)
+  const scatterState = getComponentState(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
     console.error('scatter component is already staging')
     return
   }
-  scatter.state = ScatterState.STAGING
+  scatterState.state.set(ScatterState.STAGING)
   const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface, world))!.geometry
   const normals = targetGeo.getAttribute('normal')
   const positions = targetGeo.getAttribute('position')
@@ -563,7 +478,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   const transforms: number[] = []
   const surfaceUVs: number[] = []
   if ([SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling)) {
-    await loadSampleTextures(scatter.sampleProperties as any)
+    await loadSampleTextures(scatterState.sampleProperties as State<SampleProperties>)
   }
 
   let props = scatter.sourceProperties
@@ -571,7 +486,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   if ((props as GrassProperties).isGrassProperties) {
     props = formatMaterialArgs(props)
     const grassProps = props as GrassProperties
-    await loadGrassTextures(grassProps)
+    await loadGrassTextures(scatterState.sourceProperties as State<GrassProperties>)
     //samplers
     grassGeometry = new PlaneGeometry(grassProps.bladeWidth.mu, grassProps.bladeHeight.mu, 1, grassProps.joints)
 
@@ -732,29 +647,6 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
         stageGrassAttributes()
       }
       break
-    case SampleMode.NODES:
-      const root = getEntityTreeNodeByUUID((scatter.sampleProperties as NodeProperties).root)
-      numInstances = 0
-      if (root === undefined) {
-        console.error('could not find root node with uuid', (scatter.sampleProperties as NodeProperties).root)
-      } else {
-        iterateEntityNode(
-          root,
-          (node) => {
-            numInstances += 1
-            const obj3d = obj3dFromUuid(node.uuid, world)
-            if ((props as GrassProperties).isGrassProperties) {
-              stageGrassBuffers(obj3d.position, obj3d.quaternion, obj3d.scale)
-            } else if ((props as MeshProperties).isMeshProperties) {
-              stageMeshBuffers(obj3d.position, obj3d.quaternion, obj3d.scale)
-            }
-          },
-          (node) => node !== root && hasComponent(node.entity, GroupComponent),
-          world.entityTree
-        )
-        if ((props as GrassProperties).isGrassProperties) stageGrassAttributes()
-      }
-      break
     default:
       numInstances = 0
       break
@@ -773,9 +665,9 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       resultMat = new RawShaderMaterial({
         uniforms: {
           time: { value: 0 },
-          map: { value: grassProps.grassTexture },
+          map: { value: grassProps.grassTexture.texture },
           vHeight: { value: grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma },
-          alphaMap: { value: grassProps.alphaMap },
+          alphaMap: { value: grassProps.alphaMap.texture },
           sunDirection: { value: new Vector3(-0.35, 0, 0) },
           cameraPosition: { value: Engine.instance.currentWorld.camera.position },
           ambientStrength: { value: grassProps.ambientStrength },
@@ -786,16 +678,20 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
         fragmentShader: grassFragmentSource,
         side: DoubleSide,
         defines: {
-          USE_LOGDEPTHBUF: '',
-          USE_LOGDEPTHBUF_EXT: ''
+          EPSILON: 0.00001,
+          USE_LOGDEPTHBUF: ''
+          //USE_LOGDEPTHBUF_EXT: ''
         }
       })
+      resultMat.onBeforeCompile = (shader, renderer) => {
+        console.log('onBeforeCompile', shader, renderer)
+      }
       const shaderMat = resultMat as RawShaderMaterial
       if (sampleProps.densityMap) {
         shaderMat.defines.DENSITY_MAPPED = ''
         shaderMat.uniforms = {
           ...shaderMat.uniforms,
-          heightMap: { value: sampleProps.heightMap },
+          heightMap: { value: sampleProps.heightMap.texture },
           heightMapStrength: { value: sampleProps.heightMapStrength }
         }
       }
@@ -803,7 +699,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
         shaderMat.defines.HEIGHT_MAPPED = ''
         shaderMat.uniforms = {
           ...shaderMat.uniforms,
-          densityMap: { value: sampleProps.densityMap },
+          densityMap: { value: sampleProps.densityMap.texture },
           densityMapStrength: { value: sampleProps.densityMapStrength }
         }
       }
@@ -846,29 +742,6 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       updates.push(move)
       break
   }
-  switch (scatter.sampling) {
-    case SampleMode.NODES:
-      const rootNode = getEntityTreeNodeByUUID(sampleProps.root)
-      function update(dt: number) {
-        if (rootNode === undefined) {
-          console.error('could not find root node with uuid', sampleProps.root)
-        } else {
-          let instanceIdx = 0
-          iterateEntityNode(
-            rootNode,
-            (node) => {
-              const obj3d = getComponent(node.entity, GroupComponent)[0]
-              ;(result as InstancedMesh).setMatrixAt(instanceIdx, obj3d.matrix)
-              instanceIdx += 1
-            },
-            (node) => node !== rootNode && hasComponent(node.entity, GroupComponent, world)
-          )
-          ;(result as InstancedMesh).instanceMatrix.needsUpdate = true
-        }
-      }
-      updates.push(update)
-      break
-  }
   if (updates.length > 0) {
     if (!hasComponent(entity, UpdatableComponent)) {
       addComponent(entity, UpdatableComponent, true)
@@ -877,9 +750,8 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   }
   result.frustumCulled = false
   obj3d.add(result)
-  scatter.state = ScatterState.STAGED
-  const eNode = world.entityTree.entityNodeMap.get(entity)!
-  dispatchAction(InstancingActions.instancingStaged({ uuid: eNode.uuid }))
+  scatterState.state.set(ScatterState.STAGED)
+  dispatchAction(InstancingActions.instancingStaged({ uuid: getComponent(entity, UUIDComponent) }))
 }
 
 export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {

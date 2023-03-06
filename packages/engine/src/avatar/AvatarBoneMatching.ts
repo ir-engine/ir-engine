@@ -17,7 +17,7 @@ export type BoneNames =
   | 'LeftShoulder'
   | 'LeftArm'
   | 'LeftForeArm'
-  | 'LeftForeArmTwist'
+  // | 'LeftForeArmTwist'
   | 'LeftHand'
   | 'LeftUpLeg'
   | 'LeftLeg'
@@ -25,7 +25,7 @@ export type BoneNames =
   | 'RightShoulder'
   | 'RightArm'
   | 'RightForeArm'
-  | 'RightForeArmTwist'
+  // | 'RightForeArmTwist'
   | 'RightHand'
   | 'RightUpLeg'
   | 'RightLeg'
@@ -33,33 +33,51 @@ export type BoneNames =
   | 'LeftHandPinky1'
   | 'LeftHandPinky2'
   | 'LeftHandPinky3'
+  | 'LeftHandPinky4'
+  | 'LeftHandPinky5'
   | 'LeftHandRing1'
   | 'LeftHandRing2'
   | 'LeftHandRing3'
+  | 'LeftHandRing4'
+  | 'LeftHandRing5'
   | 'LeftHandMiddle1'
   | 'LeftHandMiddle2'
   | 'LeftHandMiddle3'
+  | 'LeftHandMiddle4'
+  | 'LeftHandMiddle5'
   | 'LeftHandIndex1'
   | 'LeftHandIndex2'
   | 'LeftHandIndex3'
+  | 'LeftHandIndex4'
+  | 'LeftHandIndex5'
   | 'LeftHandThumb1'
   | 'LeftHandThumb2'
   | 'LeftHandThumb3'
+  | 'LeftHandThumb4'
   | 'RightHandPinky1'
   | 'RightHandPinky2'
   | 'RightHandPinky3'
+  | 'RightHandPinky4'
+  | 'RightHandPinky5'
   | 'RightHandRing1'
   | 'RightHandRing2'
   | 'RightHandRing3'
+  | 'RightHandRing4'
+  | 'RightHandRing5'
   | 'RightHandMiddle1'
   | 'RightHandMiddle2'
   | 'RightHandMiddle3'
+  | 'RightHandMiddle4'
+  | 'RightHandMiddle5'
   | 'RightHandIndex1'
   | 'RightHandIndex2'
   | 'RightHandIndex3'
+  | 'RightHandIndex4'
+  | 'RightHandIndex5'
   | 'RightHandThumb1'
   | 'RightHandThumb2'
   | 'RightHandThumb3'
+  | 'RightHandThumb4'
 
 export type BoneStructure = {
   [bone in BoneNames]: Bone
@@ -431,18 +449,27 @@ function findHandBones(handBone: Object3D) {
   let pinky1,
     pinky2,
     pinky3,
+    pinky4,
+    pinky5,
     ring1,
     ring2,
     ring3,
+    ring4,
+    ring5,
     middle1,
     middle2,
     middle3,
+    middle4,
+    middle5,
     index1,
     index2,
     index3,
+    index4,
+    index5,
     thumb1,
     thumb2,
-    thumb3
+    thumb3,
+    thumb4
 
   const findBone = (parent: Object3D, name: string, index: string) => {
     const re = new RegExp(name, 'i')
@@ -461,36 +488,54 @@ function findHandBones(handBone: Object3D) {
   pinky1 = findBone(handBone, 'pinky', '1')
   pinky2 = findBone(handBone, 'pinky', '2')
   pinky3 = findBone(handBone, 'pinky', '3')
+  pinky4 = findBone(handBone, 'pinky', '4')
+  pinky5 = findBone(handBone, 'pinky', '5')
   ring1 = findBone(handBone, 'ring', '1')
   ring2 = findBone(handBone, 'ring', '2')
   ring3 = findBone(handBone, 'ring', '3')
+  ring4 = findBone(handBone, 'ring', '4')
+  ring5 = findBone(handBone, 'ring', '5')
   middle1 = findBone(handBone, 'middle', '1')
   middle2 = findBone(handBone, 'middle', '2')
   middle3 = findBone(handBone, 'middle', '3')
+  middle4 = findBone(handBone, 'middle', '4')
+  middle5 = findBone(handBone, 'middle', '5')
   index1 = findBone(handBone, 'index', '1')
   index2 = findBone(handBone, 'index', '2')
   index3 = findBone(handBone, 'index', '3')
+  index4 = findBone(handBone, 'index', '4')
+  index5 = findBone(handBone, 'index', '5')
   thumb1 = findBone(handBone, 'thumb', '1')
   thumb2 = findBone(handBone, 'thumb', '2')
   thumb3 = findBone(handBone, 'thumb', '3')
+  thumb4 = findBone(handBone, 'thumb', '4')
 
   return {
     pinky1,
     pinky2,
     pinky3,
+    pinky4,
+    pinky5,
     ring1,
     ring2,
     ring3,
+    ring4,
+    ring5,
     middle1,
     middle2,
     middle3,
+    middle4,
+    middle5,
     index1,
     index2,
     index3,
+    index4,
+    index5,
     thumb1,
     thumb2,
-    thumb3
-  }
+    thumb3,
+    thumb4
+  } as Record<string, Bone>
 }
 
 export function findSkinnedMeshes(model: Object3D) {
@@ -590,19 +635,19 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
     const LeftShoulder = _findShoulder(tailBones, true)
     const LeftHand = _findHand(LeftShoulder)
     const LeftForeArm = LeftHand.parent
-    const LeftForeArmTwist = findFirstTwistChildBone(LeftForeArm, LeftHand, true)
+    // const LeftForeArmTwist = findFirstTwistChildBone(LeftForeArm, LeftHand, true)
     const LeftArm = LeftForeArm.parent
     const RightShoulder = _findShoulder(tailBones, false)
     const RightHand = _findHand(RightShoulder)
     const RightForeArm = RightHand.parent
-    const RightForeArmTwist = findFirstTwistChildBone(RightForeArm, RightHand, false)
+    // const RightForeArmTwist = findFirstTwistChildBone(RightForeArm, RightHand, false)
     const RightArm = RightForeArm.parent
-    const Left_ankle = _findFoot(tailBones, true)
-    const Left_knee = Left_ankle.parent
-    const Left_leg = Left_knee.parent
-    const Right_ankle = _findFoot(tailBones, false)
-    const Right_knee = Right_ankle.parent
-    const Right_leg = Right_knee.parent
+    const LeftFoot = _findFoot(tailBones, true)
+    const LeftLeg = LeftFoot.parent
+    const LeftUpLeg = LeftLeg.parent
+    const RightFoot = _findFoot(tailBones, false)
+    const RightLeg = RightFoot.parent
+    const RightUpLeg = RightLeg.parent
     const leftHandBones = findHandBones(LeftHand)
     const rightHandBones = findHandBones(RightHand)
 
@@ -632,52 +677,70 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
       LeftShoulder,
       LeftArm,
       LeftForeArm,
-      LeftForeArmTwist,
+      // LeftForeArmTwist,
       LeftHand,
-      LeftUpLeg: Left_leg,
-      LeftLeg: Left_knee,
-      LeftFoot: Left_ankle,
+      LeftUpLeg,
+      LeftLeg,
+      LeftFoot,
 
-      LeftHandPinky1: leftHandBones['pinky1'],
-      LeftHandPinky2: leftHandBones['pinky2'],
-      LeftHandPinky3: leftHandBones['pinky3'],
-      LeftHandRing1: leftHandBones['ring1'],
-      LeftHandRing2: leftHandBones['ring2'],
-      LeftHandRing3: leftHandBones['ring3'],
-      LeftHandMiddle1: leftHandBones['middle1'],
-      LeftHandMiddle2: leftHandBones['middle2'],
-      LeftHandMiddle3: leftHandBones['middle3'],
-      LeftHandIndex1: leftHandBones['index1'],
-      LeftHandIndex2: leftHandBones['index2'],
-      LeftHandIndex3: leftHandBones['index3'],
-      LeftHandThumb1: leftHandBones['thumb1'],
-      LeftHandThumb2: leftHandBones['thumb2'],
-      LeftHandThumb3: leftHandBones['thumb3'],
+      LeftHandPinky1: leftHandBones.pinky1,
+      LeftHandPinky2: leftHandBones.pinky2,
+      LeftHandPinky3: leftHandBones.pinky3,
+      LeftHandPinky4: leftHandBones.pinky4,
+      LeftHandPinky5: leftHandBones.pinky5,
+      LeftHandRing1: leftHandBones.ring1,
+      LeftHandRing2: leftHandBones.ring2,
+      LeftHandRing3: leftHandBones.ring3,
+      LeftHandRing4: leftHandBones.ring4,
+      LeftHandRing5: leftHandBones.ring5,
+      LeftHandMiddle1: leftHandBones.middle1,
+      LeftHandMiddle2: leftHandBones.middle2,
+      LeftHandMiddle3: leftHandBones.middle3,
+      LeftHandMiddle4: leftHandBones.middle4,
+      LeftHandMiddle5: leftHandBones.middle5,
+      LeftHandIndex1: leftHandBones.index1,
+      LeftHandIndex2: leftHandBones.index2,
+      LeftHandIndex3: leftHandBones.index3,
+      LeftHandIndex4: leftHandBones.index4,
+      LeftHandIndex5: leftHandBones.index5,
+      LeftHandThumb1: leftHandBones.thumb1,
+      LeftHandThumb2: leftHandBones.thumb2,
+      LeftHandThumb3: leftHandBones.thumb3,
+      LeftHandThumb4: leftHandBones.thumb4,
 
       RightShoulder,
       RightArm,
       RightForeArm,
-      RightForeArmTwist,
+      // RightForeArmTwist,
       RightHand,
-      RightUpLeg: Right_leg,
-      RightLeg: Right_knee,
-      RightFoot: Right_ankle,
+      RightUpLeg,
+      RightLeg,
+      RightFoot,
 
-      RightHandPinky1: rightHandBones['pinky1'],
-      RightHandPinky2: rightHandBones['pinky2'],
-      RightHandPinky3: rightHandBones['pinky3'],
-      RightHandRing1: rightHandBones['ring1'],
-      RightHandRing2: rightHandBones['ring2'],
-      RightHandRing3: rightHandBones['ring3'],
-      RightHandMiddle1: rightHandBones['middle1'],
-      RightHandMiddle2: rightHandBones['middle2'],
-      RightHandMiddle3: rightHandBones['middle3'],
-      RightHandIndex1: rightHandBones['index1'],
-      RightHandIndex2: rightHandBones['index2'],
-      RightHandIndex3: rightHandBones['index3'],
-      RightHandThumb1: rightHandBones['thumb1'],
-      RightHandThumb2: rightHandBones['thumb2'],
-      RightHandThumb3: rightHandBones['thumb3']
+      RightHandPinky1: rightHandBones.pinky1,
+      RightHandPinky2: rightHandBones.pinky2,
+      RightHandPinky3: rightHandBones.pinky3,
+      RightHandPinky4: rightHandBones.pinky4,
+      RightHandPinky5: rightHandBones.pinky5,
+      RightHandRing1: rightHandBones.ring1,
+      RightHandRing2: rightHandBones.ring2,
+      RightHandRing3: rightHandBones.ring3,
+      RightHandRing4: rightHandBones.ring4,
+      RightHandRing5: rightHandBones.ring5,
+      RightHandMiddle1: rightHandBones.middle1,
+      RightHandMiddle2: rightHandBones.middle2,
+      RightHandMiddle3: rightHandBones.middle3,
+      RightHandMiddle4: rightHandBones.middle4,
+      RightHandMiddle5: rightHandBones.middle5,
+      RightHandIndex1: rightHandBones.index1,
+      RightHandIndex2: rightHandBones.index2,
+      RightHandIndex3: rightHandBones.index3,
+      RightHandIndex4: rightHandBones.index4,
+      RightHandIndex5: rightHandBones.index5,
+      RightHandThumb1: rightHandBones.thumb1,
+      RightHandThumb2: rightHandBones.thumb2,
+      RightHandThumb3: rightHandBones.thumb3,
+      RightHandThumb4: rightHandBones.thumb4
     }
 
     Object.keys(targetModelBones).forEach((key) => {

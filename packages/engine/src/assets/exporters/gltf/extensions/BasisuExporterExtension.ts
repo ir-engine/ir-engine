@@ -1,6 +1,7 @@
 import { ImageDataType } from '@loaders.gl/images'
-import { KTX2Encoder } from '@xrfoundation/xrui/core/textures/KTX2Encoder'
 import { CompressedTexture, Texture } from 'three'
+
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import createReadableTexture from '../../../functions/createReadableTexture'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'

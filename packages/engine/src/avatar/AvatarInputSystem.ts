@@ -1,7 +1,7 @@
 import { Quaternion } from 'three'
 
-import { isDev } from '@xrengine/common/src/config'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { isDev } from '@etherealengine/common/src/config'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -15,6 +15,7 @@ import { RendererState } from '../renderer/RendererState'
 import { hasMovementControls } from '../xr/XRState'
 import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
+import { autopilotSetPosition } from './functions/autopilotFunctions'
 import { translateAndRotateAvatar } from './functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -117,12 +118,23 @@ export default async function AvatarInputSystem(world: World) {
     getState(RendererState).debugEnable.set(!getState(RendererState).debugEnable.value)
   }
 
+  let mouseMovedDuringPrimaryClick = false
   const execute = () => {
     const { inputSources, localClientEntity } = world
     if (!localClientEntity) return
 
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
     const buttons = world.buttons
+
+    if (buttons.PrimaryClick?.touched) {
+      let mouseMoved = world.pointerState.movement.lengthSq() > 0
+      if (mouseMoved) mouseMovedDuringPrimaryClick = true
+
+      if (buttons.PrimaryClick.up) {
+        if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(world.localClientEntity)
+        else mouseMovedDuringPrimaryClick = false
+      }
+    }
 
     if (buttons.ShiftLeft?.down) onShiftLeft()
     if (buttons.KeyE?.down) onKeyE()

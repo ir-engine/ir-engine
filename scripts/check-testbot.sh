@@ -7,7 +7,7 @@ TAG=$2
 expectedTag="$TAG*"
 echo "Expected tag: $expectedTag"
 
-jobName="${STAGE}-xrengine-testbot"
+jobName="${STAGE}-etherealengine-testbot"
 
 # Get the current image tag of testbot job.
 imageName=$(kubectl get job $jobName -o=jsonpath='{$.spec.template.spec.containers[:1].image}')
@@ -17,9 +17,9 @@ echo "Current tag: $tag"
 # This is incase pipeline failed. So force helm to redeploy testbot.
 if [[ $tag = $expectedTag ]]
 then
-    kubectl delete job $STAGE-xrengine-testbot
+    kubectl delete job $STAGE-etherealengine-testbot
 
-    helm upgrade --reuse-values $STAGE xrengine/xrengine
+    helm upgrade --reuse-values $STAGE etherealengine/etherealengine
 fi
 
 # Wait until correct image tag is used.

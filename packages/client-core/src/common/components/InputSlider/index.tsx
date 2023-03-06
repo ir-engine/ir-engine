@@ -1,9 +1,9 @@
 import React from 'react'
 
-import Text from '@xrengine/client-core/src/common/components/Text'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import Box from '@etherealengine/ui/src/Box'
+import Slider from '@etherealengine/ui/src/Slider'
 
-import Box from '@mui/material/Box'
-import Slider from '@mui/material/Slider'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'

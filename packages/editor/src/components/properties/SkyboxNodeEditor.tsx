@@ -2,16 +2,16 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   ComponentType,
   getComponent,
   hasComponent,
   useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
-import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
+import { SkyTypeEnum } from '@etherealengine/engine/src/scene/constants/SkyTypeEnum'
 
 import CloudIcon from '@mui/icons-material/Cloud'
 
@@ -60,7 +60,7 @@ const SkyOption = [
  */
 export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const hasError = getEntityErrors(entity, SkyboxComponent)
   const skyboxComponent = useComponent(entity, SkyboxComponent)
 
@@ -198,7 +198,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={SkyOption}
           value={skyboxComponent.backgroundType.value}
           onChange={updateProperty(SkyboxComponent, 'backgroundType')}

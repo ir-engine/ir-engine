@@ -20,12 +20,12 @@ import {
   Vector2
 } from 'three'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { getState } from '@xrengine/hyperflux'
-import { createState, hookstate } from '@xrengine/hyperflux/functions/StateFunctions'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { ComponentJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
+import { createState, hookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -60,14 +60,15 @@ import {
   defineQuery,
   EntityRemovedComponent,
   getComponent,
+  getComponentState,
   hasComponent,
   Query,
   QueryComponents,
   setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
-import { EntityTree, initializeEntityTree } from '../functions/EntityTree'
-import { SystemInstance } from '../functions/SystemFunctions'
+import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
+import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
@@ -86,10 +87,9 @@ export class World {
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
-    initializeEntityTree(this)
-
     this.originEntity = createEntity()
-    addComponent(this.originEntity, NameComponent, 'origin')
+    setComponent(this.originEntity, NameComponent, 'origin')
+    setComponent(this.originEntity, EntityTreeComponent, { parentEntity: null })
     setTransformComponent(this.originEntity)
     setComponent(this.originEntity, VisibleComponent, true)
     addObjectToGroup(this.originEntity, this.origin)
@@ -100,12 +100,15 @@ export class World {
     this.origin.add(originHelperMesh)
 
     this.cameraEntity = createEntity()
-    addComponent(this.cameraEntity, NameComponent, 'camera')
-    addComponent(this.cameraEntity, CameraComponent)
-    addComponent(this.cameraEntity, VisibleComponent, true)
+    setComponent(this.cameraEntity, NameComponent, 'camera')
+    setComponent(this.cameraEntity, CameraComponent)
+    setComponent(this.cameraEntity, VisibleComponent, true)
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
+
+    // @todo do this as the scene loads instead of world creation
+    initializeSceneEntity(this)
 
     this.scene.matrixAutoUpdate = false
     this.scene.matrixWorldAutoUpdate = false
@@ -212,6 +215,7 @@ export class World {
 
   /**
    * The scene entity
+   *  @todo support multiple scenes
    */
   sceneEntity: Entity = UndefinedEntity
 
@@ -263,7 +267,7 @@ export class World {
 
   buttons = {} as Readonly<ButtonInputStateType>
 
-  reactiveQueryStates = new Set<{ query: Query; state: State<Entity[]>; components: QueryComponents }>()
+  reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
@@ -293,9 +297,6 @@ export class World {
    * Network object query
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
-
-  /** Tree of entity holding parent child relation between entities. */
-  entityTree: EntityTree
 
   /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use XRE_ extension names*/
 
@@ -388,11 +389,11 @@ export class World {
 
     for (const entity of this.#entityRemovedQuery(this)) removeEntity(entity as Entity, true, this)
 
-    for (const { query, state } of this.reactiveQueryStates) {
+    for (const { query, result } of this.reactiveQueryStates) {
       const entitiesAdded = query.enter().length
       const entitiesRemoved = query.exit().length
       if (entitiesAdded || entitiesRemoved) {
-        state.set(query())
+        result.set(query())
       }
     }
 
@@ -409,6 +410,7 @@ export function createWorld() {
 }
 
 export function destroyWorld(world: World) {
+  unloadAllSystems(world)
   /** @todo this is broken - re-enable with next bitecs update */
   // bitecs.deleteWorld(world)
 }

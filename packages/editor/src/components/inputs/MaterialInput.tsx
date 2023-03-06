@@ -1,7 +1,7 @@
 import React from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import { ControlledStringInput } from './StringInput'
@@ -9,7 +9,7 @@ import { ControlledStringInput } from './StringInput'
 export function MaterialInput({ value, onChange, ...rest }) {
   function onDrop(item, monitor: DropTargetMonitor) {
     const value = item.value
-    let element = value as EntityTreeNode | string | (EntityTreeNode | string)[] | undefined
+    let element = value as EntityOrObjectUUID | EntityOrObjectUUID[] | undefined
     if (typeof element === 'undefined') return
     if (Array.isArray(value)) {
       element = element[0]

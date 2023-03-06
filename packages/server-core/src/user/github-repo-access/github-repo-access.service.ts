@@ -3,8 +3,8 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import crypto from 'crypto'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { ServerSettingInterface } from '@xrengine/common/src/dbmodels/ServerSetting'
-import logger from '@xrengine/common/src/logger'
+import { ServerSettingInterface } from '@etherealengine/common/src/dbmodels/ServerSetting'
+import logger from '@etherealengine/common/src/logger'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -16,7 +16,7 @@ import githubRepoAccessDocs from './github-repo-access.docs'
 import hooks from './github-repo-access.hooks'
 import createModel from './github-repo-access.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'github-repo-access': any
     'github-repo-access-webhook': any
@@ -108,20 +108,27 @@ export default (app: Application): void => {
               identityProviderId: githubIdentityProvider.id
             }
           })
-          const githubRepos = (await getUserRepos(githubIdentityProvider.oauthToken)).map((repo) => repo.html_url)
+          const githubRepos = await getUserRepos(githubIdentityProvider.oauthToken)
           await Promise.all(
             githubRepos.map(async (repo) => {
-              if (!existingGithubRepoAccesses.find((access) => access.repo === repo))
+              const matchingAccess = existingGithubRepoAccesses.find((access) => access.repo === repo.html_url)
+              const hasWriteAccess = repo.permissions.admin || repo.permissions.maintain || repo.permissions.push
+              if (!matchingAccess)
                 await app.service('github-repo-access').create({
-                  repo: repo,
-                  identityProviderId: githubIdentityProvider.id
+                  repo: repo.html_url,
+                  identityProviderId: githubIdentityProvider.id,
+                  hasWriteAccess
+                })
+              else
+                await app.service('github-repo-access').patch(matchingAccess.id, {
+                  hasWriteAccess
                 })
             })
           )
+          const urlsOnly = githubRepos.map((repo) => repo.html_url)
           await Promise.all(
             existingGithubRepoAccesses.map(async (repoAccess) => {
-              if (githubRepos.indexOf(repoAccess.repo) < 0)
-                await app.service('github-repo-access').remove(repoAccess.id)
+              if (urlsOnly.indexOf(repoAccess.repo) < 0) await app.service('github-repo-access').remove(repoAccess.id)
             })
           )
         }

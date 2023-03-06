@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react'
 
-import { hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { hasComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { useEditorState } from '../../services/EditorServices'
 import { SelectionAction } from '../../services/SelectionServices'
@@ -23,7 +23,7 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
   description,
   children,
   name,
-  node,
+  entity,
   component
 }) => {
   const editorState = useEditorState()
@@ -32,10 +32,10 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
       name={name}
       description={description}
       onClose={
-        editorState.advancedMode.value && component && hasComponent(node.entity, component)
+        editorState.advancedMode.value && component && hasComponent(entity, component)
           ? () => {
               dispatchAction(SelectionAction.forceUpdate({}))
-              removeComponent(node.entity, component)
+              removeComponent(entity, component)
             }
           : undefined
       }

@@ -1,18 +1,17 @@
 import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 import { accessSelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
   obj3d: Object3DWithEntity
-  node?: EntityTreeNode | string
+  node?: EntityOrObjectUUID
 }
 
 function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
@@ -42,7 +41,7 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
 
     if (obj && (obj as Object3D) !== Engine.instance.currentWorld.scene) {
       result.obj3d = obj
-      result.node = obj.entity ? Engine.instance.currentWorld.entityTree.entityNodeMap.get(obj.entity) : obj.uuid
+      result.node = obj.entity ?? obj.uuid
       //if(result.node && hasComponent(result.node.entity, GroupComponent))
       //result.obj3d = result.object
       //result.node = result.object.uuid

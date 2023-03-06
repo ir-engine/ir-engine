@@ -1,32 +1,19 @@
-import React, { Suspense, useEffect } from 'react'
-import { Redirect, Switch } from 'react-router-dom'
+import { t } from 'i18next'
+import React, { lazy, Suspense, useEffect } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { dispatchAction } from '@etherealengine/hyperflux'
+import Dashboard from '@etherealengine/ui/src/Dashboard'
 
-import CircularProgress from '@mui/material/CircularProgress'
-
-import PrivateRoute from '../Private'
+import { LoadingCircle } from '../components/LoadingCircle'
 import AdminSystem from '../systems/AdminSystem'
 import { useAuthState } from '../user/services/AuthService'
-import analytics from './components/Analytics'
-import avatars from './components/Avatars'
-import benchmarking from './components/Benchmarking'
-import botSetting from './components/Bots'
-import groups from './components/Group'
-import instance from './components/Instance'
-import invites from './components/Invite'
-import locations from './components/Location'
-import party from './components/Party'
-import projects from './components/Project'
-import resources from './components/Resources'
-import routes from './components/Routes'
-import server from './components/Server'
-import setting from './components/Setting'
-import users from './components/Users'
+import Analytics from './components/Analytics'
+
+const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminSystemInjection = {
   uuid: 'core.admin.AdminSystem',
@@ -36,9 +23,9 @@ const AdminSystemInjection = {
 
 const ProtectedRoutes = () => {
   const admin = useAuthState().user
-  const { isEngineInitialized } = useEngineState().value
 
   let allowedRoutes = {
+    analytics: false,
     location: false,
     user: false,
     bot: false,
@@ -75,49 +62,18 @@ const ProtectedRoutes = () => {
   })
 
   if (admin?.id?.value?.length! > 0 && !admin?.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-    return <Redirect to={{ pathname: '/', state: { from: '/admin' } }} />
+    return <Navigate to={{ pathname: '/' }} />
   }
 
   return (
-    <div style={{ pointerEvents: 'auto' }}>
-      <Suspense
-        fallback={
-          <div
-            style={{
-              height: '100vh',
-              width: '100%',
-              textAlign: 'center',
-              pointerEvents: 'auto',
-              paddingTop: 'calc(50vh - 7px)'
-            }}
-          >
-            <CircularProgress />
-          </div>
-        }
-      >
-        {!isEngineInitialized && <LoadingView sx={{ height: '100vh' }} />}
-        {isEngineInitialized && (
-          <Switch>
-            {allowedRoutes.globalAvatars && <PrivateRoute exact path="/admin/avatars" component={avatars} />}
-            {allowedRoutes.benchmarking && <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />}
-            {allowedRoutes.groups && <PrivateRoute exact path="/admin/groups" component={groups} />}
-            {allowedRoutes.instance && <PrivateRoute exact path="/admin/instance" component={instance} />}
-            {allowedRoutes.invite && <PrivateRoute exact path="/admin/invites" component={invites} />}
-            {allowedRoutes.location && <PrivateRoute exact path="/admin/locations" component={locations} />}
-            {allowedRoutes.routes && <PrivateRoute exact path="/admin/routes" component={routes} />}
-            {allowedRoutes.party && <PrivateRoute exact path="/admin/parties" component={party} />}
-            {allowedRoutes.bot && <PrivateRoute exact path="/admin/bots" component={botSetting} />}
-            {allowedRoutes.projects && <PrivateRoute exact path="/admin/projects" component={projects} />}
-            {allowedRoutes.server && <PrivateRoute exact path="/admin/server" component={server} />}
-            {allowedRoutes.settings && <PrivateRoute exact path="/admin/settings" component={setting} />}
-            {allowedRoutes.static_resource && <PrivateRoute exact path="/admin/resources" component={resources} />}
-            {allowedRoutes.user && <PrivateRoute exact path="/admin/users" component={users} />}
-            <PrivateRoute exact path="/admin/*" component={() => <Redirect to="/admin" />} />
-            <PrivateRoute path="/admin" component={analytics} />
-          </Switch>
-        )}
+    <Dashboard>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingAdmin')} />}>
+        <Routes>
+          <Route path="/*" element={<$allowed allowedRoutes={allowedRoutes} />} />
+          {<Route path="/" element={<Analytics />} />}
+        </Routes>
       </Suspense>
-    </div>
+    </Dashboard>
   )
 }
 

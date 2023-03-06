@@ -1,30 +1,31 @@
 import React, { useEffect, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
-import { API } from '@xrengine/client-core/src/API'
-import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import PortalLoadSystem from '@xrengine/client-core/src/systems/PortalLoadSystem'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { ClientModules } from '@xrengine/client-core/src/world/ClientModules'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { dispatchAction } from '@xrengine/hyperflux'
-import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import { API } from '@etherealengine/client-core/src/API'
+import { useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import PortalLoadSystem from '@etherealengine/client-core/src/systems/PortalLoadSystem'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { ClientModules } from '@etherealengine/client-core/src/world/ClientModules'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
+import { dispatchAction } from '@etherealengine/hyperflux'
+import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import EditorCameraSystem from '../systems/EditorCameraSystem'
-import EditorControlSystem from '../systems/EditorControlSystem'
+import EditorControlSystem, { createTransformGizmo } from '../systems/EditorControlSystem'
 import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
 import GizmoSystem from '../systems/GizmoSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
 import RenderSystem from '../systems/RenderSystem'
 
-export const EditorPage = (props: RouteComponentProps<{ sceneName: string; projectName: string }>) => {
+export const EditorPage = () => {
+  const params = useParams()
   const editorState = useEditorState()
   const projectState = useProjectState()
   const authState = useAuthState()
@@ -85,7 +86,7 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
     const world = Engine.instance.currentWorld
     const projects = API.instance.client.service('projects').find()
     ClientModules().then(async () => {
-      initSystems(world, systems)
+      await initSystems(world, systems)
       await loadEngineInjection(world, await projects)
       setEngineReady(true)
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
@@ -104,10 +105,10 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   }, [authUser.accessToken, user.id, isAuthenticated])
 
   useEffect(() => {
-    const { projectName, sceneName } = props.match.params
+    const { projectName, sceneName } = params
     dispatchAction(EditorAction.projectChanged({ projectName: projectName ?? null }))
     dispatchAction(EditorAction.sceneChanged({ sceneName: sceneName ?? null }))
-  }, [props.match.params.projectName, props.match.params.sceneName])
+  }, [params])
 
   useEffect(() => {
     if (clientInitialized || projectState.projects.value.length <= 0) return

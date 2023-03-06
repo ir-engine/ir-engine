@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { LoadingCircle } from '../LoadingCircle'
 

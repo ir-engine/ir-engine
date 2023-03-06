@@ -3,16 +3,15 @@ import en from 'javascript-time-ago/locale/en'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import config from '@xrengine/common/src/config'
-import { ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
-import multiLogger from '@xrengine/common/src/logger'
-
-import SyncIcon from '@mui/icons-material/Sync'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import IconButton from '@mui/material/IconButton'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import config from '@etherealengine/common/src/config'
+import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
+import multiLogger from '@etherealengine/common/src/logger'
+import Box from '@etherealengine/ui/src/Box'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
@@ -187,9 +186,8 @@ const ServerTable = ({ selectedCard }: Props) => {
               className={styles.iconButton}
               sx={{ marginRight: 1.5 }}
               onClick={handleRefreshServerInfo}
-            >
-              <SyncIcon />
-            </IconButton>
+              icon={<Icon type="Sync" />}
+            />
           )}
 
           {serverInfo.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}

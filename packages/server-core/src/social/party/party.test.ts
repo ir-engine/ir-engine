@@ -2,8 +2,8 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
-import { Party } from '@xrengine/common/src/interfaces/Party'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { Party } from '@etherealengine/common/src/interfaces/Party'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'

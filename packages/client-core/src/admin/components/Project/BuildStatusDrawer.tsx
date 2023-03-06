@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BuildStatus } from '@xrengine/common/src/interfaces/BuildStatus'
-
-import TextSnippetIcon from '@mui/icons-material/TextSnippet'
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
+import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
+import Box from '@etherealengine/ui/src/Box'
+import Container from '@etherealengine/ui/src/Container'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
@@ -66,7 +65,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
       ),
       commitSHA: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <span>{el.commitSHA?.slice(0, 8)}</span>
+          <span>{el.commitSHA.slice(0, 8)}</span>
         </Box>
       ),
       status: (
@@ -109,9 +108,8 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
             name="update"
             disabled={el.logs == null || el.logs?.length === 0}
             onClick={() => handleOpenLogsModal(el)}
-          >
-            <TextSnippetIcon />
-          </IconButton>
+            icon={<Icon type="TextSnippet" />}
+          />
         </>
       )
     }

@@ -1,17 +1,18 @@
 import { FileLoader } from 'three'
 
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { gltfToSceneJson } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { loadECSData } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { gltfToSceneJson } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
+import { loadECSData } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 
+import { Entity } from '../../ecs/classes/Entity'
+import { EntityOrObjectUUID } from '../../ecs/functions/EntityTree'
 import { AssetLoader } from './AssetLoader'
 
-export type OnLoadType = (response: EntityTreeNode[]) => EntityTreeNode[] | void
+export type OnLoadType = (response: EntityOrObjectUUID[]) => EntityOrObjectUUID[] | void
 
 export class XRELoader {
   fileLoader: FileLoader
   isXRELoader: true
-  rootNode: EntityTreeNode | undefined
+  rootNode: Entity | undefined
 
   constructor(loader?: FileLoader) {
     this.isXRELoader = true
@@ -29,7 +30,7 @@ export class XRELoader {
 
   load(
     _url: string,
-    onLoad: OnLoadType = (response: EntityTreeNode[]) => {},
+    onLoad: OnLoadType = (response: Entity[]) => {},
     onProgress = (request: ProgressEvent) => {},
     onError = (event: ErrorEvent | Error) => {}
   ) {

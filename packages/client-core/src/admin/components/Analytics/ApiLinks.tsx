@@ -1,23 +1,23 @@
 import clsx from 'clsx'
 import React from 'react'
 
-import DeleteIcon from '@mui/icons-material/Delete'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import Checkbox from '@mui/material/Checkbox'
-import IconButton from '@mui/material/IconButton'
-import Paper from '@mui/material/Paper'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Paper from '@etherealengine/ui/src/Paper'
+import Table from '@etherealengine/ui/src/Table'
+import TableBody from '@etherealengine/ui/src/TableBody'
+import TableCell from '@etherealengine/ui/src/TableCell'
+import TableContainer from '@etherealengine/ui/src/TableContainer'
+import TableHead from '@etherealengine/ui/src/TableHead'
+import TablePagination from '@etherealengine/ui/src/TablePagination'
+import TableRow from '@etherealengine/ui/src/TableRow'
+import TableSortLabel from '@etherealengine/ui/src/TableSortLabel'
+import Toolbar from '@etherealengine/ui/src/Toolbar'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
+import Typography from '@etherealengine/ui/src/Typography'
+
 import { lighten, Theme } from '@mui/material/styles'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
-import TableRow from '@mui/material/TableRow'
-import TableSortLabel from '@mui/material/TableSortLabel'
-import Toolbar from '@mui/material/Toolbar'
-import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
 
@@ -199,15 +199,11 @@ const EnhancedTableToolbar = ({ numSelected }: EnhancedTableToolbarProps) => {
       )}
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" size="large">
-            <DeleteIcon />
-          </IconButton>
+          <IconButton title="delete" size="large" icon={<Icon type="Delete" />} />
         </Tooltip>
       ) : (
         <Tooltip title="Filter list">
-          <IconButton aria-label="filter list" size="large">
-            <FilterListIcon />
-          </IconButton>
+          <IconButton title="filter list" size="large" icon={<Icon type="FilterList" />} />
         </Tooltip>
       )}
     </Toolbar>

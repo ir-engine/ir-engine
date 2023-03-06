@@ -3,7 +3,7 @@ import { BuildStatus } from './build-status.class'
 import hooks from './build-status.hooks'
 import createModel from './build-status.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'build-status': BuildStatus
   }

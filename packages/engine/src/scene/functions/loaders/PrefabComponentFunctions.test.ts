@@ -4,32 +4,31 @@ import fs from 'fs'
 import path from 'path'
 import Sinon from 'sinon'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   getAllComponentsOfType,
   getComponent,
   hasComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
-  createEntityNode,
-  removeEntityNodeFromParent
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
+  destroyEntityTree,
+  EntityTreeComponent
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
 
-import '@xrengine/engine/src/patchEngineNode'
+import '@etherealengine/engine/src/patchEngineNode'
 
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { LoadState, PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
-import { loadPrefab, unloadPrefab } from '@xrengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
 import { World } from '../../../ecs/classes/World'
-import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { TransformModule } from '../../../transform/TransformModule'
 import { SceneClientModule } from '../../SceneClientModule'
@@ -37,15 +36,13 @@ import { SceneCommonModule } from '../../SceneCommonModule'
 
 describe('PrefabComponentFunctions', async () => {
   let entity: Entity
-  let node: EntityTreeNode
   let world: World
   let sandbox: Sinon.SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    node = createEntityNode(entity)
     world = Engine.instance.currentWorld
-    addEntityNodeChild(node, world.entityTree.rootNode)
+    addEntityNodeChild(entity, world.sceneEntity)
   }
   const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {
@@ -118,7 +115,7 @@ describe('PrefabComponentFunctions', async () => {
   async function loadXRE(file, root?: Entity) {
     const scenePath = path.join(appRootPath.path, testDir, file)
     const xreLoader = new XRELoader()
-    if (root) xreLoader.rootNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(root)!
+    if (root) xreLoader.rootNode = root!
     const rawData = fs.readFileSync(scenePath, { encoding: 'utf-8' })
     const result = await xreLoader.parse(rawData)
     return result
@@ -176,8 +173,8 @@ describe('PrefabComponentFunctions', async () => {
       assert(assetComp, 'Asset component exists')
       //check that asset root contains correct children
 
-      const eNode = world.entityTree.entityNodeMap.get(entity)
-      assert(eNode, 'asset root entity node exists')
+      const eNode = getComponent(entity, EntityTreeComponent)
+      assert(entity, 'asset root entity node exists')
       assert(assetComp.loaded === LoadState.LOADED, 'asset has finished loading')
       const modelChild = eNode.children![0]
       // //check for model component
@@ -209,8 +206,7 @@ describe('PrefabComponentFunctions', async () => {
       //call load
       await loadPrefab(entity, setContent(loadXRE('empty_model.xre.gltf', entity)))
       //delete entity
-      removeEntityNodeFromParent(node, world.entityTree)
-      removeEntity(entity)
+      destroyEntityTree(entity)
       //wait one fixed frame
       await nextFixedStep
       assert.equal(getAllComponentsOfType(PrefabComponent, world).length, 0, 'no Asset components in scene')

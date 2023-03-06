@@ -1,15 +1,15 @@
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import config from '@xrengine/common/src/config'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
-import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
+import config from '@etherealengine/common/src/config'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { initSystems, SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { API } from '../../API'
 import { ClientModules } from '../../world/ClientModules'
@@ -18,10 +18,10 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const retrieveLocationByName = (locationName: string, userId: string) => {
   if (locationName === config.client.lobbyLocationName) {
-    const history = useHistory()
+    const navigate = useNavigate()
     LocationService.getLobby()
       .then((lobby) => {
-        history.replace('/location/' + lobby?.slugifiedName)
+        navigate('/location/' + lobby?.slugifiedName)
       })
       .catch((err) => logger.error(err, 'getLobby'))
   } else {

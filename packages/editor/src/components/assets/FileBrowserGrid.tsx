@@ -3,10 +3,10 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
-import { KTX2EncodeArguments } from '@xrengine/engine/src/assets/constants/CompressionParms'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { State } from '@xrengine/hyperflux'
+import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { State } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -133,7 +133,8 @@ export function FileBrowserItem({
 
   const placeObjectAtOrigin = async () => {
     const node = await addMediaNode(item.url)
-    const transformComponent = getComponent(node.entity, TransformComponent)
+    if (!node) return
+    const transformComponent = getComponent(node, TransformComponent)
     if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
 
     handleClose()

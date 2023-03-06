@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
-import { SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import { AxesHelper, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import {
   createMappedComponent,
   defineComponent,
@@ -15,6 +16,7 @@ import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { PoseSchema } from '../../transform/components/TransformComponent'
 import { AnimationGraph } from '../animation/AnimationGraph'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarComponent } from './AvatarComponent'
@@ -36,8 +38,86 @@ export type AvatarAnimationComponentType = {
 
 export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')
 
+const RigSchema = {
+  Root: PoseSchema,
+  Hips: PoseSchema,
+  Spine: PoseSchema,
+  Spine1: PoseSchema,
+  Spine2: PoseSchema,
+  Neck: PoseSchema,
+  Head: PoseSchema,
+  LeftEye: PoseSchema,
+  RightEye: PoseSchema,
+  LeftShoulder: PoseSchema,
+  LeftArm: PoseSchema,
+  LeftForeArm: PoseSchema,
+  // LeftForeArmTwist: PoseSchema,
+  LeftHand: PoseSchema,
+  LeftUpLeg: PoseSchema,
+  LeftLeg: PoseSchema,
+  LeftFoot: PoseSchema,
+  RightShoulder: PoseSchema,
+  RightArm: PoseSchema,
+  RightForeArm: PoseSchema,
+  // RightForeArmTwist: PoseSchema,
+  RightHand: PoseSchema,
+  RightUpLeg: PoseSchema,
+  RightLeg: PoseSchema,
+  RightFoot: PoseSchema,
+  LeftHandPinky1: PoseSchema,
+  LeftHandPinky2: PoseSchema,
+  LeftHandPinky3: PoseSchema,
+  LeftHandPinky4: PoseSchema,
+  LeftHandPinky5: PoseSchema,
+  LeftHandRing1: PoseSchema,
+  LeftHandRing2: PoseSchema,
+  LeftHandRing3: PoseSchema,
+  LeftHandRing4: PoseSchema,
+  LeftHandRing5: PoseSchema,
+  LeftHandMiddle1: PoseSchema,
+  LeftHandMiddle2: PoseSchema,
+  LeftHandMiddle3: PoseSchema,
+  LeftHandMiddle4: PoseSchema,
+  LeftHandMiddle5: PoseSchema,
+  LeftHandIndex1: PoseSchema,
+  LeftHandIndex2: PoseSchema,
+  LeftHandIndex3: PoseSchema,
+  LeftHandIndex4: PoseSchema,
+  LeftHandIndex5: PoseSchema,
+  LeftHandThumb1: PoseSchema,
+  LeftHandThumb2: PoseSchema,
+  LeftHandThumb3: PoseSchema,
+  LeftHandThumb4: PoseSchema,
+  RightHandPinky1: PoseSchema,
+  RightHandPinky2: PoseSchema,
+  RightHandPinky3: PoseSchema,
+  RightHandPinky4: PoseSchema,
+  RightHandPinky5: PoseSchema,
+  RightHandRing1: PoseSchema,
+  RightHandRing2: PoseSchema,
+  RightHandRing3: PoseSchema,
+  RightHandRing4: PoseSchema,
+  RightHandRing5: PoseSchema,
+  RightHandMiddle1: PoseSchema,
+  RightHandMiddle2: PoseSchema,
+  RightHandMiddle3: PoseSchema,
+  RightHandMiddle4: PoseSchema,
+  RightHandMiddle5: PoseSchema,
+  RightHandIndex1: PoseSchema,
+  RightHandIndex2: PoseSchema,
+  RightHandIndex3: PoseSchema,
+  RightHandIndex4: PoseSchema,
+  RightHandIndex5: PoseSchema,
+  RightHandThumb1: PoseSchema,
+  RightHandThumb2: PoseSchema,
+  RightHandThumb3: PoseSchema,
+  RightHandThumb4: PoseSchema
+}
+
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
+
+  schema: { rig: RigSchema },
 
   onInit: (entity) => {
     return {
@@ -77,7 +157,9 @@ export const AvatarRigComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, AvatarRigComponent)) throw root.stop()
+    const entity = root.entity
+
+    if (!hasComponent(entity, AvatarRigComponent)) throw root.stop()
 
     const debugEnabled = useHookstate(getState(RendererState).debugEnable)
     const anim = useComponent(root.entity, AvatarRigComponent)
@@ -87,17 +169,32 @@ export const AvatarRigComponent = defineComponent({
       if (debugEnabled.value && !anim.helper.value && !pending?.value) {
         const helper = new SkeletonHelper(anim.value.rig.Hips.parent!)
         helper.frustumCulled = false
-        helper.name = `skeleton-helper-${root.entity}`
+        helper.name = `skeleton-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.PhysicsHelper)
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
         anim.helper.set(helper)
       }
 
       if ((!debugEnabled.value || pending?.value) && anim.helper.value) {
-        removeObjectFromGroup(root.entity, anim.helper.value)
+        removeObjectFromGroup(entity, anim.helper.value)
         anim.helper.set(none)
       }
     }, [debugEnabled, pending])
+
+    /**
+     * Proxify the rig bones with the bitecs store
+     */
+    useEffect(() => {
+      const rig = anim.rig.value
+      for (const [boneName, bone] of Object.entries(rig)) {
+        if (!bone) continue
+        // const axesHelper = new AxesHelper(0.1)
+        // setObjectLayers(axesHelper, ObjectLayers.Scene)
+        // bone.add(axesHelper)
+        proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.position)
+        proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.quaternion)
+      }
+    }, [anim.rig])
 
     return null
   }

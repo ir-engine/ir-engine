@@ -4,13 +4,13 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
@@ -47,15 +47,12 @@ const getPrefabList = () => {
 
 export const addPrefabElement = (
   item: PrefabItemType,
-  parent?: EntityTreeNode,
-  before?: EntityTreeNode
-): EntityTreeNode | undefined => {
-  const node = createEntityNode(createEntity())
-  node.parentEntity = Engine.instance.currentWorld.sceneEntity
+  parent = Engine.instance.currentWorld.sceneEntity,
+  before?: Entity
+) => {
+  const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)
 
-  EditorControlFunctions.addObject([node], parent ? [parent] : [], before ? [before] : [], [item.prefabType], [], true)
-
-  return node
+  return newEntity
 }
 
 type PrefabListItemType = {
@@ -128,10 +125,10 @@ export function ElementList() {
       const node = addPrefabElement(item)
       if (!node) return
 
-      const transformComponent = getComponent(node.entity, TransformComponent)
+      const transformComponent = getComponent(node, TransformComponent)
       if (transformComponent) {
         getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-        const localTransformComponent = getComponent(node.entity, LocalTransformComponent)
+        const localTransformComponent = getComponent(node, LocalTransformComponent)
         if (localTransformComponent) {
           localTransformComponent.position.copy(transformComponent.position)
         }
@@ -145,7 +142,7 @@ export function ElementList() {
     const node = addPrefabElement(selectedItem!)
     if (!node) return
 
-    const transformComponent = getComponent(node.entity, TransformComponent)
+    const transformComponent = getComponent(node, TransformComponent)
     if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
   }
 

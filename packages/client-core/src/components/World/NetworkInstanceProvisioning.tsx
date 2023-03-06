@@ -4,28 +4,32 @@ import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState,
   useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
   useMediaInstance,
   useMediaInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { ChatAction, ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+} from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import {
+  MediaServiceReceptor,
+  MediaStreamService
+} from '@etherealengine/client-core/src/media/services/MediaStreamService'
+import { ChatAction, ChatService, useChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import {
   NetworkUserService,
   NetworkUserServiceReceptor,
   useNetworkUserState
-} from '@xrengine/client-core/src/user/services/NetworkUserService'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/user/services/NetworkUserService'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
+import { PeerMedia } from '../../media/PeerMedia'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
+import { MediaStreamActions } from '../../transports/MediaStreams'
 import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -51,10 +55,7 @@ export const NetworkInstanceProvisioning = () => {
   useEffect(() => {
     addActionReceptor(MediaServiceReceptor)
     addActionReceptor((action) => {
-      matches(action).when(
-        MediaStreams.actions.triggerUpdateConsumers.matches,
-        MediaStreamService.triggerUpdateConsumers
-      )
+      matches(action).when(MediaStreamActions.triggerUpdateConsumers.matches, MediaStreamService.triggerUpdateConsumers)
     })
     addActionReceptor(NetworkUserServiceReceptor)
     return () => {
@@ -190,7 +191,12 @@ export const NetworkInstanceProvisioning = () => {
     currentChannelInstanceConnection?.connecting
   ])
 
-  return <InstanceServerWarnings />
+  return (
+    <>
+      <PeerMedia />
+      <InstanceServerWarnings />
+    </>
+  )
 }
 
 export default NetworkInstanceProvisioning

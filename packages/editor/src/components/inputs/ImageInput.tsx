@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { ImageFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { ImageFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'

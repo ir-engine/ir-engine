@@ -1,6 +1,6 @@
-import exportModelGLTF from '@xrengine/engine/src/assets/functions/exportModelGLTF'
-import { pathResolver } from '@xrengine/engine/src/assets/functions/pathResolver'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import exportModelGLTF from '@etherealengine/engine/src/assets/functions/exportModelGLTF'
+import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 
 import { accessEditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'

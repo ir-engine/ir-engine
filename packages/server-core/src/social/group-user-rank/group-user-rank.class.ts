@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { GroupUserRankInterface } from '@xrengine/common/src/dbmodels/GroupUserRank'
+import { GroupUserRankInterface } from '@etherealengine/common/src/dbmodels/GroupUserRank'
 
 import { Application } from '../../../declarations'
 

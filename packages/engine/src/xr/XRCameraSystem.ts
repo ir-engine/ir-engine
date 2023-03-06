@@ -1,6 +1,6 @@
 import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'

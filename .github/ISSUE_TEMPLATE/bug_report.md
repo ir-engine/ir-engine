@@ -9,12 +9,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for using XREngine! Let's figure out the problem.
+        Thanks for using Ethereal Engine! Let's figure out the problem.
   - type: input
     id: os
     attributes:
       label: Operating System
-      description: What operating system is XREngine running on?
+      description: What operating system is Ethereal Engine running on?
     validations:
       required: true
   - type: input

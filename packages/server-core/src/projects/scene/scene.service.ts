@@ -1,9 +1,12 @@
 import { Params } from '@feathersjs/feathers'
+import express from 'express'
+import multer from 'multer'
 
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { Application, ServerMode } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
 import logger from '../../ServerLogger'
 import { getAllPortals, getEnvMapBake, getPortal } from './scene-helper'
@@ -11,9 +14,12 @@ import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     scene: Scene
+    'scene/upload': {
+      create: ReturnType<typeof uploadScene>
+    }
   }
   interface ServiceTypes {
     portal: {
@@ -27,6 +33,24 @@ declare module '@xrengine/common/declarations' {
       find: ReturnType<typeof getAllScenes>
     }
   }
+}
+
+export const uploadScene = (app: Application) => async (data: any, params: UploadParams) => {
+  if (typeof data === 'string') data = JSON.parse(data)
+  if (typeof data.sceneData === 'string') data.sceneData = JSON.parse(data.sceneData)
+
+  const thumbnailBuffer = params.files.length > 0 ? params.files[0].buffer : undefined
+
+  const { projectName, sceneName, sceneData, storageProviderName } = data
+
+  const result = await app
+    .service('scene')
+    .update(projectName, { sceneName, sceneData, storageProviderName, thumbnailBuffer })
+
+  // Clear params otherwise all the files and auth details send back to client as response
+  for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
+
+  return result
 }
 
 export interface SceneParams extends Params {
@@ -95,6 +119,8 @@ export const getAllScenes = (app: Application) => {
   }
 }
 
+const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
+
 export default (app: Application) => {
   /**
    * Initialize our service with any options it requires and docs
@@ -103,6 +129,21 @@ export default (app: Application) => {
   event.docs = projectDocs
 
   app.use('scene', event)
+
+  app.use(
+    'scene/upload',
+    multipartMiddleware.any(),
+    (req: express.Request, res: express.Response, next: express.NextFunction) => {
+      if (req?.feathers && req.method !== 'GET') {
+        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
+      }
+
+      next()
+    },
+    {
+      create: uploadScene(app)
+    }
+  )
 
   app.use('scene-data', {
     get: getScenesForProject(app),

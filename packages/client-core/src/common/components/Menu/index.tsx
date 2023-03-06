@@ -1,18 +1,17 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@xrengine/client-core/src/common/components/Button'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import Box from '@etherealengine/ui/src/Box'
+import { default as MUIDialog } from '@etherealengine/ui/src/Dialog'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogContent from '@etherealengine/ui/src/DialogContent'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Typography from '@etherealengine/ui/src/Typography'
 
-import ArrowBack from '@mui/icons-material/ArrowBack'
-import CloseIcon from '@mui/icons-material/Close'
-import Box from '@mui/material/Box'
-import { default as MUIDialog } from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import { Breakpoint, SxProps, Theme } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
 
 import styles from './index.module.scss'
 
@@ -61,17 +60,19 @@ const Menu = ({
     <>
       {(showBackButton || title || header || showCloseButton) && (
         <DialogTitle className={styles.dialogTitle}>
-          {showBackButton && <IconButton icon={<ArrowBack />} sx={{ mr: 1 }} onClick={onBack} />}
+          <span>
+            {showBackButton && <IconButton icon={<Icon type="ArrowBack" />} sx={{ mr: 1 }} onClick={onBack} />}
 
-          {title && (
-            <Typography variant="h6" sx={{ ml: showBackButton ? undefined : 1.5 }}>
-              {title}
-            </Typography>
-          )}
+            {title && (
+              <Typography variant="h6" sx={{ ml: showBackButton ? undefined : 1.5 }}>
+                {title}
+              </Typography>
+            )}
 
-          {header}
+            {header}
 
-          {showCloseButton && <IconButton icon={<CloseIcon />} sx={{ ml: 1 }} onClick={onClose} />}
+            {showCloseButton && <IconButton icon={<Icon type="Close" />} sx={{ ml: 1 }} onClick={onClose} />}
+          </span>
         </DialogTitle>
       )}
 

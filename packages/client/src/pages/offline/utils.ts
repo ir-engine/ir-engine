@@ -1,7 +1,7 @@
-import { SceneActions } from '@xrengine/client-core/src/world/services/SceneService'
-import config from '@xrengine/common/src/config'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { SceneActions } from '@etherealengine/client-core/src/world/services/SceneService'
+import config from '@etherealengine/common/src/config'
+import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 const sceneRelativePathIdentifier = '__$project$__'
 const sceneCorsPathIdentifier = '__$cors-proxy$__'

@@ -1,18 +1,20 @@
 import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import {
+  addComponent,
+  getComponent,
+  removeComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGizmo'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { EditorHistoryAction } from '../services/EditorHistory'
@@ -30,13 +32,11 @@ export const DefaultExportOptions: DefaultExportOptionsType = {
 
 type SceneStateType = {
   isInitialized: boolean
-  transformGizmo: TransformGizmo
   onUpdateStats?: (info: WebGLInfo) => void
 }
 
 export const SceneState: SceneStateType = {
-  isInitialized: false,
-  transformGizmo: null!
+  isInitialized: false
 }
 
 export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
@@ -153,7 +153,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
   if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
-    ;(Engine.instance.currentWorld.scene as any).entity = Engine.instance.currentWorld.entityTree.rootNode.entity
+    ;(Engine.instance.currentWorld.scene as any).entity = Engine.instance.currentWorld.sceneEntity
   }
 
   const clonedScene = serializeForGLTFExport(Engine.instance.currentWorld.scene)
@@ -203,33 +203,3 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
     throw new RethrownError('Error creating glb blob', error)
   }
 }*/
-
-export function disposeScene() {
-  if (Engine.instance.currentWorld.scene) {
-    // Empty existing scene
-    Engine.instance.currentWorld.scene.traverse((child: any) => {
-      if (child.geometry) child.geometry.dispose()
-
-      if (child.material) {
-        if (child.material.length) {
-          for (let i = 0; i < child.material.length; ++i) {
-            child.material[i].dispose()
-          }
-        } else {
-          child.material.dispose()
-        }
-      }
-    })
-
-    //clear ecs
-    const eTree = Engine.instance.currentWorld.entityTree
-    for (const entity of Array.from(eTree.entityNodeMap.keys())) {
-      removeEntity(entity, true)
-    }
-    emptyEntityTree(eTree)
-    eTree.entityNodeMap.clear()
-    Engine.instance.currentWorld.scene.clear()
-  }
-
-  SceneState.isInitialized = false
-}

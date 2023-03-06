@@ -1,4 +1,4 @@
-import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot, BotCommands } from '@etherealengine/common/src/interfaces/AdminBot'
 
 import { Application } from '../../../declarations'
 

@@ -3,30 +3,27 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
-import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
-import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
-import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { mapToObject } from '@etherealengine/common/src/utils/mapToObject'
+import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
+import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   Component,
   getComponent,
   getOptionalComponent,
   hasComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { SystemInstance } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { getState, useHookstate } from '@xrengine/hyperflux'
-
-import FormatColorResetIcon from '@mui/icons-material/FormatColorReset'
-import GridOnIcon from '@mui/icons-material/GridOn'
-import Refresh from '@mui/icons-material/Refresh'
-import SelectAllIcon from '@mui/icons-material/SelectAll'
-import SquareFootIcon from '@mui/icons-material/SquareFoot'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SystemInstance } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
@@ -50,20 +47,31 @@ export const Debug = ({ showingStateRef }) => {
     rendererState.debugEnable.set(!rendererState.debugEnable.value)
   }
 
-  const tree = Engine.instance.currentWorld.entityTree
-
-  const renderEntityTree = (node: EntityTreeNode) => {
+  const renderEntityTreeRoots = () => {
     return {
-      entity: node.entity,
-      uuid: node.uuid,
-      components: renderEntityComponents(node.entity),
+      ...Object.keys(EntityTreeComponent.roots.value).reduce(
+        (r, child, i) =>
+          Object.assign(r, {
+            [`${i} - ${
+              getComponent(child as any as Entity, NameComponent) ?? getComponent(child as any as Entity, UUIDComponent)
+            }`]: renderEntityTree(child as any as Entity)
+          }),
+        {}
+      )
+    }
+  }
+
+  const renderEntityTree = (entity: Entity) => {
+    const node = getComponent(entity, EntityTreeComponent)
+    return {
+      entity,
+      components: renderEntityComponents(entity),
       children: {
         ...node.children.reduce(
           (r, child, i) =>
             Object.assign(r, {
-              [`${i} - ${getComponent(child, NameComponent) ?? tree.entityNodeMap.get(child)?.uuid}`]: renderEntityTree(
-                tree.entityNodeMap.get(child)!
-              )
+              [`${i} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
+                renderEntityTree(child)
             }),
           {}
         )
@@ -93,10 +101,12 @@ export const Debug = ({ showingStateRef }) => {
       ...Object.fromEntries(
         [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
-            const name = getOptionalComponent(eid, NameComponent)
             try {
               return [
-                '(eid:' + eid + ') ' + (name ?? tree.entityNodeMap.get(eid)?.uuid ?? ''),
+                '(eid:' +
+                  eid +
+                  ') ' +
+                  (getOptionalComponent(eid, NameComponent) ?? getOptionalComponent(eid, UUIDComponent) ?? ''),
                 renderEntityComponents(eid)
               ]
             } catch (e) {
@@ -117,11 +127,11 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const namedEntities = useHookstate({})
-  const entityTree = useHookstate({})
+  const entityTree = useHookstate({} as any)
   const pipelines = Engine.instance.currentWorld.pipelines
 
   namedEntities.set(renderAllEntities())
-  entityTree.set(renderEntityTree(tree.rootNode))
+  entityTree.set(renderEntityTreeRoots())
   return (
     <div className={styles.debugContainer}>
       <div className={styles.debugOptionContainer}>
@@ -134,7 +144,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (rendererState.debugEnable.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
             >
-              <SquareFootIcon fontSize="small" />
+              <Icon type="SquareFoot" fontSize="small" />
             </button>
             <button
               type="button"
@@ -142,7 +152,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (rendererState.nodeHelperVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.nodeHelperDebug')}
             >
-              <SelectAllIcon fontSize="small" />
+              <Icon type="SelectAll" fontSize="small" />
             </button>
             <button
               type="button"
@@ -150,7 +160,7 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (rendererState.gridVisibility.value ? ' ' + styles.active : '')}
               title={t('common:debug.gridDebug')}
             >
-              <GridOnIcon fontSize="small" />
+              <Icon type="GridOn" fontSize="small" />
             </button>
             <button
               type="button"
@@ -158,11 +168,11 @@ export const Debug = ({ showingStateRef }) => {
               className={styles.flagBtn + (rendererState.forceBasicMaterials.value ? ' ' + styles.active : '')}
               title={t('common:debug.forceBasicMaterials')}
             >
-              <FormatColorResetIcon fontSize="small" />
+              <Icon type="FormatColorReset" fontSize="small" />
             </button>
             {hasActiveControlledAvatar && (
               <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
-                <Refresh />
+                <Icon type="Refresh" />
               </button>
             )}
           </div>
@@ -215,7 +225,13 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
-        <JSONTree data={entityTree.value} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree
+          data={entityTree.value}
+          postprocessValue={(v) => v?.value ?? v}
+          shouldExpandNode={(keyPath, data, level) =>
+            !!data.components && !!data.children && typeof data.entity === 'number'
+          }
+        />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>

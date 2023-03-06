@@ -1,11 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import EmailIcon from '@mui/icons-material/Email'
-import UserIcon from '@mui/icons-material/Person'
-import SocialIcon from '@mui/icons-material/Public'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
+import Icon from '@etherealengine/ui/src/Icon'
+import Tab from '@etherealengine/ui/src/Tab'
+import Tabs from '@etherealengine/ui/src/Tabs'
 
 import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
@@ -112,7 +110,7 @@ const SignIn = (): JSX.Element => {
   } else {
     let index = 0
     const emailTab = (enableEmailMagicLink || enableSmsMagicLink) && (
-      <Tab icon={<EmailIcon />} label={t('user:auth.login.email')} />
+      <Tab icon={<Icon type="Email" />} label={t('user:auth.login.email')} />
     )
     const emailTabPanel = (enableEmailMagicLink || enableSmsMagicLink) && (
       <TabPanel value={tabIndex} index={index}>
@@ -121,7 +119,7 @@ const SignIn = (): JSX.Element => {
     )
     ;(enableEmailMagicLink || enableSmsMagicLink) && ++index
 
-    const userTab = enableUserPassword && <Tab icon={<UserIcon />} label={t('user:auth.login.username')} />
+    const userTab = enableUserPassword && <Tab icon={<Icon type="User" />} label={t('user:auth.login.username')} />
     const userTabPanel = enableUserPassword && (
       <TabPanel value={tabIndex} index={index}>
         <PasswordLogin />
@@ -129,7 +127,7 @@ const SignIn = (): JSX.Element => {
     )
     enableUserPassword && ++index
 
-    const socialTab = socialCount > 0 && <Tab icon={<SocialIcon />} label={t('user:auth.login.social')} />
+    const socialTab = socialCount > 0 && <Tab icon={<Icon type="Social" />} label={t('user:auth.login.social')} />
     const socialTabPanel = socialCount > 0 && (
       <TabPanel value={tabIndex} index={index}>
         <SocialLogin

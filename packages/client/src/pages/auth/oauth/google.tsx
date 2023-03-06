@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { GoogleCallback } from '@xrengine/client-core/src/user/components/Oauth/GoogleCallback'
+import { GoogleCallback } from '@etherealengine/client-core/src/user/components/Oauth/GoogleCallback'
 
 export const GoogleHomePage = () => <GoogleCallback />
 

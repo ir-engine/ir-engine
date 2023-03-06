@@ -1,30 +1,29 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useRouteMatch } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
-import { AppLoadingState } from '@xrengine/client-core/src/common/services/AppLoadingService'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { LocationIcons } from '@xrengine/client-core/src/components/LocationIcons'
-import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
-import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLocationScene'
-import NetworkInstanceProvisioning from '@xrengine/client-core/src/components/World/NetworkInstanceProvisioning'
-import { OfflineLocation } from '@xrengine/client-core/src/components/World/OfflineLocation'
-import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
-import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
-import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
-import { dispatchAction, getState, useHookstate, useState } from '@xrengine/hyperflux'
+import { AppLoadingState } from '@etherealengine/client-core/src/common/services/AppLoadingService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
+import { LoadEngineWithScene } from '@etherealengine/client-core/src/components/World/LoadEngineWithScene'
+import LoadLocationScene from '@etherealengine/client-core/src/components/World/LoadLocationScene'
+import NetworkInstanceProvisioning from '@etherealengine/client-core/src/components/World/NetworkInstanceProvisioning'
+import { OfflineLocation } from '@etherealengine/client-core/src/components/World/OfflineLocation'
+import { FriendService } from '@etherealengine/client-core/src/social/services/FriendService'
+import { LocationAction, useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
+import { DefaultLocationSystems } from '@etherealengine/client-core/src/world/DefaultLocationSystems'
+import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
+import { dispatchAction, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 const LocationPage = () => {
   const { t } = useTranslation()
-  const match = useRouteMatch()
+  const params = useParams()
   const { search } = useLocation()
   const locationState = useLocationState()
   const offline = new URLSearchParams(search).get('offline') === 'true'
   const appState = useHookstate(getState(AppLoadingState).state)
 
-  const params = match.params as any
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
 
   AuthService.useAPIListeners()

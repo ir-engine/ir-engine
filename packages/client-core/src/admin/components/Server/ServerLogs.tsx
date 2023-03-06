@@ -1,16 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import multiLogger from '@xrengine/common/src/logger'
-
-import CloseIcon from '@mui/icons-material/Close'
-import DownloadIcon from '@mui/icons-material/Download'
-import SyncIcon from '@mui/icons-material/Sync'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import IconButton from '@mui/material/IconButton'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import multiLogger from '@etherealengine/common/src/logger'
+import Box from '@etherealengine/ui/src/Box'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { useServerInfoState } from '../../services/ServerInfoService'
 import { ServerLogsService, useServerLogsState } from '../../services/ServerLogsService'
@@ -145,9 +142,8 @@ const ServerLogs = () => {
           title={t('admin:components.server.download')}
           className={styles.iconButton}
           onClick={handleDownloadServerLogs}
-        >
-          <DownloadIcon />
-        </IconButton>
+          icon={<Icon type="Download" />}
+        />
 
         {serverLogs.value.retrieving === false && (
           <IconButton
@@ -155,9 +151,8 @@ const ServerLogs = () => {
             className={styles.iconButton}
             sx={{ marginRight: 1.5 }}
             onClick={handleRefreshServerLogs}
-          >
-            <SyncIcon />
-          </IconButton>
+            icon={<Icon type="Sync" />}
+          />
         )}
 
         {serverLogs.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
@@ -175,9 +170,8 @@ const ServerLogs = () => {
           title={t('admin:components.common.close')}
           className={styles.iconButton}
           onClick={handleCloseServerLogs}
-        >
-          <CloseIcon />
-        </IconButton>
+          icon={<Icon type="Close" />}
+        />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
         <pre style={{ fontSize: '14px' }}>{serverLogs.value.logs}</pre>

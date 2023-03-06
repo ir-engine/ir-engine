@@ -5,15 +5,17 @@ import { useTranslation } from 'react-i18next'
 import ReactJson from 'react-json-view'
 import { BoxGeometry, Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
 
-import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
-import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
-import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
+import { AxisIcon } from '@etherealengine/client-core/src/util/AxisIcon'
+import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
+import { Deg2Rad, Rad2Deg } from '@etherealengine/engine/src/common/functions/MathFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { dispatchAction, useHookstate } from '@etherealengine/hyperflux'
 
 import { SpaceBar } from '@mui/icons-material'
 import { Divider } from '@mui/material'
@@ -37,20 +39,26 @@ import Well from '../layout/Well'
 import MaterialEditor from '../materials/MaterialEditor'
 import styles from '../styles.module.scss'
 import NodeEditor from './NodeEditor'
+import PropertyGroup from './PropertyGroup'
 import { EditorComponentType } from './Util'
+
+type Object3DProps = {
+  obj3d: Object3D
+  multiEdit: boolean
+}
 
 /**
  * Object3DNodeEditor component used to provide the editor view to customize Object3D properties inside a model.
  *
  * @type {Class component}
  */
-export const Object3DNodeEditor: EditorComponentType = (props) => {
+export const Object3DNodeEditor = (props: Object3DProps) => {
   const { t } = useTranslation()
   console.log(props)
   const scene: Scene = Engine.instance.currentWorld.scene
   const selectionState = accessSelectionState()
   const materialLibrary = getMaterialLibrary()
-  const obj3d: Object3D = props.node as any
+  const obj3d: Object3D = props.obj3d as any
   const mesh = obj3d as Mesh
   const instancedMesh = obj3d as InstancedMesh
   //objId: used to track current obj3d
@@ -148,10 +156,9 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
 
   function selectParentEntityNode() {
     let walker = obj3d as Object3DWithEntity
-    const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
     while (walker) {
-      if (walker.entity && nodeMap.has(walker.entity)) {
-        EditorControlFunctions.replaceSelection([nodeMap.get(walker.entity)!])
+      if (walker.entity && hasComponent(walker.entity, EntityTreeComponent)) {
+        EditorControlFunctions.replaceSelection([walker.entity!])
         break
       }
       walker = walker.parent as Object3DWithEntity
@@ -159,7 +166,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor
+    <PropertyGroup
       {...props}
       name={t('editor:properties.object3d.name')}
       description={t('editor:properties.object3d.description')}
@@ -337,7 +344,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
           src={obj3d.userData}
         />
       </div>
-    </NodeEditor>
+    </PropertyGroup>
   )
 }
 

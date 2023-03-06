@@ -3,23 +3,18 @@ import { cloneDeep } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Tabs from '@xrengine/client-core/src/common/components/Tabs'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@xrengine/hyperflux'
-
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'
-import CheckIcon from '@mui/icons-material/Check'
-import CloseIcon from '@mui/icons-material/Close'
-import HowToRegIcon from '@mui/icons-material/HowToReg'
-import MessageIcon from '@mui/icons-material/Message'
-import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { getState } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Chip from '@etherealengine/ui/src/Chip'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'
@@ -106,7 +101,7 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
 
             {value.relationType === 'friend' && (
               <IconButton
-                icon={<MessageIcon sx={{ height: 30, width: 30 }} />}
+                icon={<Icon type="Message" sx={{ height: 30, width: 30 }} />}
                 title={t('user:friends.message')}
                 onClick={() => NotificationService.dispatchNotify('Chat Pressed', { variant: 'info' })}
               />
@@ -117,13 +112,13 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
                 <Chip className={commonStyles.chip} label={t('user:friends.pending')} size="small" variant="outlined" />
 
                 <IconButton
-                  icon={<CheckIcon sx={{ height: 30, width: 30 }} />}
+                  icon={<Icon type="Check" sx={{ height: 30, width: 30 }} />}
                   title={t('user:friends.accept')}
                   onClick={() => FriendService.acceptFriend(userId, value.id)}
                 />
 
                 <IconButton
-                  icon={<CloseIcon sx={{ height: 30, width: 30 }} />}
+                  icon={<Icon type="Close" sx={{ height: 30, width: 30 }} />}
                   title={t('user:friends.decline')}
                   onClick={() => FriendService.declineFriend(userId, value.id)}
                 />
@@ -136,14 +131,14 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
 
             {value.relationType === 'blocking' && (
               <IconButton
-                icon={<HowToRegIcon sx={{ height: 30, width: 30 }} />}
+                icon={<Icon type="HowToReg" sx={{ height: 30, width: 30 }} />}
                 title={t('user:friends.unblock')}
                 onClick={() => FriendService.unblockUser(userId, value.id)}
               />
             )}
 
             <IconButton
-              icon={<AccountCircleIcon sx={{ height: 30, width: 30 }} />}
+              icon={<Icon type="AccountCircle" sx={{ height: 30, width: 30 }} />}
               title={t('user:friends.profile')}
               onClick={() => handleProfile(value)}
             />

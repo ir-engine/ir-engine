@@ -1,8 +1,14 @@
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, hasComponent, removeComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponentState,
+  hasComponent,
+  removeComponent,
+  removeQuery
+} from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -11,14 +17,12 @@ import {
 import {
   InstancingComponent,
   InstancingStagingComponent,
-  InstancingUnstagingComponent
+  InstancingUnstagingComponent,
+  ScatterState
 } from '../components/InstancingComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
 import {
-  deserializeInstancing,
   SCENE_COMPONENT_INSTANCING,
-  SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES,
-  serializeInstancing,
   stageInstancing,
   unstageInstancing,
   updateInstancing
@@ -28,14 +32,13 @@ import { ScenePrefabs } from './SceneObjectUpdateSystem'
 export default async function ScatterSystem(world: World) {
   world.sceneComponentRegistry.set(InstancingComponent.name, SCENE_COMPONENT_INSTANCING)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
-    deserialize: deserializeInstancing,
-    serialize: serializeInstancing
+    defaultData: {}
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.instancing, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_INSTANCING, props: SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_INSTANCING, props: {} }
   ])
 
   const instancingQuery = defineQuery([InstancingComponent])
@@ -56,6 +59,8 @@ export default async function ScatterSystem(world: World) {
       const executeStaging = () =>
         stageInstancing(entity).then(() => {
           removeComponent(entity, InstancingStagingComponent, world)
+          const instancingState = getComponentState(entity, InstancingComponent)
+          instancingState.state.set(ScatterState.STAGED)
         })
       if (engineState.sceneLoaded.value) executeStaging()
       else
@@ -67,6 +72,8 @@ export default async function ScatterSystem(world: World) {
     for (const entity of unstagingQuery.enter()) {
       unstageInstancing(entity)
       removeComponent(entity, InstancingUnstagingComponent, world)
+      const instancingState = getComponentState(entity, InstancingComponent)
+      instancingState.state.set(ScatterState.UNSTAGED)
     }
   }
 

@@ -6,7 +6,7 @@ import hooks from './location-settings.hooks'
 import createModel from './location-settings.model'
 
 // Add this service to the service type index
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'location-settings': LocationSettings
   }

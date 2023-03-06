@@ -1,6 +1,6 @@
 import * as bitECS from 'bitecs'
 
-import { ReactorRoot } from '@xrengine/hyperflux'
+import { ReactorRoot } from '@etherealengine/hyperflux'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'

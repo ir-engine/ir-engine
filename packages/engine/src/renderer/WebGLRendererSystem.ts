@@ -38,7 +38,7 @@ import {
   startReactor,
   State,
   useHookstate
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
@@ -337,7 +337,7 @@ export default async function WebGLRendererSystem(world: World) {
 
   const rendererState = getState(RendererState)
 
-  const reactor = startReactor(() => {
+  const reactor = startReactor(function RendererReactor() {
     const renderSettings = useHookstate(getRendererSceneMetadataState(world))
     const engineRendererSettings = useHookstate(rendererState)
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))

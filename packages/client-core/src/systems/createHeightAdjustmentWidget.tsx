@@ -1,15 +1,14 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { ReferenceSpace, XRState } from '@xrengine/engine/src/xr/XRState'
-import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
-
-import AccessibilityIcon from '@mui/icons-material/Accessibility'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 export function createHeightAdjustmentWidget(world: World) {
   const ui = createXRUI(() => null)
@@ -21,7 +20,7 @@ export function createHeightAdjustmentWidget(world: World) {
   const widget: Widget = {
     ui,
     label: 'Height Adjustment',
-    icon: AccessibilityIcon,
+    icon: 'Accessibility',
     onOpen: () => {
       dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
       const xrFrame = Engine.instance.xrFrame

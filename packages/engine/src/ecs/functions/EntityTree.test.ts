@@ -1,106 +1,186 @@
 import assert from 'assert'
-import { MathUtils } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { createEngine } from '../../initializeEngine'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../classes/Engine'
+import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
 import { createEntity } from '../functions/EntityFunctions'
-import { EntityTreeNode } from './EntityTree'
+import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import {
   addEntityNodeChild,
-  addToEntityTreeMaps,
-  cloneEntityNode,
-  createEntityNode,
-  emptyEntityTree,
+  destroyEntityTree,
+  EntityTreeComponent,
   findIndexOfEntityNode,
   getEntityNodeArrayFromEntities,
-  initializeEntityTree,
-  isEntityNode,
+  initializeSceneEntity,
   iterateEntityNode,
-  removeEntityNodeChild,
-  removeEntityNodeFromParent,
-  removeFromEntityTreeMaps,
+  removeFromEntityTree,
   reparentEntityNode,
   traverseEntityNode,
   traverseEntityNodeParent
 } from './EntityTree'
 
-describe('EntityTree', () => {
+describe('EntityTreeComponent', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  it('should add default values', () => {
+    const entity = createEntity()
+    setComponent(entity, EntityTreeComponent)
+    const node = getComponent(entity, EntityTreeComponent)
+    assert.equal(node.children.length, 0)
+    assert.equal(node.parentEntity, null)
+    assert.equal(node.rootEntity, null)
+  })
+
+  it('should set given values', () => {
+    const world = Engine.instance.currentWorld
+
+    const entity = createEntity()
+    const testUUID = 'test-uuid' as EntityUUID
+    setComponent(entity, EntityTreeComponent, { parentEntity: world.sceneEntity, uuid: testUUID })
+
+    const node = getComponent(entity, EntityTreeComponent)
+
+    assert.equal(node.children.length, 0)
+    assert.equal(node.parentEntity, world.sceneEntity)
+    assert.equal(node.rootEntity, world.sceneEntity)
+
+    assert.equal(getComponent(entity, UUIDComponent), testUUID)
+    assert.equal(UUIDComponent.entitiesByUUID.value[testUUID], entity)
+
+    const parentNode = getComponent(node.parentEntity!, EntityTreeComponent)
+    assert.equal(parentNode.children.length, 1)
+    assert.equal(parentNode.children[0], entity)
+  })
+
+  it('should set child at a given index', () => {
+    const world = Engine.instance.currentWorld
+
+    setComponent(createEntity(), EntityTreeComponent, {
+      parentEntity: world.sceneEntity,
+      uuid: 'child-0' as EntityUUID
+    })
+    setComponent(createEntity(), EntityTreeComponent, {
+      parentEntity: world.sceneEntity,
+      uuid: 'child-1' as EntityUUID
+    })
+    setComponent(createEntity(), EntityTreeComponent, {
+      parentEntity: world.sceneEntity,
+      uuid: 'child-2' as EntityUUID
+    })
+    setComponent(createEntity(), EntityTreeComponent, {
+      parentEntity: world.sceneEntity,
+      uuid: 'child-3' as EntityUUID
+    })
+    setComponent(createEntity(), EntityTreeComponent, {
+      parentEntity: world.sceneEntity,
+      uuid: 'child-4' as EntityUUID
+    })
+
+    const entity = createEntity()
+    setComponent(entity, EntityTreeComponent, {
+      parentEntity: world.sceneEntity,
+      childIndex: 2,
+      uuid: 'test-uuid' as EntityUUID
+    })
+
+    const sceneNode = getComponent(world.sceneEntity, EntityTreeComponent)
+    assert.equal(sceneNode.children.length, 6)
+    assert.equal(sceneNode.children[0], UUIDComponent.entitiesByUUID['child-0'].value)
+    assert.equal(sceneNode.children[1], UUIDComponent.entitiesByUUID['child-1'].value)
+    assert.equal(sceneNode.children[2], entity)
+    assert.equal(sceneNode.children[3], UUIDComponent.entitiesByUUID['child-2'].value)
+    assert.equal(sceneNode.children[4], UUIDComponent.entitiesByUUID['child-3'].value)
+    assert.equal(sceneNode.children[5], UUIDComponent.entitiesByUUID['child-4'].value)
+    assert.equal(sceneNode.parentEntity, null)
+    assert.equal(sceneNode.rootEntity, world.sceneEntity)
+  })
+
+  it('should remove entity from maps', () => {
+    const world = Engine.instance.currentWorld
+
+    const entity = createEntity()
+    setComponent(entity, EntityTreeComponent, { parentEntity: world.sceneEntity, uuid: 'test-uuid' as EntityUUID })
+    removeComponent(entity, EntityTreeComponent)
+
+    assert.equal(getComponent(entity, UUIDComponent), undefined)
+    assert.equal(UUIDComponent.entitiesByUUID['test-uuid'].value, undefined)
+
+    const parentNode = getComponent(world.sceneEntity, EntityTreeComponent)
+    assert.equal(parentNode.children.length, 0)
+  })
+})
+
+describe('EntityTreeFunctions', () => {
   let world: World
-  let root: EntityTreeNode
+  let root: Entity
 
   beforeEach(() => {
     createEngine()
     world = Engine.instance.currentWorld
 
-    root = world.entityTree.rootNode
-  })
-
-  describe('addToEntityTreeMaps function', () => {
-    it('will add entity from maps', () => {
-      const node = createEntityNode(createEntity())
-      addToEntityTreeMaps(node)
-      assert(world.entityTree.entityNodeMap.get(node.entity))
-      assert(UUIDComponent.entitiesByUUID[node.uuid].value)
-    })
-  })
-
-  describe('removeFromEntityTreeMaps function', () => {
-    it('will remove entity from maps', () => {
-      const node = createEntityNode(createEntity())
-      addEntityNodeChild(node, root)
-      removeFromEntityTreeMaps(node)
-      assert(!world.entityTree.entityNodeMap.get(node.entity))
-      assert(!UUIDComponent.entitiesByUUID[node.uuid].value)
-    })
+    root = world.sceneEntity
   })
 
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
-      initializeEntityTree()
-      assert(world.entityTree.entityNodeMap)
-      assert.equal(world.entityTree.entityNodeMap.size, 1)
+      initializeSceneEntity()
+      assert(world.sceneEntity)
+      assert(getComponent(world.sceneEntity, NameComponent), 'scene')
+      assert(hasComponent(world.sceneEntity, VisibleComponent))
+      assert(hasComponent(world.sceneEntity, SceneTagComponent))
+      assert(hasComponent(world.sceneEntity, TransformComponent))
+      assert(hasComponent(world.sceneEntity, EntityTreeComponent))
+      assert.equal(getComponent(world.sceneEntity, EntityTreeComponent).parentEntity, null)
+      assert.equal(getComponent(world.sceneEntity, EntityTreeComponent).rootEntity, world.sceneEntity)
     })
   })
 
   describe('addEntityNodeChild function', () => {
     it('will not add entity node if already added', () => {
-      const node = createEntityNode(createEntity())
+      const node = createEntity()
       addEntityNodeChild(node, root)
+      const rootNode = getComponent(root, EntityTreeComponent)
+      assert.equal(rootNode.children.length, 1)
       addEntityNodeChild(node, root)
-      assert.equal(root.children?.length, 1)
+      assert.equal(rootNode.children.length, 1)
     })
 
-    it('will not add entity node if already added and reparent it if parent entity is different in passed node', () => {
-      const node = createEntityNode(createEntity())
-      const node_1 = createEntityNode(createEntity())
-      addEntityNodeChild(node, root)
-      addEntityNodeChild(node, node_1)
-      assert.equal(root.children?.length, 1)
-      assert.equal(node.parentEntity, node_1.entity)
-    })
+    it('will reparent node if parent entity is different in passed node', () => {
+      const child = createEntity()
+      addEntityNodeChild(child, root)
 
-    it('will add node and parent node in the tree', () => {
-      const node = createEntityNode(createEntity())
-      const node_1 = createEntityNode(createEntity())
+      const parent = createEntity()
+      setComponent(parent, EntityTreeComponent, { parentEntity: null })
+      addEntityNodeChild(child, parent)
 
-      addEntityNodeChild(node, node_1)
+      const parentNode = getComponent(parent, EntityTreeComponent)
+      const childNode = getComponent(child, EntityTreeComponent)
+      const rootNode = getComponent(root, EntityTreeComponent)
 
-      assert(node_1.children?.includes(node.entity))
-      assert.equal(node.parentEntity, node_1.entity)
+      assert.equal(rootNode.children.length, 0)
+      assert.equal(parentNode.children.length, 1)
+      assert.equal(parentNode.children[0], child)
+      assert.equal(childNode.parentEntity, parent)
     })
   })
 
-  describe('emptyEntityTree function', () => {
+  describe('destroyEntityTree function', () => {
     it('will empty entity tree', () => {
-      const node_0 = createEntityNode(createEntity())
-      const node_0_0 = createEntityNode(createEntity())
-      const node_0_1 = createEntityNode(createEntity())
-      const node_0_0_0 = createEntityNode(createEntity())
-      const node_0_1_0 = createEntityNode(createEntity())
+      const node_0 = createEntity()
+      const node_0_0 = createEntity()
+      const node_0_1 = createEntity()
+      const node_0_0_0 = createEntity()
+      const node_0_1_0 = createEntity()
 
       addEntityNodeChild(node_0, root)
       addEntityNodeChild(node_0_0, node_0)
@@ -108,117 +188,67 @@ describe('EntityTree', () => {
       addEntityNodeChild(node_0_0_0, node_0_0)
       addEntityNodeChild(node_0_1_0, node_0_1)
 
-      emptyEntityTree(world.entityTree)
+      destroyEntityTree(node_0)
 
-      assert(world.entityTree.rootNode.entity)
-      assert.equal(world.entityTree.entityNodeMap.size, 1)
+      assert(hasComponent(root, EntityTreeComponent))
+      assert(!hasComponent(node_0, EntityTreeComponent))
+      assert(!hasComponent(node_0_0, EntityTreeComponent))
+      assert(!hasComponent(node_0_1, EntityTreeComponent))
+      assert(!hasComponent(node_0_0_0, EntityTreeComponent))
+      assert(!hasComponent(node_0_1_0, EntityTreeComponent))
     })
   })
 
-  describe('createEntityNode function', () => {
-    it('will create entity node', () => {
-      const entity0 = createEntity()
-      const node_0 = createEntityNode(entity0)
-      assert.equal(node_0.type, 'EntityNode')
-      assert.equal(node_0.entity, entity0)
-      assert(node_0.uuid)
-
-      const entity1 = createEntity()
-      const uuid = MathUtils.generateUUID() as EntityUUID
-      const node_1 = createEntityNode(entity1, uuid)
-      assert.equal(node_1.type, 'EntityNode')
-      assert.equal(node_1.entity, entity1)
-      assert.equal(node_1.uuid, uuid)
-    })
-  })
-
-  describe('addEntityNodeChild function', () => {
-    it('will add entity child node', () => {
-      const node_0 = createEntityNode(createEntity())
-      const node_1 = createEntityNode(createEntity())
-      const node_2 = createEntityNode(createEntity())
-
-      addEntityNodeChild(node_1, node_0)
-
-      assert(node_0.children?.includes(node_1.entity))
-      assert.equal(node_1.parentEntity, node_0.entity)
-      assert(world.entityTree.entityNodeMap.has(node_1.entity))
-
-      addEntityNodeChild(node_2, node_0, 0)
-      assert.equal(node_0.children?.indexOf(node_2.entity), 0)
-      assert.equal(node_2.parentEntity, node_0.entity)
-    })
-  })
-
-  describe('removeEntityNodeChild function', () => {
-    it('will remove entity child node', () => {
-      const node_0 = createEntityNode(createEntity())
-      const node_1 = createEntityNode(createEntity())
-      const node_2 = createEntityNode(createEntity())
+  describe('removeFromEntityTree function', () => {
+    it('will empty entity tree', () => {
+      const node_0 = createEntity()
+      const node_0_0 = createEntity()
+      const node_0_1 = createEntity()
+      const node_0_0_0 = createEntity()
+      const node_0_1_0 = createEntity()
 
       addEntityNodeChild(node_0, root)
-      addEntityNodeChild(node_1, node_0)
+      addEntityNodeChild(node_0_0, node_0)
+      addEntityNodeChild(node_0_1, node_0)
+      addEntityNodeChild(node_0_0_0, node_0_0)
+      addEntityNodeChild(node_0_1_0, node_0_1)
 
-      removeEntityNodeChild(node_0, node_1)
+      removeFromEntityTree(node_0)
 
-      assert.doesNotThrow(() => {
-        removeEntityNodeChild(node_0, node_2)
-      }, 'This should not throw any error if children does not exists in parent')
-
-      assert(!node_0.children?.includes(node_1.entity))
-      assert(!world.entityTree.entityNodeMap.has(node_1.entity))
-
-      assert.doesNotThrow(() => {
-        removeEntityNodeChild(node_2, node_1)
-      }, 'This should not throw any error if parent node has no children')
-    })
-  })
-
-  describe('removeEntityNodeFromParent function', () => {
-    it('will remove entity node from its parent', () => {
-      const node_0 = createEntityNode(createEntity())
-      const node_1 = createEntityNode(createEntity())
-      addEntityNodeChild(node_0, root)
-      addEntityNodeChild(node_1, node_0)
-
-      removeEntityNodeFromParent(node_0)
-
-      assert(!node_1.children?.includes(node_0.entity))
-
-      assert.doesNotThrow(() => {
-        removeEntityNodeFromParent(createEntityNode(createEntity()))
-      }, 'This should not throw any error if parent entity is not defined')
+      assert(hasComponent(root, EntityTreeComponent))
+      assert(!hasComponent(node_0, EntityTreeComponent))
+      assert(!hasComponent(node_0_0, EntityTreeComponent))
+      assert(!hasComponent(node_0_1, EntityTreeComponent))
+      assert(!hasComponent(node_0_0_0, EntityTreeComponent))
+      assert(!hasComponent(node_0_1_0, EntityTreeComponent))
     })
   })
 
   describe('reparentEntityNode function', () => {
     it('will reparent passed entity node to new parent', () => {
-      const node_0 = createEntityNode(createEntity())
-      const node_1 = createEntityNode(createEntity())
+      const node_0 = createEntity()
+      const node_1 = createEntity()
       addEntityNodeChild(node_0, root)
       addEntityNodeChild(node_1, root)
 
       reparentEntityNode(node_0, node_1)
 
-      assert.equal(node_0.parentEntity, node_1.entity)
+      const node0 = getComponent(node_0, EntityTreeComponent)
+      const node1 = getComponent(node_1, EntityTreeComponent)
+
+      assert.equal(node0.parentEntity, node_1)
+      assert.equal(node1.children.length, 1)
+      assert.equal(node1.children[0], node_0)
     })
-  })
-
-  it('will cloned passed entity node', () => {
-    const node = createEntityNode(createEntity())
-    const clone = cloneEntityNode(node)
-
-    assert.deepEqual(node, clone)
-    assert.notEqual(node, clone)
   })
 
   describe('traverseEntityNode function', () => {
     it('will traverse the childern nodes and run the callback function on them', () => {
-      const node_0 = createEntityNode(createEntity())
-      const node_0_0 = createEntityNode(createEntity())
-      const node_0_1 = createEntityNode(createEntity())
-      const node_0_0_0 = createEntityNode(createEntity())
-      const node_0_1_0 = createEntityNode(createEntity())
+      const node_0 = createEntity()
+      const node_0_0 = createEntity()
+      const node_0_1 = createEntity()
+      const node_0_0_0 = createEntity()
+      const node_0_1_0 = createEntity()
 
       addEntityNodeChild(node_0, root)
       addEntityNodeChild(node_0_0, node_0)
@@ -226,31 +256,34 @@ describe('EntityTree', () => {
       addEntityNodeChild(node_0_0_0, node_0_0)
       addEntityNodeChild(node_0_1_0, node_0_1)
 
-      traverseEntityNode(node_0, (node) => ((node as any).visited = true))
+      const visited = [] as Entity[]
 
-      assert.equal((node_0 as any).visited, true)
-      assert.equal((node_0_0 as any).visited, true)
-      assert.equal((node_0_1 as any).visited, true)
-      assert.equal((node_0_0_0 as any).visited, true)
-      assert.equal((node_0_1_0 as any).visited, true)
+      traverseEntityNode(node_0, (node) => visited.push(node))
 
-      traverseEntityNode(node_0_0, (node) => ((node as any).visitedAgain = true))
+      assert.equal(visited.length, 5)
+      assert.equal(visited[0], node_0)
+      assert.equal(visited[1], node_0_0)
+      assert.equal(visited[2], node_0_0_0)
+      assert.equal(visited[3], node_0_1)
+      assert.equal(visited[4], node_0_1_0)
 
-      assert.equal((node_0 as any).visitedAgain, undefined)
-      assert.equal((node_0_0 as any).visitedAgain, true)
-      assert.equal((node_0_1 as any).visitedAgain, undefined)
-      assert.equal((node_0_0_0 as any).visitedAgain, true)
-      assert.equal((node_0_1_0 as any).visitedAgain, undefined)
+      const visitedAgain = [] as Entity[]
+
+      traverseEntityNode(node_0_0, (node) => visitedAgain.push(node))
+
+      assert.equal(visitedAgain.length, 2)
+      assert.equal(visitedAgain[0], node_0_0)
+      assert.equal(visitedAgain[1], node_0_0_0)
     })
   })
 
   describe('iterateEntityNode function', () => {
     it('will traverse the childern nodes and run the callback function on them', () => {
-      const node_0 = createEntityNode(createEntity())
-      const node_0_0 = createEntityNode(createEntity())
-      const node_0_1 = createEntityNode(createEntity())
-      const node_0_0_0 = createEntityNode(createEntity())
-      const node_0_1_0 = createEntityNode(createEntity())
+      const node_0 = createEntity()
+      const node_0_0 = createEntity()
+      const node_0_1 = createEntity()
+      const node_0_0_0 = createEntity()
+      const node_0_1_0 = createEntity()
 
       addEntityNodeChild(node_0, root)
       addEntityNodeChild(node_0_0, node_0)
@@ -258,122 +291,114 @@ describe('EntityTree', () => {
       addEntityNodeChild(node_0_0_0, node_0_0)
       addEntityNodeChild(node_0_1_0, node_0_1)
 
-      iterateEntityNode(node_0, (node) => ((node as any).visited = true))
+      const visited = [] as Entity[]
 
-      assert.equal((node_0 as any).visited, true)
-      assert.equal((node_0_0 as any).visited, true)
-      assert.equal((node_0_1 as any).visited, true)
-      assert.equal((node_0_0_0 as any).visited, true)
-      assert.equal((node_0_1_0 as any).visited, true)
+      iterateEntityNode(node_0, (node) => visited.push(node))
 
-      iterateEntityNode(node_0_0, (node) => ((node as any).visitedAgain = true))
+      assert.equal(visited.length, 5)
+      assert.equal(visited[0], node_0)
+      assert.equal(visited[1], node_0_0)
+      assert.equal(visited[2], node_0_1)
+      assert.equal(visited[3], node_0_1_0) // @todo, why is this in the wrong order?
+      assert.equal(visited[4], node_0_0_0)
 
-      assert.equal((node_0 as any).visitedAgain, undefined)
-      assert.equal((node_0_0 as any).visitedAgain, true)
-      assert.equal((node_0_1 as any).visitedAgain, undefined)
-      assert.equal((node_0_0_0 as any).visitedAgain, true)
-      assert.equal((node_0_1_0 as any).visitedAgain, undefined)
+      const visitedAgain = [] as Entity[]
+
+      iterateEntityNode(node_0_0, (node) => visitedAgain.push(node))
+
+      assert.equal(visitedAgain.length, 2)
+      assert.equal(visitedAgain[0], node_0_0)
+      assert.equal(visitedAgain[1], node_0_0_0)
     })
   })
 
   describe('traverseEntityNodeParent function', () => {
     it('will traverse the parent nodes and run the callback function on them', () => {
-      const nodes = [] as EntityTreeNode[]
+      const nodes = [] as Entity[]
       for (let i = 0; i < 4; i++) {
-        nodes[i] = createEntityNode(createEntity())
+        nodes[i] = createEntity()
         addEntityNodeChild(nodes[i], i === 0 ? root : nodes[i - 1])
       }
 
-      traverseEntityNodeParent(nodes[nodes.length - 1], (parent) => ((parent as any).visited = true))
+      const visited = [] as Entity[]
 
-      for (let i = 0; i < nodes.length; i++) {
-        if (i === nodes.length - 1) {
-          assert.notEqual((nodes[i] as any).visited, true)
-        } else {
-          assert.equal((nodes[i] as any).visited, true)
-        }
-      }
+      traverseEntityNodeParent(nodes[nodes.length - 1], (parent) => visited.push(parent))
+
+      assert.equal(visited.length, 4)
+      assert.equal(visited[0], nodes[2])
+      assert.equal(visited[1], nodes[1])
+      assert.equal(visited[2], nodes[0])
+      assert.equal(visited[3], root)
     })
 
     it('will not throw error if parent node does not exists', () => {
       assert.doesNotThrow(() => {
-        traverseEntityNodeParent(root, (parent) => ((parent as any).visited = true))
+        traverseEntityNodeParent(root, () => {})
       })
     })
   })
 
   describe('getEntityNodeArrayFromEntities function', () => {
-    it('will return true is type of passed object is EntityNode', () => {
-      assert(isEntityNode(createEntityNode(createEntity())))
-      assert(isEntityNode({ type: 'EntityNode' }))
-    })
-
-    it('will return false is type of passed object is not EntityNode', () => {
-      assert(!isEntityNode({ type: 'string' }))
-    })
-  })
-
-  describe('getEntityNodeArrayFromEntities function', () => {
     it('will return entity node array from passed entities', () => {
-      const nodes = [] as EntityTreeNode[]
+      const nodes = [] as Entity[]
       for (let i = 0; i < 4; i++) {
-        nodes[i] = createEntityNode(createEntity())
+        nodes[i] = createEntity()
         addEntityNodeChild(nodes[i], root)
       }
 
-      const entities = [nodes[0].entity, nodes[2].entity]
+      const entities = [nodes[0], nodes[2]]
 
-      const retrivedNodes = getEntityNodeArrayFromEntities(entities)
+      const retrivedNodes = getEntityNodeArrayFromEntities(entities) as Entity[]
 
-      retrivedNodes.forEach((node) => assert(entities.includes((node as EntityTreeNode).entity)))
+      retrivedNodes.forEach((node) => assert(entities.includes(node)))
     })
 
     it('will remove entity for which there is no node', () => {
-      const nodes = [] as EntityTreeNode[]
+      const nodes = [] as Entity[]
       for (let i = 0; i < 4; i++) {
-        nodes[i] = createEntityNode(createEntity())
+        nodes[i] = createEntity()
         addEntityNodeChild(nodes[i], root)
       }
 
       const fakeEntity = createEntity()
-      const entities = [nodes[0].entity, nodes[2].entity, fakeEntity]
+      const entities = [nodes[0], nodes[2], fakeEntity]
 
       const retrivedNodes = getEntityNodeArrayFromEntities(entities)
 
-      retrivedNodes.forEach((node) => assert.notEqual((node as EntityTreeNode).entity, fakeEntity))
+      retrivedNodes.forEach((node) => assert.notEqual(node, fakeEntity))
     })
   })
 
   describe('findIndexOfEntityNode function', () => {
     it('will return index of passed entity node', () => {
-      const testNode = createEntityNode(createEntity())
-      addEntityNodeChild(createEntityNode(createEntity()), root)
-      addEntityNodeChild(createEntityNode(createEntity()), root)
+      const testNode = createEntity()
+      addEntityNodeChild(createEntity(), root)
+      addEntityNodeChild(createEntity(), root)
       addEntityNodeChild(testNode, root)
-      addEntityNodeChild(createEntityNode(createEntity()), root)
+      addEntityNodeChild(createEntity(), root)
 
-      assert(world.entityTree.rootNode.children.length)
       assert.equal(
-        findIndexOfEntityNode(getEntityNodeArrayFromEntities(world.entityTree.rootNode.children), testNode),
+        findIndexOfEntityNode(
+          getEntityNodeArrayFromEntities(getComponent(root, EntityTreeComponent).children),
+          testNode
+        ),
         2
       )
     })
 
     it('will return -1 if it can not find the index of the passed node', () => {
-      const testNode = createEntityNode(createEntity())
-      addEntityNodeChild(createEntityNode(createEntity()), root)
-      addEntityNodeChild(createEntityNode(createEntity()), root)
-      addEntityNodeChild(createEntityNode(createEntity()), root)
+      const testNode = createEntity()
+      addEntityNodeChild(createEntity(), root)
+      addEntityNodeChild(createEntity(), root)
+      addEntityNodeChild(createEntity(), root)
 
-      assert(world.entityTree.rootNode.children)
       assert.equal(
-        findIndexOfEntityNode(getEntityNodeArrayFromEntities(world.entityTree.rootNode.children), testNode),
+        findIndexOfEntityNode(
+          getEntityNodeArrayFromEntities(getComponent(root, EntityTreeComponent).children),
+          testNode
+        ),
         -1
       )
     })
-  })
-
-  afterEach(() => {
-    emptyEntityTree(world.entityTree)
   })
 })

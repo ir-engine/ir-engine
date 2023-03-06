@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, withRouter } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { Button } from '@mui/material'
 
@@ -20,4 +20,4 @@ const UnauthorisedPage = (props) => {
   )
 }
 
-export default withRouter(UnauthorisedPage)
+export default UnauthorisedPage

@@ -16,7 +16,7 @@ import {
   WebGLRenderTargetOptions
 } from 'three'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'

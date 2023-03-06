@@ -1,7 +1,7 @@
 import React, { JSXElementConstructor, useEffect } from 'react'
 
-import { any } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { State, useHookstate } from '@xrengine/hyperflux'
+import { any } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { State, useHookstate } from '@etherealengine/hyperflux'
 
 import { Grid, Stack } from '@mui/material'
 

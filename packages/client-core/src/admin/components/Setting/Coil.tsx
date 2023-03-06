@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-
-import { Box, Grid, Typography } from '@mui/material'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Box from '@etherealengine/ui/src/Box'
+import Grid from '@etherealengine/ui/src/Grid'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { AdminCoilSettingService, useCoilSettingState } from '../../services/Setting/CoilSettingService'

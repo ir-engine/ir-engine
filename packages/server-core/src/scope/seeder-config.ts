@@ -1,4 +1,4 @@
-import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 
 import { scopeTypeSeed } from './scope-type/scope-type.seed'
 

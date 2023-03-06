@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { createHookableFunction } from '@xrengine/common/src/utils/createHookableFunction'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'
@@ -210,7 +210,9 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
     ;(world.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   session.addEventListener('selectend', (inputSource) => {
-    ;(world.buttons as ButtonInputStateType).PrimaryClick!.up = true
+    const buttons = world.buttons as ButtonInputStateType
+    if (!buttons.PrimaryClick) return
+    buttons.PrimaryClick!.up = true
   })
 
   world.scene.background = null

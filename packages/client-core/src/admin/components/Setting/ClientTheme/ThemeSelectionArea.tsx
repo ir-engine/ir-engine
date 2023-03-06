@@ -1,11 +1,11 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import { ThemeMode } from '@xrengine/common/src/interfaces/ClientSetting'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-
-import { Grid, Typography } from '@mui/material'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import { ThemeMode } from '@etherealengine/common/src/interfaces/ClientSetting'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import Grid from '@etherealengine/ui/src/Grid'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import styles from '../../../styles/settings.module.scss'
 

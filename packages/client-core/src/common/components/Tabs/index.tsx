@@ -1,8 +1,9 @@
 import React from 'react'
 
+import Tab from '@etherealengine/ui/src/Tab'
+import { default as MUITabs } from '@etherealengine/ui/src/Tabs'
+
 import { SxProps, Theme } from '@mui/material/styles'
-import Tab from '@mui/material/Tab'
-import { default as MUITabs } from '@mui/material/Tabs'
 
 import { handleSoundEffect } from '../../utils'
 import { InputMenuItem } from '../InputSelect'
@@ -26,7 +27,13 @@ const Tabs = ({ className, items, value, sx, onChange }: Props) => {
       onChange={(_e, value) => onChange && onChange(value)}
     >
       {items?.map((item) => (
-        <Tab value={item.value} label={item.label} onPointerUp={handleSoundEffect} onPointerEnter={handleSoundEffect} />
+        <Tab
+          key={`${item.value}-${item.label}`}
+          value={item.value}
+          label={item.label}
+          onPointerUp={handleSoundEffect}
+          onPointerEnter={handleSoundEffect}
+        />
       ))}
     </MUITabs>
   )

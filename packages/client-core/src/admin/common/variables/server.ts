@@ -1,4 +1,4 @@
-import { ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
+import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
 
 export interface ServerColumn {
   id: string

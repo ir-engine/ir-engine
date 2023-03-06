@@ -1,10 +1,10 @@
 {
-  "name": "@xrengine/server-core",
-  "description": "Shared components for XREngine server",
-  "version": "1.0.0",
+  "name": "@etherealengine/server-core",
+  "description": "Shared components for Ethereal Engine server",
+  "version": "1.2.0-rc6",
   "repository": {
     "type": "git",
-    "url": "git://github.com/XRFoundation/XREngine.git"
+    "url": "git://github.com/etherealengine/etherealengine.git"
   },
   "homepage": "",
   "publishConfig": {
@@ -26,8 +26,8 @@
     "vr"
   ],
   "author": {
-    "name": "XRFoundation Collective",
-    "email": "hello@xrfoundation.io"
+    "name": "Ethereal Engine Collective",
+    "email": "hello@etherealengine.org"
   },
   "contributors": [],
   "bugs": {},
@@ -37,10 +37,12 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "mocha --jobs 1",
-    "validate": "npm run build && npm run test",
-    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+    "validate": "npm run build && npm run test"
   },
   "dependencies": {
+    "@etherealengine/common": "^1.2.0-rc6",
+    "@etherealengine/engine": "^1.2.0-rc6",
+    "@etherealengine/matchmaking": "^1.2.0-rc6",
     "@feathersjs/authentication": "5.0.0-pre.29",
     "@feathersjs/authentication-local": "5.0.0-pre.29",
     "@feathersjs/authentication-oauth": "5.0.0-pre.29",
@@ -52,9 +54,6 @@
     "@gltf-transform/extensions": "2.5.1",
     "@gltf-transform/functions": "2.5.1",
     "@kubernetes/client-node": "^0.16.2",
-    "@xrengine/common": "^1.0.0",
-    "@xrengine/engine": "^1.0.0",
-    "@xrengine/matchmaking": "^1.0.0",
     "app-root-path": "3.0.0",
     "aws-sdk": "2.1113.0",
     "bent": "^7.3.0",
@@ -100,7 +99,7 @@
     "simple-git": "3.6.0",
     "slugify": "^1.4.5",
     "trace-unhandled": "2.0.1",
-    "typescript": "4.8.3",
+    "typescript": "4.9.5",
     "uint8arrays": "^3.0.0",
     "universal-analytics": "^0.5.0",
     "uuid": "8.3.2",

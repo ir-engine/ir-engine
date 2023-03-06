@@ -1,20 +1,20 @@
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
-import { CameraComponent } from '@xrengine/engine/src/camera/components/CameraComponent'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeQuery
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
   TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 
@@ -58,9 +58,7 @@ export default async function EditorCameraSystem(world: World) {
           box.makeEmpty()
           for (const object of cameraComponent.focusedObjects) {
             const group =
-              typeof object === 'string'
-                ? [obj3dFromUuid(object)]
-                : getOptionalComponent(object.entity, GroupComponent) || []
+              typeof object === 'string' ? [obj3dFromUuid(object)] : getOptionalComponent(object, GroupComponent) || []
             for (const obj of group) {
               box.expandByObject(obj)
             }
@@ -71,8 +69,8 @@ export default async function EditorCameraSystem(world: World) {
 
             if (typeof object === 'string') {
               cameraComponent.center.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
-            } else if (hasComponent(object.entity, TransformComponent)) {
-              const position = getComponent(object.entity, TransformComponent).position
+            } else if (hasComponent(object, TransformComponent)) {
+              const position = getComponent(object, TransformComponent).position
               cameraComponent.center.copy(position)
             }
             distance = 0.1

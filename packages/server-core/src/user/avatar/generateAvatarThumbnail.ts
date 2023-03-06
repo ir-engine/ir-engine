@@ -13,9 +13,9 @@ import {
   MAX_ALLOWED_TRIANGLES,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
-} from '@xrengine/common/src/constants/AvatarConstants'
-import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGLTFLoader'
-import { loadDRACODecoder } from '@xrengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
+} from '@etherealengine/common/src/constants/AvatarConstants'
+import { createGLTFLoader } from '@etherealengine/engine/src/assets/functions/createGLTFLoader'
+import { loadDRACODecoder } from '@etherealengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 
 import logger from '../../ServerLogger'
 

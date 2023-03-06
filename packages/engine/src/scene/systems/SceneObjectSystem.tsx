@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import {
   Color,
+  DoubleSide,
   Material,
   Mesh,
   MeshBasicMaterial,
@@ -10,7 +11,7 @@ import {
   MeshStandardMaterial
 } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
@@ -94,7 +95,7 @@ export default async function SceneObjectSystem(world: World) {
   const groupQuery = defineQuery([GroupComponent])
   const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  function GroupChildReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
+  function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
     const { entity, obj } = props
 
     const shadowComponent = useOptionalComponent(entity, ShadowComponent)
@@ -132,7 +133,7 @@ export default async function SceneObjectSystem(world: World) {
   /**
    * Group Reactor - responds to any changes in the
    */
-  const groupReactor = startGroupQueryReactor(GroupChildReactor)
+  const groupReactor = startGroupQueryReactor(SceneObjectReactor)
 
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 

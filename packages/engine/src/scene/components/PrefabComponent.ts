@@ -1,15 +1,10 @@
 import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 
-import {
-  createMappedComponent,
-  defineComponent,
-  getComponent,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { matchesEntity } from '../../common/functions/MatchesUtils'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '../../ecs/functions/EntityTree'
 import { unloadPrefab } from '../functions/loaders/PrefabComponentFunctions'
 
 export enum LoadState {
@@ -18,32 +13,23 @@ export enum LoadState {
   LOADED = 'loaded'
 }
 
-export type PrefabComponentType = {
-  src: string
-  loaded: LoadState
-  roots: EntityTreeNode[]
-  dirty: boolean
-}
-
 export const SCENE_COMPONENT_PREFAB = 'prefab'
 
 export const PrefabComponent = defineComponent({
   name: 'PrefabComponent',
 
-  onInit: (entity) =>
-    ({
-      src: '',
-      loaded: LoadState.UNLOADED,
-      roots: [],
-      dirty: false
-    } as PrefabComponentType),
+  onInit: (entity) => ({
+    src: '',
+    loaded: LoadState.UNLOADED as LoadState,
+    roots: [] as Entity[],
+    dirty: false
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return
     matches.boolean.test(json.dirty) && component.dirty.set(json.dirty)
     ;(matches.string as Validator<unknown, LoadState>).test(json.loaded) && component.loaded.set(json.loaded)
-    matches.arrayOf(matches.object as Validator<unknown, EntityTreeNode>).test(json.roots) &&
-      component.roots.set(json.roots)
+    matches.arrayOf(matchesEntity).test(json.roots) && component.roots.set(json.roots)
     matches.string.test(json.src) && component.src.set(json.src)
   },
 

@@ -12,7 +12,7 @@ jobs:
         id: check-secrets
         run: |
           if [ ${{ secrets.PUBLISH_GH_CONTAINER_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   dev-deploy:
     needs:

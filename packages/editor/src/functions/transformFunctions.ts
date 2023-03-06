@@ -1,8 +1,7 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   SnapMode,
   TransformMode,
@@ -10,9 +9,9 @@ import {
   TransformPivot,
   TransformPivotType,
   TransformSpace
-} from '@xrengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
 import { accessSelectionState } from '../services/SelectionServices'
@@ -22,18 +21,15 @@ export const setTransformMode = (mode: TransformModeType): void => {
   if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
     let stop = false
     const selectedEntities = accessSelectionState().selectedEntities.value
-    const tree = Engine.instance.currentWorld.entityTree
 
     // Dont allow grabbing / placing objects with transform disabled.
     for (const entity of selectedEntities) {
       const isUuid = typeof entity === 'string'
-      const node = isUuid
-        ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', entity)
-        : tree.entityNodeMap.get(entity)
+      const node = isUuid ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', entity) : entity
 
       if (!isUuid && node) {
-        traverseEntityNode(node as EntityTreeNode, (node) => {
-          if (!hasComponent(node.entity, TransformComponent)) stop = true
+        traverseEntityNode(node as Entity, (child) => {
+          if (!hasComponent(child, TransformComponent)) stop = true
         })
       }
 
@@ -46,7 +42,7 @@ export const setTransformMode = (mode: TransformModeType): void => {
   }
 
   // EditorHistory.grabCheckPoint = undefined
-  SceneState.transformGizmo.setTransformMode(mode)
+
   dispatchAction(EditorHelperAction.changedTransformMode({ mode }))
 }
 

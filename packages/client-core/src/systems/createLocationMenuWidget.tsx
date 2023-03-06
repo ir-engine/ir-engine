@@ -1,9 +1,7 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
-
-import LocationOnIcon from '@mui/icons-material/LocationOn'
+import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { WidgetName, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
 import { createLocationMenuView } from './ui/LocationMenuView'
 
@@ -14,7 +12,7 @@ export function createLocationMenuWidget(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: WidgetName.LOCATION,
-    icon: LocationOnIcon,
+    icon: 'LocationOn',
     system: () => {}
   })
 }

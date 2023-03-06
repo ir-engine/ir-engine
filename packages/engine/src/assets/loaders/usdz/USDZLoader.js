@@ -20,6 +20,8 @@ import {
 
 import * as fflate from 'fflate';
 
+import { flipBufferGeometryNormals } from '@etherealengine/engine/src/assets/functions/flipBufferGeometryNormals';
+
 class USDAParser {
 
 	parse( text ) {
@@ -439,7 +441,7 @@ class USDZLoader extends Loader {
 			for(const plugin of geoPlugins) {
 				geometry = plugin.buildGeometry(geometry, data)
 			}
-
+			flipBufferGeometryNormals(geometry)
 			return geometry;
 
 		}
@@ -494,7 +496,7 @@ class USDZLoader extends Loader {
             const scopes = Object.keys(data).filter(key => registryRegex.test(key))
             if (scopes.length > 0) return buildMaterial(data[scopes[0]])
 			const material = new MeshStandardMaterial();
-			material.side = THREE.DoubleSide
+			
 			if ( data !== undefined ) {
                 const surfaceRegexp = /def Shader "(PreviewSurface|surfaceShader|Principled_BSDF|[^"]+_preview)"/
 				if ( Object.keys(data).some(key => surfaceRegexp.test(key)) ) {
@@ -502,23 +504,23 @@ class USDZLoader extends Loader {
 					const surface = data[key];
                     const acceptedColorTypes = ['color3f', 'float3']
                     for (const colorType of acceptedColorTypes) {
-                        if ( `${colorType} inputs:diffuseColor.connect` in surface ) {
+											if ( `${colorType} inputs:diffuseColor.connect` in surface ) {
 
-                            const path = surface[ `${colorType} inputs:diffuseColor.connect` ];
-                            const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
-    
-                            material.map = buildTexture( sampler );
-                            material.map.encoding = sRGBEncoding;
-    
-                        } else if ( `${colorType} inputs:diffuseColor` in surface ) {
-    
-                            const color = surface[ `${colorType} inputs:diffuseColor` ].replace( /[()]*/g, '' );
-                            material.color.fromArray( JSON.parse( '[' + color + ']' ) );
-    
-                        }
+													const path = surface[ `${colorType} inputs:diffuseColor.connect` ];
+													const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
+	
+													material.map = buildTexture( sampler );
+													material.map.encoding = sRGBEncoding;
+	
+											} 
+											if ( `${colorType} inputs:diffuseColor` in surface ) {
+	
+													const color = surface[ `${colorType} inputs:diffuseColor` ].replace( /[()]*/g, '' );
+													material.color.fromArray( JSON.parse( '[' + color + ']' ) );
+	
+											}
                     }
 					
-
 										if ( 'normal3f inputs:normal.connect' in surface ) {
 
 											const path = surface[ 'normal3f inputs:normal.connect' ];
@@ -534,9 +536,57 @@ class USDZLoader extends Loader {
 
 										}
 
+										if ( 'float inputs:roughness.connect' in surface ) {
+
+											const path = surface[ 'float inputs:roughness.connect' ]
+											const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] )
+
+											material.roughnessMap = buildTexture( sampler )
+
+										}
+
 										if ( 'float inputs:metallic' in surface ) {
 
 											material.metalness = parseFloat( surface[ 'float inputs:metallic' ] );
+
+										}
+
+										if ( 'float inputs:metallic.connect' in surface ) {
+
+											const path = surface[ 'float inputs:metallic.connect' ]
+											const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] )
+
+											material.metalnessMap = buildTexture( sampler )
+
+										}
+
+										if ( 'float inputs:opacity' in surface ) {
+
+											material.opacity = parseFloat( surface[ 'float inputs:opacity' ] );
+											material.opacity < 1 && ( material.transparent = true );
+										}
+
+										if ( 'float inputs:opacity.connect' in surface ) {
+
+											const path = surface[ 'float inputs:opacity.connect' ]
+											const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] )
+
+											material.alphaMap = buildTexture( sampler )
+
+										}
+
+										for ( const colorType of acceptedColorTypes ) {
+
+											if (`${colorType} inputs:emissiveColor` in surface) {
+												const color = surface[`${colorType} inputs:emissiveColor`].replace(/[()]*/g, '');
+												material.emissive.fromArray(JSON.parse('[' + color + ']'));
+											}
+
+											if (`${colorType} inputs:emissiveColor.connect` in surface) {
+												const path = surface[`${colorType} inputs:emissiveColor.connect`];
+												const sampler = findTexture(root, /(\w+).output/.exec(path)[1]);
+												material.emissiveMap = buildTexture(sampler);
+											}
 
 										}
 

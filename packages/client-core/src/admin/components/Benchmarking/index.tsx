@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import multiLogger from '@xrengine/common/src/logger'
-
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
+import multiLogger from '@etherealengine/common/src/logger'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { TestBotService, useTestBotState } from '../../services/TestBotService'
 import styles from '../../styles/admin.module.scss'

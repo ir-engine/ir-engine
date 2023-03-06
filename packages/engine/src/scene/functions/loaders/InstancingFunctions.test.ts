@@ -8,8 +8,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
-import { createEntityNode } from '../../../ecs/functions/EntityTree'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { createEngine, setupEngineActionSystems } from '../../../initializeEngine'
@@ -21,21 +19,15 @@ import {
   ScatterProperties,
   ScatterState
 } from '../../components/InstancingComponent'
-import {
-  deserializeInstancing,
-  GRASS_PROPERTIES_DEFAULT_VALUES,
-  SCATTER_PROPERTIES_DEFAULT_VALUES
-} from './InstancingFunctions'
+import { GRASS_PROPERTIES_DEFAULT_VALUES, SCATTER_PROPERTIES_DEFAULT_VALUES } from './InstancingFunctions'
 
 describe('InstancingFunctions', async () => {
   let entity: Entity
-  let node: EntityTreeNode
   let world: World
   let sandbox: SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    node = createEntityNode(entity)
     world = Engine.instance.currentWorld
   }
   beforeEach(async () => {
@@ -75,14 +67,26 @@ describe('InstancingFunctions', async () => {
 
   const scatterProps: ScatterProperties = {
     ...SCATTER_PROPERTIES_DEFAULT_VALUES,
-    densityMap: '',
-    heightMap: ''
+    densityMap: {
+      src: '',
+      texture: null
+    },
+    heightMap: {
+      src: '',
+      texture: null
+    }
   }
 
   const grassProps: GrassProperties = {
     ...GRASS_PROPERTIES_DEFAULT_VALUES,
-    grassTexture: '',
-    alphaMap: '',
+    grassTexture: {
+      src: '',
+      texture: null
+    },
+    alphaMap: {
+      src: '',
+      texture: null
+    },
     sunColor: new Color(1, 1, 1)
   }
 
@@ -96,21 +100,7 @@ describe('InstancingFunctions', async () => {
     sourceProperties: grassProps
   }
 
-  describe('deserializeInstancing', () => {
-    it('Correctly deserializes empty component', async () => {
-      deserializeInstancing(entity, emptyInstancingCmp)
-      assert(hasComponent(entity, InstancingComponent))
-      const instancing = getComponent(entity, InstancingComponent)
-      assert.deepEqual(instancing.count, 0)
-      assert.deepEqual(instancing.mode, ScatterMode.GRASS)
-      Object.entries(scatterProps).map(([k, v]) => {
-        assert.equal(instancing.sampleProperties[k], v)
-      })
-      Object.entries(grassProps).map(([k, v]) => {
-        assert.equal((instancing.sourceProperties as GrassProperties)[k], v)
-      })
-    })
-  })
+  describe('deserializeInstancing', () => {})
 
   describe('stageInstancing', () => {})
 

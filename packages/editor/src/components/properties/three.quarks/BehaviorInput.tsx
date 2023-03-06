@@ -17,8 +17,8 @@ import {
   SizeOverLifeBehaviorJSON,
   SpeedOverLifeBehaviorJSON,
   WidthOverLengthBehaviorJSON
-} from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
+import { State } from '@etherealengine/hyperflux'
 
 import InputGroup from '../../inputs/InputGroup'
 import NumericInputGroup from '../../inputs/NumericInputGroup'

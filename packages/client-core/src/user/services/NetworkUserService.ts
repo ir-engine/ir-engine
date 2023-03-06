@@ -1,10 +1,10 @@
 import { Paginated } from '@feathersjs/feathers'
 import { none } from '@hookstate/core'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 

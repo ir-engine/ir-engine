@@ -1,9 +1,10 @@
 import React from 'react'
 
-import SearchIcon from '@mui/icons-material/Search'
-import IconButton from '@mui/material/IconButton'
-import InputBase from '@mui/material/InputBase'
-import Paper from '@mui/material/Paper'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import InputBase from '@etherealengine/ui/src/InputBase'
+import Paper from '@etherealengine/ui/src/Paper'
+
 import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from '../styles/search.module.scss'
@@ -23,9 +24,7 @@ const Search = ({ text, sx, handleChange }: Props) => {
         inputProps={{ 'aria-label': 'search for location ' }}
         onChange={(e) => handleChange(e)}
       />
-      <IconButton className={styles.iconButton} aria-label="search" size="large">
-        <SearchIcon />
-      </IconButton>
+      <IconButton className={styles.iconButton} title="search" size="large" icon={<Icon type="Search" />} />
     </Paper>
   )
 }

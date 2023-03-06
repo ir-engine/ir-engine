@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { useHookstate } from '@xrengine/hyperflux'
-
-import { Box, CircularProgress } from '@mui/material'
-import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
-import Grid from '@mui/material/Grid'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Chip from '@etherealengine/ui/src/Chip'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Grid from '@etherealengine/ui/src/Grid'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'

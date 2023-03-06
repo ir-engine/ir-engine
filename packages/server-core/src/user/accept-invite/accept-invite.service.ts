@@ -8,7 +8,7 @@ import hooks from './accept-invite.hooks'
 /**
  * accept invite service
  */
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'a-i': AcceptInvite
   }

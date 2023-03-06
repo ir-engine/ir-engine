@@ -2,7 +2,7 @@ import { Id, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Sequelize, Transaction } from 'sequelize'
 
-import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRelationship'
+import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

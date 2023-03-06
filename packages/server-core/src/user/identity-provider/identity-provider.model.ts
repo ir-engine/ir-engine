@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
 import { Application } from '../../../declarations'
 

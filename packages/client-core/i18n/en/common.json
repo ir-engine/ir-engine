@@ -16,9 +16,16 @@
   },
   "loader": {
     "connecting": "Connecting...",
+    "starting": "Starting...",
+    "loadingLocation": "Loading locations...",
     "loadingEngine": "Loading engine...",
+    "loadingEditor": "Loading editor...",
     "loadingRoutes": "Loading routes...",
     "loadingRoute": "Loading route...",
+    "loadingAuth": "Loading auth routes...",
+    "loadingAdmin": "Loading admin routes...",
+    "loadingCustom": "Loading custom routes...",
+    "loadingAllowed": "Loading allowed routes...",
     "loadingXRSystems": "Loading immersive session...",
     "connectingToWorld": "Connecting to world...",
     "entering": "Entering world...",
@@ -27,7 +34,10 @@
     "objectRemainingPlural": "{{count}} objects remaining",
     "loadingObjects": "Loading Objects",
     "loadingComplete": "Loading Complete",
-    "joiningWorld": "Joining World"
+    "joiningWorld": "Joining World",
+    "editor": "Loading Editor",
+    "offline": "Loading Offline",
+    "auth": "Loading Auth"
   },
   "alert": {
     "eventWasSuccess": "Event was successful",

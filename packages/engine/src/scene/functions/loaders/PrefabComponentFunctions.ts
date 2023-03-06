@@ -1,29 +1,17 @@
-import { Object3D } from 'three'
-
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
+import { ComponentDeserializeFunction } from '@etherealengine/engine/src/common/constants/PrefabFunctionType'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction
-} from '@xrengine/engine/src/common/constants/PrefabFunctionType'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import {
-  addComponent,
+  ComponentType,
   getComponent,
   getComponentState,
   hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  EntityTreeNode,
-  iterateEntityNode,
-  removeEntityNodeFromParent
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { LoadState, PrefabComponent, PrefabComponentType } from '@xrengine/engine/src/scene/components/PrefabComponent'
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { removeEntity } from '../../../ecs/functions/EntityFunctions'
 
 export const unloadPrefab = (entity: Entity) => {
@@ -41,8 +29,7 @@ export const unloadPrefab = (entity: Entity) => {
           children.push(child)
         })
         children.forEach((child) => {
-          removeEntityNodeFromParent(child)
-          removeEntity(child.entity)
+          removeEntity(child)
         })
       }
     })
@@ -68,8 +55,8 @@ export const loadPrefab = async (entity: Entity, loader = AssetLoader) => {
   try {
     prefabState.loaded.set(LoadState.LOADING)
     const result = (await loader.loadAsync(prefab.src, {
-      assetRoot: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
-    })) as EntityTreeNode[]
+      assetRoot: entity
+    })) as Entity[]
     prefabState.roots.set(result)
     prefabState.loaded.set(LoadState.LOADED)
   } catch (e) {
@@ -78,7 +65,10 @@ export const loadPrefab = async (entity: Entity, loader = AssetLoader) => {
   }
 }
 
-export const deserializePrefab: ComponentDeserializeFunction = async (entity: Entity, data: PrefabComponentType) => {
+export const deserializePrefab: ComponentDeserializeFunction = async (
+  entity: Entity,
+  data: ComponentType<typeof PrefabComponent>
+) => {
   setComponent(entity, PrefabComponent, data)
   if (data.loaded === LoadState.LOADED) {
     getComponentState(entity, PrefabComponent).loaded.set(LoadState.UNLOADED)

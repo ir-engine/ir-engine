@@ -72,7 +72,7 @@ export default defineConfig(async () => {
 
   const returned = {
     optimizeDeps: {
-      exclude: ['@xrfoundation/volumetric'],
+      exclude: ['@etherealengine/volumetric'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
         target: 'es2020'
@@ -84,7 +84,7 @@ export default defineConfig(async () => {
       createHtmlPlugin({
         inject: {
           data: {
-            title: clientSetting.title || 'XRENGINE',
+            title: clientSetting.title || 'Ethereal Engine',
             appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
             favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
             favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',

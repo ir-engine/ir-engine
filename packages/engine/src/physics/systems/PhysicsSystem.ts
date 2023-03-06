@@ -2,8 +2,8 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
+import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'

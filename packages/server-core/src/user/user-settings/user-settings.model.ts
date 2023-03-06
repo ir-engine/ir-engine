@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
+import { UserSetting } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 

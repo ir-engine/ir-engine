@@ -1,9 +1,9 @@
 import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
-import { createTicket, deleteTicket, getTicket } from '@xrengine/matchmaking/src/functions'
-import { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
-import config from '@xrengine/server-core/src/appconfig'
+import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
+import { OpenMatchTicket } from '@etherealengine/matchmaking/src/interfaces'
+import config from '@etherealengine/server-core/src/appconfig'
 
 import { Application } from '../../../declarations'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'

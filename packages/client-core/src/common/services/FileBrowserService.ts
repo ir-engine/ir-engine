@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -92,9 +92,6 @@ export const FileBrowserService = {
       .service('file-browser')
       .get(directory, params)) as Paginated<FileContentType>
     dispatchAction(FileBrowserAction.filesFetched({ files }))
-  },
-  putContent: async (fileName: string, path: string, body: Buffer, contentType: string) => {
-    return API.instance.client.service('file-browser').patch(null, { fileName, path, body, contentType })
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
     return API.instance.client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })

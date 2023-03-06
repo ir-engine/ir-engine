@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-
-import CheckIcon from '@mui/icons-material/Check'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import AvatarPreview from '@etherealengine/client-core/src/common/components/AvatarPreview'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import Box from '@etherealengine/ui/src/Box'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { useAuthState } from '../../../services/AuthService'
 import { AvatarService, useAvatarService } from '../../../services/AvatarService'
@@ -34,11 +30,13 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
   const userId = authState.user?.id?.value
   const userAvatarId = authState.user?.avatarId?.value
 
-  const [page, setPage] = useState(0)
-  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>(userAvatarId)
-
   const avatarState = useAvatarService()
   const { avatarList, search } = avatarState.value
+
+  const [page, setPage] = useState(0)
+  const [localSearchString, setLocalSearchString] = useState(search)
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>(userAvatarId)
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null)
 
   const selectedAvatar = avatarList.find((item) => item.id === selectedAvatarId)
 
@@ -75,6 +73,20 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
     AvatarService.fetchAvatarList(search, 'decrement')
   }
 
+  const handleSearch = async (searchString: string) => {
+    setLocalSearchString(searchString)
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout)
+    }
+
+    const timeout = setTimeout(() => {
+      AvatarService.fetchAvatarList(searchString)
+    }, 1000)
+
+    setSearchTimeout(timeout)
+  }
+
   return (
     <Menu
       open
@@ -83,7 +95,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         <Box display="flex" width="100%">
           <Button
             disabled={!selectedAvatar || selectedAvatar.id === userAvatarId}
-            startIcon={<CheckIcon />}
+            startIcon={<Icon type="Check" />}
             size="medium"
             type="gradientRounded"
             title={t('user:avatar.confirm')}
@@ -106,12 +118,16 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
           <Grid item md={6} sx={{ width: '100%' }}>
             <InputText
               placeholder={t('user:avatar.searchAvatar')}
-              value={search}
+              value={localSearchString}
               sx={{ mt: 1 }}
-              onChange={(e) => AvatarService.fetchAvatarList(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
             />
 
-            <IconButton icon={<KeyboardArrowUpIcon />} sx={{ display: 'none' }} onClick={handlePreviousAvatars} />
+            <IconButton
+              icon={<Icon type="KeyboardArrowUp" />}
+              sx={{ display: 'none' }}
+              onClick={handlePreviousAvatars}
+            />
 
             <Grid container sx={{ height: '275px', gap: 1.5, overflowX: 'hidden', overflowY: 'auto' }}>
               {avatarList.map((avatar) => (
@@ -136,11 +152,15 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
             </Grid>
 
             <Box>
-              <IconButton icon={<KeyboardArrowDownIcon />} sx={{ display: 'none' }} onClick={handleNextAvatars} />
+              <IconButton
+                icon={<Icon type="KeyboardArrowDown" />}
+                sx={{ display: 'none' }}
+                onClick={handleNextAvatars}
+              />
             </Box>
             <Button
               fullWidth
-              startIcon={<PersonAddIcon />}
+              startIcon={<Icon type="PersonAdd" />}
               title={t('user:avatar.createAvatar')}
               type="gradientRounded"
               sx={{ mb: 0 }}

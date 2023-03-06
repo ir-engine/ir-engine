@@ -1,20 +1,19 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
-
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Switch from '@mui/material/Switch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
+import Button from '@etherealengine/ui/src/Button'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import List from '@etherealengine/ui/src/List'
+import ListItem from '@etherealengine/ui/src/ListItem'
+import ListItemText from '@etherealengine/ui/src/ListItemText'
+import Switch from '@etherealengine/ui/src/Switch'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
@@ -141,11 +140,10 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
                 {selfUserPermission === 'owner' && selfUser.id.value !== permission.userId && (
                   <IconButton
                     className={styles.iconButton}
-                    aria-label="Remove Access"
+                    title="Remove Access"
                     onClick={() => handleRemovePermission(permission.id)}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 )}
               </ListItem>
             ))}

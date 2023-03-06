@@ -1,7 +1,7 @@
-import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
-import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
+import { GroupResult } from '@etherealengine/common/src/interfaces/GroupResult'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'

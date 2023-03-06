@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { InteriorComponent } from '@xrengine/engine/src/scene/components/InteriorComponent'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { InteriorComponent } from '@etherealengine/engine/src/scene/components/InteriorComponent'
 
 import LocationCityIcon from '@mui/icons-material/LocationCity'
 
@@ -21,9 +21,9 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const InteriorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const interiorComponent = getComponent(entity, InteriorComponent)
-  const errors = getEntityErrors(props.node.entity, InteriorComponent)
+  const errors = getEntityErrors(props.entity, InteriorComponent)
 
   return (
     <NodeEditor
