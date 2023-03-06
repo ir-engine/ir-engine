@@ -8,9 +8,10 @@ import { MediaStreamAppData } from '@etherealengine/common/src/interfaces/MediaS
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { clearOutgoingActions, dispatchAction } from '@etherealengine/hyperflux'
+import { clearOutgoingActions, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import {
@@ -107,7 +108,9 @@ export class SocketWebRTCClientNetwork extends Network {
     addOutgoingTopicIfNecessary(topic)
   }
 
-  mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
+  mediasoupDevice = new mediasoupClient.Device(
+    getState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
+  )
   reconnecting = false
   recvTransport: MediaSoupTransport
   sendTransport: MediaSoupTransport

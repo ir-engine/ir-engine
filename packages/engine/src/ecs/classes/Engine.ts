@@ -140,8 +140,6 @@ export class Engine {
 
   engineTimer: { start: Function; stop: Function; clear: Function } = null!
 
-  isBot = false
-
   /**
    * The current world
    */
@@ -182,6 +180,7 @@ export class Engine {
 
   xrFrame: XRFrame | null = null
 
+  // @todo move to EngineState
   isEditor = false
 
   widgets = new Map<string, Widget>()
@@ -292,7 +291,7 @@ export class Engine {
 
   #entityRemovedQuery = defineQuery([EntityRemovedComponent])
 
-  // todo put in engine state
+  // @todo move to EngineState
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
   /**
@@ -317,7 +316,7 @@ export class Engine {
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
 
-  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use XRE_ extension names*/
+  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use EE_ extension names*/
 
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()

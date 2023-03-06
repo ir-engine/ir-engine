@@ -65,7 +65,7 @@ export const initializeBrowser = () => {
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
   Engine.instance.camera.layers.enable(ObjectLayers.UI)
 
-  Engine.instance.isBot = navigator.userAgent === BotUserAgent
+  getState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
 
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
