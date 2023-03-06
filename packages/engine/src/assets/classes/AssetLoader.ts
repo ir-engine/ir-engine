@@ -27,15 +27,12 @@ import { Entity } from '../../ecs/classes/Entity'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
-import { getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
-import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
-import type { GLTF } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { DependencyTreeActions } from './DependencyTree'
@@ -55,16 +52,6 @@ export interface LoadGLTFResultInterface {
 
 export function disposeDracoLoaderWorkers(): void {
   Engine.instance.gltfLoader.dracoLoader?.dispose()
-}
-
-export const loadExtensions = async (gltf: GLTF) => {
-  if (isClient) {
-    const bvhTraverse: Promise<void>[] = []
-    gltf.scene.traverse((mesh) => {
-      ;(mesh as Mesh).isMesh && bvhTraverse.push(generateMeshBVH(mesh as Mesh))
-    })
-    await Promise.all(bvhTraverse)
-  }
 }
 
 const onUploadDropBuffer = (uuid?: string) =>

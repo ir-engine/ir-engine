@@ -4,6 +4,7 @@ import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTy
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
+import { StringInputProps } from './StringInput'
 
 /**
  * FolderInput used to render component view for folder inputs.
@@ -12,7 +13,7 @@ import FileBrowserInput from './FileBrowserInput'
  * @param       {any} rest
  * @constructor
  */
-export function FolderInput({ onChange, ...rest }) {
+export function FolderInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={AllFileTypes}

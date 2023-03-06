@@ -274,9 +274,9 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                   onChange={(nuId) => {
                     if (!!materialLibrary.materials[nuId].value) {
                       if (Array.isArray(mesh.material)) {
-                        mesh.material[currentMaterialId.value] = materialFromId(nuId).material
+                        mesh.material[currentMaterialId.value] = materialFromId('' + nuId).material
                       } else {
-                        mesh.material = materialFromId(nuId).material
+                        mesh.material = materialFromId('' + nuId).material
                         mesh.material.needsUpdate = true
                       }
                     }
