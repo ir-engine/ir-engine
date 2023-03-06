@@ -1,4 +1,3 @@
-import { ImageConvertParms } from '@xrengine/engine/src/assets/constants/ImageConvertParms'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import fs from 'fs'
@@ -6,9 +5,11 @@ import path from 'path'
 import sharp from 'sharp'
 import util from 'util'
 
+import { ImageConvertParms } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
+
 import { Application } from '../../../declarations'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'image-convert': {
       create: (data: ImageConvertParms) => Promise<string | string[]>
