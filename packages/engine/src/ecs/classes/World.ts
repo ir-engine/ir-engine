@@ -38,6 +38,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { ButtonInputStateType } from '../../input/InputState'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { SerializationSchema } from '../../networking/serialization/Utils'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -147,6 +148,11 @@ export class World {
   // _mediaHostId = null! as UserId
 
   networks = new Map<string, Network>()
+
+  /** a map of component names to a read/write function pairfor network component serialization */
+  networkSchema: {
+    [key: string]: SerializationSchema
+  } = {}
 
   widgets = new Map<string, Widget>()
 

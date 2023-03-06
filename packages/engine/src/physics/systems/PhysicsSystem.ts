@@ -39,6 +39,7 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../components/RigidBodyComponent'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 export function teleportObject(entity: Entity, position: Vector3, rotation: Quaternion) {
@@ -153,6 +154,11 @@ export default async function PhysicsSystem(world: World) {
   const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
   const drainContacts = Physics.drainContactEventQueue(world.physicsWorld)
 
+  world.networkSchema['ee.core.physics'] = {
+    read: PhysicsSerialization.readRigidBody,
+    write: PhysicsSerialization.writeRigidBody
+  }
+
   const execute = () => {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
@@ -256,6 +262,8 @@ export default async function PhysicsSystem(world: World) {
     removeActionQueue(modifyPropertyActionQueue)
 
     world.physicsWorld.free()
+
+    delete world.networkSchema['ee.core.physics']
   }
 
   return { execute, cleanup }
