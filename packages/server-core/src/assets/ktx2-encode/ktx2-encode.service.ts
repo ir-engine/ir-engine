@@ -12,35 +12,45 @@ import { Application } from '../../../declarations'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'ktx2-encode': {
-      create: (data: KTX2EncodeArguments) => Promise<string>
+      create: (data: KTX2EncodeArguments) => Promise<string | string[]>
     }
   }
 }
 
-async function createKtx2(data: KTX2EncodeArguments): Promise<string> {
+async function createKtx2(data: KTX2EncodeArguments): Promise<string | string[]> {
   const promiseExec = util.promisify(exec)
-  const serverDir = path.join(appRootPath.path, 'packages/server')
   const projectDir = path.join(appRootPath.path, 'packages/projects')
-  const tmpDir = path.join(serverDir, `tmp-${MathUtils.generateUUID()}`)
   const BASIS_U = path.join(appRootPath.path, 'packages/server/public/loader_decoders/basisu')
   const inURI = /.*(projects\/.*)$/.exec(data.src)![1]
   const inPath = path.join(projectDir, inURI)
-  const outPath = inPath.replace(/\.[^\.]+$/, '.ktx2')
-  const outURIDir = path.dirname(inURI)
-  const fileName = /[^\\/]*$/.exec(outPath)![0]
-  const command = `${BASIS_U} -ktx2${data.mode === 'UASTC' ? ' -uastc' : ''}${
-    data.mipmaps ? ' -mipmap' : ''
-  } -y_flip -linear -q ${data.quality} ${inPath}`
-  console.log(command)
-  console.log(await promiseExec(command))
-  console.log(await promiseExec(`mv ${fileName} ${outPath}`))
-  const result = await this.app.service('file-browser').patch(null, {
-    fileName,
-    path: outURIDir,
-    body: fs.readFileSync(outPath),
-    contentType: 'image/ktx2'
-  })
-  return result
+  const app: Application = this.app
+  const fileData = fs.statSync(inPath)
+  const isDir = fileData.isDirectory()
+  async function doEncode(inPath) {
+    const outPath = inPath.replace(/\.[^\.]+$/, `.${data.format}`)
+    const outURIDir = isDir ? inURI : path.dirname(inURI)
+    const fileName = /[^\\/]*$/.exec(outPath)![0]
+    const command = `${BASIS_U} ${data.format === 'ktx2' ? ' -ktx2' : ''}${'UASTC' ? ' -uastc' : ''}${
+      data.mipmaps ? ' -mipmap' : ''
+    } -y_flip -linear -q ${data.quality} ${inPath}`
+    console.log(command)
+    console.log(await promiseExec(command))
+    console.log(await promiseExec(`mv ${fileName} ${outPath}`))
+    const result: string = await app.service('file-browser').patch(null, {
+      fileName,
+      path: outURIDir,
+      body: fs.readFileSync(outPath),
+      contentType: `image/${data.format}`
+    })
+    return result
+  }
+  if (isDir) {
+    const files = fs
+      .readdirSync(inPath)
+      .filter((file) => file && ['.jpg', '.jpeg', '.png'].some((ending) => file.endsWith(ending)))
+      .map((file) => path.join(inPath, file))
+    return await Promise.all(files.map(doEncode))
+  } else return await doEncode(inPath)
 }
 
 export default (app: Application): any => {

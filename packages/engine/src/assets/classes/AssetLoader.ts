@@ -3,6 +3,7 @@ import {
   AudioLoader,
   BufferAttribute,
   BufferGeometry,
+  CompressedTextureLoader,
   FileLoader,
   Group,
   LOD,
@@ -31,6 +32,7 @@ import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import type { GLTF } from '../loaders/gltf/GLTFLoader'
@@ -187,25 +189,47 @@ const handleLODs = (asset: Object3D): Object3D => {
  */
 const getAssetType = (assetFileName: string): AssetType => {
   assetFileName = assetFileName.toLowerCase()
-
-  if (/\.xre\.gltf$/.test(assetFileName)) return AssetType.XRE
-  else if (/\.(?:gltf)$/.test(assetFileName)) return AssetType.glTF
-  else if (/\.(?:glb)$/.test(assetFileName)) return AssetType.glB
-  else if (/\.(?:usdz)$/.test(assetFileName)) return AssetType.USDZ
-  else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
-  else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
-  else if (/\.(?:tga)$/.test(assetFileName)) return AssetType.TGA
-  else if (/\.(?:ktx2)$/.test(assetFileName)) return AssetType.KTX2
-  else if (/\.(?:png)$/.test(assetFileName)) return AssetType.PNG
-  else if (/\.(?:jpg|jpeg|)$/.test(assetFileName)) return AssetType.JPEG
-  else if (/\.(?:mp3)$/.test(assetFileName)) return AssetType.MP3
-  else if (/\.(?:aac)$/.test(assetFileName)) return AssetType.AAC
-  else if (/\.(?:ogg)$/.test(assetFileName)) return AssetType.OGG
-  else if (/\.(?:m4a)$/.test(assetFileName)) return AssetType.M4A
-  else if (/\.(?:mp4)$/.test(assetFileName)) return AssetType.MP4
-  else if (/\.(?:mkv)$/.test(assetFileName)) return AssetType.MKV
-  else if (/\.(?:m3u8)$/.test(assetFileName)) return AssetType.M3U8
-  return null!
+  if (assetFileName.endsWith('.xre.gltf')) return AssetType.XRE
+  const suffix = assetFileName.split('.').pop()
+  switch (suffix) {
+    case 'gltf':
+      return AssetType.glTF
+    case 'glb':
+      return AssetType.glB
+    case 'usdz':
+      return AssetType.USDZ
+    case 'fbx':
+      return AssetType.FBX
+    case 'vrm':
+      return AssetType.VRM
+    case 'tga':
+      return AssetType.TGA
+    case 'ktx2':
+      return AssetType.KTX2
+    case 'ddx':
+      return AssetType.DDS
+    case 'png':
+      return AssetType.PNG
+    case 'jpg':
+    case 'jpeg':
+      return AssetType.JPEG
+    case 'mp3':
+      return AssetType.MP3
+    case 'aac':
+      return AssetType.AAC
+    case 'ogg':
+      return AssetType.OGG
+    case 'm4a':
+      return AssetType.M4A
+    case 'mp4':
+      return AssetType.MP4
+    case 'mkv':
+      return AssetType.MKV
+    case 'm3u8':
+      return AssetType.M3U8
+    default:
+      return null!
+  }
 }
 
 /**
@@ -220,7 +244,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     return AssetClass.Asset
   } else if (/\.(?:gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg|tga|ktx2$/.test(assetFileName)) {
+  } else if (/\.png|jpg|jpeg|tga|ktx2|dds$/.test(assetFileName)) {
     return AssetClass.Image
   } else if (/\.mp4|avi|webm|mov|m3u8$/.test(assetFileName)) {
     return AssetClass.Video
@@ -244,6 +268,7 @@ const isSupported = (assetFileName: string) => {
 }
 
 //@ts-ignore
+const ddsLoader = () => new DDSLoader()
 const fbxLoader = () => new FBXLoader()
 const textureLoader = () => new TextureLoader()
 const fileLoader = () => new FileLoader()
@@ -275,6 +300,8 @@ export const getLoader = (assetType: AssetType) => {
       return xreLoader()
     case AssetType.KTX2:
       return ktx2Loader()
+    case AssetType.DDS:
+      return ddsLoader()
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
