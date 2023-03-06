@@ -22,7 +22,7 @@ import {
  * @param cameraCanvas
  * @returns {CameraPipelineModule}
  */
-export const XR8Pipeline = (world: World, cameraCanvas: HTMLCanvasElement): CameraPipelineModule => {
+export const XR8Pipeline = (cameraCanvas: HTMLCanvasElement): CameraPipelineModule => {
   const orientCameraFeed = function (orientation: number) {
     /** orientation can take a frame or two to complete, so wait until it matches what 8th wall expects */
     const needsUpdate =

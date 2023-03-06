@@ -65,7 +65,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
    */
   if (network.topic === 'world') {
     const world = Engine.instance.currentWorld
-    const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
+    const remainingPeersForDisconnectingUser = Object.entries(Engine.instance.networks.entries())
       .map(([id, network]: [string, Network]) => {
         return network.peers.has(peerID)
       })
@@ -73,7 +73,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
 
     if (!remainingPeersForDisconnectingUser.length) {
       Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
-      for (const eid of world.getOwnedNetworkObjects(userID)) removeEntity(eid)
+      for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) removeEntity(eid)
     }
 
     clearCachedActionsForUser(userID)

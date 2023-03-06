@@ -25,13 +25,13 @@ const PlayModeTool = () => {
   const authState = useAuthState()
 
   const onTogglePlayMode = () => {
-    if (world.localClientEntity) {
-      removeEntity(world.localClientEntity)
-      const cameraComputed = getComponent(world.cameraEntity, ComputedTransformComponent)
+    if (Engine.instance.localClientEntity) {
+      removeEntity(Engine.instance.localClientEntity)
+      const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeEntity(cameraComputed.referenceEntity)
-      removeComponent(world.cameraEntity, ComputedTransformComponent)
-      removeComponent(world.cameraEntity, FollowCameraComponent)
-      removeComponent(world.cameraEntity, TargetCameraRotationComponent)
+      removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
+      removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+      removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: false }))
     } else {
       const avatarDetails = authState.user.avatar.value

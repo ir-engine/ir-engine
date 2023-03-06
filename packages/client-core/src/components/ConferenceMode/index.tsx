@@ -17,7 +17,7 @@ const ConferenceMode = (): JSX.Element => {
   const selfUserId = useState(accessAuthState().user.id)
   const userState = useNetworkUserState()
   const channelConnectionState = useMediaInstanceConnectionState()
-  const network = Engine.instance.currentWorld.mediaNetwork
+  const network = Engine.instance.mediaNetwork
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
   const displayedUsers =
     network?.hostId && currentChannelInstanceConnection

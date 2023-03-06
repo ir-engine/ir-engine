@@ -5,11 +5,11 @@ import { WidgetName, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
 import { createSelectAvatarMenu } from './ui/ProfileDetailView/SelectAvatarMenu'
 
-export function createSelectAvatarWidget(world: World) {
+export function createSelectAvatarWidget() {
   const ui = createSelectAvatarMenu()
   removeComponent(ui.entity, VisibleComponent)
 
-  Widgets.registerWidget(world, ui.entity, {
+  Widgets.registerWidget(ui.entity, {
     ui,
     label: WidgetName.SELECT_AVATAR,
     system: () => {}

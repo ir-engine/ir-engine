@@ -6,9 +6,9 @@ import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { EntityRemovedComponent, removeAllComponents, setComponent } from './ComponentFunctions'
 
-export const createEntity = (world = Engine.instance.currentWorld): Entity => {
-  let entity = bitECS.addEntity(world)
-  if (entity === 0) entity = bitECS.addEntity(world) // always discard entity 0 since we do a lot of `if (entity)` checks
+export const createEntity = (): Entity => {
+  let entity = bitECS.addEntity(Engine.instance)
+  if (entity === 0) entity = bitECS.addEntity(Engine.instance) // always discard entity 0 since we do a lot of `if (entity)` checks
   return entity as Entity
 }
 
@@ -19,12 +19,12 @@ export const removeEntity = (entity: Entity, immediately = false) => {
   setComponent(entity, EntityRemovedComponent, true)
 
   if (immediately) {
-    bitECS.removeEntity(Engine.instance.currentWorld, entity)
+    bitECS.removeEntity(Engine.instance, entity)
   }
 }
 
 export const entityExists = (entity: Entity) => {
-  return bitECS.entityExists(Engine.instance.currentWorld, entity)
+  return bitECS.entityExists(Engine.instance, entity)
 }
 
 export interface EntityReactorRoot extends ReactorRoot {

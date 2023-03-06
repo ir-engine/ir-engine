@@ -33,7 +33,7 @@ export interface PrefabItemType {
 const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
 
-  Engine.instance.currentWorld.scenePrefabRegistry.forEach((_, prefabType: string) => {
+  Engine.instance.scenePrefabRegistry.forEach((_, prefabType: string) => {
     arr.push({
       prefabType,
       type: ItemTypes.Prefab,

@@ -17,14 +17,14 @@ describe('PhysicsSystem', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
   })
 
   // @todo this is old code, needs to be updated to new physics implementation
   it.skip('check teleportObjectReceptor', async () => {
     const action = { pose: [1, 2, 3], object: { ownerId: 0, networkId: 0 } } as any
     const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
+    const entity = createEntity()
     const worldStub = { getNetworkObject: () => entity } as any
 
     const controller = { controller: { setPosition: () => {} } } as any

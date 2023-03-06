@@ -1,5 +1,6 @@
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import {
@@ -29,13 +30,13 @@ import {
 } from '../functions/loaders/InstancingFunctions'
 import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
-export default async function ScatterSystem(world: World) {
-  world.sceneComponentRegistry.set(InstancingComponent.name, SCENE_COMPONENT_INSTANCING)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
+export default async function ScatterSystem() {
+  Engine.instance.sceneComponentRegistry.set(InstancingComponent.name, SCENE_COMPONENT_INSTANCING)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
     defaultData: {}
   })
 
-  world.scenePrefabRegistry.set(ScenePrefabs.instancing, [
+  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.instancing, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_INSTANCING, props: {} }
@@ -78,9 +79,9 @@ export default async function ScatterSystem(world: World) {
   }
 
   const cleanup = async () => {
-    world.sceneComponentRegistry.delete(InstancingComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_INSTANCING)
-    world.scenePrefabRegistry.delete(ScenePrefabs.instancing)
+    Engine.instance.sceneComponentRegistry.delete(InstancingComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_INSTANCING)
+    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.instancing)
 
     removeQuery(instancingQuery)
     removeQuery(stagingQuery)

@@ -5,11 +5,11 @@ import { WidgetName, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
 import { createLocationMenuView } from './ui/LocationMenuView'
 
-export function createLocationMenuWidget(world: World) {
+export function createLocationMenuWidget() {
   const ui = createLocationMenuView()
   removeComponent(ui.entity, VisibleComponent)
 
-  Widgets.registerWidget(world, ui.entity, {
+  Widgets.registerWidget(ui.entity, {
     ui,
     label: WidgetName.LOCATION,
     icon: 'LocationOn',

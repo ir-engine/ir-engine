@@ -19,7 +19,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new DirectionalLight()
     light.target.position.set(0, 0, 1)
     light.target.name = 'light-target'

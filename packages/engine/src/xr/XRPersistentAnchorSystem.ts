@@ -86,7 +86,7 @@ export const XRAnchorFunctions = {
   anchorPoses
 }
 
-export default async function XRPersistentAnchorSystem(world: World) {
+export default async function XRPersistentAnchorSystem() {
   const execute = () => {
     const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
     if (!frame) return

@@ -54,7 +54,7 @@ export const getIntersectingNodeOnScreen = (
   raycaster: Raycaster,
   coord: Vector2,
   target: Intersection<Object3D>[] = [],
-  camera: Camera = Engine.instance.currentWorld.camera,
+  camera: Camera = Engine.instance.camera,
   object?: Object3D,
   recursive: boolean = true
 ): RaycastIntersectionNode | undefined => {

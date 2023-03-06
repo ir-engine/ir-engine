@@ -8,10 +8,7 @@ import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/Pos
 import { EngineRenderer, getPostProcessingSceneMetadataState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (
-  remove?: boolean,
-  camera: PerspectiveCamera = Engine.instance.currentWorld.camera
-): void => {
+export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
   if (!EngineRenderer.instance) return
 
   if (!EngineRenderer.instance.renderPass) {

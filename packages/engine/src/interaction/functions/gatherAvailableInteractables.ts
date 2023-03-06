@@ -28,10 +28,10 @@ const frustum = new Frustum()
  */
 
 export const gatherAvailableInteractables = (interactables: Entity[]) => {
-  if (!Engine.instance.currentWorld.localClientEntity) return
+  if (!Engine.instance.localClientEntity) return
 
-  const transform = getComponent(Engine.instance.currentWorld.localClientEntity, TransformComponent)
-  const controller = getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
+  const transform = getComponent(Engine.instance.localClientEntity, TransformComponent)
+  const controller = getComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   if (!controller || !transform) return
 

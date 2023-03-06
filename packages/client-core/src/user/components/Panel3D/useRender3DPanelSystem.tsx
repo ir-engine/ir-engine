@@ -76,7 +76,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     window.addEventListener('resize', resize)
     resize()
 
-    async function AvatarSelectRenderSystem(world: World) {
+    async function AvatarSelectRenderSystem() {
       return {
         execute: () => {
           // only render if this menu is open
@@ -91,7 +91,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
 
     const systemUUID = 'xre.client.AvatarSelectRenderSystem-' + i++
 
-    initSystems(world, [
+    initSystems([
       {
         uuid: systemUUID,
         type: SystemUpdateType.POST_RENDER,
@@ -100,7 +100,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     ])
 
     return () => {
-      unloadSystem(world, systemUUID)
+      unloadSystem(systemUUID)
       removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
     }

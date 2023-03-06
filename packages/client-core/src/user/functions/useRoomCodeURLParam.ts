@@ -7,7 +7,7 @@ import { LocationInstanceState, useWorldInstance } from '../../common/services/L
 
 export const useRoomCodeURLParam = (roomCode = true, instanceId = true) => {
   const locationInstance = getState(LocationInstanceState)
-  const worldNetwork = Engine.instance.currentWorld.worldNetwork
+  const worldNetwork = Engine.instance.worldNetwork
   const instance = useWorldInstance()
 
   useEffect(() => {

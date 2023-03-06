@@ -233,29 +233,29 @@ const loadEngine = async (app: Application, sceneId: string) => {
   app.network = network
   const initPromise = network.initialize()
 
-  world.networks.set(hostId, network)
+  Engine.instance.networks.set(hostId, network)
   const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
-    world.hostIds.media.set(hostId as UserId)
-    await initSystems(Engine.instance.currentWorld, [...RealtimeNetworkingModule(true, false)])
-    await loadEngineInjection(world, projects)
+    Engine.instance.hostIds.media.set(hostId as UserId)
+    await initSystems([...RealtimeNetworkingModule(true, false)])
+    await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    world.hostIds.world.set(hostId as UserId)
+    Engine.instance.hostIds.world.set(hostId as UserId)
 
     const [projectName, sceneName] = sceneId.split('/')
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
-    await initSystems(Engine.instance.currentWorld, [
+    await initSystems([
       ...TransformModule(),
       ...SceneCommonModule(),
       ...AvatarCommonModule(),
       ...RealtimeNetworkingModule(false, true)
     ])
-    await loadEngineInjection(world, projects)
+    await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {

@@ -36,7 +36,7 @@ export const enterPortal = async (entity: Entity) => {
  * Loads portal metadata once the models have been loaded. Depends on API calls.
  * @param world
  */
-export default async function PortalLoadSystem(world: World) {
+export default async function PortalLoadSystem() {
   const portalQuery = defineQuery([PortalComponent])
 
   const execute = () => {

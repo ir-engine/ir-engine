@@ -42,7 +42,7 @@ export const SelectionState = defineState({
     } as SelectionServiceStateType)
 })
 
-export default function EditorSelectionReceptor(world: World): SystemDefintion {
+export default function EditorSelectionReceptor(): SystemDefintion {
   const selectionState = getState(SelectionState)
 
   const updateSelectionQueue = createActionQueue(SelectionAction.updateSelection.matches)

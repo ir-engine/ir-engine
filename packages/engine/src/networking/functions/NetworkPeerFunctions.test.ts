@@ -29,7 +29,7 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 2
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
 
@@ -58,7 +58,7 @@ describe('NetworkPeerFunctions', () => {
       const userIndex2 = 2
       const peerIndex = 3
       const peerIndex2 = 4
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork
 
       const worldState = getState(WorldState)
 
@@ -87,7 +87,7 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 2
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       NetworkPeerFunctions.destroyPeer(network, peerID)
@@ -108,7 +108,7 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 5
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       const networkId = 2 as NetworkId
@@ -126,9 +126,9 @@ describe('NetworkPeerFunctions', () => {
 
       clearOutgoingActions(network.topic)
       applyIncomingActions()
-      world.execute(0)
+      Engine.instance.execute(0)
 
-      assert(!world.getNetworkObject(userId, networkId))
+      assert(!Engine.instance.getNetworkObject(userId, networkId))
     })
   })
 })

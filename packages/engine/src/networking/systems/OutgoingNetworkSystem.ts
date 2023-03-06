@@ -22,24 +22,24 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   const ents = Engine.instance.isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId
-    const peerID = Engine.instance.currentWorld.worldNetwork.peerID
-    const data = serialize(world.worldNetwork, userID, peerID, ents)
+    const peerID = Engine.instance.worldNetwork.peerID
+    const data = serialize(Engine.instance.worldNetwork, userID, peerID, ents)
 
     // todo: insert historian logic here
 
     if (data.byteLength > 0) {
       // side effect - network IO
       // delay until end of frame
-      Promise.resolve().then(() => world.worldNetwork.sendData(data))
+      Promise.resolve().then(() => Engine.instance.worldNetwork.sendData(data))
     }
   }
 }
 
-export default async function OutgoingNetworkSystem(world: World) {
+export default async function OutgoingNetworkSystem() {
   const serialize = createDataWriter()
 
   const execute = () => {
-    world.worldNetwork && serializeAndSend(serialize)
+    Engine.instance.worldNetwork && serializeAndSend(serialize)
   }
 
   const cleanup = async () => {

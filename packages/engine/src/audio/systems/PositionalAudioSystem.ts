@@ -86,7 +86,7 @@ export const removePannerNode = (audioNodes: AudioNodeGroup) => {
 
 /** System class which provides methods for Positional Audio system. */
 
-export default async function PositionalAudioSystem(world: World) {
+export default async function PositionalAudioSystem() {
   const _vec3 = new Vector3()
 
   /**
@@ -137,7 +137,7 @@ export default async function PositionalAudioSystem(world: World) {
 
   const execute = () => {
     const audioContext = Engine.instance.audioContext
-    const network = Engine.instance.currentWorld.mediaNetwork
+    const network = Engine.instance.mediaNetwork
     const immersiveMedia = shouldUseImmersiveMedia()
     const positionalAudioSettings = getMediaSceneMetadataState(Engine.instance.currentWorld).value
 
@@ -224,7 +224,7 @@ export default async function PositionalAudioSystem(world: World) {
       }
     }
 
-    const endTime = Engine.instance.audioContext.currentTime + world.deltaSeconds
+    const endTime = Engine.instance.audioContext.currentTime + Engine.instance.deltaSeconds
 
     /**
      * Update panner nodes
@@ -257,7 +257,7 @@ export default async function PositionalAudioSystem(world: World) {
     /**
      * Update camera listener position
      */
-    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
     if (isNaN(position.x)) return
     _rot.set(0, 0, -1).applyQuaternion(rotation)
     if (isNaN(_rot.x)) return

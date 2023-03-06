@@ -25,7 +25,7 @@ export const HyperspacePortalEffect = 'Hyperspace'
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
 
-export default async function HyperspacePortalSystem(world: World) {
+export default async function HyperspacePortalSystem() {
   PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)
 
   const transition = createTransitionState(0.25, 'OUT')
@@ -43,9 +43,9 @@ export default async function HyperspacePortalSystem(world: World) {
   let sceneVisible = true
 
   const execute = () => {
-    if (!world.localClientEntity) return
+    if (!Engine.instance.localClientEntity) return
 
-    const playerTransform = getOptionalComponent(world.localClientEntity, TransformComponent)
+    const playerTransform = getOptionalComponent(Engine.instance.localClientEntity, TransformComponent)
     const sceneLoaded = !sceneAssetPendingTagQuery().length
 
     if (!playerTransform) return
@@ -57,7 +57,7 @@ export default async function HyperspacePortalSystem(world: World) {
 
       hyperspaceEffect.position.copy(playerTransform.position)
       hyperspaceEffect.quaternion.copy(playerTransform.rotation)
-      Engine.instance.currentWorld.camera.zoom = 1.5
+      Engine.instance.camera.zoom = 1.5
 
       Engine.instance.currentWorld.scene.add(light)
       Engine.instance.currentWorld.scene.add(hyperspaceEffect)
@@ -68,8 +68,8 @@ export default async function HyperspacePortalSystem(world: World) {
         transition.setState('OUT')
       }
 
-      transition.update(world.deltaSeconds, (opacity) => {
-        hyperspaceEffect.update(world.deltaSeconds)
+      transition.update(Engine.instance.deltaSeconds, (opacity) => {
+        hyperspaceEffect.update(Engine.instance.deltaSeconds)
         hyperspaceEffect.tubeMaterial.opacity = opacity
 
         if (transition.state === 'IN' && opacity >= 1 && sceneVisible) {
@@ -77,28 +77,28 @@ export default async function HyperspacePortalSystem(world: World) {
            * hide scene, render just the hyperspace effect and avatar
            */
           Engine.instance.currentWorld.scene.background = new Color('black')
-          Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Portal)
-          Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Scene)
+          Engine.instance.camera.layers.enable(ObjectLayers.Portal)
+          Engine.instance.camera.layers.disable(ObjectLayers.Scene)
           sceneVisible = false
         }
 
         if (sceneLoaded && transition.state === 'OUT' && opacity <= 0) {
           sceneVisible = true
-          removeComponent(world.localClientEntity, HyperspaceTagComponent)
+          removeComponent(Engine.instance.localClientEntity, HyperspaceTagComponent)
           hyperspaceEffect.removeFromParent()
           light.removeFromParent()
           light.dispose()
-          Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Portal)
-          Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
+          Engine.instance.camera.layers.disable(ObjectLayers.Portal)
+          Engine.instance.camera.layers.enable(ObjectLayers.Scene)
         }
       })
 
       hyperspaceEffect.position.copy(playerTransform.position)
       hyperspaceEffect.quaternion.copy(playerTransform.rotation)
 
-      if (Engine.instance.currentWorld.camera.zoom > 0.75) {
-        Engine.instance.currentWorld.camera.zoom -= world.deltaSeconds
-        Engine.instance.currentWorld.camera.updateProjectionMatrix()
+      if (Engine.instance.camera.zoom > 0.75) {
+        Engine.instance.camera.zoom -= Engine.instance.deltaSeconds
+        Engine.instance.camera.updateProjectionMatrix()
       }
     }
   }

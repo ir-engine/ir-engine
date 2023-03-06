@@ -12,7 +12,7 @@ import { FlyControlComponent } from './components/FlyControlComponent'
 const EPSILON = 10e-5
 const IDENTITY = new Matrix4().identity()
 
-export default async function FlyControlSystem(world: World) {
+export default async function FlyControlSystem() {
   const flyControlQuery = defineQuery([FlyControlComponent])
   const direction = new Vector3()
   const parentInverse = new Matrix4()
@@ -24,14 +24,14 @@ export default async function FlyControlSystem(world: World) {
   const candidateWorldQuat = new Quaternion()
 
   const execute = () => {
-    if (!world.buttons.SecondaryClick?.pressed && !world.buttons.PrimaryClick?.pressed) return
+    if (!Engine.instance.buttons.SecondaryClick?.pressed && !Engine.instance.buttons.PrimaryClick?.pressed) return
     for (const entity of flyControlQuery()) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
-      const camera = Engine.instance.currentWorld.camera
+      const camera = Engine.instance.camera
 
-      const inputState = world.buttons
+      const inputState = Engine.instance.buttons
 
-      const mouseMovement = world.pointerState.movement
+      const mouseMovement = Engine.instance.pointerState.movement
 
       camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
 
@@ -78,13 +78,13 @@ export default async function FlyControlSystem(world: World) {
       // translate
       direction.set(lateralMovement, 0, forwardMovement)
       const boostSpeed = inputState.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
-      const speed = world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
+      const speed = Engine.instance.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
       if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)
 
-      camera.position.y += upwardMovement * world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
+      camera.position.y += upwardMovement * Engine.instance.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
-      const transform = getComponent(world.cameraEntity, TransformComponent)
+      const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
       transform.position.copy(camera.position)
       transform.rotation.copy(camera.quaternion)
     }

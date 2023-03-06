@@ -48,6 +48,6 @@ export const unloadScene = async () => {
   for (const o of sceneObjectsToRemove) Engine.instance.currentWorld.scene.remove(o)
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
-  await unloadAllSystems(world, true)
+  await unloadAllSystems(true)
   dispatchAction(EngineActions.sceneUnloaded({}))
 }

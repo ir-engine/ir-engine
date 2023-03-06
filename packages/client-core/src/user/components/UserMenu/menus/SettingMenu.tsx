@@ -93,7 +93,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     delete themeModes['editor']
   }
 
-  const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
+  const showWorldSettings = Engine.instance.localClientEntity || Engine.instance.isEditor
 
   /**
    * Note: If you're editing this function, be sure to make the same changes to

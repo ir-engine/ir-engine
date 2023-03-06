@@ -45,7 +45,7 @@ const ProtectedRoutes = () => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    initSystems(Engine.instance.currentWorld, [AdminSystemInjection]).then(async () => {
+    initSystems([AdminSystemInjection]).then(async () => {
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })
   }, [])

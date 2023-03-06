@@ -33,7 +33,7 @@ export const EditorHistoryState = defineState({
   })
 })
 
-export default function EditorHistoryReceptor(world: World): SystemDefintion {
+export default function EditorHistoryReceptor(): SystemDefintion {
   const state = getState(EditorHistoryState)
 
   const selectedEntitiesState = getState(SelectionState)
@@ -68,7 +68,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     for (const action of clearHistoryQueue()) {
       state.merge({
         index: 0,
-        history: [{ data: { scene: serializeWorld(world.sceneEntity) } as any as SceneData }]
+        history: [{ data: { scene: serializeWorld(Engine.instance.currentWorld.sceneEntity) } as any as SceneData }]
       })
     }
 
@@ -91,7 +91,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     /** Local only - serialize world then push to CRDT */
     for (const action of modifyQueue()) {
       if (action.modify) {
-        const data = { scene: serializeWorld(world.sceneEntity) } as any as SceneData
+        const data = { scene: serializeWorld(Engine.instance.currentWorld.sceneEntity) } as any as SceneData
         state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { data }])
         state.index.set(state.index.value + 1)
       } else if (state.includeSelection.value) {

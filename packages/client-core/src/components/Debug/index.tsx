@@ -34,13 +34,12 @@ export const Debug = ({ showingStateRef }) => {
   const engineState = useHookstate(getState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
-    engineState.joinedWorld.value &&
-    hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
+    engineState.joinedWorld.value && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
-  const networks = mapToObject(Engine.instance.currentWorld.networks)
+  const networks = mapToObject(Engine.instance.networks)
 
   const onClickRespawn = (): void => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+    respawnAvatar(Engine.instance.localClientEntity)
   }
 
   const toggleDebug = () => {
@@ -82,16 +81,13 @@ export const Debug = ({ showingStateRef }) => {
   const renderEntityComponents = (entity: Entity) => {
     return Object.fromEntries(
       entityExists(entity)
-        ? getEntityComponents(Engine.instance.currentWorld, entity).reduce<[string, any][]>(
-            (components, C: Component<any, any>) => {
-              if (C !== NameComponent) {
-                const component = getComponent(entity, C)
-                components.push([C.name, { ...component }])
-              }
-              return components
-            },
-            []
-          )
+        ? getEntityComponents(Engine.instance, entity).reduce<[string, any][]>((components, C: Component<any, any>) => {
+            if (C !== NameComponent) {
+              const component = getComponent(entity, C)
+              components.push([C.name, { ...component }])
+            }
+            return components
+          }, [])
         : []
     )
   }
@@ -99,7 +95,7 @@ export const Debug = ({ showingStateRef }) => {
   const renderAllEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.instance.currentWorld.entityQuery().entries()]
+        [...Engine.instance.entityQuery().entries()]
           .map(([key, eid]) => {
             try {
               return [
@@ -128,7 +124,7 @@ export const Debug = ({ showingStateRef }) => {
 
   const namedEntities = useHookstate({})
   const entityTree = useHookstate({} as any)
-  const pipelines = Engine.instance.currentWorld.pipelines
+  const pipelines = Engine.instance.pipelines
 
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())

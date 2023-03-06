@@ -14,7 +14,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new PointLight()
     if (!isHeadset()) addObjectToGroup(entity, light)
     return {

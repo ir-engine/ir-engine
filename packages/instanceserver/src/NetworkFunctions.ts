@@ -302,7 +302,7 @@ export async function handleJoinWorld(
       peerID,
       routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
       highResTimeOrigin: performance.timeOrigin,
-      worldStartTime: world.startTime,
+      worldStartTime: Engine.instance.startTime,
       cachedActions
     },
     id: messageId
@@ -331,7 +331,7 @@ const getUserSpawnFromInvite = async (
     if (users.length > 0) {
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
-        const selfAvatarEntity = world.getUserAvatarEntity(user.id as UserId)
+        const selfAvatarEntity = Engine.instance.getUserAvatarEntity(user.id as UserId)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -342,7 +342,7 @@ const getUserSpawnFromInvite = async (
           return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
         }
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = world.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserAvatarEntity = Engine.instance.getUserAvatarEntity(inviterUserId as UserId)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(

@@ -286,11 +286,11 @@ export const readEntity = (v: ViewCursor, fromUserId: UserId) => {
   const changeMask = readUint8(v)
   const world = Engine.instance.currentWorld
 
-  let entity = world.getNetworkObject(fromUserId, netId)
+  let entity = Engine.instance.getNetworkObject(fromUserId, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
 
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, world.dirtyTransforms)
+  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, Engine.instance.dirtyTransforms)
   if (checkBitflag(changeMask, 1 << b++)) readRigidBody(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRHead(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRLeftHand(v, entity)
@@ -307,11 +307,11 @@ export const readEntities = (v: ViewCursor, byteLength: number, fromUserID: User
   }
 }
 
-export const readMetadata = (v: ViewCursor, world: World) => {
+export const readMetadata = (v: ViewCursor) => {
   const userIndex = readUint32(v)
   const peerIndex = readUint32(v)
   const fixedTick = readUint32(v)
-  // if (userIndex === world.peerIDToUserIndex.get(world.worldNetwork.hostId)! && !world.worldNetwork.isHosting) world.fixedTick = fixedTick
+  // if (userIndex === world.peerIDToUserIndex.get(Engine.instance.worldNetwork.hostId)! && !Engine.instance.worldNetwork.isHosting) Engine.instance.fixedTick = fixedTick
   return { userIndex, peerIndex }
 }
 
@@ -319,7 +319,7 @@ export const createDataReader = () => {
   return (network: Network, packet: ArrayBuffer) => {
     const world = Engine.instance.currentWorld
     const view = createViewCursor(packet)
-    const { userIndex, peerIndex } = readMetadata(view, world)
+    const { userIndex, peerIndex } = readMetadata(view)
     const fromUserID = network.userIndexToUserID.get(userIndex)
     const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
     const isLoopback = fromPeerID && fromPeerID === network.peerID

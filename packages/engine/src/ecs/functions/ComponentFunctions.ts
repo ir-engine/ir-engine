@@ -12,7 +12,6 @@ import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
 import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
@@ -39,11 +38,7 @@ export interface ComponentPartial<
 > {
   name: string
   schema?: Schema
-  onInit?: (
-    this: SoAComponentType<Schema>,
-    entity: Entity,
-    world: World
-  ) => ComponentType & OnInitValidateNotState<ComponentType>
+  onInit?: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
   onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
@@ -167,7 +162,6 @@ export const getComponent = <ComponentType>(
  * @param entity
  * @param Component
  * @param args
- * @param world
  *
  * @returns the component
  */
@@ -179,8 +173,7 @@ export const setComponent = <C extends Component>(
   if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
-  const world = Engine.instance.currentWorld
-  if (!bitECS.entityExists(world, entity)) {
+  if (!bitECS.entityExists(Engine.instance, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
   let value = args
@@ -189,7 +182,7 @@ export const setComponent = <C extends Component>(
     Component.existenceMap[entity].set(true)
     if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(value)
     else Component.stateMap[entity]!.set(value)
-    bitECS.addComponent(world, Component, entity, false) // don't clear data on-add
+    bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
     if (Component.reactor) {
       if (!Component.reactor.name || Component.reactor.name === 'reactor')
         Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor-${entity}` })
@@ -250,7 +243,6 @@ export const updateComponent = <C extends Component>(
  * @param entity
  * @param Component
  * @param args
- * @param world
  * @returns
  */
 export const addComponent = <C extends Component>(
@@ -263,7 +255,7 @@ export const addComponent = <C extends Component>(
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
-  return bitECS.hasComponent(Engine.instance.currentWorld, component, entity)
+  return bitECS.hasComponent(Engine.instance, component, entity)
 }
 
 export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
@@ -271,10 +263,9 @@ export const getOrAddComponent = <C extends Component>(entity: Entity, component
 }
 
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
-  const world = Engine.instance.currentWorld
-  if (!bitECS.entityExists(world, entity) || !bitECS.hasComponent(world, component, entity)) return
+  if (!bitECS.entityExists(Engine.instance, entity) || !bitECS.hasComponent(Engine.instance, component, entity)) return
   component.onRemove(entity, component.stateMap[entity]!)
-  bitECS.removeComponent(world, component, entity, false)
+  bitECS.removeComponent(Engine.instance, component, entity, false)
   component.existenceMap[entity].set(false)
   component.stateMap[entity]?.set(none)
   delete component.valueMap[entity]
@@ -283,9 +274,9 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   component.reactorMap.delete(entity)
 }
 
-export const getAllComponents = (entity: Entity, world = Engine.instance.currentWorld): Component[] => {
-  if (!bitECS.entityExists(Engine.instance.currentWorld, entity)) return []
-  return bitECS.getEntityComponents(world, entity) as Component[]
+export const getAllComponents = (entity: Entity): Component[] => {
+  if (!bitECS.entityExists(Engine.instance, entity)) return []
+  return bitECS.getEntityComponents(Engine.instance, entity) as Component[]
 }
 
 export const getAllComponentData = (entity: Entity): { [name: string]: ComponentType<any> } => {
@@ -295,14 +286,14 @@ export const getAllComponentData = (entity: Entity): { [name: string]: Component
 export const getComponentCountOfType = <C extends Component>(component: C): number => {
   const query = defineQuery([component])
   const length = query().length
-  bitECS.removeQuery(Engine.instance.currentWorld, query._query)
+  bitECS.removeQuery(Engine.instance, query._query)
   return length
 }
 
 export const getAllComponentsOfType = <C extends Component<any>>(component: C): ComponentType<C>[] => {
   const query = defineQuery([component])
   const entities = query()
-  bitECS.removeQuery(Engine.instance.currentWorld, query._query)
+  bitECS.removeQuery(Engine.instance, query._query)
   return entities.map((e) => {
     return getComponent(e, component)!
   })
@@ -310,7 +301,7 @@ export const getAllComponentsOfType = <C extends Component<any>>(component: C): 
 
 export const removeAllComponents = (entity: Entity) => {
   try {
-    for (const component of bitECS.getEntityComponents(Engine.instance.currentWorld, entity)) {
+    for (const component of bitECS.getEntityComponents(Engine.instance, entity)) {
       removeComponent(entity, component as Component)
     }
   } catch (_) {
@@ -327,9 +318,9 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   const query = bitECS.defineQuery([...components, bitECS.Not(EntityRemovedComponent)]) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
-  const wrappedQuery = () => query(Engine.instance.currentWorld) as Entity[]
-  wrappedQuery.enter = () => enterQuery(Engine.instance.currentWorld) as Entity[]
-  wrappedQuery.exit = () => exitQuery(Engine.instance.currentWorld) as Entity[]
+  const wrappedQuery = () => query(Engine.instance) as Entity[]
+  wrappedQuery.enter = () => enterQuery(Engine.instance) as Entity[]
+  wrappedQuery.exit = () => exitQuery(Engine.instance) as Entity[]
   wrappedQuery._query = query
   wrappedQuery._enterQuery = enterQuery
   wrappedQuery._exitQuery = exitQuery
@@ -337,9 +328,9 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
 }
 
 export function removeQuery(query: ReturnType<typeof defineQuery>) {
-  bitECS.removeQuery(Engine.instance.currentWorld, query._query)
-  bitECS.removeQuery(Engine.instance.currentWorld, query._enterQuery)
-  bitECS.removeQuery(Engine.instance.currentWorld, query._exitQuery)
+  bitECS.removeQuery(Engine.instance, query._query)
+  bitECS.removeQuery(Engine.instance, query._enterQuery)
+  bitECS.removeQuery(Engine.instance, query._exitQuery)
 }
 
 export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Component)[]
@@ -348,8 +339,6 @@ export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Co
  * Use a query in a reactive context (a React component)
  */
 export function useQuery(components: QueryComponents) {
-  const world = Engine.instance.currentWorld
-
   const result = useHookstate([] as Entity[])
   const forceUpdate = useForceUpdate()
 
@@ -361,10 +350,10 @@ export function useQuery(components: QueryComponents) {
     const query = defineQuery(components)
     result.set(query())
     const queryState = { query, result, components }
-    world.reactiveQueryStates.add(queryState)
+    Engine.instance.reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(query)
-      world.reactiveQueryStates.delete(queryState)
+      Engine.instance.reactiveQueryStates.delete(queryState)
     }
   }, [])
 

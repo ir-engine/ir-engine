@@ -58,7 +58,7 @@ export const WidgetAppService = {
     const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
       id,
       ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
+      ...Engine.instance.widgets.get(id)!
     }))
 
     const currentWidget = widgets.find((w) => w.label === widgetName)

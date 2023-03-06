@@ -4,7 +4,6 @@ import { createActionQueue, getState, removeActionQueue } from '@etherealengine/
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
@@ -17,7 +16,7 @@ type RaycastDebugs = {
   hits: RaycastHit[]
 }
 
-export default async function DebugRendererSystem(world: World) {
+export default async function DebugRendererSystem() {
   let enabled = false
 
   InfiniteGridHelper.instance = new InfiniteGridHelper()
@@ -30,7 +29,7 @@ export default async function DebugRendererSystem(world: World) {
   const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
   _lineSegments.frustumCulled = false
   setObjectLayers(_lineSegments, ObjectLayers.PhysicsHelper)
-  world.scene.add(_lineSegments)
+  Engine.instance.currentWorld.scene.add(_lineSegments)
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
 
@@ -44,12 +43,12 @@ export default async function DebugRendererSystem(world: World) {
       _lineSegments.visible = enabled
     }
 
-    if (enabled && world.physicsWorld) {
-      const debugRenderBuffer = world.physicsWorld.debugRender()
+    if (enabled && Engine.instance.physicsWorld) {
+      const debugRenderBuffer = Engine.instance.physicsWorld.debugRender()
       _lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
       _lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
 
-      for (const { raycastQuery, hits } of (world.physicsWorld as any).raycastDebugs as RaycastDebugs[]) {
+      for (const { raycastQuery, hits } of (Engine.instance.physicsWorld as any).raycastDebugs as RaycastDebugs[]) {
         const line = new Line(
           new BufferGeometry().setFromPoints([
             new Vector3(0, 0, 0),
@@ -81,7 +80,7 @@ export default async function DebugRendererSystem(world: World) {
       }
     }
 
-    if (world.physicsWorld) (world.physicsWorld as any).raycastDebugs = []
+    if (Engine.instance.physicsWorld) (Engine.instance.physicsWorld as any).raycastDebugs = []
   }
 
   const cleanup = async () => {

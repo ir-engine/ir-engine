@@ -63,7 +63,7 @@ export function teleportObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.teleportObject>,
   world = Engine.instance.currentWorld
 ) {
-  const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
+  const entity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
   teleportObject(entity, action.position, action.rotation)
 }
 
@@ -116,13 +116,13 @@ export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, sub
   rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
 
-export default async function PhysicsSystem(world: World) {
-  world.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
+export default async function PhysicsSystem() {
+  Engine.instance.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
     defaultData: {}
   })
 
-  world.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
+  Engine.instance.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
@@ -148,10 +148,10 @@ export default async function PhysicsSystem(world: World) {
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   await Physics.load()
-  world.physicsWorld = Physics.createWorld()
-  world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
-  const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
-  const drainContacts = Physics.drainContactEventQueue(world.physicsWorld)
+  Engine.instance.physicsWorld = Physics.createWorld()
+  Engine.instance.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
+  const drainCollisions = Physics.drainCollisionEventQueue(Engine.instance.physicsWorld)
+  const drainContacts = Physics.drainContactEventQueue(Engine.instance.physicsWorld)
 
   const execute = () => {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
@@ -186,7 +186,7 @@ export default async function PhysicsSystem(world: World) {
     // step physics world
     const substeps = engineState.physicsSubsteps.value
     const timestep = engineState.fixedDeltaSeconds.value / substeps
-    world.physicsWorld.timestep = timestep
+    Engine.instance.physicsWorld.timestep = timestep
     // const smoothnessMultiplier = 50
     // const smoothAlpha = smoothnessMultiplier * timestep
     const kinematicPositionEntities = kinematicPositionBodyQuery()
@@ -196,9 +196,9 @@ export default async function PhysicsSystem(world: World) {
       const substep = (i + 1) / substeps
       for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep, substep)
       for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep, substep)
-      world.physicsWorld.step(world.physicsCollisionEventQueue)
-      world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
-      world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
+      Engine.instance.physicsWorld.step(Engine.instance.physicsCollisionEventQueue)
+      Engine.instance.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
+      Engine.instance.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
     }
 
     /** process collisions */
@@ -245,9 +245,9 @@ export default async function PhysicsSystem(world: World) {
   }
 
   const cleanup = async () => {
-    world.sceneComponentRegistry.delete(ColliderComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
-    world.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
+    Engine.instance.sceneComponentRegistry.delete(ColliderComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
+    Engine.instance.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
 
     removeQuery(allRigidBodyQuery)
     removeQuery(collisionQuery)
@@ -255,7 +255,7 @@ export default async function PhysicsSystem(world: World) {
     removeActionQueue(teleportObjectQueue)
     removeActionQueue(modifyPropertyActionQueue)
 
-    world.physicsWorld.free()
+    Engine.instance.physicsWorld.free()
   }
 
   return { execute, cleanup }

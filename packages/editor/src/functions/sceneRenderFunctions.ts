@@ -52,20 +52,20 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
 
   dispatchAction(EditorHistoryAction.clearHistory({}))
 
-  const camera = world.camera
-  const transform = getComponent(world.cameraEntity, TransformComponent)
+  const camera = Engine.instance.camera
+  const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   camera.position.set(0, 5, 10)
   camera.lookAt(new Vector3())
   transform.position.copy(camera.position)
   transform.rotation.copy(camera.quaternion)
-  world.dirtyTransforms[world.cameraEntity] = true
+  Engine.instance.dirtyTransforms[Engine.instance.cameraEntity] = true
 
-  world.camera.layers.enable(ObjectLayers.Scene)
-  world.camera.layers.enable(ObjectLayers.NodeHelper)
-  world.camera.layers.enable(ObjectLayers.Gizmos)
+  Engine.instance.camera.layers.enable(ObjectLayers.Scene)
+  Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+  Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
 
-  removeComponent(world.cameraEntity, EditorCameraComponent)
-  addComponent(world.cameraEntity, EditorCameraComponent, {
+  removeComponent(Engine.instance.cameraEntity, EditorCameraComponent)
+  addComponent(Engine.instance.cameraEntity, EditorCameraComponent, {
     center: new Vector3(),
     zoomDelta: 0,
     isOrbiting: false,

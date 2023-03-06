@@ -97,7 +97,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
 
-  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork
+  const mediaNetwork = Engine.instance.mediaNetwork
   const isSelf = !mediaNetwork || peerID === mediaNetwork?.peerID
   const volume = isSelf ? audioState.microphoneGain.value : _volume
   const isScreen = type === 'screen'
@@ -237,7 +237,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleWebcamPaused()
     } else if (isSelf && isScreen) {
@@ -255,7 +255,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
@@ -273,7 +273,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     const audioStreamProducer = audioStream as ConsumerExtension
     if (!audioProducerGlobalMute) {
       await globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })

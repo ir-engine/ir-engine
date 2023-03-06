@@ -17,7 +17,7 @@ import { XRAction, XRState } from './XRState'
 /**
  * System for XR session and input handling
  */
-export default async function XRSystem(world: World) {
+export default async function XRSystem() {
   const xrState = getState(XRState)
 
   const updateSessionSupportForMode = (mode: XRSessionMode) => {

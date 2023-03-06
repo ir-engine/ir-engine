@@ -14,7 +14,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new SpotLight()
     light.target.position.set(0, -1, 0)
     light.target.name = 'light-target'

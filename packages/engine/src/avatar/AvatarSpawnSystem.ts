@@ -67,14 +67,14 @@ export function avatarDetailsReceptor(
   const userAvatarDetails = getState(WorldState).userAvatarDetails
   userAvatarDetails[action.$from].set(action.avatarDetail)
   if (isClient && action.avatarDetail.avatarURL) {
-    const entity = world.getUserAvatarEntity(action.$from)
+    const entity = Engine.instance.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
   }
 }
 
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
-export default async function AvatarSpawnSystem(world: World) {
+export default async function AvatarSpawnSystem() {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
 

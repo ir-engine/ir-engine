@@ -10,7 +10,7 @@ import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
-export function createHeightAdjustmentWidget(world: World) {
+export function createHeightAdjustmentWidget() {
   const ui = createXRUI(() => null)
   removeComponent(ui.entity, VisibleComponent)
   setComponent(ui.entity, XRUIInteractableComponent)
@@ -33,7 +33,7 @@ export function createHeightAdjustmentWidget(world: World) {
     }
   }
 
-  const id = Widgets.registerWidget(world, ui.entity, widget)
+  const id = Widgets.registerWidget(ui.entity, widget)
   /** @todo better API to disable */
   dispatchAction(WidgetAppActions.enableWidget({ id, enabled: false }))
 }

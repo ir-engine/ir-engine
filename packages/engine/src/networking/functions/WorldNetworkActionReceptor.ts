@@ -35,18 +35,18 @@ const receiveSpawnObject = (
   world = Engine.instance.currentWorld
 ) => {
   const existingAvatar =
-    WorldNetworkAction.spawnAvatar.matches.test(action) && !!world.getUserAvatarEntity(action.$from)
+    WorldNetworkAction.spawnAvatar.matches.test(action) && !!Engine.instance.getUserAvatarEntity(action.$from)
   if (existingAvatar) return
 
   const entity = createEntity()
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: action.$peer ?? world.worldNetwork?.peerID ?? SelfPeerID,
+    authorityPeerID: action.$peer ?? Engine.instance.worldNetwork?.peerID ?? SelfPeerID,
     networkId: action.networkId
   })
 
-  const isAuthoritativePeer = !action.$peer || action.$peer === world.worldNetwork?.peerID
+  const isAuthoritativePeer = !action.$peer || action.$peer === Engine.instance.worldNetwork?.peerID
 
   if (isAuthoritativePeer) {
     setComponent(entity, NetworkObjectAuthorityTag)
@@ -81,7 +81,7 @@ const receiveRegisterSceneObject = (
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: action.$peer ?? world.worldNetwork?.peerID ?? SelfPeerID,
+    authorityPeerID: action.$peer ?? Engine.instance.worldNetwork?.peerID ?? SelfPeerID,
     networkId: action.networkId
   })
 
@@ -106,7 +106,7 @@ const receiveDestroyObject = (
   action: ReturnType<typeof WorldNetworkAction.destroyObject>,
   world = Engine.instance.currentWorld
 ) => {
-  const entity = world.getNetworkObject(action.$from, action.networkId)
+  const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
   if (!entity)
     return console.log(
       `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
@@ -122,7 +122,7 @@ const receiveRequestAuthorityOverObject = (
   if (Engine.instance.userId !== action.ownerId) return
 
   const ownerId = action.ownerId
-  const entity = world.getNetworkObject(ownerId, action.networkId)
+  const entity = Engine.instance.getNetworkObject(ownerId, action.networkId)
   if (!entity)
     return console.log(
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
@@ -149,7 +149,7 @@ const receiveTransferAuthorityOfObject = (
   if (action.$from !== action.ownerId) return
 
   const ownerId = action.ownerId
-  const entity = world.getNetworkObject(ownerId, action.networkId)
+  const entity = Engine.instance.getNetworkObject(ownerId, action.networkId)
   if (!entity)
     return console.log(
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
@@ -157,7 +157,7 @@ const receiveTransferAuthorityOfObject = (
 
   getComponentState(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 
-  if (world?.worldNetwork.peerID === action.newAuthority) {
+  if (Engine.instance.worldNetwork.peerID === action.newAuthority) {
     if (hasComponent(entity, NetworkObjectAuthorityTag))
       return console.warn(`Warning - User ${Engine.instance.userId} already has authority over entity ${entity}.`)
 

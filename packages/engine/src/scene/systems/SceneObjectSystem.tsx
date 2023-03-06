@@ -87,7 +87,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
   })
 }
 
-export default async function SceneObjectSystem(world: World) {
+export default async function SceneObjectSystem() {
   if (isNode) {
     await loadDRACODecoder()
   }

@@ -41,7 +41,7 @@ export interface ProjectConfigInterface {
    * This is loaded on ALL instances of the engine if enabled
    * Allows for running of custom logic regardless of which scene or route is loaded
    */
-  worldInjection?: () => Promise<{ default: (world: World) => Promise<void> }>
+  worldInjection?: () => Promise<{ default: () => Promise<void> }>
 
   /**
    * Services

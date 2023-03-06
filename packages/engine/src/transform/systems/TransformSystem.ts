@@ -109,7 +109,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   TransformComponent.rotation.z[entity] = rotationZ * alpha + previousRotationZ * (1 - alpha)
   TransformComponent.rotation.w[entity] = rotationW * alpha + previousRotationW * (1 - alpha)
 
-  Engine.instance.currentWorld.dirtyTransforms[entity] = true
+  Engine.instance.dirtyTransforms[entity] = true
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
@@ -160,9 +160,9 @@ const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) =
   return getComponent(entity, TransformComponent).position.distanceToSquared(targetPosition)
 }
 
-export default async function TransformSystem(world: World) {
-  world.sceneComponentRegistry.set(TransformComponent.name, SCENE_COMPONENT_TRANSFORM)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
+export default async function TransformSystem() {
+  Engine.instance.sceneComponentRegistry.set(TransformComponent.name, SCENE_COMPONENT_TRANSFORM)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
     defaultData: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
     deserialize: deserializeTransform,
     serialize: serializeTransform
@@ -180,9 +180,12 @@ export default async function TransformSystem(world: World) {
     const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
     const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
 
-    if (referenceEntity && (originChildEntities.has(referenceEntity) || referenceEntity === world.originEntity))
+    if (
+      referenceEntity &&
+      (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.originEntity)
+    )
       originChildEntities.add(referenceEntity)
-    if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === world.originEntity))
+    if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === Engine.instance.originEntity))
       originChildEntities.add(parentEntity)
   }
 
@@ -231,9 +234,9 @@ export default async function TransformSystem(world: World) {
     for (const obj of group) box.expandByObject(obj)
   }
 
-  const isDirty = (entity: Entity) => world.dirtyTransforms[entity]
+  const isDirty = (entity: Entity) => Engine.instance.dirtyTransforms[entity]
   const isDirtyNonKinematic = (entity: Entity) =>
-    world.dirtyTransforms[entity] &&
+    Engine.instance.dirtyTransforms[entity] &&
     !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
     !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
@@ -255,7 +258,7 @@ export default async function TransformSystem(world: World) {
   }
 
   const execute = () => {
-    const { localClientEntity } = world
+    const { localClientEntity } = Engine.instance
     // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
 
     // if transform order is dirty, sort by reference depth
@@ -295,18 +298,20 @@ export default async function TransformSystem(world: World) {
     const awakeRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeRigidbodies)
 
     // lerp awake rigidbody entities (and make their transforms dirty)
-    const fixedRemainder = world.elapsedSeconds - world.fixedElapsedSeconds
+    const fixedRemainder = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
     const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
     for (const entity of awakeRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
     for (const entity of transformQuery()) {
       const makeDirty =
-        world.dirtyTransforms[entity] ||
-        world.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
-        world.dirtyTransforms[getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0] ||
+        Engine.instance.dirtyTransforms[entity] ||
+        Engine.instance.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
+        Engine.instance.dirtyTransforms[
+          getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0
+        ] ||
         hasComponent(entity, ComputedTransformComponent)
-      world.dirtyTransforms[entity] = makeDirty
+      Engine.instance.dirtyTransforms[entity] = makeDirty
     }
 
     const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
@@ -321,7 +326,7 @@ export default async function TransformSystem(world: World) {
     for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
     if (!xrFrame) {
-      const camera = Engine.instance.currentWorld.camera
+      const camera = Engine.instance.camera
       const viewCamera = camera.cameras[0]
       viewCamera.matrixWorld.copy(camera.matrixWorld)
       viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
@@ -329,7 +334,7 @@ export default async function TransformSystem(world: World) {
       viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
     }
 
-    for (const entity in world.dirtyTransforms) world.dirtyTransforms[entity] = false
+    for (const entity in Engine.instance.dirtyTransforms) Engine.instance.dirtyTransforms[entity] = false
 
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
@@ -345,12 +350,15 @@ export default async function TransformSystem(world: World) {
       }
     }
 
-    const cameraPosition = getComponent(world.cameraEntity, TransformComponent).position
+    const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
     for (const entity of distanceFromCameraQuery())
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
     /** @todo expose the frustum in WebGLRenderer to not calculate this twice  */
-    _projScreenMatrix.multiplyMatrices(world.camera.projectionMatrix, world.camera.matrixWorldInverse)
+    _projScreenMatrix.multiplyMatrices(
+      Engine.instance.camera.projectionMatrix,
+      Engine.instance.camera.matrixWorldInverse
+    )
     _frustum.setFromProjectionMatrix(_projScreenMatrix)
 
     for (const entity of frustumCulledQuery())
@@ -379,7 +387,7 @@ export default async function TransformSystem(world: World) {
     //    *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation
     //    */
     //   Skeleton.prototype.update = skeletonUpdate
-    //   for (const entity of world.priorityAvatarEntities) {
+    //   for (const entity of Engine.instance.priorityAvatarEntities) {
     //     const group = getComponent(entity, GroupComponent)
     //     for (const obj of group) obj.traverse(iterateSkeletons)
     //   }
@@ -388,8 +396,8 @@ export default async function TransformSystem(world: World) {
   }
 
   const cleanup = async () => {
-    world.sceneComponentRegistry.delete(TransformComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_TRANSFORM)
+    Engine.instance.sceneComponentRegistry.delete(TransformComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_TRANSFORM)
 
     removeActionQueue(modifyPropertyActionQueue)
 

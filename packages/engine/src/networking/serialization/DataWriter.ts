@@ -405,7 +405,7 @@ export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, p
   const world = Engine.instance.currentWorld
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
-  writeUint32(v, world.fixedTick)
+  writeUint32(v, Engine.instance.fixedTick)
 }
 
 export const createDataWriter = (size: number = 100000) => {

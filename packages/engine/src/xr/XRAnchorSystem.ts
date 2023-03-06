@@ -61,7 +61,8 @@ export const updateHitTest = (entity: Entity) => {
   const space = ReferenceSpace.localFloor // xrFrame.session.interactionMode === 'world-space' ? ReferenceSpace.localFloor! : ReferenceSpace.viewer!
   const pose = space && hitTestResults?.length && hitTestResults[0].getPose(space)
   if (pose) {
-    localTransform.parentEntity = space === ReferenceSpace.localFloor ? world.originEntity : world.cameraEntity
+    localTransform.parentEntity =
+      space === ReferenceSpace.localFloor ? Engine.instance.originEntity : Engine.instance.cameraEntity
     localTransform.position.copy(pose.transform.position as any)
     localTransform.rotation.copy(pose.transform.orientation as any)
   }
@@ -95,7 +96,7 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 /** AR placement for immersive session */
 // export const getHitTestFromController = (world = Engine.instance.currentWorld) => {
 //   const referenceSpace = ReferenceSpace.origin!
-//   const pose = Engine.instance.xrFrame!.getPose(world.inputSources[0].targetRaySpace, referenceSpace)!
+//   const pose = Engine.instance.xrFrame!.getPose(Engine.instance.inputSources[0].targetRaySpace, referenceSpace)!
 //   const { position, orientation } = pose.transform
 
 //   pos.copy(position as any as Vector3)
@@ -135,7 +136,7 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 //   const swipe = placementInputSource.gamepad?.axes ?? []
 //   if (swipe.length) {
 //     const delta = swipe[0] - (lastSwipeValue ?? 0)
-//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (world.deltaSeconds * 20)))
+//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (Engine.instance.deltaSeconds * 20)))
 //     lastSwipeValue = swipe[0]
 //   } else {
 //     lastSwipeValue = null
@@ -201,7 +202,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   if (!localTransform || !xrFrame || !xrSession) return
 
   const world = Engine.instance.currentWorld
-  const lerpAlpha = smootheLerpAlpha(5, world.deltaSeconds)
+  const lerpAlpha = smootheLerpAlpha(5, Engine.instance.deltaSeconds)
 
   const targetScale = getTargetWorldSize(localTransform)
   if (targetScale !== xrState.sceneScale.value)
@@ -223,7 +224,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
  * @param world
  * @returns
  */
-export default async function XRAnchorSystem(world: World) {
+export default async function XRAnchorSystem() {
   const xrState = getState(XRState)
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
@@ -246,7 +247,7 @@ export default async function XRAnchorSystem(world: World) {
 
   const scenePlacementEntity = createEntity()
   setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-  setLocalTransformComponent(scenePlacementEntity, world.originEntity)
+  setLocalTransformComponent(scenePlacementEntity, Engine.instance.originEntity)
   setComponent(scenePlacementEntity, VisibleComponent, true)
 
   const originAxesHelper = new AxesHelper(10000)
@@ -345,7 +346,7 @@ export default async function XRAnchorSystem(world: World) {
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
       if (!action.active) {
-        setTransformComponent(world.originEntity) // reset world origin
+        setTransformComponent(Engine.instance.originEntity) // reset world origin
         xrState.scenePlacementMode.set('unplaced')
         for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
         for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)

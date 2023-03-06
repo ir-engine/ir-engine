@@ -92,7 +92,7 @@ const PeerConsumer = (props: {
   const isAudio = props.mediaTag.endsWith('audio')
 
   const isScreen = type === 'screen'
-  const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
   const isSelf = props.peerID === network.peerID
 
   const peerMediaChannelState = useHookstate(getState(PeerMediaChannelState)[peerID][type])
@@ -231,7 +231,7 @@ const PeerConsumer = (props: {
   ])
 
   useEffect(() => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     const primus = mediaNetwork.primus
     if (typeof primus?.on === 'function') {
       const responseFunction = (message) => {
@@ -289,7 +289,7 @@ export const PeerMedia = () => {
   const mediaState = useHookstate(getState(MediaState))
   const mediaStreamState = useHookstate(getState(MediaStreamState))
   const peerMediaChannelState = useHookstate(getState(PeerMediaChannelState))
-  const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+  const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
 
   // create a peer media stream for each peer with a consumer
   useEffect(() => {

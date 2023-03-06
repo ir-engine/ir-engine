@@ -46,7 +46,7 @@ type EntityTreeSetType = {
 export const EntityTreeComponent = defineComponent({
   name: 'EntityTreeComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     return {
       // api
       parentEntity: null as Entity | null,
@@ -103,7 +103,7 @@ export const EntityTreeComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    if (entity === Engine.instance.currentWorld.originEntity) return
+    if (entity === Engine.instance.originEntity) return
 
     if (component.parentEntity.value) {
       const parent = getComponentState(component.parentEntity.value, EntityTreeComponent)
@@ -186,7 +186,7 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
   }
 
   /** @todo networking all objects breaks portals currently - need to implement checks with connecting to instance server to ensure it's the same scene */
-  // if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
+  // if (Engine.instance.worldNetwork?.isHosting) {
   //   dispatchAction(
   //     WorldNetworkAction.registerSceneObject({
   //       objectUuid: node.uuid

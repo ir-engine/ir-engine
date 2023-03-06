@@ -5,11 +5,11 @@ import { WidgetName, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
 import { createAdminControlsMenuView } from './ui/AdminControlsMenuView'
 
-export function createAdminControlsMenuWidget(world: World) {
+export function createAdminControlsMenuWidget() {
   const ui = createAdminControlsMenuView()
   removeComponent(ui.entity, VisibleComponent)
 
-  Widgets.registerWidget(world, ui.entity, {
+  Widgets.registerWidget(ui.entity, {
     ui,
     label: WidgetName.ADMIN_CONTROLS,
     system: () => {}

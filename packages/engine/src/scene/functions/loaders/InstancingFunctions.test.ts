@@ -40,7 +40,7 @@ describe('InstancingFunctions', async () => {
     Engine.instance.publicPath = ''
     await Promise.all([])
 
-    await initSystems(world, [
+    await initSystems([
       {
         uuid: 'Instance',
         type: SystemUpdateType.FIXED_LATE,

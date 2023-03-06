@@ -6,13 +6,13 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 
 const GIZMO_SIZE = 10
 
-export default async function GizmoSystem(world: World) {
+export default async function GizmoSystem() {
   const gizmoQuery = defineQuery([TransformGizmoComponent])
 
   const execute = () => {
     for (const entity of gizmoQuery()) {
       const gizmoTransform = getComponent(entity, TransformComponent)
-      const eyeDistance = gizmoTransform.position.distanceTo(Engine.instance.currentWorld.camera.position) / GIZMO_SIZE
+      const eyeDistance = gizmoTransform.position.distanceTo(Engine.instance.camera.position) / GIZMO_SIZE
       gizmoTransform.scale.set(eyeDistance, eyeDistance, eyeDistance)
     }
   }

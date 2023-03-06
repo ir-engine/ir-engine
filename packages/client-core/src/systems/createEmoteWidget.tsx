@@ -5,11 +5,11 @@ import { WidgetName, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
 import { createEmoteDetailView } from './ui/EmoteDetailView'
 
-export function createEmoteWidget(world: World) {
+export function createEmoteWidget() {
   const ui = createEmoteDetailView()
   removeComponent(ui.entity, VisibleComponent)
 
-  Widgets.registerWidget(world, ui.entity, {
+  Widgets.registerWidget(ui.entity, {
     ui,
     label: WidgetName.EMOTE,
     system: () => {}

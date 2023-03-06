@@ -21,7 +21,7 @@ export class XRView {
 
   constructor(transform: XRRigidTransform) {
     this.transform = transform
-    const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+    const camera = Engine.instance.camera as PerspectiveCamera
     this.projectionMatrix = camera.projectionMatrix.toArray()
   }
 }
@@ -186,8 +186,6 @@ export class XRFrameProxy {
   }
 
   getViewerPose(space: XRReferenceSpace) {
-    return new XRViewerPose(
-      new XRRigidTransform(Engine.instance.currentWorld.camera.position, Engine.instance.currentWorld.camera.quaternion)
-    )
+    return new XRViewerPose(new XRRigidTransform(Engine.instance.camera.position, Engine.instance.camera.quaternion))
   }
 }

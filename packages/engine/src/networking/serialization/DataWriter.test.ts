@@ -522,7 +522,7 @@ describe('DataWriter', () => {
       })
     })
 
-    const network = Engine.instance.currentWorld.worldNetwork
+    const network = Engine.instance.worldNetwork
     const packet = write(network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =

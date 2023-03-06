@@ -92,9 +92,9 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
 
 function updateCameraFromXRViewerPose() {
   const world = Engine.instance.currentWorld
-  const camera = getComponent(world.cameraEntity, CameraComponent)
-  const originTransform = getComponent(world.originEntity, TransformComponent)
-  const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   const renderer = EngineRenderer.instance.renderer
   const xrState = getState(XRState)
   const pose = xrState.viewerPose.value
@@ -188,7 +188,7 @@ export function updateXRCamera() {
   const renderer = EngineRenderer.instance.renderer
 
   const world = Engine.instance.currentWorld
-  const camera = world.camera
+  const camera = Engine.instance.camera
   const xrState = getState(XRState)
   const session = xrState.session.value
 
@@ -223,7 +223,7 @@ export function updateXRCamera() {
   updateProjectionFromCameraArrayUnion(camera)
 }
 
-export default async function XRCameraSystem(world: World) {
+export default async function XRCameraSystem() {
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
   const xrState = getState(XRState)
 

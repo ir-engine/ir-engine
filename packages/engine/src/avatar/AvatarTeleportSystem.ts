@@ -94,7 +94,7 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
   }
 }
 
-export default async function AvatarTeleportSystem(world: World) {
+export default async function AvatarTeleportSystem() {
   const lineSegments = 64 // segments to make a whole circle, uses far less
   const lineGeometry = new BufferGeometry()
   const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
@@ -142,10 +142,10 @@ export default async function AvatarTeleportSystem(world: World) {
     if (getCameraMode() !== 'attached') return
     if (fadeBackInAccumulator >= 0) {
       /** @todo fix camera fade transition shader - for now just teleport instantly */
-      // fadeBackInAccumulator += world.deltaSeconds
+      // fadeBackInAccumulator += Engine.instance.deltaSeconds
       // if (fadeBackInAccumulator > 0.25) {
       fadeBackInAccumulator = -1
-      teleportAvatar(world.localClientEntity, guideCursor.position)
+      teleportAvatar(Engine.instance.localClientEntity, guideCursor.position)
       dispatchAction(CameraActions.fadeToBlack({ in: false }))
       dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
       dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
@@ -164,10 +164,10 @@ export default async function AvatarTeleportSystem(world: World) {
       transition.setState('IN')
     }
     for (const entity of avatarTeleportQuery()) {
-      const side = getComponent(world.localClientEntity, AvatarTeleportComponent).side
+      const side = getComponent(Engine.instance.localClientEntity, AvatarTeleportComponent).side
       const referenceSpace = ReferenceSpace.origin!
 
-      for (const inputSource of world.inputSources) {
+      for (const inputSource of Engine.instance.inputSources) {
         if (inputSource.handedness === side) {
           const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)!
           guidelineTransform.position.copy(pose.transform.position as any as Vector3)
@@ -221,7 +221,7 @@ export default async function AvatarTeleportSystem(world: World) {
       }
       setVisibleComponent(guideCursorEntity, canTeleport)
     }
-    transition.update(world.deltaSeconds, (alpha) => {
+    transition.update(Engine.instance.deltaSeconds, (alpha) => {
       if (alpha === 0 && transition.state === 'OUT') {
         setVisibleComponent(guidelineEntity, false)
         setVisibleComponent(guideCursorEntity, false)

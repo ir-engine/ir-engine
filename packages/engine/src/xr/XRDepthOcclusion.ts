@@ -229,7 +229,7 @@ const _createDepthDebugCanvas = (enabled: boolean) => {
  * @param world
  * @returns
  */
-export default async function XRDepthOcclusionSystem(world: World) {
+export default async function XRDepthOcclusionSystem() {
   const groupQuery = defineQuery([GroupComponent])
   const xrState = getState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)

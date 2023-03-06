@@ -17,14 +17,11 @@ euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
 
-export function animationActionReceptor(
-  action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
-  world = Engine.instance.currentWorld
-) {
+export function animationActionReceptor(action: ReturnType<typeof WorldNetworkAction.avatarAnimation>) {
   // Only run on other peers
-  if (!world.worldNetwork || !action.$peer || world.worldNetwork.peerID === action.$peer) return
+  if (!Engine.instance.worldNetwork || !action.$peer || Engine.instance.worldNetwork.peerID === action.$peer) return
 
-  const avatarEntity = world.getUserAvatarEntity(action.$from)
+  const avatarEntity = Engine.instance.getUserAvatarEntity(action.$from)
 
   const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
   if (!networkObject) {
@@ -34,15 +31,15 @@ export function animationActionReceptor(
   changeAvatarAnimationState(avatarEntity, action.newStateName)
 }
 
-export default async function AnimationSystem(world: World) {
+export default async function AnimationSystem() {
   const tweenQuery = defineQuery([TweenComponent])
   const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   const execute = () => {
-    const { deltaSeconds } = world
+    const { deltaSeconds } = Engine.instance
 
-    for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
+    for (const action of avatarAnimationQueue()) animationActionReceptor(action)
 
     for (const entity of tweenQuery()) {
       const tween = getComponent(entity, TweenComponent)

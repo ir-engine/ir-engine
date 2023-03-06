@@ -4,10 +4,10 @@ import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctio
 import { GroupComponent } from '../components/GroupComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
-export default function obj3dFromUuid(uuid: string, world: World = Engine.instance.currentWorld) {
+export default function obj3dFromUuid(uuid: string) {
   const entity = UUIDComponent.entitiesByUUID[uuid].value
   if (!entity) {
-    const result = world.scene.getObjectByProperty('uuid', uuid)
+    const result = Engine.instance.currentWorld.scene.getObjectByProperty('uuid', uuid)
     if (result) return result
     else throw Error('Error finding entity node with uuid ' + uuid)
   }

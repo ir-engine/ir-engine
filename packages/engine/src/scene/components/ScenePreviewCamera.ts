@@ -18,7 +18,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     addObjectToGroup(entity, camera)
     const transform = getComponent(entity, TransformComponent)
-    const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     cameraTransform.position.copy(transform.position)
     cameraTransform.rotation.copy(transform.rotation)
     return {

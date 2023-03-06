@@ -226,7 +226,7 @@ export function createWebXRManager() {
   scope.updateCamera = function () {}
 
   scope.getCamera = function () {
-    return Engine.instance.currentWorld.camera
+    return Engine.instance.camera
   }
 
   scope.getFoveation = function () {

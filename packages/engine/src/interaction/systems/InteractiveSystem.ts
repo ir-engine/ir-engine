@@ -57,12 +57,12 @@ const vec3 = new Vector3()
 export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const world = Engine.instance.currentWorld
   const transform = getComponent(xrui.entity, TransformComponent)
-  if (!transform || !getComponent(world.localClientEntity, TransformComponent)) return
+  if (!transform || !getComponent(Engine.instance.localClientEntity, TransformComponent)) return
   transform.position.copy(getComponent(entity, TransformComponent).position)
   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
   transform.position.y += 1
   const transition = InteractableTransitions.get(entity)!
-  getAvatarBoneWorldPosition(world.localClientEntity, 'Hips', vec3)
+  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
   const distance = vec3.distanceToSquared(transform.position)
   const inRange = distance < 5
   if (transition.state === 'OUT' && inRange) {
@@ -71,7 +71,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   if (transition.state === 'IN' && !inRange) {
     transition.setState('OUT')
   }
-  transition.update(world.deltaSeconds, (opacity) => {
+  transition.update(Engine.instance.deltaSeconds, (opacity) => {
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
       mat.opacity = opacity
@@ -100,7 +100,7 @@ export const addInteractableUI = (
   InteractiveUI.set(entity, { xrui, update })
 }
 
-export default async function InteractiveSystem(world: World) {
+export default async function InteractiveSystem() {
   const allInteractablesQuery = defineQuery([InteractableComponent])
 
   const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponent), DistanceFromCameraComponent])
@@ -108,7 +108,7 @@ export default async function InteractiveSystem(world: World) {
   let gatherAvailableInteractablesTimer = 0
 
   const execute = () => {
-    gatherAvailableInteractablesTimer += world.deltaSeconds
+    gatherAvailableInteractablesTimer += Engine.instance.deltaSeconds
     // update every 0.3 seconds
     if (gatherAvailableInteractablesTimer > 0.3) gatherAvailableInteractablesTimer = 0
 
@@ -124,13 +124,13 @@ export default async function InteractiveSystem(world: World) {
       if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
 
-    if (Engine.instance.currentWorld.localClientEntity) {
+    if (Engine.instance.localClientEntity) {
       const interactables = interactableQuery()
 
       for (const entity of interactables) {
         // const interactable = getComponent(entity, InteractableComponent)
         // interactable.distance = interactable.anchorPosition.distanceTo(
-        //   getComponent(world.localClientEntity, TransformComponent).position
+        //   getComponent(Engine.instance.localClientEntity, TransformComponent).position
         // )
         if (InteractiveUI.has(entity)) {
           const { update, xrui } = InteractiveUI.get(entity)!

@@ -37,13 +37,13 @@ export const userPatched = (params) => {
     // }
     if (patchedUser.instanceId !== selfUser.instanceId.value) {
       if (
-        Engine.instance.currentWorld.hostIds.world.value &&
+        Engine.instance.hostIds.world.value &&
         patchedUser.instanceId &&
-        Engine.instance.currentWorld.hostIds.world.value !== patchedUser.instanceId
+        Engine.instance.hostIds.world.value !== patchedUser.instanceId
       ) {
         dispatchAction(
           LocationInstanceConnectionAction.changeActiveConnectionHostId({
-            currentInstanceId: Engine.instance.currentWorld.hostIds.world.value,
+            currentInstanceId: Engine.instance.hostIds.world.value,
             newInstanceId: patchedUser.instanceId as UserId
           })
         )

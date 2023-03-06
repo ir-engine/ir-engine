@@ -68,10 +68,10 @@ export const GroundPlaneComponent = defineComponent({
         getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default | CollisionGroups.Avatars)
       )
 
-      Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [colliderDesc])
+      Physics.createRigidBody(entity, Engine.instance.physicsWorld, rigidBodyDesc, [colliderDesc])
 
       return () => {
-        Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+        Physics.removeRigidBody(entity, Engine.instance.physicsWorld)
         removeObjectFromGroup(entity, component.mesh.value)
       }
     }, [])

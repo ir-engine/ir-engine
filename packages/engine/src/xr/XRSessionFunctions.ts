@@ -34,9 +34,9 @@ export const onSessionEnd = () => {
   const world = Engine.instance.currentWorld
 
   EngineRenderer.instance.renderer.domElement.style.display = ''
-  setVisibleComponent(world.localClientEntity, true)
+  setVisibleComponent(Engine.instance.localClientEntity, true)
 
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+  const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   worldOriginTransform.position.copy(V_000)
   worldOriginTransform.rotation.identity()
 
@@ -119,8 +119,8 @@ export const setupXRSession = async (requestedMode) => {
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
   const world = Engine.instance.currentWorld
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-  const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
+  const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const rigidBody = getComponent(Engine.instance.localClientEntity, RigidBodyComponent)
   const xrState = getState(XRState)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
@@ -187,7 +187,7 @@ export const endXRSession = createHookableFunction(async () => {
  * @returns
  */
 export const xrSessionChanged = createHookableFunction((action: typeof XRAction.sessionChanged.matches._TYPE) => {
-  const entity = Engine.instance.currentWorld.getUserAvatarEntity(action.$from)
+  const entity = Engine.instance.getUserAvatarEntity(action.$from)
   if (!entity) return
 
   if (action.active) {
@@ -207,10 +207,10 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
    * This gets piped into the input system as a TouchInput.Touch
    */
   session.addEventListener('selectstart', () => {
-    ;(world.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
+    ;(Engine.instance.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   session.addEventListener('selectend', (inputSource) => {
-    const buttons = world.buttons as ButtonInputStateType
+    const buttons = Engine.instance.buttons as ButtonInputStateType
     if (!buttons.PrimaryClick) return
     buttons.PrimaryClick!.up = true
   })

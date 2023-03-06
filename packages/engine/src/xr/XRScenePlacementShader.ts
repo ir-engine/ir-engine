@@ -50,7 +50,7 @@ const removeShaderFromObject = (object: Object3DWithEntity) => {
  * @param world
  * @returns
  */
-export default async function XRScenePlacementShader(world: World) {
+export default async function XRScenePlacementShader() {
   const xrState = getState(XRState)
 
   const xrScenePlacementReactor = startGroupQueryReactor(

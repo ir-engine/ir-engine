@@ -94,7 +94,7 @@ export function setupHeadIK(entity: Entity) {
 
 export function setupRightHandIK(entity: Entity) {}
 
-export default async function AvatarAnimationSystem(world: World) {
+export default async function AvatarAnimationSystem() {
   await AnimationManager.instance.loadDefaultAnimations()
 
   const leftArmQuery = defineQuery([VisibleComponent, AvatarLeftArmIKComponent, AvatarRigComponent])
@@ -146,9 +146,9 @@ export default async function AvatarAnimationSystem(world: World) {
     accumulationBudget: getState(AvatarAnimationState).accumulationBudget.value
   })
 
-  world.priorityAvatarEntities = priorityQueue.priorityEntities
+  Engine.instance.priorityAvatarEntities = priorityQueue.priorityEntities
   const filterPriorityEntities = (entity: Entity) =>
-    world.priorityAvatarEntities.has(entity) || entity === world.localClientEntity
+    Engine.instance.priorityAvatarEntities.has(entity) || entity === Engine.instance.localClientEntity
 
   const filterFrustumCulledEntities = (entity: Entity) =>
     !(
@@ -161,7 +161,7 @@ export default async function AvatarAnimationSystem(world: World) {
   let sortedTransformEntities = [] as Entity[]
 
   const execute = () => {
-    const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = world
+    const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
 
     if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
@@ -176,7 +176,7 @@ export default async function AvatarAnimationSystem(world: World) {
     }
 
     for (const action of avatarIKTargetsActionQueue()) {
-      const entity = world.getUserAvatarEntity(action.$from)
+      const entity = Engine.instance.getUserAvatarEntity(action.$from)
       const targets = getComponent(entity, AvatarIKTargetsComponent)
 
       targets.head = action.head
@@ -395,7 +395,7 @@ export default async function AvatarAnimationSystem(world: World) {
      */
     for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
-    for (const entity of world.priorityAvatarEntities) {
+    for (const entity of Engine.instance.priorityAvatarEntities) {
       const avatarRig = getComponent(entity, AvatarRigComponent)
       if (avatarRig) {
         avatarRig.rig.Hips.updateWorldMatrix(true, true)

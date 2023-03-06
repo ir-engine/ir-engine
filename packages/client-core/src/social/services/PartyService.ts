@@ -151,7 +151,7 @@ export const PartyService = {
   },
   createParty: async () => {
     try {
-      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
       await endVideoChat(network, {})
       leaveNetwork(network)
       await API.instance.client.service('party').create()
@@ -202,13 +202,13 @@ export const PartyService = {
     }
   },
   leaveNetwork: async (joinInstanceChannelServer = false) => {
-    const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     await endVideoChat(network, {})
     leaveNetwork(network)
     if (joinInstanceChannelServer && !accessMediaInstanceConnectionState().joiningNonInstanceMediaChannel.value) {
       const channels = accessChatState().channels.channels.value
       const instanceChannel = Object.values(channels).find(
-        (channel) => channel.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
+        (channel) => channel.instanceId === Engine.instance.worldNetwork?.hostId
       )
       if (instanceChannel) await MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
@@ -301,7 +301,7 @@ export const PartyService = {
 
           if (
             selfUser.partyId === deletedPartyUser.partyId ||
-            removedPartyChannel?.id === Engine.instance.currentWorld.mediaNetwork?.hostId
+            removedPartyChannel?.id === Engine.instance.mediaNetwork?.hostId
           )
             PartyService.leaveNetwork(true)
           // ChatService.clearChatTargetIfCurrent('party', {

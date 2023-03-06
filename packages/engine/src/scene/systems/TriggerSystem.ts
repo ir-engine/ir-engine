@@ -7,7 +7,7 @@ import { CallbackComponent } from '../components/CallbackComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
-export const triggerEnter = (world: World, entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
+export const triggerEnter = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!triggerComponent?.onEnter) return
   if (triggerComponent.target && !UUIDComponent.entitiesByUUID[triggerComponent.target].value) return
@@ -22,7 +22,7 @@ export const triggerEnter = (world: World, entity: Entity, triggerEntity: Entity
   }
 }
 
-export const triggerExit = (world: World, entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
+export const triggerExit = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!triggerComponent?.onExit) return
   if (triggerComponent.target && !UUIDComponent.entitiesByUUID[triggerComponent.target].value) return
@@ -36,17 +36,17 @@ export const triggerExit = (world: World, entity: Entity, triggerEntity: Entity,
   }
 }
 
-export default async function TriggerSystem(world: World) {
+export default async function TriggerSystem() {
   const collisionQuery = defineQuery([CollisionComponent])
 
   const execute = () => {
     for (const entity of collisionQuery()) {
       for (const [e, hit] of getComponent(entity, CollisionComponent)) {
         if (hit.type === CollisionEvents.TRIGGER_START) {
-          triggerEnter(world, entity, e, hit)
+          triggerEnter(entity, e, hit)
         }
         if (hit.type === CollisionEvents.TRIGGER_END) {
-          triggerExit(world, entity, e, hit)
+          triggerExit(entity, e, hit)
         }
       }
     }

@@ -111,14 +111,14 @@ describe('EditorControlFunctions', () => {
 
       const world = Engine.instance.currentWorld
 
-      world.scenePrefabRegistry.set(ScenePrefabs.group, [
+      Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
         { name: SCENE_COMPONENT_VISIBLE, props: true },
         { name: SCENE_COMPONENT_GROUP, props: [] }
       ])
 
-      world.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
+      Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
+      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
         deserialize: deserializeGroup,
         serialize: () => undefined!
       })
@@ -214,13 +214,13 @@ describe('EditorControlFunctions', () => {
 
       const world = Engine.instance.currentWorld
 
-      world.scenePrefabRegistry.set(ScenePrefabs.group, [
+      Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
         { name: SCENE_COMPONENT_VISIBLE, props: true },
         { name: SCENE_COMPONENT_GROUP, props: [] }
       ])
-      world.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
+      Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
+      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
         deserialize: deserializeGroup,
         serialize: () => undefined!
       })

@@ -65,9 +65,7 @@ const WidgetButtons = () => {
   const mediaInstanceState = useMediaInstance()
 
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find(
-    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-  )
+  const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
   const mediastream = useMediaStreamState()
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
@@ -89,13 +87,13 @@ const WidgetButtons = () => {
   // }
 
   const handleRespawnAvatar = () => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+    respawnAvatar(Engine.instance.localClientEntity)
   }
 
   const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
     id,
     ...widgetState,
-    ...Engine.instance.currentWorld.widgets.get(id)!
+    ...Engine.instance.widgets.get(id)!
   }))
 
   const toggleWidget = (toggledWidget) => () => {

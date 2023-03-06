@@ -58,7 +58,7 @@ const downwardGroundRaycast = {
   groups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
 } as RaycastArgs
 
-export default async function AvatarLoadingSystem(world: World) {
+export default async function AvatarLoadingSystem() {
   const effectQuery = defineQuery([AvatarEffectComponent])
   const growQuery = defineQuery([AvatarEffectComponent, GroupComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, GroupComponent])
@@ -100,7 +100,7 @@ export default async function AvatarLoadingSystem(world: World) {
   texturePlate.needsUpdate = true
 
   const execute = () => {
-    const { deltaSeconds: delta } = world
+    const { deltaSeconds: delta } = Engine.instance
 
     for (const entity of effectQuery.enter()) {
       const effectComponent = getComponent(entity, AvatarEffectComponent)
@@ -117,7 +117,7 @@ export default async function AvatarLoadingSystem(world: World) {
        * cast ray to move this downward to be on the ground
        */
       downwardGroundRaycast.origin.copy(sourceTransform.position)
-      const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, downwardGroundRaycast)
+      const hits = Physics.castRay(Engine.instance.physicsWorld, downwardGroundRaycast)
       if (hits.length) {
         transform.position.y = hits[0].position.y
       }
@@ -180,7 +180,7 @@ export default async function AvatarLoadingSystem(world: World) {
     }
 
     for (const entity of growQuery()) {
-      world.dirtyTransforms[entity] = true
+      Engine.instance.dirtyTransforms[entity] = true
     }
 
     for (const entity of commonQuery()) {

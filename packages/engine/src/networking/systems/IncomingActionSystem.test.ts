@@ -21,7 +21,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     createEngine()
     // this is hacky but works and preserves the logic
     Engine.instance.store.getDispatchTime = () => {
-      return Engine.instance.currentWorld.fixedTick
+      return Engine.instance.fixedTick
     }
     createMockNetwork()
   })

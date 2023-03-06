@@ -24,12 +24,12 @@ export const OfflineLocation = () => {
       const peerID = 'peerID' as PeerID
       const peerIndex = 1
 
-      world.hostIds.world.set(userId)
-      world.networks.set(userId, new Network(userId, NetworkTopics.world))
+      Engine.instance.hostIds.world.set(userId)
+      Engine.instance.networks.set(userId, new Network(userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(
-        world.worldNetwork,
+        Engine.instance.worldNetwork,
         peerID,
         peerIndex,
         userId,

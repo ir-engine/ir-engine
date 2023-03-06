@@ -43,10 +43,10 @@ export const NetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
   const partyState = usePartyState()
 
-  const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
+  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentLocationInstanceConnection = useWorldInstance()
 
-  const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
 
   MediaInstanceConnectionService.useAPIListeners()

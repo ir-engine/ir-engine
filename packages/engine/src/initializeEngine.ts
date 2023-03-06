@@ -33,18 +33,17 @@ export const createEngine = () => {
 }
 
 export const setupEngineActionSystems = () => {
-  const world = Engine.instance.currentWorld
-  initSystemSync(world, {
+  initSystemSync({
     uuid: 'xre.engine.FixedPipelineSystem',
     type: SystemUpdateType.UPDATE,
     systemFunction: FixedPipelineSystem
   })
-  initSystemSync(world, {
+  initSystemSync({
     uuid: 'xre.engine.IncomingActionSystem',
     type: SystemUpdateType.FIXED_EARLY,
     systemFunction: IncomingActionSystem
   })
-  initSystemSync(world, {
+  initSystemSync({
     uuid: 'xre.engine.OutgoingActionSystem',
     type: SystemUpdateType.FIXED_LATE,
     systemFunction: OutgoingActionSystem
@@ -63,10 +62,10 @@ export const initializeBrowser = () => {
   Engine.instance.cameraGainNode = audioContext.createGain()
   Engine.instance.cameraGainNode.connect(audioContext.destination)
   const world = Engine.instance.currentWorld
-  world.camera.layers.disableAll()
-  world.camera.layers.enable(ObjectLayers.Scene)
-  world.camera.layers.enable(ObjectLayers.Avatar)
-  world.camera.layers.enable(ObjectLayers.UI)
+  Engine.instance.camera.layers.disableAll()
+  Engine.instance.camera.layers.enable(ObjectLayers.Scene)
+  Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
+  Engine.instance.camera.layers.enable(ObjectLayers.UI)
 
   Engine.instance.isBot = navigator.userAgent === BotUserAgent
 
@@ -105,7 +104,5 @@ export const initializeNode = () => {
 const executeWorlds = (elapsedTime) => {
   const engineState = getState(EngineState)
   engineState.frameTime.set(elapsedTime)
-  for (const world of Engine.instance.worlds) {
-    world.execute(elapsedTime)
-  }
+  Engine.instance.execute(elapsedTime)
 }

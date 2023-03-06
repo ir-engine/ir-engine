@@ -5,11 +5,11 @@ import { WidgetName, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
 import { createSettingDetailView } from './ui/SettingDetailView'
 
-export function createSettingsWidget(world: World) {
+export function createSettingsWidget() {
   const ui = createSettingDetailView()
   removeComponent(ui.entity, VisibleComponent)
 
-  Widgets.registerWidget(world, ui.entity, {
+  Widgets.registerWidget(ui.entity, {
     ui,
     label: WidgetName.SETTINGS,
     icon: 'Settings',

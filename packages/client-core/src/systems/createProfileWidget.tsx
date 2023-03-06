@@ -5,10 +5,10 @@ import { WidgetName, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
 import { createProfileDetailView } from './ui/ProfileDetailView'
 
-export function createProfileWidget(world: World) {
+export function createProfileWidget() {
   const ui = createProfileDetailView()
   removeComponent(ui.entity, VisibleComponent)
-  Widgets.registerWidget(world, ui.entity, {
+  Widgets.registerWidget(ui.entity, {
     ui,
     label: WidgetName.PROFILE,
     icon: 'Person',

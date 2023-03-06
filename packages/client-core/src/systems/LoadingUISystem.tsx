@@ -31,7 +31,7 @@ import { SceneActions } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
 
-export default async function LoadingUISystem(world: World) {
+export default async function LoadingUISystem() {
   const transitionPeriodSeconds = 1
   const transition = createTransitionState(transitionPeriodSeconds, 'IN')
 
@@ -48,7 +48,7 @@ export default async function LoadingUISystem(world: World) {
   // flip inside out
   mesh.scale.set(-1, 1, 1)
   mesh.renderOrder = 1
-  Engine.instance.currentWorld.camera.add(mesh)
+  Engine.instance.camera.add(mesh)
 
   setObjectLayers(mesh, ObjectLayers.UI)
 
@@ -90,7 +90,7 @@ export default async function LoadingUISystem(world: World) {
 
     for (const action of avatarModelChangedQueue()) {
       if (
-        (action.entity === world.localClientEntity || engineState.spectating.value) &&
+        (action.entity === Engine.instance.localClientEntity || engineState.spectating.value) &&
         appLoadingState.state.value === AppLoadingStates.SUCCESS &&
         engineState.sceneLoaded.value
       )
@@ -104,7 +104,7 @@ export default async function LoadingUISystem(world: World) {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
     if (transition.state === 'IN' && transition.alpha === 1) {
-      setComputedTransformComponent(ui.entity, world.cameraEntity, () => {
+      setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
         const distance = 0.1
         const ppu = xrui.options.manager.pixelsPerMeter
         const contentWidth = ui.state.imageWidth.value / ppu
@@ -114,18 +114,18 @@ export default async function LoadingUISystem(world: World) {
       })
     }
 
-    mesh.quaternion.copy(Engine.instance.currentWorld.camera.quaternion).invert()
+    mesh.quaternion.copy(Engine.instance.camera.quaternion).invert()
 
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR
     // if (!getEngineState().joinedWorld.value) {
-    //   Engine.instance.currentWorld.camera.rotateY(world.delta * 0.35)
+    //   Engine.instance.camera.rotateY(world.delta * 0.35)
     // } else {
     //   // todo: figure out how to make this work properly for VR #7256
     // }
 
     const loadingState = getState(LoadingSystemState).loadingScreenOpacity
 
-    transition.update(world.deltaSeconds, (opacity) => {
+    transition.update(Engine.instance.deltaSeconds, (opacity) => {
       if (opacity !== loadingState.value) loadingState.set(opacity)
       mesh.material.opacity = opacity
       mesh.visible = opacity > 0

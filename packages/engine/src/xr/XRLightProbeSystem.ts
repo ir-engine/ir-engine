@@ -9,7 +9,7 @@ import { XRState } from './XRState'
 /**
  * https://github.com/mrdoob/three.js/blob/master/examples/webxr_ar_lighting.html
  */
-export default async function XRLightProbeSystem(world: World) {
+export default async function XRLightProbeSystem() {
   const xrLight = new XREstimatedLight(EngineRenderer.instance.renderer)
   xrLight.castShadow = true
   xrLight.directionalLight.shadow.bias = -0.000001
@@ -25,7 +25,7 @@ export default async function XRLightProbeSystem(world: World) {
   xrLight.addEventListener('estimationstart', () => {
     if (xrState.sessionMode.value !== 'immersive-ar') return
     // Swap the default light out for the estimated one one we start getting some estimated values.
-    Engine.instance.currentWorld.origin.add(xrLight)
+    Engine.instance.origin.add(xrLight)
 
     // The estimated lighting also provides an environment cubemap, which we can apply here.
     if (xrLight.environment) {

@@ -73,7 +73,7 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instance.currentWorld) => {
+const serializeECS = (roots: Object3DWithEntity[]) => {
   let rootEntities = new Array()
   const idxTable = new Map<Entity, number>()
   const extensionSet = new Set<string>()
@@ -197,11 +197,11 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = En
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
+    const sceneComponentID = Engine.instance.sceneComponentRegistry.get(component.name)!
     if (sceneComponentID) {
-      const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
+      const loadingRegister = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister) {
-        const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
+        const serialize = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)?.serialize
         const data = serialize ? serialize(entity) : serializeComponent(entity, component)
         if (data)
           addComponentDataToGLTFExtension(obj3d, {

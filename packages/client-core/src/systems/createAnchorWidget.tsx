@@ -11,7 +11,7 @@ import AnchorIcon from '@etherealengine/ui/src/Icon'
 
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 
-export function createAnchorWidget(world: World) {
+export function createAnchorWidget() {
   const ui = createXRUI(AnchorWidgetUI)
   removeComponent(ui.entity, VisibleComponent)
   setComponent(ui.entity, XRUIInteractableComponent)
@@ -39,7 +39,7 @@ export function createAnchorWidget(world: World) {
       }
       if (!xrState.scenePlacementMode.value) return
       // const flipped = avatarInputSettings.preferredHand.value === 'left'
-      // const buttonInput = flipped ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
+      // const buttonInput = flipped ? Engine.instance.buttons.ButtonX?.down : Engine.instance.buttons.ButtonA?.down
       // if (buttonInput) {
       //   createAnchor().then((anchor: XRAnchor) => {
       //     setComponent(entity, XRAnchorComponent, { anchor })
@@ -52,7 +52,7 @@ export function createAnchorWidget(world: World) {
     }
   }
 
-  const id = Widgets.registerWidget(world, ui.entity, widget)
+  const id = Widgets.registerWidget(ui.entity, widget)
   /** @todo better API to disable */
   dispatchAction(WidgetAppActions.enableWidget({ id, enabled: false }))
 }

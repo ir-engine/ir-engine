@@ -67,7 +67,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
   if (locationConnectionFailed) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld.hostIds.world.value ?? ''
+    const instanceId = Engine.instance.hostIds.world.value ?? ''
     if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
@@ -78,7 +78,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
     }
   } else {
     const mediaInstanceConnectionState = accessMediaInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld.hostIds.media.value ?? ''
+    const instanceId = Engine.instance.hostIds.media.value ?? ''
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = accessAuthState()
@@ -87,9 +87,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
       const channelState = chatState.channels
       const channels = channelState.channels.value as Channel[]
       const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-      const instanceChannel = channelEntries.find(
-        (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-      )
+      const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
       if (instanceChannel) {
         MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
       } else {

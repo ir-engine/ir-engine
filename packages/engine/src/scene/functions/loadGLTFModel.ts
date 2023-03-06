@@ -52,9 +52,9 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      const componentId = Engine.instance.currentWorld.sceneComponentRegistry.get(key)
+      const componentId = Engine.instance.sceneComponentRegistry.get(key)
       if (typeof componentId === 'string') {
-        const deserialize = Engine.instance.currentWorld.sceneLoadingRegistry.get(componentId)?.deserialize
+        const deserialize = Engine.instance.sceneLoadingRegistry.get(componentId)?.deserialize
         if (typeof deserialize === 'function') deserialize(entity, value)
         else addComponent(entity, component, value)
       } else {
@@ -65,9 +65,7 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    const component = Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(
-      ([_, prefab]) => prefab === key
-    )?.[0]
+    const component = Array.from(Engine.instance.sceneComponentRegistry).find(([_, prefab]) => prefab === key)?.[0]
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${component}'`)
     } else {

@@ -6,7 +6,7 @@ import { GroupComponent } from '../scene/components/GroupComponent'
 import { HighlightComponent } from './components/HighlightComponent'
 import { EngineRenderer } from './WebGLRendererSystem'
 
-export default async function HighlightSystem(world: World) {
+export default async function HighlightSystem() {
   const highlightedObjectQuery = defineQuery([GroupComponent, HighlightComponent])
 
   const addToSelection = (obj: Object3D) => {

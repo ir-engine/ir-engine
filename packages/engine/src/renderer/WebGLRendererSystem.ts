@@ -229,12 +229,12 @@ export class EngineRenderer {
 
     /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
     if (xrFrame) {
-      // Assume world.camera.layers is source of truth for all xr cameras
-      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+      // Assume Engine.instance.camera.layers is source of truth for all xr cameras
+      const camera = Engine.instance.camera as PerspectiveCamera
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
-      this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
+      this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.camera)
     } else {
       const state = getState(RendererState)
       const engineState = getEngineState()
@@ -248,8 +248,8 @@ export class EngineRenderer {
         const width = window.innerWidth
         const height = window.innerHeight
 
-        if ((Engine.instance.currentWorld.camera as PerspectiveCamera).isPerspectiveCamera) {
-          const cam = Engine.instance.currentWorld.camera as PerspectiveCamera
+        if ((Engine.instance.camera as PerspectiveCamera).isPerspectiveCamera) {
+          const cam = Engine.instance.camera as PerspectiveCamera
           cam.aspect = width / height
           cam.updateProjectionMatrix()
         }
@@ -268,7 +268,7 @@ export class EngineRenderer {
         this.effectComposer.render(delta)
       } else {
         this.renderer.autoClear = true
-        this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.currentWorld.camera)
+        this.renderer.render(Engine.instance.currentWorld.scene, Engine.instance.camera)
       }
     }
   }
@@ -324,13 +324,13 @@ export const getRendererSceneMetadataState = (world: World) =>
 export const getPostProcessingSceneMetadataState = (world: World) =>
   world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
 
-export default async function WebGLRendererSystem(world: World) {
-  world.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
+export default async function WebGLRendererSystem() {
+  Engine.instance.currentWorld.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
     state: hookstate(_.cloneDeep(DefaultRenderSettingsState)),
     default: DefaultRenderSettingsState
   }
 
-  world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel] = {
+  Engine.instance.currentWorld.sceneMetadataRegistry[PostProcessingSceneMetadataLabel] = {
     state: hookstate(_.cloneDeep(DefaultPostProcessingState)),
     default: DefaultPostProcessingState
   }
@@ -338,9 +338,9 @@ export default async function WebGLRendererSystem(world: World) {
   const rendererState = getState(RendererState)
 
   const reactor = startReactor(function RendererReactor() {
-    const renderSettings = useHookstate(getRendererSceneMetadataState(world))
+    const renderSettings = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld))
     const engineRendererSettings = useHookstate(rendererState)
-    const postprocessing = useHookstate(getPostProcessingSceneMetadataState(world))
+    const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld))
     const xrState = useHookstate(getState(XRState))
 
     useEffect(() => {
@@ -371,28 +371,26 @@ export default async function WebGLRendererSystem(world: World) {
     }, [engineRendererSettings.renderMode])
 
     useEffect(() => {
-      if (engineRendererSettings.debugEnable.value)
-        Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.PhysicsHelper)
-      else Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.PhysicsHelper)
+      if (engineRendererSettings.debugEnable.value) Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
+      else Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
     }, [engineRendererSettings.debugEnable])
 
     useEffect(() => {
-      if (engineRendererSettings.gridVisibility.value)
-        Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Gizmos)
-      else Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Gizmos)
+      if (engineRendererSettings.gridVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
+      else Engine.instance.camera.layers.disable(ObjectLayers.Gizmos)
     }, [engineRendererSettings.gridVisibility])
 
     useEffect(() => {
       if (engineRendererSettings.nodeHelperVisibility.value)
-        Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
-      else Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.NodeHelper)
+        Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+      else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
     }, [engineRendererSettings.nodeHelperVisibility])
 
     return null
   })
 
   const execute = () => {
-    EngineRenderer.instance.execute(world.deltaSeconds)
+    EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
   }
 
   const cleanup = async () => {

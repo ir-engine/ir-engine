@@ -44,7 +44,7 @@ export const MediaInstanceState = defineState({
 export function useMediaInstance() {
   const [state, setState] = React.useState(null as null | State<InstanceState>)
   const mediaInstanceState = useState(getState(MediaInstanceState).instances)
-  const mediaHostId = useState(Engine.instance.currentWorld.hostIds.media)
+  const mediaHostId = useState(Engine.instance.hostIds.media)
   useEffect(() => {
     setState(mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null)
   }, [mediaInstanceState, mediaHostId])
@@ -55,8 +55,8 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
   const s = getState(MediaInstanceState)
   matches(action)
     .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.currentWorld.hostIds.media.set(action.instanceId)
-      Engine.instance.currentWorld.networks.set(
+      Engine.instance.hostIds.media.set(action.instanceId)
+      Engine.instance.networks.set(
         action.instanceId,
         new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media)
       )
@@ -97,10 +97,10 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     })
     .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
       const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
-      Engine.instance.currentWorld.mediaNetwork.hostId = action.newInstanceId as UserId
-      Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.mediaNetwork)
-      Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
-      Engine.instance.currentWorld.hostIds.media.set(action.newInstanceId as UserId)
+      Engine.instance.mediaNetwork.hostId = action.newInstanceId as UserId
+      Engine.instance.networks.set(action.newInstanceId, Engine.instance.mediaNetwork)
+      Engine.instance.networks.delete(action.currentInstanceId)
+      Engine.instance.hostIds.media.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })
@@ -145,7 +145,7 @@ export const MediaInstanceConnectionService = {
     const user = authState.user.value
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
-    const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, network }, 'Connect To Media Server.')
     if (network.primus) {
       await endVideoChat(network, { endConsumers: true })

@@ -51,7 +51,7 @@ globalThis.TransformComponent = TransformComponent
  * @returns
  */
 export function setTransformComponent(entity: Entity, position?: Vector3, rotation?: Quaternion, scale?: Vector3) {
-  const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
+  const dirtyTransforms = Engine.instance.dirtyTransforms
   if (hasComponent(entity, TransformComponent)) {
     const existingTransform = getComponent(entity, TransformComponent)
     if (position) existingTransform.position.copy(position)
@@ -97,7 +97,7 @@ export function setLocalTransformComponent(
 ) {
   if (entity === parentEntity) throw new Error('Tried to parent entity to self - this is not allowed')
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
-  const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
+  const dirtyTransforms = Engine.instance.dirtyTransforms
   setComponent(entity, LocalTransformComponent, {
     parentEntity,
     // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform

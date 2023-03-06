@@ -14,7 +14,7 @@ import {
 
 export const TimerComponent = createMappedComponent<{ time: number }>('TimerComponent')
 
-export default async function TimerSystem (world: World) {
+export default async function TimerSystem() {
 
   const myEntity = createEntity()
   addComponent(myEntity, TimerComponent, { time: 0 })
@@ -22,7 +22,7 @@ export default async function TimerSystem (world: World) {
   const timerQuery = defineQuery([TimerComponent])
 
   return () => {
-    const { delta } = world
+    const { delta } = Engine.instance
 
     for (const entity of timerQuery(world)) {
       const timerComponent = getComponent(entity, TimerComponent)

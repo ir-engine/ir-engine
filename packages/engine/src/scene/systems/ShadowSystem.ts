@@ -66,7 +66,7 @@ const shadowSize = new Vector3()
 const raycaster = new Raycaster()
 const raycasterPosition = new Vector3()
 
-export default async function ShadowSystem(world: World) {
+export default async function ShadowSystem() {
   const xrState = getState(XRState)
   const renderState = getState(RendererState)
 
@@ -103,7 +103,7 @@ export default async function ShadowSystem(world: World) {
 
       if (!EngineRenderer.instance.csm) {
         EngineRenderer.instance.csm = new CSM({
-          camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
+          camera: Engine.instance.camera as PerspectiveCamera,
           parent: csmGroup,
           light: activeLight
         })

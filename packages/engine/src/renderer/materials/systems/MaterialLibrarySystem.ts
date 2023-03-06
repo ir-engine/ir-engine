@@ -12,7 +12,7 @@ import {
   useMaterialLibrary
 } from '../MaterialLibrary'
 
-export default async function MaterialLibrarySystem(world: World) {
+export default async function MaterialLibrarySystem() {
   const registerMaterialQueue = createActionQueue(MaterialLibraryActions.RegisterMaterial.matches)
   const registerPrototypeQueue = createActionQueue(MaterialLibraryActions.RegisterPrototype.matches)
   initializeMaterialLibrary()

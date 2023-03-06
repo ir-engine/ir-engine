@@ -20,7 +20,7 @@ describe('moveAvatar function tests', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
     Engine.instance.userId = 'userId' as UserId
   })
 
@@ -38,7 +38,7 @@ describe('moveAvatar function tests', () => {
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
 
     spawnAvatarReceptor(spawnAvatar)
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -71,7 +71,7 @@ describe('moveAvatar function tests', () => {
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
 
     spawnAvatarReceptor(spawnAvatar)
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -95,7 +95,7 @@ describe('moveAvatar function tests', () => {
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     /* mock */
-    world.physicsWorld.timestep = 1 / 2
+    Engine.instance.physicsWorld.timestep = 1 / 2
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
@@ -106,7 +106,7 @@ describe('moveAvatar function tests', () => {
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
 
     spawnAvatarReceptor(spawnAvatar)
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -138,7 +138,7 @@ describe('moveAvatar function tests', () => {
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
 
     spawnAvatarReceptor(spawnAvatar)
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -150,15 +150,15 @@ describe('moveAvatar function tests', () => {
 
     /* run */
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
 
     /* assert */

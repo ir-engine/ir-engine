@@ -123,7 +123,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
   }
 
   const runAnimation = (stateName: string) => {
-    const entity = Engine.instance.currentWorld.localClientEntity
+    const entity = Engine.instance.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
     changeActiveMenu(Views.Closed)

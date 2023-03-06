@@ -216,8 +216,7 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 }
 
 export const applyInputSourcePoseToIKTargets = () => {
-  const world = Engine.instance.currentWorld
-  const { localClientEntity } = world
+  const { localClientEntity } = Engine.instance
 
   const xrFrame = Engine.instance.xrFrame! as XRFrameWithFillPoses
 
@@ -230,12 +229,12 @@ export const applyInputSourcePoseToIKTargets = () => {
     /** Head */
     if (inAttachedControlMode && hasComponent(localClientEntity, AvatarHeadIKComponent)) {
       const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
-      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
       ik.target.quaternion.copy(cameraTransform.rotation)
       ik.target.position.copy(cameraTransform.position)
     }
 
-    for (const inputSource of world.inputSources) {
+    for (const inputSource of Engine.instance.inputSources) {
       /** Left Hand */
       if (inputSource.handedness === 'left' && hasComponent(localClientEntity, AvatarLeftArmIKComponent)) {
         const ik = getComponent(localClientEntity, AvatarLeftArmIKComponent)

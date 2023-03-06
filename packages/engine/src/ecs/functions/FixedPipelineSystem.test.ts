@@ -15,7 +15,7 @@ const MockState = defineState({
 
 const MocksystemLoader = async () => {
   return {
-    default: async (world: World) => {
+    default: async () => {
       return {
         execute: () => {
           getState(MockState).count.set((c) => c + 1)
@@ -39,21 +39,21 @@ describe('FixedPipelineSystem', () => {
         type: SystemUpdateType.FIXED
       }
     ]
-    await initSystems(world, injectedSystems)
+    await initSystems(injectedSystems)
 
     const mockState = getState(MockState)
 
-    assert.equal(world.elapsedSeconds, 0)
-    assert.equal(world.fixedElapsedSeconds, 0)
-    assert.equal(world.fixedTick, 0)
+    assert.equal(Engine.instance.elapsedSeconds, 0)
+    assert.equal(Engine.instance.fixedElapsedSeconds, 0)
+    assert.equal(Engine.instance.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
     const ticks = 3
     const deltaSeconds = ticks / 60
-    world.execute(world.startTime + 1000 * deltaSeconds)
-    assert.equal(world.elapsedSeconds, deltaSeconds)
-    assert.equal(world.fixedElapsedSeconds, deltaSeconds)
-    assert.equal(world.fixedTick, ticks)
+    Engine.instance.execute(Engine.instance.startTime + 1000 * deltaSeconds)
+    assert.equal(Engine.instance.elapsedSeconds, deltaSeconds)
+    assert.equal(Engine.instance.fixedElapsedSeconds, deltaSeconds)
+    assert.equal(Engine.instance.fixedTick, ticks)
     assert.equal(mockState.count.value, ticks)
   })
 
@@ -69,21 +69,21 @@ describe('FixedPipelineSystem', () => {
         type: SystemUpdateType.FIXED
       }
     ]
-    await initSystems(world, injectedSystems)
+    await initSystems(injectedSystems)
 
     const mockState = getState(MockState)
 
-    world.startTime = 0
-    assert.equal(world.elapsedSeconds, 0)
-    assert.equal(world.fixedElapsedSeconds, 0)
-    assert.equal(world.fixedTick, 0)
+    Engine.instance.startTime = 0
+    assert.equal(Engine.instance.elapsedSeconds, 0)
+    assert.equal(Engine.instance.fixedElapsedSeconds, 0)
+    assert.equal(Engine.instance.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
     const deltaSeconds = 1000
-    world.execute(1000 * deltaSeconds)
-    assert.equal(world.elapsedSeconds, deltaSeconds)
-    assert.equal(world.fixedElapsedSeconds, deltaSeconds)
-    assert.equal(world.fixedTick, 60000)
+    Engine.instance.execute(1000 * deltaSeconds)
+    assert.equal(Engine.instance.elapsedSeconds, deltaSeconds)
+    assert.equal(Engine.instance.fixedElapsedSeconds, deltaSeconds)
+    assert.equal(Engine.instance.fixedTick, 60000)
     assert((mockState.count.value * 1) / 60 < 5)
   })
 })

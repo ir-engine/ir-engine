@@ -42,7 +42,7 @@ import {
 import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
 import { AdminUserActions, AdminUserReceptors } from '../admin/services/UserService'
 
-export default async function AdminSystem(world: World) {
+export default async function AdminSystem() {
   const fetchedTaskServersQueue = createActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
   const fetchServerInfoRequestedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
   const fetchServerInfoRetrievedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRetrieved.matches)

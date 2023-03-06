@@ -25,7 +25,7 @@ describe('WorldNetworkActionReceptors', () => {
     createEngine()
     createMockNetwork()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
   })
 
   describe('spawnObject', () => {
@@ -37,7 +37,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork
       network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
@@ -48,7 +48,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       WorldNetworkActionReceptor.receiveSpawnObject(
         WorldNetworkAction.spawnObject({
-          $from: world.worldNetwork.hostId, // from  host
+          $from: Engine.instance.worldNetwork.hostId, // from  host
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -80,7 +80,7 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
 
       const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork
       network.peerID = peerID2
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
@@ -123,7 +123,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork
       network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
@@ -168,7 +168,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork
       network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
@@ -180,7 +180,7 @@ describe('WorldNetworkActionReceptors', () => {
       WorldNetworkActionReceptor.receiveSpawnObject(action)
       spawnAvatarReceptor(action)
 
-      const entity = world.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+      const entity = Engine.instance.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
 
       assert.equal(getComponent(entity, NetworkObjectComponent).networkId, 42)
       assert.equal(getComponent(entity, NetworkObjectComponent).authorityPeerID, peerID)
@@ -198,7 +198,7 @@ describe('WorldNetworkActionReceptors', () => {
   //     // Run as host
   //     Engine.instance.userId = hostUserId
   //     const world = Engine.instance.currentWorld
-  //     const network = world.worldNetwork
+  //     const network = Engine.instance.worldNetwork
 
   //     Engine.instance.store.defaultDispatchDelay = 0
 
@@ -266,14 +266,14 @@ describe('WorldNetworkActionReceptors', () => {
   //     Engine.instance.userId = userId
 
   //     const world = Engine.instance.currentWorld
-  //     const network = world.worldNetwork
+  //     const network = Engine.instance.worldNetwork
 
   //     NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
 
   //     const hostIndex = 0
 
-  //     network.peers.set(world.worldNetwork.hostId, {
-  //       userId: world.worldNetwork.hostId,
+  //     network.peers.set(Engine.instance.worldNetwork.hostId, {
+  //       userId: Engine.instance.worldNetwork.hostId,
   //       index: hostIndex
   //     })
 
@@ -281,7 +281,7 @@ describe('WorldNetworkActionReceptors', () => {
   //     const objPrefab = 'generic prefab'
 
   //     const action = WorldNetworkAction.spawnObject({
-  //       $from: world.worldNetwork.hostId, // from host
+  //       $from: Engine.instance.worldNetwork.hostId, // from host
   //       prefab: objPrefab, // generic prefab
   //       networkId: objNetId
   //     })
@@ -299,14 +299,14 @@ describe('WorldNetworkActionReceptors', () => {
   //     assert.equal(networkObjectOwnedEntities.length, 0)
   //     assert.equal(
   //       getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID,
-  //       world.worldNetwork.hostId
+  //       Engine.instance.worldNetwork.hostId
   //     )
 
   //     WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
   //       WorldNetworkAction.requestAuthorityOverObject({
   //         $from: userId, // from user
   //         object: {
-  //           ownerId: world.worldNetwork.hostId,
+  //           ownerId: Engine.instance.worldNetwork.hostId,
   //           networkId: objNetId
   //         },
   //         requester: userId,
@@ -317,7 +317,7 @@ describe('WorldNetworkActionReceptors', () => {
 
   //     ActionFunctions.clearOutgoingActions(network.topic)
   //     ActionFunctions.applyIncomingActions()
-  //     world.execute(0)
+  //     Engine.instance.execute(0)
 
   //     assert.equal(networkObjectEntities.length, 1)
   //     assert.equal(networkObjectOwnedEntities.length, 0)
@@ -325,7 +325,7 @@ describe('WorldNetworkActionReceptors', () => {
   //     assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
   //     assert.equal(
   //       getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID,
-  //       world.worldNetwork.hostId
+  //       Engine.instance.worldNetwork.hostId
   //     )
   //     assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
   //   })
