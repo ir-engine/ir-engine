@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { createSandbox, SinonSandbox } from 'sinon'
 import { Color } from 'three'
 
+import { getMutableState } from '@etherealengine/hyperflux'
+
 import { Engine } from '../../../ecs/classes/Engine'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { Scene } from '../../../ecs/classes/Scene'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -37,7 +40,7 @@ describe('InstancingFunctions', async () => {
     initEntity()
     Engine.instance.engineTimer.start()
 
-    Engine.instance.publicPath = ''
+    getMutableState(EngineState).publicPath.set('')
     await Promise.all([])
 
     await initSystems([

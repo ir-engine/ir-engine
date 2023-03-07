@@ -165,7 +165,6 @@ export class Engine {
     [key: string]: SerializationSchema
   } = {}
 
-  publicPath = ''
   gltfLoader: GLTFLoader = null!
 
   xrFrame: XRFrame | null = null
