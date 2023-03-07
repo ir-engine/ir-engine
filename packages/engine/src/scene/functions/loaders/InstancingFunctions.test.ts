@@ -26,12 +26,10 @@ import { GRASS_PROPERTIES_DEFAULT_VALUES, SCATTER_PROPERTIES_DEFAULT_VALUES } fr
 
 describe('InstancingFunctions', async () => {
   let entity: Entity
-  let world: Scene
   let sandbox: SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    world = Engine.instance.currentScene
   }
   beforeEach(async () => {
     sandbox = createSandbox()

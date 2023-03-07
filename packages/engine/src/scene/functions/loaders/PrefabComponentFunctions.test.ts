@@ -30,7 +30,6 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
 import { EngineState } from '../../../ecs/classes/EngineState'
-import { Scene } from '../../../ecs/classes/Scene'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { TransformModule } from '../../../transform/TransformModule'
 import { SceneClientModule } from '../../SceneClientModule'
@@ -38,13 +37,11 @@ import { SceneCommonModule } from '../../SceneCommonModule'
 
 describe('PrefabComponentFunctions', async () => {
   let entity: Entity
-  let world: Scene
   let sandbox: Sinon.SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    world = Engine.instance.currentScene
-    addEntityNodeChild(entity, world.sceneEntity)
+    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
   }
   const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {

@@ -150,13 +150,6 @@ export class Engine {
   //   return this.networks.get(NetworkTopics.localMedia)?.get(this._mediaHostId)!
   // }
 
-  /** temporary until Network.ts is refactored to be function & hookstate */
-
-  // _worldHostId = null! as UserId
-  // _mediaHostId = null! as UserId
-
-  /** a map of component names to a read/write function pairfor network component serialization */
-
   gltfLoader: GLTFLoader = null!
 
   xrFrame: XRFrame | null = null

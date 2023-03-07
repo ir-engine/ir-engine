@@ -264,8 +264,8 @@ export type CameraState = State<typeof DefaultCameraState>
 
 export const CameraSceneMetadataLabel = 'camera'
 
-export const getCameraSceneMetadataState = (world: Scene) =>
-  world.sceneMetadataRegistry[CameraSceneMetadataLabel].state as CameraState
+export const getCameraSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[CameraSceneMetadataLabel].state as CameraState
 
 export default async function CameraSystem() {
   Engine.instance.currentScene.sceneMetadataRegistry[CameraSceneMetadataLabel] = {

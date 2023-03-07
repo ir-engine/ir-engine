@@ -320,10 +320,10 @@ export type PostProcessingState = State<typeof DefaultPostProcessingState>
 export const RendererSceneMetadataLabel = 'renderSettings'
 export const PostProcessingSceneMetadataLabel = 'postprocessing'
 
-export const getRendererSceneMetadataState = (world: Scene) =>
-  world.sceneMetadataRegistry[RendererSceneMetadataLabel].state as RenderSettingsState
-export const getPostProcessingSceneMetadataState = (world: Scene) =>
-  world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
+export const getRendererSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[RendererSceneMetadataLabel].state as RenderSettingsState
+export const getPostProcessingSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
 
 export default async function WebGLRendererSystem() {
   Engine.instance.currentScene.sceneMetadataRegistry[RendererSceneMetadataLabel] = {

@@ -109,8 +109,8 @@ export type MediaState = State<typeof DefaultMediaState>
 
 export const MediaSceneMetadataLabel = 'mediaSettings'
 
-export const getMediaSceneMetadataState = (world: Scene) =>
-  world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
+export const getMediaSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
 
 export default async function MediaSystem() {
   const audioContext = getState(AudioState).audioContext
