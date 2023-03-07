@@ -100,7 +100,10 @@ export const ChatServiceReceptor = (action) => {
         s.channels.updateNeeded.set(true)
       } else {
         if (!channel.messages.length) channel.messages.set([action.message])
-        else channel.messages[channel.messages.length].set(action.message)
+        else {
+          const existingMessage = channel.messages.find((message) => message.id.value === action.message.id)
+          if (!existingMessage) channel.messages[channel.messages.length].set(action.message)
+        }
       }
 
       s.updateMessageScroll.set(true)
@@ -398,7 +401,7 @@ export const ChatService = {
     useEffect(() => {
       const messageCreatedListener = (params) => {
         const selfUser = accessAuthState().user.value
-        dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser: selfUser }))
+        dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser }))
       }
 
       const messagePatchedListener = (params) => {
@@ -410,15 +413,15 @@ export const ChatService = {
       }
 
       const channelCreatedListener = (params) => {
-        dispatchAction(ChatAction.createdChannelAction({ channel: params }))
+        dispatchAction(ChatAction.createdChannelAction(params))
       }
 
       const channelPatchedListener = (params) => {
-        dispatchAction(ChatAction.patchedChannelAction({ channel: params }))
+        dispatchAction(ChatAction.patchedChannelAction(params))
       }
 
       const channelRemovedListener = (params) => {
-        dispatchAction(ChatAction.removedChannelAction({ channel: params }))
+        dispatchAction(ChatAction.removedChannelAction(params))
       }
 
       API.instance.client.service('message').on('created', messageCreatedListener)
