@@ -116,16 +116,6 @@ export class Engine {
     defaultDispatchDelay: 1 / this.tickRate
   }) as HyperStore
 
-  audioContext: AudioContext
-  cameraGainNode: GainNode
-
-  gainNodeMixBuses = {
-    mediaStreams: null! as GainNode,
-    notifications: null! as GainNode,
-    music: null! as GainNode,
-    soundEffects: null! as GainNode
-  }
-
   /**
    * Current frame timestamp, relative to performance.timeOrigin
    */

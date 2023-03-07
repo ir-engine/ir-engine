@@ -2,7 +2,13 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, removeActionQueue, useHookstate } from '@etherealengine/hyperflux'
+import {
+  createActionQueue,
+  getMutableState,
+  getState,
+  removeActionQueue,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -27,12 +33,12 @@ import {
   MediaElementComponent
 } from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AudioSettingAction } from '../AudioState'
+import { AudioSettingAction, AudioState } from '../AudioState'
 import { PositionalAudioComponent, PositionalAudioInterface } from '../components/PositionalAudioComponent'
 import { getMediaSceneMetadataState } from './MediaSystem'
 
 export const addPannerNode = (audioNodes: AudioNodeGroup, opts: PositionalAudioInterface) => {
-  const panner = Engine.instance.audioContext.createPanner()
+  const panner = getState(AudioState).audioContext.createPanner()
   panner.refDistance = opts.refDistance
   panner.rolloffFactor = opts.rolloffFactor
   panner.maxDistance = opts.maxDistance
@@ -134,8 +140,10 @@ export default async function PositionalAudioSystem() {
     }
   )
 
+  const audioState = getState(AudioState)
+
   const execute = () => {
-    const audioContext = Engine.instance.audioContext
+    const audioContext = audioState.audioContext
     const network = Engine.instance.mediaNetwork
     const immersiveMedia = shouldUseImmersiveMedia()
     const positionalAudioSettings = getMediaSceneMetadataState(Engine.instance.currentScene).value
@@ -201,7 +209,7 @@ export default async function PositionalAudioSystem() {
       const audioNodes = createAudioNodeGroup(
         stream,
         audioContext.createMediaStreamSource(stream),
-        Engine.instance.gainNodeMixBuses.mediaStreams
+        audioState.gainNodeMixBuses.mediaStreams
       )
       audioNodes.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
 
@@ -223,7 +231,7 @@ export default async function PositionalAudioSystem() {
       }
     }
 
-    const endTime = Engine.instance.audioContext.currentTime + Engine.instance.deltaSeconds
+    const endTime = audioContext.currentTime + Engine.instance.deltaSeconds
 
     /**
      * Update panner nodes

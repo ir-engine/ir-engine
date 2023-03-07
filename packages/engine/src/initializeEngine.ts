@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { AudioState } from './audio/AudioState'
 import { Timer } from './common/functions/Timer'
 import { destroyEngine, Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
@@ -55,11 +56,16 @@ export const setupEngineActionSystems = () => {
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
+  const audioState = getMutableState(AudioState)
+
   const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
   audioContext.resume()
-  Engine.instance.audioContext = audioContext
-  Engine.instance.cameraGainNode = audioContext.createGain()
-  Engine.instance.cameraGainNode.connect(audioContext.destination)
+  audioState.audioContext.set(audioContext)
+
+  const cameraGainNode = audioContext.createGain()
+  audioState.cameraGainNode.set(cameraGainNode)
+  cameraGainNode.connect(audioContext.destination)
+
   Engine.instance.camera.layers.disableAll()
   Engine.instance.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
