@@ -1,16 +1,33 @@
 {
-  "name": "new-project",
+  "name": "ee-template",
   "version": "0.0.0",
   "description": "",
   "main": "",
   "etherealEngine": {
     "version": "1.2.0-rc6"
   },
-  "scripts": {},
+  "scripts": {
+    "test:projects": "mocha --config .mocharc.js",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "format-scss": "stylelint \"**/*.scss\" --fix",
+    "format-staged": "lint-staged",
+    "precommit": "no-master-commits -b master"
+  },
   "peerDependencies": {},
   "dependencies": {},
   "devDependencies": {
     "trace-unhandled": "2.0.1"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "pre-commit": [
+    "format-staged"
+  ],
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.scss": [
+      "stylelint --fix"
+    ]
+  }
 }

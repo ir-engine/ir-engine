@@ -40,7 +40,7 @@
   "npmClient": "npm",
   "scripts": {
     "build-client": "cd packages/client && npm run build",
-    "check": "npm run lint && npm run check-errors && npm run test && npm run build-client",
+    "check": "npm run lint && npm run check-errors && npm run test &&  npm run test:projects && npm run build-client",
     "check-db-exists": "cross-env ts-node --swc scripts/check-db-exists.ts",
     "check-db-exists-only": "cross-env ts-node --swc scripts/check-db-exists-only.ts",
     "check-errors": "lerna run check-errors --parallel",
