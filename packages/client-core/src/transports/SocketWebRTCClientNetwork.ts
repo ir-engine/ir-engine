@@ -52,7 +52,7 @@ const promisedRequest = (primus: Primus) => {
         }
       }
       Object.defineProperty(responseFunction, 'name', { value: `responseFunction${id}`, writable: true })
-      let message = {
+      const message = {
         type: type,
         data: data,
         id: id++
