@@ -39,6 +39,7 @@ const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoute
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
 const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
+const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
@@ -109,6 +110,13 @@ function RouterComp() {
     }
   }, [routerState.pathname])
 
+  // Redirect from /editor to /studio
+  useEffect(() => {
+    if (location.pathname === '/editor') {
+      navigate('/studio')
+    }
+  }, [location.pathname])
+
   useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes
     if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
@@ -127,6 +135,7 @@ function RouterComp() {
           <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
           <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
           {/* default to allowing admin access regardless */}
+          <Route key={'default-studio'} path={'/studio/*'} element={<$studio />} />
           <Route key={'default-admin'} path={'/admin/*'} element={<$admin />} />
           <Route key={'default-auth'} path={'/auth/*'} element={<$auth />} />
           <Route key={'default-index'} path={'/'} element={<$index />} />
