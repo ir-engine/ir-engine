@@ -9,6 +9,7 @@ import {
   defineQuery,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
@@ -212,9 +213,9 @@ describe('ECS', () => {
     assert.deepStrictEqual(state, [])
 
     const newMockValue = 1 + Math.random()
-    assert.equal(bitecs.hasComponent(Engine.instance.currentScene!, MockComponent, entity), false)
+    assert.equal(hasComponent(entity, MockComponent), false)
     addComponent(entity, MockComponent, { mockValue: newMockValue })
-    assert.equal(bitecs.hasComponent(Engine.instance.currentScene!, MockComponent, entity), true)
+    assert.equal(hasComponent(entity, MockComponent), true)
     const component = getComponent(entity, MockComponent)
     assert(component)
     assert.strictEqual(component.mockValue, newMockValue)

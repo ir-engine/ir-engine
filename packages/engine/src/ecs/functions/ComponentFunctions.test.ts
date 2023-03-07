@@ -58,7 +58,7 @@ describe('ComponentFunctions', async () => {
       const component = getComponent(entity, TestComponent)
 
       assert.ok(component)
-      assert.ok(bitECS.hasComponent(Engine.instance, TestComponent, entity))
+      assert.ok(hasComponent(entity, TestComponent))
     })
 
     it('should add component with AoS values', () => {

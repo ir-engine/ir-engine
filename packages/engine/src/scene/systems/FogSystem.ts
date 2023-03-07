@@ -143,8 +143,10 @@ export default async function FogSystem() {
     FogShaders.splice(FogShaders.indexOf(shader), 1)
   }
 
+  const scene = Engine.instance.currentScene
+
   function FogGroupReactor({ obj }: GroupReactorProps) {
-    const fog = useHookstate(getFogSceneMetadataState(Engine.instance.currentScene))
+    const fog = useHookstate(getFogSceneMetadataState(scene))
 
     useEffect(() => {
       const customShader = fog.type.value === FogType.Brownian || fog.type.value === FogType.Height
