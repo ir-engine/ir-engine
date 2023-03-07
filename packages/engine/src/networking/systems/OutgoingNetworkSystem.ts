@@ -1,4 +1,7 @@
+import { getMutableState } from '@etherealengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
@@ -17,7 +20,9 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 ])
 
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
-  const ents = Engine.instance.isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
+  const ents = getMutableState(EngineState).isEditor.value
+    ? networkTransformsQuery()
+    : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId
     const peerID = Engine.instance.worldNetwork.peerID

@@ -4,7 +4,7 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
-import { initSystems } from './SystemFunctions'
+import { executeSystems, initSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const MockState = defineState({
@@ -48,7 +48,7 @@ describe('FixedPipelineSystem', () => {
 
     const ticks = 3
     const deltaSeconds = ticks / 60
-    Engine.instance.execute(Engine.instance.startTime + 1000 * deltaSeconds)
+    executeSystems(Engine.instance.startTime + 1000 * deltaSeconds)
     assert.equal(Engine.instance.elapsedSeconds, deltaSeconds)
     assert.equal(Engine.instance.fixedElapsedSeconds, deltaSeconds)
     assert.equal(Engine.instance.fixedTick, ticks)
@@ -77,7 +77,7 @@ describe('FixedPipelineSystem', () => {
     assert.equal(mockState.count.value, 0)
 
     const deltaSeconds = 1000
-    Engine.instance.execute(1000 * deltaSeconds)
+    executeSystems(1000 * deltaSeconds)
     assert.equal(Engine.instance.elapsedSeconds, deltaSeconds)
     assert.equal(Engine.instance.fixedElapsedSeconds, deltaSeconds)
     assert.equal(Engine.instance.fixedTick, 60000)

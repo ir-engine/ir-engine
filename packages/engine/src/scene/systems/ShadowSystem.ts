@@ -27,6 +27,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -196,7 +197,7 @@ export default async function ShadowSystem() {
 
     useEffect(() => {
       if (
-        Engine.instance.isEditor ||
+        getMutableState(EngineState).isEditor.value ||
         !shadow.cast.value ||
         !shadowMaterial.value ||
         useShadows ||
@@ -235,7 +236,7 @@ export default async function ShadowSystem() {
     sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
-    if (!useShadows && !Engine.instance.isEditor) {
+    if (!useShadows && !getMutableState(EngineState).isEditor.value) {
       for (const entity of dropShadowComponentQuery()) {
         const dropShadow = getComponent(entity, DropShadowComponent)
         const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)

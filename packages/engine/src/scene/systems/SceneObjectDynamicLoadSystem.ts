@@ -1,5 +1,8 @@
+import { getMutableState } from '@etherealengine/hyperflux'
+
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -17,7 +20,7 @@ export default async function SceneObjectDynamicLoadSystem() {
     defaultData: SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES
   })
 
-  if (Engine.instance.isEditor)
+  if (getMutableState(EngineState).isEditor.value)
     return {
       execute: () => {},
       cleanup: async () => {

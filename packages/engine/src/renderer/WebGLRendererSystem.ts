@@ -238,7 +238,8 @@ export class EngineRenderer {
     } else {
       const state = getMutableState(RendererState)
       const engineState = getEngineState()
-      if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
+      if (!engineState.isEditor.value && state.automatic.value && engineState.joinedWorld.value)
+        this.changeQualityLevel()
       if (this.needsResize) {
         const curPixelRatio = this.renderer.getPixelRatio()
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
@@ -264,7 +265,7 @@ export class EngineRenderer {
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
        */
-      if (state.usePostProcessing.value || Engine.instance.isEditor) {
+      if (state.usePostProcessing.value || engineState.isEditor.value) {
         this.effectComposer.render(delta)
       } else {
         this.renderer.autoClear = true

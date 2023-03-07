@@ -64,12 +64,6 @@ import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
-const TimerConfig = {
-  MAX_DELTA_SECONDS: 1 / 10
-}
-
-const logger = multiLogger.child({ component: 'engine:Engine' })
-
 export class Engine {
   static instance: Engine
 
@@ -186,9 +180,6 @@ export class Engine {
 
   xrFrame: XRFrame | null = null
 
-  // @todo move to EngineState
-  isEditor = false
-
   widgets = new Map<string, Widget>()
 
   /**
@@ -295,8 +286,6 @@ export class Engine {
   #entityQuery = defineQuery([Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery() as Entity[]
 
-  #entityRemovedQuery = defineQuery([EntityRemovedComponent])
-
   // @todo move to EngineState
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
@@ -386,46 +375,6 @@ export class Engine {
   /** Get next network id. */
   createNetworkId(): NetworkId {
     return ++this.#availableNetworkId as NetworkId
-  }
-
-  /**
-   * Execute systems on this world
-   *
-   * @param frameTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
-   */
-  execute(frameTime: number) {
-    const start = nowMilliseconds()
-    const incomingActions = [...Engine.instance.store.actions.incoming]
-
-    const worldElapsedSeconds = (frameTime - this.startTime) / 1000
-    const engineState = getMutableState(EngineState)
-    engineState.deltaSeconds.set(
-      Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
-    )
-    engineState.elapsedSeconds.set(worldElapsedSeconds)
-
-    for (const system of this.pipelines[SystemUpdateType.UPDATE_EARLY]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.UPDATE_LATE]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.RENDER]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
-
-    for (const entity of this.#entityRemovedQuery()) removeEntity(entity as Entity, true)
-
-    for (const { query, result } of this.reactiveQueryStates) {
-      const entitiesAdded = query.enter().length
-      const entitiesRemoved = query.exit().length
-      if (entitiesAdded || entitiesRemoved) {
-        result.set(query())
-      }
-    }
-
-    const end = nowMilliseconds()
-    const duration = end - start
-    if (duration > 150) {
-      logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
-    }
   }
 }
 

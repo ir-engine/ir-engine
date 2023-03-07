@@ -9,6 +9,7 @@ import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { executeSystems } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
@@ -122,7 +123,7 @@ describe('NetworkPeerFunctions', () => {
 
       clearOutgoingActions(network.topic)
       applyIncomingActions()
-      Engine.instance.execute(0)
+      executeSystems(0)
 
       assert(!Engine.instance.getNetworkObject(userId, networkId))
     })

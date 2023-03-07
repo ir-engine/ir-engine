@@ -4,6 +4,7 @@ import { resolveUser } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
@@ -56,12 +57,12 @@ export const userPatched = (params) => {
       dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: patchedUser }))
     if (!isLayerUser && patchedUser.instanceId === selfUser.instanceId.value) {
       dispatchAction(NetworkUserAction.addedLayerUserAction({ user: patchedUser }))
-      !Engine.instance.isEditor &&
+      !getMutableState(EngineState).isEditor.value &&
         NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.joined')}`, { variant: 'default' })
     }
     if (isLayerUser && patchedUser.instanceId !== selfUser.instanceId.value) {
       dispatchAction(NetworkUserAction.removedLayerUserAction({ user: patchedUser }))
-      !Engine.instance.isEditor &&
+      !getMutableState(EngineState).isEditor.value &&
         NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.left')}`, { variant: 'default' })
     }
     if (patchedUser.channelInstanceId !== selfUser.channelInstanceId.value)

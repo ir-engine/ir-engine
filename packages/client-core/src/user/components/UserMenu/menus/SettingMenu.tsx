@@ -20,6 +20,7 @@ import {
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import {
   getPostProcessingSceneMetadataState,
@@ -62,6 +63,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const handOptions = ['left', 'right']
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
+  const engineState = useHookstate(getMutableState(EngineState))
 
   const postProcessingSceneMetadataState = Engine.instance.currentScene.sceneMetadataRegistry[
     PostProcessingSceneMetadataLabel
@@ -91,7 +93,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     delete themeModes['editor']
   }
 
-  const showWorldSettings = Engine.instance.localClientEntity || Engine.instance.isEditor
+  const showWorldSettings = Engine.instance.localClientEntity || engineState.value
 
   /**
    * Note: If you're editing this function, be sure to make the same changes to

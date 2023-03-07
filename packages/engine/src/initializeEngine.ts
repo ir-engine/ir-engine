@@ -8,7 +8,7 @@ import { destroyEngine, Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { destroyScene } from './ecs/classes/Scene'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
-import { initSystemSync } from './ecs/functions/SystemFunctions'
+import { executeSystems, initSystemSync } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import IncomingActionSystem from './networking/systems/IncomingActionSystem'
 import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
@@ -28,7 +28,7 @@ export const createEngine = () => {
   Engine.instance = new Engine()
   EngineRenderer.instance = new EngineRenderer()
   addActionReceptor(EngineEventReceptor)
-  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
+  Engine.instance.engineTimer = Timer(executeSystems, Engine.instance.tickRate)
 }
 
 export const setupEngineActionSystems = () => {
@@ -97,10 +97,4 @@ const setupInitialClickListener = () => {
  */
 export const initializeNode = () => {
   Engine.instance.engineTimer.start()
-}
-
-const executeWorlds = (elapsedTime) => {
-  const engineState = getMutableState(EngineState)
-  engineState.frameTime.set(elapsedTime)
-  Engine.instance.execute(elapsedTime)
 }
