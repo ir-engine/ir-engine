@@ -2,7 +2,13 @@ import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Mesh, Vector3 } from 'three'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
-import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import {
+  createActionQueue,
+  getMutableState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -37,7 +43,7 @@ export default async function DebugRendererSystem() {
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
 
-  const debugEnable = getState(RendererState).debugEnable
+  const debugEnable = getMutableState(RendererState).debugEnable
   const visualizers = [] as MeshBVHVisualizer[]
 
   startGroupQueryReactor(function DebugReactor(props) {

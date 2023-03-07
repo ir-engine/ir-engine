@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { CreateEditUser, UserInterface, UserSeed } from '@etherealengine/common/src/interfaces/User'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -27,12 +27,12 @@ const AdminUserState = defineState({
 })
 
 const fetchedSingleUserReceptor = (action: typeof AdminUserActions.fetchedSingleUser.matches._TYPE) => {
-  const state = getState(AdminUserState)
+  const state = getMutableState(AdminUserState)
   return state.merge({ singleUser: action.data, updateNeeded: false })
 }
 
 const loadedUsersReceptor = (action: typeof AdminUserActions.loadedUsers.matches._TYPE) => {
-  const state = getState(AdminUserState)
+  const state = getMutableState(AdminUserState)
   return state.merge({
     users: action.userResult.data,
     skip: action.userResult.skip,
@@ -46,22 +46,22 @@ const loadedUsersReceptor = (action: typeof AdminUserActions.loadedUsers.matches
 }
 
 const userAdminRemovedReceptor = (action: typeof AdminUserActions.userAdminRemoved.matches._TYPE) => {
-  const state = getState(AdminUserState)
+  const state = getMutableState(AdminUserState)
   return state.merge({ updateNeeded: true })
 }
 
 const userCreatedReceptor = (action: typeof AdminUserActions.userCreated.matches._TYPE) => {
-  const state = getState(AdminUserState)
+  const state = getMutableState(AdminUserState)
   return state.merge({ updateNeeded: true })
 }
 
 const userPatchedReceptor = (action: typeof AdminUserActions.userPatched.matches._TYPE) => {
-  const state = getState(AdminUserState)
+  const state = getMutableState(AdminUserState)
   return state.merge({ updateNeeded: true })
 }
 
 const searchedUserReceptor = (action: typeof AdminUserActions.searchedUser.matches._TYPE) => {
-  const state = getState(AdminUserState)
+  const state = getMutableState(AdminUserState)
   return state.merge({
     users: action.userResult.data,
     skip: action.userResult.skip,
@@ -75,7 +75,7 @@ const searchedUserReceptor = (action: typeof AdminUserActions.searchedUser.match
 }
 
 const setSkipGuestsReceptor = (action: typeof AdminUserActions.setSkipGuests.matches._TYPE) => {
-  const state = getState(AdminUserState)
+  const state = getMutableState(AdminUserState)
   return state.merge({
     skipGuests: action.skipGuests,
     updateNeeded: true
@@ -83,7 +83,7 @@ const setSkipGuestsReceptor = (action: typeof AdminUserActions.setSkipGuests.mat
 }
 
 const resetFilterReceptor = (action: typeof AdminUserActions.resetFilter.matches._TYPE) => {
-  const state = getState(AdminUserState)
+  const state = getMutableState(AdminUserState)
   return state.merge({
     skipGuests: false,
     updateNeeded: true
@@ -101,7 +101,7 @@ export const AdminUserReceptors = {
   resetFilterReceptor
 }
 
-export const accessUserState = () => getState(AdminUserState)
+export const accessUserState = () => getMutableState(AdminUserState)
 
 export const useUserState = () => useState(accessUserState())
 

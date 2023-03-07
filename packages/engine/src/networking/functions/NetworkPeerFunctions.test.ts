@@ -3,7 +3,7 @@ import assert from 'assert'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { applyIncomingActions, clearOutgoingActions, getState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, clearOutgoingActions, getMutableState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
@@ -32,7 +32,7 @@ describe('NetworkPeerFunctions', () => {
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
 
-      const worldState = getState(WorldState)
+      const worldState = getMutableState(WorldState)
 
       assert(network.peers.get(peerID))
       assert.equal(network.peers.get(peerID)?.userId, userId)
@@ -58,7 +58,7 @@ describe('NetworkPeerFunctions', () => {
       const peerIndex2 = 4
       const network = Engine.instance.worldNetwork
 
-      const worldState = getState(WorldState)
+      const worldState = getMutableState(WorldState)
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       assert.equal(network.peers.get(peerID)!.userId, userId)

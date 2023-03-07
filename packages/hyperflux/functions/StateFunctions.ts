@@ -74,7 +74,7 @@ const stateNamespaceKey = 'ee.hyperflux'
  */
 export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
   if (isNode) return
-  const state = getState(stateDefinition)
+  const state = getMutableState(stateDefinition)
 
   for (const key of keys) {
     const storedValue = localStorage.getItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)

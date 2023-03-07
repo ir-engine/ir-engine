@@ -5,7 +5,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
 import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
 import { getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -198,7 +198,7 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
  */
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentScene
-  getState(EngineState).sceneLoading.set(true)
+  getMutableState(EngineState).sceneLoading.set(true)
 
   const systemsToLoad = [] as SystemModuleType<any>[]
 
@@ -256,7 +256,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   updateSceneEntitiesFromJSON(sceneData.scene.root, world)
 
   if (!sceneAssetPendingTagQuery().length) {
-    if (getState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
+    if (getMutableState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
   }
 }
 
@@ -370,7 +370,7 @@ export default async function SceneLoadingSystem() {
   }
 
   const execute = () => {
-    if (!getState(EngineState).sceneLoading.value) return
+    if (!getMutableState(EngineState).sceneLoading.value) return
 
     const pendingAssets = sceneAssetPendingTagQuery().length
 

@@ -32,7 +32,7 @@ import {
   createActionQueue,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   hookstate,
   removeActionQueue,
   startReactor,
@@ -236,7 +236,7 @@ export class EngineRenderer {
 
       this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
-      const state = getState(RendererState)
+      const state = getMutableState(RendererState)
       const engineState = getEngineState()
       if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.needsResize) {
@@ -281,7 +281,7 @@ export class EngineRenderer {
     const delta = time - lastRenderTime
     lastRenderTime = time
 
-    const state = getState(RendererState)
+    const state = getMutableState(RendererState)
     let qualityLevel = state.qualityLevel.value
 
     this.movingAverage.update(Math.min(delta, 50))
@@ -335,13 +335,13 @@ export default async function WebGLRendererSystem() {
     default: DefaultPostProcessingState
   }
 
-  const rendererState = getState(RendererState)
+  const rendererState = getMutableState(RendererState)
 
   const reactor = startReactor(function RendererReactor() {
     const renderSettings = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene))
     const engineRendererSettings = useHookstate(rendererState)
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentScene))
-    const xrState = useHookstate(getState(XRState))
+    const xrState = useHookstate(getMutableState(XRState))
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value

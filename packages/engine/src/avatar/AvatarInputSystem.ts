@@ -1,7 +1,7 @@
 import { Quaternion } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -70,8 +70,8 @@ export const AvatarAxesControlSchemeBehavior = {
 }
 
 export default async function AvatarInputSystem() {
-  const interactState = getState(InteractState)
-  const avatarInputSettings = getState(AvatarInputSettingsState).value
+  const interactState = getMutableState(InteractState)
+  const avatarInputSettings = getMutableState(AvatarInputSettingsState).value
 
   const onShiftLeft = () => {
     const controller = getComponentState(Engine.instance.localClientEntity, AvatarControllerComponent)
@@ -114,7 +114,7 @@ export default async function AvatarInputSystem() {
   }
 
   const onKeyP = () => {
-    getState(RendererState).debugEnable.set(!getState(RendererState).debugEnable.value)
+    getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
   }
 
   let mouseMovedDuringPrimaryClick = false

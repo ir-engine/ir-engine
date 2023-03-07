@@ -1,5 +1,5 @@
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 export const RouterState = defineState({
   name: 'RouterState',
@@ -9,7 +9,7 @@ export const RouterState = defineState({
 })
 
 export const RouterServiceReceptor = (action) => {
-  const s = getState(RouterState)
+  const s = getMutableState(RouterState)
   matches(action).when(RouterAction.route.matches, (action) => {
     s.pathname.set(action.pathname)
   })

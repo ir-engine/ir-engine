@@ -1,6 +1,6 @@
 import assert from 'assert'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
@@ -17,7 +17,7 @@ const MocksystemLoader = async () => {
     default: async () => {
       return {
         execute: () => {
-          getState(MockState).count.set((c) => c + 1)
+          getMutableState(MockState).count.set((c) => c + 1)
         },
         cleanup: async () => {}
       }
@@ -39,7 +39,7 @@ describe('FixedPipelineSystem', () => {
     ]
     await initSystems(injectedSystems)
 
-    const mockState = getState(MockState)
+    const mockState = getMutableState(MockState)
 
     assert.equal(Engine.instance.elapsedSeconds, 0)
     assert.equal(Engine.instance.fixedElapsedSeconds, 0)
@@ -68,7 +68,7 @@ describe('FixedPipelineSystem', () => {
     ]
     await initSystems(injectedSystems)
 
-    const mockState = getState(MockState)
+    const mockState = getMutableState(MockState)
 
     Engine.instance.startTime = 0
     assert.equal(Engine.instance.elapsedSeconds, 0)

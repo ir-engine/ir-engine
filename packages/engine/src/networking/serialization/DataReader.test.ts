@@ -5,7 +5,7 @@ import { Group, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
@@ -811,7 +811,7 @@ describe('DataReader', () => {
 
     const peerID = 'peerID' as PeerID
     const network = Engine.instance.worldNetwork
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedTick.set(1)
 
     const n = 10
@@ -852,7 +852,7 @@ describe('DataReader', () => {
   it('should createDataReader and return populated packet if no changes were made but on a fixedTick divisible by 60', () => {
     const write = createDataWriter()
     const network = Engine.instance.worldNetwork
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedTick.set(60)
     const peerID = 'peerID' as PeerID
 
@@ -890,7 +890,7 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const network = Engine.instance.worldNetwork
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedTick.set(1)
     const peerID = 'peerID' as PeerID
 

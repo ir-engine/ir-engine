@@ -1,7 +1,7 @@
 import * as bitecs from 'bitecs'
 
 import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createHyperStore, getState, hookstate, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getMutableState, hookstate, State } from '@etherealengine/hyperflux'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
@@ -136,7 +136,7 @@ export class Engine {
    * Current frame timestamp, relative to performance.timeOrigin
    */
   get frameTime() {
-    return getState(EngineState).frameTime.value
+    return getMutableState(EngineState).frameTime.value
   }
 
   engineTimer: { start: Function; stop: Function; clear: Function } = null!
@@ -200,32 +200,32 @@ export class Engine {
    * The seconds since the last world execution
    */
   get deltaSeconds() {
-    return getState(EngineState).deltaSeconds.value
+    return getMutableState(EngineState).deltaSeconds.value
   }
 
   /**
    * The elapsed seconds since `startTime`
    */
   get elapsedSeconds() {
-    return getState(EngineState).elapsedSeconds.value
+    return getMutableState(EngineState).elapsedSeconds.value
   }
 
   /**
    * The elapsed seconds since `startTime`, in fixed time steps.
    */
   get fixedElapsedSeconds() {
-    return getState(EngineState).fixedElapsedSeconds.value
+    return getMutableState(EngineState).fixedElapsedSeconds.value
   }
 
   /**
    * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   get fixedTick() {
-    return getState(EngineState).fixedTick.value
+    return getMutableState(EngineState).fixedTick.value
   }
 
   get fixedDeltaSeconds() {
-    return getState(EngineState).fixedDeltaSeconds.value
+    return getMutableState(EngineState).fixedDeltaSeconds.value
   }
 
   physicsWorld: PhysicsWorld
@@ -398,7 +398,7 @@ export class Engine {
     const incomingActions = [...Engine.instance.store.actions.incoming]
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.deltaSeconds.set(
       Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
     )

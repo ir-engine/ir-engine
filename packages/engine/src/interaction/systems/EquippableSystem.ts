@@ -5,7 +5,7 @@ import { Quaternion, Vector3 } from 'three'
 import {
   createActionQueue,
   dispatchAction,
-  getState,
+  getMutableState,
   removeActionQueue,
   startReactor,
   useHookstate

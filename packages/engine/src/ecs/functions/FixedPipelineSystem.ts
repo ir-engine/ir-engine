@@ -1,4 +1,4 @@
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
@@ -18,7 +18,7 @@ export default function FixedPipelineSystem() {
 
     let accumulator = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
 
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
 
     const timestep = engineState.fixedDeltaSeconds.value
     const maxMilliseconds = 8

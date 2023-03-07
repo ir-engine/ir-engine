@@ -7,7 +7,7 @@ import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInt
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -29,7 +29,7 @@ export const AvatarState = defineState({
 })
 
 export const AvatarServiceReceptor = (action) => {
-  const s = getState(AvatarState)
+  const s = getMutableState(AvatarState)
   matches(action)
     .when(AvatarActions.updateAvatarListAction.matches, (action) => {
       s.search.set(action.search ?? undefined)
@@ -43,7 +43,7 @@ export const AvatarServiceReceptor = (action) => {
     })
 }
 
-export const accessAvatarState = () => getState(AvatarState)
+export const accessAvatarState = () => getMutableState(AvatarState)
 
 export const useAvatarService = () => useState(accessAvatarState())
 

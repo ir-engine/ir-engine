@@ -6,7 +6,7 @@ import {
   defineAction,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   useState
 } from '@etherealengine/hyperflux'
 
@@ -21,7 +21,7 @@ const WebxrState = defineState({
 })
 
 export const WebxrNativeServiceReceptor = (action) => {
-  const s = getState(WebxrState)
+  const s = getMutableState(WebxrState)
   matches(action)
     .when(WebxrNativeAction.setWebXrNative.matches, () => {
       return s.webxrnative.set(false)
@@ -31,7 +31,7 @@ export const WebxrNativeServiceReceptor = (action) => {
     })
 }
 
-export const accessWebxrNativeState = () => getState(WebxrState)
+export const accessWebxrNativeState = () => getMutableState(WebxrState)
 export const useWebxrNativeState = () => useState(accessWebxrNativeState())
 
 //Service

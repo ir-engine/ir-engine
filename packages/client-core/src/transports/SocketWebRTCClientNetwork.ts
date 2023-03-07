@@ -11,7 +11,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { clearOutgoingActions, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { clearOutgoingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import {
@@ -109,7 +109,7 @@ export class SocketWebRTCClientNetwork extends Network {
   }
 
   mediasoupDevice = new mediasoupClient.Device(
-    getState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
+    getMutableState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
   )
   reconnecting = false
   recvTransport: MediaSoupTransport

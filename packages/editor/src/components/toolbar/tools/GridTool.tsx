@@ -2,7 +2,7 @@ import React from 'react'
 
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 
@@ -11,7 +11,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const rendererState = useHookstate(getState(RendererState))
+  const rendererState = useHookstate(getMutableState(RendererState))
 
   const onToggleGridVisible = () => {
     rendererState.gridVisibility.set(!rendererState.gridVisibility.value)

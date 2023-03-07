@@ -15,7 +15,7 @@ import {
   registerMaterial
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { useMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, getState, removeActionQueue, useState } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue, useState } from '@etherealengine/hyperflux'
 
 import { Divider, Grid, Stack } from '@mui/material'
 

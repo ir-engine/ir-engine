@@ -4,7 +4,7 @@ import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { LocationType } from '@etherealengine/common/src/interfaces/LocationType'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -31,7 +31,7 @@ const AdminLocationState = defineState({
 })
 
 export const locationsRetrievedReceptor = (action: typeof AdminLocationActions.locationsRetrieved.matches._TYPE) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({
     locations: action.locations.data,
     skip: action.locations.skip,
@@ -45,24 +45,24 @@ export const locationsRetrievedReceptor = (action: typeof AdminLocationActions.l
 }
 
 export const locationCreatedReceptor = (action: typeof AdminLocationActions.locationCreated.matches._TYPE) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({ updateNeeded: true, created: true })
 }
 
 export const locationPatchedReceptor = (action: typeof AdminLocationActions.locationPatched.matches._TYPE) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({ updateNeeded: true })
 }
 
 export const locationRemovedReceptor = (action: typeof AdminLocationActions.locationRemoved.matches._TYPE) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({ updateNeeded: true })
 }
 
 export const locationTypesRetrievedReceptor = (
   action: typeof AdminLocationActions.locationTypesRetrieved.matches._TYPE
 ) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({ locationTypes: action.locationTypes.data, updateNeeded: false })
 }
 
@@ -74,7 +74,7 @@ export const AdminLocationReceptors = {
   locationTypesRetrievedReceptor
 }
 
-export const accessAdminLocationState = () => getState(AdminLocationState)
+export const accessAdminLocationState = () => getMutableState(AdminLocationState)
 
 export const useAdminLocationState = () => useState(accessAdminLocationState())
 

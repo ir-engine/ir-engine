@@ -1,6 +1,6 @@
 import { DialogSeed } from '@etherealengine/common/src/interfaces/Dialog'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 //State
 const DialogState = defineState({
@@ -12,7 +12,7 @@ const DialogState = defineState({
 })
 
 export const DialogServiceReceptor = (action) => {
-  const s = getState(DialogState)
+  const s = getMutableState(DialogState)
   matches(action)
     .when(DialogAction.dialogShow.matches, (action) => {
       return s.merge({ isOpened: true, content: action.content })
@@ -22,7 +22,7 @@ export const DialogServiceReceptor = (action) => {
     })
 }
 
-export const dialogState = () => getState(DialogState)
+export const dialogState = () => getMutableState(DialogState)
 
 export const useDialogState = () => useState(dialogState())
 

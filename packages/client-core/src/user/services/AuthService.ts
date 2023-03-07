@@ -24,7 +24,7 @@ import {
   defineAction,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   syncStateWithLocalStorage,
   useState
 } from '@etherealengine/hyperflux'
@@ -52,7 +52,7 @@ export const AuthState = defineState({
   }
 })
 
-export const accessAuthState = () => getState(AuthState)
+export const accessAuthState = () => getMutableState(AuthState)
 export const useAuthState = () => useState(accessAuthState())
 
 export interface EmailLoginForm {
@@ -74,7 +74,7 @@ export interface LinkedInLoginForm {
 }
 
 export const AuthServiceReceptor = (action) => {
-  const s = getState(AuthState)
+  const s = getMutableState(AuthState)
   matches(action)
     .when(AuthAction.actionProcessing.matches, (action) => {
       return s.merge({ isProcessing: action.processing, error: '' })
@@ -274,7 +274,7 @@ async function _resetToGuestToken(options = { reset: true }) {
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
     try {
-      const authData = getState(AuthState)
+      const authData = getMutableState(AuthState)
       let accessToken = !forceClientAuthReset && authData?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) {
@@ -508,7 +508,7 @@ export const AuthService = {
       // in properly. This interval waits to make sure the token has been updated before redirecting
       const waitForTokenStored = setInterval(() => {
         timeoutTimer += TIMEOUT_INTERVAL
-        const authData = getState(AuthState)
+        const authData = getMutableState(AuthState)
         const storedToken = authData.authUser?.accessToken?.value
         if (storedToken === accessToken) {
           clearInterval(waitForTokenStored)

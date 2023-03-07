@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { ChargebeeSetting } from '@etherealengine/common/src/interfaces/ChargebeeSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -18,7 +18,7 @@ const AdminChargebeeSettingsState = defineState({
 const chargebeeSettingRetrievedReceptor = (
   action: typeof AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches._TYPE
 ) => {
-  const state = getState(AdminChargebeeSettingsState)
+  const state = getMutableState(AdminChargebeeSettingsState)
   return state.merge({ chargebee: action.chargebeeSetting.data, updateNeeded: false })
 }
 
@@ -26,7 +26,7 @@ export const AdminChargebeeReceptors = {
   chargebeeSettingRetrievedReceptor
 }
 
-export const accessAdminChargebeeSettingState = () => getState(AdminChargebeeSettingsState)
+export const accessAdminChargebeeSettingState = () => getMutableState(AdminChargebeeSettingsState)
 
 export const useAdminChargebeeSettingState = () => useState(accessAdminChargebeeSettingState())
 

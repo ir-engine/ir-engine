@@ -28,7 +28,7 @@ import { InviteService, InviteServiceReceptor } from '@etherealengine/client-cor
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
@@ -47,7 +47,7 @@ function RouterComp() {
   const location = useLocation()
   const navigate = useNavigate()
   const [routesReady, setRoutesReady] = useState(false)
-  const routerState = useHookstate(getState(RouterState))
+  const routerState = useHookstate(getMutableState(RouterState))
   const route = useRouter()
   const { t } = useTranslation()
 

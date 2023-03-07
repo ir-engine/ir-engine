@@ -2,7 +2,7 @@ import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
@@ -54,7 +54,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
   if (!entity || (!xrFrame && !additionalMovement)) return
 
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
   const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
@@ -151,7 +151,7 @@ const currentDirection = new Vector3()
 export const applyAutopilotInput = (entity: Entity) => {
   const deltaSeconds = Engine.instance.fixedDeltaSeconds
 
-  const markerState = getState(AutopilotMarker)
+  const markerState = getMutableState(AutopilotMarker)
 
   const controller = getComponent(entity, AvatarControllerComponent)
 
@@ -169,7 +169,7 @@ export const applyAutopilotInput = (entity: Entity) => {
   walkPoint.copy(markerState.walkTarget.value)
   const moveDirection = walkPoint.sub(avatarPos)
   const distanceSquared = moveDirection.lengthSq()
-  const avatarMovementSettings = getState(AvatarMovementSettingsState).value
+  const avatarMovementSettings = getMutableState(AvatarMovementSettingsState).value
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
   const yDirectionMultiplier = 1.25
   moveDirection
@@ -198,7 +198,7 @@ export const applyGamepadInput = (entity: Entity) => {
   const deltaSeconds = Engine.instance.fixedDeltaSeconds
   const controller = getComponent(entity, AvatarControllerComponent)
 
-  const avatarMovementSettings = getState(AvatarMovementSettingsState).value
+  const avatarMovementSettings = getMutableState(AvatarMovementSettingsState).value
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
   camera.getWorldDirection(cameraDirection).setY(0).normalize()
   forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
@@ -323,7 +323,7 @@ const _updateLocalAvatarRotationAttachedMode = () => {
   const entity = Engine.instance.localClientEntity
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  const viewerPose = getState(XRState).viewerPose.value
+  const viewerPose = getMutableState(XRState).viewerPose.value
 
   if (!viewerPose) return
 

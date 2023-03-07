@@ -1,5 +1,11 @@
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@etherealengine/hyperflux'
+import {
+  defineAction,
+  defineState,
+  getMutableState,
+  syncStateWithLocalStorage,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 
@@ -31,11 +37,11 @@ export const AudioState = defineState({
   }
 })
 
-export const accessAudioState = () => getState(AudioState)
+export const accessAudioState = () => getMutableState(AudioState)
 export const useAudioState = () => useState(accessAudioState())
 
 export function AudioSettingReceptor(action) {
-  const s = getState(AudioState)
+  const s = getMutableState(AudioState)
   matches(action)
     .when(AudioSettingAction.setMasterVolume.matches, (action) => {
       s.masterVolume.set(action.value)
@@ -113,7 +119,7 @@ export class AudioSettingAction {
 }
 
 export const getPositionalMedia = () => {
-  const audioState = getState(AudioState)
+  const audioState = getMutableState(AudioState)
   return audioState.usePositionalMedia.value === 'auto'
     ? audioState.positionalMedia.value
     : audioState.usePositionalMedia.value === 'on'

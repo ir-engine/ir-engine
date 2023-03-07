@@ -3,7 +3,7 @@ import React from 'react'
 import { RenderModesType } from '@etherealengine/engine/src/renderer/constants/RenderModes'
 import { RenderModes } from '@etherealengine/engine/src/renderer/constants/RenderModes'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 
@@ -12,7 +12,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
-  const rendererState = useHookstate(getState(RendererState))
+  const rendererState = useHookstate(getMutableState(RendererState))
   const options = [] as { label: string; value: string }[]
 
   for (let key of Object.keys(RenderModes)) {

@@ -29,7 +29,7 @@ import { MessageTypes } from '@etherealengine/engine/src/networking/enums/Messag
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import Slider from '@etherealengine/ui/src/Slider'
@@ -50,7 +50,7 @@ interface Props {
 /** @todo separate all media state from UI state and move it to hookstate record keyed to peerID */
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const peerMediaChannelState = useHookstate(
-    getState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
+    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
   const {
     videoStream,
@@ -104,8 +104,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const userId = mediaNetwork ? mediaNetwork?.peers!.get(peerID!)?.userId : ''
   const user = userState.layerUsers.find((user) => user.id.value === userId)?.attach(Downgraded).value
 
-  const mediaStreamState = useHookstate(getState(MediaStreamState))
-  const mediaSettingState = useHookstate(getState(MediaSettingsState))
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
   const mediaState = getMediaSceneMetadataState(Engine.instance.currentScene)
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
@@ -304,7 +304,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const username = getUsername()
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   const handleVisibilityChange = () => {
     if (document.hidden) {
