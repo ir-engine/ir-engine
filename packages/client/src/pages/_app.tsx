@@ -1,7 +1,7 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
-import { BrowserRouter, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import {
   ClientSettingService,
@@ -63,7 +63,7 @@ declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
-const App = (): any => {
+const AppPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useAuthState()
   const selfUser = authState.user
@@ -91,6 +91,7 @@ const App = (): any => {
 
   useEffect(() => {
     const receptor = (action): any => {
+      // @ts-ignore
       matches(action).when(NotificationAction.notify.matches, (action) => {
         AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {
@@ -257,14 +258,6 @@ const App = (): any => {
         </ThemeProvider>
       </StyledEngineProvider>
     </>
-  )
-}
-
-const AppPage = () => {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
   )
 }
 

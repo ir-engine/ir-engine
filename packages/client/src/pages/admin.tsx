@@ -1,9 +1,8 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
-import { BrowserRouter, useLocation } from 'react-router-dom'
+import React, { lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
-import AdminRoutes from '@etherealengine/client-core/src/admin/adminRoutes'
 import {
   ClientSettingService,
   useClientSettingState
@@ -22,6 +21,8 @@ import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjectio
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
+import AdminRouterComp from '../route/admin'
+
 import './styles.scss'
 
 import {
@@ -29,6 +30,7 @@ import {
   useCoilSettingState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
+import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
@@ -62,7 +64,7 @@ declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
-const App = (): any => {
+const AdminPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useAuthState()
   const selfUser = authState.user
@@ -90,6 +92,7 @@ const App = (): any => {
 
   useEffect(() => {
     const receptor = (action): any => {
+      // @ts-ignore
       matches(action).when(NotificationAction.notify.matches, (action) => {
         AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {
@@ -248,7 +251,7 @@ const App = (): any => {
               <UIDialog />
               <Debug />
             </div>
-            <AdminRoutes />
+            <AdminRouterComp />
             {projectComponents.map((Component, i) => (
               <Component key={i} />
             ))}
@@ -259,12 +262,4 @@ const App = (): any => {
   )
 }
 
-const AppPage = () => {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  )
-}
-
-export default AppPage
+export default AdminPage
