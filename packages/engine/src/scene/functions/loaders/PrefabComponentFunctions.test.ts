@@ -25,9 +25,11 @@ import '@etherealengine/engine/src/patchEngineNode'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Scene } from '../../../ecs/classes/Scene'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { TransformModule } from '../../../transform/TransformModule'
@@ -52,7 +54,7 @@ describe('PrefabComponentFunctions', async () => {
     initEntity()
     Engine.instance.engineTimer.start()
 
-    Engine.instance.publicPath = ''
+    getMutableState(EngineState).publicPath.set('')
 
     await initSystems([
       ...TransformModule(),

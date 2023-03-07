@@ -132,7 +132,7 @@ export const usePortalTeleport = () => {
       }
 
       if (activePortal.redirect) {
-        window.location.href = Engine.instance.publicPath + '/location/' + activePortal.location
+        window.location.href = engineState.publicPath.value + '/location/' + activePortal.location
         return
       }
 

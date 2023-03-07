@@ -20,7 +20,7 @@ import {
   TextureLoader
 } from 'three'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
@@ -348,7 +348,7 @@ const assetLoadCallback =
     onLoad(asset)
   }
 
-const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
+const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
