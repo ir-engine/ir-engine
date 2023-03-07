@@ -1,8 +1,7 @@
-import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import { createState, SetInitialStateAction, State } from '@hookstate/core'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import multiLogger from '@etherealengine/common/src/logger'
-import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
 import { isNode } from '@etherealengine/engine/src/common/functions/getEnvironment'
 
 import { HyperFlux, HyperStore } from './StoreFunctions'
@@ -48,16 +47,6 @@ export function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFl
   if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
   return store.valueMap[StateDefinition.name] as DeepReadonly<S>
 }
-
-// export function useState<T extends unknown[], S>(
-//   StateDefinition: StateDefinition<S>,
-//   path = '' as string | string[],
-//   store = HyperFlux.store
-// ) {
-//   if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
-//   const state = resolveObject(path, store.stateMap[StateDefinition.name])
-//   return useHookstate(state)
-// }
 
 const stateNamespaceKey = 'ee.hyperflux'
 

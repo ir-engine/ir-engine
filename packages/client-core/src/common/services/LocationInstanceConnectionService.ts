@@ -8,6 +8,7 @@ import logger from '@etherealengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -39,7 +40,7 @@ export const LocationInstanceState = defineState({
 export function useWorldInstance() {
   const [state, setState] = React.useState(null as null | State<InstanceState>)
   const worldInstanceState = useState(getMutableState(LocationInstanceState).instances)
-  const worldHostId = useState(Engine.instance.hostIds.world)
+  const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
   useEffect(() => {
     setState(worldHostId.value ? worldInstanceState[worldHostId.value] : null)
   }, [worldInstanceState, worldHostId])
@@ -50,7 +51,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
   const s = getMutableState(LocationInstanceState)
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.hostIds.world.set(action.instanceId)
+      getMutableState(NetworkState).hostIds.world.set(action.instanceId)
       Engine.instance.networks.set(
         action.instanceId,
         new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
@@ -87,7 +88,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       Engine.instance.worldNetwork.hostId = action.newInstanceId as UserId
       Engine.instance.networks.set(action.newInstanceId, Engine.instance.worldNetwork)
       Engine.instance.networks.delete(action.currentInstanceId)
-      Engine.instance.hostIds.world.set(action.newInstanceId as UserId)
+      getMutableState(NetworkState).hostIds.world.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })

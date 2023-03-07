@@ -11,7 +11,8 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { clearOutgoingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { clearOutgoingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import {
@@ -68,7 +69,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
   if (locationConnectionFailed) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
-    const instanceId = Engine.instance.hostIds.world.value ?? ''
+    const instanceId = getState(NetworkState).hostIds.world ?? ''
     if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
@@ -79,7 +80,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
     }
   } else {
     const mediaInstanceConnectionState = accessMediaInstanceConnectionState()
-    const instanceId = Engine.instance.hostIds.media.value ?? ''
+    const instanceId = getState(NetworkState).hostIds.media ?? ''
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = accessAuthState()
