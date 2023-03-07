@@ -5,7 +5,7 @@ import { Group, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
@@ -38,6 +38,7 @@ import {
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
   createDataReader,
@@ -74,10 +75,10 @@ describe('DataReader', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
-    Engine.instance.networkSchema['ee.core.transform'] = {
+    getMutableState(NetworkState).networkSchema['ee.core.transform'].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
-    }
+    })
   })
 
   it('should checkBitflag', () => {
@@ -491,7 +492,7 @@ describe('DataReader', () => {
       ownerId: userId
     })
 
-    writeEntity(view, networkId, entity, Object.values(Engine.instance.networkSchema))
+    writeEntity(view, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     transform.position.x = 0
     transform.position.y = 0
@@ -503,7 +504,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readEntity(view, userId, Object.values(Engine.instance.networkSchema))
+    readEntity(view, userId, Object.values(getState(NetworkState).networkSchema))
 
     strictEqual(TransformComponent.position.x[entity], posX)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -518,13 +519,13 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    writeEntity(view, networkId, entity, Object.values(Engine.instance.networkSchema))
+    writeEntity(view, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     transform.position.x = posX
 
     view.cursor = 0
 
-    readEntity(view, userId, Object.values(Engine.instance.networkSchema))
+    readEntity(view, userId, Object.values(getState(NetworkState).networkSchema))
 
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -561,7 +562,7 @@ describe('DataReader', () => {
 
     setComponent(entity, NetworkObjectAuthorityTag)
 
-    writeEntity(view, networkId, entity, Object.values(Engine.instance.networkSchema))
+    writeEntity(view, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     view.cursor = 0
 
@@ -570,7 +571,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, userId, Object.values(Engine.instance.networkSchema))
+    readEntity(view, userId, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -607,7 +608,7 @@ describe('DataReader', () => {
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
-    writeEntity(view, networkId, entity, Object.values(Engine.instance.networkSchema))
+    writeEntity(view, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     view.cursor = 0
 
@@ -616,7 +617,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, userId, Object.values(Engine.instance.networkSchema))
+    readEntity(view, userId, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as entity is not listed in network entities
     strictEqual(TransformComponent.position.x[entity], 0)

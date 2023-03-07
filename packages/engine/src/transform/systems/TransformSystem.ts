@@ -2,7 +2,7 @@ import { Not } from 'bitecs'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -16,6 +16,7 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
+import { NetworkState } from '../../networking/NetworkState'
 import {
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
@@ -257,10 +258,12 @@ export default async function TransformSystem() {
     }
   }
 
-  Engine.instance.networkSchema['ee.core.transform'] = {
+  const networkState = getMutableState(NetworkState)
+
+  networkState.networkSchema['ee.core.transform'].set({
     read: TransformSerialization.readTransform,
     write: TransformSerialization.writeTransform
-  }
+  })
 
   const execute = () => {
     const { localClientEntity } = Engine.instance
@@ -413,7 +416,7 @@ export default async function TransformSystem() {
     removeQuery(distanceFromCameraQuery)
     Skeleton.prototype.update = skeletonUpdate
 
-    delete Engine.instance.networkSchema['ee.core.transform']
+    networkState.networkSchema['ee.core.transform'].set(none)
   }
 
   return { execute, cleanup }

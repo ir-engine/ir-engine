@@ -158,9 +158,6 @@ export class Engine {
   networks = new Map<string, Network>()
 
   /** a map of component names to a read/write function pairfor network component serialization */
-  networkSchema: {
-    [key: string]: SerializationSchema
-  } = {}
 
   gltfLoader: GLTFLoader = null!
 

@@ -4,6 +4,7 @@ import { Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarLeftArmIKComponent, AvatarRightArmIKComponent } from '../../avatar/components/AvatarIKComponents'
@@ -18,6 +19,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
+import { NetworkState } from '../NetworkState'
 import {
   expand,
   QUAT_MAX_RANGE,
@@ -199,7 +201,7 @@ export const readEntity = (v: ViewCursor, fromUserId: UserId, serializationSchem
 }
 
 export const readEntities = (v: ViewCursor, byteLength: number, fromUserID: UserId) => {
-  const entitySchema = Object.values(Engine.instance.networkSchema)
+  const entitySchema = Object.values(getState(NetworkState).networkSchema)
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {

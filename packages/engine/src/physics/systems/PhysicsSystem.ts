@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -18,6 +18,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { NetworkState } from '../../networking/NetworkState'
 import {
   ColliderComponent,
   SCENE_COMPONENT_COLLIDER,
@@ -150,10 +151,12 @@ export default async function PhysicsSystem() {
   const drainCollisions = Physics.drainCollisionEventQueue(Engine.instance.physicsWorld)
   const drainContacts = Physics.drainContactEventQueue(Engine.instance.physicsWorld)
 
-  Engine.instance.networkSchema['ee.core.physics'] = {
+  const networkState = getMutableState(NetworkState)
+
+  networkState.networkSchema['ee.core.physics'].set({
     read: PhysicsSerialization.readRigidBody,
     write: PhysicsSerialization.writeRigidBody
-  }
+  })
 
   const execute = () => {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
@@ -259,7 +262,7 @@ export default async function PhysicsSystem() {
 
     Engine.instance.physicsWorld.free()
 
-    delete Engine.instance.networkSchema['ee.core.physics']
+    networkState.networkSchema['ee.core.physics'].set(none)
   }
 
   return { execute, cleanup }

@@ -4,7 +4,7 @@ import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
@@ -25,6 +25,7 @@ import {
   writeTransform
 } from '../../transform/TransformSerialization'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkState } from '../NetworkState'
 import { readCompressedVector3 } from './DataReader'
 import {
   createDataWriter,
@@ -49,10 +50,10 @@ describe('DataWriter', () => {
   before(() => {
     createEngine()
     createMockNetwork()
-    Engine.instance.networkSchema['ee.core.transform'] = {
+    getMutableState(NetworkState).networkSchema['ee.core.transform'].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
-    }
+    })
   })
 
   it('should writeComponent', () => {
@@ -370,7 +371,7 @@ describe('DataWriter', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    writeEntity(writeView, networkId, entity, Object.values(Engine.instance.networkSchema))
+    writeEntity(writeView, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     const readView = createViewCursor(writeView.buffer)
 

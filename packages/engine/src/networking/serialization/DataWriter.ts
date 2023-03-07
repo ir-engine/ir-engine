@@ -1,6 +1,7 @@
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -10,6 +11,7 @@ import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkState } from '../NetworkState'
 import {
   compress,
   QUAT_MAX_RANGE,
@@ -240,7 +242,7 @@ export const writeEntity = (
 }
 
 export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
-  const entitySchema = Object.values(Engine.instance.networkSchema)
+  const entitySchema = Object.values(getState(NetworkState).networkSchema)
 
   const writeCount = spaceUint32(v)
 

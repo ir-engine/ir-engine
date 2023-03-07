@@ -1,13 +1,14 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, getState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
+import { NetworkState } from '../networking/NetworkState'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -75,20 +76,22 @@ export default async function AvatarSpawnSystem() {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
 
-  Engine.instance.networkSchema['ee.core.xrhead'] = {
+  const networkState = getMutableState(NetworkState)
+
+  networkState.networkSchema['ee.core.xrhead'].set({
     read: IKSerialization.readXRHead,
     write: IKSerialization.writeXRHead
-  }
+  })
 
-  Engine.instance.networkSchema['ee.core.xrLeftHand'] = {
+  networkState.networkSchema['ee.core.xrLeftHand'].set({
     read: IKSerialization.readXRLeftHand,
     write: IKSerialization.writeXRLeftHand
-  }
+  })
 
-  Engine.instance.networkSchema['ee.core.xrRightHand'] = {
+  networkState.networkSchema['ee.core.xrRightHand'].set({
     read: IKSerialization.readXRRightHand,
     write: IKSerialization.writeXRRightHand
-  }
+  })
 
   const execute = () => {
     for (const action of avatarSpawnQueue()) spawnAvatarReceptor(action)
@@ -108,9 +111,9 @@ export default async function AvatarSpawnSystem() {
     removeActionQueue(avatarSpawnQueue)
     removeActionQueue(avatarDetailsQueue)
 
-    delete Engine.instance.networkSchema['ee.core.xrHead']
-    delete Engine.instance.networkSchema['ee.core.xrLeftHand']
-    delete Engine.instance.networkSchema['ee.core.xrRightHand']
+    networkState.networkSchema['ee.core.xrHead'].set(none)
+    networkState.networkSchema['ee.core.xrLeftHand'].set(none)
+    networkState.networkSchema['ee.core.xrRightHand'].set(none)
   }
 
   return { execute, cleanup }
