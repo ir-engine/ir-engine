@@ -20,7 +20,7 @@ import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/compon
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useNetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { AudioSettingAction, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioSettingAction, AudioState, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { getMediaSceneMetadataState } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -29,7 +29,7 @@ import { MessageTypes } from '@etherealengine/engine/src/networking/enums/Messag
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import Slider from '@etherealengine/ui/src/Slider'
@@ -230,7 +230,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   useEffect(() => {
     mediaStreamState.microphoneGainNode.value?.gain.setTargetAtTime(
       audioState.microphoneGain.value,
-      Engine.instance.audioContext.currentTime,
+      getState(AudioState).audioContext.currentTime,
       0.01
     )
   }, [audioState.microphoneGain])

@@ -15,6 +15,14 @@ import { Engine } from '../ecs/classes/Engine'
 export const AudioState = defineState({
   name: 'AudioState',
   initial: () => ({
+    audioContext: null! as AudioContext,
+    cameraGainNode: null! as GainNode,
+    gainNodeMixBuses: {
+      mediaStreams: null! as GainNode,
+      notifications: null! as GainNode,
+      music: null! as GainNode,
+      soundEffects: null! as GainNode
+    },
     masterVolume: 0.5,
     microphoneGain: 0.5,
     positionalMedia: false,
@@ -45,7 +53,7 @@ export function AudioSettingReceptor(action) {
   matches(action)
     .when(AudioSettingAction.setMasterVolume.matches, (action) => {
       s.masterVolume.set(action.value)
-      Engine.instance.cameraGainNode.gain.setTargetAtTime(action.value, Engine.instance.audioContext.currentTime, 0.01)
+      s.cameraGainNode.value.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setMicrophoneVolume.matches, (action) => {
       s.microphoneGain.set(action.value)
@@ -55,35 +63,19 @@ export function AudioSettingReceptor(action) {
     })
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
       s.mediaStreamVolume.set(action.value)
-      Engine.instance.gainNodeMixBuses.mediaStreams.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.gainNodeMixBuses.value.mediaStreams.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setNotificationVolume.matches, (action) => {
       s.notificationVolume.set(action.value)
-      Engine.instance.gainNodeMixBuses.notifications.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.gainNodeMixBuses.value.notifications.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setSoundEffectsVolume.matches, (action) => {
       s.soundEffectsVolume.set(action.value)
-      Engine.instance.gainNodeMixBuses.soundEffects.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.gainNodeMixBuses.value.soundEffects.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setMusicVolume.matches, (action) => {
       s.backgroundMusicVolume.set(action.value)
-      Engine.instance.gainNodeMixBuses.music.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.gainNodeMixBuses.value.music.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
 }
 
