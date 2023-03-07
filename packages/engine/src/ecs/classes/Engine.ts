@@ -137,12 +137,18 @@ export class Engine {
   get worldNetwork() {
     return getState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
   }
+  get worldNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
+  }
 
   /**
    * get the default media network
    */
   get mediaNetwork() {
     return getState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
+  }
+  get mediaNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 
   /** @todo parties */

@@ -24,6 +24,7 @@ import {
   writeRotation,
   writeTransform
 } from '../../transform/TransformSerialization'
+import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import { readCompressedVector3 } from './DataReader'
@@ -530,7 +531,7 @@ describe('DataWriter', () => {
       })
     })
 
-    const network = Engine.instance.worldNetwork
+    const network = Engine.instance.worldNetwork as Network
     const packet = write(network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =

@@ -12,7 +12,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
-import { NetworkTopics } from '../classes/Network'
+import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
 import WorldNetworkActionSystem from '../systems/WorldNetworkActionSystem'
@@ -36,7 +36,7 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userId = userId
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
@@ -77,7 +77,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
 
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID2
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
@@ -119,7 +119,7 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID3 = 'peer id 3' as PeerID
 
       Engine.instance.userId = userId
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
@@ -162,7 +162,7 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID = 'peer id' as PeerID
 
       Engine.instance.userId = userId
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')

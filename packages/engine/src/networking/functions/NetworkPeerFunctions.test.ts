@@ -11,6 +11,7 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { executeSystems } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
+import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
@@ -29,7 +30,7 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 2
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
 
@@ -57,7 +58,7 @@ describe('NetworkPeerFunctions', () => {
       const userIndex2 = 2
       const peerIndex = 3
       const peerIndex2 = 4
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
 
       const worldState = getMutableState(WorldState)
 
@@ -85,7 +86,7 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 2
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       NetworkPeerFunctions.destroyPeer(network, peerID)
@@ -105,7 +106,7 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 5
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       const networkId = 2 as NetworkId

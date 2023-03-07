@@ -55,7 +55,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   dispatchAction(EngineActions.joinedWorld({}))
 
-  Engine.instance.worldNetwork.peerID = peerID
+  Engine.instance.worldNetworkState.peerID.set(peerID)
 
   Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
     ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history
