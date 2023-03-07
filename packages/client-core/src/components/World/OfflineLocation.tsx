@@ -7,7 +7,7 @@ import { getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineSta
 import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { receiveJoinWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { addOutgoingTopicIfNecessary, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import InstanceServerWarnings from './InstanceServerWarnings'
@@ -24,12 +24,13 @@ export const OfflineLocation = () => {
       const peerID = 'peerID' as PeerID
       const peerIndex = 1
 
-      getMutableState(NetworkState).hostIds.world.set(userId)
-      Engine.instance.networks.set(userId, new Network(userId, NetworkTopics.world))
+      const networkState = getMutableState(NetworkState)
+      networkState.hostIds.world.set(userId)
+      addNetwork(new Network(userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(
-        Engine.instance.worldNetwork,
+        Engine.instance.worldNetwork as Network,
         peerID,
         peerIndex,
         userId,

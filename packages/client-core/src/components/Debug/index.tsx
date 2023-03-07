@@ -18,6 +18,7 @@ import {
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -36,7 +37,7 @@ export const Debug = ({ showingStateRef }) => {
   const hasActiveControlledAvatar =
     engineState.joinedWorld.value && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
-  const networks = mapToObject(Engine.instance.networks)
+  const networks = getMutableState(NetworkState).networks
 
   const onClickRespawn = (): void => {
     respawnAvatar(Engine.instance.localClientEntity)
@@ -235,7 +236,7 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.networks')}</h1>
-        <JSONTree data={{ ...networks }} />
+        <JSONTree data={networks} />
       </div>
     </div>
   )

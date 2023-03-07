@@ -135,14 +135,14 @@ export class Engine {
    * get the default world network
    */
   get worldNetwork() {
-    return this.networks.get(getState(NetworkState).hostIds.world!)!
+    return getState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
   }
 
   /**
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(getState(NetworkState).hostIds.media!)!
+    return getState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 
   /** @todo parties */
@@ -154,8 +154,6 @@ export class Engine {
 
   // _worldHostId = null! as UserId
   // _mediaHostId = null! as UserId
-
-  networks = new Map<string, Network>()
 
   /** a map of component names to a read/write function pairfor network component serialization */
 

@@ -4,7 +4,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { Action, ActionShape, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
-import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -13,6 +13,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
+import { NetworkState } from '../NetworkState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 function createPeer(
@@ -64,8 +65,8 @@ function destroyPeer(network: Network, peerID: PeerID) {
    * we want to remove them from world.users
    */
   if (network.topic === 'world') {
-    const remainingPeersForDisconnectingUser = Object.entries(Engine.instance.networks.entries())
-      .map(([id, network]: [string, Network]) => {
+    const remainingPeersForDisconnectingUser = Object.entries(getState(NetworkState).networks)
+      .map(([id, network]) => {
         return network.peers.has(peerID)
       })
       .filter((peer) => !!peer)
