@@ -33,7 +33,8 @@ export const EngineState = defineState({
     shareLink: '',
     shareTitle: '',
     transformsNeedSorting: true,
-    isBot: false
+    isBot: false,
+    isEditor: false
   }
 })
 

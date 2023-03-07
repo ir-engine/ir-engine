@@ -13,7 +13,7 @@ import {
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Scene } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
@@ -117,7 +117,7 @@ export default async function MediaSystem() {
     AudioEffectPlayer.instance._init()
   }
 
-  if (isClient && !Engine.instance.isEditor) {
+  if (isClient && !getMutableState(EngineState).isEditor.value) {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])

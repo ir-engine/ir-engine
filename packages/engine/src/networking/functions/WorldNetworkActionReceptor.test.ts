@@ -309,7 +309,7 @@ describe('WorldNetworkActionReceptors', () => {
 
   //     ActionFunctions.clearOutgoingActions(network.topic)
   //     ActionFunctions.applyIncomingActions()
-  //     Engine.instance.execute(0)
+  //     executeSystems(0)
 
   //     assert.equal(networkObjectEntities.length, 1)
   //     assert.equal(networkObjectOwnedEntities.length, 0)

@@ -20,9 +20,12 @@ import {
   TextureLoader
 } from 'three'
 
+import { getMutableState } from '@etherealengine/hyperflux'
+
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -84,7 +87,7 @@ const onTextureUploadDropSource = (uuid?: string) =>
   }
 
 export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
-  if (Engine.instance.isEditor || !child.isMesh) return
+  if (getMutableState(EngineState).isEditor.value || !child.isMesh) return
   const geo = child.geometry as BufferGeometry
   const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
   const attributes = geo.attributes

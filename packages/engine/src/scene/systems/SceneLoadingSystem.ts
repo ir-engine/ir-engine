@@ -173,7 +173,7 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
     updateSceneEntity(uuid, entityJson, world)
     const JSONEntityIsDynamic = !!entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)
 
-    if (JSONEntityIsDynamic && !Engine.instance.isEditor) {
+    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) {
       const existingEntity = UUIDComponent.entitiesByUUID[uuid].value
       if (existingEntity) {
         const previouslyNotDynamic = !getOptionalComponent(existingEntity, SceneDynamicLoadTagComponent)?.loaded
@@ -202,7 +202,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
 
   const systemsToLoad = [] as SystemModuleType<any>[]
 
-  if (!Engine.instance.isEditor) {
+  if (!getMutableState(EngineState).isEditor.value) {
     /** get systems that have changed */
     const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
@@ -236,7 +236,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   }
 
   /** 3. load new systems */
-  if (!Engine.instance.isEditor) {
+  if (!getMutableState(EngineState).isEditor.value) {
     await initSystems(systemsToLoad)
   }
 
