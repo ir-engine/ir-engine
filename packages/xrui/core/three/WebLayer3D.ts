@@ -313,7 +313,7 @@ export class WebLayer3D extends Object3D {
             mesh.visible = true
             const characterMesh = mesh.clone(true)
             characterMesh.visible = true
-            characterMesh.position.setX(-0.75 + 0.0125 * mesh.parent!.children.length)
+            characterMesh.position.setX(-0.25 + 0.0125 * mesh.parent!.children.length)
 
             const material = (this.contentMesh.material as MeshBasicMaterial).clone()
             material.map = texture
