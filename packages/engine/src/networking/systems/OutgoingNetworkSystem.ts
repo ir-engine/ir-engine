@@ -4,6 +4,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { createDataWriter } from '../serialization/DataWriter'
@@ -26,7 +27,7 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   if (ents.length > 0) {
     const userID = Engine.instance.userId
     const peerID = Engine.instance.worldNetwork.peerID
-    const data = serialize(Engine.instance.worldNetwork, userID, peerID, ents)
+    const data = serialize(Engine.instance.worldNetwork as Network, userID, peerID, ents)
 
     // todo: insert historian logic here
 
