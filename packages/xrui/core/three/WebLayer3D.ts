@@ -103,6 +103,8 @@ export class WebLayer3D extends Object3D {
 
     this.container.options.manager.layersByElement.set(this.element, this)
     this.container.options.manager.layersByMesh.set(this.contentMesh, this)
+
+    this.childContentMeshTemplate = this.contentMesh.clone()
   }
 
   protected _webLayer: WebLayer
@@ -130,7 +132,7 @@ export class WebLayer3D extends Object3D {
     return this._webLayer.currentDOMState
   }
 
-  characterMap: Map<number, ThreeTextureData> = new Map()
+  characterMap: Map<string, ThreeTextureData> = new Map()
 
   get texture() {
     const manager = this.container.manager
@@ -177,7 +179,7 @@ export class WebLayer3D extends Object3D {
     return undefined
   }
 
-  private getCharacterTexture(char: number) {
+  private getCharacterTexture(char: string) {
     const manager = this.container.manager
     const _layer = this._webLayer
     if (_layer.prerasterizedRange.length) {
@@ -205,6 +207,7 @@ export class WebLayer3D extends Object3D {
   }
 
   contentMesh: Mesh
+  childContentMeshTemplate: Mesh
 
   /**
    * This non-visible mesh ensures that an adapted layer retains
@@ -295,6 +298,36 @@ export class WebLayer3D extends Object3D {
    * Refresh from DOM (potentially slow, call only when needed)
    */
   public async refresh(recurse = false): Promise<void> {
+    if (
+      this.getCharacterTexture(this._webLayer.prerasterizedRange.slice(-1).toString()) != undefined &&
+      this._webLayer.prerasterizedRange.length
+    ) {
+      const mesh = this.contentMesh
+      const characters = this.element.textContent
+      for (let i = 0; i < characters!.length; i++) {
+        if (!characters) continue
+        const currentChar = characters.charAt(i)
+        if (this.characters[i] != currentChar) {
+          const texture = this.getCharacterTexture(currentChar)
+          if (texture) {
+            mesh.visible = true
+            const characterMesh = mesh.clone(true)
+            characterMesh.visible = true
+            characterMesh.position.setX(-0.75 + 0.0125 * mesh.parent!.children.length)
+
+            const material = (this.contentMesh.material as MeshBasicMaterial).clone()
+            material.map = texture
+            material.needsUpdate = true
+            characterMesh.material = material
+
+            mesh.parent!.add(characterMesh)
+            this.characterMeshes[i] = characterMesh
+            this.characters[i] = currentChar
+          }
+        }
+      }
+    }
+
     const refreshing = [] as Promise<any>[]
     refreshing.push(this._webLayer.refresh())
     this.childWebLayers.length = 0
@@ -335,7 +368,8 @@ export class WebLayer3D extends Object3D {
     }
   }
 
-  private characterMeshes: Map<number, Mesh> = new Map()
+  private characterMeshes = [] as Mesh[]
+  private characters = [] as string[]
 
   private updateContent() {
     if (this.parentWebLayer && !this.parentWebLayer.domLayout) return
@@ -343,25 +377,6 @@ export class WebLayer3D extends Object3D {
     const mesh = this.contentMesh
 
     if (this._webLayer.prerasterizedRange.length) {
-      const characters = this.element.textContent
-      const currentChar = 1
-      if (!this.characterMeshes.has(currentChar)) {
-        const texture = this.getCharacterTexture(currentChar)
-        if (texture) {
-          mesh.visible = true
-          const characterMesh = mesh.clone()
-          characterMesh.visible = true
-          characterMesh.position.set(0.025 * mesh.children.length, 0, 0)
-
-          const material = characterMesh.material as MeshBasicMaterial
-          material.map = texture
-          material.needsUpdate = true
-
-          mesh.add(characterMesh)
-          console.log(currentChar)
-          this.characterMeshes.set(currentChar, characterMesh)
-        }
-      }
     } else {
       const texture = this.texture
       const material = mesh.material as THREE.MeshBasicMaterial

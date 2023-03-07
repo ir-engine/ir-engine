@@ -37,7 +37,7 @@ export class WebLayer {
   //Only supports digits right now
   //TO DO: Add alphabetical range support, specific characters
   prerasterizedRange = [] as number[]
-  prerasterizedImages: Map<number, string> = new Map()
+  prerasterizedImages: Map<string, string> = new Map()
 
   async prerasterizeRange() {
     this.manager.prerasterized = true
@@ -47,10 +47,10 @@ export class WebLayer {
     for (let i = 0; i < this.prerasterizedRange.length; i++) {
       const e = this.element.cloneNode(true) as HTMLElement
       e.textContent = this.prerasterizedRange[i].toString()
-
+      console.log(this.prerasterizedRange[i].toString())
       const result = await this.manager.addToSerializeQueue(this, e)
       if (typeof result.stateKey === 'string' && result.svgUrl) {
-        this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl, this, this.prerasterizedRange[i])
+        this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl, this, this.prerasterizedRange[i].toString())
         console.log(Date.now() - startTime)
         //serialize a new element with text value set to a value from the range
         //pass serialized in to rasterization queue

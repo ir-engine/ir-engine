@@ -135,7 +135,7 @@ export class WebLayerManagerBase {
     hash: StateHash
     svgUrl: string
     layer?: WebLayer
-    char?: number
+    char?: string
     resolve: (val: any) => void
     promise: any
   }[]
@@ -535,7 +535,7 @@ export class WebLayerManagerBase {
     return result
   }
 
-  async rasterize(stateHash: StateHash, svgUrl: SVGUrl, layer?: WebLayer, char?: number) {
+  async rasterize(stateHash: StateHash, svgUrl: SVGUrl, layer?: WebLayer, char?: string) {
     const stateData = this.getLayerState(stateHash)
     const svgImage = this._imagePool.pop() || new Image()
 
@@ -646,7 +646,7 @@ export class WebLayerManagerBase {
     hash: StateHash,
     url: string,
     webLayer?: WebLayer,
-    character?: number
+    character?: string
   ): ReturnType<typeof WebLayerManagerBase.prototype.rasterize> {
     const inQueue = this.rasterizeQueue.find((v) => v.hash === hash)
     if (inQueue) return inQueue.promise
