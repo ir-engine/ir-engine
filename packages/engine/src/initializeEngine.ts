@@ -4,7 +4,7 @@ import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { Timer } from './common/functions/Timer'
-import { Engine } from './ecs/classes/Engine'
+import { destroyEngine, Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { destroyScene } from './ecs/classes/Scene'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
@@ -22,8 +22,8 @@ import { FontManager } from './xrui/classes/FontManager'
  * @returns {Engine}
  */
 export const createEngine = () => {
-  if (Engine.instance?.currentScene) {
-    destroyScene(Engine.instance.currentScene)
+  if (Engine.instance) {
+    destroyEngine()
   }
   Engine.instance = new Engine()
   EngineRenderer.instance = new EngineRenderer()

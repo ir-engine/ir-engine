@@ -6,7 +6,7 @@ import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createScene, Scene } from '../classes/Scene'
+import { createScene, destroyScene, Scene } from '../classes/Scene'
 
 import '../utils/threejsPatches'
 
@@ -59,7 +59,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent } from '../functions/EntityTree'
-import { SystemInstance } from '../functions/SystemFunctions'
+import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
@@ -431,3 +431,12 @@ export class Engine {
 
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
+
+export function destroyEngine() {
+  if (Engine.instance?.currentScene) {
+    destroyScene(Engine.instance.currentScene)
+  }
+  unloadAllSystems()
+  /** @todo include in next bitecs update */
+  // bitecs.deleteWorld(Engine.instance)
+}
