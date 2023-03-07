@@ -18,24 +18,22 @@ export const OfflineLocation = () => {
   /** OFFLINE */
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
-      const world = Engine.instance.currentWorld
       const userId = Engine.instance.userId
       const userIndex = 1
       const peerID = 'peerID' as PeerID
       const peerIndex = 1
 
-      world.hostIds.world.set(userId)
-      world.networks.set(userId, new Network(userId, NetworkTopics.world))
+      Engine.instance.hostIds.world.set(userId)
+      Engine.instance.networks.set(userId, new Network(userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(
-        world.worldNetwork,
+        Engine.instance.worldNetwork,
         peerID,
         peerIndex,
         userId,
         userIndex,
-        authState.user.name.value,
-        world
+        authState.user.name.value
       )
 
       receiveJoinWorld({

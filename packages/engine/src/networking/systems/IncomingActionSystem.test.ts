@@ -21,15 +21,13 @@ describe('IncomingActionSystem Unit Tests', async () => {
     createEngine()
     // this is hacky but works and preserves the logic
     Engine.instance.store.getDispatchTime = () => {
-      return Engine.instance.currentWorld.fixedTick
+      return Engine.instance.fixedTick
     }
     createMockNetwork()
   })
 
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
-      const world = Engine.instance.currentWorld
-
       // fixed tick in past
       const engineState = getState(EngineState)
       engineState.fixedTick.set(0)
@@ -64,8 +62,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
     })
 
     it('should immediately apply incoming action from the past or present', () => {
-      const world = Engine.instance.currentWorld
-
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
@@ -91,8 +87,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
   describe('applyAndArchiveIncomingAction', () => {
     it('should cache actions where $cache = true', () => {
-      const world = Engine.instance.currentWorld
-
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,

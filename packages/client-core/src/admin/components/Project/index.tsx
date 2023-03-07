@@ -42,7 +42,7 @@ const Projects = () => {
   } as const
 
   useEffect(() => {
-    initSystems(Engine.instance.currentWorld, [ProjectUpdateSystemInjection])
+    initSystems([ProjectUpdateSystemInjection])
     ProjectService.checkReloadStatus()
   }, [])
 

@@ -1,7 +1,7 @@
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   defineQuery,
   getComponent,
@@ -11,10 +11,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 
@@ -23,7 +20,7 @@ const MAX_FOCUS_DISTANCE = 1000
 const PAN_SPEED = 1
 const ORBIT_SPEED = 5
 
-export default async function EditorCameraSystem(world: World) {
+export default async function EditorCameraSystem() {
   const box = new Box3()
   const delta = new Vector3()
   const normalMatrix = new Matrix3()
@@ -33,7 +30,7 @@ export default async function EditorCameraSystem(world: World) {
   const cameraQuery = defineQuery([EditorCameraComponent, CameraComponent])
 
   const execute = () => {
-    if (world.localClientEntity) return
+    if (Engine.instance.localClientEntity) return
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -117,12 +114,12 @@ export default async function EditorCameraSystem(world: World) {
       }
       transform.position.copy(camera.position)
       transform.rotation.copy(camera.quaternion)
-      world.dirtyTransforms[entity] = true
+      Engine.instance.dirtyTransforms[entity] = true
     }
   }
 
   const cleanup = async () => {
-    removeQuery(world, cameraQuery)
+    removeQuery(cameraQuery)
   }
 
   return { execute, cleanup }

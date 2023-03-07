@@ -39,7 +39,7 @@ export const LocationInstanceState = defineState({
 export function useWorldInstance() {
   const [state, setState] = React.useState(null as null | State<InstanceState>)
   const worldInstanceState = useState(getState(LocationInstanceState).instances)
-  const worldHostId = useState(Engine.instance.currentWorld.hostIds.world)
+  const worldHostId = useState(Engine.instance.hostIds.world)
   useEffect(() => {
     setState(worldHostId.value ? worldInstanceState[worldHostId.value] : null)
   }, [worldInstanceState, worldHostId])
@@ -50,8 +50,8 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
   const s = getState(LocationInstanceState)
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.currentWorld.hostIds.world.set(action.instanceId)
-      Engine.instance.currentWorld.networks.set(
+      Engine.instance.hostIds.world.set(action.instanceId)
+      Engine.instance.networks.set(
         action.instanceId,
         new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
       )
@@ -84,10 +84,10 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
     })
     .when(LocationInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
       const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
-      Engine.instance.currentWorld.worldNetwork.hostId = action.newInstanceId as UserId
-      Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.worldNetwork)
-      Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
-      Engine.instance.currentWorld.hostIds.world.set(action.newInstanceId as UserId)
+      Engine.instance.worldNetwork.hostId = action.newInstanceId as UserId
+      Engine.instance.networks.set(action.newInstanceId, Engine.instance.worldNetwork)
+      Engine.instance.networks.delete(action.currentInstanceId)
+      Engine.instance.hostIds.world.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })
@@ -231,7 +231,7 @@ export const LocationInstanceConnectionService = {
   },
   connectToServer: async (instanceId: string) => {
     dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
-    const network = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
+    const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, transport: network }, 'Connect To World Server')
     if (network.primus) {
       leaveNetwork(network, false)

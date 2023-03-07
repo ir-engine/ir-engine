@@ -12,7 +12,7 @@ import { EquipperComponent } from '../components/EquipperComponent'
 export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentPoint: XRHandedness): void => {
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
     const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
-    if (networkComponent.authorityPeerID === Engine.instance.currentWorld?.worldNetwork.peerID) {
+    if (networkComponent.authorityPeerID === Engine.instance.worldNetwork.peerID) {
       dispatchAction(
         WorldNetworkAction.setEquippedObject({
           object: {
@@ -28,8 +28,8 @@ export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, atta
         WorldNetworkAction.requestAuthorityOverObject({
           networkId: networkComponent.networkId,
           ownerId: networkComponent.ownerId,
-          newAuthority: Engine.instance.currentWorld?.worldNetwork.peerID,
-          $to: Engine.instance.currentWorld?.worldNetwork.peers.get(networkComponent.authorityPeerID)?.userId
+          newAuthority: Engine.instance.worldNetwork.peerID,
+          $to: Engine.instance.worldNetwork.peers.get(networkComponent.authorityPeerID)?.userId
         })
       )
     }
@@ -42,7 +42,7 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   removeComponent(equipperEntity, EquipperComponent)
   const networkComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
   const networkOwnerComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectOwnedTag)
-  if (networkComponent.authorityPeerID === Engine.instance.currentWorld?.worldNetwork.peerID) {
+  if (networkComponent.authorityPeerID === Engine.instance.worldNetwork.peerID) {
     dispatchAction(
       WorldNetworkAction.setEquippedObject({
         object: {

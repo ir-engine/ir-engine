@@ -14,7 +14,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
+import { Scene } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -108,10 +108,10 @@ export type MediaState = State<typeof DefaultMediaState>
 
 export const MediaSceneMetadataLabel = 'mediaSettings'
 
-export const getMediaSceneMetadataState = (world: World) =>
+export const getMediaSceneMetadataState = (world: Scene) =>
   world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
 
-export default async function MediaSystem(world: World) {
+export default async function MediaSystem() {
   const enableAudioContext = () => {
     if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
     AudioEffectPlayer.instance._init()
@@ -140,49 +140,49 @@ export default async function MediaSystem(world: World) {
     EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
   }
 
-  world.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
+  Engine.instance.currentScene.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
     state: hookstate(_.cloneDeep(DefaultMediaState)),
     default: DefaultMediaState
   }
 
-  world.scenePrefabRegistry.set(MediaPrefabs.audio, [
+  Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_MEDIA, props: { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] } },
     { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} }
   ])
 
-  world.scenePrefabRegistry.set(MediaPrefabs.video, [
+  Engine.instance.scenePrefabRegistry.set(MediaPrefabs.video, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MEDIA, props: { paths: ['__$project$__/default-project/assets/SampleVideo.mp4'] } },
     { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} },
     { name: SCENE_COMPONENT_VIDEO, props: {} }
   ])
 
-  world.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
+  Engine.instance.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MEDIA, props: {} },
     { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} },
     { name: SCENE_COMPONENT_VOLUMETRIC, props: {} }
   ])
 
-  world.sceneComponentRegistry.set(PositionalAudioComponent.name, SCENE_COMPONENT_POSITIONAL_AUDIO)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSITIONAL_AUDIO, {
+  Engine.instance.sceneComponentRegistry.set(PositionalAudioComponent.name, SCENE_COMPONENT_POSITIONAL_AUDIO)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_POSITIONAL_AUDIO, {
     defaultData: {}
   })
 
-  world.sceneComponentRegistry.set(VideoComponent.name, SCENE_COMPONENT_VIDEO)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
+  Engine.instance.sceneComponentRegistry.set(VideoComponent.name, SCENE_COMPONENT_VIDEO)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
     defaultData: {}
   })
 
-  world.sceneComponentRegistry.set(MediaComponent.name, SCENE_COMPONENT_MEDIA)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
+  Engine.instance.sceneComponentRegistry.set(MediaComponent.name, SCENE_COMPONENT_MEDIA)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
     defaultData: {}
   })
 
-  world.sceneComponentRegistry.set(VolumetricComponent.name, SCENE_COMPONENT_VOLUMETRIC)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
+  Engine.instance.sceneComponentRegistry.set(VolumetricComponent.name, SCENE_COMPONENT_VOLUMETRIC)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
     defaultData: {}
   })
 
@@ -245,17 +245,17 @@ export default async function MediaSystem(world: World) {
   }
 
   const cleanup = async () => {
-    world.scenePrefabRegistry.delete(MediaPrefabs.audio)
-    world.scenePrefabRegistry.delete(MediaPrefabs.video)
-    world.scenePrefabRegistry.delete(MediaPrefabs.volumetric)
-    world.sceneComponentRegistry.delete(PositionalAudioComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_POSITIONAL_AUDIO)
-    world.sceneComponentRegistry.delete(VideoComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_VIDEO)
-    world.sceneComponentRegistry.delete(MediaComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MEDIA)
-    world.sceneComponentRegistry.delete(VolumetricComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_VOLUMETRIC)
+    Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.audio)
+    Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.video)
+    Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.volumetric)
+    Engine.instance.sceneComponentRegistry.delete(PositionalAudioComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_POSITIONAL_AUDIO)
+    Engine.instance.sceneComponentRegistry.delete(VideoComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_VIDEO)
+    Engine.instance.sceneComponentRegistry.delete(MediaComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_MEDIA)
+    Engine.instance.sceneComponentRegistry.delete(VolumetricComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_VOLUMETRIC)
 
     Engine.instance.gainNodeMixBuses.mediaStreams.disconnect()
     Engine.instance.gainNodeMixBuses.mediaStreams = null!
@@ -268,9 +268,9 @@ export default async function MediaSystem(world: World) {
 
     removeActionQueue(userInteractActionQueue)
 
-    removeQuery(world, mediaQuery)
-    removeQuery(world, videoQuery)
-    removeQuery(world, volumetricQuery)
+    removeQuery(mediaQuery)
+    removeQuery(videoQuery)
+    removeQuery(volumetricQuery)
 
     for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
   }

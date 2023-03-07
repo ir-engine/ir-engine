@@ -8,15 +8,12 @@ import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/Pos
 import { EngineRenderer, getPostProcessingSceneMetadataState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (
-  remove?: boolean,
-  camera: PerspectiveCamera = Engine.instance.currentWorld.camera
-): void => {
+export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
   if (!EngineRenderer.instance) return
 
   if (!EngineRenderer.instance.renderPass) {
     // we always want to have at least the render pass enabled
-    const renderPass = new RenderPass(Engine.instance.currentWorld.scene, camera)
+    const renderPass = new RenderPass(Engine.instance.scene, camera)
     EngineRenderer.instance.effectComposer.addPass(renderPass)
     EngineRenderer.instance.renderPass = renderPass
   }
@@ -29,7 +26,7 @@ export const configureEffectComposer = (
     return
   }
 
-  const postprocessing = getPostProcessingSceneMetadataState(Engine.instance.currentWorld).get(NO_PROXY)
+  const postprocessing = getPostProcessingSceneMetadataState(Engine.instance.currentScene).get(NO_PROXY)
   if (!postprocessing.enabled) return
 
   const postProcessingEffects = postprocessing.effects as EffectPropsSchema
@@ -37,7 +34,7 @@ export const configureEffectComposer = (
   const effects: any[] = []
   const effectKeys = EffectMap.keys()
 
-  const normalPass = new NormalPass(Engine.instance.currentWorld.scene, camera, {
+  const normalPass = new NormalPass(Engine.instance.scene, camera, {
     renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
@@ -67,7 +64,7 @@ export const configureEffectComposer = (
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSREffect) {
-      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, effect)
+      const eff = new effectClass(Engine.instance.scene, camera, effect)
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
@@ -75,7 +72,7 @@ export const configureEffectComposer = (
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.OutlineEffect) {
-      const eff = new effectClass(Engine.instance.currentWorld.scene, camera, effect)
+      const eff = new effectClass(Engine.instance.scene, camera, effect)
       EngineRenderer.instance.effectComposer[key] = eff
       effects.push(eff)
     } else {

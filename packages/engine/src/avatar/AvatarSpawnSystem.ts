@@ -5,7 +5,6 @@ import { createActionQueue, getState, removeActionQueue } from '@etherealengine/
 
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
@@ -61,35 +60,32 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { posit
   return getRandomSpawnPoint(userId)
 }
 
-export function avatarDetailsReceptor(
-  action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
-  world = Engine.instance.currentWorld
-) {
+export function avatarDetailsReceptor(action: ReturnType<typeof WorldNetworkAction.avatarDetails>) {
   const userAvatarDetails = getState(WorldState).userAvatarDetails
   userAvatarDetails[action.$from].set(action.avatarDetail)
   if (isClient && action.avatarDetail.avatarURL) {
-    const entity = world.getUserAvatarEntity(action.$from)
+    const entity = Engine.instance.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
   }
 }
 
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
-export default async function AvatarSpawnSystem(world: World) {
+export default async function AvatarSpawnSystem() {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
 
-  world.networkSchema['ee.core.xrhead'] = {
+  Engine.instance.networkSchema['ee.core.xrhead'] = {
     read: IKSerialization.readXRHead,
     write: IKSerialization.writeXRHead
   }
 
-  world.networkSchema['ee.core.xrLeftHand'] = {
+  Engine.instance.networkSchema['ee.core.xrLeftHand'] = {
     read: IKSerialization.readXRLeftHand,
     write: IKSerialization.writeXRLeftHand
   }
 
-  world.networkSchema['ee.core.xrRightHand'] = {
+  Engine.instance.networkSchema['ee.core.xrRightHand'] = {
     read: IKSerialization.readXRRightHand,
     write: IKSerialization.writeXRRightHand
   }
@@ -99,7 +95,7 @@ export default async function AvatarSpawnSystem(world: World) {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
 
     // Keep a list of spawn points so we can send our user to one
-    for (const entity of spawnPointQuery.enter(world)) {
+    for (const entity of spawnPointQuery.enter()) {
       if (!hasComponent(entity, TransformComponent)) {
         console.warn("Can't add spawn point, no transform component on entity")
         continue
@@ -108,13 +104,13 @@ export default async function AvatarSpawnSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, spawnPointQuery)
+    removeQuery(spawnPointQuery)
     removeActionQueue(avatarSpawnQueue)
     removeActionQueue(avatarDetailsQueue)
 
-    delete world.networkSchema['ee.core.xrHead']
-    delete world.networkSchema['ee.core.xrLeftHand']
-    delete world.networkSchema['ee.core.xrRightHand']
+    delete Engine.instance.networkSchema['ee.core.xrHead']
+    delete Engine.instance.networkSchema['ee.core.xrLeftHand']
+    delete Engine.instance.networkSchema['ee.core.xrRightHand']
   }
 
   return { execute, cleanup }

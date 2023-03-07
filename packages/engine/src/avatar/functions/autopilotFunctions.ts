@@ -34,12 +34,11 @@ export const autopilotSetPosition = (entity: Entity) => {
   const markerState = getState(AutopilotMarker)
   if (avatarControllerComponent.gamepadLocalInput.lengthSq() > 0) return
 
-  const physicsWorld = Engine.instance.currentWorld.physicsWorld
-  const world = Engine.instance.currentWorld
+  const physicsWorld = Engine.instance.physicsWorld
 
   const castedRay = Physics.castRayFromCamera(
-    world.camera,
-    world.pointerState.position,
+    Engine.instance.camera,
+    Engine.instance.pointerState.position,
     physicsWorld,
     autopilotRaycastArgs
   )
@@ -70,13 +69,13 @@ const setupMarker = () => {
   const material = new MeshBasicMaterial({ color: '#FFF' })
   const mesh = new Mesh(markerGeometry, material)
   mesh.visible = false
-  Engine.instance.currentWorld.scene.add(mesh)
+  Engine.instance.scene.add(mesh)
   markerState.merge({ markerObject: mesh })
 }
 
 export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
   const marker = getState(AutopilotMarker).markerObject.value!
-  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.currentWorld.elapsedSeconds))
+  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.elapsedSeconds))
   marker.scale.set(scalePulse, 1, scalePulse)
   marker.updateMatrixWorld()
 }

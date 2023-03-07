@@ -19,7 +19,6 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
@@ -87,7 +86,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
   })
 }
 
-export default async function SceneObjectSystem(world: World) {
+export default async function SceneObjectSystem() {
   if (isNode) {
     await loadDRACODecoder()
   }
@@ -103,7 +102,7 @@ export default async function SceneObjectSystem(world: World) {
 
     useEffect(() => {
       return () => {
-        const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
+        const layers = Object.values(Engine.instance.objectLayerList)
         for (const layer of layers) {
           if (layer.has(obj)) layer.delete(obj)
         }
@@ -160,8 +159,8 @@ export default async function SceneObjectSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, groupQuery)
-    removeQuery(world, updatableQuery)
+    removeQuery(groupQuery)
+    removeQuery(updatableQuery)
     groupReactor.stop()
   }
 

@@ -28,7 +28,6 @@ import { CSM } from '../../assets/csm/CSM'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -66,13 +65,13 @@ const shadowSize = new Vector3()
 const raycaster = new Raycaster()
 const raycasterPosition = new Vector3()
 
-export default async function ShadowSystem(world: World) {
+export default async function ShadowSystem() {
   const xrState = getState(XRState)
   const renderState = getState(RendererState)
 
   const csmGroup = new Group()
   csmGroup.name = 'CSM-group'
-  Engine.instance.currentWorld.scene.add(csmGroup)
+  Engine.instance.scene.add(csmGroup)
 
   const UpdateCSMFromActiveDirectionalLight = (props: {
     activeLightEntity: Entity
@@ -88,7 +87,7 @@ export default async function ShadowSystem(world: World) {
     const activeLightFromEntity = useOptionalComponent(activeLightEntity, DirectionalLightComponent)?.value.light
     if (!activeLight) activeLight = activeLightFromEntity
 
-    const csmEnabled = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld).csm).value
+    const csmEnabled = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene).csm).value
 
     const shadowsEnabled = useShadowsEnabled()
     const useCSM = shadowsEnabled && csmEnabled
@@ -103,12 +102,12 @@ export default async function ShadowSystem(world: World) {
 
       if (!EngineRenderer.instance.csm) {
         EngineRenderer.instance.csm = new CSM({
-          camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
+          camera: Engine.instance.camera as PerspectiveCamera,
           parent: csmGroup,
           light: activeLight
         })
         // helper = new CSMHelper(EngineRenderer.instance.csm)
-        // Engine.instance.currentWorld.scene.add(helper)
+        // Engine.instance.scene.add(helper)
       }
 
       const activeLightParent = activeLight.parent
@@ -182,7 +181,7 @@ export default async function ShadowSystem(world: World) {
 
   const dropShadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
-  let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+  let sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
   const minRadius = 0.15
   const sphere = new Sphere()
@@ -233,7 +232,7 @@ export default async function ShadowSystem(world: World) {
   const shadowOffset = new Vector3(0, 0.01, 0)
 
   const execute = () => {
-    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+    sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
     if (!useShadows && !Engine.instance.isEditor) {

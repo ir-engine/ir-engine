@@ -1,5 +1,4 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
@@ -10,7 +9,7 @@ import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
-export function createHeightAdjustmentWidget(world: World) {
+export function createHeightAdjustmentWidget() {
   const ui = createXRUI(() => null)
   removeComponent(ui.entity, VisibleComponent)
   setComponent(ui.entity, XRUIInteractableComponent)
@@ -33,7 +32,7 @@ export function createHeightAdjustmentWidget(world: World) {
     }
   }
 
-  const id = Widgets.registerWidget(world, ui.entity, widget)
+  const id = Widgets.registerWidget(ui.entity, widget)
   /** @todo better API to disable */
   dispatchAction(WidgetAppActions.enableWidget({ id, enabled: false }))
 }

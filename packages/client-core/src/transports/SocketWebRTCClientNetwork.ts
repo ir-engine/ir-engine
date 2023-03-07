@@ -8,9 +8,10 @@ import { MediaStreamAppData } from '@etherealengine/common/src/interfaces/MediaS
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { clearOutgoingActions, dispatchAction } from '@etherealengine/hyperflux'
+import { clearOutgoingActions, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import {
@@ -67,7 +68,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
   if (locationConnectionFailed) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld.hostIds.world.value ?? ''
+    const instanceId = Engine.instance.hostIds.world.value ?? ''
     if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
@@ -78,7 +79,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
     }
   } else {
     const mediaInstanceConnectionState = accessMediaInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld.hostIds.media.value ?? ''
+    const instanceId = Engine.instance.hostIds.media.value ?? ''
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = accessAuthState()
@@ -87,9 +88,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
       const channelState = chatState.channels
       const channels = channelState.channels.value as Channel[]
       const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-      const instanceChannel = channelEntries.find(
-        (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-      )
+      const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
       if (instanceChannel) {
         MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
       } else {
@@ -109,7 +108,9 @@ export class SocketWebRTCClientNetwork extends Network {
     addOutgoingTopicIfNecessary(topic)
   }
 
-  mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
+  mediasoupDevice = new mediasoupClient.Device(
+    getState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
+  )
   reconnecting = false
   recvTransport: MediaSoupTransport
   sendTransport: MediaSoupTransport

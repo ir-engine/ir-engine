@@ -19,7 +19,7 @@ export const reparentObject3D = (node: Entity, parent: Entity, before?: Entity):
   const parentObj3d =
     _parent.parentEntity && hasComponent(parent, GroupComponent)
       ? getComponent(parent, GroupComponent)[0]
-      : Engine.instance.currentWorld.scene
+      : Engine.instance.scene
 
   if (obj3d.parent && obj3d.parent !== parentObj3d) {
     // Maintain world position when reparenting.

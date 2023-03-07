@@ -28,7 +28,7 @@ import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/funct
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
-import { World } from '../../../ecs/classes/World'
+import { Scene } from '../../../ecs/classes/Scene'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { TransformModule } from '../../../transform/TransformModule'
 import { SceneClientModule } from '../../SceneClientModule'
@@ -36,12 +36,12 @@ import { SceneCommonModule } from '../../SceneCommonModule'
 
 describe('PrefabComponentFunctions', async () => {
   let entity: Entity
-  let world: World
+  let world: Scene
   let sandbox: Sinon.SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    world = Engine.instance.currentWorld
+    world = Engine.instance.currentScene
     addEntityNodeChild(entity, world.sceneEntity)
   }
   const testDir = 'packages/engine/tests/assets'
@@ -54,7 +54,7 @@ describe('PrefabComponentFunctions', async () => {
 
     Engine.instance.publicPath = ''
 
-    await initSystems(world, [
+    await initSystems([
       ...TransformModule(),
       ...SceneCommonModule(),
       ...SceneClientModule(),
@@ -131,7 +131,7 @@ describe('PrefabComponentFunctions', async () => {
       const emptyScene = await loadXRE('empty.xre.gltf')
       await loadPrefab(entity, setContent(emptyScene))
 
-      console.log('DEBUG EMPTY SCENE', entity, world.fixedTick)
+      console.log('DEBUG EMPTY SCENE', entity, Engine.instance.fixedTick)
 
       //wait one fixed frame for system to reparent
       await nextFixedStep
@@ -209,8 +209,8 @@ describe('PrefabComponentFunctions', async () => {
       destroyEntityTree(entity)
       //wait one fixed frame
       await nextFixedStep
-      assert.equal(getAllComponentsOfType(PrefabComponent, world).length, 0, 'no Asset components in scene')
-      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
+      assert.equal(getAllComponentsOfType(PrefabComponent).length, 0, 'no Asset components in scene')
+      assert.equal(getAllComponentsOfType(ModelComponent).length, 0, 'no ModelComponents in scene')
     })
   })
 
@@ -250,7 +250,7 @@ describe('PrefabComponentFunctions', async () => {
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
       //check that asset child hierarchy is removed
       assert.equal(assetComp.roots.length, 0, 'Asset has no roots')
-      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
+      assert.equal(getAllComponentsOfType(ModelComponent).length, 0, 'no ModelComponents in scene')
     })
 
     it('Correctly handles unloading empty asset', async () => {

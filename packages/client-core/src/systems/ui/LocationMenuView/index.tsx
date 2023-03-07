@@ -38,7 +38,7 @@ const LocationMenuView = () => {
   }
 
   const handleRespawnAvatar = () => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+    respawnAvatar(Engine.instance.localClientEntity)
   }
 
   const handleOpenEmoteMenuWidget = () => {

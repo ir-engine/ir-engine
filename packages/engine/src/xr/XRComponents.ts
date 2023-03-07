@@ -282,7 +282,7 @@ export type XRHand = Map<XRHandJoint, XRJointSpace>
 export const XRPlaneComponent = defineComponent({
   name: 'XRPlaneComponent',
 
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       shadowMesh: null! as Mesh,
       occlusionMesh: null! as Mesh,

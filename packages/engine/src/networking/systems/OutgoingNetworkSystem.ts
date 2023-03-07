@@ -1,5 +1,4 @@
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
 import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
@@ -17,33 +16,33 @@ const authoritativeNetworkTransformsQuery = defineQuery([
   TransformComponent
 ])
 
-const serializeAndSend = (world: World, serialize: ReturnType<typeof createDataWriter>) => {
-  const ents = Engine.instance.isEditor ? networkTransformsQuery(world) : authoritativeNetworkTransformsQuery(world)
+const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
+  const ents = Engine.instance.isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId
-    const peerID = Engine.instance.currentWorld.worldNetwork.peerID
-    const data = serialize(world, world.worldNetwork, userID, peerID, ents)
+    const peerID = Engine.instance.worldNetwork.peerID
+    const data = serialize(Engine.instance.worldNetwork, userID, peerID, ents)
 
     // todo: insert historian logic here
 
     if (data.byteLength > 0) {
       // side effect - network IO
       // delay until end of frame
-      Promise.resolve().then(() => world.worldNetwork.sendData(data))
+      Promise.resolve().then(() => Engine.instance.worldNetwork.sendData(data))
     }
   }
 }
 
-export default async function OutgoingNetworkSystem(world: World) {
+export default async function OutgoingNetworkSystem() {
   const serialize = createDataWriter()
 
   const execute = () => {
-    world.worldNetwork && serializeAndSend(world, serialize)
+    Engine.instance.worldNetwork && serializeAndSend(serialize)
   }
 
   const cleanup = async () => {
-    removeQuery(world, networkTransformsQuery)
-    removeQuery(world, authoritativeNetworkTransformsQuery)
+    removeQuery(networkTransformsQuery)
+    removeQuery(authoritativeNetworkTransformsQuery)
   }
 
   return { execute, cleanup }

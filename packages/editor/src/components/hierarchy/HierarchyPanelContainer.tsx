@@ -164,7 +164,7 @@ export default function HierarchyPanel({
   }
 
   const updateNodeHierarchy = useCallback(
-    (world = Engine.instance.currentWorld) => {
+    (world = Engine.instance.currentScene) => {
       setNodes(
         getModelNodesFromTreeWalker(
           Array.from(heirarchyTreeWalker(world.sceneEntity, selectionState.selectedEntities.value, collapsedNodes)),
@@ -270,7 +270,7 @@ export default function HierarchyPanel({
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (node.obj3d) return // todo
     if (e.detail === 2) {
-      const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
+      const cameraComponent = getComponent(Engine.instance.cameraEntity, EditorCameraComponent)
       cameraComponent.focusedObjects = [node.entityNode]
       cameraComponent.refocus = true
     }
@@ -447,7 +447,7 @@ export default function HierarchyPanel({
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = Engine.instance.currentWorld
+        const world = Engine.instance.currentScene
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, world.sceneEntity))
           : isAncestor(item.value, world.sceneEntity))
@@ -505,7 +505,7 @@ export default function HierarchyPanel({
           )}
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
-        {Engine.instance.currentWorld.scene && (
+        {Engine.instance.scene && (
           <div style={{ height: '100%' }}>
             <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
           </div>

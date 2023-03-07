@@ -1,9 +1,5 @@
 import { createActionQueue } from '@etherealengine/hyperflux'
 
-import { World } from '../../../ecs/classes/World'
-import { defineQuery, removeQuery } from '../../../ecs/functions/ComponentFunctions'
-import { MaterialComponent } from '../components/MaterialComponent'
-import { MaterialPrototypeComponent } from '../components/MaterialPrototypeComponent'
 import { registerMaterial, registerMaterialPrototype } from '../functions/MaterialLibraryFunctions'
 import {
   initializeMaterialLibrary,
@@ -12,7 +8,7 @@ import {
   useMaterialLibrary
 } from '../MaterialLibrary'
 
-export default async function MaterialLibrarySystem(world: World) {
+export default async function MaterialLibrarySystem() {
   const registerMaterialQueue = createActionQueue(MaterialLibraryActions.RegisterMaterial.matches)
   const registerPrototypeQueue = createActionQueue(MaterialLibraryActions.RegisterPrototype.matches)
   initializeMaterialLibrary()

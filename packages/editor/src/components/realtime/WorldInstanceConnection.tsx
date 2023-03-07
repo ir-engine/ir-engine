@@ -65,7 +65,7 @@ export const WorldInstanceConnection = () => {
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
       if (worldNetworkHostId) {
-        leaveNetwork(Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork)
+        leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
       }
       return
     }
@@ -76,7 +76,7 @@ export const WorldInstanceConnection = () => {
   // const decrementPage = () => { }
   // const incrementPage = () => { }
 
-  const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
+  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentLocationInstanceConnection = useWorldInstance()
 
   const getIcon = () => {

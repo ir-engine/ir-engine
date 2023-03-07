@@ -45,7 +45,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
   }, [])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
+    if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
       AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
     }

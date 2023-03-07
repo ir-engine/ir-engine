@@ -68,7 +68,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     }
 
     if (
-      Engine.instance.currentWorld.localClientEntity ||
+      Engine.instance.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
       !authState.user.avatar.value ||
@@ -112,8 +112,7 @@ export const usePortalTeleport = () => {
   useEffect(() => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
-      const world = Engine.instance.currentWorld
-      const activePortal = world.activePortal
+      const activePortal = Engine.instance.activePortal
 
       if (!activePortal) return
 
@@ -123,11 +122,11 @@ export const usePortalTeleport = () => {
         UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
       ) {
         teleportAvatar(
-          world.localClientEntity,
+          Engine.instance.localClientEntity,
           activePortal.remoteSpawnPosition
           // activePortal.remoteSpawnRotation
         )
-        world.activePortal = null
+        Engine.instance.activePortal = null
         dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
         return
       }
@@ -137,16 +136,16 @@ export const usePortalTeleport = () => {
         return
       }
 
-      route('/location/' + world.activePortal!.location)
-      LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
+      route('/location/' + Engine.instance.activePortal!.location)
+      LocationService.getLocationByName(Engine.instance.activePortal!.location, authState.user.id.value)
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too
-      leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
+      leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
 
-      setAvatarToLocationTeleportingState(world)
+      setAvatarToLocationTeleportingState()
       if (activePortal.effectType !== 'None') {
-        addComponent(world.localClientEntity, PortalEffects.get(activePortal.effectType), true)
+        addComponent(Engine.instance.localClientEntity, PortalEffects.get(activePortal.effectType), true)
       } else {
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.START_STATE }))
       }

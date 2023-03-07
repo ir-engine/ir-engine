@@ -32,12 +32,11 @@ export const retrieveLocationByName = (locationName: string, userId: string) => 
 export const initClient = async (injectedSystems: SystemModuleType<any>[] = []) => {
   if (getState(EngineState).isEngineInitialized.value) return
 
-  const world = Engine.instance.currentWorld
   const projects = API.instance.client.service('projects').find()
 
   await ClientModules()
-  await initSystems(world, injectedSystems)
-  await loadEngineInjection(world, await projects)
+  await initSystems(injectedSystems)
+  await loadEngineInjection(await projects)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }

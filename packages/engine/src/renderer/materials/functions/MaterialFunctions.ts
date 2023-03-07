@@ -23,7 +23,7 @@ export function dedupMaterials() {
       ) {
         multiLogger.info('found duplicate material')
         //change every instance of material1 to material2
-        Engine.instance.currentWorld.scene.traverse((mesh: Mesh) => {
+        Engine.instance.scene.traverse((mesh: Mesh) => {
           if (!mesh?.isMesh) return
           const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
           materials.map((material, i) => {

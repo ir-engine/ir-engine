@@ -19,7 +19,7 @@ export function changeRenderMode() {
   // revert any changes made by a render mode
   switch (renderMode) {
     case RenderModes.UNLIT:
-      Engine.instance.currentWorld.scene.traverse((obj: Light) => {
+      Engine.instance.scene.traverse((obj: Light) => {
         if (obj.isLight && obj.userData.editor_disabled) {
           delete obj.userData.editor_disabled
           obj.visible = true
@@ -37,7 +37,7 @@ export function changeRenderMode() {
 
   switch (renderMode) {
     case RenderModes.UNLIT:
-      Engine.instance.currentWorld.scene.traverse((obj: Light) => {
+      Engine.instance.scene.traverse((obj: Light) => {
         if (obj.isLight && obj.visible) {
           obj.userData.editor_disabled = true
           obj.visible = false

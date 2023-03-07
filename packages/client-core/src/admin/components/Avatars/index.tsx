@@ -36,12 +36,9 @@ const Avatar = () => {
       ...AvatarCommonModule(),
       ...AvatarClientModule()
     ]
-    initSystems(Engine.instance.currentWorld, systems)
+    initSystems(systems)
     return () => {
-      unloadSystems(
-        Engine.instance.currentWorld,
-        systems.map((s) => s.uuid)
-      )
+      unloadSystems(systems.map((s) => s.uuid))
     }
   }, [])
 

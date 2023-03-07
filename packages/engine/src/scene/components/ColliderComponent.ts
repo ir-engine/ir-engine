@@ -21,7 +21,7 @@ import { GroupComponent } from './GroupComponent'
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
 
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       bodyType: RigidBodyType.Fixed,
       shapeType: ShapeType.Cuboid,
@@ -100,7 +100,6 @@ export const ColliderComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    const world = Engine.instance.currentWorld
     const entity = root.entity
 
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
@@ -115,15 +114,15 @@ export const ColliderComponent = defineComponent({
         const colliderComponent = getComponent(entity, ColliderComponent)
 
         if (hasComponent(entity, RigidBodyComponent)) {
-          Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+          Physics.removeRigidBody(entity, Engine.instance.physicsWorld)
         }
 
-        computeTransformMatrix(entity, Engine.instance.currentWorld)
+        computeTransformMatrix(entity)
         if (hasComponent(entity, GroupComponent)) {
           updateGroupChildren(entity)
         }
 
-        Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, {
+        Physics.createRigidBodyForGroup(entity, Engine.instance.physicsWorld, {
           bodyType: colliderComponent.bodyType,
           shapeType: colliderComponent.shapeType,
           isTrigger: colliderComponent.isTrigger,
@@ -164,7 +163,7 @@ export const ColliderComponent = defineComponent({
                 bodyDesc = RigidBodyDesc.fixed()
                 break
             }
-            Physics.createRigidBody(entity, world.physicsWorld, bodyDesc, [])
+            Physics.createRigidBody(entity, Engine.instance.physicsWorld, bodyDesc, [])
           }
         }
 
@@ -173,7 +172,7 @@ export const ColliderComponent = defineComponent({
         /**
          * This component only supports one collider, always at index 0
          */
-        Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
+        Physics.removeCollidersFromRigidBody(entity, Engine.instance.physicsWorld)
         const colliderDesc = createColliderDescFromScale(
           colliderComponent.shapeType.value,
           transformComponent.scale.value
@@ -194,7 +193,7 @@ export const ColliderComponent = defineComponent({
           new Vector3(),
           new Quaternion()
         )
-        world.physicsWorld.createCollider(colliderDesc, rigidbody.body)
+        Engine.instance.physicsWorld.createCollider(colliderDesc, rigidbody.body)
 
         rigidbody.body.setTranslation(transformComponent.position.value, true)
         rigidbody.body.setRotation(transformComponent.rotation.value, true)

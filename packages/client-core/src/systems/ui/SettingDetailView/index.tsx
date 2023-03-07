@@ -57,8 +57,7 @@ const SettingDetailView = () => {
   const controlSchemes = Object.values(AvatarAxesControlScheme).filter((value) => typeof value === 'string')
 
   useEffect(() => {
-    const world = Engine.instance.currentWorld
-    const entity = world.localClientEntity
+    const entity = Engine.instance.localClientEntity
     const avatar = getComponent(entity, AvatarComponent)
     if (!avatar) return
     if (showAvatar) {

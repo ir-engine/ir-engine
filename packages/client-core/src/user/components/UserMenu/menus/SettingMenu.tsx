@@ -63,10 +63,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
 
-  const postProcessingSceneMetadataState = Engine.instance.currentWorld.sceneMetadataRegistry[
+  const postProcessingSceneMetadataState = Engine.instance.currentScene.sceneMetadataRegistry[
     PostProcessingSceneMetadataLabel
   ]
-    ? getPostProcessingSceneMetadataState(Engine.instance.currentWorld)
+    ? getPostProcessingSceneMetadataState(Engine.instance.currentScene)
     : undefined
   const postprocessingSettings = postProcessingSceneMetadataState?.enabled
     ? useHookstate(postProcessingSceneMetadataState.enabled)
@@ -75,8 +75,6 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.user_setting.value
-
-  const world = Engine.instance.currentWorld
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
@@ -93,7 +91,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     delete themeModes['editor']
   }
 
-  const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
+  const showWorldSettings = Engine.instance.localClientEntity || Engine.instance.isEditor
 
   /**
    * Note: If you're editing this function, be sure to make the same changes to

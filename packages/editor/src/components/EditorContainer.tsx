@@ -278,14 +278,14 @@ const EditorContainer = () => {
           setDialogComponent(
             <SaveNewSceneDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
-              initialName={Engine.instance.currentWorld.scene.name}
+              initialName={Engine.instance.scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
           )
         })) as any
         if (result && projectName.value) {
-          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.sceneEntity)
+          await uploadBPCEMBakeToServer(Engine.instance.currentScene.sceneEntity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatchAction(EditorAction.sceneModified({ modified: false }))
         }
@@ -358,11 +358,11 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await sceneToGLTF([Engine.instance.currentWorld.scene as any])
+    const projectFile = await sceneToGLTF([Engine.instance.scene as any])
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = Engine.instance.currentWorld.scene.name.toLowerCase().replace(/\s+/g, '-')
+    const fileName = Engine.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
     el.download = fileName + '.xre.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
@@ -417,7 +417,7 @@ const EditorContainer = () => {
         if (result.generateThumbnails) {
           const blob = await takeScreenshot(512, 320)
 
-          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.sceneEntity)
+          await uploadBPCEMBakeToServer(Engine.instance.currentScene.sceneEntity)
           await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
         } else {
           await saveScene(projectName.value, sceneName.value, null, abortController.signal)

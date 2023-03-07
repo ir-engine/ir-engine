@@ -11,7 +11,6 @@ import { getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInje
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   ComponentMap,
   defineQuery,
@@ -49,12 +48,12 @@ const toCapitalCase = (str: string) =>
     .join(' ')
 
 export const createNewEditorNode = (entityNode: Entity, prefabType: string): void => {
-  const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
+  const components = Engine.instance.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
   const name = getUniqueName(entityNode, `New ${toCapitalCase(prefabType)}`)
 
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   addEntityNodeChild(entityNode, world.sceneEntity)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, { name, components: cloneDeep(components) })
@@ -102,7 +101,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
   const idMap = new Map<EntityUUID, EntityUUID>()
   const loadedEntities = UUIDComponent.entitiesByUUID.get(NO_PROXY)
 
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   const rootEntity = assetRoot ?? world.sceneEntity
   const rootId = sceneData.root
 
@@ -166,7 +165,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
  * @param parent
  * @param world
  */
-export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.instance.currentWorld) => {
+export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.instance.currentScene) => {
   const entitiesToLoad = Object.entries(world.sceneJson.entities).filter(
     ([uuid, entity]) => entity.parent === parent
   ) as [EntityUUID, EntityJson][]
@@ -198,7 +197,7 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
  * @param sceneData
  */
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   getState(EngineState).sceneLoading.set(true)
 
   const systemsToLoad = [] as SystemModuleType<any>[]
@@ -209,20 +208,19 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
     systemsToLoad.push(
       ...sceneSystems.filter(
         (systemToLoad) =>
-          !Object.values(world.pipelines)
+          !Object.values(Engine.instance.pipelines)
             .flat()
             .find((s) => s.uuid === systemToLoad.uuid)
       )
     )
-    const systemsToUnload = Object.keys(world.pipelines).map((p) =>
-      world.pipelines[p].filter((loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid))
+    const systemsToUnload = Object.keys(Engine.instance.pipelines).map((p) =>
+      Engine.instance.pipelines[p].filter(
+        (loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid)
+      )
     )
 
     /** 1. unload old systems */
-    await unloadSystems(
-      world,
-      systemsToUnload.flat().map((s) => s.uuid)
-    )
+    await unloadSystems(systemsToUnload.flat().map((s) => s.uuid))
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
@@ -239,7 +237,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
 
   /** 3. load new systems */
   if (!Engine.instance.isEditor) {
-    await initSystems(world, systemsToLoad)
+    await initSystems(systemsToLoad)
   }
 
   world.sceneJson = sceneData.scene
@@ -268,7 +266,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
  * @param entityJson
  * @param world
  */
-export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, world = Engine.instance.currentWorld) => {
+export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, world = Engine.instance.currentScene) => {
   try {
     const existingEntity = UUIDComponent.entitiesByUUID[uuid].value
     if (existingEntity) {
@@ -298,7 +296,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, worl
 export const deserializeSceneEntity = (
   entity: Entity,
   sceneEntity: EntityJson,
-  world = Engine.instance.currentWorld
+  world = Engine.instance.currentScene
 ): Entity => {
   setComponent(entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
 
@@ -306,8 +304,8 @@ export const deserializeSceneEntity = (
   /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */
   const componentsToRemove = getAllComponents(entity).filter(
     (C) =>
-      world.sceneComponentRegistry.has(C.name) &&
-      !sceneEntity.components.find((json) => world.sceneComponentRegistry.get(C.name) === json.name)
+      Engine.instance.sceneComponentRegistry.has(C.name) &&
+      !sceneEntity.components.find((json) => Engine.instance.sceneComponentRegistry.get(C.name) === json.name)
   )
   for (const C of componentsToRemove) {
     if (entity === world.sceneEntity) if (C === VisibleComponent) continue
@@ -330,9 +328,9 @@ export const deserializeSceneEntity = (
 export const deserializeComponent = (
   entity: Entity,
   component: ComponentJson,
-  world = Engine.instance.currentWorld
+  world = Engine.instance.currentScene
 ): void => {
-  const sceneComponent = world.sceneLoadingRegistry.get(component.name)
+  const sceneComponent = Engine.instance.sceneLoadingRegistry.get(component.name)
 
   if (!sceneComponent) return
 
@@ -341,7 +339,7 @@ export const deserializeComponent = (
   if (deserializer) {
     deserializer(entity, component.props)
   } else {
-    const Component = Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(
+    const Component = Array.from(Engine.instance.sceneComponentRegistry).find(
       ([_, prefab]) => prefab === component.name
     )!
     if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
@@ -358,7 +356,7 @@ export const deserializeComponent = (
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
-export default async function SceneLoadingSystem(world: World) {
+export default async function SceneLoadingSystem() {
   let totalPendingAssets = 0
 
   const onComplete = (pendingAssets: number) => {
@@ -390,7 +388,7 @@ export default async function SceneLoadingSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, sceneAssetPendingTagQuery)
+    removeQuery(sceneAssetPendingTagQuery)
   }
 
   return { execute, cleanup }

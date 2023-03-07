@@ -24,13 +24,13 @@ export const useShadowsEnabled = () => {
 
 export const updateShadowMap = () => {
   const enabled = getShadowsEnabled()
-  const type = getRendererSceneMetadataState(Engine.instance.currentWorld).shadowMapType.value
+  const type = getRendererSceneMetadataState(Engine.instance.currentScene).shadowMapType.value
 
   EngineRenderer.instance.renderer.shadowMap.enabled = enabled
   EngineRenderer.instance.renderer.shadowMap.type = type
   EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
 
-  Engine.instance.currentWorld.scene.traverse((node: DirectionalLight) => {
+  Engine.instance.scene.traverse((node: DirectionalLight) => {
     if (node.isDirectionalLight && node.shadow) {
       node.shadow.map?.dispose()
       node.shadow.map = null as any

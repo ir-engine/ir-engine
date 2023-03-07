@@ -2,7 +2,7 @@ import { Color, Mesh, PlaneGeometry, ShaderMaterial } from 'three'
 
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
-import { World } from '../../ecs/classes/World'
+import { Engine } from '../../ecs/classes/Engine'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
@@ -13,7 +13,7 @@ const VERTEX_SHADER = 'void main() { vec3 newPosition = position * 2.0; gl_Posit
 const FRAGMENT_SHADER =
   'uniform vec3 color; uniform float intensity; void main() { gl_FragColor = vec4(color, intensity); }'
 
-export default async function CameraFadeBlackEffectSystem(world: World) {
+export default async function CameraFadeBlackEffectSystem() {
   const geometry = new PlaneGeometry(1, 1)
   const material = new ShaderMaterial({
     vertexShader: VERTEX_SHADER,
@@ -27,7 +27,7 @@ export default async function CameraFadeBlackEffectSystem(world: World) {
   })
   const mesh = new Mesh(geometry, material)
   mesh.name = 'Camera Fade Transition'
-  addObjectToGroup(world.cameraEntity, mesh)
+  addObjectToGroup(Engine.instance.cameraEntity, mesh)
   mesh.visible = false
   mesh.layers.set(ObjectLayers.Camera)
   const transition = createTransitionState(0.25, 'OUT')
@@ -38,7 +38,7 @@ export default async function CameraFadeBlackEffectSystem(world: World) {
     for (const action of fadeActionQueue()) {
       transition.setState(action.in ? 'IN' : 'OUT')
     }
-    transition.update(world.deltaSeconds, (alpha) => {
+    transition.update(Engine.instance.deltaSeconds, (alpha) => {
       material.uniforms.intensity.value = alpha
       mesh.visible = alpha > 0
     })

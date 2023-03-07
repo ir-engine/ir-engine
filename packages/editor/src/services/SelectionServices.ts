@@ -1,7 +1,6 @@
 import { useState } from '@hookstate/core'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   hasComponent,
   removeComponent,
@@ -42,7 +41,7 @@ export const SelectionState = defineState({
     } as SelectionServiceStateType)
 })
 
-export default function EditorSelectionReceptor(world: World): SystemDefintion {
+export default function EditorSelectionReceptor(): SystemDefintion {
   const selectionState = getState(SelectionState)
 
   const updateSelectionQueue = createActionQueue(SelectionAction.updateSelection.matches)

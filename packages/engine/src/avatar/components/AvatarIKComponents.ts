@@ -80,7 +80,7 @@ export const AvatarLeftArmIKComponent = defineComponent({
 
   schema: HandIKSchema,
 
-  onInit(entity, world) {
+  onInit(entity) {
     const leftHint = new Object3D()
     leftHint.name = `ik-left-hint-${entity}`
     const leftOffset = new Object3D()
@@ -124,7 +124,7 @@ export const AvatarLeftArmIKComponent = defineComponent({
 export const AvatarRightArmIKComponent = defineComponent({
   name: 'AvatarLeftArmIKComponent',
   schema: HandIKSchema,
-  onInit(entity, world) {
+  onInit(entity) {
     const rightHint = new Object3D()
     rightHint.name = `ik-right-hint-${entity}`
     const rightOffset = new Object3D()

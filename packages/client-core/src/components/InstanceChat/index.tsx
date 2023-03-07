@@ -52,7 +52,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const currentInstanceConnection = useWorldInstance()
 
   useEffect(() => {
-    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
       ChatService.getInstanceChannel()
     }
   }, [currentInstanceConnection?.connected])

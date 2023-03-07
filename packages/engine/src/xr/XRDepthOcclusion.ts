@@ -10,7 +10,6 @@ import { createActionQueue, getState, removeActionQueue, useHookstate } from '@e
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { defineQuery, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent, startGroupQueryReactor } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
@@ -229,7 +228,7 @@ const _createDepthDebugCanvas = (enabled: boolean) => {
  * @param world
  * @returns
  */
-export default async function XRDepthOcclusionSystem(world: World) {
+export default async function XRDepthOcclusionSystem() {
   const groupQuery = defineQuery([GroupComponent])
   const xrState = getState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
@@ -282,7 +281,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, groupQuery)
+    removeQuery(groupQuery)
     removeActionQueue(xrSessionChangedQueue)
     depthOcclusionReactor.stop()
   }

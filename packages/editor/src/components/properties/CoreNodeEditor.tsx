@@ -76,7 +76,7 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
     EditorControlFunctions.addOrRemoveComponent(nodes, PreventBakeTagComponent, value)
   }
 
-  const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry.entries())
+  const registeredComponents = Array.from(Engine.instance.sceneComponentRegistry.entries())
 
   return (
     <PropertiesHeader>

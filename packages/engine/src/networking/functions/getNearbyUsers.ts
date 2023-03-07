@@ -21,7 +21,7 @@ const remoteAvatars = defineQuery([
 ])
 
 export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array<UserId> {
-  const userAvatarEntity = Engine.instance.currentWorld.getUserAvatarEntity(userId)
+  const userAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
   if (!userAvatarEntity) return []
   const userPosition = getComponent(userAvatarEntity, TransformComponent).position
   if (!userPosition) return []

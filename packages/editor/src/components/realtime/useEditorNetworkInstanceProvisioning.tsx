@@ -12,7 +12,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 export const useEditorNetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
 
-  const worldNetworkHostId = useHookstate(Engine.instance.currentWorld.hostIds.world).value!
+  const worldNetworkHostId = useHookstate(Engine.instance.hostIds.world).value!
   const currentLocationInstanceConnection = useWorldInstance()
 
   useEffect(() => {

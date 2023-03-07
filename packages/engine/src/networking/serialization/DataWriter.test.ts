@@ -49,7 +49,7 @@ describe('DataWriter', () => {
   before(() => {
     createEngine()
     createMockNetwork()
-    Engine.instance.currentWorld.networkSchema['ee.core.transform'] = {
+    Engine.instance.networkSchema['ee.core.transform'] = {
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
     }
@@ -370,7 +370,7 @@ describe('DataWriter', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    writeEntity(writeView, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
+    writeEntity(writeView, networkId, entity, Object.values(Engine.instance.networkSchema))
 
     const readView = createViewCursor(writeView.buffer)
 
@@ -493,7 +493,6 @@ describe('DataWriter', () => {
   })
 
   it('should createDataWriter', () => {
-    const world = Engine.instance.currentWorld
     const peerID = 'peerID' as PeerID
 
     const write = createDataWriter()
@@ -530,8 +529,8 @@ describe('DataWriter', () => {
       })
     })
 
-    const network = Engine.instance.currentWorld.worldNetwork
-    const packet = write(world, network, Engine.instance.userId, peerID, entities)
+    const network = Engine.instance.worldNetwork
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =
       4 * Uint32Array.BYTES_PER_ELEMENT +

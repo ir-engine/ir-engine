@@ -8,7 +8,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const AmbientLightComponent = defineComponent({
   name: 'AmbientLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new AmbientLight()
     addObjectToGroup(entity, light)
     return {

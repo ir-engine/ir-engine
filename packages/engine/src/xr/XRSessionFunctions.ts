@@ -31,12 +31,11 @@ export const onSessionEnd = () => {
   xrState.sceneScale.set(1)
 
   Engine.instance.xrFrame = null
-  const world = Engine.instance.currentWorld
 
   EngineRenderer.instance.renderer.domElement.style.display = ''
-  setVisibleComponent(world.localClientEntity, true)
+  setVisibleComponent(Engine.instance.localClientEntity, true)
 
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
+  const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   worldOriginTransform.position.copy(V_000)
   worldOriginTransform.rotation.identity()
 
@@ -118,9 +117,8 @@ export const setupXRSession = async (requestedMode) => {
 }
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
-  const world = Engine.instance.currentWorld
-  const worldOriginTransform = getComponent(world.originEntity, TransformComponent)
-  const rigidBody = getComponent(world.localClientEntity, RigidBodyComponent)
+  const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const rigidBody = getComponent(Engine.instance.localClientEntity, RigidBodyComponent)
   const xrState = getState(XRState)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
@@ -157,13 +155,12 @@ export const requestXRSession = createHookableFunction(
 
     try {
       const xrSession = await setupXRSession(action.mode)
-      const world = Engine.instance.currentWorld
 
       getReferenceSpaces(xrSession)
 
       const mode = xrState.sessionMode.value
-      if (mode === 'immersive-ar') setupARSession(world)
-      if (mode === 'immersive-vr') setupVRSession(world)
+      if (mode === 'immersive-ar') setupARSession()
+      if (mode === 'immersive-vr') setupVRSession()
 
       dispatchAction(XRAction.sessionChanged({ active: true }))
 
@@ -187,7 +184,7 @@ export const endXRSession = createHookableFunction(async () => {
  * @returns
  */
 export const xrSessionChanged = createHookableFunction((action: typeof XRAction.sessionChanged.matches._TYPE) => {
-  const entity = Engine.instance.currentWorld.getUserAvatarEntity(action.$from)
+  const entity = Engine.instance.getUserAvatarEntity(action.$from)
   if (!entity) return
 
   if (action.active) {
@@ -197,9 +194,9 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
-export const setupVRSession = (world = Engine.instance.currentWorld) => {}
+export const setupVRSession = () => {}
 
-export const setupARSession = (world = Engine.instance.currentWorld) => {
+export const setupARSession = () => {
   const session = getState(XRState).session.value!
 
   /**
@@ -207,13 +204,13 @@ export const setupARSession = (world = Engine.instance.currentWorld) => {
    * This gets piped into the input system as a TouchInput.Touch
    */
   session.addEventListener('selectstart', () => {
-    ;(world.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
+    ;(Engine.instance.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   session.addEventListener('selectend', (inputSource) => {
-    const buttons = world.buttons as ButtonInputStateType
+    const buttons = Engine.instance.buttons as ButtonInputStateType
     if (!buttons.PrimaryClick) return
     buttons.PrimaryClick!.up = true
   })
 
-  world.scene.background = null
+  Engine.instance.scene.background = null
 }

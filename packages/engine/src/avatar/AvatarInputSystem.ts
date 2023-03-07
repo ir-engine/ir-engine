@@ -6,7 +6,6 @@ import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
-import { World } from '../ecs/classes/World'
 import { getComponent, getComponentState, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
@@ -45,7 +44,7 @@ export const AvatarAxesControlSchemeBehavior = {
   [AvatarAxesControlScheme.Teleport]: (inputSource: XRInputSource) => {
     if (inputSource.gamepad?.mapping !== 'xr-standard') return
 
-    const localClientEntity = Engine.instance.currentWorld.localClientEntity
+    const localClientEntity = Engine.instance.localClientEntity
     const [x, z] = getThumbstickOrThumbpadAxes(inputSource, 0.05)
 
     if (x === 0 && z === 0) {
@@ -70,12 +69,12 @@ export const AvatarAxesControlSchemeBehavior = {
   }
 }
 
-export default async function AvatarInputSystem(world: World) {
+export default async function AvatarInputSystem() {
   const interactState = getState(InteractState)
   const avatarInputSettings = getState(AvatarInputSettingsState).value
 
   const onShiftLeft = () => {
-    const controller = getComponentState(world.localClientEntity, AvatarControllerComponent)
+    const controller = getComponentState(Engine.instance.localClientEntity, AvatarControllerComponent)
     controller.isWalking.set(!controller.isWalking.value)
   }
 
@@ -120,18 +119,18 @@ export default async function AvatarInputSystem(world: World) {
 
   let mouseMovedDuringPrimaryClick = false
   const execute = () => {
-    const { inputSources, localClientEntity } = world
+    const { inputSources, localClientEntity } = Engine.instance
     if (!localClientEntity) return
 
     const controller = getComponent(localClientEntity, AvatarControllerComponent)
-    const buttons = world.buttons
+    const buttons = Engine.instance.buttons
 
     if (buttons.PrimaryClick?.touched) {
-      let mouseMoved = world.pointerState.movement.lengthSq() > 0
+      let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
       if (mouseMoved) mouseMovedDuringPrimaryClick = true
 
       if (buttons.PrimaryClick.up) {
-        if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(world.localClientEntity)
+        if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(Engine.instance.localClientEntity)
         else mouseMovedDuringPrimaryClick = false
       }
     }

@@ -15,7 +15,6 @@ import {
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { ObjectDirection } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import {
   addComponent,
   ComponentType,
@@ -58,7 +57,7 @@ const downwardGroundRaycast = {
   groups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
 } as RaycastArgs
 
-export default async function AvatarLoadingSystem(world: World) {
+export default async function AvatarLoadingSystem() {
   const effectQuery = defineQuery([AvatarEffectComponent])
   const growQuery = defineQuery([AvatarEffectComponent, GroupComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, GroupComponent])
@@ -100,7 +99,7 @@ export default async function AvatarLoadingSystem(world: World) {
   texturePlate.needsUpdate = true
 
   const execute = () => {
-    const { deltaSeconds: delta } = world
+    const { deltaSeconds: delta } = Engine.instance
 
     for (const entity of effectQuery.enter()) {
       const effectComponent = getComponent(entity, AvatarEffectComponent)
@@ -117,7 +116,7 @@ export default async function AvatarLoadingSystem(world: World) {
        * cast ray to move this downward to be on the ground
        */
       downwardGroundRaycast.origin.copy(sourceTransform.position)
-      const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, downwardGroundRaycast)
+      const hits = Physics.castRay(Engine.instance.physicsWorld, downwardGroundRaycast)
       if (hits.length) {
         transform.position.y = hits[0].position.y
       }
@@ -179,11 +178,11 @@ export default async function AvatarLoadingSystem(world: World) {
       })
     }
 
-    for (const entity of growQuery(world)) {
-      world.dirtyTransforms[entity] = true
+    for (const entity of growQuery()) {
+      Engine.instance.dirtyTransforms[entity] = true
     }
 
-    for (const entity of commonQuery(world)) {
+    for (const entity of commonQuery()) {
       const group = getComponent(entity, GroupComponent)
       const opacityMultiplier = getComponent(entity, AvatarEffectComponent).opacityMultiplier
 
@@ -214,13 +213,13 @@ export default async function AvatarLoadingSystem(world: World) {
       }
     }
 
-    for (const entity of dissolveQuery.enter(world)) {
+    for (const entity of dissolveQuery.enter()) {
       const effectComponent = getComponent(entity, AvatarEffectComponent)
       if (hasComponent(effectComponent.sourceEntity, AvatarControllerComponent))
         getComponent(effectComponent.sourceEntity, AvatarControllerComponent).movementEnabled = true
     }
 
-    for (const entity of dissolveQuery(world)) {
+    for (const entity of dissolveQuery()) {
       const disolveEffect = getComponent(entity, AvatarDissolveComponent).effect
 
       if (disolveEffect.update(delta)) {
@@ -285,10 +284,10 @@ export default async function AvatarLoadingSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, effectQuery)
-    removeQuery(world, growQuery)
-    removeQuery(world, commonQuery)
-    removeQuery(world, dissolveQuery)
+    removeQuery(effectQuery)
+    removeQuery(growQuery)
+    removeQuery(commonQuery)
+    removeQuery(dissolveQuery)
   }
 
   return { execute, cleanup }
