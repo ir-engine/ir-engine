@@ -6,7 +6,8 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -21,6 +22,7 @@ export const userPatched = (params) => {
   const selfUser = accessAuthState().user
   const userState = accessNetworkUserState()
   const patchedUser = resolveUser(params.userRelationship)
+  const worldHostID = getState(NetworkState).hostIds.world
 
   logger.info('Resolved patched user %o', patchedUser)
 
@@ -37,14 +39,10 @@ export const userPatched = (params) => {
     //   setRelationship('party', user.partyId);
     // }
     if (patchedUser.instanceId !== selfUser.instanceId.value) {
-      if (
-        Engine.instance.hostIds.world.value &&
-        patchedUser.instanceId &&
-        Engine.instance.hostIds.world.value !== patchedUser.instanceId
-      ) {
+      if (worldHostID && patchedUser.instanceId && worldHostID !== patchedUser.instanceId) {
         dispatchAction(
           LocationInstanceConnectionAction.changeActiveConnectionHostId({
-            currentInstanceId: Engine.instance.hostIds.world.value,
+            currentInstanceId: worldHostID,
             newInstanceId: patchedUser.instanceId as UserId
           })
         )

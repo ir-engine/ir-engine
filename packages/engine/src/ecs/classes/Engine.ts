@@ -1,7 +1,7 @@
 import * as bitecs from 'bitecs'
 
 import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createHyperStore, getMutableState, hookstate, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getMutableState, getState, hookstate, State } from '@etherealengine/hyperflux'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
@@ -36,6 +36,7 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { ButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { SerializationSchema } from '../../networking/serialization/Utils'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
@@ -134,14 +135,14 @@ export class Engine {
    * get the default world network
    */
   get worldNetwork() {
-    return this.networks.get(this.hostIds.world.value!)!
+    return this.networks.get(getState(NetworkState).hostIds.world!)!
   }
 
   /**
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(this.hostIds.media.value!)!
+    return this.networks.get(getState(NetworkState).hostIds.media!)!
   }
 
   /** @todo parties */
@@ -150,10 +151,6 @@ export class Engine {
   // }
 
   /** temporary until Network.ts is refactored to be function & hookstate */
-  hostIds = hookstate({
-    media: null as UserId | null,
-    world: null as UserId | null
-  })
 
   // _worldHostId = null! as UserId
   // _mediaHostId = null! as UserId

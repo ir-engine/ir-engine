@@ -32,6 +32,7 @@ import {
   JoinWorldRequestData,
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import {
   addActionReceptor,
   dispatchAction,
@@ -1069,12 +1070,12 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       mediaStreamState.localScreen.set(null)
       network.consumers = []
       Engine.instance.networks.delete(network.hostId)
-      Engine.instance.hostIds.media.set(none)
+      getMutableState(NetworkState).hostIds.media.set(none)
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
     } else {
       NetworkPeerFunctions.destroyAllPeers(network)
       Engine.instance.networks.delete(network.hostId)
-      Engine.instance.hostIds.world.set(none)
+      getMutableState(NetworkState).hostIds.world.set(none)
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
       dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
       // if world has a media server connection

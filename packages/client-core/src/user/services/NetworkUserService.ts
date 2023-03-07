@@ -4,7 +4,15 @@ import { none } from '@hookstate/core'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -89,8 +97,8 @@ export const NetworkUserService = {
       $limit: 1000,
       action: instance ? 'layer-users' : 'channel-users'
     } as any
-    if (!instance) query.channelInstanceId = Engine.instance.hostIds.media.value
-    else query.instanceId = Engine.instance.hostIds.world.value
+    if (!instance) query.channelInstanceId = getState(NetworkState).hostIds.media
+    else query.instanceId = getState(NetworkState).hostIds.world
     const layerUsers = (await API.instance.client.service('user').find({
       query: query
     })) as Paginated<UserInterface>

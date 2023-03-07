@@ -7,6 +7,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -44,7 +45,7 @@ export const MediaInstanceState = defineState({
 export function useMediaInstance() {
   const [state, setState] = React.useState(null as null | State<InstanceState>)
   const mediaInstanceState = useState(getMutableState(MediaInstanceState).instances)
-  const mediaHostId = useState(Engine.instance.hostIds.media)
+  const mediaHostId = useState(getMutableState(NetworkState).hostIds.media)
   useEffect(() => {
     setState(mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null)
   }, [mediaInstanceState, mediaHostId])
@@ -55,7 +56,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
   const s = getMutableState(MediaInstanceState)
   matches(action)
     .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.hostIds.media.set(action.instanceId)
+      getMutableState(NetworkState).hostIds.media.set(action.instanceId)
       Engine.instance.networks.set(
         action.instanceId,
         new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media)
@@ -100,7 +101,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       Engine.instance.mediaNetwork.hostId = action.newInstanceId as UserId
       Engine.instance.networks.set(action.newInstanceId, Engine.instance.mediaNetwork)
       Engine.instance.networks.delete(action.currentInstanceId)
-      Engine.instance.hostIds.media.set(action.newInstanceId as UserId)
+      getMutableState(NetworkState).hostIds.media.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })
