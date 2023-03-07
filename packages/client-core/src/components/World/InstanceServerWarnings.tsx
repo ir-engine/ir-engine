@@ -14,7 +14,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import WEBGL from '@etherealengine/engine/src/renderer/THREE.WebGL'
-import { addActionReceptor, getState, useHookstate } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { NetworkConnectionService } from '../../common/services/NetworkConnectionService'
 import { LocationAction } from '../../social/services/LocationService'
@@ -47,7 +47,7 @@ const InstanceServerWarnings = () => {
   const [currentError, _setCurrentError] = useState(-1)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
-  const engineRendereState = useHookstate(getState(RendererState))
+  const engineRendereState = useHookstate(getMutableState(RendererState))
   const chatState = useChatState()
   const [erroredInstanceId, setErroredInstanceId] = useState<string>(null!)
   const [hasShownLowFramerateError, setHasShownLowFramerateError] = useState(false)

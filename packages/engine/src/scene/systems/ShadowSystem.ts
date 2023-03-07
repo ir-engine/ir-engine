@@ -21,7 +21,7 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { getState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
@@ -66,8 +66,8 @@ const raycaster = new Raycaster()
 const raycasterPosition = new Vector3()
 
 export default async function ShadowSystem() {
-  const xrState = getState(XRState)
-  const renderState = getState(RendererState)
+  const xrState = getMutableState(XRState)
+  const renderState = getMutableState(RendererState)
 
   const csmGroup = new Group()
   csmGroup.name = 'CSM-group'

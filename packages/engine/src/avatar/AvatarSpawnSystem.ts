@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
@@ -61,7 +61,7 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { posit
 }
 
 export function avatarDetailsReceptor(action: ReturnType<typeof WorldNetworkAction.avatarDetails>) {
-  const userAvatarDetails = getState(WorldState).userAvatarDetails
+  const userAvatarDetails = getMutableState(WorldState).userAvatarDetails
   userAvatarDetails[action.$from].set(action.avatarDetail)
   if (isClient && action.avatarDetail.avatarURL) {
     const entity = Engine.instance.getUserAvatarEntity(action.$from)

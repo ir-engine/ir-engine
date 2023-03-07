@@ -15,7 +15,7 @@ import {
   Vector3
 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -73,7 +73,7 @@ export default async function XRUISystem() {
   const visibleInteractableXRUIQuery = defineQuery([XRUIInteractableComponent, XRUIComponent, VisibleComponent])
   const xruiQuery = defineQuery([XRUIComponent])
 
-  const xruiState = getState(XRUIState)
+  const xruiState = getMutableState(XRUIState)
 
   // todo - hoist to hyperflux state
   const maxXruiPointerDistanceSqr = 3 * 3

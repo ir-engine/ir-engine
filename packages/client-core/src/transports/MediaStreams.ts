@@ -6,7 +6,7 @@ import {
   localAudioConstraints,
   localVideoConstraints
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
-import { defineAction, defineState, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { ProducerExtension } from './SocketWebRTCClientNetwork'
 
@@ -60,13 +60,13 @@ export const MediaStreamService = {
    * @returns Whether the camera is started or not. */
   async startCamera() {
     logger.info('Start camera')
-    if (getState(MediaStreamState).videoStream.value?.active) return false
+    if (getMutableState(MediaStreamState).videoStream.value?.active) return false
     return await MediaStreamService.getVideoStream()
   },
 
   async startMic() {
     logger.info('Start Mic')
-    if (getState(MediaStreamState).audioStream.value?.active) return false
+    if (getMutableState(MediaStreamState).audioStream.value?.active) return false
     return await MediaStreamService.getAudioStream()
   },
 
@@ -75,7 +75,7 @@ export const MediaStreamService = {
    * @returns Whether camera cycled or not.
    */
   async cycleCamera(): Promise<boolean> {
-    const state = getState(MediaStreamState)
+    const state = getMutableState(MediaStreamState)
     if (!state.camVideoProducer.value?.track) {
       logger.info('Cannot cycle camera - no current camera track')
       return false
@@ -124,7 +124,7 @@ export const MediaStreamService = {
 
   /** Get device ID of device which is currently streaming media. */
   async getCurrentDeviceId(streamType: string) {
-    const state = getState(MediaStreamState)
+    const state = getMutableState(MediaStreamState)
     if (streamType === 'video') {
       if (!state.camVideoProducer.value) return null
 
@@ -156,7 +156,7 @@ export const MediaStreamService = {
    * @returns Whether stream is active or not.
    */
   async getVideoStream() {
-    const state = getState(MediaStreamState)
+    const state = getMutableState(MediaStreamState)
     try {
       logger.info('Getting video stream %o', localVideoConstraints)
       const videoStream = await navigator.mediaDevices.getUserMedia(localVideoConstraints)
@@ -183,7 +183,7 @@ export const MediaStreamService = {
    * @returns Whether stream is active or not.
    */
   async getAudioStream() {
-    const state = getState(MediaStreamState)
+    const state = getMutableState(MediaStreamState)
     try {
       logger.info('Getting audio stream %o', localAudioConstraints)
       const audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)

@@ -132,7 +132,7 @@ export const getOptionalComponentState = <ComponentType>(
   return undefined
 }
 
-export const getComponentState = <ComponentType>(
+export const getMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, {}, unknown>
 ): State<ComponentType> => {
@@ -141,6 +141,11 @@ export const getComponentState = <ComponentType>(
   // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
   return componentState
 }
+
+/**
+ * @deprecated use `getMutableComponent`
+ */
+export const getComponentState = getMutableComponent
 
 export const getOptionalComponent = <ComponentType>(
   entity: Entity,

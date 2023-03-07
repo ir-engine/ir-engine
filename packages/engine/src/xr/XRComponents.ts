@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BufferGeometry, Mesh } from 'three'
 
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../common/functions/MatchesUtils'
 import { defineComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
@@ -218,7 +218,7 @@ export const XRHitTestComponent = defineComponent({
       if (!hitTest) return
 
       const options = hitTest.options.value
-      const xrState = getState(XRState).value
+      const xrState = getMutableState(XRState).value
 
       let active = true
 
@@ -322,7 +322,7 @@ export const XRPlaneComponent = defineComponent({
   reactor: function ({ root }) {
     const entity = root.entity
     const plane = useOptionalComponent(entity, XRPlaneComponent)
-    const scenePlacementMode = useHookstate(getState(XRState).scenePlacementMode)
+    const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
       if (!plane) return

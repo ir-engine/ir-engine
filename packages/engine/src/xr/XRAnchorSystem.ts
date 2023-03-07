@@ -17,7 +17,13 @@ import {
 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { createActionQueue, getState, removeActionQueue, startReactor, useState } from '@etherealengine/hyperflux'
+import {
+  createActionQueue,
+  getMutableState,
+  removeActionQueue,
+  startReactor,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -119,7 +125,7 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 /** AR placement for non immersive / mobile session */
 // export const getHitTestFromViewer = () => {
-//   const xrState = getState(XRState)
+//   const xrState = getMutableState(XRState)
 
 //   const viewerHitTestEntity = xrState.viewerHitTestEntity.value
 
@@ -149,7 +155,7 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 // let lastSwipeValue = null! as null | number
 
 const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformComponent>) => {
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const placing = xrState.scenePlacementMode.value === 'placing'
   if (!placing) return xrState.sceneScale.value
 
@@ -194,7 +200,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   let localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
 
   const xrFrame = Engine.instance.xrFrame
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const xrSession = xrState.session.value
 
   if (!localTransform || !xrFrame || !xrSession) return
@@ -222,7 +228,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
  * @returns
  */
 export default async function XRAnchorSystem() {
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
 
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 

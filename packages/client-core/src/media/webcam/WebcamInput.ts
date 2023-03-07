@@ -15,7 +15,7 @@ import {
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { createActionQueue, getState } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
 
@@ -78,7 +78,7 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = getState(MediaStreamState).videoStream.value
+  faceVideo.srcObject = getMutableState(MediaStreamState).videoStream.value
   faceVideo.muted = true
   faceVideo.play()
 }
@@ -127,7 +127,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(getState(MediaStreamState).audioStream.value!)
+  const inputStream = audioContext.createMediaStreamSource(getMutableState(MediaStreamState).audioStream.value!)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)

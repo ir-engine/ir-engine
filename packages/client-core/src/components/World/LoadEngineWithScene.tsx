@@ -21,7 +21,7 @@ import { PortalEffects } from '@etherealengine/engine/src/scene/components/Porta
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { addActionReceptor, dispatchAction, getState, removeActionReceptor } from '@etherealengine/hyperflux'
+import { addActionReceptor, dispatchAction, getMutableState, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
 import { NotificationService } from '../../common/services/NotificationService'

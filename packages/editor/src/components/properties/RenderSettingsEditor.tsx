@@ -17,7 +17,7 @@ import {
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getRendererSceneMetadataState } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'

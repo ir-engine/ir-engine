@@ -56,7 +56,7 @@ import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
@@ -541,7 +541,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
 
   if (updateSelection) {
     // TEMPORARY - this is to stop a crash
-    getState(SelectionState).set({
+    getMutableState(SelectionState).set({
       selectedEntities: [],
       selectedParentEntities: [],
       selectionCounter: 1,
@@ -574,7 +574,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
  * @returns
  */
 const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
-  const current = getState(SelectionState).selectedEntities.value
+  const current = getMutableState(SelectionState).selectedEntities.value
 
   if (nodes.length === current.length) {
     let same = true
@@ -597,7 +597,7 @@ const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
  * @returns
  */
 const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
-  const selectedEntities = getState(SelectionState).selectedEntities.value.slice(0)
+  const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
@@ -614,7 +614,7 @@ const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
 }
 
 const addToSelection = (nodes: EntityOrObjectUUID[]) => {
-  const selectedEntities = getState(SelectionState).selectedEntities.value.slice(0)
+  const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < nodes.length; i++) {
     const object = nodes[i]

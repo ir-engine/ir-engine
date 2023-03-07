@@ -1,6 +1,6 @@
 import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three'
 
-import { createActionQueue, getState } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'
@@ -94,12 +94,12 @@ function updateCameraFromXRViewerPose() {
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   const renderer = EngineRenderer.instance.renderer
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const pose = xrState.viewerPose.value
 
   if (pose) {
     const views = pose.views
-    const xrRendererState = getState(XRRendererState)
+    const xrRendererState = getMutableState(XRRendererState)
     const glBaseLayer = xrRendererState.glBaseLayer.value
     const glBinding = xrRendererState.glBinding.value
     const glProjLayer = xrRendererState.glProjLayer.value
@@ -186,7 +186,7 @@ export function updateXRCamera() {
   const renderer = EngineRenderer.instance.renderer
 
   const camera = Engine.instance.camera
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const session = xrState.session.value
 
   if (session === null) {
@@ -222,7 +222,7 @@ export function updateXRCamera() {
 
 export default async function XRCameraSystem() {
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {

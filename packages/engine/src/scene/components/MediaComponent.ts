@@ -2,7 +2,7 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
@@ -199,7 +199,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-  const userHasInteracted = useHookstate(getState(EngineState).userHasInteracted)
+  const userHasInteracted = useHookstate(getMutableState(EngineState).userHasInteracted)
 
   useEffect(
     function updatePlay() {
@@ -375,7 +375,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
     [mediaElement, media.isMusic]
   )
 
-  const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+  const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
   useEffect(() => {
     if (debugEnabled.value && !media.helper.value) {

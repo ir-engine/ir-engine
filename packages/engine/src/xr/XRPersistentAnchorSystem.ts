@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { VPSSystem } from './VPSSystem'

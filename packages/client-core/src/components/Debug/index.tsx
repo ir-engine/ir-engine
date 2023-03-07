@@ -22,16 +22,16 @@ import { RendererState } from '@etherealengine/engine/src/renderer/RendererState
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
-  useHookstate(getState(EngineState).frameTime).value
-  const rendererState = useHookstate(getState(RendererState))
-  const engineState = useHookstate(getState(EngineState))
+  useHookstate(getMutableState(EngineState).frameTime).value
+  const rendererState = useHookstate(getMutableState(RendererState))
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
     engineState.joinedWorld.value && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
@@ -115,11 +115,11 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleNodeHelpers = () => {
-    getState(RendererState).nodeHelperVisibility.set(!getState(RendererState).nodeHelperVisibility.value)
+    getMutableState(RendererState).nodeHelperVisibility.set(!getMutableState(RendererState).nodeHelperVisibility.value)
   }
 
   const toggleGridHelper = () => {
-    getState(RendererState).gridVisibility.set(!getState(RendererState).gridVisibility.value)
+    getMutableState(RendererState).gridVisibility.set(!getMutableState(RendererState).gridVisibility.value)
   }
 
   const namedEntities = useHookstate({})

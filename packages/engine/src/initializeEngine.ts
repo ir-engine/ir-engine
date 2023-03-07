@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { addActionReceptor, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { addActionReceptor, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Timer } from './common/functions/Timer'
 import { destroyEngine, Engine } from './ecs/classes/Engine'
@@ -65,7 +65,7 @@ export const initializeBrowser = () => {
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
   Engine.instance.camera.layers.enable(ObjectLayers.UI)
 
-  getState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
+  getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
 
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
@@ -100,7 +100,7 @@ export const initializeNode = () => {
 }
 
 const executeWorlds = (elapsedTime) => {
-  const engineState = getState(EngineState)
+  const engineState = getMutableState(EngineState)
   engineState.frameTime.set(elapsedTime)
   Engine.instance.execute(elapsedTime)
 }

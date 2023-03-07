@@ -1,7 +1,7 @@
 import { InstanceServerPatch } from '@etherealengine/common/src/interfaces/Instance'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -18,7 +18,7 @@ const AdminInstanceServerState = defineState({
 })
 
 const patchInstanceserverReceptor = (action: typeof AdminInstanceserverActions.patchInstanceserver.matches._TYPE) => {
-  const state = getState(AdminInstanceServerState)
+  const state = getMutableState(AdminInstanceServerState)
   return state.merge({
     patch: undefined,
     fetched: false
@@ -28,7 +28,7 @@ const patchInstanceserverReceptor = (action: typeof AdminInstanceserverActions.p
 const patchedInstanceserverReceptor = (
   action: typeof AdminInstanceserverActions.patchedInstanceserver.matches._TYPE
 ) => {
-  const state = getState(AdminInstanceServerState)
+  const state = getMutableState(AdminInstanceServerState)
   return state.merge({
     patch: action.patch,
     fetched: true,
@@ -41,7 +41,7 @@ export const InstanceServerSettingReceptors = {
   patchedInstanceserverReceptor
 }
 
-export const accessInstanceserverState = () => getState(AdminInstanceServerState)
+export const accessInstanceserverState = () => getMutableState(AdminInstanceServerState)
 
 export const useInstanceserverState = () => useState(accessInstanceserverState())
 

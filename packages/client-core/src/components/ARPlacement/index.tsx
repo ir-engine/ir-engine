@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { AppAction } from '../../common/services/AppService'
@@ -16,7 +16,7 @@ export const ARPlacement = () => {
   const { t } = useTranslation()
 
   const engineState = useEngineState()
-  const xrState = useHookstate(getState(XRState))
+  const xrState = useHookstate(getMutableState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrSessionActive = xrState.sessionActive.value
   if (!supportsAR || !engineState.sceneLoaded.value || !xrSessionActive) return <></>

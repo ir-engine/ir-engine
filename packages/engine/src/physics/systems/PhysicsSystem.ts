@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -125,7 +125,7 @@ export default async function PhysicsSystem() {
     { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
   ])
 
-  const engineState = getState(EngineState)
+  const engineState = getMutableState(EngineState)
 
   const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
   const collisionQuery = defineQuery([CollisionComponent])

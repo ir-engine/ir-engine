@@ -2,7 +2,7 @@ import { Not } from 'bitecs'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -272,7 +272,7 @@ export default async function TransformSystem() {
     /**
      * Sort transforms if needed
      */
-    const { transformsNeedSorting } = getState(EngineState)
+    const { transformsNeedSorting } = getMutableState(EngineState)
     const xrFrame = Engine.instance.xrFrame
 
     let needsSorting = transformsNeedSorting.value
@@ -304,7 +304,7 @@ export default async function TransformSystem() {
 
     // lerp awake rigidbody entities (and make their transforms dirty)
     const fixedRemainder = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
-    const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
+    const alpha = Math.min(fixedRemainder / getMutableState(EngineState).fixedDeltaSeconds.value, 1)
     for (const entity of awakeRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty

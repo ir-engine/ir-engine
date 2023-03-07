@@ -10,7 +10,7 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
@@ -64,7 +64,7 @@ const ProfileDetailView = () => {
   const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []

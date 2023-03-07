@@ -10,14 +10,14 @@ import { OfflineLocation } from '@etherealengine/client-core/src/components/Worl
 import { LocationAction } from '@etherealengine/client-core/src/social/services/LocationService'
 import { DefaultLocationSystems } from '@etherealengine/client-core/src/world/DefaultLocationSystems'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { loadSceneJsonOffline } from './utils'
 
 const LocationPage = () => {
   const { t } = useTranslation()
   const params = useParams()
-  const appState = useHookstate(getState(AppLoadingState).state)
+  const appState = useHookstate(getMutableState(AppLoadingState).state)
 
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName: `${params.projectName}/${params.sceneName}` }))

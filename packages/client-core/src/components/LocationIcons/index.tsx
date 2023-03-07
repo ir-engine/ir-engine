@@ -5,7 +5,7 @@ import { UserMenu } from '@etherealengine/client-core/src/user/components/UserMe
 import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getCameraMode, XRState } from '@etherealengine/engine/src/xr/XRState'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import { ARPlacement } from '../ARPlacement'
@@ -18,9 +18,9 @@ import { XRLoading } from '../XRLoading'
 import styles from './index.module.scss'
 
 export const LocationIcons = () => {
-  const loadingSystemState = useHookstate(getState(LoadingSystemState))
-  const engineState = useHookstate(getState(EngineState))
-  useHookstate(getState(XRState))
+  const loadingSystemState = useHookstate(getMutableState(LoadingSystemState))
+  const engineState = useHookstate(getMutableState(EngineState))
+  useHookstate(getMutableState(XRState))
   const cameraMode = getCameraMode()
 
   if (!engineState.isEngineInitialized.value) return <></>

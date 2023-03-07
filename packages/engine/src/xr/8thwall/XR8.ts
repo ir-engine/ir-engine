@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
-import { dispatchAction, getState, startReactor } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, startReactor } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
@@ -168,7 +168,7 @@ const vpsQuery = defineQuery([PersistentAnchorComponent])
 
 export default async function XR8System() {
   let _8thwallScripts = null as XR8Assets | null
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
 
   const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
 

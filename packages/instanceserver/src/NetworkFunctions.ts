@@ -17,7 +17,7 @@ import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/func
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -250,7 +250,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
   worldState.userAvatarDetails[userId].set({
     avatarURL: avatarDetail.modelResource?.url || '',
@@ -399,7 +399,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (spark.id === disconnectedClient?.peerID) {
-    const state = getState(WorldState)
+    const state = getMutableState(WorldState)
     const userName = state.userNames[userId].value
 
     network.app.service('message').create(

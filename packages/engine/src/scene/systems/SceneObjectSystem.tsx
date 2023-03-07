@@ -11,7 +11,7 @@ import {
   MeshStandardMaterial
 } from 'three'
 
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
@@ -98,7 +98,7 @@ export default async function SceneObjectSystem() {
     const { entity, obj } = props
 
     const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-    const forceBasicMaterials = useHookstate(getState(RendererState).forceBasicMaterials)
+    const forceBasicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
 
     useEffect(() => {
       return () => {
@@ -137,7 +137,7 @@ export default async function SceneObjectSystem() {
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
   const execute = () => {
-    const delta = getState(EngineState).deltaSeconds.value
+    const delta = getMutableState(EngineState).deltaSeconds.value
     for (const entity of updatableQuery()) {
       const callbacks = getComponent(entity, CallbackComponent)
       callbacks.get(UpdatableCallback)?.(delta)

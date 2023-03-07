@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { AxesHelper, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
-import { getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
@@ -161,7 +161,7 @@ export const AvatarRigComponent = defineComponent({
 
     if (!hasComponent(entity, AvatarRigComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(RendererState).debugEnable)
+    const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
     const anim = useComponent(root.entity, AvatarRigComponent)
     const pending = useOptionalComponent(root.entity, AvatarPendingComponent)
 

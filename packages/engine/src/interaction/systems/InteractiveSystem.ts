@@ -1,7 +1,7 @@
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -138,7 +138,7 @@ export default async function InteractiveSystem() {
 
       if (gatherAvailableInteractablesTimer === 0) {
         gatherAvailableInteractables(interactables)
-        const closestInteractable = getState(InteractState).available.value[0]
+        const closestInteractable = getMutableState(InteractState).available.value[0]
         for (const interactiveEntity of interactables) {
           if (interactiveEntity === closestInteractable) {
             if (!hasComponent(interactiveEntity, HighlightComponent)) {

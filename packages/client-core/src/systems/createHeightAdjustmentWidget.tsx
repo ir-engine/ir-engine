@@ -6,7 +6,7 @@ import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/compo
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 export function createHeightAdjustmentWidget() {
@@ -14,7 +14,7 @@ export function createHeightAdjustmentWidget() {
   removeComponent(ui.entity, VisibleComponent)
   setComponent(ui.entity, XRUIInteractableComponent)
 
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
 
   const widget: Widget = {
     ui,

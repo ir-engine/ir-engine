@@ -2,7 +2,7 @@ import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { Action, ActionShape, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
@@ -37,7 +37,7 @@ function createPeer(
     userIndex
   })
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[userID].set(name)
 }
 
