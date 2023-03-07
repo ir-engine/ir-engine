@@ -217,7 +217,7 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
-        <JSONTree data={Engine.instance.store.state} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree data={Engine.instance.store.stateMap} postprocessValue={(v) => v?.value ?? v} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
