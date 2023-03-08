@@ -189,8 +189,8 @@ export const setComponent = <C extends Component>(
     if (!Component.stateMap[entity]) {
       const state = hookstate(value, subscribable())
       Component.stateMap[entity] = state
-      state.subscribe((value) => {
-        Component.valueMap[entity] = value
+      state.subscribe(() => {
+        Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY)
       })
     } else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
