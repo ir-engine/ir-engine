@@ -13,7 +13,7 @@ import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealeng
 import { PreventBakeTagComponent } from '@etherealengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import AddIcon from '@mui/icons-material/Add'
 
@@ -63,20 +63,20 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   useOptionalComponent(props.entity, PreventBakeTagComponent)
 
   const onChangeVisible = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n !== 'string'
     ) as EntityOrObjectUUID[]
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
   const onChangeBakeStatic = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n === 'number'
     ) as EntityOrObjectUUID[]
     EditorControlFunctions.addOrRemoveComponent(nodes, PreventBakeTagComponent, value)
   }
 
-  const registeredComponents = Array.from(Engine.instance.currentWorld.sceneComponentRegistry.entries())
+  const registeredComponents = Array.from(Engine.instance.sceneComponentRegistry.entries())
 
   return (
     <PropertiesHeader>

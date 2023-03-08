@@ -1,6 +1,6 @@
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { createXRUI } from './functions/createXRUI'
 import { WidgetAppActions } from './WidgetAppService'
@@ -39,10 +39,10 @@ export type Widget = {
   cleanup?: () => Promise<void>
 }
 
-export const registerWidget = (world: World, xruiEntity: Entity, widget: Widget) => {
+export const registerWidget = (xruiEntity: Entity, widget: Widget) => {
   const id = `${widget.label}-${xruiEntity}`
   dispatchAction(WidgetAppActions.registerWidget({ id }))
-  world.widgets.set(id, widget)
+  Engine.instance.widgets.set(id, widget)
   return id
 }
 

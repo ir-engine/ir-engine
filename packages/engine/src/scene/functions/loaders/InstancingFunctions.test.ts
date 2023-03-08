@@ -3,9 +3,12 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { createSandbox, SinonSandbox } from 'sinon'
 import { Color } from 'three'
 
+import { getMutableState } from '@etherealengine/hyperflux'
+
 import { Engine } from '../../../ecs/classes/Engine'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { World } from '../../../ecs/classes/World'
+import { Scene } from '../../../ecs/classes/Scene'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
@@ -23,12 +26,10 @@ import { GRASS_PROPERTIES_DEFAULT_VALUES, SCATTER_PROPERTIES_DEFAULT_VALUES } fr
 
 describe('InstancingFunctions', async () => {
   let entity: Entity
-  let world: World
   let sandbox: SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    world = Engine.instance.currentWorld
   }
   beforeEach(async () => {
     sandbox = createSandbox()
@@ -37,10 +38,10 @@ describe('InstancingFunctions', async () => {
     initEntity()
     Engine.instance.engineTimer.start()
 
-    Engine.instance.publicPath = ''
+    getMutableState(EngineState).publicPath.set('')
     await Promise.all([])
 
-    await initSystems(world, [
+    await initSystems([
       {
         uuid: 'Instance',
         type: SystemUpdateType.FIXED_LATE,

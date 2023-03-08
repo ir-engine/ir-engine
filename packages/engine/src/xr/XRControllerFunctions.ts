@@ -1,6 +1,6 @@
 import { AnimationMixer, Group, LoopOnce } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerType, AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -10,7 +10,7 @@ import { Entity } from './../ecs/classes/Entity'
 import { XRHandMeshModel } from './XRHandMeshModel'
 
 export const initializeControllerModel = async (entity: Entity, handedness: string) => {
-  const avatarInputState = getState(AvatarInputSettingsState)
+  const avatarInputState = getMutableState(AvatarInputSettingsState)
   const avatarInputControllerType = avatarInputState.controlType.value
   if (avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
@@ -43,7 +43,7 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
 }
 
 export const initializeHandModel = async (entity: Entity, handedness: string) => {
-  const avatarInputState = getState(AvatarInputSettingsState)
+  const avatarInputState = getMutableState(AvatarInputSettingsState)
   const avatarInputControllerType = avatarInputState.controlType.value
 
   // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)

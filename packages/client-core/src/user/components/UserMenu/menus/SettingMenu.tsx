@@ -20,13 +20,14 @@ import {
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import {
   getPostProcessingSceneMetadataState,
   PostProcessingSceneMetadataLabel
 } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Collapse from '@etherealengine/ui/src/Collapse'
 import Grid from '@etherealengine/ui/src/Grid'
@@ -46,27 +47,28 @@ interface Props {
 
 const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getState(RendererState))
+  const rendererState = useHookstate(getMutableState(RendererState))
   const audioState = useAudioState()
-  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
+  const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
   const selfUser = useAuthState().user
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const preferredHand = avatarInputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
-  const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
+  const xrSupportedModes = useHookstate(getMutableState(XRState).supportedSessionModes)
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
   const controlSchemes = Object.entries(AvatarAxesControlScheme)
   const handOptions = ['left', 'right']
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
   const [selectedTab, setSelectedTab] = React.useState('general')
+  const engineState = useHookstate(getMutableState(EngineState))
 
-  const postProcessingSceneMetadataState = Engine.instance.currentWorld.sceneMetadataRegistry[
+  const postProcessingSceneMetadataState = Engine.instance.currentScene.sceneMetadataRegistry[
     PostProcessingSceneMetadataLabel
   ]
-    ? getPostProcessingSceneMetadataState(Engine.instance.currentWorld)
+    ? getPostProcessingSceneMetadataState(Engine.instance.currentScene)
     : undefined
   const postprocessingSettings = postProcessingSceneMetadataState?.enabled
     ? useHookstate(postProcessingSceneMetadataState.enabled)
@@ -75,8 +77,6 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.user_setting.value
-
-  const world = Engine.instance.currentWorld
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
@@ -93,7 +93,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     delete themeModes['editor']
   }
 
-  const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
+  const showWorldSettings = Engine.instance.localClientEntity || engineState.value
 
   /**
    * Note: If you're editing this function, be sure to make the same changes to

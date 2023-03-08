@@ -1,11 +1,10 @@
 import { useEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
-import { dispatchAction, getState, startReactor } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, startReactor } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
 import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
@@ -79,7 +78,7 @@ export let XR8: XR8Type
 export let XRExtras
 // export let VpsCoachingOverlay
 
-const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null, world: World) => {
+const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null) => {
   if (existingCanvas) {
     const engineContainer = document.getElementById('engine-container')!
     engineContainer.appendChild(existingCanvas)
@@ -152,7 +151,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
       requiredPermissions: () => permissions
     })
 
-    XR8.addCameraPipelineModule(XR8Pipeline(world, cameraCanvas))
+    XR8.addCameraPipelineModule(XR8Pipeline(cameraCanvas))
 
     // if (enableVps) {
     //   VpsCoachingOverlay.configure({
@@ -167,9 +166,9 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
 const skyboxQuery = defineQuery([SkyboxComponent])
 const vpsQuery = defineQuery([PersistentAnchorComponent])
 
-export default async function XR8System(world: World) {
+export default async function XR8System() {
   let _8thwallScripts = null as XR8Assets | null
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
 
   const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
 
@@ -183,10 +182,7 @@ export default async function XR8System(world: World) {
     handedness: 'none',
     targetRayMode: 'screen',
     get targetRaySpace() {
-      return new XRSpace(
-        Engine.instance.currentWorld.camera.position,
-        Engine.instance.currentWorld.camera.quaternion
-      ) as any
+      return new XRSpace(Engine.instance.camera.position, Engine.instance.camera.quaternion) as any
     },
     gamepad: {
       axes: [0, 0],
@@ -247,11 +243,10 @@ export default async function XR8System(world: World) {
       xrState.is8thWallActive.set(true)
       xrState.requestingSession.set(true)
 
-      const world = Engine.instance.currentWorld
       try {
         /** Initialize 8th wall if not previously initialized */
         if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
-        cameraCanvas = await initialize8thwallDevice(cameraCanvas, world)
+        cameraCanvas = await initialize8thwallDevice(cameraCanvas)
       } catch (e) {
         xrState.requestingSession.set(false)
         console.error(e)
@@ -266,7 +261,7 @@ export default async function XR8System(world: World) {
       xrState.session.set(xrSession)
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
-      world.scene.background = null
+      Engine.instance.scene.background = null
 
       getReferenceSpaces(xrSession)
 
@@ -337,7 +332,7 @@ export default async function XR8System(world: World) {
     return null
   })
 
-  let lastSeenBackground = world.scene.background
+  let lastSeenBackground = Engine.instance.scene.background
 
   const execute = () => {
     if (!XR8) return
@@ -349,16 +344,16 @@ export default async function XR8System(world: World) {
     const sessionActive = xrState.sessionActive.value
     const xr8scene = XR8.Threejs.xrScene()
     if (sessionActive && xr8scene) {
-      if (world.scene.background) lastSeenBackground = world.scene.background
-      world.scene.background = null
+      if (Engine.instance.scene.background) lastSeenBackground = Engine.instance.scene.background
+      Engine.instance.scene.background = null
       const { camera } = xr8scene
       /** update the camera in world space as updateXRInput will update it to local space */
-      world.camera.position.copy(camera.position)
-      world.camera.quaternion.copy(camera.quaternion).normalize()
+      Engine.instance.camera.position.copy(camera.position)
+      Engine.instance.camera.quaternion.copy(camera.quaternion).normalize()
       /** 8thwall always expects the camera to be unscaled */
-      world.camera.scale.set(1, 1, 1)
+      Engine.instance.camera.scale.set(1, 1, 1)
     } else {
-      if (!world.scene.background && lastSeenBackground) world.scene.background = lastSeenBackground
+      if (!Engine.instance.scene.background && lastSeenBackground) Engine.instance.scene.background = lastSeenBackground
       lastSeenBackground = null
       return
     }
@@ -375,7 +370,7 @@ export default async function XR8System(world: World) {
     if (cameraCanvas) cameraCanvas.remove()
     revertXRSessionFunctions()
     vpsReactor.stop()
-    removeQuery(world, vpsQuery)
+    removeQuery(vpsQuery)
   }
 
   return {

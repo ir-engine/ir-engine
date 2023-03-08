@@ -5,14 +5,13 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   getAllComponents,
   getComponent,
   getComponentState,
   serializeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
@@ -42,7 +41,7 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
     entities: {},
     root: rootUuid,
     version: 2.0,
-    metadata: getSceneMetadataChanges(Engine.instance.currentWorld)
+    metadata: getSceneMetadataChanges(Engine.instance.currentScene)
   }
   result.entities[rootUuid] = nodeToEntityJson(rootGL)
   const lookupNode = (idx) => gltf.nodes[idx]
@@ -73,7 +72,7 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instance.currentWorld) => {
+const serializeECS = (roots: Object3DWithEntity[]) => {
   let rootEntities = new Array()
   const idxTable = new Map<Entity, number>()
   const extensionSet = new Set<string>()
@@ -188,7 +187,7 @@ const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) =
   obj3d.userData.gltfExtensions[data.name] = componentProps
 }
 
-export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = Engine.instance.currentWorld) => {
+export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity) => {
   const name = getComponent(obj3d.entity, NameComponent)
   if (name) obj3d.name = name
 
@@ -197,11 +196,11 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = En
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
+    const sceneComponentID = Engine.instance.sceneComponentRegistry.get(component.name)!
     if (sceneComponentID) {
-      const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
+      const loadingRegister = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister) {
-        const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
+        const serialize = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)?.serialize
         const data = serialize ? serialize(entity) : serializeComponent(entity, component)
         if (data)
           addComponentDataToGLTFExtension(obj3d, {

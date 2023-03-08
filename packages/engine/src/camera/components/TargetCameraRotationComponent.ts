@@ -4,7 +4,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const TargetCameraRotationComponent = defineComponent({
   name: 'TargetCameraRotationComponent',
 
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       /** Rotation around Z axis */
       phi: 0,

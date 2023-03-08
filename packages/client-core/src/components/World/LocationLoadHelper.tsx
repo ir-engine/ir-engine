@@ -8,7 +8,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems, SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { API } from '../../API'
@@ -30,14 +30,13 @@ export const retrieveLocationByName = (locationName: string, userId: string) => 
 }
 
 export const initClient = async (injectedSystems: SystemModuleType<any>[] = []) => {
-  if (getState(EngineState).isEngineInitialized.value) return
+  if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  const world = Engine.instance.currentWorld
   const projects = API.instance.client.service('projects').find()
 
   await ClientModules()
-  await initSystems(world, injectedSystems)
-  await loadEngineInjection(world, await projects)
+  await initSystems(injectedSystems)
+  await loadEngineInjection(await projects)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }

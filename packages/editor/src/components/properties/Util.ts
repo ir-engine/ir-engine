@@ -1,6 +1,6 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
+import { Scene } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   ComponentType,
@@ -9,7 +9,7 @@ import {
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
@@ -41,8 +41,8 @@ export const updateProperties = <C extends Component>(
   properties: Partial<SerializedComponentType<C>>,
   nodes?: EntityOrObjectUUID[]
 ) => {
-  const editorState = getState(EditorState)
-  const selectionState = getState(SelectionState)
+  const editorState = getMutableState(EditorState)
+  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
@@ -59,9 +59,9 @@ export function traverseScene<T>(
   callback: (node: Entity) => T,
   predicate: (node: Entity) => boolean = () => true,
   snubChildren: boolean = false,
-  world: World = Engine.instance.currentWorld
+  scene: Scene = Engine.instance.currentScene
 ): T[] {
   const result: T[] = []
-  iterateEntityNode(world.sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
+  iterateEntityNode(scene.sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
   return result
 }

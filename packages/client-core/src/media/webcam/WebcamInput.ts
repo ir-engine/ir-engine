@@ -6,7 +6,6 @@ import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
@@ -16,7 +15,7 @@ import {
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { createActionQueue, getState } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
 
@@ -79,15 +78,15 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = getState(MediaStreamState).videoStream.value
+  faceVideo.srcObject = getMutableState(MediaStreamState).videoStream.value
   faceVideo.muted = true
   faceVideo.play()
 }
 
 export async function faceToInput(detection: { detection: FaceDetection; expressions: FaceExpressions }) {
-  if (!hasComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)) return
+  if (!hasComponent(Engine.instance.localClientEntity, WebcamInputComponent)) return
 
-  const entity = Engine.instance.currentWorld.localClientEntity
+  const entity = Engine.instance.localClientEntity
 
   if (detection !== undefined && detection.expressions !== undefined) {
     for (const expression in detection.expressions) {
@@ -128,7 +127,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(getState(MediaStreamState).audioStream.value!)
+  const inputStream = audioContext.createMediaStreamSource(getMutableState(MediaStreamState).audioStream.value!)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)
@@ -136,7 +135,7 @@ export const startLipsyncTracking = () => {
   audioProcessor.connect(audioContext.destination)
 
   audioProcessor.onaudioprocess = () => {
-    if (!lipsyncTracking || !hasComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)) return
+    if (!lipsyncTracking || !hasComponent(Engine.instance.localClientEntity, WebcamInputComponent)) return
     // bincount returns array which is half the FFT_SIZE
     spectrum = new Float32Array(userSpeechAnalyzer.frequencyBinCount)
     // Populate frequency data for computing frequency intensities
@@ -174,7 +173,7 @@ export const startLipsyncTracking = () => {
     const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
     const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
 
-    const entity = Engine.instance.currentWorld.localClientEntity
+    const entity = Engine.instance.localClientEntity
 
     if (pucker > PUCKER_EXPRESSION_THRESHOLD && pucker >= WebcamInputComponent.expressionValue[entity]) {
       const inputIndex = expressionByIndex.findIndex((exp) => exp === 'pucker')!
@@ -253,14 +252,14 @@ const setAvatarExpression = (entity: Entity): void => {
   }
 }
 
-export default async function WebcamInputSystem(world: World) {
+export default async function WebcamInputSystem() {
   const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
 
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
 
   const execute = () => {
     for (const action of avatarSpawnQueue()) {
-      const entity = world.getUserAvatarEntity(action.$from)
+      const entity = Engine.instance.getUserAvatarEntity(action.$from)
       setComponent(entity, WebcamInputComponent)
     }
     for (const entity of webcamQuery()) setAvatarExpression(entity)

@@ -1,6 +1,6 @@
 import { Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import type { WebContainer3D } from '@etherealengine/xrui'
 
 import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
@@ -57,10 +57,7 @@ export const ObjectFitFunctions = {
     return scale
   },
 
-  computeFrustumSizeAtDistance: (
-    distance: number,
-    camera = Engine.instance.currentWorld.camera as PerspectiveCamera
-  ) => {
+  computeFrustumSizeAtDistance: (distance: number, camera = Engine.instance.camera as PerspectiveCamera) => {
     // const vFOV = camera.fov * DEG2RAD
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
     const inverseProjection = camera.projectionMatrixInverse
@@ -77,7 +74,7 @@ export const ObjectFitFunctions = {
     contentWidth: number,
     contentHeight: number,
     fit: ContentFitType = 'contain',
-    camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+    camera = Engine.instance.camera as PerspectiveCamera
   ) => {
     const size = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, size.width, size.height, fit)
@@ -86,22 +83,22 @@ export const ObjectFitFunctions = {
   attachObjectInFrontOfCamera: (entity: Entity, scale: number, distance: number) => {
     const transform = getComponent(entity, TransformComponent)
     _mat4.makeTranslation(0, 0, -distance).scale(_vec3.set(scale, scale, 1))
-    transform.matrix.multiplyMatrices(Engine.instance.currentWorld.camera.matrixWorld, _mat4)
+    transform.matrix.multiplyMatrices(Engine.instance.camera.matrixWorld, _mat4)
     transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
     transform.matrixInverse.copy(transform.matrix).invert()
-    Engine.instance.currentWorld.dirtyTransforms[entity] = false
+    Engine.instance.dirtyTransforms[entity] = false
   },
 
   attachObjectToHand: (container: WebContainer3D, scale: number) => {
-    const { localClientEntity } = Engine.instance.currentWorld
+    const { localClientEntity } = Engine.instance
     const avatarAnimationComponent = getComponent(localClientEntity, AvatarRigComponent)
     if (avatarAnimationComponent && avatarAnimationComponent.rig.LeftHand) {
       // todo: figure out how to scale this properly
       // container.scale.x = container.scale.y = 0.5 * scale
       // todo: use handedness option to settings
-      if (container.parent !== Engine.instance.currentWorld.scene) {
+      if (container.parent !== Engine.instance.scene) {
         container.removeFromParent()
-        Engine.instance.currentWorld.scene.add(container)
+        Engine.instance.scene.add(container)
       }
 
       _pos.copy(avatarAnimationComponent.rig.LeftHand.position)
@@ -117,8 +114,8 @@ export const ObjectFitFunctions = {
   },
 
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {
-    container.scale.setScalar(Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(position) / 3))
+    container.scale.setScalar(Math.max(1, Engine.instance.camera.position.distanceTo(position) / 3))
     container.position.copy(position)
-    container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrixWorld)
+    container.rotation.setFromRotationMatrix(Engine.instance.camera.matrixWorld)
   }
 }

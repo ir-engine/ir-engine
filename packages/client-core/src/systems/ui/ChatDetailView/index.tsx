@@ -4,7 +4,7 @@ import React, { Fragment, useRef, useState } from 'react'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/Avatar'
 import Icon from '@etherealengine/ui/src/Icon'
 
@@ -38,7 +38,7 @@ const ChatDetailView = () => {
 
   const user = useAuthState().user
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   return (
     <>

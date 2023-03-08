@@ -9,7 +9,6 @@ import {
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   getComponent,
@@ -46,7 +45,7 @@ import {
   addActionReceptor,
   createActionQueue,
   dispatchAction,
-  getState,
+  getMutableState,
   removeActionQueue,
   startReactor,
   useHookstate
@@ -80,7 +79,7 @@ const widgetRightRotation = new Quaternion()
   .setFromAxisAngle(V_010, -Math.PI * 0.5)
   .multiply(new Quaternion().setFromAxisAngle(V_001, Math.PI * 0.5))
 
-export default async function WidgetUISystem(world: World) {
+export default async function WidgetUISystem() {
   const widgetMenuUI = createWidgetButtonsView()
   setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
   removeComponent(widgetMenuUI.entity, VisibleComponent)
@@ -90,7 +89,7 @@ export default async function WidgetUISystem(world: World) {
   setObjectLayers(helper, ObjectLayers.Gizmos)
   addObjectToGroup(widgetMenuUI.entity, helper)
 
-  const widgetState = getState(WidgetAppState)
+  const widgetMutableState = getMutableState(WidgetAppState)
 
   // lazily create XRUI widgets to speed up initial page loading time
   let createdWidgets = false
@@ -98,39 +97,41 @@ export default async function WidgetUISystem(world: World) {
     // temporarily only allow widgets on non hmd for local dev
     if (!createdWidgets && (isHeadset() || isDev)) {
       createdWidgets = true
-      createAnchorWidget(world)
-      // createHeightAdjustmentWidget(world)
-      // createProfileWidget(world)
-      // createSettingsWidget(world)
-      // createSocialsMenuWidget(world)
-      // createLocationMenuWidget(world)
-      // createAdminControlsMenuWidget(world)
-      // createMediaSessionMenuWidget(world)
-      // createEmoteWidget(world)
-      // createChatWidget(world)
-      // createShareLocationWidget(world)
-      // createSelectAvatarWidget(world)
-      // createUploadAvatarWidget(world)
+      createAnchorWidget()
+      // createHeightAdjustmentWidget()
+      // createProfileWidget()
+      // createSettingsWidget()
+      // createSocialsMenuWidget()
+      // createLocationMenuWidget()
+      // createAdminControlsMenuWidget()
+      // createMediaSessionMenuWidget()
+      // createEmoteWidget()
+      // createChatWidget()
+      // createShareLocationWidget()
+      // createSelectAvatarWidget()
+      // createUploadAvatarWidget()
 
       // TODO: Something in createReadyPlayerWidget is loading /location/undefined
       // This is causing the engine to be created again, or at least to start being
       // created again, which is not right. This will need to be fixed when this is
       // restored.
-      // createReadyPlayerWidget(world)
+      // createReadyPlayerWidget()
     }
   }
 
   const toggleWidgetsMenu = (handedness?: 'left' | 'right') => {
-    const state = widgetState.widgets.value
+    const state = widgetMutableState.widgets.value
     const openWidget = Object.entries(state).find(([id, widget]) => widget.visible)
     if (openWidget) {
       dispatchAction(WidgetAppActions.showWidget({ id: openWidget[0], shown: false }))
       dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true, handedness }))
     } else {
-      if (widgetState.handedness.value !== handedness) {
+      if (widgetMutableState.handedness.value !== handedness) {
         dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true, handedness }))
       } else {
-        dispatchAction(WidgetAppActions.showWidgetMenu({ shown: !widgetState.widgetsMenuOpen.value, handedness }))
+        dispatchAction(
+          WidgetAppActions.showWidgetMenu({ shown: !widgetMutableState.widgetsMenuOpen.value, handedness })
+        )
       }
     }
   }
@@ -142,32 +143,32 @@ export default async function WidgetUISystem(world: World) {
   const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
 
   const execute = () => {
-    const keys = world.buttons
+    const keys = Engine.instance.buttons
     if (keys.ButtonX?.down) toggleWidgetsMenu('left')
     if (keys.ButtonA?.down) toggleWidgetsMenu('right')
     /** @todo allow non HMDs to access the widget menu too */
     if ((isDev || isHeadset()) && keys.Escape?.down) toggleWidgetsMenu()
 
     for (const action of showWidgetQueue()) {
-      const widget = Engine.instance.currentWorld.widgets.get(action.id)!
+      const widget = Engine.instance.widgets.get(action.id)!
       setVisibleComponent(widget.ui.entity, action.shown)
       if (action.shown) {
         if (typeof widget.onOpen === 'function') widget.onOpen()
       } else if (typeof widget.onClose === 'function') widget.onClose()
     }
     for (const action of registerWidgetQueue()) {
-      const widget = Engine.instance.currentWorld.widgets.get(action.id)!
+      const widget = Engine.instance.widgets.get(action.id)!
       setLocalTransformComponent(widget.ui.entity, widgetMenuUI.entity)
     }
     for (const action of unregisterWidgetQueue()) {
-      const widget = Engine.instance.currentWorld.widgets.get(action.id)!
+      const widget = Engine.instance.widgets.get(action.id)!
       removeComponent(widget.ui.entity, LocalTransformComponent)
       if (typeof widget.cleanup === 'function') widget.cleanup()
     }
 
     const transform = getComponent(widgetMenuUI.entity, TransformComponent)
-    const activeInputSource = Array.from(world.inputSources).find(
-      (inputSource) => inputSource.handedness === widgetState.handedness.value
+    const activeInputSource = Array.from(Engine.instance.inputSources).find(
+      (inputSource) => inputSource.handedness === widgetMutableState.handedness.value
     )
 
     if (activeInputSource) {
@@ -181,8 +182,9 @@ export default async function WidgetUISystem(world: World) {
         transform.scale.copy(V_111)
       }
       if (pose) {
-        const rot = widgetState.handedness.value === 'left' ? widgetLeftRotation : widgetRightRotation
-        const offset = widgetState.handedness.value === 'left' ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
+        const rot = widgetMutableState.handedness.value === 'left' ? widgetLeftRotation : widgetRightRotation
+        const offset =
+          widgetMutableState.handedness.value === 'left' ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
         const orientation = pose.transform.orientation as any as Quaternion
         transform.rotation.copy(orientation).multiply(rot)
         vec3.copy(offset).applyQuaternion(orientation)
@@ -190,17 +192,17 @@ export default async function WidgetUISystem(world: World) {
       }
     } else {
       if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent))
-        setComputedTransformComponent(widgetMenuUI.entity, world.cameraEntity, () =>
+        setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () =>
           ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, 0.1)
         )
     }
 
-    const widgetMenuShown = widgetState.widgetsMenuOpen.value
+    const widgetMenuShown = widgetMutableState.widgetsMenuOpen.value
     showWidgetMenu(widgetMenuShown)
     setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
-    for (const [id, widget] of world.widgets) {
-      const widgetEnabled = widgetState.widgets[id].ornull?.enabled.value
+    for (const [id, widget] of Engine.instance.widgets) {
+      const widgetEnabled = widgetMutableState.widgets[id].ornull?.enabled.value
       if (widgetEnabled && typeof widget.system === 'function') {
         widget.system()
       }

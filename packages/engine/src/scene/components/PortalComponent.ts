@@ -12,7 +12,7 @@ import {
   Vector3
 } from 'three'
 
-import { getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import {
@@ -119,7 +119,7 @@ export const PortalComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, PortalComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const portalComponent = useComponent(root.entity, PortalComponent)
 
     useEffect(() => {

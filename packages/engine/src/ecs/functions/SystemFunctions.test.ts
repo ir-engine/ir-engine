@@ -2,7 +2,6 @@ import assert from 'assert'
 
 import { createEngine } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
-import { World } from '../classes/World'
 import { initSystems, unloadAllSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
@@ -12,7 +11,7 @@ const MocksystemLoader = async () => {
   }
 }
 
-async function MockSystemInitialiser(world: World) {
+async function MockSystemInitialiser() {
   return {
     execute: () => {},
     cleanup: async () => {}
@@ -25,7 +24,7 @@ const AnotherMocksystemLoader = async () => {
   }
 }
 
-async function AnotherMockSystemInitialiser(world: World) {
+async function AnotherMockSystemInitialiser() {
   return {
     execute: () => {},
     cleanup: async () => {}
@@ -35,9 +34,8 @@ describe('SystemFunctions', () => {
   describe('initSystems', () => {
     it('can initialize systems', async () => {
       createEngine()
-      const world = Engine.instance.currentWorld
       const fixedPipeline = SystemUpdateType.FIXED
-      await initSystems(world, [
+      await initSystems([
         {
           uuid: 'Mock',
           systemLoader: () => MocksystemLoader(),
@@ -46,18 +44,17 @@ describe('SystemFunctions', () => {
         }
       ])
 
-      assert.equal(world.pipelines[fixedPipeline].length, 1)
-      assert.equal(world.pipelines[fixedPipeline][0].name, MockSystemInitialiser.name)
-      assert.equal(world.pipelines[fixedPipeline][0].type, fixedPipeline)
-      assert.equal(world.pipelines[fixedPipeline][0].sceneSystem, true)
-      assert.equal(typeof world.pipelines[fixedPipeline][0].execute, 'function')
+      assert.equal(Engine.instance.pipelines[fixedPipeline].length, 1)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].name, MockSystemInitialiser.name)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].type, fixedPipeline)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].sceneSystem, true)
+      assert.equal(typeof Engine.instance.pipelines[fixedPipeline][0].execute, 'function')
     })
 
     it('can initialize multiple systems of same type', async () => {
       createEngine()
-      const world = Engine.instance.currentWorld
       const fixedPipeline = SystemUpdateType.FIXED
-      await initSystems(world, [
+      await initSystems([
         {
           uuid: 'Mock',
           systemLoader: () => MocksystemLoader(),
@@ -72,23 +69,22 @@ describe('SystemFunctions', () => {
         }
       ])
 
-      assert.equal(world.pipelines[fixedPipeline].length, 2)
-      assert.equal(world.pipelines[fixedPipeline][0].name, MockSystemInitialiser.name)
-      assert.equal(world.pipelines[fixedPipeline][1].name, AnotherMockSystemInitialiser.name)
-      assert.equal(world.pipelines[fixedPipeline][0].type, fixedPipeline)
-      assert.equal(world.pipelines[fixedPipeline][1].type, fixedPipeline)
-      assert.equal(world.pipelines[fixedPipeline][0].sceneSystem, true)
-      assert.equal(world.pipelines[fixedPipeline][1].sceneSystem, false)
-      assert.equal(typeof world.pipelines[fixedPipeline][0].execute, 'function')
-      assert.equal(typeof world.pipelines[fixedPipeline][1].execute, 'function')
+      assert.equal(Engine.instance.pipelines[fixedPipeline].length, 2)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].name, MockSystemInitialiser.name)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][1].name, AnotherMockSystemInitialiser.name)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].type, fixedPipeline)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][1].type, fixedPipeline)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].sceneSystem, true)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][1].sceneSystem, false)
+      assert.equal(typeof Engine.instance.pipelines[fixedPipeline][0].execute, 'function')
+      assert.equal(typeof Engine.instance.pipelines[fixedPipeline][1].execute, 'function')
     })
 
     it('can initialize multiple systems of different type', async () => {
       createEngine()
-      const world = Engine.instance.currentWorld
       const fixedPipeline = SystemUpdateType.FIXED
       const updatePipeline = SystemUpdateType.UPDATE
-      await initSystems(world, [
+      await initSystems([
         {
           uuid: 'Mock',
           systemLoader: () => MocksystemLoader(),
@@ -103,26 +99,25 @@ describe('SystemFunctions', () => {
         }
       ])
 
-      assert.equal(world.pipelines[fixedPipeline].length, 1)
-      assert.equal(world.pipelines[fixedPipeline][0].name, MockSystemInitialiser.name)
-      assert.equal(world.pipelines[fixedPipeline][0].type, fixedPipeline)
-      assert.equal(world.pipelines[fixedPipeline][0].sceneSystem, true)
-      assert.equal(typeof world.pipelines[fixedPipeline][0].execute, 'function')
+      assert.equal(Engine.instance.pipelines[fixedPipeline].length, 1)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].name, MockSystemInitialiser.name)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].type, fixedPipeline)
+      assert.equal(Engine.instance.pipelines[fixedPipeline][0].sceneSystem, true)
+      assert.equal(typeof Engine.instance.pipelines[fixedPipeline][0].execute, 'function')
 
-      assert.equal(world.pipelines[updatePipeline].length, 1)
-      assert.equal(world.pipelines[updatePipeline][0].name, AnotherMockSystemInitialiser.name)
-      assert.equal(world.pipelines[updatePipeline][0].type, updatePipeline)
-      assert.equal(world.pipelines[updatePipeline][0].sceneSystem, false)
-      assert.equal(typeof world.pipelines[updatePipeline][0].execute, 'function')
+      assert.equal(Engine.instance.pipelines[updatePipeline].length, 1)
+      assert.equal(Engine.instance.pipelines[updatePipeline][0].name, AnotherMockSystemInitialiser.name)
+      assert.equal(Engine.instance.pipelines[updatePipeline][0].type, updatePipeline)
+      assert.equal(Engine.instance.pipelines[updatePipeline][0].sceneSystem, false)
+      assert.equal(typeof Engine.instance.pipelines[updatePipeline][0].execute, 'function')
     })
   })
 
   describe('unloadAllSystems', () => {
     it('can remove scene system', async () => {
       createEngine()
-      const world = Engine.instance.currentWorld
       const pipelineType = SystemUpdateType.FIXED
-      await initSystems(world, [
+      await initSystems([
         {
           uuid: 'Mock',
           systemLoader: () => MocksystemLoader(),
@@ -131,18 +126,17 @@ describe('SystemFunctions', () => {
         }
       ])
 
-      assert.equal(world.pipelines[pipelineType].length, 1)
+      assert.equal(Engine.instance.pipelines[pipelineType].length, 1)
 
-      unloadAllSystems(world, true)
+      unloadAllSystems(true)
 
-      assert.equal(world.pipelines[pipelineType].length, 0)
+      assert.equal(Engine.instance.pipelines[pipelineType].length, 0)
     })
 
     it('can remove all systems', async () => {
       createEngine()
-      const world = Engine.instance.currentWorld
       const pipelineType = SystemUpdateType.FIXED
-      await initSystems(world, [
+      await initSystems([
         {
           uuid: 'Mock',
           systemLoader: () => MocksystemLoader(),
@@ -157,18 +151,17 @@ describe('SystemFunctions', () => {
         }
       ])
 
-      assert.equal(world.pipelines[pipelineType].length, 2)
+      assert.equal(Engine.instance.pipelines[pipelineType].length, 2)
 
-      unloadAllSystems(world, false)
+      unloadAllSystems(false)
 
-      assert.equal(world.pipelines[pipelineType].length, 0)
+      assert.equal(Engine.instance.pipelines[pipelineType].length, 0)
     })
 
     it('can remove only scene systems', async () => {
       createEngine()
-      const world = Engine.instance.currentWorld
       const pipelineType = SystemUpdateType.FIXED
-      await initSystems(world, [
+      await initSystems([
         {
           uuid: 'Mock',
           systemLoader: () => MocksystemLoader(),
@@ -183,11 +176,11 @@ describe('SystemFunctions', () => {
         }
       ])
 
-      assert.equal(world.pipelines[pipelineType].length, 2)
+      assert.equal(Engine.instance.pipelines[pipelineType].length, 2)
 
-      unloadAllSystems(world, true)
+      unloadAllSystems(true)
 
-      assert.equal(world.pipelines[pipelineType].length, 1)
+      assert.equal(Engine.instance.pipelines[pipelineType].length, 1)
     })
   })
 })

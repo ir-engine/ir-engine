@@ -1,14 +1,23 @@
-import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Vector3 } from 'three'
+import { useEffect } from 'react'
+import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Mesh, Vector3 } from 'three'
+import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
-import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import {
+  createActionQueue,
+  getMutableState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
+import { useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
+import { GroupComponent, startGroupQueryReactor } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -17,11 +26,11 @@ type RaycastDebugs = {
   hits: RaycastHit[]
 }
 
-export default async function DebugRendererSystem(world: World) {
+export default async function DebugRendererSystem() {
   let enabled = false
 
   InfiniteGridHelper.instance = new InfiniteGridHelper()
-  Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
+  Engine.instance.scene.add(InfiniteGridHelper.instance)
 
   const debugLines = new Set<Line<BufferGeometry, LineBasicMaterial>>()
   const debugLineLifetime = 1000 // 1 second
@@ -30,11 +39,49 @@ export default async function DebugRendererSystem(world: World) {
   const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
   _lineSegments.frustumCulled = false
   setObjectLayers(_lineSegments, ObjectLayers.PhysicsHelper)
-  world.scene.add(_lineSegments)
+  Engine.instance.scene.add(_lineSegments)
 
   const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
 
-  const debugEnable = getState(RendererState).debugEnable
+  const debugEnable = getMutableState(RendererState).debugEnable
+  const visualizers = [] as MeshBVHVisualizer[]
+
+  startGroupQueryReactor(function DebugReactor(props) {
+    const entity = props.entity
+    const group = useOptionalComponent(entity, GroupComponent)
+    const debug = useHookstate(debugEnable)
+
+    // add MeshBVHVisualizer to meshes when debugEnable is true
+    useEffect(() => {
+      const groupVisualizers = [] as MeshBVHVisualizer[]
+
+      function addMeshVVHVisualizer(obj: Mesh) {
+        const mesh = obj as any as Mesh
+        if (mesh.isMesh && mesh.geometry?.boundsTree) {
+          const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
+          mesh.parent!.add(meshBVHVisualizer)
+          visualizers.push(meshBVHVisualizer)
+          groupVisualizers.push(meshBVHVisualizer)
+          meshBVHVisualizer.depth = 20
+          meshBVHVisualizer.displayParents = false
+          meshBVHVisualizer.update()
+          return meshBVHVisualizer
+        }
+      }
+
+      if (debug.value && group) {
+        for (const obj of group.value) obj.traverse(addMeshVVHVisualizer)
+        return () => {
+          for (const visualizer of groupVisualizers) {
+            visualizer.removeFromParent()
+            visualizers.splice(visualizers.indexOf(visualizer), 1)
+          }
+        }
+      }
+    }, [group, debug])
+
+    return null
+  })
 
   const execute = () => {
     const _enabled = debugEnable.value
@@ -44,12 +91,12 @@ export default async function DebugRendererSystem(world: World) {
       _lineSegments.visible = enabled
     }
 
-    if (enabled && world.physicsWorld) {
-      const debugRenderBuffer = world.physicsWorld.debugRender()
+    if (enabled && Engine.instance.physicsWorld) {
+      const debugRenderBuffer = Engine.instance.physicsWorld.debugRender()
       _lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
       _lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
 
-      for (const { raycastQuery, hits } of (world.physicsWorld as any).raycastDebugs as RaycastDebugs[]) {
+      for (const { raycastQuery, hits } of (Engine.instance.physicsWorld as any).raycastDebugs as RaycastDebugs[]) {
         const line = new Line(
           new BufferGeometry().setFromPoints([
             new Vector3(0, 0, 0),
@@ -58,36 +105,40 @@ export default async function DebugRendererSystem(world: World) {
           new LineBasicMaterial({ color: 0x0000ff })
         )
         line.position.copy(raycastQuery.origin)
-        Engine.instance.currentWorld.scene.add(line)
+        Engine.instance.scene.add(line)
         debugLines.add(line)
         line.userData.originTime = Date.now()
       }
     } else {
       for (const line of debugLines) {
-        Engine.instance.currentWorld.scene.remove(line)
+        Engine.instance.scene.remove(line)
         line.material.dispose()
         line.geometry.dispose()
       }
       debugLines.clear()
     }
 
+    for (const visualizer of visualizers) {
+      visualizer.updateMatrixWorld(true)
+    }
+
     for (const line of debugLines) {
       line.updateMatrixWorld()
       if (Date.now() - line.userData.originTime > debugLineLifetime) {
-        Engine.instance.currentWorld.scene.remove(line)
+        Engine.instance.scene.remove(line)
         line.material.dispose()
         line.geometry.dispose()
         debugLines.delete(line)
       }
     }
 
-    if (world.physicsWorld) (world.physicsWorld as any).raycastDebugs = []
+    if (Engine.instance.physicsWorld) (Engine.instance.physicsWorld as any).raycastDebugs = []
   }
 
   const cleanup = async () => {
     _lineSegments.removeFromParent()
     removeActionQueue(sceneLoadQueue)
-    Engine.instance.currentWorld.scene.remove(InfiniteGridHelper.instance)
+    Engine.instance.scene.remove(InfiniteGridHelper.instance)
     InfiniteGridHelper.instance = null!
   }
 

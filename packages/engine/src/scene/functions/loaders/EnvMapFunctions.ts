@@ -37,7 +37,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
   data: ReturnType<typeof EnvmapComponent.toJSON>
 ) => {
   if (!isClient) return
-  if (entity === Engine.instance.currentWorld.sceneEntity) return
+  if (entity === Engine.instance.currentScene.sceneEntity) return
   setComponent(entity, EnvmapComponent, data)
 }
 
@@ -48,7 +48,7 @@ export const updateEnvMap = async (entity: Entity) => {
 
   switch (component.type) {
     case EnvMapSourceType.Skybox:
-      applyEnvMap(obj3d, Engine.instance.currentWorld.scene.background as Texture | null)
+      applyEnvMap(obj3d, Engine.instance.scene.background as Texture | null)
       break
 
     case EnvMapSourceType.Color:

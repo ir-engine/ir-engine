@@ -3,8 +3,8 @@ import { matches, Validator } from 'ts-matches'
 
 import { createActionQueue, defineAction, defineState, removeActionQueue } from '@etherealengine/hyperflux'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -43,10 +43,10 @@ export const BehaveGraphActions = {
   })
 }
 
-export default async function BehaveGraphSystem(world: World) {
-  world.sceneComponentRegistry.set(BehaveGraphComponent.name, SCENE_COMPONENT_BEHAVE_GRAPH)
-  world.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [{ name: SCENE_COMPONENT_BEHAVE_GRAPH, props: {} }])
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_BEHAVE_GRAPH, {
+export default async function BehaveGraphSystem() {
+  Engine.instance.sceneComponentRegistry.set(BehaveGraphComponent.name, SCENE_COMPONENT_BEHAVE_GRAPH)
+  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [{ name: SCENE_COMPONENT_BEHAVE_GRAPH, props: {} }])
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_BEHAVE_GRAPH, {
     defaultData: {}
   })
 
@@ -83,13 +83,13 @@ export default async function BehaveGraphSystem(world: World) {
   }
 
   async function cleanup() {
-    removeQuery(world, graphQuery)
-    removeQuery(world, runtimeQuery)
+    removeQuery(graphQuery)
+    removeQuery(runtimeQuery)
     removeActionQueue(executeQueue)
     removeActionQueue(stopQueue)
 
-    world.sceneComponentRegistry.delete(BehaveGraphComponent.name)
-    world.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)
+    Engine.instance.sceneComponentRegistry.delete(BehaveGraphComponent.name)
+    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)
   }
 
   return { execute, cleanup }

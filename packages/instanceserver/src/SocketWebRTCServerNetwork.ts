@@ -16,7 +16,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { clearOutgoingActions, getState } from '@etherealengine/hyperflux'
+import { clearOutgoingActions, getMutableState } from '@etherealengine/hyperflux'
 import { Action, addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -56,7 +56,7 @@ export class SocketWebRTCServerNetwork extends Network {
   }
 
   public updatePeers = () => {
-    const userNames = getState(WorldState).userNames
+    const userNames = getMutableState(WorldState).userNames
     const peers = Array.from(this.peers.values()).map((peer) => {
       return {
         peerID: peer.peerID,

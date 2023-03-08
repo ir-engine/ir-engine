@@ -1,8 +1,6 @@
 import { applyIncomingActions } from '@etherealengine/hyperflux'
 
-import { World } from '../../ecs/classes/World'
-
-export default function IncomingActionSystem(world: World) {
+export default function IncomingActionSystem() {
   const execute = () => {
     applyIncomingActions()
   }

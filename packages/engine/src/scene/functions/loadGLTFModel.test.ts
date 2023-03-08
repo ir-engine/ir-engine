@@ -28,7 +28,7 @@ describe('loadGLTFModel', () => {
 
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     const mockComponentData = { src: '' } as any
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
@@ -63,8 +63,8 @@ describe('loadGLTFModel', () => {
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
 
-    const [mockModelEntity] = modelQuery(world)
-    const [mockSpawnPointEntity] = childQuery(world)
+    const [mockModelEntity] = modelQuery()
+    const [mockSpawnPointEntity] = childQuery()
 
     assert.equal(typeof mockModelEntity, 'number')
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))

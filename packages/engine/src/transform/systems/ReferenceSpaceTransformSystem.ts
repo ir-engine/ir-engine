@@ -2,7 +2,7 @@ import { MeshDepthMaterial, Scene, Skeleton, SkinnedMesh, WebGLRenderTarget } fr
 
 import { applyInputSourcePoseToIKTargets } from '../../avatar/functions/applyInputSourcePoseToIKTargets'
 import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
-import { World } from '../../ecs/classes/World'
+import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../scene/components/GroupComponent'
@@ -15,13 +15,13 @@ import { computeTransformMatrix } from './TransformSystem'
  * @param world
  * @returns
  */
-export default async function ReferenceSpaceTransformSystem(world: World) {
+export default async function ReferenceSpaceTransformSystem() {
   const skeletonForceUpdateScene = new Scene()
   skeletonForceUpdateScene.overrideMaterial = new MeshDepthMaterial()
   const dummyRenderTarget = new WebGLRenderTarget(1, 1)
 
   const execute = () => {
-    const { localClientEntity } = world
+    const { localClientEntity } = Engine.instance
 
     /**
      * 1 - Update local client movement
@@ -43,7 +43,7 @@ export default async function ReferenceSpaceTransformSystem(world: World) {
         const renderer = EngineRenderer.instance.renderer
         skeletonForceUpdateScene.children = localClientGroup
         renderer.setRenderTarget(dummyRenderTarget)
-        renderer.render(skeletonForceUpdateScene, world.camera)
+        renderer.render(skeletonForceUpdateScene, Engine.instance.camera)
         renderer.setRenderTarget(null)
       }
     }

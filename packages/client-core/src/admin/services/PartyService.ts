@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { Party, PatchParty } from '@etherealengine/common/src/interfaces/Party'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -26,7 +26,7 @@ const AdminPartyState = defineState({
 })
 
 const partyRetrievedReceptor = (action: typeof AdminPartyActions.partyRetrieved.matches._TYPE) => {
-  const state = getState(AdminPartyState)
+  const state = getMutableState(AdminPartyState)
   return state.merge({
     parties: action.party.data,
     updateNeeded: false,
@@ -39,17 +39,17 @@ const partyRetrievedReceptor = (action: typeof AdminPartyActions.partyRetrieved.
 }
 
 const partyAdminCreatedReceptor = (action: typeof AdminPartyActions.partyAdminCreated.matches._TYPE) => {
-  const state = getState(AdminPartyState)
+  const state = getMutableState(AdminPartyState)
   return state.merge({ updateNeeded: true })
 }
 
 const partyRemovedReceptor = (action: typeof AdminPartyActions.partyRemoved.matches._TYPE) => {
-  const state = getState(AdminPartyState)
+  const state = getMutableState(AdminPartyState)
   return state.merge({ updateNeeded: true })
 }
 
 const partyPatchedReceptor = (action: typeof AdminPartyActions.partyPatched.matches._TYPE) => {
-  const state = getState(AdminPartyState)
+  const state = getMutableState(AdminPartyState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -60,7 +60,7 @@ export const AdminPartyReceptors = {
   partyPatchedReceptor
 }
 
-export const accessPartyState = () => getState(AdminPartyState)
+export const accessPartyState = () => getMutableState(AdminPartyState)
 
 export const usePartyState = () => useState(accessPartyState())
 

@@ -30,6 +30,7 @@
   "version": "1.2.0-rc6",
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.11.1",
+    "@hookstate/subscribable": "^4.0.0",
     "@etherealengine/common": "^1.2.0-rc6",
     "@etherealengine/hyperflux": "^1.2.0-rc6",
     "@etherealengine/volumetric": "^1.1.1",

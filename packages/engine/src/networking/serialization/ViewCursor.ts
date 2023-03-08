@@ -50,7 +50,7 @@ export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Enti
   const shadow = shadowMap.get(prop)! || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
 
   // TODO: we should be handling the fixedDelta check more explicitly, passing down through all the functions
-  const changed = shadow[entity] !== prop[entity] || Engine.instance.currentWorld.fixedTick % 60 === 0
+  const changed = shadow[entity] !== prop[entity] || Engine.instance.fixedTick % 60 === 0
 
   shadow[entity] = prop[entity]
 

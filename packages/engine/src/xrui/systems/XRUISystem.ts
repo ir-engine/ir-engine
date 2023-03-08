@@ -15,12 +15,11 @@ import {
   Vector3
 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -62,7 +61,7 @@ export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<Ring
   lastHit?: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
 }
 
-export default async function XRUISystem(world: World) {
+export default async function XRUISystem() {
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) throw new Error('EngineRenderer.instance.renderer must exist before initializing XRUISystem')
 
@@ -74,7 +73,7 @@ export default async function XRUISystem(world: World) {
   const visibleInteractableXRUIQuery = defineQuery([XRUIInteractableComponent, XRUIComponent, VisibleComponent])
   const xruiQuery = defineQuery([XRUIComponent])
 
-  const xruiState = getState(XRUIState)
+  const xruiState = getMutableState(XRUIState)
 
   // todo - hoist to hyperflux state
   const maxXruiPointerDistanceSqr = 3 * 3
@@ -94,7 +93,7 @@ export default async function XRUISystem(world: World) {
   //   pvrtcSupported: false
   // }
 
-  xrui.interactionRays = [world.pointerScreenRaycaster.ray]
+  xrui.interactionRays = [Engine.instance.pointerScreenRaycaster.ray]
 
   // redirect DOM events from the canvas, to the 3D scene,
   // to the appropriate child Web3DLayer, and finally (back) to the
@@ -103,7 +102,7 @@ export default async function XRUISystem(world: World) {
     for (const entity of visibleXruiQuery()) {
       const layer = getComponent(entity, XRUIComponent)
       layer.updateWorldMatrix(true, true)
-      const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
+      const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
       if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
@@ -168,18 +167,18 @@ export default async function XRUISystem(world: World) {
   const pointers = new Map<XRInputSource, PointerObject>()
 
   const execute = () => {
-    const keys = world.buttons
+    const keys = Engine.instance.buttons
 
     const xrFrame = Engine.instance.xrFrame
 
     /** Update the objects to use for intersection tests */
-    if (xrFrame && xrui.interactionRays[0] === world.pointerScreenRaycaster.ray)
+    if (xrFrame && xrui.interactionRays[0] === Engine.instance.pointerScreenRaycaster.ray)
       xrui.interactionRays = (Array.from(pointers.values()) as (Ray | Object3D)[]).concat(
-        world.pointerScreenRaycaster.ray
+        Engine.instance.pointerScreenRaycaster.ray
       ) // todo, replace pointerScreenRaycaster with input sources
 
-    if (!xrFrame && xrui.interactionRays[0] !== world.pointerScreenRaycaster.ray)
-      xrui.interactionRays = [world.pointerScreenRaycaster.ray]
+    if (!xrFrame && xrui.interactionRays[0] !== Engine.instance.pointerScreenRaycaster.ray)
+      xrui.interactionRays = [Engine.instance.pointerScreenRaycaster.ray]
 
     const interactableXRUIEntities = visibleInteractableXRUIQuery()
 
@@ -197,7 +196,7 @@ export default async function XRUISystem(world: World) {
     if (xruiState.pointerActive.value !== isCloseToVisibleXRUI) xruiState.pointerActive.set(isCloseToVisibleXRUI)
 
     /** do intersection tests */
-    for (const inputSource of world.inputSources) {
+    for (const inputSource of Engine.instance.inputSources) {
       if (inputSource.targetRayMode !== 'tracked-pointer') continue
       if (!pointers.has(inputSource)) {
         const pointer = createPointer(inputSource)
@@ -206,7 +205,7 @@ export default async function XRUISystem(world: World) {
         pointer.add(cursor)
         cursor.visible = false
         pointers.set(inputSource, pointer)
-        world.scene.add(pointer)
+        Engine.instance.scene.add(pointer)
       }
 
       const pointer = pointers.get(inputSource)!
@@ -233,10 +232,10 @@ export default async function XRUISystem(world: World) {
         updateControllerRayInteraction(pointer, interactableXRUIEntities)
     }
 
-    const inputSources = Array.from(world.inputSources.values())
+    const inputSources = Array.from(Engine.instance.inputSources.values())
     for (const [pointerSource, pointer] of pointers) {
       if (!inputSources.includes(pointerSource)) {
-        world.scene.remove(pointer)
+        Engine.instance.scene.remove(pointer)
         pointers.delete(pointerSource)
       }
     }
@@ -256,7 +255,7 @@ export default async function XRUISystem(world: World) {
       xrui.matrixAutoUpdate = visible
     }
 
-    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.currentWorld.camera.projectionMatrix)
+    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.camera.projectionMatrix)
     // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
     // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }
@@ -265,8 +264,8 @@ export default async function XRUISystem(world: World) {
     document.body.removeEventListener('click', redirectDOMEvent)
     document.body.removeEventListener('contextmenu', redirectDOMEvent)
     document.body.removeEventListener('dblclick', redirectDOMEvent)
-    removeQuery(world, visibleXruiQuery)
-    removeQuery(world, xruiQuery)
+    removeQuery(visibleXruiQuery)
+    removeQuery(xruiQuery)
   }
 
   return { execute, cleanup }

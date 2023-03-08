@@ -39,14 +39,14 @@ fi
 
 if [ -z "$VITE_APP_HOST" ]
 then
-  VITE_APP_HOST=local.etherealengine.com
+  VITE_APP_HOST=local.etherealengine.org
 else
   VITE_APP_HOST=$VITE_APP_HOST
 fi
 
 if [ -z "$VITE_SERVER_HOST" ]
 then
-  VITE_SERVER_HOST=api-local.etherealengine.com
+  VITE_SERVER_HOST=api-local.etherealengine.org
 else
   VITE_SERVER_HOST=$VITE_SERVER_HOST
 fi
@@ -67,7 +67,7 @@ fi
 
 if [ -z "$VITE_INSTANCESERVER_HOST" ]
 then
-  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.com
+  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.org
 else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi

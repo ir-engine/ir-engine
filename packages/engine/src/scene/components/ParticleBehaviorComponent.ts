@@ -14,7 +14,7 @@ export type ParticleBehaviorComponentType = {
 
 export const ParticleBehaviorComponent = defineComponent({
   name: 'ParticleBehaviorComponent',
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       behaviorParameters: [],
       behaviors: []

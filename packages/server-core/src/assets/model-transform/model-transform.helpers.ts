@@ -9,8 +9,9 @@ import {
   Property,
   Texture
 } from '@gltf-transform/core'
-import { MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
-import { dedup, draco, partition, prune, quantize, reorder } from '@gltf-transform/functions'
+import { MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
+import { EncoderMethod } from '@gltf-transform/extensions/dist/ext-meshopt-compression/constants'
+import { dedup, draco, partition, prune, quantize, reorder, weld } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import fs from 'fs'
@@ -181,15 +182,33 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const { io } = await ModelTransformLoader()
 
   const document = await io.read(args.src)
+
+  await MeshoptEncoder.ready
+
   const root = document.getRoot()
 
   /* ID unnamed resources */
   await combineMaterials(document)
+
   if (args.parms.dedup) {
     await document.transform(dedup())
   }
+
   if (args.parms.prune) {
     await document.transform(prune())
+  }
+
+  if (args.parms.weld.enabled) {
+    await document.transform(weld({ tolerance: args.parms.weld.tolerance }))
+  }
+
+  if (args.parms.reorder) {
+    await document.transform(
+      reorder({
+        encoder: MeshoptEncoder,
+        target: 'performance'
+      })
+    )
   }
 
   /* PROCESS MESHES */
@@ -258,7 +277,11 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     if (parms.textureFormat === 'ktx2') {
       //KTX2 Basisu Compression
       document.createExtension(TextureBasisu).setRequired(true)
-      await promiseExec(`${BASIS_U} -ktx2 ${resizedPath}`)
+      await promiseExec(
+        `${BASIS_U} -ktx2 ${resizedPath} -q ${parms.textureCompressionQuality} ${
+          parms.textureCompressionType === 'uastc' ? '-uastc' : ''
+        } -linear -y_flip`
+      )
       await promiseExec(`mv ${serverDir}/${xResizedName} ${nuPath}`)
 
       console.log('loaded ktx2 image ' + nuPath)

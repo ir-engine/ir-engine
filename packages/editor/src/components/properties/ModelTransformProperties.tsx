@@ -107,6 +107,11 @@ export default function ModelTransformProperties({
     modelFormat: 'glb',
     dedup: true,
     prune: true,
+    reorder: true,
+    weld: {
+      enabled: true,
+      tolerance: 0.001
+    },
     dracoCompression: {
       enabled: true,
       options: {
@@ -144,6 +149,8 @@ export default function ModelTransformProperties({
       }
     },
     textureFormat: 'ktx2',
+    textureCompressionType: 'etc1',
+    textureCompressionQuality: 128,
     maxTextureSize: 1024
   })
 
@@ -299,39 +306,76 @@ export default function ModelTransformProperties({
                 onChange={onChangeTransformParm(transformParms, 'prune')}
               />
             </InputGroup>
+            <InputGroup name="Reorder" label={t('editor:properties.model.transform.reorder')}>
+              <BooleanInput
+                value={transformParms.reorder.value}
+                onChange={onChangeTransformParm(transformParms, 'reorder')}
+              />
+            </InputGroup>
+            <InputGroup name="Weld Vertices" label={t('editor:properties.model.transform.weldVertices')}>
+              <BooleanInput
+                value={transformParms.weld.enabled.value}
+                onChange={onChangeTransformParm(transformParms.weld, 'enabled')}
+              />
+            </InputGroup>
+            {transformParms.weld.enabled.value && (
+              <>
+                <NumericInputGroup
+                  name="Weld Threshold"
+                  label={t('editor:properties.model.transform.weldThreshold')}
+                  value={transformParms.weld.tolerance.value}
+                  onChange={onChangeTransformParm(transformParms.weld, 'tolerance')}
+                  min={0}
+                  max={1}
+                />
+              </>
+            )}
+
             <InputGroup name="Use Mesh Quantization" label={t('editor:properties.model.transform.useQuantization')}>
               <BooleanInput
                 value={transformParms.meshQuantization.enabled.value}
                 onChange={onChangeTransformParm(transformParms.meshQuantization, 'enabled')}
               />
-              <ParameterInput
-                entity={`${modelState.src.value}-mesh-quantization`}
-                values={transformParms.meshQuantization.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.meshQuantization.options)}
-              />
             </InputGroup>
+            {transformParms.meshQuantization.enabled.value && (
+              <>
+                <ParameterInput
+                  entity={`${modelState.src.value}-mesh-quantization`}
+                  values={transformParms.meshQuantization.options.value}
+                  onChange={onChangeTransformParm.bind({}, transformParms.meshQuantization.options)}
+                />
+              </>
+            )}
             <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
               <BooleanInput
                 value={transformParms.dracoCompression.enabled.value}
                 onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
               />
-              <ParameterInput
-                entity={`${modelState.src.value}-draco-compression`}
-                values={transformParms.dracoCompression.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
-              />
             </InputGroup>
+            {transformParms.dracoCompression.enabled.value && (
+              <>
+                <ParameterInput
+                  entity={`${modelState.src.value}-draco-compression`}
+                  values={transformParms.dracoCompression.options.value}
+                  onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
+                />
+              </>
+            )}
             <InputGroup name="Use GLTFPack" label={t('editor:properties.model.transform.useGLTFPack')}>
               <BooleanInput
                 value={transformParms.gltfPack.enabled.value}
                 onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
               />
-              <ParameterInput
-                entity={`${modelState.src.value}-gltfpack`}
-                values={transformParms.gltfPack.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.gltfPack.options)}
-              />
             </InputGroup>
+            {transformParms.gltfPack.enabled.value && (
+              <>
+                <ParameterInput
+                  entity={`${modelState.src.value}-gltfpack`}
+                  values={transformParms.gltfPack.options.value}
+                  onChange={onChangeTransformParm.bind({}, transformParms.gltfPack.options)}
+                />
+              </>
+            )}
             <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
               <SelectInput
                 value={transformParms.textureFormat.value}
@@ -353,6 +397,34 @@ export default function ModelTransformProperties({
               max={4096}
               min={64}
             />
+            {transformParms.textureFormat.value === 'ktx2' && (
+              <>
+                <InputGroup
+                  name="Texture Compression Type"
+                  label={t('editor:properties.model.transform.textureCompressionType')}
+                >
+                  <SelectInput
+                    value={transformParms.textureCompressionType.value}
+                    onChange={onChangeTransformParm(transformParms, 'textureCompressionType')}
+                    options={[
+                      { label: 'UASTC', value: 'uastc' },
+                      { label: 'ETC1', value: 'etc1' }
+                    ]}
+                  />
+                </InputGroup>
+                <NumericInputGroup
+                  name="KTX2 Quality"
+                  label={t('editor:properties.model.transform.ktx2Quality')}
+                  value={transformParms.textureCompressionQuality.value}
+                  onChange={onChangeTransformParm(transformParms, 'textureCompressionQuality')}
+                  max={255}
+                  min={1}
+                  smallStep={1}
+                  mediumStep={1}
+                  largeStep={2}
+                />
+              </>
+            )}
             {!transforming.value && <OptimizeButton onClick={onTransformModel(modelState)}>Optimize</OptimizeButton>}
             {transforming.value && <p>Transforming...</p>}
             {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}

@@ -14,7 +14,7 @@ import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/Medi
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
@@ -28,7 +28,7 @@ export const MediaIconsBox = () => {
 
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
-  const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const mediaHostId = Engine.instance.mediaNetwork?.hostId
   const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
   const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.locationSetting?.value
@@ -44,7 +44,7 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
 
   const engineState = useEngineState()
-  const xrState = useHookstate(getState(XRState))
+  const xrState = useHookstate(getMutableState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
@@ -68,7 +68,7 @@ export const MediaIconsBox = () => {
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
       {audioEnabled &&
       hasAudioDevice &&
-      Engine.instance.currentWorld.mediaNetwork &&
+      Engine.instance.mediaNetwork &&
       currentChannelInstanceConnection?.connected.value ? (
         <button
           type="button"
@@ -83,7 +83,7 @@ export const MediaIconsBox = () => {
       ) : null}
       {videoEnabled &&
       hasVideoDevice &&
-      Engine.instance.currentWorld.mediaNetwork &&
+      Engine.instance.mediaNetwork &&
       currentChannelInstanceConnection?.connected.value ? (
         <>
           <button

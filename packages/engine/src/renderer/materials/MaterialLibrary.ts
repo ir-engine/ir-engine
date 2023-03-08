@@ -5,7 +5,7 @@ import {
   defineAction,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   StateDefinition,
   useState
 } from '@etherealengine/hyperflux'
@@ -39,7 +39,7 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
   } as MaterialLibraryType
 })
 
-export const getMaterialLibrary = () => getState(MaterialLibraryState)
+export const getMaterialLibrary = () => getMutableState(MaterialLibraryState)
 
 export const useMaterialLibrary = () => useState(getMaterialLibrary())
 

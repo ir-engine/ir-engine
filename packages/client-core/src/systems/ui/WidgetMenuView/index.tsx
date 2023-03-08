@@ -7,7 +7,7 @@ import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respa
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
@@ -55,7 +55,7 @@ const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps
 const WidgetButtons = () => {
   let activeChannel: Channel | null = null
   const chatState = useChatState()
-  const widgetState = useHookstate(getState(WidgetAppState))
+  const widgetMutableState = useHookstate(getMutableState(WidgetAppState))
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
@@ -65,9 +65,7 @@ const WidgetButtons = () => {
   const mediaInstanceState = useMediaInstance()
 
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find(
-    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-  )
+  const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
   const mediastream = useMediaStreamState()
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
@@ -76,7 +74,7 @@ const WidgetButtons = () => {
   //   activeChannel &&
   //     activeChannel.messages &&
   //     activeChannel.messages.length > 0 &&
-  //     !widgetState.chatMenuOpen.value &&
+  //     !widgetMutableState.chatMenuOpen.value &&
   //     setUnreadMessages(true)
   // }, [activeChannel?.messages])
 
@@ -89,17 +87,17 @@ const WidgetButtons = () => {
   // }
 
   const handleRespawnAvatar = () => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+    respawnAvatar(Engine.instance.localClientEntity)
   }
 
-  const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
+  const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
     id,
-    ...widgetState,
-    ...Engine.instance.currentWorld.widgets.get(id)!
+    ...widgetMutableState,
+    ...Engine.instance.widgets.get(id)!
   }))
 
   const toggleWidget = (toggledWidget) => () => {
-    const state = widgetState.widgets.value
+    const state = widgetMutableState.widgets.value
     const visible = state[toggledWidget.id].visible
     // close currently open widgets until we support multiple widgets being open at once
     if (!visible) {

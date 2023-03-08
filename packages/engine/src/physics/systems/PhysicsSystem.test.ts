@@ -17,15 +17,13 @@ describe('PhysicsSystem', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
   })
 
   // @todo this is old code, needs to be updated to new physics implementation
   it.skip('check teleportObjectReceptor', async () => {
     const action = { pose: [1, 2, 3], object: { ownerId: 0, networkId: 0 } } as any
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    const worldStub = { getNetworkObject: () => entity } as any
+    const entity = createEntity()
 
     const controller = { controller: { setPosition: () => {} } } as any
     sinon.spy(controller.controller, 'setPosition')
@@ -34,7 +32,7 @@ describe('PhysicsSystem', () => {
     const avatar = { avatarHalfHeight: 1 } as any
     addComponent(entity, AvatarComponent, avatar)
 
-    teleportObjectReceptor(action, worldStub)
+    teleportObjectReceptor(action)
 
     assert(controller.controller.setPosition.calledOnce)
     const setPositionArg = controller.controller.setPosition.getCall(0).args[0]

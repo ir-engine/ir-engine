@@ -3,7 +3,7 @@ import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Shadow
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, getState, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
@@ -149,14 +149,14 @@ const anchorMeshLost = (
  */
 function PersistentAnchorReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
 
   const originalParentEntityUUID = useHookstate('' as EntityUUID)
   const meshes = useHookstate([] as Mesh[])
 
   const anchor = useOptionalComponent(entity, PersistentAnchorComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
-  const xrState = useHookstate(getState(XRState))
+  const xrState = useHookstate(getMutableState(XRState))
 
   const group = groupComponent?.value as (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[] | undefined
 
@@ -171,8 +171,8 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       )
       originalParentEntityUUID.set(originalParent)
       const localTransform = getComponent(entity, LocalTransformComponent)
-      localTransform.parentEntity = world.originEntity
-      Engine.instance.currentWorld.dirtyTransforms[entity] = true
+      localTransform.parentEntity = Engine.instance.originEntity
+      Engine.instance.dirtyTransforms[entity] = true
 
       const wireframe = anchor.wireframe.value
       anchorMeshFound(group, wireframe, meshes)
@@ -181,7 +181,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value].value
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = originalParent
-      Engine.instance.currentWorld.dirtyTransforms[entity] = true
+      Engine.instance.dirtyTransforms[entity] = true
 
       anchorMeshLost(group, meshes)
     }

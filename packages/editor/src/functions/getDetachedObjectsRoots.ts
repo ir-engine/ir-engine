@@ -79,7 +79,7 @@ export const isAncestor = (parent: EntityOrObjectUUID, potentialChild: EntityOrO
 }
 
 const getEntityNode = (uuid: string) => {
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   let obj3d = obj3dFromUuid(uuid) as Object3DWithEntity
   while (obj3d) {
     if (

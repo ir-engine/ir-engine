@@ -2,7 +2,6 @@ import { addActionReceptor, createActionQueue, dispatchAction } from '@ethereale
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
@@ -22,7 +21,7 @@ import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
-export default async function AvatarControllerSystem(world: World) {
+export default async function AvatarControllerSystem() {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const sessionChangedActions = createActionQueue(XRAction.sessionChanged.matches)
@@ -63,7 +62,7 @@ export default async function AvatarControllerSystem(world: World) {
       }
     }
 
-    const controlledEntity = Engine.instance.currentWorld.localClientEntity
+    const controlledEntity = Engine.instance.localClientEntity
 
     if (hasComponent(controlledEntity, AvatarControllerComponent)) {
       const controller = getComponent(controlledEntity, AvatarControllerComponent)
@@ -75,7 +74,7 @@ export default async function AvatarControllerSystem(world: World) {
          */
         if (
           !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
-          world.worldNetwork &&
+          Engine.instance.worldNetwork &&
           controller.gamepadWorldMovement.lengthSq() > 0.1
         ) {
           const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
@@ -83,7 +82,7 @@ export default async function AvatarControllerSystem(world: World) {
             WorldNetworkAction.transferAuthorityOfObject({
               ownerId: networkObject.ownerId,
               networkId: networkObject.networkId,
-              newAuthority: world.worldNetwork?.peerID
+              newAuthority: Engine.instance.worldNetwork?.peerID
             })
           )
           setComponent(controlledEntity, NetworkObjectAuthorityTag)
@@ -96,8 +95,8 @@ export default async function AvatarControllerSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, localControllerQuery)
-    removeQuery(world, controllerQuery)
+    removeQuery(localControllerQuery)
+    removeQuery(controllerQuery)
   }
 
   return { execute, cleanup }
