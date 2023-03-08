@@ -10,7 +10,7 @@ import {
   addComponent,
   defineComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   QueryComponents,
   removeComponent,
@@ -51,7 +51,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
-  getComponentState(entity, GroupComponent).merge([obj])
+  getMutableComponent(entity, GroupComponent).merge([obj])
 
   const transform = getComponent(entity, TransformComponent)
   obj.position.copy(transform.position)
@@ -84,7 +84,7 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   if (hasComponent(entity, GroupComponent)) {
     const group = getComponent(entity, GroupComponent)
     if (group.includes(obj)) {
-      getComponentState(entity, GroupComponent)[group.indexOf(obj)].set(none)
+      getMutableComponent(entity, GroupComponent)[group.indexOf(obj)].set(none)
     }
     if (!group.length) removeComponent(entity, GroupComponent)
   }

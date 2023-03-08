@@ -7,7 +7,7 @@ import type { WebContainer3D } from '@etherealengine/xrui'
 
 import { isNode } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentState, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'

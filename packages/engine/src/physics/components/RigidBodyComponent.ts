@@ -67,14 +67,14 @@ export const RigidBodyComponent = defineComponent({
   }
 })
 
-export const RigidBodyDynamicTagComponent = createMappedComponent<true>('RigidBodyDynamicTagComponent')
-export const RigidBodyFixedTagComponent = createMappedComponent<true>('RigidBodyFixedTagComponent')
-export const RigidBodyKinematicPositionBasedTagComponent = createMappedComponent<true>(
-  'RigidBodyKinematicPositionBasedTagComponent'
-)
-export const RigidBodyKinematicVelocityBasedTagComponent = createMappedComponent<true>(
-  'RigidBodyKinematicVelocityBasedTagComponent'
-)
+export const RigidBodyDynamicTagComponent = defineComponent({ name: 'RigidBodyDynamicTagComponent' })
+export const RigidBodyFixedTagComponent = defineComponent({ name: 'RigidBodyFixedTagComponent' })
+export const RigidBodyKinematicPositionBasedTagComponent = defineComponent({
+  name: 'RigidBodyKinematicPositionBasedTagComponent'
+})
+export const RigidBodyKinematicVelocityBasedTagComponent = defineComponent({
+  name: 'RigidBodyKinematicVelocityBasedTagComponent'
+})
 
 type RigidBodyTypes =
   | typeof RigidBodyDynamicTagComponent

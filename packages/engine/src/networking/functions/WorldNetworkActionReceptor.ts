@@ -10,7 +10,7 @@ import {
   addComponent,
   ComponentType,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -141,7 +141,7 @@ const receiveTransferAuthorityOfObject = (
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
     )
 
-  getComponentState(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
+  getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 
   if (Engine.instance.worldNetwork.peerID === action.newAuthority) {
     if (hasComponent(entity, NetworkObjectAuthorityTag))

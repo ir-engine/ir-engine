@@ -8,7 +8,7 @@ import {
   createMappedComponent,
   defineQuery,
   getComponent,
-  getComponentState
+  getMutableComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
@@ -47,7 +47,7 @@ describe('loadGLTFModel', () => {
       // 'xrengine.spawn-point': '',
       'xrengine.CustomComponent.value': number
     }
-    const modelComponent = getComponentState(entity, ModelComponent)
+    const modelComponent = getMutableComponent(entity, ModelComponent)
     modelComponent.scene.set(mesh)
     addObjectToGroup(entity, mesh)
     const modelQuery = defineQuery([TransformComponent, GroupComponent])

@@ -1,10 +1,21 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type SpawnPoseComponentType = {
-  position: Vector3
-  rotation: Quaternion
-}
+export const SpawnPoseComponent = defineComponent({
+  name: 'SpawnPoseComponent',
 
-export const SpawnPoseComponent = createMappedComponent<SpawnPoseComponentType>('SpawnPoseComponent')
+  onInit: (entity) => {
+    return {
+      position: new Vector3(),
+      rotation: new Quaternion()
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.position) component.position.set(json.position)
+    if (json.rotation) component.rotation.set(json.rotation)
+  }
+})

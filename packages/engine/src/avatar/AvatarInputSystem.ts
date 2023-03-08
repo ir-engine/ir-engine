@@ -6,13 +6,19 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
-import { getComponent, getComponentState, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  ComponentType,
+  getComponent,
+  getMutableComponent,
+  removeComponent,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { RendererState } from '../renderer/RendererState'
 import { hasMovementControls } from '../xr/XRState'
-import { AvatarControllerComponent, AvatarControllerComponentType } from './components/AvatarControllerComponent'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { autopilotSetPosition } from './functions/autopilotFunctions'
 import { translateAndRotateAvatar } from './functions/moveAvatar'
@@ -34,7 +40,10 @@ export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, deadZone
 export const InputSourceAxesDidReset = new WeakMap<XRInputSource, boolean>()
 
 export const AvatarAxesControlSchemeBehavior = {
-  [AvatarAxesControlScheme.Move]: (inputSource: XRInputSource, controller: AvatarControllerComponentType) => {
+  [AvatarAxesControlScheme.Move]: (
+    inputSource: XRInputSource,
+    controller: ComponentType<typeof AvatarControllerComponent>
+  ) => {
     if (inputSource.gamepad?.mapping !== 'xr-standard') return
     const [x, z] = getThumbstickOrThumbpadAxes(inputSource, 0.05)
     controller.gamepadLocalInput.x += x
@@ -74,7 +83,7 @@ export default async function AvatarInputSystem() {
   const avatarInputSettings = getMutableState(AvatarInputSettingsState).value
 
   const onShiftLeft = () => {
-    const controller = getComponentState(Engine.instance.localClientEntity, AvatarControllerComponent)
+    const controller = getMutableComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
     controller.isWalking.set(!controller.isWalking.value)
   }
 

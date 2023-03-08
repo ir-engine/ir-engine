@@ -8,7 +8,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   serializeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'

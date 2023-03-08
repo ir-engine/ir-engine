@@ -16,7 +16,7 @@ import {
   ComponentType,
   defineComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -288,7 +288,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         setComponent(entity, MediaElementComponent, {
           element: document.createElement(assetClass) as HTMLMediaElement
         })
-        const mediaElementState = getComponentState(entity, MediaElementComponent)
+        const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
         const element = mediaElementState.element.value
 
@@ -335,7 +335,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
       }
 
       setComponent(entity, MediaElementComponent)
-      const mediaElementState = getComponentState(entity, MediaElementComponent)
+      const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)
