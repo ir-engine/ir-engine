@@ -1,6 +1,6 @@
 /** Functions to provide system level functionalities. */
 
-import React from 'react'
+import React, { Suspense } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
@@ -323,7 +323,11 @@ function QueryReactor(props: {
   return (
     <>
       {entities.map((entity) => (
-        <props.ChildEntityReactor key={entity} root={{ ...props.root, entity }} />
+        <QueryReactorErrorBoundary>
+          <Suspense fallback={null}>
+            <props.ChildEntityReactor key={entity} root={{ ...props.root, entity }} />
+          </Suspense>
+        </QueryReactorErrorBoundary>
       ))}
     </>
   )
@@ -334,4 +338,27 @@ export const startQueryReactor = (Components: QueryComponents, ChildEntityReacto
   return startReactor(function HyperfluxQueryReactor({ root }: ReactorProps) {
     return <QueryReactor query={Components} ChildEntityReactor={ChildEntityReactor} root={root} />
   })
+}
+
+interface ErrorState {
+  error: Error | null
+}
+
+class QueryReactorErrorBoundary extends React.Component<any, ErrorState> {
+  public state: ErrorState = {
+    error: null
+  }
+
+  public static getDerivedStateFromError(error: Error): ErrorState {
+    // Update state so the next render will show the fallback UI.
+    return { error }
+  }
+
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Uncaught error:', error, errorInfo)
+  }
+
+  public render() {
+    return this.state.error ? null : this.props.children
+  }
 }
