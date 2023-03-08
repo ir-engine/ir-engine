@@ -1,4 +1,4 @@
-import React, { createRef, lazy, Suspense } from 'react'
+import React, { createRef, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
@@ -21,16 +21,12 @@ setupEngineActionSystems()
 initializeBrowser()
 API.createAPI()
 
-const AppPage = lazy(() => import('./pages/_app'))
-
-export default function () {
+export default function ({ children }) {
   const ref = createRef()
   const { t } = useTranslation()
   return (
     <FullscreenContainer ref={ref}>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.connecting')} />}>
-        <AppPage />
-      </Suspense>
+      <Suspense fallback={<LoadingCircle message={t('common:loader.connecting')} />}>{children}</Suspense>
     </FullscreenContainer>
   )
 }
