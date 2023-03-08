@@ -13,8 +13,10 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
   useEffect(() => {
     if (ref?.current) {
       const canvas = document.getElementById('engine-renderer-canvas')!
-      document.body.removeChild(canvas)
-      ref.current.appendChild(canvas)
+      if (document.body.contains(canvas)) {
+        document.body.removeChild(canvas)
+        ref.current.appendChild(canvas)
+      }
     }
   }, [ref])
 
