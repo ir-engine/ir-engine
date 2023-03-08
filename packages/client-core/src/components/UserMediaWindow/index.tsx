@@ -20,7 +20,7 @@ import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/compon
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useNetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { AudioSettingAction, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioSettingAction, AudioState, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { getMediaSceneMetadataState } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -29,7 +29,7 @@ import { MessageTypes } from '@etherealengine/engine/src/networking/enums/Messag
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import Slider from '@etherealengine/ui/src/Slider'
@@ -50,7 +50,7 @@ interface Props {
 /** @todo separate all media state from UI state and move it to hookstate record keyed to peerID */
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const peerMediaChannelState = useHookstate(
-    getState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
+    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
   const {
     videoStream,
@@ -97,16 +97,16 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
 
-  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork
+  const mediaNetwork = Engine.instance.mediaNetwork
   const isSelf = !mediaNetwork || peerID === mediaNetwork?.peerID
   const volume = isSelf ? audioState.microphoneGain.value : _volume
   const isScreen = type === 'screen'
   const userId = mediaNetwork ? mediaNetwork?.peers!.get(peerID!)?.userId : ''
   const user = userState.layerUsers.find((user) => user.id.value === userId)?.attach(Downgraded).value
 
-  const mediaStreamState = useHookstate(getState(MediaStreamState))
-  const mediaSettingState = useHookstate(getState(MediaSettingsState))
-  const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
+  const mediaState = getMediaSceneMetadataState(Engine.instance.currentScene)
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
     (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)
@@ -230,14 +230,14 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   useEffect(() => {
     mediaStreamState.microphoneGainNode.value?.gain.setTargetAtTime(
       audioState.microphoneGain.value,
-      Engine.instance.audioContext.currentTime,
+      getState(AudioState).audioContext.currentTime,
       0.01
     )
   }, [audioState.microphoneGain])
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleWebcamPaused()
     } else if (isSelf && isScreen) {
@@ -255,7 +255,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
@@ -273,7 +273,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     const audioStreamProducer = audioStream as ConsumerExtension
     if (!audioProducerGlobalMute) {
       await globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
@@ -304,7 +304,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const username = getUsername()
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   const handleVisibilityChange = () => {
     if (document.hidden) {

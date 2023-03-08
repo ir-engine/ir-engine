@@ -16,7 +16,7 @@ import { XRModule } from '@etherealengine/engine/src/xr/XRModule'
 import { XRUIModule } from '@etherealengine/engine/src/xrui/XRUIModule'
 
 export function ClientModules() {
-  return initSystems(Engine.instance.currentWorld, [
+  return initSystems([
     ...XRModule(),
     ...TransformModule(),
     ...RendererModule(),

@@ -8,10 +8,10 @@ import PortalLoadSystem from '@etherealengine/client-core/src/systems/PortalLoad
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientModules } from '@etherealengine/client-core/src/world/ClientModules'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
@@ -82,12 +82,11 @@ export const EditorPage = () => {
   ]
 
   useEffect(() => {
-    Engine.instance.isEditor = true
-    const world = Engine.instance.currentWorld
+    getMutableState(EngineState).isEditor.set(true)
     const projects = API.instance.client.service('projects').find()
     ClientModules().then(async () => {
-      await initSystems(world, systems)
-      await loadEngineInjection(world, await projects)
+      await initSystems(systems)
+      await loadEngineInjection(await projects)
       setEngineReady(true)
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })

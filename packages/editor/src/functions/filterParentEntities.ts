@@ -44,7 +44,7 @@ export const filterParentEntities = (
     }
   }
 
-  traverseParentOnly(Engine.instance.currentWorld.sceneEntity)
+  traverseParentOnly(Engine.instance.currentScene.sceneEntity)
 
   return parentEntityList
 }

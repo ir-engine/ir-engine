@@ -6,11 +6,10 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { createActionQueue, getState, removeActionQueue, useHookstate } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue, useHookstate } from '@etherealengine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { defineQuery, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent, startGroupQueryReactor } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
@@ -164,7 +163,7 @@ function updateDepthMaterials(
   depthTexture?: DepthCanvasTexture
 ) {
   if (!frame || !referenceSpace) return
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
   if (viewerPose) {
     for (const view of viewerPose.views) {
@@ -229,9 +228,9 @@ const _createDepthDebugCanvas = (enabled: boolean) => {
  * @param world
  * @returns
  */
-export default async function XRDepthOcclusionSystem(world: World) {
+export default async function XRDepthOcclusionSystem() {
   const groupQuery = defineQuery([GroupComponent])
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   const useDepthTextureDebug = false
@@ -282,7 +281,7 @@ export default async function XRDepthOcclusionSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, groupQuery)
+    removeQuery(groupQuery)
     removeActionQueue(xrSessionChangedQueue)
     depthOcclusionReactor.stop()
   }

@@ -10,7 +10,6 @@ import { easeOutElastic } from '@etherealengine/engine/src/common/functions/Math
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   defineQuery,
   getComponent,
@@ -33,7 +32,7 @@ import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
-import { getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
@@ -45,18 +44,18 @@ export const AvatarUITransitions = new Map<Entity, ReturnType<typeof createTrans
 
 const rotMat = new Matrix4()
 
-export const renderAvatarContextMenu = (world: World, userId: UserId, contextMenuEntity: Entity) => {
-  const userEntity = world.getUserAvatarEntity(userId)
+export const renderAvatarContextMenu = (userId: UserId, contextMenuEntity: Entity) => {
+  const userEntity = Engine.instance.getUserAvatarEntity(userId)
   if (!userEntity) return
 
   const contextMenuXRUI = getComponent(contextMenuEntity, XRUIComponent)
   if (!contextMenuXRUI) return
 
   const userTransform = getComponent(userEntity, TransformComponent)
-  const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
+  const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
   const { avatarHeight } = getComponent(userEntity, AvatarComponent)
 
-  const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   contextMenuXRUI.scale.setScalar(Math.max(1, cameraPosition.distanceTo(userTransform.position) / 3))
   contextMenuXRUI.position.copy(userTransform.position)
@@ -66,7 +65,7 @@ export const renderAvatarContextMenu = (world: World, userId: UserId, contextMen
   contextMenuXRUI.quaternion.copy(cameraTransform.rotation)
 }
 
-export default async function AvatarUISystem(world: World) {
+export default async function AvatarUISystem() {
   const userQuery = defineQuery([
     AvatarComponent,
     TransformComponent,
@@ -87,7 +86,7 @@ export default async function AvatarUISystem(world: World) {
   const onPrimaryClick = () => {
     if (AvatarContextMenuUI.state.id.value !== '') {
       const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent)
-      const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
+      const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
       if (!hit) {
         AvatarContextMenuUI.state.id.set('')
         setVisibleComponent(AvatarContextMenuUI.entity, false)
@@ -106,16 +105,16 @@ export default async function AvatarUISystem(world: World) {
 
   const onSecondaryClick = () => {
     const hits = Physics.castRayFromCamera(
-      Engine.instance.currentWorld.camera,
-      world.pointerState.position,
-      Engine.instance.currentWorld.physicsWorld,
+      Engine.instance.camera,
+      Engine.instance.pointerState.position,
+      Engine.instance.physicsWorld,
       raycastComponentData
     )
 
     if (hits.length) {
       const hit = hits[0]
       const hitEntity = (hit.body?.userData as any)?.entity as Entity
-      if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
+      if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.localClientEntity) {
         if (hasComponent(hitEntity, NetworkObjectComponent)) {
           const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
           AvatarContextMenuUI.state.id.set(userId)
@@ -128,17 +127,17 @@ export default async function AvatarUISystem(world: World) {
     AvatarContextMenuUI.state.id.set('')
   }
 
-  const engineState = getState(EngineState)
+  const engineState = getMutableState(EngineState)
 
   const execute = () => {
     if (!engineState.isEngineInitialized.value) return
 
-    const keys = world.buttons
+    const keys = Engine.instance.buttons
 
     if (keys.PrimaryClick?.down) onPrimaryClick()
     if (keys.SecondaryClick?.down) onSecondaryClick()
 
-    videoPreviewTimer += world.deltaSeconds
+    videoPreviewTimer += Engine.instance.deltaSeconds
     if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
     const immersiveMedia = shouldUseImmersiveMedia()
@@ -161,7 +160,7 @@ export default async function AvatarUISystem(world: World) {
       AvatarUI.set(userEntity, ui)
     }
 
-    const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
     for (const userEntity of userQuery()) {
       const ui = AvatarUI.get(userEntity)!
@@ -173,7 +172,7 @@ export default async function AvatarUISystem(world: World) {
       const videoPreviewMesh = ui.state.videoPreviewMesh.value
       _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
 
-      const cameraPosition = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).position
+      const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
       const dist = cameraPosition.distanceTo(_vector3)
 
       if (dist > 25) transition.setState('OUT')
@@ -181,7 +180,7 @@ export default async function AvatarUISystem(world: World) {
 
       let springAlpha = transition.alpha
 
-      transition.update(world.deltaSeconds, (alpha) => {
+      transition.update(Engine.instance.deltaSeconds, (alpha) => {
         springAlpha = easeOutElastic(alpha)
       })
 
@@ -189,12 +188,13 @@ export default async function AvatarUISystem(world: World) {
       xruiTransform.position.copy(_vector3)
       xruiTransform.rotation.copy(cameraTransform.rotation)
 
-      if (world.mediaNetwork)
+      if (Engine.instance.mediaNetwork)
         if (immersiveMedia && videoPreviewTimer === 0) {
           const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-          const consumer = world.mediaNetwork!.consumers.find(
+          const consumer = Engine.instance.mediaNetwork!.consumers.find(
             (consumer) =>
-              consumer.appData.peerID === world.mediaNetwork.peerID && consumer.appData.mediaTag === 'cam-video'
+              consumer.appData.peerID === Engine.instance.mediaNetwork.peerID &&
+              consumer.appData.mediaTag === 'cam-video'
           ) as Consumer
           const paused = consumer && (consumer as any).producerPaused
           if (videoPreviewMesh.material.map) {
@@ -243,13 +243,13 @@ export default async function AvatarUISystem(world: World) {
     }
 
     if (AvatarContextMenuUI.state.id.value !== '') {
-      renderAvatarContextMenu(world, AvatarContextMenuUI.state.id.value, AvatarContextMenuUI.entity)
+      renderAvatarContextMenu(AvatarContextMenuUI.state.id.value, AvatarContextMenuUI.entity)
     }
   }
 
   const cleanup = async () => {
     removeEntity(AvatarContextMenuUI.entity)
-    removeQuery(world, userQuery)
+    removeQuery(userQuery)
   }
 
   return { execute, cleanup }

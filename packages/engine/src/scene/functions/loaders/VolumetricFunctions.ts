@@ -4,7 +4,7 @@ import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils
 import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@etherealengine/engine/src/avatar/DissolveEffect'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import type VolumetricPlayer from '@etherealengine/volumetric/player'
 
 import { isClient } from '../../../common/functions/isClient'
@@ -126,7 +126,7 @@ export const updateVolumetric = async (entity: Entity) => {
         volumetric.loadingEffectActive = false
         endLoadingEffect(volumetric.entity, player.mesh)
         const media = getComponentState(entity, MediaComponent)
-        if (media.autoplay.value && getState(EngineState).userHasInteracted.value) media.paused.set(false)
+        if (media.autoplay.value && getMutableState(EngineState).userHasInteracted.value) media.paused.set(false)
       }
     }
   }

@@ -1,22 +1,22 @@
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { matches, Validator } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
 
-type WidgetState = Record<string, { enabled: boolean; visible: boolean }>
+type WidgetMutableState = Record<string, { enabled: boolean; visible: boolean }>
 
 export const WidgetAppState = defineState({
   name: 'WidgetAppState',
   initial: () => ({
     widgetsMenuOpen: false,
-    widgets: {} as WidgetState,
+    widgets: {} as WidgetMutableState,
     handedness: 'left' as 'left' | 'right'
   })
 })
 
 export const WidgetAppServiceReceptor = (action) => {
-  const s = getState(WidgetAppState)
+  const s = getMutableState(WidgetAppState)
   matches(action)
     .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
       s.widgetsMenuOpen.set(action.shown)
@@ -54,11 +54,11 @@ export const WidgetAppServiceReceptor = (action) => {
 
 export const WidgetAppService = {
   setWidgetVisibility: (widgetName: string, visibility: boolean) => {
-    const widgetState = getState(WidgetAppState)
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
+    const widgetMutableState = getMutableState(WidgetAppState)
+    const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
       id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
+      ...widgetMutableState,
+      ...Engine.instance.widgets.get(id)!
     }))
 
     const currentWidget = widgets.find((w) => w.label === widgetName)

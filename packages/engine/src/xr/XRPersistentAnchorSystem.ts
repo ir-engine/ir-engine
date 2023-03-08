@@ -1,9 +1,8 @@
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { VPSSystem } from './VPSSystem'
 import { ReferenceSpace, XRState } from './XRState'
 
@@ -86,7 +85,7 @@ export const XRAnchorFunctions = {
   anchorPoses
 }
 
-export default async function XRPersistentAnchorSystem(world: World) {
+export default async function XRPersistentAnchorSystem() {
   const execute = () => {
     const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
     if (!frame) return

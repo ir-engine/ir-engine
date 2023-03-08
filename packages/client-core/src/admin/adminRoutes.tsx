@@ -1,6 +1,6 @@
 import { t } from 'i18next'
 import React, { lazy, Suspense, useEffect } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -21,7 +21,8 @@ const AdminSystemInjection = {
   systemLoader: () => Promise.resolve({ default: AdminSystem })
 } as const
 
-const ProtectedRoutes = () => {
+const AdminRoutes = () => {
+  const location = useLocation()
   const admin = useAuthState().user
 
   let allowedRoutes = {
@@ -45,7 +46,8 @@ const ProtectedRoutes = () => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    initSystems(Engine.instance.currentWorld, [AdminSystemInjection]).then(async () => {
+    initSystems([AdminSystemInjection]).then(async () => {
+      // @ts-ignore
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })
   }, [])
@@ -67,7 +69,7 @@ const ProtectedRoutes = () => {
 
   return (
     <Dashboard>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingAdmin')} />}>
+      <Suspense fallback={<LoadingCircle message={`Loading ${location.pathname.split('/')[2]}...`} />}>
         <Routes>
           <Route path="/*" element={<$allowed allowedRoutes={allowedRoutes} />} />
           {<Route path="/" element={<Analytics />} />}
@@ -77,4 +79,4 @@ const ProtectedRoutes = () => {
   )
 }
 
-export default ProtectedRoutes
+export default AdminRoutes

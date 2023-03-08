@@ -9,7 +9,7 @@ import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { EmoteIcon } from '../../../user/components/UserMenu'
@@ -27,7 +27,7 @@ function createLocationMenuState() {
 
 const LocationMenuView = () => {
   const { t } = useTranslation()
-  const xrState = useState(getState(XRState))
+  const xrState = useState(getMutableState(XRState))
 
   const isAdmin = useAuthState().user?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
@@ -38,7 +38,7 @@ const LocationMenuView = () => {
   }
 
   const handleRespawnAvatar = () => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+    respawnAvatar(Engine.instance.localClientEntity)
   }
 
   const handleOpenEmoteMenuWidget = () => {

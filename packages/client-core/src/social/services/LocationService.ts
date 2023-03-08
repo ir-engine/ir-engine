@@ -3,7 +3,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { Location, LocationSeed } from '@etherealengine/common/src/interfaces/Location'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -27,7 +27,7 @@ const LocationState = defineState({
 })
 
 export const LocationServiceReceptor = (action) => {
-  const s = getState(LocationState)
+  const s = getMutableState(LocationState)
   matches(action)
     .when(LocationAction.setLocationName.matches, (action) => {
       return s.merge({
@@ -94,7 +94,7 @@ export const LocationServiceReceptor = (action) => {
     })
 }
 
-export const accessLocationState = () => getState(LocationState)
+export const accessLocationState = () => getMutableState(LocationState)
 
 export const useLocationState = () => useState(accessLocationState())
 

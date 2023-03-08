@@ -1,14 +1,14 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, getState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
+import { NetworkState } from '../networking/NetworkState'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -61,45 +61,44 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { posit
   return getRandomSpawnPoint(userId)
 }
 
-export function avatarDetailsReceptor(
-  action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
-  world = Engine.instance.currentWorld
-) {
-  const userAvatarDetails = getState(WorldState).userAvatarDetails
+export function avatarDetailsReceptor(action: ReturnType<typeof WorldNetworkAction.avatarDetails>) {
+  const userAvatarDetails = getMutableState(WorldState).userAvatarDetails
   userAvatarDetails[action.$from].set(action.avatarDetail)
   if (isClient && action.avatarDetail.avatarURL) {
-    const entity = world.getUserAvatarEntity(action.$from)
+    const entity = Engine.instance.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
   }
 }
 
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
-export default async function AvatarSpawnSystem(world: World) {
+export default async function AvatarSpawnSystem() {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
 
-  world.networkSchema['ee.core.xrhead'] = {
+  const networkState = getMutableState(NetworkState)
+
+  networkState.networkSchema['ee.core.xrhead'].set({
     read: IKSerialization.readXRHead,
     write: IKSerialization.writeXRHead
-  }
+  })
 
-  world.networkSchema['ee.core.xrLeftHand'] = {
+  networkState.networkSchema['ee.core.xrLeftHand'].set({
     read: IKSerialization.readXRLeftHand,
     write: IKSerialization.writeXRLeftHand
-  }
+  })
 
-  world.networkSchema['ee.core.xrRightHand'] = {
+  networkState.networkSchema['ee.core.xrRightHand'].set({
     read: IKSerialization.readXRRightHand,
     write: IKSerialization.writeXRRightHand
-  }
+  })
 
   const execute = () => {
     for (const action of avatarSpawnQueue()) spawnAvatarReceptor(action)
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
 
     // Keep a list of spawn points so we can send our user to one
-    for (const entity of spawnPointQuery.enter(world)) {
+    for (const entity of spawnPointQuery.enter()) {
       if (!hasComponent(entity, TransformComponent)) {
         console.warn("Can't add spawn point, no transform component on entity")
         continue
@@ -108,13 +107,13 @@ export default async function AvatarSpawnSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, spawnPointQuery)
+    removeQuery(spawnPointQuery)
     removeActionQueue(avatarSpawnQueue)
     removeActionQueue(avatarDetailsQueue)
 
-    delete world.networkSchema['ee.core.xrHead']
-    delete world.networkSchema['ee.core.xrLeftHand']
-    delete world.networkSchema['ee.core.xrRightHand']
+    networkState.networkSchema['ee.core.xrHead'].set(none)
+    networkState.networkSchema['ee.core.xrLeftHand'].set(none)
+    networkState.networkSchema['ee.core.xrRightHand'].set(none)
   }
 
   return { execute, cleanup }

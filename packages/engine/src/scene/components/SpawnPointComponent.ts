@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { BoxGeometry, BoxHelper, Mesh, Scene } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
@@ -43,7 +43,7 @@ export const SpawnPointComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, SpawnPointComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const spawnPoint = useComponent(root.entity, SpawnPointComponent)
 
     useEffect(() => {

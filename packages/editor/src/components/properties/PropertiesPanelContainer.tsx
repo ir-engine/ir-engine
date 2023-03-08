@@ -63,7 +63,6 @@ export const PropertiesPanelContainer = () => {
   const materialLibrary = getMaterialLibrary()
   //rendering editor views for customization of element properties
   let content
-  const world = Engine.instance.currentWorld
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
   let nodeEntity = lockedNode
@@ -80,7 +79,7 @@ export const PropertiesPanelContainer = () => {
     ? materialLibrary.materials[nodeEntity as string].value ??
       Object.values(materialLibrary.materials.value).find(({ material }) => material.uuid === nodeEntity)
     : isObject3D
-    ? world.scene.getObjectByProperty('uuid', nodeEntity as string)
+    ? Engine.instance.scene.getObjectByProperty('uuid', nodeEntity as string)
     : nodeEntity
 
   if (!nodeEntity || !node) {

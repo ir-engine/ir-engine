@@ -5,7 +5,7 @@ import { Group, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
@@ -35,9 +35,11 @@ import {
   writeRotation,
   writeTransform
 } from '../../transform/TransformSerialization'
+import { Network } from '../classes/Network'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
   createDataReader,
@@ -74,10 +76,10 @@ describe('DataReader', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
-    Engine.instance.currentWorld.networkSchema['ee.core.transform'] = {
+    getMutableState(NetworkState).networkSchema['ee.core.transform'].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
-    }
+    })
   })
 
   it('should checkBitflag', () => {
@@ -467,7 +469,7 @@ describe('DataReader', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    const network = Engine.instance.currentWorld.worldNetwork
+    const network = Engine.instance.worldNetwork as Network
     network.userIndexToUserID = new Map([[userIndex, userId]])
     network.userIDToUserIndex = new Map([[userId, userIndex]])
     network.peerIndexToPeerID = new Map([[userIndex, userId]])
@@ -491,7 +493,7 @@ describe('DataReader', () => {
       ownerId: userId
     })
 
-    writeEntity(view, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
+    writeEntity(view, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     transform.position.x = 0
     transform.position.y = 0
@@ -503,7 +505,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readEntity(view, Engine.instance.currentWorld, userId, Object.values(Engine.instance.currentWorld.networkSchema))
+    readEntity(view, userId, Object.values(getState(NetworkState).networkSchema))
 
     strictEqual(TransformComponent.position.x[entity], posX)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -518,13 +520,13 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    writeEntity(view, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
+    writeEntity(view, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     transform.position.x = posX
 
     view.cursor = 0
 
-    readEntity(view, Engine.instance.currentWorld, userId, Object.values(Engine.instance.currentWorld.networkSchema))
+    readEntity(view, userId, Object.values(getState(NetworkState).networkSchema))
 
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -542,7 +544,7 @@ describe('DataReader', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    const network = Engine.instance.currentWorld.worldNetwork
+    const network = Engine.instance.worldNetwork as Network
     network.userIndexToUserID = new Map([[userIndex, userId]])
     network.userIDToUserIndex = new Map([[userId, userIndex]])
 
@@ -561,7 +563,7 @@ describe('DataReader', () => {
 
     setComponent(entity, NetworkObjectAuthorityTag)
 
-    writeEntity(view, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
+    writeEntity(view, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     view.cursor = 0
 
@@ -570,7 +572,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, Engine.instance.currentWorld, userId, Object.values(Engine.instance.currentWorld.networkSchema))
+    readEntity(view, userId, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -596,7 +598,7 @@ describe('DataReader', () => {
     Engine.instance.userId = userId
     const userIndex = 0
 
-    const network = Engine.instance.currentWorld.worldNetwork
+    const network = Engine.instance.worldNetwork as Network
     network.userIndexToUserID = new Map([[userIndex, userId]])
     network.userIDToUserIndex = new Map([[userId, userIndex]])
 
@@ -607,7 +609,7 @@ describe('DataReader', () => {
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
-    writeEntity(view, networkId, entity, Object.values(Engine.instance.currentWorld.networkSchema))
+    writeEntity(view, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     view.cursor = 0
 
@@ -616,7 +618,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, Engine.instance.currentWorld, userId, Object.values(Engine.instance.currentWorld.networkSchema))
+    readEntity(view, userId, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as entity is not listed in network entities
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -634,7 +636,7 @@ describe('DataReader', () => {
   it('should readEntities', () => {
     const writeView = createViewCursor()
 
-    const network = Engine.instance.currentWorld.worldNetwork
+    const network = Engine.instance.worldNetwork as Network
 
     const userId = 'userId' as UserId
     const peerID = 'peerID' as PeerID
@@ -687,7 +689,7 @@ describe('DataReader', () => {
     const packet = sliceViewCursor(writeView)
 
     const readView = createViewCursor(packet)
-    readEntities(readView, Engine.instance.currentWorld, packet.byteLength, userId)
+    readEntities(readView, packet.byteLength, userId)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -705,7 +707,7 @@ describe('DataReader', () => {
 
   it('should createDataReader', () => {
     const write = createDataWriter()
-    const network = Engine.instance.currentWorld.worldNetwork
+    const network = Engine.instance.worldNetwork as Network
 
     Engine.instance.userId = 'userId' as UserId
     const userId = Engine.instance.userId
@@ -740,7 +742,7 @@ describe('DataReader', () => {
       })
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     const readView = createViewCursor(packet)
 
@@ -790,7 +792,7 @@ describe('DataReader', () => {
 
     const read = createDataReader()
 
-    read(Engine.instance.currentWorld, network, packet)
+    read(network, packet)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -810,8 +812,8 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const peerID = 'peerID' as PeerID
-    const network = Engine.instance.currentWorld.worldNetwork
-    const engineState = getState(EngineState)
+    const network = Engine.instance.worldNetwork as Network
+    const engineState = getMutableState(EngineState)
     engineState.fixedTick.set(1)
 
     const n = 10
@@ -838,7 +840,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -851,8 +853,8 @@ describe('DataReader', () => {
 
   it('should createDataReader and return populated packet if no changes were made but on a fixedTick divisible by 60', () => {
     const write = createDataWriter()
-    const network = Engine.instance.currentWorld.worldNetwork
-    const engineState = getState(EngineState)
+    const network = Engine.instance.worldNetwork as Network
+    const engineState = getMutableState(EngineState)
     engineState.fixedTick.set(60)
     const peerID = 'peerID' as PeerID
 
@@ -881,7 +883,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 376)
   })
@@ -889,8 +891,8 @@ describe('DataReader', () => {
   it('should createDataReader and detect changes', () => {
     const write = createDataWriter()
 
-    const network = Engine.instance.currentWorld.worldNetwork
-    const engineState = getState(EngineState)
+    const network = Engine.instance.worldNetwork as Network
+    const engineState = getMutableState(EngineState)
     engineState.fixedTick.set(1)
     const peerID = 'peerID' as PeerID
 
@@ -918,7 +920,7 @@ describe('DataReader', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    let packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    let packet = write(network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -934,7 +936,7 @@ describe('DataReader', () => {
     TransformComponent.position.y[entity] = 1
     TransformComponent.position.z[entity] = 1
 
-    packet = write(Engine.instance.currentWorld, network, Engine.instance.userId, peerID, entities)
+    packet = write(network, Engine.instance.userId, peerID, entities)
 
     strictEqual(packet.byteLength, 47)
 

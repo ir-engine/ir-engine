@@ -2,7 +2,6 @@ import { Euler, Texture } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
@@ -36,7 +35,7 @@ export const enterPortal = async (entity: Entity) => {
  * Loads portal metadata once the models have been loaded. Depends on API calls.
  * @param world
  */
-export default async function PortalLoadSystem(world: World) {
+export default async function PortalLoadSystem() {
   const portalQuery = defineQuery([PortalComponent])
 
   const execute = () => {
@@ -44,7 +43,7 @@ export default async function PortalLoadSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, portalQuery)
+    removeQuery(portalQuery)
   }
 
   return { execute, cleanup }

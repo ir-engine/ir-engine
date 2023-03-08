@@ -3,7 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -34,7 +34,7 @@ export type SpawnInWorldProps = {
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const { avatarSpawnPose, avatarDetail, name } = props
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarDetail, name)
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[Engine.instance.userId].set(name)
   worldState.userAvatarDetails[Engine.instance.userId].set(avatarDetail)
   dispatchAction(WorldNetworkAction.spawnAvatar(avatarSpawnPose))
@@ -55,7 +55,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   dispatchAction(EngineActions.joinedWorld({}))
 
-  Engine.instance.currentWorld.worldNetwork.peerID = peerID
+  Engine.instance.worldNetworkState.peerID.set(peerID)
 
   Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
     ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history

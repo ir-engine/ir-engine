@@ -1,14 +1,17 @@
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
+// import { XRHandsInputComponent } from '../../xr/XRComponents'
+// import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkState } from '../NetworkState'
 import {
   compress,
   QUAT_MAX_RANGE,
@@ -239,8 +242,7 @@ export const writeEntity = (
 }
 
 export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
-  const world = Engine.instance.currentWorld
-  const entitySchema = Object.values(world.networkSchema)
+  const entitySchema = Object.values(getState(NetworkState).networkSchema)
 
   const writeCount = spaceUint32(v)
 
@@ -255,17 +257,17 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
   else v.cursor = 0 // nothing written
 }
 
-export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID, world: World) => {
+export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID) => {
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
-  writeUint32(v, world.fixedTick)
+  writeUint32(v, Engine.instance.fixedTick)
 }
 
 export const createDataWriter = (size: number = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
-  return (world: World, network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
-    writeMetadata(view, network, userId, peerID, world)
+  return (network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
+    writeMetadata(view, network, userId, peerID)
     writeEntities(view, entities)
     return sliceViewCursor(view)
   }

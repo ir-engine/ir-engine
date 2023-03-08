@@ -12,9 +12,10 @@ import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/trans
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import WEBGL from '@etherealengine/engine/src/renderer/THREE.WebGL'
-import { addActionReceptor, getState, useHookstate } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { NetworkConnectionService } from '../../common/services/NetworkConnectionService'
 import { LocationAction } from '../../social/services/LocationService'
@@ -47,7 +48,7 @@ const InstanceServerWarnings = () => {
   const [currentError, _setCurrentError] = useState(-1)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
-  const engineRendereState = useHookstate(getState(RendererState))
+  const engineRendereState = useHookstate(getMutableState(RendererState))
   const chatState = useChatState()
   const [erroredInstanceId, setErroredInstanceId] = useState<string>(null!)
   const [hasShownLowFramerateError, setHasShownLowFramerateError] = useState(false)
@@ -189,9 +190,9 @@ const InstanceServerWarnings = () => {
 
       case WarningModalTypes.INSTANCE_DISCONNECTED: {
         if (!Engine.instance.userId) return
-        const transport = Engine.instance.currentWorld.networks.get(
-          Engine.instance.currentWorld.worldNetwork?.hostId
-        ) as SocketWebRTCClientNetwork
+        const transport = getState(NetworkState).networks[
+          Engine.instance.worldNetwork?.hostId
+        ] as SocketWebRTCClientNetwork
         if (engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
@@ -208,12 +209,12 @@ const InstanceServerWarnings = () => {
 
       case WarningModalTypes.CHANNEL_DISCONNECTED: {
         if (!Engine.instance.userId) return
-        const transport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+        const transport = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
         if (transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
         const instanceChannel = Object.values(channels).find(
-          (channel) => channel.instanceId === Engine.instance.currentWorld.mediaNetwork?.hostId
+          (channel) => channel.instanceId === Engine.instance.mediaNetwork?.hostId
         )
         setModalValues({
           open: true,

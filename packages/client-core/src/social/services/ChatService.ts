@@ -11,7 +11,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -52,7 +52,7 @@ export const ChatState = defineState({
 })
 
 export const ChatServiceReceptor = (action) => {
-  const s = getState(ChatState)
+  const s = getMutableState(ChatState)
   matches(action)
     .when(ChatAction.loadedChannelsAction.matches, (action) => {
       return s.channels.merge({
@@ -100,7 +100,10 @@ export const ChatServiceReceptor = (action) => {
         s.channels.updateNeeded.set(true)
       } else {
         if (!channel.messages.length) channel.messages.set([action.message])
-        else channel.messages[channel.messages.length].set(action.message)
+        else {
+          const existingMessage = channel.messages.find((message) => message.id.value === action.message.id)
+          if (!existingMessage) channel.messages[channel.messages.length].set(action.message)
+        }
       }
 
       s.updateMessageScroll.set(true)
@@ -229,7 +232,7 @@ export const ChatServiceReceptor = (action) => {
     })
 }
 
-export const accessChatState = () => getState(ChatState)
+export const accessChatState = () => getMutableState(ChatState)
 
 export const useChatState = () => useState(accessChatState())
 
@@ -257,7 +260,7 @@ export const ChatService = {
       const channelResult = (await API.instance.client.service('channel').find({
         query: {
           channelType: 'instance',
-          instanceId: Engine.instance.currentWorld.worldNetwork.hostId
+          instanceId: Engine.instance.worldNetwork.hostId
         }
       })) as Channel[]
       if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
@@ -398,7 +401,7 @@ export const ChatService = {
     useEffect(() => {
       const messageCreatedListener = (params) => {
         const selfUser = accessAuthState().user.value
-        dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser: selfUser }))
+        dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser }))
       }
 
       const messagePatchedListener = (params) => {
@@ -410,15 +413,15 @@ export const ChatService = {
       }
 
       const channelCreatedListener = (params) => {
-        dispatchAction(ChatAction.createdChannelAction({ channel: params }))
+        dispatchAction(ChatAction.createdChannelAction(params))
       }
 
       const channelPatchedListener = (params) => {
-        dispatchAction(ChatAction.patchedChannelAction({ channel: params }))
+        dispatchAction(ChatAction.patchedChannelAction(params))
       }
 
       const channelRemovedListener = (params) => {
-        dispatchAction(ChatAction.removedChannelAction({ channel: params }))
+        dispatchAction(ChatAction.removedChannelAction(params))
       }
 
       API.instance.client.service('message').on('created', messageCreatedListener)

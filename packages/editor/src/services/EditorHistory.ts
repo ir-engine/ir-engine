@@ -3,11 +3,10 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { SystemDefintion } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
 import {
   createActionQueue,
   dispatchAction,
@@ -33,10 +32,10 @@ export const EditorHistoryState = defineState({
   })
 })
 
-export default function EditorHistoryReceptor(world: World): SystemDefintion {
-  const state = getState(EditorHistoryState)
+export default function EditorHistoryReceptor(): SystemDefintion {
+  const state = getMutableState(EditorHistoryState)
 
-  const selectedEntitiesState = getState(SelectionState)
+  const selectedEntitiesState = getMutableState(SelectionState)
 
   const applyCurrentSnapshot = () => {
     const snapshot = state.history[state.index.value].get(NO_PROXY)
@@ -68,7 +67,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     for (const action of clearHistoryQueue()) {
       state.merge({
         index: 0,
-        history: [{ data: { scene: serializeWorld(world.sceneEntity) } as any as SceneData }]
+        history: [{ data: { scene: serializeWorld(Engine.instance.currentScene.sceneEntity) } as any as SceneData }]
       })
     }
 
@@ -91,7 +90,7 @@ export default function EditorHistoryReceptor(world: World): SystemDefintion {
     /** Local only - serialize world then push to CRDT */
     for (const action of modifyQueue()) {
       if (action.modify) {
-        const data = { scene: serializeWorld(world.sceneEntity) } as any as SceneData
+        const data = { scene: serializeWorld(Engine.instance.currentScene.sceneEntity) } as any as SceneData
         state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { data }])
         state.index.set(state.index.value + 1)
       } else if (state.includeSelection.value) {

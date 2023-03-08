@@ -2,9 +2,9 @@ import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { Action, ActionShape, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
-import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -13,6 +13,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
+import { NetworkState } from '../NetworkState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 function createPeer(
@@ -21,8 +22,7 @@ function createPeer(
   peerIndex: number,
   userID: UserId,
   userIndex: number,
-  name: string,
-  world = Engine.instance.currentWorld
+  name: string
 ) {
   console.log('[Network]: Create Peer', network.topic, peerID, peerIndex, userID, userIndex, name)
 
@@ -38,11 +38,11 @@ function createPeer(
     userIndex
   })
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[userID].set(name)
 }
 
-function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.currentWorld) {
+function destroyPeer(network: Network, peerID: PeerID) {
   console.log('[Network]: Destroy Peer', network.topic, peerID)
   if (!network.peers.has(peerID))
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove client with peerID ${peerID} that doesn't exit`)
@@ -65,15 +65,15 @@ function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.c
    * we want to remove them from world.users
    */
   if (network.topic === 'world') {
-    const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
-      .map(([id, network]: [string, Network]) => {
+    const remainingPeersForDisconnectingUser = Object.entries(getState(NetworkState).networks)
+      .map(([id, network]) => {
         return network.peers.has(peerID)
       })
       .filter((peer) => !!peer)
 
     if (!remainingPeersForDisconnectingUser.length) {
       Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
-      for (const eid of world.getOwnedNetworkObjects(userID)) removeEntity(eid)
+      for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) removeEntity(eid)
     }
 
     clearCachedActionsForUser(userID)
@@ -81,8 +81,8 @@ function destroyPeer(network: Network, peerID: PeerID, world = Engine.instance.c
   }
 }
 
-const destroyAllPeers = (network: Network, world = Engine.instance.currentWorld) => {
-  for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId, world)
+const destroyAllPeers = (network: Network) => {
+  for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId)
 }
 
 function clearActionsHistoryForUser(userId: UserId) {

@@ -30,13 +30,12 @@ describe.skip('EquippableSystem Integration Tests', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
   })
 
   it('system test', async () => {
-    const world = Engine.instance.currentWorld
-    const player = createEntity(world)
-    const item = createEntity(world)
+    const player = createEntity()
+    const item = createEntity()
 
     addComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userId,

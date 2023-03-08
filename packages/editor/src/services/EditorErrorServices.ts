@@ -1,7 +1,7 @@
 import { useState } from '@hookstate/core'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
 type EditorErrorServiceStateType = {
   error: any
@@ -16,13 +16,13 @@ const EditorErrorState = defineState({
 })
 
 export const EditorErrorServiceReceptor = (action): any => {
-  const s = getState(EditorErrorState)
+  const s = getMutableState(EditorErrorState)
   matches(action).when(EditorErrorAction.throwError.matches, (action) => {
     return s.merge({ error: action.error })
   })
 }
 
-export const accessEditorErrorState = () => getState(EditorErrorState)
+export const accessEditorErrorState = () => getMutableState(EditorErrorState)
 
 export const useEditorErrorState = () => useState(accessEditorErrorState())
 

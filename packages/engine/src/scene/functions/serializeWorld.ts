@@ -19,20 +19,20 @@ import { NameComponent } from '../components/NameComponent'
 import { LoadState, PrefabComponent } from '../components/PrefabComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
-export const serializeEntity = (entity: Entity, world = Engine.instance.currentWorld) => {
+export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
   const jsonComponents = [] as ComponentJson[]
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
+    const sceneComponentID = Engine.instance.sceneComponentRegistry.get(component.name)!
     if (
       sceneComponentID &&
       !ignoreComponents?.includes(component.name) &&
-      world.sceneLoadingRegistry.has(sceneComponentID)
+      Engine.instance.sceneLoadingRegistry.has(sceneComponentID)
     ) {
-      const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
+      const serialize = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)?.serialize
       const data = serialize ? serialize(entity) : serializeComponent(entity, component)
       if (data) {
         jsonComponents.push({
@@ -45,10 +45,10 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
   return jsonComponents
 }
 
-export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, world = Engine.instance.currentWorld) => {
+export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, world = Engine.instance.currentScene) => {
   const sceneJson = {
     version: 0,
-    metadata: getSceneMetadataChanges(Engine.instance.currentWorld),
+    metadata: getSceneMetadataChanges(Engine.instance.currentScene),
     entities: {},
     root: null! as EntityUUID
   }
@@ -78,7 +78,7 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, wor
 
       entityJson.name = getComponent(entity, NameComponent)
 
-      entityJson.components = serializeEntity(entity, world)
+      entityJson.components = serializeEntity(entity)
 
       if (hasComponent(entity, PrefabComponent)) {
         const asset = getComponent(entity, PrefabComponent)

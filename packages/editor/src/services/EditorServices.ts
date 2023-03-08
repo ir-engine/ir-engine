@@ -2,7 +2,7 @@ import { useState } from '@hookstate/core'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const EditorState = defineState({
   name: 'EditorState',
@@ -19,7 +19,7 @@ export const EditorState = defineState({
 })
 
 export const EditorServiceReceptor = (action) => {
-  const s = getState(EditorState)
+  const s = getMutableState(EditorState)
   matches(action)
     .when(EditorAction.sceneChanged.matches, (action) => {
       return s.merge({ sceneName: action.sceneName, sceneModified: false })
@@ -47,7 +47,7 @@ export const EditorServiceReceptor = (action) => {
     })
 }
 
-export const accessEditorState = () => getState(EditorState)
+export const accessEditorState = () => getMutableState(EditorState)
 
 export const useEditorState = () => useState(accessEditorState())
 

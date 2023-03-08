@@ -1,4 +1,4 @@
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
@@ -24,7 +24,7 @@ class ComputedTransform {
   set referenceEntity(v) {
     if (this._referenceEntity === v) return
     this._referenceEntity = v
-    getState(EngineState).transformsNeedSorting.set(true)
+    getMutableState(EngineState).transformsNeedSorting.set(true)
   }
 
   get computeFunction() {

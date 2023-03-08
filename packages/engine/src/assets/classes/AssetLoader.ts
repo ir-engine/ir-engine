@@ -20,9 +20,12 @@ import {
   TextureLoader
 } from 'three'
 
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -84,7 +87,7 @@ const onTextureUploadDropSource = (uuid?: string) =>
   }
 
 export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
-  if (Engine.instance.isEditor || !child.isMesh) return
+  if (getMutableState(EngineState).isEditor.value || !child.isMesh) return
   const geo = child.geometry as BufferGeometry
   const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
   const attributes = geo.attributes
@@ -138,7 +141,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState(Engine.instance.currentWorld).LODs.value
+  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState(Engine.instance.currentScene).LODs.value
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {
@@ -345,7 +348,7 @@ const assetLoadCallback =
     onLoad(asset)
   }
 
-const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
+const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean

@@ -1,6 +1,6 @@
 import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { accessEditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
@@ -15,6 +15,8 @@ export const cancelGrabOrPlacement = () => {
     // if (EditorHistory.grabCheckPoint) revertHistory(EditorHistory.grabCheckPoint)
   } else if (editorHelperState.transformMode.value === TransformMode.Placement) {
     setTransformMode(editorHelperState.transformModeOnCancel.value)
-    EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value))
+    EditorControlFunctions.removeObject(
+      getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+    )
   }
 }

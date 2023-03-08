@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { ArrowHelper, Vector3 } from 'three'
 
-import { getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -44,7 +44,7 @@ export const MountPointComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, MountPointComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(root.entity, MountPointComponent)
 
     useEffect(() => {

@@ -1,7 +1,6 @@
 import { useState } from '@hookstate/core'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   hasComponent,
   removeComponent,
@@ -10,7 +9,13 @@ import {
 import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SystemDefintion } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
-import { createActionQueue, defineAction, defineState, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import {
+  createActionQueue,
+  defineAction,
+  defineState,
+  getMutableState,
+  removeActionQueue
+} from '@etherealengine/hyperflux'
 
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
@@ -42,8 +47,8 @@ export const SelectionState = defineState({
     } as SelectionServiceStateType)
 })
 
-export default function EditorSelectionReceptor(world: World): SystemDefintion {
-  const selectionState = getState(SelectionState)
+export default function EditorSelectionReceptor(): SystemDefintion {
+  const selectionState = getMutableState(SelectionState)
 
   const updateSelectionQueue = createActionQueue(SelectionAction.updateSelection.matches)
   const changedObjectQueue = createActionQueue(SelectionAction.changedObject.matches)
@@ -90,7 +95,7 @@ export default function EditorSelectionReceptor(world: World): SystemDefintion {
   return { execute, cleanup }
 }
 
-export const accessSelectionState = () => getState(SelectionState)
+export const accessSelectionState = () => getMutableState(SelectionState)
 
 export const useSelectionState = () => useState(accessSelectionState())
 

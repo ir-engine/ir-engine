@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Color, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, PointLight } from 'three'
 
-import { getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -14,7 +14,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new PointLight()
     if (!isHeadset()) addObjectToGroup(entity, light)
     return {
@@ -68,7 +68,7 @@ export const PointLightComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, PointLightComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, PointLightComponent)
 
     useEffect(() => {

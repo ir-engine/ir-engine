@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
@@ -28,7 +28,7 @@ import { InviteService, InviteServiceReceptor } from '@etherealengine/client-cor
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
@@ -39,6 +39,7 @@ const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoute
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
 const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
+const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
@@ -47,7 +48,7 @@ function RouterComp() {
   const location = useLocation()
   const navigate = useNavigate()
   const [routesReady, setRoutesReady] = useState(false)
-  const routerState = useHookstate(getState(RouterState))
+  const routerState = useHookstate(getMutableState(RouterState))
   const route = useRouter()
   const { t } = useTranslation()
 
@@ -109,6 +110,13 @@ function RouterComp() {
     }
   }, [routerState.pathname])
 
+  // Redirect from /editor to /studio
+  useEffect(() => {
+    if (location.pathname === '/editor') {
+      navigate('/studio')
+    }
+  }, [location.pathname])
+
   useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes
     if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
@@ -124,9 +132,14 @@ function RouterComp() {
     <ErrorBoundary>
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
         <Routes>
-          <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
+          <Route
+            key={'custom'}
+            path={'/*'}
+            element={<$custom customRoutes={customRoutes.filter((c) => c.route !== '/admin')} />}
+          />
           <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
           {/* default to allowing admin access regardless */}
+          <Route key={'default-studio'} path={'/studio/*'} element={<$studio />} />
           <Route key={'default-admin'} path={'/admin/*'} element={<$admin />} />
           <Route key={'default-auth'} path={'/auth/*'} element={<$auth />} />
           <Route key={'default-index'} path={'/'} element={<$index />} />

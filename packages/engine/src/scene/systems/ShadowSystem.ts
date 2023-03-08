@@ -21,14 +21,14 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { getState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -66,13 +66,13 @@ const shadowSize = new Vector3()
 const raycaster = new Raycaster()
 const raycasterPosition = new Vector3()
 
-export default async function ShadowSystem(world: World) {
-  const xrState = getState(XRState)
-  const renderState = getState(RendererState)
+export default async function ShadowSystem() {
+  const xrState = getMutableState(XRState)
+  const renderState = getMutableState(RendererState)
 
   const csmGroup = new Group()
   csmGroup.name = 'CSM-group'
-  Engine.instance.currentWorld.scene.add(csmGroup)
+  Engine.instance.scene.add(csmGroup)
 
   const UpdateCSMFromActiveDirectionalLight = (props: {
     activeLightEntity: Entity
@@ -88,7 +88,7 @@ export default async function ShadowSystem(world: World) {
     const activeLightFromEntity = useOptionalComponent(activeLightEntity, DirectionalLightComponent)?.value.light
     if (!activeLight) activeLight = activeLightFromEntity
 
-    const csmEnabled = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld).csm).value
+    const csmEnabled = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene).csm).value
 
     const shadowsEnabled = useShadowsEnabled()
     const useCSM = shadowsEnabled && csmEnabled
@@ -103,12 +103,12 @@ export default async function ShadowSystem(world: World) {
 
       if (!EngineRenderer.instance.csm) {
         EngineRenderer.instance.csm = new CSM({
-          camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
+          camera: Engine.instance.camera as PerspectiveCamera,
           parent: csmGroup,
           light: activeLight
         })
         // helper = new CSMHelper(EngineRenderer.instance.csm)
-        // Engine.instance.currentWorld.scene.add(helper)
+        // Engine.instance.scene.add(helper)
       }
 
       const activeLightParent = activeLight.parent
@@ -182,7 +182,7 @@ export default async function ShadowSystem(world: World) {
 
   const dropShadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
-  let sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+  let sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
   const minRadius = 0.15
   const sphere = new Sphere()
@@ -197,7 +197,7 @@ export default async function ShadowSystem(world: World) {
 
     useEffect(() => {
       if (
-        Engine.instance.isEditor ||
+        getMutableState(EngineState).isEditor.value ||
         !shadow.cast.value ||
         !shadowMaterial.value ||
         useShadows ||
@@ -233,10 +233,10 @@ export default async function ShadowSystem(world: World) {
   const shadowOffset = new Vector3(0, 0.01, 0)
 
   const execute = () => {
-    sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+    sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
-    if (!useShadows && !Engine.instance.isEditor) {
+    if (!useShadows && !getMutableState(EngineState).isEditor.value) {
       for (const entity of dropShadowComponentQuery()) {
         const dropShadow = getComponent(entity, DropShadowComponent)
         const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)

@@ -17,7 +17,6 @@ import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -50,7 +49,7 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { createActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { createActionQueue, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
@@ -81,9 +80,9 @@ export const createTransformGizmo = () => {
   return gizmoEntity
 }
 
-export default async function EditorControlSystem(world: World) {
-  const selectionState = getState(SelectionState)
-  const editorHelperState = getState(EditorHelperState)
+export default async function EditorControlSystem() {
+  const selectionState = getMutableState(SelectionState)
+  const editorHelperState = getMutableState(EditorHelperState)
 
   const gizmoEntity = createTransformGizmo()
 
@@ -132,7 +131,7 @@ export default async function EditorControlSystem(world: World) {
   let dragging = false
 
   const onKeyQ = () => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
     EditorControlFunctions.rotateAround(
       nodes,
@@ -143,7 +142,7 @@ export default async function EditorControlSystem(world: World) {
   }
 
   const onKeyE = () => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
     EditorControlFunctions.rotateAround(
       nodes,
@@ -194,8 +193,8 @@ export default async function EditorControlSystem(world: World) {
   }
 
   const onKeyZ = () => {
-    if (world.buttons.ControlLeft?.pressed) {
-      if (world.buttons.ShiftLeft?.pressed) {
+    if (Engine.instance.buttons.ControlLeft?.pressed) {
+      if (Engine.instance.buttons.ShiftLeft?.pressed) {
         dispatchAction(EditorHistoryAction.redo({ count: 1 }))
       } else {
         dispatchAction(EditorHistoryAction.undo({ count: 1 }))
@@ -214,7 +213,9 @@ export default async function EditorControlSystem(world: World) {
   }
 
   const onDelete = () => {
-    EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value))
+    EditorControlFunctions.removeObject(
+      getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+    )
   }
 
   const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], excludeLayers?: Layers): void => {
@@ -234,10 +235,10 @@ export default async function EditorControlSystem(world: World) {
   }
 
   const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number = 0): void => {
-    raycaster.setFromCamera(coords, Engine.instance.currentWorld.camera)
+    raycaster.setFromCamera(coords, Engine.instance.camera)
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
-    const scene = Engine.instance.currentWorld.scene
+    const scene = Engine.instance.scene
 
     const excludeObjects = [] as Object3D[]
     for (const e of selectionState.selectedParentEntities.value) {
@@ -250,7 +251,7 @@ export default async function EditorControlSystem(world: World) {
       }
     }
 
-    findIntersectObjects(Engine.instance.currentWorld.scene, excludeObjects, raycastIgnoreLayers)
+    findIntersectObjects(Engine.instance.scene, excludeObjects, raycastIgnoreLayers)
     findIntersectObjects(InfiniteGridHelper.instance)
 
     raycasterResults.sort((a, b) => a.distance - b.distance)
@@ -279,7 +280,7 @@ export default async function EditorControlSystem(world: World) {
 
   const execute = () => {
     for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
-    if (world.localClientEntity) return
+    if (Engine.instance.localClientEntity) return
 
     selectedParentEntities = selectionState.selectedParentEntities.value
     selectedEntities = selectionState.selectedEntities.value
@@ -293,7 +294,7 @@ export default async function EditorControlSystem(world: World) {
     transformSpaceChanged = transformSpace !== editorHelperState.transformSpace.value
     transformSpace = editorHelperState.transformSpace.value
 
-    const inputState = world.buttons
+    const inputState = Engine.instance.buttons
 
     if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
       if (hasComponent(gizmoEntity, VisibleComponent)) removeComponent(gizmoEntity, VisibleComponent)
@@ -302,7 +303,7 @@ export default async function EditorControlSystem(world: World) {
       const isUuid = typeof lastSelection === 'string'
 
       const lastSelectedTransform = isUuid
-        ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)
+        ? Engine.instance.scene.getObjectByProperty('uuid', lastSelection)
         : getOptionalComponent(lastSelection as Entity, TransformComponent)
 
       if (lastSelectedTransform) {
@@ -321,7 +322,7 @@ export default async function EditorControlSystem(world: World) {
               const parentEnt = selectedParentEntities[i]
               const isUuid = typeof parentEnt === 'string'
               if (isUuid) {
-                box.expandByObject(Engine.instance.currentWorld.scene.getObjectByProperty('uuid', parentEnt)!)
+                box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
               } else {
                 box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
               }
@@ -352,7 +353,7 @@ export default async function EditorControlSystem(world: World) {
         if (!hasComponent(gizmoEntity, VisibleComponent)) setComponent(gizmoEntity, VisibleComponent)
       }
     }
-    const cursorPosition = world.pointerState.position
+    const cursorPosition = Engine.instance.pointerState.position
 
     const isGrabbing = transformMode === TransformMode.Grab || transformMode === TransformMode.Placement
 
@@ -392,11 +393,8 @@ export default async function EditorControlSystem(world: World) {
         )
         constraint = TransformAxisConstraints.XYZ
       } else {
-        ray.origin.setFromMatrixPosition(Engine.instance.currentWorld.camera.matrixWorld)
-        ray.direction
-          .set(cursorPosition.x, cursorPosition.y, 0)
-          .unproject(Engine.instance.currentWorld.camera)
-          .sub(ray.origin)
+        ray.origin.setFromMatrixPosition(Engine.instance.camera.matrixWorld)
+        ray.direction.set(cursorPosition.x, cursorPosition.y, 0).unproject(Engine.instance.camera).sub(ray.origin)
         ray.intersectPlane(transformPlane, planeIntersection)
         constraint = TransformAxisConstraints[gizmoObj.selectedAxis!]
       }
@@ -444,7 +442,7 @@ export default async function EditorControlSystem(world: World) {
           )
         }
 
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
         EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
 
         // if (isGrabbing && transformMode === TransformMode.Grab) {
@@ -469,7 +467,7 @@ export default async function EditorControlSystem(world: World) {
         const relativeRotationAngle = rotationAngle - prevRotationAngle
         prevRotationAngle = rotationAngle
 
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
         EditorControlFunctions.rotateAround(nodes, planeNormal, relativeRotationAngle, gizmoObj.position)
 
         const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
@@ -480,7 +478,7 @@ export default async function EditorControlSystem(world: World) {
             selectedAxisInfo.startMarkerLocal!.position.copy(gizmoObj.position)
             selectedAxisInfo.startMarkerLocal!.quaternion.copy(gizmoObj.quaternion)
             selectedAxisInfo.startMarkerLocal!.scale.copy(gizmoObj.scale)
-            Engine.instance.currentWorld.scene.add(selectedAxisInfo.startMarkerLocal!)
+            Engine.instance.scene.add(selectedAxisInfo.startMarkerLocal!)
           }
         }
 
@@ -503,7 +501,7 @@ export default async function EditorControlSystem(world: World) {
           selectedAxisInfo.rotationTarget!.rotation.set(0, 0, 0)
           if (transformSpace !== TransformSpace.World) {
             const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-            if (startMarkerLocal) Engine.instance.currentWorld.scene.remove(startMarkerLocal)
+            if (startMarkerLocal) Engine.instance.scene.remove(startMarkerLocal)
           }
         }
       } else if (transformMode === TransformMode.Scale) {
@@ -519,7 +517,7 @@ export default async function EditorControlSystem(world: World) {
         let scaleFactor =
           gizmoObj.selectedAxis === TransformAxis.XYZ
             ? 1 +
-              Engine.instance.currentWorld.camera
+              Engine.instance.camera
                 .getWorldDirection(viewDirection)
                 .applyQuaternion(gizmoObj.quaternion)
                 .dot(deltaDragVector)
@@ -546,13 +544,13 @@ export default async function EditorControlSystem(world: World) {
         scaleVector.copy(curScale).divide(prevScale)
         prevScale.copy(curScale)
 
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+        const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
         EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
       }
     }
 
     selectionCounter = selectionState.selectionCounter.value
-    cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
+    cameraComponent = getComponent(Engine.instance.cameraEntity, EditorCameraComponent)
     const shift = inputState.ShiftLeft?.pressed
 
     if (isPrimaryClickUp) {
@@ -603,19 +601,19 @@ export default async function EditorControlSystem(world: World) {
     if (inputState.Delete?.down) onDelete()
 
     const selecting = inputState.PrimaryClick?.pressed && !dragging
-    const zoom = world.pointerState.scroll.y
+    const zoom = Engine.instance.pointerState.scroll.y
     const panning = inputState.AuxiliaryClick?.pressed
 
     if (selecting) {
       cameraComponent.isOrbiting = true
-      const mouseMovement = world.pointerState.movement
+      const mouseMovement = Engine.instance.pointerState.movement
       if (mouseMovement) {
         cameraComponent.cursorDeltaX = mouseMovement.x
         cameraComponent.cursorDeltaY = mouseMovement.y
       }
     } else if (panning) {
       cameraComponent.isPanning = true
-      const mouseMovement = world.pointerState.movement
+      const mouseMovement = Engine.instance.pointerState.movement
       if (mouseMovement) {
         cameraComponent.cursorDeltaX = mouseMovement.x
         cameraComponent.cursorDeltaY = mouseMovement.y

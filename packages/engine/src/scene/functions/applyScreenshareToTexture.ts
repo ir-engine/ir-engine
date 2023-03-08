@@ -65,7 +65,7 @@ export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
     if ((video as any).appliedTexture) return
     ;(video as any).appliedTexture = true
     if (!video.videoWidth || !video.videoHeight) return
-    for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
+    for (const entity of screenshareTargetQuery()) {
       const group = getComponent(entity, GroupComponent)
       for (const obj3d of group)
         obj3d.traverse((obj: Mesh<any, MeshStandardMaterial>) => {

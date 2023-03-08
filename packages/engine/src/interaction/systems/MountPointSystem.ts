@@ -1,6 +1,6 @@
 import { Box3, Object3D, Vector3 } from 'three'
 
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
 import { AvatarStates } from '../../avatar/animation/Util'
@@ -8,8 +8,7 @@ import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimatio
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import {
   addComponent,
   ComponentType,
@@ -48,25 +47,25 @@ const mountPointInteractMessages = {
   [MountPoint.seat]: 'Press E to Sit'
 }
 
-export default async function MountPointSystem(world: World) {
-  world.scenePrefabRegistry.set(ScenePrefabs.chair, [
+export default async function MountPointSystem() {
+  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.chair, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_MOUNT_POINT, props: {} }
   ])
 
-  world.sceneComponentRegistry.set(MountPointComponent.name, SCENE_COMPONENT_MOUNT_POINT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
+  Engine.instance.sceneComponentRegistry.set(MountPointComponent.name, SCENE_COMPONENT_MOUNT_POINT)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
     defaultData: {}
   })
 
-  if (Engine.instance.isEditor)
+  if (getMutableState(EngineState).isEditor.value)
     return {
       execute: () => {},
       cleanup: async () => {
-        world.scenePrefabRegistry.delete(ScenePrefabs.chair)
-        world.sceneComponentRegistry.delete(MountPointComponent.name)
-        world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
+        Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.chair)
+        Engine.instance.sceneComponentRegistry.delete(MountPointComponent.name)
+        Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
       }
     }
 
@@ -89,7 +88,7 @@ export default async function MountPointSystem(world: World) {
     for (const action of mountPointActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
       if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
-      const avatarEntity = world.getUserAvatarEntity(action.$from)
+      const avatarEntity = Engine.instance.getUserAvatarEntity(action.$from)
 
       const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
       if (mountPoint.type === MountPoint.seat) {
@@ -122,7 +121,7 @@ export default async function MountPointSystem(world: World) {
       }
     }
 
-    for (const entity of sittingIdleQuery(world)) {
+    for (const entity of sittingIdleQuery()) {
       const controller = getComponent(entity, AvatarControllerComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const avatarComponent = getComponent(entity, AvatarComponent)
@@ -146,7 +145,7 @@ export default async function MountPointSystem(world: World) {
           maxDistance: 2,
           groups: interactionGroups
         }
-        const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+        const hits = Physics.castRay(Engine.instance.physicsWorld, raycastComponentData)
 
         if (hits.length > 0) {
           const raycastHit = hits[0] as RaycastHit
@@ -163,18 +162,18 @@ export default async function MountPointSystem(world: World) {
 
         changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
         removeComponent(entity, SittingComponent)
-        getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent).movementEnabled = true
+        getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
       }
     }
   }
 
   const cleanup = async () => {
-    world.scenePrefabRegistry.delete(ScenePrefabs.chair)
-    world.sceneComponentRegistry.delete(MountPointComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
+    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.chair)
+    Engine.instance.sceneComponentRegistry.delete(MountPointComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
     removeActionQueue(mountPointActionQueue)
-    removeQuery(world, mountPointQuery)
-    removeQuery(world, sittingIdleQuery)
+    removeQuery(mountPointQuery)
+    removeQuery(sittingIdleQuery)
   }
 
   return { execute, cleanup }

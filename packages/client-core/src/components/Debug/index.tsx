@@ -18,29 +18,29 @@ import {
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SystemInstance } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 export const Debug = ({ showingStateRef }) => {
-  useHookstate(getState(EngineState).frameTime).value
-  const rendererState = useHookstate(getState(RendererState))
-  const engineState = useHookstate(getState(EngineState))
+  useHookstate(getMutableState(EngineState).frameTime).value
+  const rendererState = useHookstate(getMutableState(RendererState))
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
-    engineState.joinedWorld.value &&
-    hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
+    engineState.joinedWorld.value && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
-  const networks = mapToObject(Engine.instance.currentWorld.networks)
+  const networks = getMutableState(NetworkState).networks
 
   const onClickRespawn = (): void => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+    respawnAvatar(Engine.instance.localClientEntity)
   }
 
   const toggleDebug = () => {
@@ -82,16 +82,13 @@ export const Debug = ({ showingStateRef }) => {
   const renderEntityComponents = (entity: Entity) => {
     return Object.fromEntries(
       entityExists(entity)
-        ? getEntityComponents(Engine.instance.currentWorld, entity).reduce<[string, any][]>(
-            (components, C: Component<any, any>) => {
-              if (C !== NameComponent) {
-                const component = getComponent(entity, C)
-                components.push([C.name, { ...component }])
-              }
-              return components
-            },
-            []
-          )
+        ? getEntityComponents(Engine.instance, entity).reduce<[string, any][]>((components, C: Component<any, any>) => {
+            if (C !== NameComponent) {
+              const component = getComponent(entity, C)
+              components.push([C.name, { ...component }])
+            }
+            return components
+          }, [])
         : []
     )
   }
@@ -99,7 +96,7 @@ export const Debug = ({ showingStateRef }) => {
   const renderAllEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.instance.currentWorld.entityQuery().entries()]
+        [...Engine.instance.entityQuery().entries()]
           .map(([key, eid]) => {
             try {
               return [
@@ -119,16 +116,16 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleNodeHelpers = () => {
-    getState(RendererState).nodeHelperVisibility.set(!getState(RendererState).nodeHelperVisibility.value)
+    getMutableState(RendererState).nodeHelperVisibility.set(!getMutableState(RendererState).nodeHelperVisibility.value)
   }
 
   const toggleGridHelper = () => {
-    getState(RendererState).gridVisibility.set(!getState(RendererState).gridVisibility.value)
+    getMutableState(RendererState).gridVisibility.set(!getMutableState(RendererState).gridVisibility.value)
   }
 
   const namedEntities = useHookstate({})
   const entityTree = useHookstate({} as any)
-  const pipelines = Engine.instance.currentWorld.pipelines
+  const pipelines = Engine.instance.pipelines
 
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
@@ -221,7 +218,7 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
-        <JSONTree data={Engine.instance.store.state} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree data={Engine.instance.store.stateMap} postprocessValue={(v) => v?.value ?? v} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
@@ -239,7 +236,7 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.networks')}</h1>
-        <JSONTree data={{ ...networks }} />
+        <JSONTree data={networks} />
       </div>
     </div>
   )

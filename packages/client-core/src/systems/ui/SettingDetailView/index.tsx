@@ -16,7 +16,7 @@ import { getComponent } from '@etherealengine/engine/src/ecs/functions/Component
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
@@ -37,10 +37,10 @@ function createSettingDetailState() {
 // TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getState(RendererState))
+  const rendererState = useHookstate(getMutableState(RendererState))
   const audioState = useAudioState()
-  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
-  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
+  const xrSessionActive = useHookstate(getMutableState(XRState).sessionActive)
+  const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
@@ -57,8 +57,7 @@ const SettingDetailView = () => {
   const controlSchemes = Object.values(AvatarAxesControlScheme).filter((value) => typeof value === 'string')
 
   useEffect(() => {
-    const world = Engine.instance.currentWorld
-    const entity = world.localClientEntity
+    const entity = Engine.instance.localClientEntity
     const avatar = getComponent(entity, AvatarComponent)
     if (!avatar) return
     if (showAvatar) {

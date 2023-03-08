@@ -1,4 +1,3 @@
-import { entityExists } from 'bitecs'
 import { useEffect } from 'react'
 import { Mesh, Object3D, Scene } from 'three'
 
@@ -15,7 +14,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { entityExists, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -117,7 +116,7 @@ function ModelReactor({ root }: EntityReactorProps) {
             throw new Error(`Model type '${fileExtension}' not supported`)
         }
 
-        if (!entityExists(Engine.instance.currentWorld, entity)) return
+        if (!entityExists(entity)) return
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
         if (scene.userData.type === 'glb') delete scene.userData.type
@@ -154,7 +153,6 @@ function ModelReactor({ root }: EntityReactorProps) {
     if (model.generateBVH) {
       const bvhDone = [] as Promise<void>[]
       scene.traverse((obj: Mesh) => {
-        if (obj.geometry?.boundsTree) return
         bvhDone.push(generateMeshBVH(obj))
       })
       // trigger group state invalidation when bvh is done

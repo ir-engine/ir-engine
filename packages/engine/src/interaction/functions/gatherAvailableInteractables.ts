@@ -1,6 +1,6 @@
 import { Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -28,14 +28,14 @@ const frustum = new Frustum()
  */
 
 export const gatherAvailableInteractables = (interactables: Entity[]) => {
-  if (!Engine.instance.currentWorld.localClientEntity) return
+  if (!Engine.instance.localClientEntity) return
 
-  const transform = getComponent(Engine.instance.currentWorld.localClientEntity, TransformComponent)
-  const controller = getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
+  const transform = getComponent(Engine.instance.localClientEntity, TransformComponent)
+  const controller = getComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   if (!controller || !transform) return
 
-  const availableInteractable = getState(InteractState).available
+  const availableInteractable = getMutableState(InteractState).available
   const camera = getComponent(controller.cameraEntity, CameraComponent)
 
   mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)

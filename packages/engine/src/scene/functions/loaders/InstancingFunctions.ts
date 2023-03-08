@@ -361,7 +361,7 @@ async function loadGrassTextures(props: State<GrassProperties>) {
   await Promise.all([props.alphaMap, props.grassTexture].map(loadTex))
 }
 
-export async function stageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
+export async function stageInstancing(entity: Entity) {
   const scatter = getComponent(entity, InstancingComponent)
   const scatterState = getComponentState(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
@@ -369,7 +369,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     return
   }
   scatterState.state.set(ScatterState.STAGING)
-  const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface, world))!.geometry
+  const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface))!.geometry
   const normals = targetGeo.getAttribute('normal')
   const positions = targetGeo.getAttribute('position')
   const uvs = targetGeo.getAttribute('uv')
@@ -669,7 +669,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
           vHeight: { value: grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma },
           alphaMap: { value: grassProps.alphaMap.texture },
           sunDirection: { value: new Vector3(-0.35, 0, 0) },
-          cameraPosition: { value: Engine.instance.currentWorld.camera.position },
+          cameraPosition: { value: Engine.instance.camera.position },
           ambientStrength: { value: grassProps.ambientStrength },
           diffuseStrength: { value: grassProps.diffuseStrength },
           sunColor: { value: grassProps.sunColor }
@@ -754,11 +754,11 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   dispatchAction(InstancingActions.instancingStaged({ uuid: getComponent(entity, UUIDComponent) }))
 }
 
-export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
+export function unstageInstancing(entity: Entity) {
   const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
   const group = getComponent(entity, GroupComponent)
   const obj3d = group.pop()
   obj3d?.removeFromParent()
-  if (group.length === 0) removeComponent(entity, GroupComponent, world)
+  if (group.length === 0) removeComponent(entity, GroupComponent)
   comp.state = ScatterState.UNSTAGED
 }

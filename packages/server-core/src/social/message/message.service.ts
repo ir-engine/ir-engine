@@ -76,9 +76,7 @@ export default (app: Application) => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(
       targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          message: data
-        })
+        return app.channel(`userIds/${userId}`).send(data)
       })
     )
   })
@@ -127,9 +125,7 @@ export default (app: Application) => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(
       targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          message: data
-        })
+        return app.channel(`userIds/${userId}`).send(data)
       })
     )
   })
@@ -178,9 +174,7 @@ export default (app: Application) => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(
       targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          message: data
-        })
+        return app.channel(`userIds/${userId}`).send(data)
       })
     )
   })
