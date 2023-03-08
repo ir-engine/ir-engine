@@ -1,14 +1,30 @@
+import { Paginated } from '@feathersjs/client'
+import JSZip from 'jszip'
+import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { saveAs } from 'save-as'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import config from '@etherealengine/common/src/config'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { createActionQueue, getState, startReactor } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import Tooltip from '@etherealengine/ui/src/Tooltip'
 
+import { API } from '../../../API'
+import {
+  FileBrowserAction,
+  FileBrowserService,
+  FileBrowserServiceReceptor,
+  FileBrowserState
+} from '../../../common/services/FileBrowserService'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -125,6 +141,45 @@ const ProjectTable = ({ className }: Props) => {
       description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${row.repositoryPath}`,
       onSubmit: handlePushProjectToGithub
     })
+  }
+
+  const DownloadProject = async (row: ProjectInterface) => {
+    setProject(row)
+    const url = `/projects/${row.name}`
+
+    const params = {
+      query: {
+        $recursive: true,
+        $skip: 0,
+        $limit: 1000
+      }
+    }
+
+    const files = (await API.instance.client.service('file-browser').get(url, params)) as Paginated<FileContentType>
+    console.log(files)
+
+    if (files.total > 0) {
+      const el = document.createElement('a')
+      el.download = row.name + '.zip'
+      const zip = new JSZip()
+      const folder = zip.folder('project')
+
+      const keys = files.data
+      for (let i = 0; i < keys.length; i++) {
+        const blobPromise = fetch(keys[i].url).then((r) => {
+          if (r.status === 200) return r.blob()
+          return Promise.reject(new Error(r.statusText))
+        })
+        const name = keys[i].url.substring(keys[i].url.lastIndexOf('/') + 1)
+        console.log(name)
+        folder!.file(name, blobPromise)
+      }
+
+      zip
+        .generateAsync({ type: 'blob' })
+        .then((blob) => saveAs(blob, 'projectzip'))
+        .catch((e) => console.log(e))
+    }
   }
 
   const openInvalidateConfirmation = (row) => {
@@ -269,6 +324,19 @@ const ProjectTable = ({ className }: Props) => {
               disabled={!el.hasWriteAccess || !el.repositoryPath}
               onClick={() => openPushConfirmation(el)}
               icon={<Icon type="Upload" />}
+            />
+          )}
+        </>
+      ),
+      download: (
+        <>
+          {isAdmin && (
+            <IconButton
+              className={styles.iconButton}
+              name="download"
+              disabled={!el.repositoryPath}
+              onClick={() => DownloadProject(el)}
+              icon={<Icon type="Download" />}
             />
           )}
         </>

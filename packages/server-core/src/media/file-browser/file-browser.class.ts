@@ -9,6 +9,7 @@ import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/S
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
@@ -79,11 +80,12 @@ export class FileBrowserService implements ServiceMethods<any> {
   async get(directory: string, params?: UserParams): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
-    const { $skip, $limit, storageProviderName } = params.query
+    const { $recursive, $skip, $limit, storageProviderName } = params.query
 
     delete params.query.storageProviderName
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 100
+    const recursive = $recursive
 
     const storageProvider = getStorageProvider(storageProviderName)
     const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
@@ -92,6 +94,12 @@ export class FileBrowserService implements ServiceMethods<any> {
       throw new Forbidden('Not allowed to access that directory')
     let result = await storageProvider.listFolderContent(directory)
     const total = result.length
+
+    if (params) {
+      result.forEach((file) => {
+        logger.info('Add files of subdirectory')
+      })
+    }
 
     result = result.slice(skip, skip + limit)
 
