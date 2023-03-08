@@ -80,54 +80,53 @@ function ModelReactor({ root }: EntityReactorProps) {
   useEffect(() => {
     if (model.src === model.scene?.userData?.src) return
 
-    const loadModel = async () => {
-      try {
-        if (model.scene && model.scene.userData.src && model.scene.userData.src !== model.src) {
-          try {
-            removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
-          } catch (e) {
-            if (e?.name === 'MaterialNotFound') {
-              console.warn('could not find material in source ' + model.scene.userData.src)
-            } else {
-              throw e
-            }
+    try {
+      if (model.scene && model.scene.userData.src && model.scene.userData.src !== model.src) {
+        try {
+          removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
+        } catch (e) {
+          if (e?.name === 'MaterialNotFound') {
+            console.warn('could not find material in source ' + model.scene.userData.src)
+          } else {
+            throw e
           }
         }
-        if (!model.src) return
-        if (!hasComponent(entity, EntityTreeComponent)) return
-
-        const uuid = getComponent(entity, UUIDComponent)
-        DependencyTree.add(uuid)
-        let scene: Scene
-        const fileExtension = /\.[\d\s\w]+$/.exec(model.src)?.[0]
-        switch (fileExtension) {
-          case '.glb':
-          case '.gltf':
-          case '.fbx':
-          case '.usdz':
-            const loadedAsset = await AssetLoader.loadAsync(model.src, {
+      }
+      if (!model.src) return
+      const uuid = getComponent(entity, UUIDComponent)
+      DependencyTree.add(uuid)
+      let scene: Scene
+      const fileExtension = model.src.split('.').pop()?.toLowerCase()
+      switch (fileExtension) {
+        case 'glb':
+        case 'gltf':
+        case 'fbx':
+        case 'usdz':
+          AssetLoader.load(
+            model.src,
+            {
               ignoreDisposeGeometry: model.generateBVH,
               uuid
-            })
-            scene = loadedAsset.scene
-            scene.animations = loadedAsset.animations
-            break
-          default:
-            throw new Error(`Model type '${fileExtension}' not supported`)
-        }
-
-        if (!entityExists(entity)) return
-        removeError(entity, ModelComponent, 'LOADING_ERROR')
-        scene.userData.src = model.src
-        if (scene.userData.type === 'glb') delete scene.userData.type
-        modelComponent.scene.set(scene)
-      } catch (err) {
-        console.error(err)
-        addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
+            },
+            (loadedAsset) => {
+              scene = loadedAsset.scene
+              scene.animations = loadedAsset.animations
+              if (!entityExists(entity)) return
+              removeError(entity, ModelComponent, 'LOADING_ERROR')
+              scene.userData.src = model.src
+              if (scene.userData.type === 'glb') delete scene.userData.type
+              model.scene && removeObjectFromGroup(entity, model.scene)
+              modelComponent.scene.set(scene)
+            }
+          )
+          break
+        default:
+          throw new Error(`Model type '${fileExtension}' not supported`)
       }
+    } catch (err) {
+      console.error(err)
+      addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
     }
-
-    loadModel()
   }, [modelComponent.src])
 
   useEffect(() => {

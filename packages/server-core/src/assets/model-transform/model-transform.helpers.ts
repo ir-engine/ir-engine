@@ -5,27 +5,156 @@ import {
   Format,
   Buffer as glBuffer,
   Material,
+  Node,
   Primitive,
   Property,
   Texture
 } from '@gltf-transform/core'
-import { MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
-import { EncoderMethod } from '@gltf-transform/extensions/dist/ext-meshopt-compression/constants'
+import { MeshGPUInstancing, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
 import { dedup, draco, partition, prune, quantize, reorder, weld } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
-import { exec } from 'child_process'
+import { execFileSync } from 'child_process'
 import fs from 'fs'
 import { MeshoptEncoder } from 'meshoptimizer'
 import path from 'path'
 import sharp from 'sharp'
 import { MathUtils } from 'three'
-import util from 'util'
 
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 
 import { getContentType } from '../../util/fileUtils'
 import { EEMaterial } from '../extensions/EE_MaterialTransformer'
 import ModelTransformLoader from '../ModelTransformLoader'
+
+const createBatch = (doc, batchExtension, mesh, count) => {
+  return mesh.listPrimitives().map((prim) => {
+    const buffer = prim.getAttribute('POSITION').getBuffer()
+
+    const batchTranslation = doc
+      .createAccessor()
+      .setType('VEC3')
+      .setArray(new Float32Array(3 * count))
+      .setBuffer(buffer)
+    const batchRotation = doc
+      .createAccessor()
+      .setType('VEC4')
+      .setArray(new Float32Array(4 * count))
+      .setBuffer(buffer)
+    const batchScale = doc
+      .createAccessor()
+      .setType('VEC3')
+      .setArray(new Float32Array(3 * count))
+      .setBuffer(buffer)
+
+    return batchExtension
+      .createInstancedMesh()
+      .setAttribute('TRANSLATION', batchTranslation)
+      .setAttribute('ROTATION', batchRotation)
+      .setAttribute('SCALE', batchScale)
+  })
+}
+
+function pruneUnusedNodes(nodes: Node[], logger) {
+  let node: Node | undefined
+  let unusedNodes = 0
+  while ((node = nodes.pop())) {
+    if (
+      node.listChildren().length ||
+      node.getCamera() ||
+      node.getMesh() ||
+      node.getSkin() ||
+      node.listExtensions().length
+    ) {
+      continue
+    }
+    const nodeParent = node.getParent() as Node
+    if (nodeParent instanceof Node) {
+      nodes.push(nodeParent)
+    }
+    node.dispose()
+    unusedNodes++
+    console.log(`Pruned ${unusedNodes} nodes.`)
+  }
+}
+
+const split = async (document: Document) => {
+  const root = document.getRoot()
+  const scene = root.listScenes()[0]
+  const toSplit = root.listNodes().filter((node) => {
+    const mesh = node.getMesh()
+    const prims = mesh?.listPrimitives()
+    return mesh && prims && prims.length > 1
+  })
+  const primMeshes = new Map()
+  toSplit.map((node) => {
+    const mesh = node.getMesh()!
+    mesh.listPrimitives().map((prim, primIdx) => {
+      if (primIdx > 0) {
+        if (!primMeshes.has(prim)) {
+          primMeshes.set(prim, document.createMesh(mesh.getName() + '-' + primIdx).addPrimitive(prim))
+        } else {
+          console.log('found cached prim')
+        }
+        const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
+        node.getParent()?.addChild(nuNode)
+        nuNode.setMatrix(node.getMatrix())
+      }
+    })
+  })
+  toSplit.map((node) => {
+    const mesh = node.getMesh()!
+    mesh.listPrimitives().map((prim, primIdx) => {
+      if (primIdx > 0) {
+        mesh.removePrimitive(prim)
+      }
+    })
+  })
+}
+/**
+ *
+ * @param {Document} document
+ * @param {*} args
+ */
+const myInstance = async (document: Document, args: any | null = null) => {
+  const root = document.getRoot()
+  const scene = root.listScenes()[0]
+  const batchExtension = document.createExtension(MeshGPUInstancing)
+  const meshes = root.listMeshes()
+  console.log('meshes:', meshes)
+  const nodes = root.listNodes().filter((node) => node.getMesh())
+  const table = nodes.reduce((_table, node) => {
+    const mesh = node.getMesh()
+    const idx = meshes.findIndex((mesh2) => mesh?.equals(mesh2))
+    _table[idx] = _table[idx] ?? []
+    _table[idx].push(node)
+    return _table
+  }, {} as Record<number, any[]>)
+  console.log('table:', table)
+  const modifiedNodes = new Set<Node>()
+  Object.entries(table)
+    .filter(([_, _nodes]) => _nodes.length > 1)
+    .map(([meshIdx, _nodes]) => {
+      const mesh = meshes[meshIdx]
+      console.log('mesh:', mesh, 'nodes:', nodes)
+      const batches = createBatch(document, batchExtension, mesh, _nodes.length)
+      batches.map((batch) => {
+        const batchTranslate = batch.getAttribute('TRANSLATION')
+        const batchRotate = batch.getAttribute('ROTATION')
+        const batchScale = batch.getAttribute('SCALE')
+        const batchNode = document.createNode().setMesh(mesh).setExtension('EXT_mesh_gpu_instancing', batch)
+        scene.addChild(batchNode)
+        _nodes.map((node, i) => {
+          batchTranslate.setElement(i, node.getWorldTranslation())
+          batchRotate.setElement(i, node.getWorldRotation())
+          batchScale.setElement(i, node.getWorldScale())
+          node.setMesh(null)
+          modifiedNodes.add(node)
+        })
+      })
+      console.log('modified nodes: ', modifiedNodes)
+      pruneUnusedNodes([...modifiedNodes], document.getLogger())
+    })
+}
 
 export type ModelTransformArguments = {
   src: string
@@ -102,7 +231,6 @@ export async function combineMeshes(document: Document) {
 
 export async function transformModel(app: Application, args: ModelTransformArguments) {
   const parms = args.parms
-  const promiseExec = util.promisify(exec)
   const serverDir = path.join(appRootPath.path, 'packages/server')
   const tmpDir = path.join(serverDir, 'tmp')
   const BASIS_U = path.join(appRootPath.path, 'packages/server/public/loader_decoders/basisu')
@@ -151,15 +279,18 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     let result = name.replace(/[\s]/, '-')
     return result
   }
-
+  let pathIndex = 0
   const toPath = (element: Texture | glBuffer, index?: number) => {
     if (element instanceof Texture) {
       if (element.getURI()) {
         return path.basename(element.getURI())
-      } else
-        return `${toValidFilename(element.getName())}-${index}-${Date.now()}.${mimeToFileType(element.getMimeType())}`
-    } else if (element instanceof glBuffer) return `buffer-${index}-${Date.now()}.bin`
-    else throw new Error('invalid element to find path')
+      } else {
+        pathIndex++
+        return `${toValidFilename(element.getName())}-${pathIndex}-.${mimeToFileType(element.getMimeType())}`
+      }
+    } else if (element instanceof glBuffer) {
+      return `buffer-${index}-${Date.now()}.bin`
+    } else throw new Error('invalid element to find path')
   }
 
   const fileUploadPath = (fUploadPath: string) => {
@@ -188,7 +319,9 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const root = document.getRoot()
 
   /* ID unnamed resources */
+  await split(document)
   await combineMaterials(document)
+  await myInstance(document)
 
   if (args.parms.dedup) {
     await document.transform(dedup())
@@ -212,14 +345,11 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
 
   /* PROCESS MESHES */
-  if (args.parms.meshQuantization.enabled) {
-    document.createExtension(MeshQuantization).setRequired(true)
-    await document.transform(quantize(args.parms.meshQuantization.options))
-  }
 
   if (args.parms.dracoCompression.enabled) {
     await document.transform(draco(args.parms.dracoCompression.options))
   }
+
   /* /PROCESS MESHES */
 
   /* PROCESS TEXTURES */
@@ -244,54 +374,56 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       console.error(e)
     }
   }
-  const textures = root
-    .listTextures()
-    .filter(
-      (texture) =>
-        (mimeToFileType(texture.getMimeType()) !== parms.textureFormat && !!texture.getSize()) ||
-        texture.getSize()?.reduce((x, y) => Math.max(x, y))! > parms.maxTextureSize
-    )
-  for (const texture of textures) {
-    const oldImg = texture.getImage()
-    const fileName = toPath(texture)
-    const oldPath = toTmp(fileName)
-    const resizeExtension = parms.textureFormat === 'ktx2' ? 'png' : parms.textureFormat
-    const resizedPath = oldPath.replace(
-      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-      `-resized.${resizeExtension}`
-    )
-    if (!fs.existsSync(tmpDir)) {
-      fs.mkdirSync(tmpDir)
-    }
-    fs.writeFileSync(oldPath, oldImg!)
-    const xResizedName = fileName.replace(
-      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-      `-resized.${parms.textureFormat}`
-    )
-    const nuFileName = fileName.replace(
-      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-      `-transformed.${parms.textureFormat}`
-    )
-    const nuPath = `${tmpDir}/${nuFileName}`
-    await handleImage(oldPath, resizedPath, resizeExtension)
-    if (parms.textureFormat === 'ktx2') {
-      //KTX2 Basisu Compression
-      document.createExtension(TextureBasisu).setRequired(true)
-      await promiseExec(
-        `${BASIS_U} -ktx2 ${resizedPath} -q ${parms.textureCompressionQuality} ${
-          parms.textureCompressionType === 'uastc' ? '-uastc' : ''
-        } -linear -y_flip`
+  if (parms.textureFormat !== 'default') {
+    const textures = root
+      .listTextures()
+      .filter(
+        (texture) =>
+          (mimeToFileType(texture.getMimeType()) !== parms.textureFormat && !!texture.getSize()) ||
+          texture.getSize()?.reduce((x, y) => Math.max(x, y))! > parms.maxTextureSize
       )
-      await promiseExec(`mv ${serverDir}/${xResizedName} ${nuPath}`)
+    for (const texture of textures) {
+      const oldImg = texture.getImage()
+      const fileName = toPath(texture)
+      const oldPath = toTmp(fileName)
+      const resizeExtension = parms.textureFormat === 'ktx2' ? 'png' : parms.textureFormat
+      const resizedPath = oldPath.replace(
+        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
+        `-resized.${resizeExtension}`
+      )
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir)
+      }
+      fs.writeFileSync(oldPath, oldImg!)
+      const xResizedName = fileName.replace(
+        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
+        `-resized.${parms.textureFormat}`
+      )
+      const nuFileName = fileName.replace(
+        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
+        `-transformed.${parms.textureFormat}`
+      )
+      const nuPath = `${tmpDir}/${nuFileName}`
+      await handleImage(oldPath, resizedPath, resizeExtension)
+      if (parms.textureFormat === 'ktx2') {
+        //KTX2 Basisu Compression
+        document.createExtension(TextureBasisu).setRequired(true)
+        execFileSync(
+          BASIS_U,
+          `-ktx2 ${resizedPath} -q ${parms.textureCompressionQuality} ${
+            parms.textureCompressionType === 'uastc' ? '-uastc' : ''
+          } -linear -y_flip`.split(/\s+/)
+        )
+        execFileSync('mv', [`${serverDir}/${xResizedName}`, nuPath])
 
-      console.log('loaded ktx2 image ' + nuPath)
-    } else {
-      await promiseExec(`mv ${resizedPath} ${nuPath}`)
+        console.log('loaded ktx2 image ' + nuPath)
+      } else {
+        execFileSync('mv', [resizedPath, nuPath])
+      }
+      texture.setImage(fs.readFileSync(nuPath))
+      texture.setMimeType(fileTypeToMime(parms.textureFormat)!)
     }
-    texture.setImage(fs.readFileSync(nuPath))
-    texture.setMimeType(fileTypeToMime(parms.textureFormat)!)
   }
-
   let result
   switch (parms.modelFormat) {
     case 'glb':
@@ -346,6 +478,6 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       console.log('Handled gltf file')
       break
   }
-  if (fs.existsSync(tmpDir)) await promiseExec(`rm -R ${tmpDir}`)
+  if (fs.existsSync(tmpDir)) await execFileSync('rm', ['-R', tmpDir])
   return result
 }
