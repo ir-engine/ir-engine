@@ -1,6 +1,6 @@
 import { Color, Material, Texture } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import {
   materialIdToDefaultArgs,

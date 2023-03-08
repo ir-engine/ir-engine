@@ -1,4 +1,4 @@
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
@@ -8,7 +8,7 @@ import { computeTransformMatrix } from './systems/TransformSystem'
 
 // TODO: only update the world origin in one place; move logic for moving based on viewer hit into the function above
 export const updateWorldOriginFromScenePlacement = () => {
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const scenePosition = xrState.scenePosition.value
   const sceneRotation = xrState.sceneRotation.value
   const sceneScale = xrState.sceneScale.value
@@ -46,7 +46,7 @@ export const updateEyeHeight = () => {
   if (!xrFrame) return
   const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
   if (viewerPose) {
-    const xrState = getState(XRState)
+    const xrState = getMutableState(XRState)
     xrState.userEyeLevel.set(viewerPose.transform.position.y)
   }
 }

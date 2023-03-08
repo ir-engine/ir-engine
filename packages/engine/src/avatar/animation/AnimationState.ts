@@ -8,7 +8,7 @@ export type AnimationState = {
   name: string
 }
 
-const getStateHandlers = () => {
+const getMutableStateHandlers = () => {
   return {
     LocomotionState: {
       enter: enterLocomotionState,
@@ -31,18 +31,18 @@ export function fadeOutAnimationStateActions(state?: AnimationState, duration: n
 
 export function enterAnimationState(state: AnimationState, prevState?: AnimationState) {
   if (!state) return
-  const handler = getStateHandlers()[state.type]
+  const handler = getMutableStateHandlers()[state.type]
   handler?.enter(state, prevState)
 }
 
 export function getAnimationStateActions(state: AnimationState): AnimationAction[] {
   if (!state) return []
-  const handler = getStateHandlers()[state.type]
+  const handler = getMutableStateHandlers()[state.type]
   return handler?.getActions(state)
 }
 
 export function updateAnimationState(state: AnimationState, delta: number) {
   if (!state) return
-  const handler = getStateHandlers()[state.type]
+  const handler = getMutableStateHandlers()[state.type]
   handler?.update(state, delta)
 }

@@ -1,4 +1,4 @@
-import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import XR8 from './8thwall/XR8'
 import { VPSSystem } from './VPSSystem'
@@ -17,7 +17,7 @@ import { XRAction, XRState } from './XRState'
  * System for XR session and input handling
  */
 export default async function XRSystem() {
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
 
   const updateSessionSupportForMode = (mode: XRSessionMode) => {
     navigator.xr?.isSessionSupported(mode).then((supported) => xrState.supportedSessionModes[mode].set(supported))

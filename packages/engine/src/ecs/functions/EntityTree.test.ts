@@ -121,27 +121,27 @@ describe('EntityTreeComponent', () => {
 })
 
 describe('EntityTreeFunctions', () => {
-  let world: Scene
+  let scene: Scene
   let root: Entity
 
   beforeEach(() => {
     createEngine()
-    world = Engine.instance.currentScene
+    scene = Engine.instance.currentScene
 
-    root = world.sceneEntity
+    root = scene.sceneEntity
   })
 
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
       initializeSceneEntity()
-      assert(world.sceneEntity)
-      assert(getComponent(world.sceneEntity, NameComponent), 'scene')
-      assert(hasComponent(world.sceneEntity, VisibleComponent))
-      assert(hasComponent(world.sceneEntity, SceneTagComponent))
-      assert(hasComponent(world.sceneEntity, TransformComponent))
-      assert(hasComponent(world.sceneEntity, EntityTreeComponent))
-      assert.equal(getComponent(world.sceneEntity, EntityTreeComponent).parentEntity, null)
-      assert.equal(getComponent(world.sceneEntity, EntityTreeComponent).rootEntity, world.sceneEntity)
+      assert(scene.sceneEntity)
+      assert(getComponent(scene.sceneEntity, NameComponent), 'scene')
+      assert(hasComponent(scene.sceneEntity, VisibleComponent))
+      assert(hasComponent(scene.sceneEntity, SceneTagComponent))
+      assert(hasComponent(scene.sceneEntity, TransformComponent))
+      assert(hasComponent(scene.sceneEntity, EntityTreeComponent))
+      assert.equal(getComponent(scene.sceneEntity, EntityTreeComponent).parentEntity, null)
+      assert.equal(getComponent(scene.sceneEntity, EntityTreeComponent).rootEntity, scene.sceneEntity)
     })
   })
 

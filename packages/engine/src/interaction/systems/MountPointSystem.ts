@@ -1,6 +1,6 @@
 import { Box3, Object3D, Vector3 } from 'three'
 
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
 import { AvatarStates } from '../../avatar/animation/Util'
@@ -8,7 +8,7 @@ import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimatio
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import {
   addComponent,
   ComponentType,
@@ -59,7 +59,7 @@ export default async function MountPointSystem() {
     defaultData: {}
   })
 
-  if (Engine.instance.isEditor)
+  if (getMutableState(EngineState).isEditor.value)
     return {
       execute: () => {},
       cleanup: async () => {

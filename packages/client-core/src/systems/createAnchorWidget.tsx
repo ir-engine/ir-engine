@@ -5,7 +5,7 @@ import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/compo
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
-import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 import AnchorIcon from '@etherealengine/ui/src/Icon'
 
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
@@ -14,10 +14,10 @@ export function createAnchorWidget() {
   const ui = createXRUI(AnchorWidgetUI)
   removeComponent(ui.entity, VisibleComponent)
   setComponent(ui.entity, XRUIInteractableComponent)
-  const xrState = getState(XRState)
-  // const avatarInputSettings = getState(AvatarInputSettingsState)
+  const xrState = getMutableState(XRState)
+  // const avatarInputSettings = getMutableState(AvatarInputSettingsState)
 
-  const widgetState = getState(WidgetAppState)
+  const widgetMutableState = getMutableState(WidgetAppState)
 
   const xrSessionQueue = createActionQueue(XRAction.sessionChanged.matches)
 
@@ -33,7 +33,7 @@ export function createAnchorWidget() {
     system: () => {
       for (const action of xrSessionQueue()) {
         const widgetEnabled = xrState.sessionMode.value === 'immersive-ar'
-        if (widgetState.widgets[id].enabled.value !== widgetEnabled)
+        if (widgetMutableState.widgets[id].enabled.value !== widgetEnabled)
           dispatchAction(WidgetAppActions.enableWidget({ id, enabled: widgetEnabled }))
       }
       if (!xrState.scenePlacementMode.value) return

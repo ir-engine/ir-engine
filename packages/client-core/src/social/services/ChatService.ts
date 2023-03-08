@@ -11,7 +11,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -52,7 +52,7 @@ export const ChatState = defineState({
 })
 
 export const ChatServiceReceptor = (action) => {
-  const s = getState(ChatState)
+  const s = getMutableState(ChatState)
   matches(action)
     .when(ChatAction.loadedChannelsAction.matches, (action) => {
       return s.channels.merge({
@@ -232,7 +232,7 @@ export const ChatServiceReceptor = (action) => {
     })
 }
 
-export const accessChatState = () => getState(ChatState)
+export const accessChatState = () => getMutableState(ChatState)
 
 export const useChatState = () => useState(accessChatState())
 

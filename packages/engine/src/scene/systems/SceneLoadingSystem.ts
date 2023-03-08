@@ -5,7 +5,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
 import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
 import { getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -173,7 +173,7 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
     updateSceneEntity(uuid, entityJson, world)
     const JSONEntityIsDynamic = !!entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)
 
-    if (JSONEntityIsDynamic && !Engine.instance.isEditor) {
+    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) {
       const existingEntity = UUIDComponent.entitiesByUUID[uuid].value
       if (existingEntity) {
         const previouslyNotDynamic = !getOptionalComponent(existingEntity, SceneDynamicLoadTagComponent)?.loaded
@@ -198,11 +198,11 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
  */
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
   const world = Engine.instance.currentScene
-  getState(EngineState).sceneLoading.set(true)
+  getMutableState(EngineState).sceneLoading.set(true)
 
   const systemsToLoad = [] as SystemModuleType<any>[]
 
-  if (!Engine.instance.isEditor) {
+  if (!getMutableState(EngineState).isEditor.value) {
     /** get systems that have changed */
     const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
@@ -236,7 +236,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   }
 
   /** 3. load new systems */
-  if (!Engine.instance.isEditor) {
+  if (!getMutableState(EngineState).isEditor.value) {
     await initSystems(systemsToLoad)
   }
 
@@ -256,7 +256,7 @@ export const updateSceneFromJSON = async (sceneData: SceneData) => {
   updateSceneEntitiesFromJSON(sceneData.scene.root, world)
 
   if (!sceneAssetPendingTagQuery().length) {
-    if (getState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
+    if (getMutableState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
   }
 }
 
@@ -370,7 +370,7 @@ export default async function SceneLoadingSystem() {
   }
 
   const execute = () => {
-    if (!getState(EngineState).sceneLoading.value) return
+    if (!getMutableState(EngineState).sceneLoading.value) return
 
     const pendingAssets = sceneAssetPendingTagQuery().length
 

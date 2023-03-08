@@ -2,9 +2,10 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
 import { deepEqual } from '../../common/functions/deepEqual'
 import { isClient } from '../../common/functions/isClient'
@@ -48,10 +49,11 @@ export const createAudioNodeGroup = (
   source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode,
   mixbus: GainNode
 ) => {
-  const gain = Engine.instance.audioContext.createGain()
+  const audioContext = getState(AudioState).audioContext
+  const gain = audioContext.createGain()
   source.connect(gain)
   gain.connect(mixbus)
-  const panner = Engine.instance.audioContext.createPanner()
+  const panner = audioContext.createPanner()
   const group = { source, gain, mixbus, panner } as AudioNodeGroup
   AudioNodeGroups.set(el, group)
   return group
@@ -199,7 +201,9 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-  const userHasInteracted = useHookstate(getState(EngineState).userHasInteracted)
+  const userHasInteracted = useHookstate(getMutableState(EngineState).userHasInteracted)
+  const audioContext = getState(AudioState).audioContext
+  const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
 
   useEffect(
     function updatePlay() {
@@ -323,11 +327,11 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
         const audioNodes = createAudioNodeGroup(
           element,
-          Engine.instance.audioContext.createMediaElementSource(element),
-          media.isMusic.value ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
+          audioContext.createMediaElementSource(element),
+          media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
         )
 
-        audioNodes.gain.gain.setTargetAtTime(media.volume.value, Engine.instance.audioContext.currentTime, 0.1)
+        audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
       }
 
       setComponent(entity, MediaElementComponent)
@@ -353,7 +357,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
       if (!element) return
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
-        audioNodes.gain.gain.setTargetAtTime(volume, Engine.instance.audioContext.currentTime, 0.1)
+        audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
       }
     },
     [media.volume]
@@ -366,16 +370,14 @@ export function MediaReactor({ root }: EntityReactorProps) {
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.disconnect(audioNodes.mixbus)
-        audioNodes.mixbus = media.isMusic.value
-          ? Engine.instance.gainNodeMixBuses.music
-          : Engine.instance.gainNodeMixBuses.soundEffects
+        audioNodes.mixbus = media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
         audioNodes.gain.connect(audioNodes.mixbus)
       }
     },
     [mediaElement, media.isMusic]
   )
 
-  const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+  const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
   useEffect(() => {
     if (debugEnabled.value && !media.helper.value) {

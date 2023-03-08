@@ -17,11 +17,12 @@ import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunc
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
 import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
 import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { TransformModule } from '@etherealengine/engine/src/transform/TransformModule'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -232,17 +233,17 @@ const loadEngine = async (app: Application, sceneId: string) => {
   app.network = network
   const initPromise = network.initialize()
 
-  Engine.instance.networks.set(hostId, network)
+  addNetwork(network)
   const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
-    Engine.instance.hostIds.media.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.media.set(hostId as UserId)
     await initSystems([...RealtimeNetworkingModule(true, false)])
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    Engine.instance.hostIds.world.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.world.set(hostId as UserId)
 
     const [projectName, sceneName] = sceneId.split('/')
 

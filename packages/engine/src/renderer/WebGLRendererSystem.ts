@@ -32,7 +32,7 @@ import {
   createActionQueue,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   hookstate,
   removeActionQueue,
   startReactor,
@@ -236,9 +236,10 @@ export class EngineRenderer {
 
       this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
-      const state = getState(RendererState)
+      const state = getMutableState(RendererState)
       const engineState = getEngineState()
-      if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
+      if (!engineState.isEditor.value && state.automatic.value && engineState.joinedWorld.value)
+        this.changeQualityLevel()
       if (this.needsResize) {
         const curPixelRatio = this.renderer.getPixelRatio()
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
@@ -264,7 +265,7 @@ export class EngineRenderer {
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
        */
-      if (state.usePostProcessing.value || Engine.instance.isEditor) {
+      if (state.usePostProcessing.value || engineState.isEditor.value) {
         this.effectComposer.render(delta)
       } else {
         this.renderer.autoClear = true
@@ -281,7 +282,7 @@ export class EngineRenderer {
     const delta = time - lastRenderTime
     lastRenderTime = time
 
-    const state = getState(RendererState)
+    const state = getMutableState(RendererState)
     let qualityLevel = state.qualityLevel.value
 
     this.movingAverage.update(Math.min(delta, 50))
@@ -319,10 +320,10 @@ export type PostProcessingState = State<typeof DefaultPostProcessingState>
 export const RendererSceneMetadataLabel = 'renderSettings'
 export const PostProcessingSceneMetadataLabel = 'postprocessing'
 
-export const getRendererSceneMetadataState = (world: Scene) =>
-  world.sceneMetadataRegistry[RendererSceneMetadataLabel].state as RenderSettingsState
-export const getPostProcessingSceneMetadataState = (world: Scene) =>
-  world.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
+export const getRendererSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[RendererSceneMetadataLabel].state as RenderSettingsState
+export const getPostProcessingSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
 
 export default async function WebGLRendererSystem() {
   Engine.instance.currentScene.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
@@ -335,13 +336,13 @@ export default async function WebGLRendererSystem() {
     default: DefaultPostProcessingState
   }
 
-  const rendererState = getState(RendererState)
+  const rendererState = getMutableState(RendererState)
 
   const reactor = startReactor(function RendererReactor() {
     const renderSettings = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene))
     const engineRendererSettings = useHookstate(rendererState)
     const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentScene))
-    const xrState = useHookstate(getState(XRState))
+    const xrState = useHookstate(getMutableState(XRState))
 
     useEffect(() => {
       EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value

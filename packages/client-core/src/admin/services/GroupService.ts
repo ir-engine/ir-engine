@@ -1,7 +1,7 @@
 import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
 import { GroupResult } from '@etherealengine/common/src/interfaces/GroupResult'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -25,12 +25,12 @@ const AdminGroupState = defineState({
 })
 
 const fetchingGroupReceptor = (action: typeof AdminGroupActions.fetchingGroup.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({ fetching: true })
 }
 
 const setAdminGroupReceptor = (action: typeof AdminGroupActions.setAdminGroup.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({
     group: action.list.data,
     skip: action.list.skip,
@@ -44,17 +44,17 @@ const setAdminGroupReceptor = (action: typeof AdminGroupActions.setAdminGroup.ma
 }
 
 const updateGroupReceptor = (action: typeof AdminGroupActions.updateGroup.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({ updateNeeded: true })
 }
 
 const removeGroupActionReceptor = (action: typeof AdminGroupActions.removeGroupAction.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({ updateNeeded: true })
 }
 
 const addAdminGroupReceptor = (action: typeof AdminGroupActions.addAdminGroup.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -66,7 +66,7 @@ export const AdminGroupServiceReceptors = {
   addAdminGroupReceptor
 }
 
-export const accessAdminGroupState = () => getState(AdminGroupState)
+export const accessAdminGroupState = () => getMutableState(AdminGroupState)
 
 export const useAdminGroupState = () => useState(accessAdminGroupState())
 

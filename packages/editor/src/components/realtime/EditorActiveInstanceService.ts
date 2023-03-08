@@ -6,7 +6,7 @@ import { accessAuthState } from '@etherealengine/client-core/src/user/services/A
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import logger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { accessEditorState } from '../../services/EditorServices'
 
@@ -26,7 +26,7 @@ const EditorActiveInstanceState = defineState({
 })
 
 export const EditorActiveInstanceServiceReceptor = (action): any => {
-  const state = getState(EditorActiveInstanceState)
+  const state = getMutableState(EditorActiveInstanceState)
   matches(action)
     .when(EditorActiveInstanceAction.fetchingActiveInstances.matches, (action) => {
       return state.merge({ fetching: true })
@@ -36,7 +36,7 @@ export const EditorActiveInstanceServiceReceptor = (action): any => {
     })
 }
 
-export const accessEditorActiveInstanceState = () => getState(EditorActiveInstanceState)
+export const accessEditorActiveInstanceState = () => getMutableState(EditorActiveInstanceState)
 
 export const useEditorActiveInstanceState = () => useState(accessEditorActiveInstanceState())
 

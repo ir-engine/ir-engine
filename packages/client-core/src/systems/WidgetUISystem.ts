@@ -45,7 +45,7 @@ import {
   addActionReceptor,
   createActionQueue,
   dispatchAction,
-  getState,
+  getMutableState,
   removeActionQueue,
   startReactor,
   useHookstate
@@ -89,7 +89,7 @@ export default async function WidgetUISystem() {
   setObjectLayers(helper, ObjectLayers.Gizmos)
   addObjectToGroup(widgetMenuUI.entity, helper)
 
-  const widgetState = getState(WidgetAppState)
+  const widgetMutableState = getMutableState(WidgetAppState)
 
   // lazily create XRUI widgets to speed up initial page loading time
   let createdWidgets = false
@@ -120,16 +120,18 @@ export default async function WidgetUISystem() {
   }
 
   const toggleWidgetsMenu = (handedness?: 'left' | 'right') => {
-    const state = widgetState.widgets.value
+    const state = widgetMutableState.widgets.value
     const openWidget = Object.entries(state).find(([id, widget]) => widget.visible)
     if (openWidget) {
       dispatchAction(WidgetAppActions.showWidget({ id: openWidget[0], shown: false }))
       dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true, handedness }))
     } else {
-      if (widgetState.handedness.value !== handedness) {
+      if (widgetMutableState.handedness.value !== handedness) {
         dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true, handedness }))
       } else {
-        dispatchAction(WidgetAppActions.showWidgetMenu({ shown: !widgetState.widgetsMenuOpen.value, handedness }))
+        dispatchAction(
+          WidgetAppActions.showWidgetMenu({ shown: !widgetMutableState.widgetsMenuOpen.value, handedness })
+        )
       }
     }
   }
@@ -166,7 +168,7 @@ export default async function WidgetUISystem() {
 
     const transform = getComponent(widgetMenuUI.entity, TransformComponent)
     const activeInputSource = Array.from(Engine.instance.inputSources).find(
-      (inputSource) => inputSource.handedness === widgetState.handedness.value
+      (inputSource) => inputSource.handedness === widgetMutableState.handedness.value
     )
 
     if (activeInputSource) {
@@ -180,8 +182,9 @@ export default async function WidgetUISystem() {
         transform.scale.copy(V_111)
       }
       if (pose) {
-        const rot = widgetState.handedness.value === 'left' ? widgetLeftRotation : widgetRightRotation
-        const offset = widgetState.handedness.value === 'left' ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
+        const rot = widgetMutableState.handedness.value === 'left' ? widgetLeftRotation : widgetRightRotation
+        const offset =
+          widgetMutableState.handedness.value === 'left' ? widgetLeftMenuGripOffset : widgetRightMenuGripOffset
         const orientation = pose.transform.orientation as any as Quaternion
         transform.rotation.copy(orientation).multiply(rot)
         vec3.copy(offset).applyQuaternion(orientation)
@@ -194,12 +197,12 @@ export default async function WidgetUISystem() {
         )
     }
 
-    const widgetMenuShown = widgetState.widgetsMenuOpen.value
+    const widgetMenuShown = widgetMutableState.widgetsMenuOpen.value
     showWidgetMenu(widgetMenuShown)
     setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
     for (const [id, widget] of Engine.instance.widgets) {
-      const widgetEnabled = widgetState.widgets[id].ornull?.enabled.value
+      const widgetEnabled = widgetMutableState.widgets[id].ornull?.enabled.value
       if (widgetEnabled && typeof widget.system === 'function') {
         widget.system()
       }

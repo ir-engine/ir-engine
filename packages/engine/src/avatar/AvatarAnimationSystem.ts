@@ -6,7 +6,7 @@ import {
   createActionQueue,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   startReactor,
   useHookstate
 } from '@etherealengine/hyperflux'
@@ -120,7 +120,7 @@ export default async function AvatarAnimationSystem() {
   const avatarIKTargetsActionQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
 
   const reactor = startReactor(function AvatarAnimationReactor() {
-    const state = useHookstate(getState(AvatarAnimationState))
+    const state = useHookstate(getMutableState(AvatarAnimationState))
     const isHeadset = useIsHeadset()
 
     useEffect(() => {
@@ -142,7 +142,7 @@ export default async function AvatarAnimationSystem() {
 
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
   const priorityQueue = createPriorityQueue({
-    accumulationBudget: getState(AvatarAnimationState).accumulationBudget.value
+    accumulationBudget: getMutableState(AvatarAnimationState).accumulationBudget.value
   })
 
   Engine.instance.priorityAvatarEntities = priorityQueue.priorityEntities

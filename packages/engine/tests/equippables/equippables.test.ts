@@ -15,6 +15,7 @@ import { EquippedComponent } from '../../src/interaction/components/EquippedComp
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { equipperQueryExit } from '../../src/interaction/systems/EquippableSystem'
+import { Network } from '../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
 import { addObjectToGroup } from '../../src/scene/components/GroupComponent'
@@ -31,7 +32,7 @@ describe.skip('Equippables Integration Tests', () => {
 
   it('Can equip and unequip', async () => {
     const hostUserId = 'world' as UserId & PeerID
-    Engine.instance.worldNetwork.hostId = hostUserId
+    ;(Engine.instance.worldNetwork as Network).hostId = hostUserId
     const hostIndex = 0
 
     Engine.instance.worldNetwork.peers.set(hostUserId, {

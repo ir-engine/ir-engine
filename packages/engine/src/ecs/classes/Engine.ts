@@ -1,7 +1,7 @@
 import * as bitecs from 'bitecs'
 
 import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createHyperStore, getState, hookstate, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getMutableState, getState, hookstate, State } from '@etherealengine/hyperflux'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
@@ -36,6 +36,7 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { ButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { SerializationSchema } from '../../networking/serialization/Utils'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
@@ -63,12 +64,6 @@ import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
-
-const TimerConfig = {
-  MAX_DELTA_SECONDS: 1 / 10
-}
-
-const logger = multiLogger.child({ component: 'engine:Engine' })
 
 export class Engine {
   static instance: Engine
@@ -122,21 +117,11 @@ export class Engine {
     defaultDispatchDelay: 1 / this.tickRate
   }) as HyperStore
 
-  audioContext: AudioContext
-  cameraGainNode: GainNode
-
-  gainNodeMixBuses = {
-    mediaStreams: null! as GainNode,
-    notifications: null! as GainNode,
-    music: null! as GainNode,
-    soundEffects: null! as GainNode
-  }
-
   /**
    * Current frame timestamp, relative to performance.timeOrigin
    */
   get frameTime() {
-    return getState(EngineState).frameTime.value
+    return getMutableState(EngineState).frameTime.value
   }
 
   engineTimer: { start: Function; stop: Function; clear: Function } = null!
@@ -150,14 +135,20 @@ export class Engine {
    * get the default world network
    */
   get worldNetwork() {
-    return this.networks.get(this.hostIds.world.value!)!
+    return getState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
+  }
+  get worldNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
   }
 
   /**
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(this.hostIds.media.value!)!
+    return getState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
+  }
+  get mediaNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 
   /** @todo parties */
@@ -165,29 +156,9 @@ export class Engine {
   //   return this.networks.get(NetworkTopics.localMedia)?.get(this._mediaHostId)!
   // }
 
-  /** temporary until Network.ts is refactored to be function & hookstate */
-  hostIds = hookstate({
-    media: null as UserId | null,
-    world: null as UserId | null
-  })
-
-  // _worldHostId = null! as UserId
-  // _mediaHostId = null! as UserId
-
-  networks = new Map<string, Network>()
-
-  /** a map of component names to a read/write function pairfor network component serialization */
-  networkSchema: {
-    [key: string]: SerializationSchema
-  } = {}
-
-  publicPath = ''
   gltfLoader: GLTFLoader = null!
 
   xrFrame: XRFrame | null = null
-
-  // @todo move to EngineState
-  isEditor = false
 
   widgets = new Map<string, Widget>()
 
@@ -200,32 +171,32 @@ export class Engine {
    * The seconds since the last world execution
    */
   get deltaSeconds() {
-    return getState(EngineState).deltaSeconds.value
+    return getMutableState(EngineState).deltaSeconds.value
   }
 
   /**
    * The elapsed seconds since `startTime`
    */
   get elapsedSeconds() {
-    return getState(EngineState).elapsedSeconds.value
+    return getMutableState(EngineState).elapsedSeconds.value
   }
 
   /**
    * The elapsed seconds since `startTime`, in fixed time steps.
    */
   get fixedElapsedSeconds() {
-    return getState(EngineState).fixedElapsedSeconds.value
+    return getMutableState(EngineState).fixedElapsedSeconds.value
   }
 
   /**
    * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   get fixedTick() {
-    return getState(EngineState).fixedTick.value
+    return getMutableState(EngineState).fixedTick.value
   }
 
   get fixedDeltaSeconds() {
-    return getState(EngineState).fixedDeltaSeconds.value
+    return getMutableState(EngineState).fixedDeltaSeconds.value
   }
 
   physicsWorld: PhysicsWorld
@@ -294,8 +265,6 @@ export class Engine {
 
   #entityQuery = defineQuery([Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery() as Entity[]
-
-  #entityRemovedQuery = defineQuery([EntityRemovedComponent])
 
   // @todo move to EngineState
   activePortal = null as ComponentType<typeof PortalComponent> | null
@@ -386,46 +355,6 @@ export class Engine {
   /** Get next network id. */
   createNetworkId(): NetworkId {
     return ++this.#availableNetworkId as NetworkId
-  }
-
-  /**
-   * Execute systems on this world
-   *
-   * @param frameTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
-   */
-  execute(frameTime: number) {
-    const start = nowMilliseconds()
-    const incomingActions = [...Engine.instance.store.actions.incoming]
-
-    const worldElapsedSeconds = (frameTime - this.startTime) / 1000
-    const engineState = getState(EngineState)
-    engineState.deltaSeconds.set(
-      Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
-    )
-    engineState.elapsedSeconds.set(worldElapsedSeconds)
-
-    for (const system of this.pipelines[SystemUpdateType.UPDATE_EARLY]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.UPDATE_LATE]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.RENDER]) system.enabled && system.execute()
-    for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
-
-    for (const entity of this.#entityRemovedQuery()) removeEntity(entity as Entity, true)
-
-    for (const { query, result } of this.reactiveQueryStates) {
-      const entitiesAdded = query.enter().length
-      const entitiesRemoved = query.exit().length
-      if (entitiesAdded || entitiesRemoved) {
-        result.set(query())
-      }
-    }
-
-    const end = nowMilliseconds()
-    const duration = end - start
-    if (duration > 150) {
-      logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
-    }
   }
 }
 

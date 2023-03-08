@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { AdminAwsSetting, PatchAwsSetting } from '@etherealengine/common/src/interfaces/AdminAwsSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -19,12 +19,12 @@ const AdminAwsSettingState = defineState({
 })
 
 const awsSettingRetrievedReceptor = (action: typeof AdminAwsSettingActions.awsSettingRetrieved.matches._TYPE) => {
-  const state = getState(AdminAwsSettingState)
+  const state = getMutableState(AdminAwsSettingState)
   return state.merge({ awsSettings: action.awsSettings.data, updateNeeded: false })
 }
 
 const awsSettingPatchedReceptor = (action: typeof AdminAwsSettingActions.awsSettingPatched.matches._TYPE) => {
-  const state = getState(AdminAwsSettingState)
+  const state = getMutableState(AdminAwsSettingState)
   return state.updateNeeded.set(true)
 }
 
@@ -33,7 +33,7 @@ export const AwsSettingReceptors = {
   awsSettingPatchedReceptor
 }
 
-export const accessAdminAwsSettingState = () => getState(AdminAwsSettingState)
+export const accessAdminAwsSettingState = () => getMutableState(AdminAwsSettingState)
 
 export const useAdminAwsSettingState = () => useState(accessAdminAwsSettingState())
 

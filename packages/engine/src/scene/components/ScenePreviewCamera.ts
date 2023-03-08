@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { CameraHelper, PerspectiveCamera } from 'three'
 
-import { getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -39,7 +39,7 @@ export const ScenePreviewCameraComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, ScenePreviewCameraComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const camera = useComponent(root.entity, ScenePreviewCameraComponent)
 
     useEffect(() => {

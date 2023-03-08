@@ -1,6 +1,8 @@
+import { getMutableState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
@@ -35,7 +37,7 @@ const onUpdate = () => (entity: Entity, mediaControls: ReturnType<typeof createM
 
 export default async function MediaControlSystem() {
   /** @todo, remove this when we have better system pipeline injection */
-  if (Engine.instance.isEditor) return { execute: () => {}, cleanup: async () => {} }
+  if (getMutableState(EngineState).isEditor.value) return { execute: () => {}, cleanup: async () => {} }
 
   const mediaQuery = defineQuery([MediaComponent])
 

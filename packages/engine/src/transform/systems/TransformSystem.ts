@@ -2,7 +2,7 @@ import { Not } from 'bitecs'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -16,6 +16,7 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
+import { NetworkState } from '../../networking/NetworkState'
 import {
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
@@ -257,10 +258,12 @@ export default async function TransformSystem() {
     }
   }
 
-  Engine.instance.networkSchema['ee.core.transform'] = {
+  const networkState = getMutableState(NetworkState)
+
+  networkState.networkSchema['ee.core.transform'].set({
     read: TransformSerialization.readTransform,
     write: TransformSerialization.writeTransform
-  }
+  })
 
   const execute = () => {
     const { localClientEntity } = Engine.instance
@@ -272,7 +275,7 @@ export default async function TransformSystem() {
     /**
      * Sort transforms if needed
      */
-    const { transformsNeedSorting } = getState(EngineState)
+    const { transformsNeedSorting } = getMutableState(EngineState)
     const xrFrame = Engine.instance.xrFrame
 
     let needsSorting = transformsNeedSorting.value
@@ -304,7 +307,7 @@ export default async function TransformSystem() {
 
     // lerp awake rigidbody entities (and make their transforms dirty)
     const fixedRemainder = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
-    const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds.value, 1)
+    const alpha = Math.min(fixedRemainder / getMutableState(EngineState).fixedDeltaSeconds.value, 1)
     for (const entity of awakeRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
@@ -413,7 +416,7 @@ export default async function TransformSystem() {
     removeQuery(distanceFromCameraQuery)
     Skeleton.prototype.update = skeletonUpdate
 
-    delete Engine.instance.networkSchema['ee.core.transform']
+    networkState.networkSchema['ee.core.transform'].set(none)
   }
 
   return { execute, cleanup }

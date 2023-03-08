@@ -22,7 +22,13 @@ import {
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import {
+  createActionQueue,
+  getMutableState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
@@ -55,8 +61,8 @@ export default async function LoadingUISystem() {
   const avatarModelChangedQueue = createActionQueue(EngineActions.avatarModelChanged.matches)
   const spectateUserQueue = createActionQueue(EngineActions.spectateUser.matches)
 
-  const appLoadingState = getState(AppLoadingState)
-  const engineState = getState(EngineState)
+  const appLoadingState = getMutableState(AppLoadingState)
+  const engineState = getMutableState(EngineState)
 
   const reactor = startReactor(function LoadingReactor() {
     const loadingState = useHookstate(appLoadingState)
@@ -122,7 +128,7 @@ export default async function LoadingUISystem() {
     //   // todo: figure out how to make this work properly for VR #7256
     // }
 
-    const loadingState = getState(LoadingSystemState).loadingScreenOpacity
+    const loadingState = getMutableState(LoadingSystemState).loadingScreenOpacity
 
     transition.update(Engine.instance.deltaSeconds, (opacity) => {
       if (opacity !== loadingState.value) loadingState.set(opacity)

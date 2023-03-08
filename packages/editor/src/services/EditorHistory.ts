@@ -6,7 +6,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SystemDefintion } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
 import {
   createActionQueue,
   dispatchAction,
@@ -33,9 +33,9 @@ export const EditorHistoryState = defineState({
 })
 
 export default function EditorHistoryReceptor(): SystemDefintion {
-  const state = getState(EditorHistoryState)
+  const state = getMutableState(EditorHistoryState)
 
-  const selectedEntitiesState = getState(SelectionState)
+  const selectedEntitiesState = getMutableState(SelectionState)
 
   const applyCurrentSnapshot = () => {
     const snapshot = state.history[state.index.value].get(NO_PROXY)

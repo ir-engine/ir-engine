@@ -1,6 +1,6 @@
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, none } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
 import { Views } from './util'
 
@@ -17,7 +17,7 @@ export const PopupMenuState = defineState({
 type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
 
 export const PopupMenuServiceReceptor = (action) => {
-  const s = getState(PopupMenuState)
+  const s = getMutableState(PopupMenuState)
   matches(action)
     .when(PopupMenuActions.showPopupMenu.matches, (action) => {
       s.openMenu.set(action.id)

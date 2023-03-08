@@ -10,7 +10,7 @@ import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Chip from '@etherealengine/ui/src/Chip'
 import Icon from '@etherealengine/ui/src/Icon'
@@ -36,7 +36,7 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
   const userState = useNetworkUserState()
   const selfUser = useAuthState().user
   const userId = selfUser.id.value
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   useEffect(() => {
     FriendService.getUserRelationship(userId)
