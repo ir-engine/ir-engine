@@ -13,7 +13,7 @@
   justify-content: center;
   align-items: center;
   color: black;
-  background: white;
+  background: var(--iconButtonBackground);
   width: 50px;
   height: 50px;
   cursor: pointer;
@@ -25,6 +25,7 @@
   pointer-events: auto;
 
   &:hover {
+    background: var(--iconButtonBackgroundHover);
     box-shadow: 0 1rem 2rem rgba(#000, 0.2);
     opacity: 1;
   }

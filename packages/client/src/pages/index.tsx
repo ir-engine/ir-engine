@@ -10,8 +10,8 @@ import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMen
 import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import { Views } from '@etherealengine/client-core/src/user/components/UserMenu/util'
 import config from '@etherealengine/common/src/config'
-
-import { Box, Button } from '@mui/material'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 

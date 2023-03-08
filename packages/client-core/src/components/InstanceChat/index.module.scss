@@ -187,12 +187,13 @@
       button {
         width: 48px;
         height: 48px;
-        background-color: white;
+        background-color: var(--iconButtonBackground);
         opacity: 0.8;
 
-        &:hover {
+        &:hover,
+        &:focus-visible {
+          background: var(--iconButtonHoverColor);
           opacity: 1;
-          background-color: white;
         }
 
         @media (max-width: 450px) {

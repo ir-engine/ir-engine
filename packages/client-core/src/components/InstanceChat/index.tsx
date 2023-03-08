@@ -28,13 +28,11 @@ import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import TextField from '@etherealengine/ui/src/TextField'
 
-import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 
 import { AppAction } from '../../common/services/AppService'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import defaultStyles from './index.module.scss'
 import styles from './index.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:chat' })
@@ -196,12 +194,7 @@ interface InstanceChatProps {
   newMessageLabel?: string
 }
 
-export const InstanceChat = ({
-  styles = defaultStyles,
-  MessageButton = MessageIcon,
-  CloseButton = CloseIcon,
-  newMessageLabel = 'World Chat...'
-}: InstanceChatProps): any => {
+export const InstanceChat = ({ newMessageLabel = 'World Chat...' }: InstanceChatProps): any => {
   const [chatWindowOpen, setChatWindowOpen] = useState(false)
   const [unreadMessages, setUnreadMessages] = useState(false)
   const [messageContainerVisible, setMessageContainerVisible] = useState(false)
@@ -429,9 +422,18 @@ export const InstanceChat = ({
                 onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 {!chatWindowOpen ? (
-                  <MessageButton />
+                  <IconButton
+                    title="open messages"
+                    className=""
+                    focusRipple={false}
+                    icon={<Icon type="Message" fontSize="small" />}
+                  />
                 ) : (
-                  <CloseButton
+                  <IconButton
+                    title="close messages"
+                    className=""
+                    focusRipple={false}
+                    icon={<Icon type="Close" fontSize="small" />}
                     onClick={() => {
                       toggleChatWindow()
                       dispatchAction(AppAction.showTouchPad({ show: true }))
@@ -454,7 +456,7 @@ export const InstanceChatWrapper = () => {
   return (
     <>
       {engineState.connectedWorld.value ? (
-        <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
+        <div>
           <InstanceChat />
         </div>
       ) : (
