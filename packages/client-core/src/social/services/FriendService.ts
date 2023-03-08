@@ -5,7 +5,7 @@ import { Relationship } from '@etherealengine/common/src/interfaces/Relationship
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -30,7 +30,7 @@ const FriendState = defineState({
 })
 
 export const FriendServiceReceptor = (action) => {
-  const s = getState(FriendState)
+  const s = getMutableState(FriendState)
   matches(action)
     .when(FriendAction.fetchingFriendsAction.matches, () => {
       return s.isFetching.set(true)
@@ -49,7 +49,7 @@ export const FriendServiceReceptor = (action) => {
     })
 }
 
-export const accessFriendState = () => getState(FriendState)
+export const accessFriendState = () => getMutableState(FriendState)
 
 export const useFriendState = () => useState(accessFriendState())
 

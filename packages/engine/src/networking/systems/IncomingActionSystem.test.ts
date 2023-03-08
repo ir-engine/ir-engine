@@ -2,7 +2,7 @@ import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import {
   ActionRecipients,
   addActionReceptor,
@@ -29,7 +29,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
       // fixed tick in past
-      const engineState = getState(EngineState)
+      const engineState = getMutableState(EngineState)
       engineState.fixedTick.set(0)
 
       /* mock */

@@ -1,7 +1,7 @@
 import { SpawnTestBot, TestBot } from '@etherealengine/common/src/interfaces/TestBot'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -19,7 +19,7 @@ const AdminTestBotState = defineState({
 })
 
 const fetchedBotsReceptor = (action: typeof AdminTestBotActions.fetchedBots.matches._TYPE) => {
-  const state = getState(AdminTestBotState)
+  const state = getMutableState(AdminTestBotState)
   const oldSpawn = state.spawn.value
   return state.merge({
     bots: action.bots,
@@ -29,7 +29,7 @@ const fetchedBotsReceptor = (action: typeof AdminTestBotActions.fetchedBots.matc
   })
 }
 const spawnBotsReceptor = (action: typeof AdminTestBotActions.spawnBots.matches._TYPE) => {
-  const state = getState(AdminTestBotState)
+  const state = getMutableState(AdminTestBotState)
   return state.merge({
     bots: [],
     spawn: undefined,
@@ -37,7 +37,7 @@ const spawnBotsReceptor = (action: typeof AdminTestBotActions.spawnBots.matches.
   })
 }
 const spawnedBotsReceptor = (action: typeof AdminTestBotActions.spawnedBots.matches._TYPE) => {
-  const state = getState(AdminTestBotState)
+  const state = getMutableState(AdminTestBotState)
   return state.merge({
     spawn: action.spawn,
     spawning: false
@@ -50,7 +50,7 @@ export const AdminTestBotReceptors = {
   spawnedBotsReceptor
 }
 
-export const accessTestBotState = () => getState(AdminTestBotState)
+export const accessTestBotState = () => getMutableState(AdminTestBotState)
 
 export const useTestBotState = () => useState(accessTestBotState())
 

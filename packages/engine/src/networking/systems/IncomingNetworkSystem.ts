@@ -1,5 +1,6 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
+import { Network } from '../classes/Network'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
 import { createDataReader } from '../serialization/DataReader'
 
@@ -30,7 +31,7 @@ export default async function IncomingNetworkSystem() {
     if (!engineState.isEngineInitialized.value) return
     applyIncomingNetworkState()
     if (Engine.instance.worldNetwork?.isHosting && Engine.instance.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
-      validateNetworkObjects(Engine.instance.worldNetwork)
+      validateNetworkObjects(Engine.instance.worldNetwork as Network)
   }
 
   const cleanup = async () => {}

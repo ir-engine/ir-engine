@@ -1,14 +1,15 @@
 import _ from 'lodash'
 
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { addActionReceptor, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { addActionReceptor, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { AudioState } from './audio/AudioState'
 import { Timer } from './common/functions/Timer'
 import { destroyEngine, Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { destroyScene } from './ecs/classes/Scene'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
-import { initSystemSync } from './ecs/functions/SystemFunctions'
+import { executeSystems, initSystemSync } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import IncomingActionSystem from './networking/systems/IncomingActionSystem'
 import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
@@ -28,7 +29,7 @@ export const createEngine = () => {
   Engine.instance = new Engine()
   EngineRenderer.instance = new EngineRenderer()
   addActionReceptor(EngineEventReceptor)
-  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
+  Engine.instance.engineTimer = Timer(executeSystems, Engine.instance.tickRate)
 }
 
 export const setupEngineActionSystems = () => {
@@ -55,17 +56,22 @@ export const setupEngineActionSystems = () => {
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
+  const audioState = getMutableState(AudioState)
+
   const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
   audioContext.resume()
-  Engine.instance.audioContext = audioContext
-  Engine.instance.cameraGainNode = audioContext.createGain()
-  Engine.instance.cameraGainNode.connect(audioContext.destination)
+  audioState.audioContext.set(audioContext)
+
+  const cameraGainNode = audioContext.createGain()
+  audioState.cameraGainNode.set(cameraGainNode)
+  cameraGainNode.connect(audioContext.destination)
+
   Engine.instance.camera.layers.disableAll()
   Engine.instance.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
   Engine.instance.camera.layers.enable(ObjectLayers.UI)
 
-  getState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
+  getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
 
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
@@ -97,10 +103,4 @@ const setupInitialClickListener = () => {
  */
 export const initializeNode = () => {
   Engine.instance.engineTimer.start()
-}
-
-const executeWorlds = (elapsedTime) => {
-  const engineState = getState(EngineState)
-  engineState.frameTime.set(elapsedTime)
-  Engine.instance.execute(elapsedTime)
 }

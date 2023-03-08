@@ -1,6 +1,6 @@
 import { SceneData, SceneMetadata } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -23,7 +23,7 @@ const AdminSceneState = defineState({
 })
 
 const scenesFetchedReceptor = (action: typeof AdminSceneActions.scenesFetched.matches._TYPE) => {
-  const state = getState(AdminSceneState)
+  const state = getMutableState(AdminSceneState)
   return state.merge({
     scenes: action.sceneData,
     retrieving: false,
@@ -34,7 +34,7 @@ const scenesFetchedReceptor = (action: typeof AdminSceneActions.scenesFetched.ma
 }
 
 const sceneFetchedReceptor = (action: typeof AdminSceneActions.sceneFetched.matches._TYPE) => {
-  const state = getState(AdminSceneState)
+  const state = getMutableState(AdminSceneState)
   return state.merge({
     singleScene: action.sceneData,
     retrieving: false,
@@ -49,7 +49,7 @@ export const AdminSceneReceptors = {
   sceneFetchedReceptor
 }
 
-export const accessAdminSceneState = () => getState(AdminSceneState)
+export const accessAdminSceneState = () => getMutableState(AdminSceneState)
 
 export const useAdminSceneState = () => useState(accessAdminSceneState())
 

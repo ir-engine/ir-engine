@@ -3,12 +3,14 @@
 import React from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
-import { defineQuery, Query, QueryComponents, useQuery } from './ComponentFunctions'
-import { EntityReactorProps } from './EntityFunctions'
+import { EngineState } from '../classes/EngineState'
+import { Entity } from '../classes/Entity'
+import { defineQuery, EntityRemovedComponent, Query, QueryComponents, useQuery } from './ComponentFunctions'
+import { EntityReactorProps, removeEntity } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
@@ -69,6 +71,54 @@ export type SystemFactoryType<A> = {
   after?: string
   sceneSystem?: boolean
   args?: A
+}
+
+const TimerConfig = {
+  MAX_DELTA_SECONDS: 1 / 10
+}
+
+const entityRemovedQuery = defineQuery([EntityRemovedComponent])
+
+/**
+ * Execute systems on this world
+ *
+ * @param frameTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
+ */
+export const executeSystems = (frameTime: number) => {
+  const engineState = getMutableState(EngineState)
+  engineState.frameTime.set(frameTime)
+
+  const start = nowMilliseconds()
+  const incomingActions = [...Engine.instance.store.actions.incoming]
+
+  const worldElapsedSeconds = (frameTime - Engine.instance.startTime) / 1000
+  engineState.deltaSeconds.set(
+    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - Engine.instance.elapsedSeconds))
+  )
+  engineState.elapsedSeconds.set(worldElapsedSeconds)
+
+  for (const system of Engine.instance.pipelines[SystemUpdateType.UPDATE_EARLY]) system.enabled && system.execute()
+  for (const system of Engine.instance.pipelines[SystemUpdateType.UPDATE]) system.enabled && system.execute()
+  for (const system of Engine.instance.pipelines[SystemUpdateType.UPDATE_LATE]) system.enabled && system.execute()
+  for (const system of Engine.instance.pipelines[SystemUpdateType.PRE_RENDER]) system.enabled && system.execute()
+  for (const system of Engine.instance.pipelines[SystemUpdateType.RENDER]) system.enabled && system.execute()
+  for (const system of Engine.instance.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
+
+  for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)
+
+  for (const { query, result } of Engine.instance.reactiveQueryStates) {
+    const entitiesAdded = query.enter().length
+    const entitiesRemoved = query.exit().length
+    if (entitiesAdded || entitiesRemoved) {
+      result.set(query())
+    }
+  }
+
+  const end = nowMilliseconds()
+  const duration = end - start
+  if (duration > 150) {
+    logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
+  }
 }
 
 const createExecute = (system: SystemDefintion, subsystems: SystemInstanceData[], name: string, uuid: string) => {

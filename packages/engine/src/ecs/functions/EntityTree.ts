@@ -1,7 +1,7 @@
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
+import { getMutableState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntity, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -175,7 +175,7 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
 
   const parentTransform = getComponent(parentEntity, TransformComponent)
   const childTransform = getComponent(entity, TransformComponent)
-  getState(EngineState).transformsNeedSorting.set(true)
+  getMutableState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
     computeTransformMatrix(parentEntity)
     computeTransformMatrix(entity)

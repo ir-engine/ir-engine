@@ -7,7 +7,7 @@ import {
 } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
@@ -75,7 +75,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     model: null
   })
 
-  const userNames = getState(WorldState).userNames
+  const userNames = getMutableState(WorldState).userNames
   const userName = userNames[userId].value
   const shortId = userId.substring(0, 7)
   addComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))

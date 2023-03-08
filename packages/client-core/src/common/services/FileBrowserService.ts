@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -23,7 +23,7 @@ export const FileBrowserState = defineState({
 })
 
 export const FileBrowserServiceReceptor = (action) => {
-  const s = getState(FileBrowserState)
+  const s = getMutableState(FileBrowserState)
   matches(action)
     .when(FileBrowserAction.filesFetched.matches, (action) => {
       return s.merge({
@@ -49,7 +49,7 @@ export const FileBrowserServiceReceptor = (action) => {
     })
 }
 
-export const accessFileBrowserState = () => getState(FileBrowserState)
+export const accessFileBrowserState = () => getMutableState(FileBrowserState)
 
 export const useFileBrowserState = () => useState(accessFileBrowserState())
 

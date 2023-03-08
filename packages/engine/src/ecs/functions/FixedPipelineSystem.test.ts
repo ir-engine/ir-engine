@@ -1,10 +1,10 @@
 import assert from 'assert'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
-import { initSystems } from './SystemFunctions'
+import { executeSystems, initSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const MockState = defineState({
@@ -17,7 +17,7 @@ const MocksystemLoader = async () => {
     default: async () => {
       return {
         execute: () => {
-          getState(MockState).count.set((c) => c + 1)
+          getMutableState(MockState).count.set((c) => c + 1)
         },
         cleanup: async () => {}
       }
@@ -39,7 +39,7 @@ describe('FixedPipelineSystem', () => {
     ]
     await initSystems(injectedSystems)
 
-    const mockState = getState(MockState)
+    const mockState = getMutableState(MockState)
 
     assert.equal(Engine.instance.elapsedSeconds, 0)
     assert.equal(Engine.instance.fixedElapsedSeconds, 0)
@@ -48,7 +48,7 @@ describe('FixedPipelineSystem', () => {
 
     const ticks = 3
     const deltaSeconds = ticks / 60
-    Engine.instance.execute(Engine.instance.startTime + 1000 * deltaSeconds)
+    executeSystems(Engine.instance.startTime + 1000 * deltaSeconds)
     assert.equal(Engine.instance.elapsedSeconds, deltaSeconds)
     assert.equal(Engine.instance.fixedElapsedSeconds, deltaSeconds)
     assert.equal(Engine.instance.fixedTick, ticks)
@@ -68,7 +68,7 @@ describe('FixedPipelineSystem', () => {
     ]
     await initSystems(injectedSystems)
 
-    const mockState = getState(MockState)
+    const mockState = getMutableState(MockState)
 
     Engine.instance.startTime = 0
     assert.equal(Engine.instance.elapsedSeconds, 0)
@@ -77,7 +77,7 @@ describe('FixedPipelineSystem', () => {
     assert.equal(mockState.count.value, 0)
 
     const deltaSeconds = 1000
-    Engine.instance.execute(1000 * deltaSeconds)
+    executeSystems(1000 * deltaSeconds)
     assert.equal(Engine.instance.elapsedSeconds, deltaSeconds)
     assert.equal(Engine.instance.fixedElapsedSeconds, deltaSeconds)
     assert.equal(Engine.instance.fixedTick, 60000)

@@ -51,7 +51,7 @@ import Debug from '@etherealengine/client-core/src/components/Debug'
 import config from '@etherealengine/common/src/config'
 import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -69,7 +69,7 @@ const AppPage = (): any => {
   const selfUser = authState.user
   const clientSettingState = useClientSettingState()
   const coilSettingState = useCoilSettingState()
-  const appTheme = useHookstate(getState(AppThemeState))
+  const appTheme = useHookstate(getMutableState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
   const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')

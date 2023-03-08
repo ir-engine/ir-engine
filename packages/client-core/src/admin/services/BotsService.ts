@@ -3,7 +3,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -28,7 +28,7 @@ const AdminBotState = defineState({
 })
 
 const fetchedBotReceptor = (action: typeof AdminBotsActions.fetchedBot.matches._TYPE) => {
-  const state = getState(AdminBotState)
+  const state = getMutableState(AdminBotState)
   return state.merge({
     bots: action.bots.data,
     retrieving: false,
@@ -39,17 +39,17 @@ const fetchedBotReceptor = (action: typeof AdminBotsActions.fetchedBot.matches._
 }
 
 const botCreatedReceptor = (action: typeof AdminBotsActions.botCreated.matches._TYPE) => {
-  const state = getState(AdminBotState)
+  const state = getMutableState(AdminBotState)
   return state.merge({ updateNeeded: true })
 }
 
 const botPatchedReceptor = (action: typeof AdminBotsActions.botPatched.matches._TYPE) => {
-  const state = getState(AdminBotState)
+  const state = getMutableState(AdminBotState)
   return state.merge({ updateNeeded: true })
 }
 
 const botRemovedReceptor = (action: typeof AdminBotsActions.botRemoved.matches._TYPE) => {
-  const state = getState(AdminBotState)
+  const state = getMutableState(AdminBotState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -60,7 +60,7 @@ export const AdminBotServiceReceptors = {
   botRemovedReceptor
 }
 
-export const accessAdminBotState = () => getState(AdminBotState)
+export const accessAdminBotState = () => getMutableState(AdminBotState)
 
 export const useAdminBotState = () => useState(accessAdminBotState())
 

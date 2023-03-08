@@ -1,7 +1,10 @@
+import { getState } from '@etherealengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
+import { NetworkState } from '../NetworkState'
 
 const sendOutgoingActions = () => {
-  for (const [instanceId, network] of Engine.instance.networks) {
+  for (const [instanceId, network] of Object.entries(getState(NetworkState).networks)) {
     try {
       network.sendActions()
     } catch (e) {

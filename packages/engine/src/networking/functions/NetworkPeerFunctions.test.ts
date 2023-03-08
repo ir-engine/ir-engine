@@ -3,13 +3,15 @@ import assert from 'assert'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { applyIncomingActions, clearOutgoingActions, getState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, clearOutgoingActions, getMutableState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { executeSystems } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
+import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
@@ -28,11 +30,11 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 2
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
 
-      const worldState = getState(WorldState)
+      const worldState = getMutableState(WorldState)
 
       assert(network.peers.get(peerID))
       assert.equal(network.peers.get(peerID)?.userId, userId)
@@ -56,9 +58,9 @@ describe('NetworkPeerFunctions', () => {
       const userIndex2 = 2
       const peerIndex = 3
       const peerIndex2 = 4
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
 
-      const worldState = getState(WorldState)
+      const worldState = getMutableState(WorldState)
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       assert.equal(network.peers.get(peerID)!.userId, userId)
@@ -84,7 +86,7 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 2
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       NetworkPeerFunctions.destroyPeer(network, peerID)
@@ -104,7 +106,7 @@ describe('NetworkPeerFunctions', () => {
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 5
-      const network = Engine.instance.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       const networkId = 2 as NetworkId
@@ -122,7 +124,7 @@ describe('NetworkPeerFunctions', () => {
 
       clearOutgoingActions(network.topic)
       applyIncomingActions()
-      Engine.instance.execute(0)
+      executeSystems(0)
 
       assert(!Engine.instance.getNetworkObject(userId, networkId))
     })

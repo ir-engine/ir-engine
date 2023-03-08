@@ -21,12 +21,13 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { getState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, hookstate, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -66,8 +67,8 @@ const raycaster = new Raycaster()
 const raycasterPosition = new Vector3()
 
 export default async function ShadowSystem() {
-  const xrState = getState(XRState)
-  const renderState = getState(RendererState)
+  const xrState = getMutableState(XRState)
+  const renderState = getMutableState(RendererState)
 
   const csmGroup = new Group()
   csmGroup.name = 'CSM-group'
@@ -196,7 +197,7 @@ export default async function ShadowSystem() {
 
     useEffect(() => {
       if (
-        Engine.instance.isEditor ||
+        getMutableState(EngineState).isEditor.value ||
         !shadow.cast.value ||
         !shadowMaterial.value ||
         useShadows ||
@@ -235,7 +236,7 @@ export default async function ShadowSystem() {
     sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
     const useShadows = getShadowsEnabled()
-    if (!useShadows && !Engine.instance.isEditor) {
+    if (!useShadows && !getMutableState(EngineState).isEditor.value) {
       for (const entity of dropShadowComponentQuery()) {
         const dropShadow = getComponent(entity, DropShadowComponent)
         const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)

@@ -4,6 +4,7 @@ import logger from '@etherealengine/common/src/logger'
 import {
   addActionReceptor,
   createActionQueue,
+  getMutableState,
   getState,
   hookstate,
   removeActionQueue,
@@ -13,7 +14,7 @@ import {
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Scene } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
@@ -64,7 +65,7 @@ export class AudioEffectPlayer {
     }
   }
 
-  play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) => {
+  play = async (sound: string, volumeMultiplier = getMutableState(AudioState).notificationVolume.value) => {
     await Promise.resolve()
 
     if (!this.#els.length) return
@@ -74,14 +75,14 @@ export class AudioEffectPlayer {
       return
     }
 
-    const source = Engine.instance.audioContext.createBufferSource()
+    const source = getState(AudioState).audioContext.createBufferSource()
     source.buffer = this.bufferMap[sound]
     const el = this.#els.find((el) => el.paused) ?? this.#els[0]
     el.volume = accessAudioState().masterVolume.value * volumeMultiplier
     if (el.src !== sound) el.src = sound
     el.currentTime = 0
     source.start()
-    source.connect(Engine.instance.audioContext.destination)
+    source.connect(getState(AudioState).audioContext.destination)
   }
 }
 
@@ -108,16 +109,18 @@ export type MediaState = State<typeof DefaultMediaState>
 
 export const MediaSceneMetadataLabel = 'mediaSettings'
 
-export const getMediaSceneMetadataState = (world: Scene) =>
-  world.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
+export const getMediaSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
 
 export default async function MediaSystem() {
+  const audioContext = getState(AudioState).audioContext
+
   const enableAudioContext = () => {
-    if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
+    if (audioContext.state === 'suspended') audioContext.resume()
     AudioEffectPlayer.instance._init()
   }
 
-  if (isClient && !Engine.instance.isEditor) {
+  if (isClient && !getMutableState(EngineState).isEditor.value) {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
@@ -186,35 +189,39 @@ export default async function MediaSystem() {
     defaultData: {}
   })
 
-  const audioState = getState(AudioState)
-  const currentTime = Engine.instance.audioContext.currentTime
+  const audioState = getMutableState(AudioState)
+  const currentTime = audioState.audioContext.currentTime.value
 
-  Engine.instance.cameraGainNode.gain.setTargetAtTime(audioState.masterVolume.value, currentTime, 0.01)
+  audioState.cameraGainNode.gain.value.setTargetAtTime(audioState.masterVolume.value, currentTime, 0.01)
 
   /** create gain nodes for mix buses */
-  Engine.instance.gainNodeMixBuses.mediaStreams = Engine.instance.audioContext.createGain()
-  Engine.instance.gainNodeMixBuses.mediaStreams.connect(Engine.instance.cameraGainNode)
-  Engine.instance.gainNodeMixBuses.mediaStreams.gain.setTargetAtTime(
+  audioState.gainNodeMixBuses.mediaStreams.set(audioContext.createGain())
+  audioState.gainNodeMixBuses.mediaStreams.value.connect(audioState.cameraGainNode.value)
+  audioState.gainNodeMixBuses.mediaStreams.value.gain.setTargetAtTime(
     audioState.mediaStreamVolume.value,
     currentTime,
     0.01
   )
 
-  Engine.instance.gainNodeMixBuses.notifications = Engine.instance.audioContext.createGain()
-  Engine.instance.gainNodeMixBuses.notifications.connect(Engine.instance.cameraGainNode)
-  Engine.instance.gainNodeMixBuses.notifications.gain.setTargetAtTime(
+  audioState.gainNodeMixBuses.notifications.set(audioContext.createGain())
+  audioState.gainNodeMixBuses.notifications.value.connect(audioState.cameraGainNode.value)
+  audioState.gainNodeMixBuses.notifications.value.gain.setTargetAtTime(
     audioState.notificationVolume.value,
     currentTime,
     0.01
   )
 
-  Engine.instance.gainNodeMixBuses.music = Engine.instance.audioContext.createGain()
-  Engine.instance.gainNodeMixBuses.music.connect(Engine.instance.cameraGainNode)
-  Engine.instance.gainNodeMixBuses.music.gain.setTargetAtTime(audioState.backgroundMusicVolume.value, currentTime, 0.01)
+  audioState.gainNodeMixBuses.music.set(audioContext.createGain())
+  audioState.gainNodeMixBuses.music.value.connect(audioState.cameraGainNode.value)
+  audioState.gainNodeMixBuses.music.value.gain.setTargetAtTime(
+    audioState.backgroundMusicVolume.value,
+    currentTime,
+    0.01
+  )
 
-  Engine.instance.gainNodeMixBuses.soundEffects = Engine.instance.audioContext.createGain()
-  Engine.instance.gainNodeMixBuses.soundEffects.connect(Engine.instance.cameraGainNode)
-  Engine.instance.gainNodeMixBuses.soundEffects.gain.setTargetAtTime(
+  audioState.gainNodeMixBuses.soundEffects.set(audioContext.createGain())
+  audioState.gainNodeMixBuses.soundEffects.value.connect(audioState.cameraGainNode.value)
+  audioState.gainNodeMixBuses.soundEffects.value.gain.setTargetAtTime(
     audioState.soundEffectsVolume.value,
     currentTime,
     0.01
@@ -257,14 +264,14 @@ export default async function MediaSystem() {
     Engine.instance.sceneComponentRegistry.delete(VolumetricComponent.name)
     Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_VOLUMETRIC)
 
-    Engine.instance.gainNodeMixBuses.mediaStreams.disconnect()
-    Engine.instance.gainNodeMixBuses.mediaStreams = null!
-    Engine.instance.gainNodeMixBuses.notifications.disconnect()
-    Engine.instance.gainNodeMixBuses.notifications = null!
-    Engine.instance.gainNodeMixBuses.music.disconnect()
-    Engine.instance.gainNodeMixBuses.music = null!
-    Engine.instance.gainNodeMixBuses.soundEffects.disconnect()
-    Engine.instance.gainNodeMixBuses.soundEffects = null!
+    audioState.gainNodeMixBuses.mediaStreams.value.disconnect()
+    audioState.gainNodeMixBuses.mediaStreams.set(null!)
+    audioState.gainNodeMixBuses.notifications.value.disconnect()
+    audioState.gainNodeMixBuses.notifications.set(null!)
+    audioState.gainNodeMixBuses.music.value.disconnect()
+    audioState.gainNodeMixBuses.music.set(null!)
+    audioState.gainNodeMixBuses.soundEffects.value.disconnect()
+    audioState.gainNodeMixBuses.soundEffects.set(null!)
 
     removeActionQueue(userInteractActionQueue)
 

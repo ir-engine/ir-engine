@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
 import { GroupUser } from '@etherealengine/common/src/interfaces/GroupUser'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -38,7 +38,7 @@ const GroupState = defineState({
 })
 
 export const GroupServiceReceptor = (action) => {
-  const s = getState(GroupState)
+  const s = getMutableState(GroupState)
   matches(action)
     .when(GroupAction.loadedGroups.matches, (action) => {
       if (s.updateNeeded.value === true) {
@@ -148,7 +148,7 @@ export const GroupServiceReceptor = (action) => {
     })
 }
 
-export const accessGroupState = () => getState(GroupState)
+export const accessGroupState = () => getMutableState(GroupState)
 
 export const useGroupState = () => useState(accessGroupState())
 

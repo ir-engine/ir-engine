@@ -11,7 +11,7 @@ import {
   getComponentState,
   serializeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'

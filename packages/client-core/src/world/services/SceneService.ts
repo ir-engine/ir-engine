@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { accessLocationState } from '../../social/services/LocationService'
@@ -16,7 +16,7 @@ export const SceneState = defineState({
 })
 
 export const SceneServiceReceptor = (action) => {
-  const s = getState(SceneState)
+  const s = getMutableState(SceneState)
   matches(action)
     .when(SceneActions.currentSceneChanged.matches, (action) => {
       return s.merge({
@@ -30,7 +30,7 @@ export const SceneServiceReceptor = (action) => {
     })
 }
 
-export const accessSceneState = () => getState(SceneState)
+export const accessSceneState = () => getMutableState(SceneState)
 
 export const useSceneState = () => useState(accessSceneState())
 
@@ -50,7 +50,7 @@ export const SceneService = {
           .service('scene')
           .get({ projectName, sceneName, metadataOnly: null }, {})
         updateSceneFromJSON(sceneData.data)
-        ;(getState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
+        ;(getMutableState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
       }
       // for testing
       // window.addEventListener('keydown', (ev) => {

@@ -17,7 +17,7 @@ import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } fro
 
 export const FogShaders = [] as Shader[]
 
-const getFogPlugin = (world: Scene): PluginType => {
+const getFogPlugin = (scene: Scene): PluginType => {
   return {
     id: OBCType.FOG,
     priority: 0,
@@ -25,7 +25,7 @@ const getFogPlugin = (world: Scene): PluginType => {
       FogShaders.push(shader)
       shader.uniforms.fogTime = { value: 0.0 }
       shader.uniforms.fogTimeScale = { value: 1 }
-      shader.uniforms.heightFactor = { value: getFogSceneMetadataState(world).height.value }
+      shader.uniforms.heightFactor = { value: getFogSceneMetadataState(scene).height.value }
     }
   }
 }
@@ -44,8 +44,8 @@ export type FogState = State<typeof DefaultFogState>
 
 export const FogSceneMetadataLabel = 'fog'
 
-export const getFogSceneMetadataState = (world: Scene) =>
-  world.sceneMetadataRegistry[FogSceneMetadataLabel].state as FogState
+export const getFogSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[FogSceneMetadataLabel].state as FogState
 
 export default async function FogSystem() {
   Engine.instance.currentScene.sceneMetadataRegistry[FogSceneMetadataLabel] = {

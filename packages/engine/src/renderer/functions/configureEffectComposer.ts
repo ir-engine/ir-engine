@@ -1,9 +1,10 @@
 import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
 import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
 
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { EngineRenderer, getPostProcessingSceneMetadataState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
@@ -94,5 +95,5 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
     EngineRenderer.instance.effectComposer.addPass(new EffectPass(camera, ...effects, textureEffect))
   }
 
-  if (Engine.instance.isEditor) changeRenderMode()
+  if (getMutableState(EngineState).isEditor.value) changeRenderMode()
 }

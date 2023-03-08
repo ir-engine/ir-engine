@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
@@ -10,7 +10,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
-  const rendererState = useHookstate(getState(RendererState))
+  const rendererState = useHookstate(getMutableState(RendererState))
 
   const toggleDebug = () => {
     rendererState.debugEnable.set(!rendererState.debugEnable.value)

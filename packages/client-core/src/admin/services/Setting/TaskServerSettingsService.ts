@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { TaskServerSetting } from '@etherealengine/common/src/interfaces/TaskServerSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -16,7 +16,7 @@ const AdminTaskServerSettingsState = defineState({
 })
 
 const fetchedTaskServersReceptor = (action: typeof AdminTaskServerSettingActions.fetchedTaskServers.matches._TYPE) => {
-  const state = getState(AdminTaskServerSettingsState)
+  const state = getMutableState(AdminTaskServerSettingsState)
   return state.merge({ taskservers: action.taskServerSettings.data, updateNeeded: false })
 }
 
@@ -24,7 +24,7 @@ export const TaskServerSettingReceptors = {
   fetchedTaskServersReceptor
 }
 
-export const accessSettingTaskServerState = () => getState(AdminTaskServerSettingsState)
+export const accessSettingTaskServerState = () => getMutableState(AdminTaskServerSettingsState)
 export const useSettingTaskServerState = () => useState(accessSettingTaskServerState())
 
 export const AdminSettingTaskServerService = {

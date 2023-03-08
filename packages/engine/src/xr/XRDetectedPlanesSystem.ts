@@ -10,7 +10,7 @@ import {
 } from 'three'
 import matches from 'ts-matches'
 
-import { createActionQueue, getState } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
