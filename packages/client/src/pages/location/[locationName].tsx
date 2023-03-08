@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router-dom'
 
 import { AppLoadingState } from '@etherealengine/client-core/src/common/services/AppLoadingService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
+import LocationIcons from '@etherealengine/client-core/src/components/LocationIcons'
 import { LoadEngineWithScene } from '@etherealengine/client-core/src/components/World/LoadEngineWithScene'
 import LoadLocationScene from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import NetworkInstanceProvisioning from '@etherealengine/client-core/src/components/World/NetworkInstanceProvisioning'
