@@ -171,7 +171,6 @@ const ProjectTable = ({ className }: Props) => {
           return Promise.reject(new Error(r.statusText))
         })
         const name = keys[i].url.substring(keys[i].url.lastIndexOf('/') + 1)
-        console.log(name)
         folder!.file(name, blobPromise)
       }
 

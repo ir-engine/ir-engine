@@ -93,13 +93,22 @@ export class FileBrowserService implements ServiceMethods<any> {
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
       throw new Forbidden('Not allowed to access that directory')
     let result = await storageProvider.listFolderContent(directory)
-    const total = result.length
+    let resultClone = [] as FileContentType[]
 
-    if (params) {
-      result.forEach((file) => {
-        logger.info('Add files of subdirectory')
-      })
+    logger.info(recursive)
+    if (recursive) {
+      for (let i = 0; i < result.length; i++) {
+        if (result[i].type == 'folder') {
+          let content = await storageProvider.listFolderContent(result[i].key)
+          content.forEach((f) => {
+            result.push(f)
+          })
+        }
+      }
+      logger.info(result)
     }
+
+    const total = result.length
 
     result = result.slice(skip, skip + limit)
 
