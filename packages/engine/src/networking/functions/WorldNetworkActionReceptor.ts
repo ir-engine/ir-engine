@@ -119,7 +119,7 @@ const receiveRequestAuthorityOverObject = (
   world = Engine.instance.currentWorld
 ) => {
   // Authority request can only be processed by owner
-  if (Engine.instance.userId !== action.ownerId) return
+  if (action.$from !== action.ownerId) return
 
   const ownerId = action.ownerId
   const entity = world.getNetworkObject(ownerId, action.networkId)
@@ -134,6 +134,7 @@ const receiveRequestAuthorityOverObject = (
 
   dispatchAction(
     WorldNetworkAction.transferAuthorityOfObject({
+      $from: action.$from,
       ownerId: action.ownerId,
       networkId: action.networkId,
       newAuthority: action.newAuthority
