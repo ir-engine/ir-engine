@@ -1,4 +1,4 @@
-import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 
 import { authenticationSeed } from './authentication-setting/authentication.seed'
 import { awsSeed } from './aws-setting/aws-setting.seed'

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 
 import HeightIcon from '@mui/icons-material/Height'
 import OpenWithIcon from '@mui/icons-material/OpenWith'

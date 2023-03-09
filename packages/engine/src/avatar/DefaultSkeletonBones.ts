@@ -1,4 +1,4 @@
-/** XREngine tpose bone data from Animations.glb */
+/** tpose bone data from Animations.glb */
 export const defaultBonesData = [
   {
     name: 'Hips',

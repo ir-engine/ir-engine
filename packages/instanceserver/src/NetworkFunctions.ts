@@ -1,29 +1,29 @@
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
-import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
-import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPositionIsValid'
-import { performance } from '@xrengine/engine/src/common/functions/performance'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
-import { Application } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
-import { localConfig } from '@xrengine/server-core/src/config'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
-import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { SpawnPoseComponent } from '@etherealengine/engine/src/avatar/components/SpawnPoseComponent'
+import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
+import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
+import { performance } from '@etherealengine/engine/src/common/functions/performance'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { Application } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/server-core/src/appconfig'
+import { localConfig } from '@etherealengine/server-core/src/config'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 import { closeTransport } from './WebRTCFunctions'
@@ -250,7 +250,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
   worldState.userAvatarDetails[userId].set({
     avatarURL: avatarDetail.modelResource?.url || '',
@@ -287,8 +287,6 @@ export async function handleJoinWorld(
 ) {
   logger.info('Connect to world from ' + userId)
 
-  const world = Engine.instance.currentWorld
-
   const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId)
 
   const peerID = spark.id as PeerID
@@ -302,7 +300,7 @@ export async function handleJoinWorld(
       peerID,
       routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
       highResTimeOrigin: performance.timeOrigin,
-      worldStartTime: world.startTime,
+      worldStartTime: Engine.instance.startTime,
       cachedActions
     },
     id: messageId
@@ -317,8 +315,6 @@ const getUserSpawnFromInvite = async (
   inviteCode: string,
   iteration = 0
 ) => {
-  const world = Engine.instance.currentWorld
-
   if (inviteCode) {
     const result = (await network.app.service('user').find({
       query: {
@@ -331,7 +327,7 @@ const getUserSpawnFromInvite = async (
     if (users.length > 0) {
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
-        const selfAvatarEntity = world.getUserAvatarEntity(user.id as UserId)
+        const selfAvatarEntity = Engine.instance.getUserAvatarEntity(user.id as UserId)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -342,7 +338,7 @@ const getUserSpawnFromInvite = async (
           return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
         }
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = world.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserAvatarEntity = Engine.instance.getUserAvatarEntity(inviterUserId as UserId)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -403,7 +399,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (spark.id === disconnectedClient?.peerID) {
-    const state = getState(WorldState)
+    const state = getMutableState(WorldState)
     const userName = state.userNames[userId].value
 
     network.app.service('message').create(
@@ -420,7 +416,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
       }
     )
 
-    NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
+    NetworkPeerFunctions.destroyPeer(network, peerID)
     network.updatePeers()
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
@@ -442,7 +438,7 @@ export async function handleLeaveWorld(
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if (transport.appData.peerID === peerID) closeTransport(network, transport)
   if (network.peers.has(peerID)) {
-    NetworkPeerFunctions.destroyPeer(network, peerID, Engine.instance.currentWorld)
+    NetworkPeerFunctions.destroyPeer(network, peerID)
     network.updatePeers()
   }
   spark.write({ type: MessageTypes.LeaveWorld.toString(), id: messageId })

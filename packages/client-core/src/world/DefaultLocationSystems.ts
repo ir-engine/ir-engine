@@ -1,4 +1,4 @@
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 
 import WebcamInputSystem from '../media/webcam/WebcamInput'
 import AvatarUISystem from '../systems/AvatarUISystem'

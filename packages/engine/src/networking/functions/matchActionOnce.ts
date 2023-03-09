@@ -1,6 +1,6 @@
 import matches, { Validator } from 'ts-matches'
 
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
 /**
  * @deprecated

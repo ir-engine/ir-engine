@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { TransformPivot } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 
 import AdjustIcon from '@mui/icons-material/Adjust'
 

@@ -1,13 +1,15 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+
 import WaterIcon from '@mui/icons-material/Water'
 
 import NodeEditor from './NodeEditor'
 
 //declaring properties for WaterNodeEditor
 type WaterNodeEditorProps = {
-  node: any
+  entity: Entity
 }
 
 /**

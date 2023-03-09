@@ -1,9 +1,9 @@
 import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
 
-import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
-import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
-import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
+import createGroupOwner from '@etherealengine/server-core/src/hooks/create-group-owner'
+import groupPermissionAuthenticate from '@etherealengine/server-core/src/hooks/group-permission-authenticate'
+import removeGroupUsers from '@etherealengine/server-core/src/hooks/remove-group-users'
 
 import authenticate from '../../hooks/authenticate'
 import logger from '../../ServerLogger'

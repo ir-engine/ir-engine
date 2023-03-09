@@ -1,7 +1,7 @@
 import { Mesh, MeshStandardMaterial, Object3D, Scene, WebGLRenderer } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import iterateObject3D from '@xrengine/engine/src/scene/util/iterateObject3D'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
 
 import { isAncestor } from '../functions/getDetachedObjectsRoots'
 import { runBakingPasses } from './bake'
@@ -13,7 +13,7 @@ export async function bakeLightmaps(
   props: WorkbenchSettings,
   requestWork: () => Promise<WebGLRenderer>
 ) {
-  const scene = Engine.instance.currentWorld.scene
+  const scene = Engine.instance.scene
   iterateObject3D(
     scene,
     (child: Mesh) => {

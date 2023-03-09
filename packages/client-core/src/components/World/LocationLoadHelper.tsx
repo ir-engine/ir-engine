@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 
-import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import config from '@xrengine/common/src/config'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
-import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
+import config from '@etherealengine/common/src/config'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { initSystems, SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { API } from '../../API'
 import { ClientModules } from '../../world/ClientModules'
@@ -30,14 +30,13 @@ export const retrieveLocationByName = (locationName: string, userId: string) => 
 }
 
 export const initClient = async (injectedSystems: SystemModuleType<any>[] = []) => {
-  if (getState(EngineState).isEngineInitialized.value) return
+  if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  const world = Engine.instance.currentWorld
   const projects = API.instance.client.service('projects').find()
 
   await ClientModules()
-  await initSystems(world, injectedSystems)
-  await loadEngineInjection(world, await projects)
+  await initSystems(injectedSystems)
+  await loadEngineInjection(await projects)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { EditorAction, useEditorState } from '../../../services/EditorServices'
 import { InfoTooltip } from '../../layout/Tooltip'

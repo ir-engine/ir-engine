@@ -6,7 +6,7 @@ import { UploadParams } from '../upload-asset/upload-asset.service'
 import { FileBrowserService } from './file-browser.class'
 import hooks from './file-browser.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'file-browser': FileBrowserService
     'file-browser/upload': {

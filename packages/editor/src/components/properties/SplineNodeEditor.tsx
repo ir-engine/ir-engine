@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 
 import TimelineIcon from '@mui/icons-material/Timeline'
 
@@ -21,7 +21,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onAddNode = () => {
-    const obj3d = getComponent(props.node.entity, GroupComponent)[0]
+    const obj3d = getComponent(props.entity, GroupComponent)[0]
     const newSplineObject = obj3d.userData.helper.addPoint()
     obj3d.add(newSplineObject)
   }

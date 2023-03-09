@@ -34,7 +34,7 @@ export default function checkPositionIsValid(
   raycastComponentData.direction.copy(raycastDirection)
   raycastComponentData.origin.copy(position)
   raycastComponentData.groups = interactionGroups
-  const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+  const hits = Physics.castRay(Engine.instance.physicsWorld, raycastComponentData)
 
   let positionValid = false
   let raycastHit = null as RaycastHit | null

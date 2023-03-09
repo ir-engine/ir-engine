@@ -1,12 +1,13 @@
 import { Object3D } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 
 export type HeirarchyTreeNodeType = {
   depth: number
-  entityNode: EntityTreeNode
+  entityNode: EntityOrObjectUUID
   childIndex: number
   lastChild: boolean
   /**
@@ -28,10 +29,9 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  * @param  {entityNode}    collapsedNodes
  */
 export function* heirarchyTreeWalker(
-  treeNode: EntityTreeNode,
+  treeNode: EntityOrObjectUUID,
   selectedEntities: (Entity | string)[],
-  collapsedNodes: HeirarchyTreeCollapsedNodeType,
-  tree = Engine.instance.currentWorld.entityTree
+  collapsedNodes: HeirarchyTreeCollapsedNodeType
 ): Generator<HeirarchyTreeNodeType> {
   if (!treeNode) return
 
@@ -41,27 +41,29 @@ export function* heirarchyTreeWalker(
 
   while (stack.length !== 0) {
     const { depth, entityNode, childIndex, lastChild } = stack.pop() as HeirarchyTreeNodeType
-    const isCollapsed = collapsedNodes[entityNode.entity]
+    const isCollapsed = collapsedNodes[entityNode]
+
+    const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
     yield {
-      isLeaf: !entityNode.children || entityNode.children.length === 0,
+      isLeaf: entityTreeComponent.children.length === 0,
       isCollapsed,
       depth,
-      entityNode: entityNode,
-      selected: selectedEntities.includes(entityNode.entity),
-      active: selectedEntities.length > 0 && entityNode.entity === selectedEntities[selectedEntities.length - 1],
+      entityNode,
+      selected: selectedEntities.includes(entityNode),
+      active: selectedEntities.length > 0 && entityNode === selectedEntities[selectedEntities.length - 1],
       childIndex,
       lastChild
     }
 
-    if (entityNode.children && entityNode.children.length !== 0 && !isCollapsed) {
-      for (let i = entityNode.children.length - 1; i >= 0; i--) {
-        const node = tree.entityNodeMap.get(entityNode.children[i])
+    if (entityTreeComponent.children.length !== 0 && !isCollapsed) {
+      for (let i = entityTreeComponent.children.length - 1; i >= 0; i--) {
+        const node = hasComponent(entityTreeComponent.children[i], EntityTreeComponent)
 
         if (node) {
           stack.push({
             depth: depth + 1,
-            entityNode: node,
+            entityNode: entityTreeComponent.children[i],
             childIndex: i,
             lastChild: i === 0
           })

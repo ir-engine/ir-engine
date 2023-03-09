@@ -2,17 +2,17 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@xrengine/hyperflux'
-import Box from '@xrengine/ui/src/Box'
-import Chip from '@xrengine/ui/src/Chip'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Chip from '@etherealengine/ui/src/Chip'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'
@@ -37,7 +37,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
   const authState = useAuthState()
   const selfId = authState.user.id?.value ?? ''
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
   const partyOwner = partyState.party?.partyUsers?.value
     ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
     : null

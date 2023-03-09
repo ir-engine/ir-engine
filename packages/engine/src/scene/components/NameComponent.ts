@@ -1,4 +1,4 @@
-import { hookstate, none } from '@xrengine/hyperflux'
+import { hookstate, none } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
@@ -6,7 +6,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const NameComponent = defineComponent({
   name: 'NameComponent',
 
-  onInit: () => '',
+  onInit: () => undefined as any as string,
 
   onSet: (entity, component, name?: string) => {
     if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')

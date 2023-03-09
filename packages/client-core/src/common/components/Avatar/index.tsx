@@ -1,12 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import Box from '@xrengine/ui/src/Box'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
-import Paper from '@xrengine/ui/src/Paper'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Paper from '@etherealengine/ui/src/Paper'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

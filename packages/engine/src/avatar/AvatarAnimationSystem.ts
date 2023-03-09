@@ -1,15 +1,15 @@
 import { useEffect } from 'react'
 import { Bone, MathUtils, Object3D, Vector3 } from 'three'
 
-import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
+import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import {
   createActionQueue,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   startReactor,
   useHookstate
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
@@ -17,7 +17,6 @@ import { isClient } from '../common/functions/isClient'
 import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { World } from '../ecs/classes/World'
 import {
   defineQuery,
   getComponent,
@@ -94,7 +93,7 @@ export function setupHeadIK(entity: Entity) {
 
 export function setupRightHandIK(entity: Entity) {}
 
-export default async function AvatarAnimationSystem(world: World) {
+export default async function AvatarAnimationSystem() {
   await AnimationManager.instance.loadDefaultAnimations()
 
   const leftArmQuery = defineQuery([VisibleComponent, AvatarLeftArmIKComponent, AvatarRigComponent])
@@ -120,8 +119,8 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const avatarIKTargetsActionQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
 
-  const reactor = startReactor(() => {
-    const state = useHookstate(getState(AvatarAnimationState))
+  const reactor = startReactor(function AvatarAnimationReactor() {
+    const state = useHookstate(getMutableState(AvatarAnimationState))
     const isHeadset = useIsHeadset()
 
     useEffect(() => {
@@ -143,12 +142,12 @@ export default async function AvatarAnimationSystem(world: World) {
 
   const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
   const priorityQueue = createPriorityQueue({
-    accumulationBudget: getState(AvatarAnimationState).accumulationBudget.value
+    accumulationBudget: getMutableState(AvatarAnimationState).accumulationBudget.value
   })
 
-  world.priorityAvatarEntities = priorityQueue.priorityEntities
+  Engine.instance.priorityAvatarEntities = priorityQueue.priorityEntities
   const filterPriorityEntities = (entity: Entity) =>
-    world.priorityAvatarEntities.has(entity) || entity === world.localClientEntity
+    Engine.instance.priorityAvatarEntities.has(entity) || entity === Engine.instance.localClientEntity
 
   const filterFrustumCulledEntities = (entity: Entity) =>
     !(
@@ -161,7 +160,7 @@ export default async function AvatarAnimationSystem(world: World) {
   let sortedTransformEntities = [] as Entity[]
 
   const execute = () => {
-    const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = world
+    const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
 
     if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
@@ -176,7 +175,7 @@ export default async function AvatarAnimationSystem(world: World) {
     }
 
     for (const action of avatarIKTargetsActionQueue()) {
-      const entity = world.getUserAvatarEntity(action.$from)
+      const entity = Engine.instance.getUserAvatarEntity(action.$from)
       const targets = getComponent(entity, AvatarIKTargetsComponent)
 
       targets.head = action.head
@@ -245,11 +244,11 @@ export default async function AvatarAnimationSystem(world: World) {
      * 2 - Apply avatar animations
      */
 
-    const avatarAnimationEntities = avatarAnimationQuery(world).filter(filterPriorityEntities)
-    const headIKEntities = headIKQuery(world).filter(filterPriorityEntities)
-    const leftArmEntities = leftArmQuery(world).filter(filterPriorityEntities)
-    const rightArmEntities = rightArmQuery(world).filter(filterPriorityEntities)
-    const loopAnimationEntities = loopAnimationQuery(world).filter(filterPriorityEntities)
+    const avatarAnimationEntities = avatarAnimationQuery().filter(filterPriorityEntities)
+    const headIKEntities = headIKQuery().filter(filterPriorityEntities)
+    const leftArmEntities = leftArmQuery().filter(filterPriorityEntities)
+    const rightArmEntities = rightArmQuery().filter(filterPriorityEntities)
+    const loopAnimationEntities = loopAnimationQuery().filter(filterPriorityEntities)
 
     for (const entity of avatarAnimationEntities) {
       /**
@@ -395,7 +394,7 @@ export default async function AvatarAnimationSystem(world: World) {
      */
     for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
-    for (const entity of world.priorityAvatarEntities) {
+    for (const entity of Engine.instance.priorityAvatarEntities) {
       const avatarRig = getComponent(entity, AvatarRigComponent)
       if (avatarRig) {
         avatarRig.rig.Hips.updateWorldMatrix(true, true)
@@ -405,14 +404,14 @@ export default async function AvatarAnimationSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, leftArmQuery)
-    removeQuery(world, rightArmQuery)
-    removeQuery(world, leftHandQuery)
-    removeQuery(world, rightHandQuery)
-    removeQuery(world, localHeadIKQuery)
-    removeQuery(world, headIKQuery)
-    removeQuery(world, armsTwistCorrectionQuery)
-    removeQuery(world, avatarAnimationQuery)
+    removeQuery(leftArmQuery)
+    removeQuery(rightArmQuery)
+    removeQuery(leftHandQuery)
+    removeQuery(rightHandQuery)
+    removeQuery(localHeadIKQuery)
+    removeQuery(headIKQuery)
+    removeQuery(armsTwistCorrectionQuery)
+    removeQuery(avatarAnimationQuery)
     reactor.stop()
   }
 

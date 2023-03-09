@@ -2,8 +2,8 @@ import { Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import attachOwnerId from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
-import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
+import attachOwnerId from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import authenticate from '../../hooks/authenticate'
 

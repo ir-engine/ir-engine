@@ -1,9 +1,13 @@
 import * as k8s from '@kubernetes/client-node'
 import { Op } from 'sequelize'
 
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { ServerContainerInfo, ServerInfoInterface, ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import {
+  ServerContainerInfo,
+  ServerInfoInterface,
+  ServerPodInfo
+} from '@etherealengine/common/src/interfaces/ServerInfo'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

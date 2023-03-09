@@ -6,7 +6,7 @@ import hooks from './location-authorized-user.hooks'
 import createModel from './location-authorized-user.model'
 
 // Add this service to the service type index
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'location-authorized-user': LocationAuthorizedUser
   }

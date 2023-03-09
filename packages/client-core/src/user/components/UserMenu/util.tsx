@@ -1,6 +1,6 @@
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { State } from '@xrengine/hyperflux/functions/StateFunctions'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { AvatarProps } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 export const Views = {
   Closed: '',

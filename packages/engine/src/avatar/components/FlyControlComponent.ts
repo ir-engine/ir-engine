@@ -1,4 +1,4 @@
-import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createMappedComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 export type FlyControlComponentType = {
   moveSpeed: number

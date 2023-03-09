@@ -11,16 +11,16 @@ import {
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
-} from '@xrengine/common/src/constants/AvatarConstants'
-import multiLogger from '@xrengine/common/src/logger'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import Icon from '@xrengine/ui/src/Icon'
+} from '@etherealengine/common/src/constants/AvatarConstants'
+import multiLogger from '@etherealengine/common/src/logger'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { loadAvatarForPreview, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'

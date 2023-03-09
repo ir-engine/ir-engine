@@ -1,7 +1,7 @@
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from './../../declarations'
 

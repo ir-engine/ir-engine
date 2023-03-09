@@ -1,11 +1,10 @@
-import BufferHandlerExtension from '@xrengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 import { accessEditorState } from '../services/EditorServices'
 
-export default async function ModelHandlingSystem(world: World) {
+export default async function ModelHandlingSystem() {
   const beginModelExportQueue = createActionQueue(BufferHandlerExtension.beginModelExport.matches)
   const saveBufferQueue = createActionQueue(BufferHandlerExtension.saveBuffer.matches)
   const editorState = accessEditorState()

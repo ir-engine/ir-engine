@@ -1,9 +1,10 @@
 import React from 'react'
 
-import { VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { VideoFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
+import { StringInputProps } from './StringInput'
 
 /**
  * VideoInput used to render component view for video inputs.
@@ -12,7 +13,7 @@ import FileBrowserInput from './FileBrowserInput'
  * @param       {any} rest
  * @constructor
  */
-export function VideoInput({ onChange, ...rest }) {
+export function VideoInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={VideoFileTypes}

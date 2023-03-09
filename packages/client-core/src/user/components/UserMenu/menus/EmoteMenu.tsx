@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
-import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import Button from '@xrengine/ui/src/Button'
-import Icon from '@xrengine/ui/src/Icon'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
+import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import Button from '@etherealengine/ui/src/Button'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
@@ -123,7 +123,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
   }
 
   const runAnimation = (stateName: string) => {
-    const entity = Engine.instance.currentWorld.localClientEntity
+    const entity = Engine.instance.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
     changeActiveMenu(Views.Closed)

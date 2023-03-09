@@ -1,8 +1,8 @@
 import { Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { LocationAdmin } from '@xrengine/common/src/interfaces/LocationAdmin'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { LocationAdmin } from '@etherealengine/common/src/interfaces/LocationAdmin'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../declarations'
 

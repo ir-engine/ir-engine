@@ -1,3 +1,0 @@
-Thank you for installing Ethereal Engine Matchmaking
-
-This service will set up a director and matchfunction to facilitate matchmaking.

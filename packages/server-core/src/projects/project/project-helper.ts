@@ -7,10 +7,10 @@ import path from 'path'
 import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
 
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
-import { ProjectInterface, ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
+import { ProjectInterface, ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -77,7 +77,7 @@ export const updateBuilder = async (
       logger.info('Attempting to update builder tag')
       const builderRepo = process.env.BUILDER_REPOSITORY
       const updateBuilderTagResponse = await app.k8AppsClient.patchNamespacedDeployment(
-        `${config.server.releaseName}-builder-xrengine-builder`,
+        `${config.server.releaseName}-builder-etherealengine-builder`,
         'default',
         {
           spec: {
@@ -90,7 +90,7 @@ export const updateBuilder = async (
               spec: {
                 containers: [
                   {
-                    name: 'xrengine-builder',
+                    name: 'etherealengine-builder',
                     image: `${builderRepo}:${tag}`
                   }
                 ]
@@ -126,7 +126,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
       logger.info('Attempting to check k8s rebuild status')
 
       const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
-      const containerName = 'xrengine-builder'
+      const containerName = 'etherealengine-builder'
 
       const builderPods = await app.k8DefaultClient.listNamespacedPod(
         'default',
@@ -193,7 +193,7 @@ export const onProjectEvent = async (
 
 export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {
   try {
-    return (await import(`@xrengine/projects/projects/${projectName}/xrengine.config.ts`)).default
+    return (await import(`@etherealengine/projects/projects/${projectName}/xrengine.config.ts`)).default
   } catch (e) {
     logger.error(
       e,
@@ -718,7 +718,8 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   } else {
     const repoSplit = builderRepo.split('/')
     const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
-    const repo = repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'xrengine-builder' : repoSplit[0]) : repoSplit[1]
+    const repo =
+      repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'etherealengine-builder' : repoSplit[0]) : repoSplit[1]
     try {
       const result = await axios.get(
         `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
@@ -817,7 +818,7 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
               }
             },
             spec: {
-              serviceAccountName: `${process.env.RELEASE_NAME}-xrengine-api`,
+              serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
               containers: [
                 {
                   name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
@@ -852,7 +853,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
     app
   )
 
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'xrengine')!.image
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
 
   if (app.k8BatchClient) {
     try {

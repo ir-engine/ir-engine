@@ -2,17 +2,18 @@ import { useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   defineQuery,
   getComponent,
   useComponent,
   useQuery
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 
@@ -38,14 +39,12 @@ const fitOptions = [
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const video = useComponent(props.node.entity, VideoComponent)
+  const video = useComponent(props.entity, VideoComponent)
 
   const mediaEntities = useQuery([MediaComponent])
 
-  const entityTree = Engine.instance.currentWorld.entityTree
-
   const mediaOptions = mediaEntities.map((entity) => {
-    return { label: getComponent(entity, NameComponent), value: entityTree.entityNodeMap.get(entity)!.uuid }
+    return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
   })
   mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
 

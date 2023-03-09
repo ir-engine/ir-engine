@@ -5,24 +5,28 @@ import { useTranslation } from 'react-i18next'
 import {
   useLocationInstanceConnectionState,
   useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
-import { getState } from '@xrengine/hyperflux'
-import Avatar from '@xrengine/ui/src/Avatar'
-import Badge from '@xrengine/ui/src/Badge'
-import Card from '@xrengine/ui/src/Card'
-import CardContent from '@xrengine/ui/src/CardContent'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
-import TextField from '@xrengine/ui/src/TextField'
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  ChatService,
+  ChatServiceReceptor,
+  useChatState
+} from '@etherealengine/client-core/src/social/services/ChatService'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import multiLogger from '@etherealengine/common/src/logger'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Avatar from '@etherealengine/ui/src/Avatar'
+import Badge from '@etherealengine/ui/src/Badge'
+import Card from '@etherealengine/ui/src/Card'
+import CardContent from '@etherealengine/ui/src/CardContent'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import TextField from '@etherealengine/ui/src/TextField'
 
 import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
@@ -48,7 +52,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const currentInstanceConnection = useWorldInstance()
 
   useEffect(() => {
-    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
       ChatService.getInstanceChannel()
     }
   }, [currentInstanceConnection?.connected])
@@ -283,7 +287,7 @@ export const InstanceChat = ({
     setIsInitRender(false)
   }
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   return (
     <>
@@ -444,7 +448,7 @@ export const InstanceChat = ({
 }
 
 export const InstanceChatWrapper = () => {
-  const engineState = useHookstate(getState(EngineState))
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
   return (

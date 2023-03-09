@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 
@@ -20,7 +20,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const volumetricComponent = useComponent(props.node.entity, VolumetricComponent)
+  const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
   return (
     <NodeEditor

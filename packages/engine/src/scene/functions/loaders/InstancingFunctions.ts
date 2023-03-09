@@ -23,8 +23,8 @@ import {
 } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { defineAction, dispatchAction, State } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, dispatchAction, State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../../assets/classes/DependencyTree'
@@ -46,10 +46,9 @@ import {
   removeComponent,
   useComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { getEntityTreeNodeByUUID, iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { setCallback } from '../../components/CallbackComponent'
 import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
 import {
@@ -68,6 +67,7 @@ import {
   VertexProperties
 } from '../../components/InstancingComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
+import { UUIDComponent } from '../../components/UUIDComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
 import LogarithmicDepthBufferMaterialChunk from '../LogarithmicDepthBufferMaterialChunk'
@@ -324,12 +324,15 @@ export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
   }
   const scatterProps = getComponent(entity, InstancingComponent)
   if (scatterProps.surface) {
-    const eNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+    const eNode = entity
     DependencyTree.add(
       scatterProps.surface,
       new Promise<void>((resolve) => {
         matchActionOnce(
-          InstancingActions.instancingStaged.matches.validate((action) => action.uuid === eNode.uuid, ''),
+          InstancingActions.instancingStaged.matches.validate(
+            (action) => action.uuid === getComponent(eNode, UUIDComponent),
+            ''
+          ),
           () => resolve()
         )
       })
@@ -358,7 +361,7 @@ async function loadGrassTextures(props: State<GrassProperties>) {
   await Promise.all([props.alphaMap, props.grassTexture].map(loadTex))
 }
 
-export async function stageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
+export async function stageInstancing(entity: Entity) {
   const scatter = getComponent(entity, InstancingComponent)
   const scatterState = getComponentState(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
@@ -366,7 +369,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     return
   }
   scatterState.state.set(ScatterState.STAGING)
-  const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface, world))!.geometry
+  const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface))!.geometry
   const normals = targetGeo.getAttribute('normal')
   const positions = targetGeo.getAttribute('position')
   const uvs = targetGeo.getAttribute('uv')
@@ -666,7 +669,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
           vHeight: { value: grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma },
           alphaMap: { value: grassProps.alphaMap.texture },
           sunDirection: { value: new Vector3(-0.35, 0, 0) },
-          cameraPosition: { value: Engine.instance.currentWorld.camera.position },
+          cameraPosition: { value: Engine.instance.camera.position },
           ambientStrength: { value: grassProps.ambientStrength },
           diffuseStrength: { value: grassProps.diffuseStrength },
           sunColor: { value: grassProps.sunColor }
@@ -748,15 +751,14 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   result.frustumCulled = false
   obj3d.add(result)
   scatterState.state.set(ScatterState.STAGED)
-  const eNode = world.entityTree.entityNodeMap.get(entity)!
-  dispatchAction(InstancingActions.instancingStaged({ uuid: eNode.uuid }))
+  dispatchAction(InstancingActions.instancingStaged({ uuid: getComponent(entity, UUIDComponent) }))
 }
 
-export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
+export function unstageInstancing(entity: Entity) {
   const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
   const group = getComponent(entity, GroupComponent)
   const obj3d = group.pop()
   obj3d?.removeFromParent()
-  if (group.length === 0) removeComponent(entity, GroupComponent, world)
+  if (group.length === 0) removeComponent(entity, GroupComponent)
   comp.state = ScatterState.UNSTAGED
 }

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import Button from '@xrengine/ui/src/Button'
-import CardMedia from '@xrengine/ui/src/CardMedia'
-import Icon from '@xrengine/ui/src/Icon'
-import Typography from '@xrengine/ui/src/Typography'
+import Button from '@etherealengine/ui/src/Button'
+import CardMedia from '@etherealengine/ui/src/CardMedia'
+import Icon from '@etherealengine/ui/src/Icon'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import Fab from '@mui/material/Fab'
 

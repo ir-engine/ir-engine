@@ -1,7 +1,7 @@
 import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminBot, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 
 import { Application } from '../../../declarations'
 import { createBotCommands } from './bot.functions'

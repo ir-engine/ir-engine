@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react'
 import React from 'react'
 import { BufferGeometry } from 'three'
 
-import { useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import DeleteIcon from '@mui/icons-material/DeleteForeverTwoTone'
 import { Box, Grid, Stack, Typography } from '@mui/material'

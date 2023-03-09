@@ -1,4 +1,4 @@
-import { World } from '../../ecs/classes/World'
+import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,
@@ -21,55 +21,55 @@ export const LightPrefabs = {
   spotLight: 'Spot Light' as const
 }
 
-export default async function LightSystem(world: World) {
-  world.sceneComponentRegistry.set(DirectionalLightComponent.name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
+export default async function LightSystem() {
+  Engine.instance.sceneComponentRegistry.set(DirectionalLightComponent.name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
     defaultData: {}
   })
 
-  world.sceneComponentRegistry.set(HemisphereLightComponent.name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
+  Engine.instance.sceneComponentRegistry.set(HemisphereLightComponent.name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
     defaultData: {}
   })
 
-  world.sceneComponentRegistry.set(AmbientLightComponent.name, SCENE_COMPONENT_AMBIENT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
+  Engine.instance.sceneComponentRegistry.set(AmbientLightComponent.name, SCENE_COMPONENT_AMBIENT_LIGHT)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
     defaultData: {}
   })
 
-  world.sceneComponentRegistry.set(PointLightComponent.name, SCENE_COMPONENT_POINT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
+  Engine.instance.sceneComponentRegistry.set(PointLightComponent.name, SCENE_COMPONENT_POINT_LIGHT)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
     defaultData: {}
   })
 
-  world.sceneComponentRegistry.set(SpotLightComponent.name, SCENE_COMPONENT_SPOT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
+  Engine.instance.sceneComponentRegistry.set(SpotLightComponent.name, SCENE_COMPONENT_SPOT_LIGHT)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
     defaultData: {}
   })
 
-  world.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
+  Engine.instance.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: {} }
   ])
 
-  world.scenePrefabRegistry.set(LightPrefabs.hemisphereLight, [
+  Engine.instance.scenePrefabRegistry.set(LightPrefabs.hemisphereLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_HEMISPHERE_LIGHT, props: {} }
   ])
 
-  world.scenePrefabRegistry.set(LightPrefabs.ambientLight, [
+  Engine.instance.scenePrefabRegistry.set(LightPrefabs.ambientLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_AMBIENT_LIGHT, props: {} }
   ])
 
-  world.scenePrefabRegistry.set(LightPrefabs.pointLight, [
+  Engine.instance.scenePrefabRegistry.set(LightPrefabs.pointLight, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_POINT_LIGHT, props: {} }
   ])
 
-  world.scenePrefabRegistry.set(LightPrefabs.spotLight, [
+  Engine.instance.scenePrefabRegistry.set(LightPrefabs.spotLight, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_SPOT_LIGHT, props: {} }
@@ -86,28 +86,28 @@ export default async function LightSystem(world: World) {
   }
 
   const cleanup = async () => {
-    world.sceneComponentRegistry.delete(DirectionalLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
+    Engine.instance.sceneComponentRegistry.delete(DirectionalLightComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
 
-    world.sceneComponentRegistry.delete(HemisphereLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_HEMISPHERE_LIGHT)
+    Engine.instance.sceneComponentRegistry.delete(HemisphereLightComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_HEMISPHERE_LIGHT)
 
-    world.sceneComponentRegistry.delete(AmbientLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_AMBIENT_LIGHT)
+    Engine.instance.sceneComponentRegistry.delete(AmbientLightComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_AMBIENT_LIGHT)
 
-    world.sceneComponentRegistry.delete(PointLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_POINT_LIGHT)
+    Engine.instance.sceneComponentRegistry.delete(PointLightComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_POINT_LIGHT)
 
-    world.sceneComponentRegistry.delete(SpotLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPOT_LIGHT)
+    Engine.instance.sceneComponentRegistry.delete(SpotLightComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPOT_LIGHT)
 
-    world.scenePrefabRegistry.delete(LightPrefabs.directionalLight)
-    world.scenePrefabRegistry.delete(LightPrefabs.hemisphereLight)
-    world.scenePrefabRegistry.delete(LightPrefabs.ambientLight)
-    world.scenePrefabRegistry.delete(LightPrefabs.pointLight)
-    world.scenePrefabRegistry.delete(LightPrefabs.spotLight)
+    Engine.instance.scenePrefabRegistry.delete(LightPrefabs.directionalLight)
+    Engine.instance.scenePrefabRegistry.delete(LightPrefabs.hemisphereLight)
+    Engine.instance.scenePrefabRegistry.delete(LightPrefabs.ambientLight)
+    Engine.instance.scenePrefabRegistry.delete(LightPrefabs.pointLight)
+    Engine.instance.scenePrefabRegistry.delete(LightPrefabs.spotLight)
 
-    removeQuery(world, directionalLightSelectQuery)
+    removeQuery(directionalLightSelectQuery)
   }
 
   return { execute, cleanup }

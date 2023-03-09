@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 
 import BoltIcon from '@mui/icons-material/Bolt'
 
@@ -21,7 +21,7 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const lightComponent = useComponent(props.node.entity, DirectionalLightComponent).value
+  const lightComponent = useComponent(props.entity, DirectionalLightComponent).value
 
   return (
     <NodeEditor
@@ -49,7 +49,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(DirectionalLightComponent, 'useInCSM')}
         />
       </InputGroup>
-      <LightShadowProperties node={props.node} comp={DirectionalLightComponent} />
+      <LightShadowProperties entity={props.entity} comp={DirectionalLightComponent} />
       <NumericInputGroup
         name="CameraFar"
         label={t('editor:properties.directionalLight.lbl-cameraFar')}

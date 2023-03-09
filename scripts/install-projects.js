@@ -1,20 +1,20 @@
-import { download } from "@xrengine/server-core/src/projects/project/downloadProjects";
-import { createDefaultStorageProvider } from "@xrengine/server-core/src/media/storageprovider/storageprovider";
+import { download } from "@etherealengine/server-core/src/projects/project/downloadProjects";
+import { createDefaultStorageProvider } from "@etherealengine/server-core/src/media/storageprovider/storageprovider";
 import dotenv from 'dotenv';
 import Sequelize from 'sequelize';
 import path from "path";
 import fs from "fs";
 import appRootPath from 'app-root-path'
-import logger from '@xrengine/server-core/src/ServerLogger'
-import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
-import { ServerMode } from '@xrengine/server-core/declarations'
-import { getProjectConfig, onProjectEvent } from '@xrengine/server-core/src/projects/project/project-helper'
+import logger from '@etherealengine/server-core/src/ServerLogger'
+import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { ServerMode } from '@etherealengine/server-core/declarations'
+import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
 
 dotenv.config();
 const db = {
     username: process.env.MYSQL_USER ?? 'server',
     password: process.env.MYSQL_PASSWORD ?? 'password',
-    database: process.env.MYSQL_DATABASE ?? 'xrengine',
+    database: process.env.MYSQL_DATABASE ?? 'etherealengine',
     host: process.env.MYSQL_HOST ?? '127.0.0.1',
     port: process.env.MYSQL_PORT ?? 3306,
     dialect: 'mysql'

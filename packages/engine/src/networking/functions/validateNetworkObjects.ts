@@ -1,16 +1,15 @@
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
 import { Network } from '../classes/Network'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 
-export async function validateNetworkObjects(world: World, network: Network): Promise<void> {
+export async function validateNetworkObjects(network: Network): Promise<void> {
   for (const [peerID, client] of network.peers) {
     if (client.userId === Engine.instance.userId) continue
     // Validate that user has phoned home recently
     if (Date.now() - client.lastSeenTs > 30000) {
       console.log('Removing client ', peerID, ' due to inactivity')
 
-      NetworkPeerFunctions.destroyPeer(network, peerID, world)
+      NetworkPeerFunctions.destroyPeer(network, peerID)
       network.updatePeers()
 
       console.log('Disconnected Client:', peerID)

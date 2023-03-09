@@ -3,8 +3,8 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize'
 
-import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { Party as PartyDataType } from '@etherealengine/common/src/interfaces/Party'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

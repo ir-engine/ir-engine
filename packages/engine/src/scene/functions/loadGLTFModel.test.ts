@@ -11,9 +11,9 @@ import {
   getComponentState
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -28,13 +28,14 @@ describe('loadGLTFModel', () => {
 
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     const mockComponentData = { src: '' } as any
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
 
     const entity = createEntity()
-    addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
+    addEntityNodeChild(entity, world.sceneEntity)
+    setLocalTransformComponent(entity, world.sceneEntity)
     addComponent(entity, ModelComponent, {
       ...mockComponentData
     })
@@ -62,8 +63,8 @@ describe('loadGLTFModel', () => {
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
 
-    const [mockModelEntity] = modelQuery(world)
-    const [mockSpawnPointEntity] = childQuery(world)
+    const [mockModelEntity] = modelQuery()
+    const [mockSpawnPointEntity] = childQuery()
 
     assert.equal(typeof mockModelEntity, 'number')
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))

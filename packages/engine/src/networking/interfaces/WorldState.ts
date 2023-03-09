@@ -1,7 +1,7 @@
 import matches from 'ts-matches'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { defineState } from '@xrengine/hyperflux'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { defineState } from '@etherealengine/hyperflux'
 
 export const matchesAvatarProps = matches.shape({
   avatarURL: matches.string,

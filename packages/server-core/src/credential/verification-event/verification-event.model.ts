@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { VerificationEventInterface } from '@xrengine/common/src/dbmodels/VerificationEvent'
+import { VerificationEventInterface } from '@etherealengine/common/src/dbmodels/VerificationEvent'
 
 import { Application } from '../../../declarations'
 

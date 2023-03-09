@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mesh, Object3D, Scene, Texture } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
   ComponentType,
@@ -11,8 +11,8 @@ import {
   getOrAddComponent,
   hasComponent,
   useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
   InstancingStagingComponent,
@@ -24,15 +24,16 @@ import {
   SourceProperties,
   TextureRef,
   VertexProperties
-} from '@xrengine/engine/src/scene/components/InstancingComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+} from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   MESH_PROPERTIES_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
-import getFirstMesh from '@xrengine/engine/src/scene/util/getFirstMesh'
-import { State, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/functions/loaders/InstancingFunctions'
+import getFirstMesh from '@etherealengine/engine/src/scene/util/getFirstMesh'
+import { State, useState } from '@etherealengine/hyperflux'
 
 import AcUnitIcon from '@mui/icons-material/AcUnit'
 
@@ -50,9 +51,8 @@ import { EditorComponentType, traverseScene } from './Util'
 
 export const InstancingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entityState = useState(props.node.entity)
+  const entityState = useState(props.entity)
   const entity = entityState.value
-  const node = props.node
   const scatterState = useComponent(entity, InstancingComponent)
   const scatter = scatterState.value
   const sampleProps = scatter.sampleProperties as ScatterProperties & VertexProperties
@@ -86,14 +86,14 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
     const surfaces = traverseScene(
       (eNode) => {
         return {
-          label: getComponent(eNode.entity, NameComponent) ?? '',
-          value: eNode.uuid
+          label: getComponent(eNode, NameComponent) ?? '',
+          value: getComponent(eNode, UUIDComponent)
         }
       },
       (eNode) => {
-        if (eNode === node) return false
-        if (hasComponent(eNode.entity, ModelComponent)) {
-          const obj3d = getComponentState(eNode.entity, ModelComponent).scene.value as Scene | undefined
+        if (eNode === entity) return false
+        if (hasComponent(eNode, ModelComponent)) {
+          const obj3d = getComponentState(eNode, ModelComponent).scene.value as Scene | undefined
           if (!obj3d) return false
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')

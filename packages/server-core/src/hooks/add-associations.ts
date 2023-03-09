@@ -1,6 +1,6 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { Application } from '@xrengine/server-core/declarations'
+import { Application } from '@etherealengine/server-core/declarations'
 
 import logger from '../ServerLogger'
 

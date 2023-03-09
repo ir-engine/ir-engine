@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/SpawnPointComponent'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 
 import StreetviewIcon from '@mui/icons-material/Streetview'
 
@@ -18,7 +18,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const SpawnPointNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const spawnComponent = getComponent(props.node.entity, SpawnPointComponent)
+  const spawnComponent = getComponent(props.entity, SpawnPointComponent)
   // initializing iconComponent icon name
   return (
     <NodeEditor

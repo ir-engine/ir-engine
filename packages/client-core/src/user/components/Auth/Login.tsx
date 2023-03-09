@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Icon from '@xrengine/ui/src/Icon'
-import Tab from '@xrengine/ui/src/Tab'
-import Tabs from '@xrengine/ui/src/Tabs'
+import Icon from '@etherealengine/ui/src/Icon'
+import Tab from '@etherealengine/ui/src/Tab'
+import Tabs from '@etherealengine/ui/src/Tabs'
 
 import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'

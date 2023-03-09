@@ -35,6 +35,8 @@ export const unique = <T, S = T>(arr: T[], keyFinder: (item: T) => S): T[] => {
 }
 
 export const isApple = () => {
+  if ('navigator' in globalThis === false) return false
+
   const iOS_1to12 = /iPad|iPhone|iPod/.test(navigator.platform)
 
   const iOS13_iPad = navigator.platform === 'MacIntel'

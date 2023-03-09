@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PositionalAudioComponent } from '@xrengine/engine/src/audio/components/PositionalAudioComponent'
-import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
+import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
@@ -23,7 +23,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const audioComponent = useComponent(props.node.entity, PositionalAudioComponent)
+  const audioComponent = useComponent(props.entity, PositionalAudioComponent)
 
   return (
     <NodeEditor
@@ -37,7 +37,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         info={t('editor:properties.audio.info-distanceModel')}
       >
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={DistanceModelOptions}
           value={audioComponent.distanceModel.value}
           onChange={updateProperty(PositionalAudioComponent, 'distanceModel')}

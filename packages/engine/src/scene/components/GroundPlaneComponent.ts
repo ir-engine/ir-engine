@@ -4,19 +4,18 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponentState, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
 
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       color: new Color(),
       visible: true,
@@ -57,7 +56,6 @@ export const GroundPlaneComponent = defineComponent({
       mesh.name = 'GroundPlaneMesh'
       mesh.material.polygonOffset = true
       mesh.material.polygonOffsetUnits = -0.01
-      mesh.traverse(generateMeshBVH)
 
       enableObjectLayer(mesh, ObjectLayers.Camera, true)
       addObjectToGroup(entity, mesh)
@@ -68,10 +66,10 @@ export const GroundPlaneComponent = defineComponent({
         getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default | CollisionGroups.Avatars)
       )
 
-      Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [colliderDesc])
+      Physics.createRigidBody(entity, Engine.instance.physicsWorld, rigidBodyDesc, [colliderDesc])
 
       return () => {
-        Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+        Physics.removeRigidBody(entity, Engine.instance.physicsWorld)
         removeObjectFromGroup(entity, component.mesh.value)
       }
     }, [])
