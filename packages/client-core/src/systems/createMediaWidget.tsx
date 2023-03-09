@@ -4,8 +4,6 @@ import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/compo
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
-import GroupsIcon from '@mui/icons-material/Groups'
-
 import { UserMediaWindowsWidget } from '../components/UserMediaWindows'
 
 export function createMediaWidget() {
@@ -16,7 +14,7 @@ export function createMediaWidget() {
   const widget: Widget = {
     ui,
     label: 'Media',
-    icon: GroupsIcon,
+    icon: 'Groups',
     onOpen: () => {},
     system: () => {},
     cleanup: async () => {}
