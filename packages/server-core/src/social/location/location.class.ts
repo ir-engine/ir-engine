@@ -3,8 +3,8 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 import slugify from 'slugify'
 
-import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { Location as LocationType } from '@etherealengine/common/src/interfaces/Location'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

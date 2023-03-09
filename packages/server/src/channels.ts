@@ -1,6 +1,6 @@
 import '@feathersjs/transport-commons'
 
-import { Application } from '@xrengine/server-core/declarations'
+import { Application } from '@etherealengine/server-core/declarations'
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {

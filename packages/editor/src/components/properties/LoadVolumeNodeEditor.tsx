@@ -1,22 +1,22 @@
 import { range } from 'lodash'
 import React from 'react'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { Button } from '@xrengine/editor/src/components/inputs/Button'
-import InputGroup from '@xrengine/editor/src/components/inputs/InputGroup'
-import { SceneObjectInput } from '@xrengine/editor/src/components/inputs/SceneObjectInput'
-import PaginatedList from '@xrengine/editor/src/components/layout/PaginatedList'
-import Well from '@xrengine/editor/src/components/layout/Well'
-import NodeEditor from '@xrengine/editor/src/components/properties/NodeEditor'
-import { EditorComponentType, updateProperty } from '@xrengine/editor/src/components/properties/Util'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { LoadVolumeComponent, LoadVolumeTarget } from '@xrengine/engine/src/scene/components/LoadVolumeComponent'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Button } from '@etherealengine/editor/src/components/inputs/Button'
+import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
+import { SceneObjectInput } from '@etherealengine/editor/src/components/inputs/SceneObjectInput'
+import PaginatedList from '@etherealengine/editor/src/components/layout/PaginatedList'
+import Well from '@etherealengine/editor/src/components/layout/Well'
+import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
+import { EditorComponentType, updateProperty } from '@etherealengine/editor/src/components/properties/Util'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { LoadVolumeComponent, LoadVolumeTarget } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import { Grid } from '@mui/material'
 
 const LoadVolumeNodeEditor: EditorComponentType = (props) => {
-  const loadVolumeComponent = getComponent(props.node.entity, LoadVolumeComponent)
+  const loadVolumeComponent = getComponent(props.entity, LoadVolumeComponent)
   const targets = loadVolumeComponent.targets
   /*function onEditTargets(index) {
     return (value) => {

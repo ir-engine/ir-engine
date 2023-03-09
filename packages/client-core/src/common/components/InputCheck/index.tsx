@@ -1,10 +1,10 @@
 import React from 'react'
 
-import Text from '@xrengine/client-core/src/common/components/Text'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import Box from '@etherealengine/ui/src/Box'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
 
-import Box from '@mui/material/Box'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'

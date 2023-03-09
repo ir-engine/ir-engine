@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { LocationAction, useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { retrieveLocationByName } from './LocationLoadHelper'
 

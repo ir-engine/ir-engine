@@ -2,7 +2,7 @@ import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020
 import vcjs from '@digitalcredentials/vc'
 import axios from 'axios'
 
-import { securityLoader } from '@xrengine/common/src/documentLoader'
+import { securityLoader } from '@etherealengine/common/src/documentLoader'
 
 import { VerifiablePresentation } from '../interfaces/Web5'
 import multiLogger from '../logger'

@@ -7,17 +7,17 @@ import path from 'path'
 import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
 
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
-import { ProjectInterface, ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
+import { ProjectInterface, ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
-import { getOctokitForChecking } from './github-helper'
+import { getOctokitForChecking, getUserOrgs, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
@@ -39,6 +39,7 @@ interface GitHubFile {
     size: number
     url: string
     html_url: string
+    ssh_url: string
     git_url: string
     download_url: string
     type: string
@@ -76,7 +77,7 @@ export const updateBuilder = async (
       logger.info('Attempting to update builder tag')
       const builderRepo = process.env.BUILDER_REPOSITORY
       const updateBuilderTagResponse = await app.k8AppsClient.patchNamespacedDeployment(
-        `${config.server.releaseName}-builder-xrengine-builder`,
+        `${config.server.releaseName}-builder-etherealengine-builder`,
         'default',
         {
           spec: {
@@ -89,7 +90,7 @@ export const updateBuilder = async (
               spec: {
                 containers: [
                   {
-                    name: 'xrengine-builder',
+                    name: 'etherealengine-builder',
                     image: `${builderRepo}:${tag}`
                   }
                 ]
@@ -125,7 +126,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
       logger.info('Attempting to check k8s rebuild status')
 
       const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
-      const containerName = 'xrengine-builder'
+      const containerName = 'etherealengine-builder'
 
       const builderPods = await app.k8DefaultClient.listNamespacedPod(
         'default',
@@ -192,7 +193,7 @@ export const onProjectEvent = async (
 
 export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {
   try {
-    return (await import(`@xrengine/projects/projects/${projectName}/xrengine.config.ts`)).default
+    return (await import(`@etherealengine/projects/projects/${projectName}/xrengine.config.ts`)).default
   } catch (e) {
     logger.error(
       e,
@@ -417,7 +418,7 @@ export const checkProjectDestinationMatch = async (app: Application, params: Pro
 export const checkDestination = async (app: Application, url: string, params?: ProjectParams) => {
   const inputProjectURL = params!.query!.inputProjectURL!
   const octokitResponse = await getOctokitForChecking(app, url, params!)
-  const { owner, repo, octoKit } = octokitResponse
+  const { owner, repo, octoKit, token } = octokitResponse
 
   const returned = {} as any
   if (!owner || !repo)
@@ -433,21 +434,34 @@ export const checkDestination = async (app: Application, url: string, params?: P
     }
 
   try {
-    const [authUser, orgs] = await Promise.all([
-      octoKit.rest.users.getAuthenticated(),
-      octoKit.rest.orgs.listForAuthenticatedUser()
-    ])
-    const orgAccessible =
-      owner === authUser.data.login || orgs.data.find((org) => org.login.toLowerCase() === owner.toLowerCase())
-    if (!orgAccessible) {
-      returned.error = 'appNotAuthorizedInOrg'
-      returned.text = `The organization '${owner}' needs to install the GitHub OAuth app '${config.authentication.oauth.github.key}' in order to push code to its repositories. See https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps for further details.`
-    }
-    const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-    if (!repoResponse)
+    const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token)])
+    const matchingRepo = repos.find(
+      (repo) =>
+        repo.html_url.toLowerCase() === url.toLowerCase() ||
+        `${repo.html_url.toLowerCase()}.git` === url.toLowerCase() ||
+        repo.ssh_url.toLowerCase() === url.toLowerCase() ||
+        `${repo.ssh_url.toLowerCase()}.git` === url.toLowerCase()
+    )
+    if (!matchingRepo)
       return {
         error: 'invalidDestinationURL',
         text: 'The destination URL is not valid, or you do not have access to it'
+      }
+    const repoAccessible = owner === authUser.data.login || matchingRepo
+
+    if (!repoAccessible) {
+      returned.error = 'invalidDestinationURL'
+      returned.text = `You do not appear to have access to this repository. If this seems wrong, click the button 
+      "Refresh GitHub Repo Access" and try again. If you are only in the organization that owns this repo, make sure that the
+      organization has installed the OAuth app associated with this installation, and that your personal GitHub account
+      has granted access to the organization: https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps`
+    }
+    returned.destinationValid =
+      matchingRepo.permissions?.push || matchingRepo.permissions?.admin || matchingRepo.permissions?.maintain || false
+    if (!returned.destinationValid)
+      return {
+        error: 'invalidPermission',
+        text: 'You do not have personal push, maintain, or admin access to this repo.'
       }
     let destinationPackage
     try {
@@ -456,14 +470,9 @@ export const checkDestination = async (app: Application, url: string, params?: P
       logger.error('destination package fetch error', err)
       if (err.status !== 404) throw err
     }
-    returned.destinationValid = repoResponse.data?.permissions?.push || repoResponse.data?.permissions?.admin || false
     if (destinationPackage)
       returned.projectName = JSON.parse(Buffer.from(destinationPackage.data.content, 'base64').toString()).name
     else returned.repoEmpty = true
-    if (!returned.destinationValid) {
-      returned.error = 'invalidPermission'
-      returned.text = 'You do not have personal push or admin access to this repo.'
-    }
 
     if (inputProjectURL?.length > 0) {
       const projectOctokitResponse = await getOctokitForChecking(app, inputProjectURL, params!)
@@ -709,7 +718,8 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   } else {
     const repoSplit = builderRepo.split('/')
     const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
-    const repo = repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'xrengine-builder' : repoSplit[0]) : repoSplit[1]
+    const repo =
+      repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'etherealengine-builder' : repoSplit[0]) : repoSplit[1]
     try {
       const result = await axios.get(
         `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
@@ -808,7 +818,7 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
               }
             },
             spec: {
-              serviceAccountName: `${process.env.RELEASE_NAME}-xrengine-api`,
+              serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
               containers: [
                 {
                   name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
@@ -843,7 +853,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
     app
   )
 
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'xrengine')!.image
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
 
   if (app.k8BatchClient) {
     try {

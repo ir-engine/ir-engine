@@ -16,9 +16,12 @@ import RAPIER, {
 } from '@dimforge/rapier3d-compat'
 import { Line, Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
+import { getMutableState } from '@etherealengine/hyperflux'
+
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -29,6 +32,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -299,12 +303,10 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
 
   const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 
-  if (!Engine.instance.isEditor)
+  if (!getMutableState(EngineState).isEditor.value)
     for (const mesh of meshesToRemove) {
       mesh.removeFromParent()
-      mesh.traverse((obj: Mesh<any, any>) =>
-        cleanupAllMeshData(obj, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
-      )
+      mesh.traverse((obj: Mesh<any, any>) => cleanupAllMeshData(obj, { uuid: getComponent(entity, UUIDComponent) }))
     }
 
   return body

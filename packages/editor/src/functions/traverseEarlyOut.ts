@@ -1,23 +1,22 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 
-export default function traverseEarlyOut(
-  node: EntityTreeNode,
-  cb: (node: EntityTreeNode) => boolean,
-  tree = Engine.instance.currentWorld.entityTree
-): boolean {
+export default function traverseEarlyOut(node: EntityOrObjectUUID, cb: (node: EntityOrObjectUUID) => boolean): boolean {
   let stopTravel = cb(node)
 
   if (stopTravel) return stopTravel
 
-  const children = node.children
+  const entityTreeComponent = getComponent(node as Entity, EntityTreeComponent)
+
+  const children = entityTreeComponent.children
   if (!children) return stopTravel
 
   for (let i = 0; i < children.length; i++) {
-    const child = tree.entityNodeMap.get(children[i])
+    const child = children[i]
 
     if (child) {
-      stopTravel = traverseEarlyOut(child, cb, tree)
+      stopTravel = traverseEarlyOut(child, cb)
       if (stopTravel) break
     }
   }

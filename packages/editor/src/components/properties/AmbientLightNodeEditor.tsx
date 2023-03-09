@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
 
 import Brightness7Icon from '@mui/icons-material/Brightness7'
 
@@ -22,7 +22,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.node.entity, AmbientLightComponent).value
+  const lightComponent = useComponent(props.entity, AmbientLightComponent).value
 
   return (
     <NodeEditor

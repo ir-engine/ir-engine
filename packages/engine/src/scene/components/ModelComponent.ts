@@ -1,6 +1,5 @@
-import { entityExists } from 'bitecs'
 import { useEffect } from 'react'
-import { Object3D, Scene } from 'three'
+import { Mesh, Object3D, Scene } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../assets/classes/DependencyTree'
@@ -8,12 +7,15 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   defineComponent,
+  getComponent,
+  getComponentState,
   hasComponent,
   removeComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { entityExists, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -25,6 +27,7 @@ import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { MediaComponent } from './MediaComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { UUIDComponent } from './UUIDComponent'
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
@@ -32,7 +35,8 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      generateBVH: false,
+      generateBVH: true,
+      avoidCameraOcclusion: false,
       scene: undefined as undefined | Scene
     }
   },
@@ -40,7 +44,8 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      generateBVH: component.generateBVH.value
+      generateBVH: component.generateBVH.value,
+      avoidCameraOcclusion: component.avoidCameraOcclusion.value
     }
   },
 
@@ -71,14 +76,13 @@ function ModelReactor({ root }: EntityReactorProps) {
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
-  const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   // update src
   useEffect(() => {
     if (model.src === model.scene?.userData?.src) return
 
     const loadModel = async () => {
       try {
-        if (model.scene && model.scene.userData.src !== model.src) {
+        if (model.scene && model.scene.userData.src && model.scene.userData.src !== model.src) {
           try {
             removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
           } catch (e) {
@@ -90,9 +94,9 @@ function ModelReactor({ root }: EntityReactorProps) {
           }
         }
         if (!model.src) return
-        if (!nodeMap.has(entity)) return
+        if (!hasComponent(entity, EntityTreeComponent)) return
 
-        const uuid = nodeMap.get(entity)!.uuid
+        const uuid = getComponent(entity, UUIDComponent)
         DependencyTree.add(uuid)
         let scene: Scene
         const fileExtension = /\.[\d\s\w]+$/.exec(model.src)?.[0]
@@ -112,7 +116,7 @@ function ModelReactor({ root }: EntityReactorProps) {
             throw new Error(`Model type '${fileExtension}' not supported`)
         }
 
-        if (!entityExists(Engine.instance.currentWorld, entity)) return
+        if (!entityExists(entity)) return
         removeError(entity, ModelComponent, 'LOADING_ERROR')
         scene.userData.src = model.src
         if (scene.userData.type === 'glb') delete scene.userData.type
@@ -126,23 +130,44 @@ function ModelReactor({ root }: EntityReactorProps) {
     loadModel()
   }, [modelComponent.src])
 
-  // update scene
   useEffect(() => {
     const scene = modelComponent.scene.value
-    if (!scene || groupComponent?.value?.find((group: any) => group === scene)) return
+    if (!scene) return
+    enableObjectLayer(scene, ObjectLayers.Camera, model.avoidCameraOcclusion)
+  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
 
+  // update scene
+  useEffect(() => {
+    const scene = modelComponent.scene.get({ noproxy: true })
+
+    if (!scene) return
     addObjectToGroup(entity, scene)
-    parseGLTFModel(entity)
 
-    if (model.generateBVH) {
-      scene.traverse(generateMeshBVH)
-    }
+    if (groupComponent?.value?.find((group: any) => group === scene)) return
+    parseGLTFModel(entity)
     setBoundingBoxComponent(entity)
-    enableObjectLayer(scene, ObjectLayers.Camera, modelComponent.generateBVH.value)
     removeComponent(entity, SceneAssetPendingTagComponent)
 
-    return () => removeObjectFromGroup(entity, scene)
-  }, [modelComponent.scene])
+    let active = true
+
+    if (model.generateBVH) {
+      const bvhDone = [] as Promise<void>[]
+      scene.traverse((obj: Mesh) => {
+        bvhDone.push(generateMeshBVH(obj))
+      })
+      // trigger group state invalidation when bvh is done
+      Promise.all(bvhDone).then(() => {
+        if (!active) return
+        const group = getComponentState(entity, GroupComponent)
+        if (group) group.set([...group.value])
+      })
+    }
+
+    return () => {
+      removeObjectFromGroup(entity, scene)
+      active = false
+    }
+  }, [modelComponent.scene, model.generateBVH])
 
   return null
 }

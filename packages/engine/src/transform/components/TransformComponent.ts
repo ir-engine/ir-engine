@@ -16,6 +16,10 @@ export type TransformComponentType = {
 const { f64 } = Types
 export const Vector3Schema = { x: f64, y: f64, z: f64 }
 export const QuaternionSchema = { x: f64, y: f64, z: f64, w: f64 }
+export const PoseSchema = {
+  position: Vector3Schema,
+  rotation: QuaternionSchema
+}
 export const TransformSchema = {
   position: Vector3Schema,
   rotation: QuaternionSchema,
@@ -47,7 +51,7 @@ globalThis.TransformComponent = TransformComponent
  * @returns
  */
 export function setTransformComponent(entity: Entity, position?: Vector3, rotation?: Quaternion, scale?: Vector3) {
-  const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
+  const dirtyTransforms = Engine.instance.dirtyTransforms
   if (hasComponent(entity, TransformComponent)) {
     const existingTransform = getComponent(entity, TransformComponent)
     if (position) existingTransform.position.copy(position)
@@ -71,7 +75,6 @@ export function setTransformComponent(entity: Entity, position?: Vector3, rotati
       matrix: new Matrix4(),
       matrixInverse: new Matrix4()
     })
-    TransformComponent.mapState[entity].set(TransformComponent.map[entity])
   }
 }
 
@@ -94,7 +97,7 @@ export function setLocalTransformComponent(
 ) {
   if (entity === parentEntity) throw new Error('Tried to parent entity to self - this is not allowed')
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
-  const dirtyTransforms = Engine.instance.currentWorld.dirtyTransforms
+  const dirtyTransforms = Engine.instance.dirtyTransforms
   setComponent(entity, LocalTransformComponent, {
     parentEntity,
     // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
@@ -103,7 +106,6 @@ export function setLocalTransformComponent(
     scale: proxifyVector3WithDirty(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()),
     matrix: new Matrix4()
   })
-  LocalTransformComponent.mapState[entity].set(LocalTransformComponent.map[entity])
 }
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'

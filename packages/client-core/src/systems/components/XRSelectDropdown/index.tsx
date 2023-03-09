@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import styleString from './index.scss?inline'
 
@@ -24,7 +24,7 @@ function XRSelectDropdown<T extends string>(props: Props<T>) {
       <div className="selectContainer" onClick={toggleVisibility}>
         <div className="selectValue">{value}</div>
         <div className="selectIcon">
-          <ArrowDropDownIcon />
+          <Icon type="ArrowDropDown" />
         </div>
         <div className={`selectOptions ${visible ? 'visible' : ''}`}>
           {options.map((op, index) => {

@@ -4,7 +4,7 @@ import { ChargebeeSetting } from './chargebee-setting.class'
 import hooks from './chargebee-setting.hooks'
 import createModel from './chargebee-setting.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'chargebee-setting': ChargebeeSetting
   }

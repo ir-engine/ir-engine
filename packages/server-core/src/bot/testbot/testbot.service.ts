@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { getTestbotPod, runTestbotJob } from './testbot-helper'
 import hooks from './testbot.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     testbot: any
   }

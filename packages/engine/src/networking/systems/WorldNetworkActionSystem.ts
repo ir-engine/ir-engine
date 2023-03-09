@@ -1,4 +1,4 @@
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../functions/WorldNetworkActionReceptor'

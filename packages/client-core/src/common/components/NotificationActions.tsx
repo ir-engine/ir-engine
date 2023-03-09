@@ -2,8 +2,8 @@ import { SnackbarKey, useSnackbar } from 'notistack'
 import { Fragment } from 'react'
 import React from 'react'
 
-import CloseIcon from '@mui/icons-material/Close'
-import { IconButton } from '@mui/material'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
   const { closeSnackbar } = useSnackbar()
@@ -11,9 +11,7 @@ export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
   return (
     <Fragment>
       {content}
-      <IconButton onClick={() => closeSnackbar(key)}>
-        <CloseIcon sx={{ color: 'white' }} />
-      </IconButton>
+      <IconButton onClick={() => closeSnackbar(key)} icon={<Icon type="Close" sx={{ color: 'white' }} />} />
     </Fragment>
   )
 }

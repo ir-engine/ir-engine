@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import Box from '@etherealengine/ui/src/Box'
+import FormControl from '@etherealengine/ui/src/FormControl'
+import FormHelperText from '@etherealengine/ui/src/FormHelperText'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import InputLabel from '@etherealengine/ui/src/InputLabel'
+import OutlinedInput from '@etherealengine/ui/src/OutlinedInput'
 
-import { InputLabel, OutlinedInput } from '@mui/material'
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import commonStyles from '../common.module.scss'
@@ -73,13 +74,15 @@ const InputText = ({
   const ref = useRef(null)
 
   useEffect(() => {
-    let input
-    for (const child of (ref.current as any)?.children) {
-      if (child.tagName === 'INPUT') {
-        input = child
+    if (type === 'number' && ref.current) {
+      let input
+      for (const child of (ref.current as any)?.children) {
+        if (child.tagName === 'INPUT') {
+          input = child
+        }
       }
+      if (input && cursor) input.setSelectionRange(cursor, cursor)
     }
-    if (input) input.setSelectionRange(cursor, cursor)
   }, [ref, cursor, value])
 
   const handleChange = (e) => {
@@ -101,7 +104,6 @@ const InputText = ({
           <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
           <OutlinedInput
-            ref={ref}
             disabled={disabled}
             error={!!error}
             fullWidth

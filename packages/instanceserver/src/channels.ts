@@ -4,30 +4,31 @@ import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
 
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { RealtimeNetworkingModule } from '@xrengine/engine/src/networking/RealtimeNetworkingModule'
-import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
-import { dispatchAction } from '@xrengine/hyperflux'
-import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
-import { Application } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
-import { getProjectsList } from '@xrengine/server-core/src/projects/project/project.service'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
-import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
+import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
+import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { TransformModule } from '@etherealengine/engine/src/transform/TransformModule'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { Application } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/server-core/src/appconfig'
+import { getProjectsList } from '@etherealengine/server-core/src/projects/project/project.service'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { authorizeUserToJoinServer } from './NetworkFunctions'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
@@ -226,36 +227,35 @@ const initializeInstance = async (
 const loadEngine = async (app: Application, sceneId: string) => {
   const hostId = app.instance.id as UserId
   Engine.instance.userId = hostId
-  const world = Engine.instance.currentWorld
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
   const network = new SocketWebRTCServerNetwork(hostId, topic, app)
   app.network = network
   const initPromise = network.initialize()
 
-  world.networks.set(hostId, network)
+  addNetwork(network)
   const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
-    world.hostIds.media.set(hostId as UserId)
-    await initSystems(Engine.instance.currentWorld, [...RealtimeNetworkingModule(true, false)])
-    await loadEngineInjection(world, projects)
+    getMutableState(NetworkState).hostIds.media.set(hostId as UserId)
+    await initSystems([...RealtimeNetworkingModule(true, false)])
+    await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    world.hostIds.world.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.world.set(hostId as UserId)
 
     const [projectName, sceneName] = sceneId.split('/')
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
-    await initSystems(Engine.instance.currentWorld, [
+    await initSystems([
       ...TransformModule(),
       ...SceneCommonModule(),
       ...AvatarCommonModule(),
       ...RealtimeNetworkingModule(false, true)
     ])
-    await loadEngineInjection(world, projects)
+    await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {
@@ -276,8 +276,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     network.peerIndexCount++,
     hostId,
     network.userIndexCount++,
-    'server-' + hostId,
-    Engine.instance.currentWorld
+    'server-' + hostId
   )
   dispatchAction(EngineActions.joinedWorld({}))
 }

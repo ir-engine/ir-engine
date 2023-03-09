@@ -1,4 +1,4 @@
-import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
@@ -32,12 +32,15 @@ export const EngineState = defineState({
      */
     shareLink: '',
     shareTitle: '',
-    transformsNeedSorting: true
+    publicPath: '',
+    transformsNeedSorting: true,
+    isBot: false,
+    isEditor: false
   }
 })
 
 export function EngineEventReceptor(a) {
-  const s = getState(EngineState)
+  const s = getMutableState(EngineState)
   matches(a)
     .when(EngineActions.browserNotSupported.matches, (action) => {})
     .when(EngineActions.resetEngine.matches, (action) =>
@@ -59,7 +62,7 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
 
-export const getEngineState = () => getState(EngineState)
+export const getEngineState = () => getMutableState(EngineState)
 
 export const useEngineState = () => useState(getEngineState())
 
@@ -145,7 +148,7 @@ export class EngineActions {
    **/
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.Engine.SCENE_OBJECT_UPDATE' as const,
-    entities: matches.array as Validator<unknown, Entity[]>
+    entities: matches.any as Validator<unknown, Entity[]>
   })
 
   static avatarModelChanged = defineAction({

@@ -1,12 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
-import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import { ThemeOptions } from '@xrengine/common/src/interfaces/ClientSetting'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-
-import { Divider, Grid } from '@mui/material'
+import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
+import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import { ThemeOptions } from '@etherealengine/common/src/interfaces/ClientSetting'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import Divider from '@etherealengine/ui/src/Divider'
+import Grid from '@etherealengine/ui/src/Grid'
 
 import SketchColorPicker from '../../../common/SketchColorPicker'
 import styles from '../../../styles/settings.module.scss'

@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ClientSettingInterface } from '@xrengine/common/src/dbmodels/ClientSetting'
+import { ClientSettingInterface } from '@etherealengine/common/src/dbmodels/ClientSetting'
 
 import { Application } from '../../../declarations'
 

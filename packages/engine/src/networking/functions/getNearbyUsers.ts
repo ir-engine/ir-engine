@@ -1,6 +1,6 @@
 import { Not } from 'bitecs'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -21,7 +21,7 @@ const remoteAvatars = defineQuery([
 ])
 
 export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array<UserId> {
-  const userAvatarEntity = Engine.instance.currentWorld.getUserAvatarEntity(userId)
+  const userAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
   if (!userAvatarEntity) return []
   const userPosition = getComponent(userAvatarEntity, TransformComponent).position
   if (!userPosition) return []

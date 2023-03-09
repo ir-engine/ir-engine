@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent, useOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { useComponent, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { CloudComponent } from '@etherealengine/engine/src/scene/components/CloudComponent'
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 
 import CloudIcon from '@mui/icons-material/Cloud'
 
@@ -22,8 +22,8 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const CloudsNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const cloudComponent = useComponent(props.node.entity, CloudComponent)
-  const hasError = !!useOptionalComponent(props.node.entity, ErrorComponent)
+  const cloudComponent = useComponent(props.entity, CloudComponent)
+  const hasError = !!useOptionalComponent(props.entity, ErrorComponent)
 
   return (
     <NodeEditor

@@ -1,10 +1,10 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { LoadState, PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
-import { loadPrefab, unloadPrefab } from '@xrengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { exportPrefab } from '../../functions/assetFunctions'
 import { EditorAction } from '../../services/EditorServices'
@@ -17,8 +17,7 @@ import { EditorComponentType, updateProperty } from './Util'
 
 export const PrefabNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
-  const node = props.node
+  const entity = props.entity
   const prefab = useComponent(entity, PrefabComponent)
   const isLoaded = prefab.loaded.value
 
@@ -41,7 +40,7 @@ export const PrefabNodeEditor: EditorComponentType = (props) => {
   }
 
   const onExportAsset = async () => {
-    await exportPrefab(node)
+    await exportPrefab(entity)
   }
 
   return (

@@ -8,7 +8,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new HemisphereLight()
     addObjectToGroup(entity, light)
     return {

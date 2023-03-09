@@ -1,5 +1,4 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
@@ -42,7 +41,7 @@ import {
 import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
 import { AdminUserActions, AdminUserReceptors } from '../admin/services/UserService'
 
-export default async function AdminSystem(world: World) {
+export default async function AdminSystem() {
   const fetchedTaskServersQueue = createActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
   const fetchServerInfoRequestedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
   const fetchServerInfoRetrievedQueue = createActionQueue(AdminServerInfoActions.fetchServerInfoRetrieved.matches)

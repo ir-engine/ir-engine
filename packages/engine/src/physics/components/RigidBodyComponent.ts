@@ -55,7 +55,7 @@ export const RigidBodyComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    const world = Engine.instance.currentWorld.physicsWorld
+    const world = Engine.instance.physicsWorld
     const rigidBody = component.body.value
     if (rigidBody) {
       const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())

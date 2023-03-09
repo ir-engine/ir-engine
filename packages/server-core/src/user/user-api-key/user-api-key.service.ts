@@ -4,7 +4,7 @@ import userDocs from './user-api-key.docs'
 import hooks from './user-api-key.hooks'
 import createModel from './user-api-key.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   /**
    * Interface for users input
    */

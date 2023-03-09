@@ -44,7 +44,7 @@
       "spawnBot": "Spawn Bot",
       "lastRunStatus": "Last run status",
       "autoRefreshing": "auto refreshing in 10s",
-      "xrEngineBots": "XREngine bots",
+      "engineBots": "Ethereal Engine bots",
       "updateBot": "UPDATE BOT",
       "name": "Name",
       "confirmBotDelete": "Do you want to delete bot"
@@ -69,6 +69,7 @@
       "fixErrorFields": "Please fix all errors"
     },
     "analytics": {
+      "loading": "Loading analytics...",
       "activeParties": "Active Parties",
       "activeLocations": "Active Locations",
       "activeInstances": "Active Instances",
@@ -195,7 +196,9 @@
       "day": "day",
       "commitSHACopied": "Commit SHA copied",
       "buildStatus": "Build Status",
-      "defaultProjectUpdateTooltip": "default-project is updated when engine is updated"
+      "defaultProjectUpdateTooltip": "default-project is updated when engine is updated",
+      "refreshGithubRepoAccess": "Refresh GitHub Repo Access",
+      "refreshingGithubRepoAccess": "Refreshing"
     },
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",
@@ -321,6 +324,7 @@
       "googleAnalyticsTrackingId": "Google Analytics Tracking ID",
       "certPath": "CertPath",
       "keyPath": "KeyPath",
+      "githubWebhookSecret": "Github Webhook Secret",
       "githubPrivateKey": "Github Private Key",
       "instanceserverUnreachableTimeoutSeconds": "Seconds for instanceserver to be considered unreachable",
       "project": "Project",

@@ -15,7 +15,7 @@ jobs:
         id: check-secrets
         run: |
           if [ ${{ secrets.BRANCH_BUILD_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   compile-codebase:
     needs:
@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: 18.x
       - name: restore lerna
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             node_modules
@@ -37,6 +37,10 @@ jobs:
             package-lock.json
           key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
       - run: cp .env.local.default .env.local
+      - name: Config npm registry token
+        run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
       - run: npm run check-errors

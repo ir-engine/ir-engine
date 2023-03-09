@@ -1052,7 +1052,7 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/keycard.glb",
-            "generateBVH": false,
+            "generateBVH": true,
             "matrixAutoUpdate": true
           }
         },

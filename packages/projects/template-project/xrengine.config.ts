@@ -1,4 +1,4 @@
-import type { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
+import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 const config: ProjectConfigInterface = {
   onEvent: undefined,

@@ -6,7 +6,7 @@ import fs from 'fs'
 import {
   createDefaultStorageProvider,
   getStorageProvider
-} from '@xrengine/server-core/src/media/storageprovider/storageprovider'
+} from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 
 const UNIQUIFIED_FILE_NAME_REGEX = /\.[a-zA-Z0-9]{8}$/
 

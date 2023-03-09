@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-
-import Box from '@mui/material/Box'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import Box from '@etherealengine/ui/src/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PersistentAnchorComponent } from '@xrengine/engine/src/xr/XRAnchorComponents'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAnchorComponents'
 
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -12,7 +12,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const anchor = useComponent(props.node.entity, PersistentAnchorComponent)
+  const anchor = useComponent(props.entity, PersistentAnchorComponent)
 
   return (
     <NodeEditor

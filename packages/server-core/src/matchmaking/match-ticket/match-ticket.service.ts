@@ -3,7 +3,7 @@ import { MatchTicket } from './match-ticket.class'
 import matchTicketDocs from './match-ticket.docs'
 import hooks from './match-ticket.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'match-ticket': MatchTicket
   }

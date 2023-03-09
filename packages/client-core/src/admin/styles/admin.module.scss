@@ -1,4 +1,4 @@
-@import "@xrengine/client-core/src/styles/imports.module.scss";
+@import "@etherealengine/client-core/src/styles/imports.module.scss";
 
 .openModalBtn {
   height: 50px;
@@ -19,6 +19,14 @@
   @media (max-width: 900px) {
     font-size: 0.7rem;
   }
+}
+
+.refreshGHBtn {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 12px;
+  background-color: var(--popupBackground) !important;
+  color: var(--textColor) !important;
 }
 
 .dateTimePickerDialog {
@@ -259,6 +267,7 @@
 }
 
 .actionStyle {
+  width: auto;
   text-decoration: none;
   color: #000;
   margin-right: 10px;
@@ -496,7 +505,7 @@
 
   /**
   * This below style is added to fix background issues with chrome autofill.
-  * https://github.com/XRFoundation/XREngine/pull/6448#pullrequestreview-1018811200
+  * https://github.com/etherealengine/etherealengine/pull/6448#pullrequestreview-1018811200
   * https://stackoverflow.com/a/14205976/2077741
   */
   input:-webkit-autofill,

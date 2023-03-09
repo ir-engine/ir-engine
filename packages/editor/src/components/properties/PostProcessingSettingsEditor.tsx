@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
-import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { useHookstate } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
+import { getPostProcessingSceneMetadataState } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -192,7 +192,7 @@ export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
   const [openSettings, setOpenSettings] = useState(false)
-  const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld))
+  const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentScene))
   if (!postprocessing.value) return null
 
   const getPropertyValue = (keys: string[]): any => {

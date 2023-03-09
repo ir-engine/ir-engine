@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash'
 
-import { none } from '@xrengine/hyperflux'
+import { none } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import {

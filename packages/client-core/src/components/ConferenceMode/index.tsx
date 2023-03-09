@@ -2,11 +2,11 @@ import { useState } from '@hookstate/core'
 import classNames from 'classnames'
 import React from 'react'
 
-import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useMediaInstanceConnectionState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaStreamState } from '@etherealengine/client-core/src/media/services/MediaStreamService'
+import { accessAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useNetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import ConferenceModeParticipant from './ConferenceModeParticipant'
 import styles from './index.module.scss'
@@ -17,7 +17,7 @@ const ConferenceMode = (): JSX.Element => {
   const selfUserId = useState(accessAuthState().user.id)
   const userState = useNetworkUserState()
   const channelConnectionState = useMediaInstanceConnectionState()
-  const network = Engine.instance.currentWorld.mediaNetwork
+  const network = Engine.instance.mediaNetwork
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
   const displayedUsers =
     network?.hostId && currentChannelInstanceConnection

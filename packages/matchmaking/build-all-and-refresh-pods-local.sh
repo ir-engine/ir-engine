@@ -12,7 +12,7 @@ REGISTRY=$REGISTRY DEPLOY_TIME=$DEPLOY_TIME ./build-all-pods.sh
 sleep 2
 if [[ -z $HELM_CONFIG ]]
 then
-  helm upgrade --install --reuse-values --set director.image.tag=$DEPLOY_TIME,matchfunction.image.tag=$DEPLOY_TIME local-matchmaking ../ops/xrengine-matchmaking
+  helm upgrade --install --reuse-values --set director.image.tag=$DEPLOY_TIME,matchfunction.image.tag=$DEPLOY_TIME local-matchmaking ../ops/etherealengine-matchmaking
 else
-  helm upgrade --install --reuse-values -f $HELM_CONFIG --set director.image.tag=$DEPLOY_TIME,matchfunction.image.tag=$DEPLOY_TIME local-matchmaking ../ops/xrengine-matchmaking
+  helm upgrade --install --reuse-values -f $HELM_CONFIG --set director.image.tag=$DEPLOY_TIME,matchfunction.image.tag=$DEPLOY_TIME local-matchmaking ../ops/etherealengine-matchmaking
 fi

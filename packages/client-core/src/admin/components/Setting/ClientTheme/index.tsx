@@ -5,10 +5,9 @@ import {
   defaultThemeModes,
   defaultThemeSettings,
   getCurrentTheme
-} from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { ThemeMode, ThemeSetting } from '@xrengine/common/src/interfaces/ClientSetting'
-
-import { Button } from '@mui/material'
+} from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import { ThemeMode, ThemeSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
+import Button from '@etherealengine/ui/src/Button'
 
 import { useAuthState } from '../../../../user/services/AuthService'
 import { ClientSettingService, useClientSettingState } from '../../../services/Setting/ClientSettingService'

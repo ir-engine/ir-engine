@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ChargebeeSettingInterface } from '@xrengine/common/src/dbmodels/ChargebeeSetting'
+import { ChargebeeSettingInterface } from '@etherealengine/common/src/dbmodels/ChargebeeSetting'
 
 import { Application } from '../../../declarations'
 

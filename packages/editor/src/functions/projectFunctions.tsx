@@ -1,8 +1,8 @@
-import { API } from '@xrengine/client-core/src/API'
-import { MultiError } from '@xrengine/client-core/src/util/errors'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { API } from '@etherealengine/client-core/src/API'
+import { MultiError } from '@etherealengine/client-core/src/util/errors'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { copy, paste } from '../functions/copyPaste'
 import { EditorErrorAction } from '../services/EditorErrorServices'

@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { LocationSettings as LocationSettingsInterface } from '@xrengine/common/src/interfaces/LocationSettings'
+import { LocationSettings as LocationSettingsInterface } from '@etherealengine/common/src/interfaces/LocationSettings'
 
 import { Application } from '../../../declarations'
 

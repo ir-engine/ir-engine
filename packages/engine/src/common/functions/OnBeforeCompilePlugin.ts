@@ -41,6 +41,7 @@ export type CustomMaterial = Material & {
 
 export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.onBeforeCompile = plugin as any
+  material.needsUpdate = true
 }
 
 export function removeOBCPlugin(material: Material, plugin: PluginType): void {

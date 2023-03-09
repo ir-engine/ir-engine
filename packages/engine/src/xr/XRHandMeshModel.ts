@@ -2,7 +2,6 @@ import { Group, Object3D, SkinnedMesh } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from './../common/proxies/createThreejsProxy'
 import { Entity } from './../ecs/classes/Entity'
-import { XRHandsInputComponent } from './XRComponents'
 import { XRHandBones } from './XRHandBones'
 
 export class XRHandMeshModel extends Object3D {
@@ -23,19 +22,14 @@ export class XRHandMeshModel extends Object3D {
     mesh.castShadow = true
     mesh.receiveShadow = true
 
-    let joints = []
-    XRHandBones.forEach((bone) => {
-      joints = joints.concat(bone as any)
-    })
-
-    joints.forEach((jointName) => {
+    XRHandBones.forEach((jointName) => {
       const bone = model.getObjectByName(jointName)
 
       if (bone) {
         ;(bone as any).jointName = jointName
 
-        proxifyVector3(XRHandsInputComponent[handedness][jointName].position, entity, bone.position)
-        proxifyQuaternion(XRHandsInputComponent[handedness][jointName].quaternion, entity, bone.quaternion)
+        // proxifyVector3(XRHandsInputComponent[handedness][jointName].position, entity, bone.position)
+        // proxifyQuaternion(XRHandsInputComponent[handedness][jointName].quaternion, entity, bone.quaternion)
 
         this.bones.push(bone)
       } else {

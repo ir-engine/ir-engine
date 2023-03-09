@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
 
-import { useRouter } from '@xrengine/client-core/src/common/services/RouterService'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener } from '@mui/material'

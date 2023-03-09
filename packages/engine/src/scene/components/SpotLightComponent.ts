@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Color, ConeGeometry, DoubleSide, Mesh, MeshBasicMaterial, Object3D, SpotLight, TorusGeometry } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -14,7 +14,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new SpotLight()
     light.target.position.set(0, -1, 0)
     light.target.name = 'light-target'
@@ -29,7 +29,7 @@ export const SpotLightComponent = defineComponent({
       penumbra: 1,
       castShadow: false,
       shadowMapResolution: 256,
-      shadowBias: 0.5,
+      shadowBias: 0.00001,
       shadowRadius: 1,
       light,
       helper: null as Object3D | null,
@@ -79,7 +79,7 @@ export const SpotLightComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, SpotLightComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, SpotLightComponent)
 
     useEffect(() => {

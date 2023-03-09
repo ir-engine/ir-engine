@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-
-import { Box, Button, Grid, Typography } from '@mui/material'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { AwsSettingService, useAdminAwsSettingState } from '../../services/Setting/AwsSettingService'

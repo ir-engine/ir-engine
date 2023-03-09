@@ -1,12 +1,12 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { Location } from '@xrengine/common/src/interfaces/Location'
-
-import Avatar from '@mui/material/Avatar'
-import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { Location } from '@etherealengine/common/src/interfaces/Location'
+import Avatar from '@etherealengine/ui/src/Avatar'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Chip from '@etherealengine/ui/src/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
@@ -67,6 +67,7 @@ const LocationTable = ({ className, search }: Props) => {
 
   const handleOpenLocationDrawer =
     (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      event.preventDefault()
       if (
         event.type === 'keydown' &&
         ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
@@ -100,11 +101,10 @@ const LocationTable = ({ className, search }: Props) => {
       videoEnabled,
       action: (
         <>
-          <a href="#" className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
+          <Button className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
-          </a>
-          <a
-            href="#"
+          </Button>
+          <Button
             className={styles.actionStyle}
             onClick={() => {
               setLocationId(id)
@@ -113,7 +113,7 @@ const LocationTable = ({ className, search }: Props) => {
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
-          </a>
+          </Button>
         </>
       )
     }

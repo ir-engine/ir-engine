@@ -56,7 +56,7 @@ export default defineConfig(
         /*
       lib: {
         entry: path.resolve(dirname(import.meta), 'src/index.ts'),
-        name: 'xrengine-instanceserver'
+        name: 'etherealengine-instanceserver'
       },*/
         target: 'esnext',
         sourcemap: 'inline',

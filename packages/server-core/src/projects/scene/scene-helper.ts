@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
+import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
 
 import { Application } from '../../../declarations'
 import { parseScenePortals } from './scene-parser'
