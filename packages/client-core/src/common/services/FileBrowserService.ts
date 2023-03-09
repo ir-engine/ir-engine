@@ -82,7 +82,7 @@ export const FileBrowserService = {
 
     const params = {
       query: {
-        $recursive: false,
+        recursive: false,
         $skip: skip * FILES_PAGE_LIMIT,
         $limit: FILES_PAGE_LIMIT
       }

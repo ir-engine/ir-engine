@@ -80,31 +80,18 @@ export class FileBrowserService implements ServiceMethods<any> {
   async get(directory: string, params?: UserParams): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
-    const { $recursive, $skip, $limit, storageProviderName } = params.query
+    const { recursive, $skip, $limit, storageProviderName } = params.query
 
     delete params.query.storageProviderName
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 100
-    const recursive = $recursive
 
     const storageProvider = getStorageProvider(storageProviderName)
     const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
       throw new Forbidden('Not allowed to access that directory')
-    let result = await storageProvider.listFolderContent(directory)
-    let resultClone = [] as FileContentType[]
-
-    if (recursive) {
-      for (let i = 0; i < result.length; i++) {
-        if (result[i].type == 'folder') {
-          let content = await storageProvider.listFolderContent(result[i].key)
-          content.forEach((f) => {
-            result.push(f)
-          })
-        }
-      }
-    }
+    let result = await storageProvider.listFolderContent(directory, recursive)
 
     const total = result.length
 

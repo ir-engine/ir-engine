@@ -149,7 +149,7 @@ const ProjectTable = ({ className }: Props) => {
 
     const params = {
       query: {
-        $recursive: true,
+        recursive: true,
         $skip: 0,
         $limit: 1000
       }
