@@ -323,9 +323,9 @@ function QueryReactor(props: {
   return (
     <>
       {entities.map((entity) => (
-        <QueryReactorErrorBoundary>
+        <QueryReactorErrorBoundary key={entity}>
           <Suspense fallback={null}>
-            <props.ChildEntityReactor key={entity} root={{ ...props.root, entity }} />
+            <props.ChildEntityReactor root={{ ...props.root, entity }} />
           </Suspense>
         </QueryReactorErrorBoundary>
       ))}
