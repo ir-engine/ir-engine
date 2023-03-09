@@ -161,7 +161,6 @@ const ProjectTable = ({ className }: Props) => {
       const el = document.createElement('a')
       el.download = row.name + '.zip'
       const zip = new JSZip()
-      const folder = zip.folder('project')
 
       const keys = files.data
       for (let i = 0; i < keys.length; i++) {
@@ -170,7 +169,7 @@ const ProjectTable = ({ className }: Props) => {
           return Promise.reject(new Error(r.statusText))
         })
         const name = keys[i].name
-        folder!.file(keys[i].key, blobPromise)
+        zip.file(keys[i].key, blobPromise)
       }
 
       zip
