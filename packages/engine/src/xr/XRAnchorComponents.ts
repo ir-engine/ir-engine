@@ -154,7 +154,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
   const originalParentEntityUUID = useHookstate('' as EntityUUID)
   const meshes = useHookstate([] as Mesh[])
 
-  const anchor = useOptionalComponent(entity, PersistentAnchorComponent)
+  const anchor = useComponent(entity, PersistentAnchorComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const xrState = useHookstate(getMutableState(XRState))
 
@@ -162,7 +162,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
 
   useEffect(() => {
     if (!group) return
-    const active = anchor?.value && xrState.sessionMode.value === 'immersive-ar'
+    const active = anchor.value && xrState.sessionMode.value === 'immersive-ar'
     if (active) {
       /** remove from scene and add to world origins */
       const originalParent = getComponent(
@@ -185,9 +185,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
 
       anchorMeshLost(group, meshes)
     }
-  }, [anchor?.active, groupComponent?.length, xrState.sessionActive])
-
-  if (!hasComponent(entity, PersistentAnchorComponent)) throw root.stop()
+  }, [anchor.active, groupComponent?.length, xrState.sessionActive])
 
   return null
 }

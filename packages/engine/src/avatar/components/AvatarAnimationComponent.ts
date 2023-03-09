@@ -158,12 +158,9 @@ export const AvatarRigComponent = defineComponent({
 
   reactor: function ({ root }) {
     const entity = root.entity
-
-    if (!hasComponent(entity, AvatarRigComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
-    const anim = useComponent(root.entity, AvatarRigComponent)
-    const pending = useOptionalComponent(root.entity, AvatarPendingComponent)
+    const anim = useComponent(entity, AvatarRigComponent)
+    const pending = useOptionalComponent(entity, AvatarPendingComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !anim.helper.value && !pending?.value) {

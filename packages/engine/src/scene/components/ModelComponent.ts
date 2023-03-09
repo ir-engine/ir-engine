@@ -71,8 +71,6 @@ export const ModelComponent = defineComponent({
 
 function ModelReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, ModelComponent)) throw root.stop()
-
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
