@@ -105,7 +105,16 @@ export const MediaComponent = defineComponent({
     return {
       controls: false,
       synchronize: true,
+      paths: [] as string[],
       paused: true,
+      volume: 1,
+      playMode: PlayMode.loop as PlayMode,
+      isMusic: false,
+      // runtime props
+      waiting: false,
+      track: 0,
+      trackDurations: [] as number[],
+      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
        * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -113,16 +122,7 @@ export const MediaComponent = defineComponent({
        * If this value is non-negative and in the past, playback as soon as possible.
        * If this value is in the future, begin playback at the appointed time.
        */
-      // autoStartTime: -1,
-      paths: [] as string[],
-      playMode: PlayMode.loop as PlayMode,
-      isMusic: false,
-      volume: 1,
-      // runtime props
-      playing: false,
-      track: 0,
-      trackDurations: [] as number[],
-      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
+      // autoStartTime: -1
     }
   },
 
@@ -133,6 +133,7 @@ export const MediaComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       controls: component.controls.value,
+      paused: component.paused.value,
       paths: component.paths.value,
       volume: component.volume.value,
       synchronize: component.synchronize.value,
@@ -289,16 +290,18 @@ export function MediaReactor({ root }: EntityReactorProps) {
         element.addEventListener(
           'playing',
           () => {
+            media.waiting.set(false)
             clearErrors(entity, MediaElementComponent)
           },
           { signal }
         )
-        element.addEventListener('waiting', () => media.playing.set(false), { signal })
+        element.addEventListener('waiting', () => media.waiting.set(true), { signal })
         element.addEventListener(
           'error',
           (err) => {
             addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
             if (!media.paused.value) media.track.set(getNextTrack(media.value))
+            media.waiting.set(false)
           },
           { signal }
         )
@@ -308,6 +311,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
           () => {
             if (media.playMode.value === PlayMode.single) return
             media.track.set(getNextTrack(media.value))
+            media.waiting.set(false)
           },
           { signal }
         )
