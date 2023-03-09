@@ -170,8 +170,8 @@ const ProjectTable = ({ className }: Props) => {
           if (r.status === 200) return r.blob()
           return Promise.reject(new Error(r.statusText))
         })
-        const name = keys[i].url.substring(keys[i].url.lastIndexOf('/') + 1)
-        folder!.file(name, blobPromise)
+        const name = keys[i].name
+        folder!.file(keys[i].key, blobPromise)
       }
 
       zip
