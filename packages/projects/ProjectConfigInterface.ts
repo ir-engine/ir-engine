@@ -1,6 +1,5 @@
-import { OEmbed } from '@xrengine/common/src/interfaces/OEmbed'
-import type { World } from '@xrengine/engine/src/ecs/classes/World'
-import type { Application } from '@xrengine/server-core/declarations'
+import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
+import type { Application } from '@etherealengine/server-core/declarations'
 
 export interface ProjectConfigInterface {
   /**
@@ -41,7 +40,7 @@ export interface ProjectConfigInterface {
    * This is loaded on ALL instances of the engine if enabled
    * Allows for running of custom logic regardless of which scene or route is loaded
    */
-  worldInjection?: () => Promise<{ default: (world: World) => Promise<void> }>
+  worldInjection?: () => Promise<{ default: () => Promise<void> }>
 
   /**
    * Services

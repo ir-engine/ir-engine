@@ -1,5 +1,8 @@
-import React from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { t } from 'i18next'
+import React, { Suspense } from 'react'
+import { Route, Routes } from 'react-router-dom'
+
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import $confirm from './confirm'
 import $forgotpassword from './forgotpassword'
@@ -13,17 +16,19 @@ import $twitter from './oauth/twitter'
 
 const AuthRoutes = () => {
   return (
-    <Switch>
-      <Route path="/auth/oauth/discord" component={$discord} />
-      <Route path="/auth/oauth/facebook" component={$facebook} />
-      <Route path="/auth/oauth/github" component={$github} />
-      <Route path="/auth/oauth/google" component={$google} />
-      <Route path="/auth/oauth/linkedin" component={$linkedin} />
-      <Route path="/auth/oauth/twitter" component={$twitter} />
-      <Route path="/auth/confirm" component={$confirm} />
-      <Route path="/auth/forgotpassword" component={$forgotpassword} />
-      <Route path="/auth/magiclink" component={$magiclink} />
-    </Switch>
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingAuth')} />}>
+      <Routes>
+        <Route path="oauth/discord" element={<$discord />} />
+        <Route path="oauth/facebook" element={<$facebook />} />
+        <Route path="oauth/github" element={<$github />} />
+        <Route path="oauth/google" element={<$google />} />
+        <Route path="oauth/linkedin" element={<$linkedin />} />
+        <Route path="oauth/twitter" element={<$twitter />} />
+        <Route path="confirm" element={<$confirm />} />
+        <Route path="forgotpassword" element={<$forgotpassword />} />
+        <Route path="magiclink" element={<$magiclink />} />
+      </Routes>
+    </Suspense>
   )
 }
 

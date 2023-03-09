@@ -1,6 +1,6 @@
 import i18n from 'i18next'
 
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 export interface ResourceColumn {
   id: 'id' | 'key' | 'mimeType' | 'staticResourceType' | 'thumbnail' | 'action'

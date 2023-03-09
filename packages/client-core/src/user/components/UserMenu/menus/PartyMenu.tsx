@@ -1,19 +1,17 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { CrownIcon } from '@xrengine/client-core/src/common/components/Icons/CrownIcon'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-
-import ClearIcon from '@mui/icons-material/Clear'
-import SendIcon from '@mui/icons-material/Send'
-import Box from '@mui/material/Box'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { CrownIcon } from '@etherealengine/client-core/src/common/components/Icons/CrownIcon'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../../social/services/PartyService'
@@ -157,9 +155,9 @@ const PartyMenu = ({ changeActiveMenu }: Props): JSX.Element => {
       <Box flex={1}>
         {isInviteOpen && (
           <InputText
-            endIcon={<SendIcon />}
+            endIcon={<Icon type="Send" />}
             placeholder={t('user:usermenu.share.ph-phoneEmail')}
-            startIcon={<ClearIcon />}
+            startIcon={<Icon type="Clear" />}
             sx={{ mb: 1, mt: 1 }}
             value={token}
             onChange={(e) => handleChangeToken(e)}

@@ -2,9 +2,8 @@ import { createState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-
-import { Block, ContactMail, Help, People } from '@mui/icons-material'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
@@ -42,19 +41,19 @@ const AdminControlsMenuView = () => {
       <div className="container" xr-layer="true">
         <h3 className="heading">{t('user:usermenu.adminControls.containerHeading')}</h3>
         <XRTextButton onClick={handleOpenUserListMenuWidget}>
-          <People />
+          <Icon type="People" />
           {t('user:usermenu.adminControls.btn-userList')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenBanListMenuWidget}>
-          <Block />
+          <Icon type="Block" />
           {t('user:usermenu.adminControls.btn-banList')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenHelpMenuWidget}>
-          <Help />
+          <Icon type="Help" />
           {t('user:usermenu.adminControls.btn-help')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenRequestSystemAdminMenuWidget}>
-          <ContactMail />
+          <Icon type="ContactMail" />
           {t('user:usermenu.adminControls.btn-requestSystemAdmin')}
         </XRTextButton>
       </div>

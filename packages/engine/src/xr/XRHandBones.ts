@@ -30,10 +30,10 @@ const pinkyFingerJoints = [
 ]
 
 export const XRHandBones = [
-  wristJoints,
-  thumbJoints,
-  indexFingerJoints,
-  middleFingerJoints,
-  ringFingerJoints,
-  pinkyFingerJoints
+  ...wristJoints,
+  ...thumbJoints,
+  ...indexFingerJoints,
+  ...middleFingerJoints,
+  ...ringFingerJoints,
+  ...pinkyFingerJoints
 ]

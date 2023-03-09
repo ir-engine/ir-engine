@@ -1,13 +1,14 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import Box from '@etherealengine/ui/src/Box'
+import FormControl from '@etherealengine/ui/src/FormControl'
+import FormHelperText from '@etherealengine/ui/src/FormHelperText'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import InputLabel from '@etherealengine/ui/src/InputLabel'
+import OutlinedInput from '@etherealengine/ui/src/OutlinedInput'
 
-import { InputLabel, OutlinedInput } from '@mui/material'
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import commonStyles from '../common.module.scss'
@@ -69,6 +70,26 @@ const InputText = ({
   placeholder = placeholder ? placeholder : `${t('common:components.enter')} ${label}`
   placeholder = disabled ? undefined : placeholder
 
+  const [cursor, setCursor] = useState(null)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (type === 'number' && ref.current) {
+      let input
+      for (const child of (ref.current as any)?.children) {
+        if (child.tagName === 'INPUT') {
+          input = child
+        }
+      }
+      if (input && cursor) input.setSelectionRange(cursor, cursor)
+    }
+  }, [ref, cursor, value])
+
+  const handleChange = (e) => {
+    setCursor(e.target.selectionStart)
+    onChange && onChange(e)
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
       <Box sx={{ display: 'flex' }}>
@@ -124,7 +145,7 @@ const InputText = ({
               </>
             }
             onBlur={onBlur}
-            onChange={onChange}
+            onChange={handleChange}
             onKeyDown={onKeyDown}
           />
         </FormControl>

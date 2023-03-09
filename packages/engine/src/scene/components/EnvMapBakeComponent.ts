@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BoxGeometry, BoxHelper, Mesh, MeshPhysicalMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import {
@@ -10,7 +10,7 @@ import {
   hasComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
@@ -68,7 +68,7 @@ export const EnvMapBakeComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, EnvMapBakeComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const bake = useComponent(root.entity, EnvMapBakeComponent)
 
     useEffect(() => {

@@ -3,7 +3,7 @@ import assert from 'assert'
 import _ from 'lodash'
 import path from 'path'
 
-import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
-
-import { Box, Button, Grid, Typography } from '@mui/material'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'

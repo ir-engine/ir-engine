@@ -1,4 +1,4 @@
-import { Mesh } from 'three'
+import { InstancedMesh, Mesh } from 'three'
 
 import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
 
@@ -7,8 +7,15 @@ const poolSize = 1
 const bvhWorkers: GenerateMeshBVHWorker[] = []
 const meshQueue: Mesh[] = []
 
-export function generateMeshBVH(mesh: Mesh) {
-  if (!mesh.isMesh || !mesh.geometry || !mesh.geometry.attributes.position) return Promise.resolve()
+export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
+  if (
+    !mesh.isMesh ||
+    (mesh as InstancedMesh).isInstancedMesh ||
+    !mesh.geometry ||
+    !mesh.geometry.attributes.position ||
+    mesh.geometry.boundsTree
+  )
+    return Promise.resolve()
   if (!bvhWorkers.length) {
     for (let i = 0; i < poolSize; i++) {
       bvhWorkers.push(new GenerateMeshBVHWorker())

@@ -1,4 +1,4 @@
-# xrengine-matchmaking
+# etherealengine-matchmaking
 
 ##Start minikube:
 First, you'll need to start minikube with the `ingress` addon. This will allow the Open Match Helm chart to install
@@ -13,11 +13,11 @@ If minikube has already been created, you can enable the ingress by running `min
 Follow the [instructions](https://helm.sh/docs/intro/install/) for installing Helm on your OS.
 
 ## Install Open Match with local open-match Helm chart
-A Helm chart containing all of the Open Match resources needed for XREngine matchmaking is located
+A Helm chart containing all of the Open Match resources needed for Ethereal Engine matchmaking is located
 in `packages/ops/open-match`. You can install it by running
 `helm install --set frontend.host=<hostname> open-match packages/ops/open-match`
 
-`<hostname>` is a hostname that the frontend service will be reachable at, e.g. `local-matchmaking.xrengine.io`.
+`<hostname>` is a hostname that the frontend service will be reachable at, e.g. `local-matchmaking.etherealengine.io`.
 You can set it to be whatever you want. After you do, you'll need to edit your computer's hostfile to point this
 hostname to the IP address of minikube.
 
@@ -28,7 +28,7 @@ privileges to edit it. You'll need to add a line like this:
 
 `<minikube ip>  <hostname>`, e.g. 
 
-`192.168.99.101   local-matchmaking.xrengine.io`
+`192.168.99.101   local-matchmaking.etherealengine.io`
 
 Make sure to save the file after you've added this line. This will tell your machine to route traffic to that hostname
 to minikube. When combined with the Ingress that the Open Match Helm chart installs, this will then route the traffic
@@ -54,8 +54,8 @@ eval $(minikube docker-env)
 ./build-all-pods.sh
 ```
 
-This will build the images with no registry by default, e.g. the image names will just be `xrengine-matchmaking-director`
-and `xrengine-matchmaking-matchfunction`. If you wish to build them to a registry,
+This will build the images with no registry by default, e.g. the image names will just be `etherealengine-matchmaking-director`
+and `etherealengine-matchmaking-matchfunction`. If you wish to build them to a registry,
 set the `REGISTRY` environment variable, e.g. `REGISTRY=example-reg ./build-all-pods.sh`
 
 If you want to automatically push the images to the registry they've been built towards, add `push` as a parameter:
@@ -65,12 +65,12 @@ builds the images in minikube's Docker environment, which means it already has a
 need to source them from an external Docker registry.
 
 Each of the build scripts will generate a timestamp and use that as the tag for the images that are built. For example,
-an image would be generated with a full name of `xrengine-matchmaking-director:23-12-21T12-55-03`.
+an image would be generated with a full name of `etherealengine-matchmaking-director:23-12-21T12-55-03`.
 You can see the tags in the build logs, where they're printed out like the following:
-`BUILDING matchfunction as xrengine-matchmaking-matchfunction:23-12-21T14-16-09`
+`BUILDING matchfunction as etherealengine-matchmaking-matchfunction:23-12-21T14-16-09`
 
 ## Install matchmaking via Helm chart
-You'll next install the matchmaking deployment using the Helm chart in packages/ops/xrengine-matchmaking. Make sure that 
+You'll next install the matchmaking deployment using the Helm chart in packages/ops/etherealengine-matchmaking. Make sure that 
 the path at the end of the following command is relative to the directory you're still in; it was written assuming
 you're in packages/matchmaking after just building the images, and will be different if you're in the repo root or
 some other directory.
@@ -79,15 +79,15 @@ The file referenced below as path/to/matchmaking.values.yaml is a simple configu
 `packages/ops/configs/local.matchmaking.template.values.yaml`. You should make a copy of this template and remove the 
 word 'template' from the file name. If you are going to push these images to an external registry, i.e. you're not just
 building them locally for minikube, then you'll need to add `<REGISTRY>/` to the start of both `repository`settings.
-For example, if pushing the image to the Docker Hub repo `xrengine-test`, you would make director.image.repository
-`xrengine-test/xrengine-matchmaking-director` and matchfunction.image.repository `xrengine-test/xrengine-matchmaking-matchfunction`
+For example, if pushing the image to the Docker Hub repo `etherealengine-test`, you would make director.image.repository
+`etherealengine-test/etherealengine-matchmaking-director` and matchfunction.image.repository `etherealengine-test/etherealengine-matchmaking-matchfunction`
 
 If you are installing this on minikube, you don't need to specify a registry. By running `eval $(minikube dockerenv)`, 
 you're building the images into minikube's Docker environment.
 
 When the values.yaml/Helm config file is ready, run the following command:
 ```
-helm install -f path/to/matchmaking.yaml --set director.image.tag=<TAG>,matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/xrengine-matchmaking
+helm install -f path/to/matchmaking.yaml --set director.image.tag=<TAG>,matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/etherealengine-matchmaking
 ```
 where `<TAG>` is the timestamp tag that can be found on in the builder logs.
 
@@ -104,12 +104,12 @@ If you only want to rebuild one, run `RELEASE=<RELEASE> ./build-pod.sh <director
 needed if you are pushing to an external registry, and not needed if you're building to minikube's Docker environment.
 
 Once the new image(s) have been built (and optionally pushed), run 
-`helm upgrade --reuse-values --set director.image.tag=<TAG>,matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/xrengine-matchmaking`
+`helm upgrade --reuse-values --set director.image.tag=<TAG>,matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/etherealengine-matchmaking`
 This will update the matchmaking deployment with the newly timestamp-tagged images. If you only updated and rebuilt
 one of the services, and did so by just running `build-pod.sh` instead of `build-all-pods.sh`, then you must omit the
 `--set <service>.image.tag=<TAG>` for the service that didn't get rebuilt, since it will not have a new image tag.
 For example, if you just updated the matchfunction service, run
-`helm upgrade --reuse-values --set matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/xrengine-matchmaking`
+`helm upgrade --reuse-values --set matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/etherealengine-matchmaking`
 
 ## Build and deploy locally in one command
 The script `matchmaking/build-all-and-refresh-pods-local.sh` can build and deploy the director and matchfunction locally
@@ -122,8 +122,8 @@ This will build the two services, timestamp-tag them, then automatically run `he
 timestamp-tags and the config file, which will install the deployment if it's not already installed and update the tag
 if it is, forcing the deployment to download the new versions of the services.
 
-## Uninstall Open Match and xrengine-matchmaking
-To uninstall xrengine-matchmaing, run `helm uninstall <release>-matchmaking`
+## Uninstall Open Match and etherealengine-matchmaking
+To uninstall etherealengine-matchmaing, run `helm uninstall <release>-matchmaking`
 To uninstall Open Match, from `helm uninstall open-match`
 
 

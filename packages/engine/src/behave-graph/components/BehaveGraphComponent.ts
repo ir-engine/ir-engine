@@ -1,7 +1,7 @@
 import { GraphJSON, Registry } from 'behave-graph'
 import matches, { Validator } from 'ts-matches'
 
-import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
 import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { RuntimeGraphComponent } from './RuntimeGraphComponent'

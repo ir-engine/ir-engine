@@ -4,7 +4,7 @@ import docs from './bot.docs'
 import hooks from './bot.hooks'
 import createModel from './bot.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     bot: Bot
   }

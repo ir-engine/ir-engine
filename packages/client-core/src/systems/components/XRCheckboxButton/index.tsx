@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Check } from '@mui/icons-material'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import styleString from './index.scss?inline'
 
@@ -23,7 +23,7 @@ const XRCheckboxButton = (props) => {
           <input type="checkbox" checked={checked} {...inputProps} />
           {checked && (
             <span className="checkboxIcon">
-              <Check />
+              <Icon type="Check" />
             </span>
           )}
         </label>

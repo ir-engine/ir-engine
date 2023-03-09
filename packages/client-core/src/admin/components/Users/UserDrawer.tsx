@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import AutoComplete, { AutoCompleteData } from '@xrengine/client-core/src/common/components/AutoComplete'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import { CreateEditUser, UserInterface } from '@xrengine/common/src/interfaces/User'
-
-import EmailIcon from '@mui/icons-material/Email'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import PhoneIcon from '@mui/icons-material/Phone'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
-import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
+import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/common/components/AutoComplete'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
+import { CreateEditUser, UserInterface } from '@etherealengine/common/src/interfaces/User'
+import Button from '@etherealengine/ui/src/Button'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
@@ -271,9 +268,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {discordIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.discord')} arrow>
-                  <span>
-                    <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <DiscordIcon width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {discordIp.accountIdentifier!}
@@ -283,9 +278,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {googleIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.google')} arrow>
-                  <span>
-                    <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <GoogleIcon width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {googleIp.accountIdentifier!}
@@ -295,9 +288,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {facebookIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.facebook')} arrow>
-                  <span>
-                    <FacebookIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {facebookIp.accountIdentifier!}
@@ -307,9 +298,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {twitterIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.twitter')} arrow>
-                  <span>
-                    <TwitterIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {twitterIp.accountIdentifier!}
@@ -319,9 +308,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {linkedinIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.linkedIn')} arrow>
-                  <span>
-                    <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
-                  </span>
+                  <LinkedInIcon width="20px" height="20px" viewBox="0 0 40 40" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {linkedinIp.accountIdentifier!}
@@ -331,7 +318,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {githubIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.github')} arrow>
-                  <GitHubIcon width="20px" height="20px" />
+                  <Icon type="GitHub" width="20px" height="20px" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {githubIp.accountIdentifier!}
@@ -341,7 +328,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {emailIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.email')} arrow>
-                  <EmailIcon width="20px" height="20px" />
+                  <Icon type="Email" width="20px" height="20px" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {emailIp.accountIdentifier!}
@@ -351,7 +338,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             {smsIp && (
               <Grid item md={6} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Tooltip title={t('admin:components.user.sms')} arrow>
-                  <PhoneIcon width="20px" height="20px" />
+                  <Icon type="Phone" width="20px" height="20px" />
                 </Tooltip>
                 <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                   {smsIp.accountIdentifier!}

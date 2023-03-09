@@ -17,10 +17,10 @@ import {
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { isHMD } from '../../../common/functions/isMobile'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, getOptionalComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { isHeadset } from '../../../xr/XRState'
 import { EnvMapBakeComponent } from '../../components/EnvMapBakeComponent'
 import { EnvmapComponent } from '../../components/EnvmapComponent'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -37,7 +37,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
   data: ReturnType<typeof EnvmapComponent.toJSON>
 ) => {
   if (!isClient) return
-  if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) return
+  if (entity === Engine.instance.currentScene.sceneEntity) return
   setComponent(entity, EnvmapComponent, data)
 }
 
@@ -48,7 +48,7 @@ export const updateEnvMap = async (entity: Entity) => {
 
   switch (component.type) {
     case EnvMapSourceType.Skybox:
-      applyEnvMap(obj3d, Engine.instance.currentWorld.scene.background as Texture | null)
+      applyEnvMap(obj3d, Engine.instance.scene.background as Texture | null)
       break
 
     case EnvMapSourceType.Color:
@@ -92,9 +92,7 @@ export const updateEnvMap = async (entity: Entity) => {
 
         case EnvMapTextureType.Equirectangular:
           {
-            const texture = (await AssetLoader.loadAsync(component.envMapSourceURL, {}, (_res) => {
-              /* console.log(_res) */
-            })) as CubeTexture | undefined
+            const texture = (await AssetLoader.loadAsync(component.envMapSourceURL, {})) as CubeTexture | undefined
             if (texture) {
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
               EnvMap.encoding = sRGBEncoding
@@ -164,7 +162,7 @@ function applyEnvMap(obj3d: Object3D, envmap: Texture | null) {
   if (obj3d instanceof Scene) {
     obj3d.environment = envmap
   } else {
-    if (isHMD) return
+    if (isHeadset()) return
     obj3d.traverse((child: Mesh<any, MeshStandardMaterial>) => {
       if (child.material instanceof MeshMatcapMaterial) return
       if (child.material) child.material.envMap = envmap

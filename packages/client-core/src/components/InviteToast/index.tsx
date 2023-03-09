@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-import { Button } from '@xrengine/editor/src/components/inputs/Button'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { Button } from '@etherealengine/editor/src/components/inputs/Button'
 
 import { InviteService, useInviteState } from '../../social/services/InviteService'
 import { useAuthState } from '../../user/services/AuthService'

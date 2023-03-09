@@ -1,8 +1,7 @@
-import * as bitECS from 'bitecs'
 import React from 'react'
 import { Camera, Material, Mesh, Object3D } from 'three'
 
-import { none } from '@xrengine/hyperflux'
+import { none } from '@etherealengine/hyperflux'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
@@ -13,6 +12,7 @@ import {
   getComponent,
   getComponentState,
   hasComponent,
+  QueryComponents,
   removeComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -48,14 +48,12 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
-  if (getComponent(entity, GroupComponent).includes(obj))
-    return console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
+  if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
   getComponentState(entity, GroupComponent).merge([obj])
 
   const transform = getComponent(entity, TransformComponent)
-  const world = Engine.instance.currentWorld
   obj.position.copy(transform.position)
   obj.quaternion.copy(transform.rotation)
   obj.scale.copy(transform.scale)
@@ -64,13 +62,13 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrix
   obj.matrixWorldInverse = transform.matrixInverse
-  if (object !== Engine.instance.currentWorld.scene) Engine.instance.currentWorld.scene.add(object)
+  if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
-  proxifyVector3WithDirty(TransformComponent.position, entity, world.dirtyTransforms, obj.position)
-  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, world.dirtyTransforms, obj.quaternion)
-  proxifyVector3WithDirty(TransformComponent.scale, entity, world.dirtyTransforms, obj.scale)
+  proxifyVector3WithDirty(TransformComponent.position, entity, Engine.instance.dirtyTransforms, obj.position)
+  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, Engine.instance.dirtyTransforms, obj.quaternion)
+  proxifyVector3WithDirty(TransformComponent.scale, entity, Engine.instance.dirtyTransforms, obj.scale)
 }
 
 export function removeGroupComponent(entity: Entity) {
@@ -87,8 +85,6 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
     const group = getComponent(entity, GroupComponent)
     if (group.includes(obj)) {
       getComponentState(entity, GroupComponent)[group.indexOf(obj)].set(none)
-    } else {
-      console.warn('[removeObjectFromGroup]: Tried to remove an obejct from a group it is not in', entity, object)
     }
     if (!group.length) removeComponent(entity, GroupComponent)
   }
@@ -105,11 +101,11 @@ export type GroupReactorProps = {
 
 export const startGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
-  components: (bitECS.Component | bitECS.QueryModifier)[] = []
+  Components: QueryComponents = []
 ) =>
-  startQueryReactor([GroupComponent, ...components], function (props) {
+  startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
     const entity = props.root.entity
-    if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
+    // if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
 
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 

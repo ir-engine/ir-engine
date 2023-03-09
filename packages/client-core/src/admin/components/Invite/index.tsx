@@ -2,13 +2,12 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-
-import DeleteIcon from '@mui/icons-material/Delete'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
@@ -120,9 +119,8 @@ const InvitesConsole = () => {
                   size="small"
                   title={t('admin:components.invite.deleteSelected')}
                   onClick={() => setDeleteMultiInviteModalOpen(true)}
-                >
-                  <DeleteIcon color="info" fontSize="large" />
-                </IconButton>
+                  icon={<Icon type="Delete" color="info" fontSize="large" />}
+                />
               )}
             </Box>
           </Grid>

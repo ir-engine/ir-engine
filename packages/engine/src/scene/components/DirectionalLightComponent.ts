@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { Color, DirectionalLight, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, Vector2 } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { isHMD } from '../../common/functions/isMobile'
 import { matches } from '../../common/functions/MatchesUtils'
 import {
   createMappedComponent,
@@ -11,7 +10,7 @@ import {
   hasComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -20,7 +19,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new DirectionalLight()
     light.target.position.set(0, 0, 1)
     light.target.name = 'light-target'
@@ -30,6 +29,7 @@ export const DirectionalLightComponent = defineComponent({
       light,
       color: new Color(),
       intensity: 1,
+      castShadow: false,
       shadowMapResolution: 512,
       shadowBias: -0.00001,
       shadowRadius: 1,
@@ -45,6 +45,7 @@ export const DirectionalLightComponent = defineComponent({
     if (matches.string.test(json.color)) component.color.value.set(json.color)
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
+    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.array.test(json.shadowMapResolution))
       component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
@@ -59,6 +60,7 @@ export const DirectionalLightComponent = defineComponent({
       color: component.color.value.getHex(),
       intensity: component.intensity.value,
       cameraFar: component.cameraFar.value,
+      castShadow: component.castShadow.value,
       shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value,
@@ -67,14 +69,14 @@ export const DirectionalLightComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    if (!isHMD) removeObjectFromGroup(entity, component.light.value)
+    if (component.light.value) removeObjectFromGroup(entity, component.light.value)
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, DirectionalLightComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, DirectionalLightComponent)
 
     useEffect(() => {
@@ -84,6 +86,10 @@ export const DirectionalLightComponent = defineComponent({
     useEffect(() => {
       light.light.value.intensity = light.intensity.value
     }, [light.intensity])
+
+    useEffect(() => {
+      light.light.value.castShadow = light.castShadow.value
+    }, [light.castShadow])
 
     useEffect(() => {
       light.light.value.shadow.camera.far = light.cameraFar.value

@@ -1,7 +1,7 @@
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
-import setLoggedInUserInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import authenticate from '../../hooks/authenticate'
 

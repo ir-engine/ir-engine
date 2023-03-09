@@ -1,7 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -10,8 +10,10 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyKinematicPositionBasedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -24,11 +26,10 @@ describe('spawnAvatarReceptor', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
   })
 
   it('check the create avatar function', () => {
-    const world = Engine.instance.currentWorld
     Engine.instance.userId = 'user' as UserId
 
     // mock entity to apply incoming unreliable updates to
@@ -40,7 +41,7 @@ describe('spawnAvatarReceptor', () => {
     WorldNetworkActionReceptor.receiveSpawnObject(action)
     spawnAvatarReceptor(action)
 
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarComponent))
@@ -50,7 +51,7 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, LocalInputTagComponent))
     assert(hasComponent(entity, RigidBodyComponent))
-    assert(hasComponent(entity, RigidBodyDynamicTagComponent))
-    strictEqual(Engine.instance.currentWorld.physicsWorld.colliders.len(), 1)
+    assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
+    strictEqual(Engine.instance.physicsWorld.colliders.len(), 1)
   })
 })

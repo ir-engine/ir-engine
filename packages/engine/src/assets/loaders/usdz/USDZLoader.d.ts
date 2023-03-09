@@ -8,7 +8,7 @@ export class USDZLoader extends Loader {
     register(plugin: USDZLoaderPlugin): void
     unregister(plugin: USDZLoaderPlugin): void
     load(url: string, onLoad: (result) => void, onProgress: (progress) => void, onError: (error) => void): void
-    parse(buffer: string): Object
+    parse(buffer: string, onLoad: (result) => void): Object
 }
 
 export interface USDZLoaderPlugin {

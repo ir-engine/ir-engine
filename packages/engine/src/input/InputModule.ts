@@ -1,11 +1,9 @@
-import { Engine } from '../ecs/classes/Engine'
-import { initSystems } from '../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import ButtonSystem from './systems/ButtonSystem'
 import ClientInputSystem from './systems/ClientInputSystem'
 
 export function InputModule() {
-  return initSystems(Engine.instance.currentWorld, [
+  return [
     {
       uuid: 'xre.engine.ClientInputSystem',
       type: SystemUpdateType.UPDATE_EARLY,
@@ -16,5 +14,5 @@ export function InputModule() {
       type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: ButtonSystem })
     }
-  ])
+  ]
 }

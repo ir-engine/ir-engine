@@ -1,7 +1,7 @@
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-import { AudioState } from '../audio/AudioState'
+import { AudioState, getPositionalMedia } from '../audio/AudioState'
 import { getMediaSceneMetadataState } from '../audio/systems/MediaSystem'
 import { Engine } from '../ecs/classes/Engine'
 import { XRState } from '../xr/XRState'
@@ -21,7 +21,7 @@ export const MediaSettingsState = defineState({
 })
 
 export function MediaSettingReceptor(action) {
-  const s = getState(MediaSettingsState)
+  const s = getMutableState(MediaSettingsState)
   matches(action).when(MediaSettingAction.setImmersiveMediaMode.matches, (action) => {
     s.merge({ immersiveMediaMode: action.mode as 'auto' | 'on' | 'off' })
   })
@@ -35,12 +35,12 @@ export class MediaSettingAction {
 }
 
 export const shouldUseImmersiveMedia = () => {
-  const xrSessionActive = getState(XRState).sessionActive.value
-  const audioState = getState(AudioState)
-  const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
-  const mediaSettingState = getState(MediaSettingsState)
+  const xrSessionActive = getMutableState(XRState).sessionActive.value
+  const audioState = getMutableState(AudioState)
+  const mediaState = getMediaSceneMetadataState(Engine.instance.currentScene)
+  const mediaSettingState = getMutableState(MediaSettingsState)
   const immersiveMedia =
     mediaSettingState.immersiveMediaMode.value === 'on' ||
     (mediaSettingState.immersiveMediaMode.value === 'auto' && mediaState.immersiveMedia.value)
-  return immersiveMedia || audioState.usePositionalMedia.value || xrSessionActive
+  return immersiveMedia || getPositionalMedia() || xrSessionActive
 }

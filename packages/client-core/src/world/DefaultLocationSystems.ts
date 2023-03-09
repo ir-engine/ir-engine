@@ -1,4 +1,4 @@
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 
 import WebcamInputSystem from '../media/webcam/WebcamInput'
 import AvatarUISystem from '../systems/AvatarUISystem'
@@ -11,17 +11,17 @@ import UpdateNearbyUsersSystem from '../transports/UpdateNearbyUsersSystem'
 export const DefaultLocationSystems: SystemModuleType<any>[] = [
   {
     uuid: 'xre.client.core.LoadingUISystem',
-    type: 'PRE_RENDER',
+    type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: LoadingUISystem })
   },
   {
     uuid: 'xre.client.core.AvatarUISystem',
-    type: 'PRE_RENDER',
+    type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: AvatarUISystem })
   },
   {
     uuid: 'xre.client.core.WidgetUISystem',
-    type: 'PRE_RENDER',
+    type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: WidgetUISystem })
   },
   {

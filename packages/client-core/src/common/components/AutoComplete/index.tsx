@@ -1,10 +1,9 @@
 import * as React from 'react'
 
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AutocompleteGetTagProps, useAutocomplete } from '@mui/base/AutocompleteUnstyled'
-import CheckIcon from '@mui/icons-material/Check'
-import CloseIcon from '@mui/icons-material/Close'
 
 import styles from './index.module.scss'
 
@@ -18,7 +17,7 @@ const Tag = ({ label, disabled, onDelete, ...other }: TagProps) => {
   return (
     <div {...other}>
       <span style={{ opacity: disabled ? 0.5 : 1 }}>{label}</span>
-      {!disabled && <CloseIcon onClick={onDelete} />}
+      {!disabled && <Icon type="Close" onClick={onDelete} />}
     </div>
   )
 }
@@ -77,7 +76,7 @@ const AutoComplete = ({ data, label, disabled, onChange, value = [] }: Props) =>
             {groupedOptions.map((option, index) => (
               <li {...getOptionProps({ option, index })}>
                 <span>{option.type}</span>
-                <CheckIcon fontSize="small" />
+                <Icon type="Check" fontSize="small" />
               </li>
             ))}
           </ul>

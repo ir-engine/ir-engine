@@ -1,11 +1,9 @@
-import { Engine } from '../ecs/classes/Engine'
-import { initSystems } from '../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import HighlightSystem from './HighlightSystem'
 import WebGLRendererSystem from './WebGLRendererSystem'
 
 export function RendererModule() {
-  return initSystems(Engine.instance.currentWorld, [
+  return [
     {
       uuid: 'xre.engine.HighlightSystem',
       type: SystemUpdateType.PRE_RENDER,
@@ -16,5 +14,5 @@ export function RendererModule() {
       type: SystemUpdateType.RENDER,
       systemLoader: () => Promise.resolve({ default: WebGLRendererSystem })
     }
-  ])
+  ]
 }

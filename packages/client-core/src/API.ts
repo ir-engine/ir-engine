@@ -4,8 +4,8 @@ import feathers from '@feathersjs/client'
 import type { FeathersApplication } from '@feathersjs/feathers'
 import Primus from 'primus-client'
 
-import type { ServiceTypes } from '@xrengine/common/declarations'
-import config from '@xrengine/common/src/config'
+import type { ServiceTypes } from '@etherealengine/common/declarations'
+import config from '@etherealengine/common/src/config'
 
 import primusClient from './util/primus-client'
 
@@ -32,6 +32,8 @@ export class API {
         storageKey: config.client.featherStoreKey
       })
     )
+
+    primus.on('reconnected', () => API.instance.client.reAuthenticate(true))
 
     API.instance = new API()
     API.instance.client = feathersClient as any

@@ -1,9 +1,12 @@
 {
-  "name": "xrengine",
-  "description": "Game Engine, Server & Devops powering The XREngine. Please support XRFoundation https://opencollective.com/xrfoundation",
+  "name": "etherealengine",
+  "description": "Engine, Server & Devops powering Ethereal Engine. Please support at https://opencollective.com/etherealengine",
   "version": "0.0.0",
-  "homepage": "xrengine.io",
+  "homepage": "etherealengine.org",
   "private": true,
+  "bin": {
+    "etherealengine": "npx/cli.js"
+  },
   "workspaces": [
     "packages/*",
     "packages/projects/projects/*"
@@ -21,8 +24,8 @@
     "vr"
   ],
   "author": {
-    "name": "XR Engine - XR Foundation",
-    "email": "info@xrengine.io"
+    "name": "Ethereal Engine",
+    "email": "info@etherealengine.org"
   },
   "entrypoint": {},
   "contributors": [],
@@ -52,7 +55,7 @@
     "dev-taskserver": "cd packages/taskserver && npm run dev",
     "dev-docker": "cd scripts && docker-compose up -d",
     "dev-tabs": "cd scripts && ./dev-tabs.sh",
-    "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --ignore @xrengine/*",
+    "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --ignore @etherealengine/*",
     "dev-nginx": "",
     "dev-reinit": "npm run dev-docker && cd packages/server && npm run dev-reinit-db",
     "dev-server": "cd packages/server && npm run dev",
@@ -71,8 +74,8 @@
     "precommit": "no-master-commits -b master",
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "pretest": "cross-env TEST=true npm run dev-reinit",
-    "publish": "lerna publish from-package --yes",
-    "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
+    "publish": "lerna publish from-package --yes --registry https://registry.npmjs.org",
+    "publish-npm": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://registry.npmjs.org",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "list-client-s3-files-to-delete": "cross-env APP_ENV=production ts-node --swc scripts/get-deletable-client-files.ts",
     "delete-old-s3-files": "cross-env APP_ENV=production ts-node --swc scripts/delete-old-s3-files.ts",
@@ -83,7 +86,6 @@
     "test-e2e": "ts-node --swc scripts/run_e2e_tests.ts",
     "test:projects": "cross-env TEST=true lerna run test:projects",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
-    "update-name-gh-package": "lerna run update-name-gh-package",
     "validate": "npm run lint && lerna run validate",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
@@ -115,8 +117,11 @@
     "@types/cli": "0.11.21",
     "@types/mocha": "10.0.0",
     "@types/pino": "^7.0.5",
+    "@typescript-eslint/eslint-plugin": "5.47.0",
+    "@typescript-eslint/parser": "5.47.0",
     "concurrently": "7.1.0",
     "depcheck": "1.4.3",
+    "eslint": "8.30.0",
     "jsdom": "^20.0.2",
     "kill-port": "1.6.1",
     "lint-staged": "12.3.7",
@@ -126,14 +131,12 @@
     "pre-commit": "1.2.2",
     "prettier": "2.8.1",
     "react-dnd": "16.0.0",
-    "react-router-dom": "5.3.0",
+    "react-router-dom": "6.8.1",
     "rimraf": "^3.0.2",
     "stylelint": "^14.6.1",
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-scss": "^4.2.0",
-    "supertest": "6.2.2",
-    "trace-unhandled": "2.0.1",
-    "ttab": "^0.7.3"
+    "supertest": "6.2.2"
   },
   "dependencies": {
     "@feathersjs/commons": "5.0.0-pre.29",
@@ -144,15 +147,15 @@
     "dotenv": "14.3.2",
     "fix-esm": "^1.0.1",
     "lerna": "4.0.0",
-    "patch-package": "^6.5.0",
+    "patch-package": "^6.5.1",
     "pino": "^7.10.0",
     "pino-pretty": "^7.6.1",
     "postcss": "^8.4.16",
     "qrcode.react": "^3.1.0",
     "react-json-view": "^1.21.3",
-    "three": "0.147.0",
+    "three": "0.148.0",
     "ts-node": "10.8.2",
-    "typescript": "4.8.3",
+    "typescript": "4.9.5",
     "vite-plugin-node": "^1.0.0",
     "ws": "8.12.0"
   }

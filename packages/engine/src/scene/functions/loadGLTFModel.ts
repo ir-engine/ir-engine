@@ -1,6 +1,6 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -13,7 +13,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild, EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -52,23 +52,20 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      const world = Engine.instance.currentWorld
-      const componentId = world.sceneComponentRegistry.get(key)
+      const componentId = Engine.instance.sceneComponentRegistry.get(key)
       if (typeof componentId === 'string') {
-        const deserialize = Engine.instance.currentWorld.sceneLoadingRegistry.get(componentId)?.deserialize
+        const deserialize = Engine.instance.sceneLoadingRegistry.get(componentId)?.deserialize
         if (typeof deserialize === 'function') deserialize(entity, value)
-        else addComponent(entity, component, value, Engine.instance.currentWorld)
+        else addComponent(entity, component, value)
       } else {
-        addComponent(entity, component, value, Engine.instance.currentWorld)
+        addComponent(entity, component, value)
       }
       getComponent(entity, GLTFLoadedComponent).push(component)
     }
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    const component = Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(
-      ([_, prefab]) => prefab === key
-    )?.[0]
+    const component = Array.from(Engine.instance.sceneComponentRegistry).find(([_, prefab]) => prefab === key)?.[0]
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${component}'`)
     } else {
@@ -106,8 +103,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
 
-    const node = createEntityNode(e, mesh.uuid as EntityUUID)
-    addEntityNodeChild(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!)
+    addEntityNodeChild(e, entity, mesh.uuid as EntityUUID)
 
     addComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
 

@@ -1,7 +1,7 @@
 import { Application } from '../../../declarations'
 import hooks from './instanceserver-load.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'instanceserver-load': any
   }

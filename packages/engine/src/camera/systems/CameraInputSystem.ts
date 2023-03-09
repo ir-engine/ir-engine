@@ -2,13 +2,13 @@ import { clamp } from 'lodash'
 import { useEffect } from 'react'
 import { Vector2 } from 'three'
 
-import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { throttle } from '../../common/functions/FunctionHelpers'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   ComponentType,
@@ -18,6 +18,7 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { getCameraMode } from '../../xr/XRState'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -97,8 +98,8 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
   followComponent.zoomLevel = nextZoomLevel
 }
 
-export default async function CameraInputSystem(world: World) {
-  const cameraSettings = getState(CameraSettings)
+export default async function CameraInputSystem() {
+  const cameraSettings = getMutableState(CameraSettings)
 
   const inputQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
 
@@ -154,16 +155,18 @@ export default async function CameraInputSystem(world: World) {
   const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
 
   const execute = () => {
-    const { localClientEntity, deltaSeconds } = world
+    if (Engine.instance.xrFrame) return
+
+    const { localClientEntity, deltaSeconds } = Engine.instance
     if (!localClientEntity) return
 
-    const keys = world.buttons
+    const keys = Engine.instance.buttons
     if (keys.KeyV?.down) onKeyV()
     if (keys.KeyF?.down) onKeyF()
     if (keys.KeyC?.down) onKeyC()
 
     const inputEntities = inputQuery()
-    const mouseMoved = world.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
+    const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
 
     for (const entity of inputEntities) {
       const avatarController = getComponent(entity, AvatarControllerComponent)
@@ -173,7 +176,8 @@ export default async function CameraInputSystem(world: World) {
         getOptionalComponent(cameraEntity, FollowCameraComponent)
       if (!target) continue
 
-      if (!lastMouseMoved && mouseMoved) lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
+      if (!lastMouseMoved && mouseMoved)
+        lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
 
       const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
       target.theta += 100 * deltaSeconds * keyDelta
@@ -182,22 +186,24 @@ export default async function CameraInputSystem(world: World) {
       if (mouseMoved) {
         setTargetCameraRotation(
           cameraEntity,
-          target.phi - (world.pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
-          target.theta - (world.pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
+          target.phi -
+            (Engine.instance.pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
+          target.theta -
+            (Engine.instance.pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
           0.1
         )
       }
 
-      throttleHandleCameraZoom(cameraEntity, world.pointerState.scroll.y)
+      throttleHandleCameraZoom(cameraEntity, Engine.instance.pointerState.scroll.y)
     }
 
-    lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
+    lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
 
     lastMouseMoved = !!mouseMoved
   }
 
   const cleanup = async () => {
-    removeQuery(world, inputQuery)
+    removeQuery(inputQuery)
   }
 
   return { execute, cleanup }

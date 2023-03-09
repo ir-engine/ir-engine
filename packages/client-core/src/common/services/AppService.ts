@@ -1,5 +1,11 @@
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import {
+  defineAction,
+  defineState,
+  getMutableState,
+  syncStateWithLocalStorage,
+  useState
+} from '@etherealengine/hyperflux'
 
 export const AppState = defineState({
   name: 'AppState',
@@ -9,12 +15,12 @@ export const AppState = defineState({
     showTouchPad: true
   }),
   onCreate: () => {
-    syncStateWithLocalStorage(AppState, ['showTopShelf', 'showBottomShelf', 'showTouchPad'])
+    syncStateWithLocalStorage(AppState, ['showTopShelf', 'showBottomShelf'])
   }
 })
 
 export const AppServiceReceptor = (action) => {
-  const s = getState(AppState)
+  const s = getMutableState(AppState)
   matches(action)
     .when(AppAction.showTopShelf.matches, (action) => {
       return s.showTopShelf.set(action.show)

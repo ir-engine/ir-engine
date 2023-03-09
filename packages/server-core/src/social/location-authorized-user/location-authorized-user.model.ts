@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { LocationAuthorizedUserInterface } from '@xrengine/common/src/dbmodels/LocationAuthorizedUser'
+import { LocationAuthorizedUserInterface } from '@etherealengine/common/src/dbmodels/LocationAuthorizedUser'
 
 import { Application } from '../../../declarations'
 

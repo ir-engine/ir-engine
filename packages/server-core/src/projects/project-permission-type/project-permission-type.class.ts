@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { ProjectPermissionType as ProjectPermissionTypeInterface } from '@xrengine/common/src/interfaces/ProjectPermissionType'
+import { ProjectPermissionType as ProjectPermissionTypeInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionType'
 
 import { Application } from '../../../declarations'
 

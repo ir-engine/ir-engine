@@ -13,14 +13,13 @@ import {
   Vector3
 } from 'three'
 
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { CameraActions } from '../camera/CameraState'
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
 import { easeOutCubic, normalizeRange } from '../common/functions/MathFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
-import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
@@ -28,7 +27,7 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction, XRState } from '../xr/XRState'
+import { getCameraMode, ReferenceSpace, XRAction, XRState } from '../xr/XRState'
 import { createTransitionState } from '../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
 import { teleportAvatar } from './functions/moveAvatar'
@@ -94,7 +93,7 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
   }
 }
 
-export default async function AvatarTeleportSystem(world: World) {
+export default async function AvatarTeleportSystem() {
   const lineSegments = 64 // segments to make a whole circle, uses far less
   const lineGeometry = new BufferGeometry()
   const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
@@ -134,22 +133,24 @@ export default async function AvatarTeleportSystem(world: World) {
 
   let canTeleport = false
 
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const avatarTeleportQuery = defineQuery([AvatarTeleportComponent])
   let fadeBackInAccumulator = -1
 
   const execute = () => {
+    if (getCameraMode() !== 'attached') return
     if (fadeBackInAccumulator >= 0) {
-      fadeBackInAccumulator += world.deltaSeconds
-      if (fadeBackInAccumulator > 0.25) {
-        fadeBackInAccumulator = -1
-        teleportAvatar(world.localClientEntity, guideCursor.position)
-        dispatchAction(CameraActions.fadeToBlack({ in: false }))
-        dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
-        dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
-      }
+      /** @todo fix camera fade transition shader - for now just teleport instantly */
+      // fadeBackInAccumulator += Engine.instance.deltaSeconds
+      // if (fadeBackInAccumulator > 0.25) {
+      fadeBackInAccumulator = -1
+      teleportAvatar(Engine.instance.localClientEntity, guideCursor.position)
+      dispatchAction(CameraActions.fadeToBlack({ in: false }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
+      dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
+      // }
     }
-    for (const entity of avatarTeleportQuery.exit(world)) {
+    for (const entity of avatarTeleportQuery.exit()) {
       visibleSegments = 1
       transition.setState('OUT')
       if (canTeleport) {
@@ -157,15 +158,15 @@ export default async function AvatarTeleportSystem(world: World) {
         dispatchAction(CameraActions.fadeToBlack({ in: true }))
       }
     }
-    for (const entity of avatarTeleportQuery.enter(world)) {
+    for (const entity of avatarTeleportQuery.enter()) {
       setVisibleComponent(guidelineEntity, true)
       transition.setState('IN')
     }
-    for (const entity of avatarTeleportQuery(world)) {
-      const side = getComponent(world.localClientEntity, AvatarTeleportComponent).side
+    for (const entity of avatarTeleportQuery()) {
+      const side = getComponent(Engine.instance.localClientEntity, AvatarTeleportComponent).side
+      const referenceSpace = ReferenceSpace.origin!
 
-      for (const inputSource of world.inputSources) {
-        const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+      for (const inputSource of Engine.instance.inputSources) {
         if (inputSource.handedness === side) {
           const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)!
           guidelineTransform.position.copy(pose.transform.position as any as Vector3)
@@ -219,7 +220,7 @@ export default async function AvatarTeleportSystem(world: World) {
       }
       setVisibleComponent(guideCursorEntity, canTeleport)
     }
-    transition.update(world.deltaSeconds, (alpha) => {
+    transition.update(Engine.instance.deltaSeconds, (alpha) => {
       if (alpha === 0 && transition.state === 'OUT') {
         setVisibleComponent(guidelineEntity, false)
         setVisibleComponent(guideCursorEntity, false)
@@ -233,7 +234,7 @@ export default async function AvatarTeleportSystem(world: World) {
   const cleanup = async () => {
     removeEntity(guidelineEntity)
     removeEntity(guideCursorEntity)
-    removeQuery(world, avatarTeleportQuery)
+    removeQuery(avatarTeleportQuery)
   }
 
   return { execute, cleanup }

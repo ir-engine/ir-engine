@@ -1,12 +1,10 @@
-import { Engine } from '../ecs/classes/Engine'
-import { initSystems } from '../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import InteractiveSystem from './systems/InteractiveSystem'
 import MediaControlSystem from './systems/MediaControlSystem'
 import MountPointSystem from './systems/MountPointSystem'
 
 export function InteractionModule() {
-  return initSystems(Engine.instance.currentWorld, [
+  return [
     {
       uuid: 'xre.engine.InteractiveSystem',
       type: SystemUpdateType.UPDATE_LATE,
@@ -28,5 +26,5 @@ export function InteractionModule() {
     //   type: SystemUpdateType.FIXED_LATE,
     //   systemLoader: () => Promise.resolve({ EquippableSystem })
     // },
-  ])
+  ]
 }

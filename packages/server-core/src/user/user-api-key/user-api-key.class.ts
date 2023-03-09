@@ -2,8 +2,8 @@ import { NullableId } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { v1 } from 'uuid'
 
-import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserApiKeyInterface } from '@etherealengine/common/src/dbmodels/UserApiKey'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../user/user.class'

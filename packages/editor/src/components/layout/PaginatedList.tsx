@@ -1,7 +1,7 @@
 import React, { JSXElementConstructor, useEffect } from 'react'
 
-import { any } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { State, useHookstate } from '@xrengine/hyperflux'
+import { any } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { State, useHookstate } from '@etherealengine/hyperflux'
 
 import { Grid, Stack } from '@mui/material'
 
@@ -14,7 +14,7 @@ export default function PaginatedList<T>({
   options
 }: {
   ['list']: T[] | State<T[]>
-  ['element']: any
+  ['element']: (index: T | State<T>) => JSX.Element
   ['options']?: {
     ['countPerPage']?: number
   }

@@ -19,7 +19,7 @@ if ! [ -e /usr/bin/docker ] && [ -e /usr/bin/docker-compose ]; then
 fi
 
 # stop docker container if it's running
-db_docker_image_id=`sudo docker ps -q -f name=xrengine`
+db_docker_image_id=`sudo docker ps -q -f name=etherealengine`
 if [ "$db_docker_image_id" ]; then
 	echo -e "${FYEL}Database is running"
 	echo -e "${RS}Stopping another database..."
@@ -62,7 +62,7 @@ do
 	;;
 	"KDE")
 		konsole --tabs-from-file konsole_tabs.desktop &
-		echo -e "${FGRN}xrengine is running${RS}"
+		echo -e "${FGRN}etherealengine is running${RS}"
 		exit 0
 	;;
 	"Exit")
@@ -76,9 +76,9 @@ do
 	esac
 done
 
-# run xrengine in terminal with tabs
+# run etherealengine in terminal with tabs
 ${terminal_command} \
-	--title 'xrengine servers' \
+	--title 'etherealengine servers' \
 	--tab \
 	--title db --working-directory=$PWD -e 'sudo ./start-db.sh' \
 	--tab \
@@ -88,5 +88,5 @@ ${terminal_command} \
 	--tab \
 	--title client --working-directory=$PWD/../packages/client -e 'npm run dev' &
 
-echo -e "${FGRN}xrengine is running${RS}"
+echo -e "${FGRN}etherealengine is running${RS}"
 exit 0

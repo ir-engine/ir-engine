@@ -1,14 +1,14 @@
 import React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
-import { BehaveGraphComponent } from '@xrengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { UndefinedEntity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
   getComponentState,
   hasComponent,
   useOptionalComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { useSelectionState } from '../../services/SelectionServices'
 import hierarchyStyles from '../hierarchy/styles.module.scss'

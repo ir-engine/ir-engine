@@ -48,6 +48,8 @@ export function Timer(update: TimerUpdateCallback, tickRate: number) {
     tpsSubMeasureStart('update')
     update(time)
     tpsSubMeasureEnd('update')
+
+    Engine.instance.xrFrame = null
   }
 
   const tpsMeasureStartData = new Map<string, { time: number; ticks: number }>()

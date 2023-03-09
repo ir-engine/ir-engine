@@ -45,6 +45,8 @@ export const BasicArgs = {
       { label: 'Both', value: DoubleSide }
     ]
   },
+  toneMapped: BoolArg,
+  transparent: BoolArg,
   vertexColors: BoolArg
 }
 

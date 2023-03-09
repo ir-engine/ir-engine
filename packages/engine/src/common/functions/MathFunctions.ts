@@ -1,4 +1,4 @@
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Euler, EulerOrder, Quaternion, Vector3 } from 'three'
 
 export const Deg2Rad = (Math.PI * 2) / 360
 export const Rad2Deg = 1 / Deg2Rad
@@ -45,7 +45,7 @@ export const rotate = (rot: Quaternion, x: number, y: number, z: number) => {
 /**
  * @deprecated creates new euler and quaternion
  * */
-export const eulerToQuaternion = (x, y, z, order = 'XYZ') => {
+export const eulerToQuaternion = (x, y, z, order = 'XYZ' as EulerOrder) => {
   return new Quaternion().setFromEuler(new Euler(x, y, z, order))
 }
 

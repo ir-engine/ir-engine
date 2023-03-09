@@ -1,7 +1,7 @@
 import childProcess from 'child_process'
 import killPort from 'kill-port'
 
-import config from '@xrengine/server-core/src/appconfig'
+import config from '@etherealengine/server-core/src/appconfig'
 
 // we may need an alternative to kill-port for mac & windows
 

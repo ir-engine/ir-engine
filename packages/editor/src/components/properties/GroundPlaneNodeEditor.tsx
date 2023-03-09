@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
 
 import SquareIcon from '@mui/icons-material/Square'
 
@@ -16,7 +16,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const groundPlaneComponent = getComponent(props.node.entity, GroundPlaneComponent)
+  const groundPlaneComponent = getComponent(props.entity, GroundPlaneComponent)
 
   return (
     <NodeEditor
@@ -27,7 +27,7 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
         <ColorInput value={groundPlaneComponent.color} onChange={updateProperty(GroundPlaneComponent, 'color')} />
       </InputGroup>
-      <ShadowProperties node={props.node} />
+      <ShadowProperties entity={props.entity} />
     </NodeEditor>
   )
 }

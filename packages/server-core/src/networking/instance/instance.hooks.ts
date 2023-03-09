@@ -1,6 +1,6 @@
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'

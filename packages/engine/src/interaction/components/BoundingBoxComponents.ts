@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Box3, Box3Helper } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
@@ -13,7 +13,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -40,7 +40,7 @@ export const BoundingBoxComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, BoundingBoxComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).debugEnable)
+    const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
     const boundingBox = useComponent(root.entity, BoundingBoxComponent)
 
     useEffect(() => {

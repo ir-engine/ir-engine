@@ -3023,10 +3023,11 @@ class GLTFParser {
 
 			return texture;
 
-		} ).catch( function () {
-
+		} ).catch( function (error) {
+			console.error( 'THREE.GLTFLoader: Error in texture onLoad for texture', sourceDef );
+			console.error(error)
+			throw error;
 			return null;
-
 		} );
 
 		this.textureCache[ cacheKey ] = promise;

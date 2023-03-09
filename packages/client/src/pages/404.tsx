@@ -1,13 +1,13 @@
 import React, { Fragment, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 export const Custom404 = (): any => {
   console.log('404')
-  const router = useHistory()
+  const navigate = useNavigate()
   const { t } = useTranslation()
   useEffect(() => {
-    router.push('/')
+    navigate('/')
   })
   return (
     <Fragment>

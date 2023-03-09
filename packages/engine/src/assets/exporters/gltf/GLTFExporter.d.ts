@@ -96,6 +96,7 @@ export class GLTFWriter {
     buffers: any[]
     json: any
     cache: any
+    byteOffset: number
     options: {
         trs?: boolean,
         binary?: boolean,

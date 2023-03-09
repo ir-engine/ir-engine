@@ -1,6 +1,8 @@
 import { createState, SetInitialStateAction, State } from '@hookstate/core'
 
-import multiLogger from '@xrengine/common/src/logger'
+import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
+import multiLogger from '@etherealengine/common/src/logger'
+import { isNode } from '@etherealengine/engine/src/common/functions/getEnvironment'
 
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
@@ -22,7 +24,7 @@ export function defineState<S>(definition: StateDefinition<S>) {
 
 export function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
   logger.info(`registerState ${StateDefinition.name}`)
-  if (StateDefinition.name in store.state) {
+  if (StateDefinition.name in store.stateMap) {
     const err = new Error(`State ${StateDefinition.name} has already been registered in Store`)
     logger.error(err)
     throw err
@@ -31,13 +33,19 @@ export function registerState<S>(StateDefinition: StateDefinition<S>, store = Hy
     typeof StateDefinition.initial === 'function'
       ? (StateDefinition.initial as Function)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
-  store.state[StateDefinition.name] = createState(initial)
-  if (StateDefinition.onCreate) StateDefinition.onCreate(store, getState(StateDefinition, store))
+  store.valueMap[StateDefinition.name] = initial
+  store.stateMap[StateDefinition.name] = createState(initial)
+  if (StateDefinition.onCreate) StateDefinition.onCreate(store, getMutableState(StateDefinition, store))
+}
+
+export function getMutableState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
+  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
+  return store.stateMap[StateDefinition.name] as State<S>
 }
 
 export function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
-  if (!store.state[StateDefinition.name]) registerState(StateDefinition, store)
-  return store.state[StateDefinition.name] as State<S>
+  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
+  return store.valueMap[StateDefinition.name] as DeepReadonly<S>
 }
 
 const stateNamespaceKey = 'ee.hyperflux'
@@ -54,7 +62,8 @@ const stateNamespaceKey = 'ee.hyperflux'
  * we need to pass in a schema or validator function to this function (we should use ts-pattern for this).
  */
 export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
-  const state = getState(stateDefinition)
+  if (isNode) return
+  const state = getMutableState(stateDefinition)
 
   for (const key of keys) {
     const storedValue = localStorage.getItem(`${stateNamespaceKey}.${stateDefinition.name}.${key}`)

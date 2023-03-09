@@ -1,9 +1,10 @@
 import { Quaternion, Vector3 } from 'three'
 
+import { getMutableState } from '@etherealengine/hyperflux'
+
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { VPSSystem } from './VPSSystem'
+import { ReferenceSpace, XRState } from './XRState'
 
 /**
  * XRPersistentAnchorSystem
@@ -26,9 +27,10 @@ type XRAnchorPersistentType = XRAnchor & {
 }
 
 const createAnchor = async (xrFrame: XRFramePersistentAnchorType, position: Vector3, rotation: Quaternion) => {
-  if (xrFrame) {
+  const referenceSpace = ReferenceSpace.origin
+  if (xrFrame && referenceSpace) {
     const anchorPose = new XRRigidTransform(position, rotation)
-    return await xrFrame.createAnchor?.(anchorPose, EngineRenderer.instance.renderer.xr.getReferenceSpace()!)
+    return await xrFrame.createAnchor?.(anchorPose, referenceSpace)
   } else {
     throw new Error('XRFrame not available.')
   }
@@ -39,9 +41,10 @@ const createPersistentAnchor = async (
   position: Vector3,
   rotation: Quaternion
 ) => {
-  if (xrFrame) {
+  const referenceSpace = ReferenceSpace.origin
+  if (xrFrame && referenceSpace) {
     const anchorPose = new XRRigidTransform(position, rotation)
-    const anchor = await xrFrame.createAnchor(anchorPose, EngineRenderer.instance.renderer.xr.getReferenceSpace()!)!
+    const anchor = await xrFrame.createAnchor(anchorPose, referenceSpace)!
     try {
       const handle = await anchor.requestPersistentHandle()
       return [anchor, handle]
@@ -82,10 +85,13 @@ export const XRAnchorFunctions = {
   anchorPoses
 }
 
-export default async function XRPersistentAnchorSystem(world: World) {
+export default async function XRPersistentAnchorSystem() {
   const execute = () => {
     const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
     if (!frame) return
+
+    const xrSpace = ReferenceSpace.origin
+    if (!xrSpace) return
 
     if (frame.trackedAnchors) {
       const anchorsToRemove = [] as XRAnchorPersistentType[]
@@ -107,8 +113,6 @@ export default async function XRPersistentAnchorSystem(world: World) {
           anchors.add(anchor)
         }
       }
-
-      const xrSpace = EngineRenderer.instance.renderer.xr.getReferenceSpace()!
 
       for (const anchor of anchors) {
         const knownPose = anchorPoses.get(anchor)

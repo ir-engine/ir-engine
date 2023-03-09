@@ -11,17 +11,16 @@ import {
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
-} from '@xrengine/common/src/constants/AvatarConstants'
-import multiLogger from '@xrengine/common/src/logger'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-
-import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
+} from '@etherealengine/common/src/constants/AvatarConstants'
+import multiLogger from '@etherealengine/common/src/logger'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { loadAvatarForPreview, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
@@ -228,7 +227,7 @@ export const UploadAvatarMenu = () => {
             className="iconBlock"
             variant="iconOnly"
             onClick={openAvatarMenu}
-            content={<ArrowBack />}
+            content={<Icon type="ArrowBack" />}
           />
           <h2>{t('user:avatar.titleUploadAvatar')}</h2>
         </div>
@@ -304,7 +303,7 @@ export const UploadAvatarMenu = () => {
               style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
             >
               {t('user:avatar.lbl-upload')}
-              <CloudUpload />
+              <Icon type="CloudUpload" />
             </XRTextButton>
           </div>
         ) : (
@@ -323,7 +322,7 @@ export const UploadAvatarMenu = () => {
                   variant="filled"
                   buttonContent={
                     <>
-                      {t('user:avatar.avatar')} <SystemUpdateAlt />
+                      {t('user:avatar.avatar')} <Icon type="SystemUpdateAlt" />
                     </>
                   }
                 />
@@ -334,7 +333,7 @@ export const UploadAvatarMenu = () => {
                   variant="filled"
                   buttonContent={
                     <>
-                      {t('user:avatar.lbl-thumbnail')} <AccountCircle />
+                      {t('user:avatar.lbl-thumbnail')} <Icon type="AccountCircle" />
                     </>
                   }
                 />
@@ -347,7 +346,7 @@ export const UploadAvatarMenu = () => {
                 disabled={!uploadButtonEnabled}
               >
                 {t('user:avatar.lbl-upload')}
-                <CloudUpload />
+                <Icon type="CloudUpload" />
               </XRTextButton>
             </div>
           </>

@@ -1,15 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
-import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-import styles from '@xrengine/client-core/src/admin/styles/admin.module.scss'
-import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
-import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
-import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import SettingMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import config from '@xrengine/common/src/config'
+import { useClientSettingState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
+import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import { Views } from '@etherealengine/client-core/src/user/components/UserMenu/util'
+import config from '@etherealengine/common/src/config'
 
 import { Box, Button } from '@mui/material'
 
@@ -28,7 +28,7 @@ export const HomePage = (): any => {
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)
-    if (redirectParsed.protocol == null) return <Redirect to={ROOT_REDIRECT} />
+    if (redirectParsed.protocol == null) return <Navigate to={ROOT_REDIRECT} />
     else window.location.href = ROOT_REDIRECT
   } else
     return (

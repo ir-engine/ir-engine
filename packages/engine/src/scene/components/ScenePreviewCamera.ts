@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { CameraHelper, PerspectiveCamera } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { RendererState } from '../../renderer/RendererState'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -18,7 +18,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     addObjectToGroup(entity, camera)
     const transform = getComponent(entity, TransformComponent)
-    const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, LocalTransformComponent)
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     cameraTransform.position.copy(transform.position)
     cameraTransform.rotation.copy(transform.rotation)
     return {
@@ -39,7 +39,7 @@ export const ScenePreviewCameraComponent = defineComponent({
   reactor: function ({ root }) {
     if (!hasComponent(root.entity, ScenePreviewCameraComponent)) throw root.stop()
 
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const camera = useComponent(root.entity, ScenePreviewCameraComponent)
 
     useEffect(() => {

@@ -1,9 +1,10 @@
 import { Quaternion, Vector3 } from 'three'
 import { matches, Validator } from 'ts-matches'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { Entity } from '../../ecs/classes/Entity'
 
@@ -36,6 +37,7 @@ const matchesUserId = matches.string as Validator<unknown, UserId>
 const matchesPeerID = matches.string as Validator<unknown, PeerID>
 const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
 const matchesEntity = matches.number as Validator<unknown, Entity>
+const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>
 
 const matchesActionFromUser = (userId: UserId) => {
   return matches.shape({ $from: matches.literal(userId) })
@@ -52,6 +54,7 @@ export {
   matchesPeerID,
   matchesNetworkId,
   matchesEntity,
+  matchesEntityUUID,
   matchesVector3,
   matchesQuaternion,
   matchesActionFromUser,

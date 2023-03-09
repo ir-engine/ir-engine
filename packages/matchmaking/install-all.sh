@@ -10,7 +10,7 @@ kubectl apply --namespace open-match \
 -f https://open-match.dev/install/v1.3.0-rc.1/yaml/07-open-match-default-evaluator.yaml
 
 
-kubectl create namespace xrengine-matchmaking
+kubectl create namespace etherealengine-matchmaking
 
 #this line for localhost development
 eval $(minikube docker-env)

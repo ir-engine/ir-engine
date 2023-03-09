@@ -1,5 +1,5 @@
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { createState, none } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { createState, none } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
@@ -11,6 +11,7 @@ export const UUIDComponent = defineComponent({
 
   onSet: (entity, component, uuid: EntityUUID) => {
     component.set(uuid)
+    UUIDComponent.valueMap[entity] = uuid
     UUIDComponent.entitiesByUUID[uuid].set(entity)
   },
 

@@ -2,21 +2,21 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
+import Button from '@etherealengine/ui/src/Button'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import Container from '@etherealengine/ui/src/Container'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
+import FormGroup from '@etherealengine/ui/src/FormGroup'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Tab from '@etherealengine/ui/src/Tab'
+import Tabs from '@etherealengine/ui/src/Tabs'
+import TextField from '@etherealengine/ui/src/TextField'
 
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
-import IconButton from '@mui/material/IconButton'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
-import TextField from '@mui/material/TextField'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -288,9 +288,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     size="small"
                     className={styles.clearTime}
                     onClick={() => setStartTime(null)}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 </div>
                 <div className={styles.pickerControls}>
                   <DateTimePicker
@@ -304,9 +303,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     size="small"
                     className={styles.clearTime}
                     onClick={() => setEndTime(null)}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 </div>
               </LocalizationProvider>
             </div>

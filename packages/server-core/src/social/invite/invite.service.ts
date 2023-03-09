@@ -8,7 +8,7 @@ import hooks from './invite.hooks'
 import createModel from './invite.model'
 
 // Add this service to the service type index
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     invite: Invite
   }

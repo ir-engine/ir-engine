@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -10,7 +10,7 @@ import userDocs from './user.docs'
 import hooks from './user.hooks'
 import createModel from './user.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   /**
    * Interface for users input
    */

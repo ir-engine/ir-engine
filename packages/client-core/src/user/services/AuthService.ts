@@ -5,29 +5,29 @@ import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import config from '@xrengine/common/src/config'
-import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
-import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import config from '@etherealengine/common/src/config'
+import { AuthStrategies } from '@etherealengine/common/src/interfaces/AuthStrategies'
+import { AuthUser, AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
+import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import {
   resolveUser,
   resolveWalletUser,
   UserInterface,
   UserSeed,
   UserSetting
-} from '@xrengine/common/src/interfaces/User'
-import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+} from '@etherealengine/common/src/interfaces/User'
+import { UserApiKey } from '@etherealengine/common/src/interfaces/UserApiKey'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   defineAction,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   syncStateWithLocalStorage,
   useState
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -52,7 +52,7 @@ export const AuthState = defineState({
   }
 })
 
-export const accessAuthState = () => getState(AuthState)
+export const accessAuthState = () => getMutableState(AuthState)
 export const useAuthState = () => useState(accessAuthState())
 
 export interface EmailLoginForm {
@@ -74,7 +74,7 @@ export interface LinkedInLoginForm {
 }
 
 export const AuthServiceReceptor = (action) => {
-  const s = getState(AuthState)
+  const s = getMutableState(AuthState)
   matches(action)
     .when(AuthAction.actionProcessing.matches, (action) => {
       return s.merge({ isProcessing: action.processing, error: '' })
@@ -274,7 +274,7 @@ async function _resetToGuestToken(options = { reset: true }) {
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
     try {
-      const authData = getState(AuthState)
+      const authData = getMutableState(AuthState)
       let accessToken = !forceClientAuthReset && authData?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) {
@@ -508,7 +508,7 @@ export const AuthService = {
       // in properly. This interval waits to make sure the token has been updated before redirecting
       const waitForTokenStored = setInterval(() => {
         timeoutTimer += TIMEOUT_INTERVAL
-        const authData = getState(AuthState)
+        const authData = getMutableState(AuthState)
         const storedToken = authData.authUser?.accessToken?.value
         if (storedToken === accessToken) {
           clearInterval(waitForTokenStored)

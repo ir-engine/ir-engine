@@ -1,14 +1,14 @@
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/isClient'
+import { iOS } from '../../common/functions/isMobile'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -26,6 +26,8 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../s
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
+import { XRState } from '../../xr/XRState'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
@@ -77,7 +79,9 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 export const loadAvatarForUser = async (
   entity: Entity,
   avatarURL: string,
-  loadingEffect = getState(EngineState).avatarLoadingEffect.value
+  loadingEffect = getMutableState(EngineState).avatarLoadingEffect.value &&
+    !getMutableState(XRState).sessionActive.value &&
+    !iOS
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     return
@@ -119,9 +123,13 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   setupAvatarModel(entity)(model)
+  addObjectToGroup(entity, model)
+
+  computeTransformMatrix(entity)
+  updateGroupChildren(entity)
+
   setupAvatarHeight(entity, model)
 
-  addObjectToGroup(entity, model)
   setObjectLayers(model, ObjectLayers.Avatar)
   avatar.model = model
 }
@@ -132,7 +140,7 @@ export const setupAvatarModel = (entity: Entity) =>
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
 
-  const groupComponent = getComponent(entity, GroupComponent)
+  const groupComponent = getOptionalComponent(entity, GroupComponent)
 
   if (assetType == AssetType.FBX) {
     // TODO: Should probably be applied to vertexes in the modeling tool
@@ -157,12 +165,13 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
 
+  const skinnedMeshes = findSkinnedMeshes(model)
+
   /**@todo replace check for loop aniamtion component with ensuring tpose is only handled once */
   // Try converting to T pose
-  if (!hasComponent(entity, LoopAnimationComponent) && !isSkeletonInTPose(rig)) {
+  if (!hasComponent(entity, LoopAnimationComponent)) {
     makeTPose(rig)
-    const meshes = findSkinnedMeshes(model)
-    meshes.forEach(applySkeletonPose)
+    skinnedMeshes.forEach(applySkeletonPose)
   }
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
@@ -171,7 +180,11 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
-  setComponent(entity, AvatarRigComponent, { rig, bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)) })
+  setComponent(entity, AvatarRigComponent, {
+    rig,
+    bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)),
+    skinnedMeshes
+  })
 
   const sourceHips = sourceSkeleton.bones[0]
   avatarAnimationComponent.rootYRatio = rig.Hips.position.y / sourceHips.position.y
@@ -187,7 +200,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   animationComponent.mixer?.stopAllAction()
   // Mixer has some issues when binding with the target skeleton
   // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
-  const sourceSkeleton = makeDefaultSkinnedMesh().skeleton
+  const sourceSkeleton = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
   animationComponent.mixer = new AnimationMixer(sourceSkeleton.bones[0])
   animationComponent.animations = AnimationManager.instance._animations
 
@@ -239,7 +252,7 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
  * The skeleton created is compatible with default animation tracks
  * @returns SkinnedMesh
  */
-export function makeDefaultSkinnedMesh(): SkinnedMesh {
+export function makeDefaultSkinnedMesh() {
   return makeSkinnedMeshFromBoneData(defaultBonesData)
 }
 
@@ -247,7 +260,7 @@ export function makeDefaultSkinnedMesh(): SkinnedMesh {
  * Creates an empty skinned mesh using list of bones to build skeleton structure
  * @returns SkinnedMesh
  */
-export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
+export function makeSkinnedMeshFromBoneData(bonesData) {
   const bones: Bone[] = []
   bonesData.forEach((data) => {
     const bone = new Bone()
@@ -276,7 +289,7 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
   group.add(skinnedMesh)
   group.add(hipBone)
 
-  return skinnedMesh
+  return group
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {

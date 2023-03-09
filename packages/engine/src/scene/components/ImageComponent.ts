@@ -11,7 +11,7 @@ import {
 } from 'three'
 import { LinearMipmapLinearFilter, sRGBEncoding, Texture } from 'three'
 
-import { useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'

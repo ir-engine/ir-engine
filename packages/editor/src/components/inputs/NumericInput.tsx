@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { useState } from 'react'
 import styled from 'styled-components'
 
-import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
+import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
 
 import { getStepSize, toPrecision } from '../../functions/utils'
 

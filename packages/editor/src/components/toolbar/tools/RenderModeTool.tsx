@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 
-import { RenderModesType } from '@xrengine/engine/src/renderer/constants/RenderModes'
-import { RenderModes } from '@xrengine/engine/src/renderer/constants/RenderModes'
-import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { RenderModesType } from '@etherealengine/engine/src/renderer/constants/RenderModes'
+import { RenderModes } from '@etherealengine/engine/src/renderer/constants/RenderModes'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 
@@ -12,7 +12,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
-  const engineRendererState = useEngineRendererState()
+  const rendererState = useHookstate(getMutableState(RendererState))
   const options = [] as { label: string; value: string }[]
 
   for (let key of Object.keys(RenderModes)) {
@@ -22,9 +22,9 @@ const RenderModeTool = () => {
     })
   }
 
-  const onChangeRenderMode = useCallback((mode: RenderModesType) => {
-    dispatchAction(EngineRendererAction.changedRenderMode({ renderMode: mode }))
-  }, [])
+  const onChangeRenderMode = (mode: RenderModesType) => {
+    rendererState.renderMode.set(mode)
+  }
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
@@ -34,11 +34,11 @@ const RenderModeTool = () => {
         </div>
       </InfoTooltip>
       <SelectInput
-        key={engineRendererState.renderMode.value}
+        key={rendererState.renderMode.value}
         className={styles.selectInput}
         onChange={onChangeRenderMode}
         options={options}
-        value={engineRendererState.renderMode.value}
+        value={rendererState.renderMode.value}
         creatable={false}
         isSearchable={false}
       />

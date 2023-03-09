@@ -1,8 +1,5 @@
 import { Color, DoubleSide, Mesh, Plane, PlaneGeometry, ShaderMaterial, Vector3 } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { EngineRendererAction } from '../../renderer/EngineRendererState'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -98,7 +95,6 @@ export default class InfiniteGridHelper extends Mesh {
 
     super(geometry, material)
 
-    this.visible = true
     this.name = 'InfiniteGridHelper'
     setObjectLayers(this, ObjectLayers.Gizmos)
     this.frustumCulled = false
@@ -138,11 +134,5 @@ export default class InfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    dispatchAction(EngineRendererAction.changeGridToolHeight({ gridHeight: value }))
-  }
-
-  toggleGridVisible() {
-    this.visible = !this.visible
-    dispatchAction(EngineRendererAction.changeGridToolVisibility({ visibility: this.visible }))
   }
 }

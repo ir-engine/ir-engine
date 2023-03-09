@@ -1,23 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import Text from '@xrengine/client-core/src/common/components/Text'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import Text from '@etherealengine/client-core/src/common/components/Text'
 import {
   loadAvatarForPreview,
   resetAnimationLogic,
   validate
-} from '@xrengine/client-core/src/user/components/Panel3D/helperFunctions'
-import { useRender3DPanelSystem } from '@xrengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
 
-import HelpIcon from '@mui/icons-material/Help'
-import MouseIcon from '@mui/icons-material/Mouse'
-import Box from '@mui/material/Box'
 import { SxProps, Theme } from '@mui/material/styles'
-import Tooltip from '@mui/material/Tooltip'
 
 import styles from './index.module.scss'
 
@@ -99,7 +98,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
             </Text>
             <Text variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
               {t('admin:components.avatar.leftClick')}
-              <MouseIcon fontSize="small" />
+              <Icon type="Mouse" fontSize="small" />
             </Text>
 
             <br />
@@ -108,7 +107,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
               {t('user:avatar.pan')}:
             </Text>
             <Text variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-              {t('admin:components.avatar.rightClick')} <MouseIcon fontSize="small" />
+              {t('admin:components.avatar.rightClick')} <Icon type="Mouse" fontSize="small" />
             </Text>
 
             <br />
@@ -117,12 +116,12 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
               {t('admin:components.avatar.zoom')}:
             </Text>
             <Text variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-              {t('admin:components.avatar.scroll')} <MouseIcon fontSize="small" />
+              {t('admin:components.avatar.scroll')} <Icon type="Mouse" fontSize="small" />
             </Text>
           </Box>
         }
       >
-        <HelpIcon sx={{ position: 'absolute', top: 0, right: 0, margin: 1 }} />
+        <Icon type="Help" sx={{ position: 'absolute', top: 0, right: 0, margin: 1 }} />
       </Tooltip>
     </Box>
   )

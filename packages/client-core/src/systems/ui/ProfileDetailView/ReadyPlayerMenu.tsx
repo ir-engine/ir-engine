@@ -3,21 +3,20 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
-import config from '@xrengine/common/src/config'
-import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
-import multiLogger from '@xrengine/common/src/logger'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-
-import { ArrowBack, Check } from '@mui/icons-material'
-import CircularProgress from '@mui/material/CircularProgress'
+import config from '@etherealengine/common/src/config'
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
+import multiLogger from '@etherealengine/common/src/logger'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { loadAvatarForPreview, resetAnimationLogic, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
@@ -148,7 +147,7 @@ const ReadyPlayerMenu = () => {
                 xr-layer="true"
                 onClick={openProfileMenu}
               >
-                <ArrowBack />
+                <Icon type="ArrowBack" />
               </button>
             </div>
           </section>
@@ -186,7 +185,7 @@ const ReadyPlayerMenu = () => {
             xr-layer="true"
             onClick={closeMenu}
           >
-            <Check />
+            <Icon type="Check" />
           </button>
         )}
         {showLoading && <CircularProgress style={{ position: 'absolute', top: '50%', left: '46%' }} />}

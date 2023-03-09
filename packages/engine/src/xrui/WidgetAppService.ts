@@ -1,27 +1,29 @@
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
-import { none } from '@xrengine/hyperflux/functions/StateFunctions'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { matches } from '../common/functions/MatchesUtils'
+import { matches, Validator } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
 
-type WidgetState = Record<string, { enabled: boolean; visible: boolean }>
+type WidgetMutableState = Record<string, { enabled: boolean; visible: boolean }>
 
 export const WidgetAppState = defineState({
   name: 'WidgetAppState',
   initial: () => ({
     widgetsMenuOpen: false,
-    widgets: {} as WidgetState
+    widgets: {} as WidgetMutableState,
+    handedness: 'left' as 'left' | 'right'
   })
 })
 
 export const WidgetAppServiceReceptor = (action) => {
-  const s = getState(WidgetAppState)
+  const s = getMutableState(WidgetAppState)
   matches(action)
     .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
-      return s.widgetsMenuOpen.set(action.shown)
+      s.widgetsMenuOpen.set(action.shown)
+      if (action.handedness) s.handedness.set(action.handedness)
     })
     .when(WidgetAppActions.registerWidget.matches, (action) => {
-      return s.widgets.merge({
+      s.widgets.merge({
         [action.id]: {
           enabled: true,
           visible: false
@@ -32,22 +34,19 @@ export const WidgetAppServiceReceptor = (action) => {
       if (s.widgets[action.id].visible) {
         s.widgetsMenuOpen.set(true)
       }
-      return s.widgets[action.id].set(none)
+      s.widgets[action.id].set(none)
     })
     .when(WidgetAppActions.enableWidget.matches, (action) => {
-      return s.widgets[action.id].merge({
+      s.widgets[action.id].merge({
         enabled: action.enabled
       })
     })
     .when(WidgetAppActions.showWidget.matches, (action) => {
       // if opening or closing a widget, close or open the main menu
-      if (action.shown) {
-        s.widgetsMenuOpen.set(false)
-      }
-      if (action.openWidgetMenu && !action.shown) {
-        s.widgetsMenuOpen.set(true)
-      }
-      return s.widgets[action.id].merge({
+      if (action.handedness) s.handedness.set(action.handedness)
+      if (action.shown) s.widgetsMenuOpen.set(false)
+      if (action.openWidgetMenu && !action.shown) s.widgetsMenuOpen.set(true)
+      s.widgets[action.id].merge({
         visible: action.shown
       })
     })
@@ -55,11 +54,11 @@ export const WidgetAppServiceReceptor = (action) => {
 
 export const WidgetAppService = {
   setWidgetVisibility: (widgetName: string, visibility: boolean) => {
-    const widgetState = getState(WidgetAppState)
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
+    const widgetMutableState = getMutableState(WidgetAppState)
+    const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
       id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
+      ...widgetMutableState,
+      ...Engine.instance.widgets.get(id)!
     }))
 
     const currentWidget = widgets.find((w) => w.label === widgetName)
@@ -78,7 +77,8 @@ export const WidgetAppService = {
 export class WidgetAppActions {
   static showWidgetMenu = defineAction({
     type: 'xre.xrui.WidgetAppActions.SHOW_WIDGET_MENU' as const,
-    shown: matches.boolean
+    shown: matches.boolean,
+    handedness: matches.string.optional() as Validator<unknown, 'left' | 'right' | undefined>
   })
 
   static registerWidget = defineAction({
@@ -101,6 +101,7 @@ export class WidgetAppActions {
     type: 'xre.xrui.WidgetAppActions.SHOW_WIDGET' as const,
     id: matches.string,
     shown: matches.boolean,
-    openWidgetMenu: matches.boolean.optional()
+    openWidgetMenu: matches.boolean.optional(),
+    handedness: matches.string.optional() as Validator<unknown, 'left' | 'right' | undefined>
   })
 }

@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { ServerInfo } from './server-info.class'
 import hooks from './server-info.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'server-info': ServerInfo
   }

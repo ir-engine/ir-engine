@@ -1,9 +1,9 @@
 export abstract class SimulatorBase {
-  public mass: any
-  public damping: any
-  public frameTime: number
-  public offset: number
-  public abstract cache: any[]
+  mass: any
+  damping: any
+  frameTime: number
+  offset: number
+  abstract cache: any[]
 
   constructor(fps: number, mass: number, damping: number) {
     this.mass = mass
@@ -12,11 +12,11 @@ export abstract class SimulatorBase {
     this.offset = 0
   }
 
-  public setFPS(value: number): void {
+  setFPS(value: number): void {
     this.frameTime = 1 / value
   }
 
-  public lastFrame(): any {
+  lastFrame(): any {
     return this.cache[this.cache.length - 1]
   }
 
@@ -24,7 +24,7 @@ export abstract class SimulatorBase {
    * Generates frames between last simulation call and the current one
    * @param {timeStep} timeStep
    */
-  public generateFrames(timeStep: number): void {
+  generateFrames(timeStep: number): void {
     // Update cache
     // Find out how many frames needs to be generated
     const totalTimeStep = this.offset + timeStep
@@ -40,6 +40,6 @@ export abstract class SimulatorBase {
     }
   }
 
-  public abstract getFrame(isLastFrame: boolean): any
-  public abstract simulate(timeStep: number): void
+  abstract getFrame(isLastFrame: boolean): any
+  abstract simulate(timeStep: number): void
 }

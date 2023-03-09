@@ -10,9 +10,9 @@ import { createEntity } from './EntityFunctions'
 
 describe('EngineFunctions', () => {
   describe('unloadScene', () => {
-    it('can unload all scene entities', () => {
+    it('can unload all scene entities', async () => {
       createEngine()
-      const world = Engine.instance.currentWorld
+      const world = Engine.instance.currentScene
       const groupQuery = defineQuery([GroupComponent])
       const sceneObjectQuery = defineQuery([SceneObjectComponent])
 
@@ -22,17 +22,17 @@ describe('EngineFunctions', () => {
       addComponent(sceneEntity, GroupComponent)
       addComponent(sceneEntity, SceneObjectComponent)
 
-      const groupEntities = groupQuery(world)
+      const groupEntities = groupQuery()
 
       assert.equal(groupEntities.length, 4)
 
-      unloadScene(world)
+      await unloadScene()
       // camera entity and non scene entity shoulder persist
-      assert.equal(groupQuery(world).length, 3)
+      assert.equal(groupQuery().length, 3)
 
       // should clean up world entity too
       assert.equal(hasComponent(world.sceneEntity, SceneObjectComponent), false)
-      const persistedEntites = sceneObjectQuery(world)
+      const persistedEntites = sceneObjectQuery()
       assert.equal(persistedEntites.length, 0)
     })
   })

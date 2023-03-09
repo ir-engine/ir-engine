@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { ServerLogs } from './server-logs.class'
 import hooks from './server-logs.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'server-logs': ServerLogs
   }
