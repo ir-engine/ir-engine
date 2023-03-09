@@ -389,6 +389,30 @@ export function useQuery(components: QueryComponents) {
   return result.value
 }
 
+// experimental_use seems to be unavailable in the server environment
+function _use(promise) {
+  if (promise.status === 'fulfilled') {
+    return promise.value
+  } else if (promise.status === 'rejected') {
+    throw promise.reason
+  } else if (promise.status === 'pending') {
+    throw promise
+  } else {
+    promise.status = 'pending'
+    promise.then(
+      (result) => {
+        promise.status = 'fulfilled'
+        promise.value = result
+      },
+      (reason) => {
+        promise.status = 'rejected'
+        promise.reason = reason
+      }
+    )
+    throw promise
+  }
+}
+
 /**
  * Use a component in a reactive context (a React component)
  */
@@ -396,7 +420,7 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (!hasComponent)
-    experimental_use(
+    (experimental_use ?? _use)(
       new Promise<void>((resolve) => {
         const unsubscribe = Component.existenceMap[entity].subscribe((value) => {
           if (value) {
