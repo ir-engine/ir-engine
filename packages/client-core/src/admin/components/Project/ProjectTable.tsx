@@ -174,7 +174,7 @@ const ProjectTable = ({ className }: Props) => {
 
       zip
         .generateAsync({ type: 'blob' })
-        .then((blob) => saveAs(blob, 'projectzip'))
+        .then((blob) => saveAs(blob, row.name))
         .catch((e) => console.log(e))
     }
   }
