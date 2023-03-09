@@ -105,7 +105,7 @@ export const MediaComponent = defineComponent({
     return {
       controls: false,
       synchronize: true,
-      autoplay: true,
+      paused: true,
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
        * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -119,7 +119,6 @@ export const MediaComponent = defineComponent({
       isMusic: false,
       volume: 1,
       // runtime props
-      paused: true,
       playing: false,
       track: 0,
       trackDurations: [] as number[],
@@ -134,7 +133,6 @@ export const MediaComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       controls: component.controls.value,
-      autoplay: component.autoplay.value,
       paths: component.paths.value,
       volume: component.volume.value,
       synchronize: component.synchronize.value,
@@ -154,9 +152,6 @@ export const MediaComponent = defineComponent({
 
       if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
         component.controls.set(json.controls)
-
-      if (typeof json.autoplay === 'boolean' && json.autoplay !== component.autoplay.value)
-        component.autoplay.set(json.autoplay)
 
       // backwars-compat: convert from number enums to strings
       if (
@@ -185,6 +180,9 @@ export const MediaComponent = defineComponent({
 
       if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
         component.isMusic.set(json.isMusic)
+
+      // @ts-ignore deprecated autoplay field
+      if (json.autoplay) component.paused.set(false)
     })
 
     return component
@@ -201,7 +199,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-  const userHasInteracted = useHookstate(getMutableState(EngineState).userHasInteracted)
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
 
@@ -243,9 +240,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
         tempElement.src = path
       }
 
-      // handle autoplay
-      if (media.autoplay.value && userHasInteracted.value) media.paused.set(false)
-
       return () => {
         for (const { tempElement, listener } of metadataListeners) {
           tempElement.removeEventListener('loadedmetadata', listener)
@@ -255,13 +249,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
       }
     },
     [media.paths]
-  )
-
-  useEffect(
-    function updatePausedUponInteract() {
-      if (userHasInteracted.value && media.autoplay.value) media.paused.set(false)
-    },
-    [userHasInteracted]
   )
 
   useEffect(
@@ -302,7 +289,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         element.addEventListener(
           'playing',
           () => {
-            media.playing.set(true), clearErrors(entity, MediaElementComponent)
+            clearErrors(entity, MediaElementComponent)
           },
           { signal }
         )
@@ -311,7 +298,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
           'error',
           (err) => {
             addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            if (media.playing.value) media.track.set(getNextTrack(media.value))
+            if (!media.paused.value) media.track.set(getNextTrack(media.value))
           },
           { signal }
         )

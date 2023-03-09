@@ -50,13 +50,9 @@ export const MediaInstanceState = defineState({
 })
 
 export function useMediaInstance() {
-  const [state, setState] = React.useState(null as null | State<InstanceState>)
   const mediaInstanceState = useState(getMutableState(MediaInstanceState).instances)
   const mediaHostId = useState(getMutableState(NetworkState).hostIds.media)
-  useEffect(() => {
-    setState(mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null)
-  }, [mediaInstanceState, mediaHostId])
-  return state
+  return mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null
 }
 
 export const MediaInstanceConnectionServiceReceptor = (action) => {

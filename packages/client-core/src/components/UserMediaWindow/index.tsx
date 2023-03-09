@@ -76,7 +76,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const [videoTrackId, setVideoTrackId] = useState('')
   const [audioTrackId, setAudioTrackId] = useState('')
 
-  const [harkListener, setHarkListener] = useState(null)
+  const [harkListener, setHarkListener] = useState(null as ReturnType<typeof hark> | null)
   const [soundIndicatorOn, setSoundIndicatorOn] = useState(false)
   const [isPiP, setPiP] = useState(false)
   const [videoDisplayReady, setVideoDisplayReady] = useState<boolean>(false)
@@ -90,7 +90,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const [_volume, _setVolume] = useState(1)
 
-  const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
   const currentLocation = useLocationState().currentLocation.location
   const enableGlobalMute =
@@ -122,12 +121,16 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [peerMediaChannelState.audioStream])
 
   useEffect(() => {
-    if (userHasInteracted.value && !isSelf) {
+    function onUserInteraction() {
       videoElement?.play()
       audioElement?.play()
-      if (harkListener) (harkListener as any).resume()
+      harkListener?.resume()
     }
-  }, [userHasInteracted])
+    window.addEventListener('pointerdown', onUserInteraction)
+    return () => {
+      window.removeEventListener('pointerdown', onUserInteraction)
+    }
+  }, [videoElement, audioElement, harkListener])
 
   useEffect(() => {
     if (audioElement != null) {
@@ -160,7 +163,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       audioTrackClones.forEach((track) => track.stop())
       if (harkListener) (harkListener as any).stop()
     }
-  }, [audioTrackId])
+  }, [audioTrackId, harkListener])
 
   useEffect(() => {
     videoElement.id = `${peerID}_video`
@@ -432,7 +435,7 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
             [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn
+            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
           })}
         >
           {(videoStream == null ||

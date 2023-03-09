@@ -79,6 +79,7 @@
   "devDependencies": {
     "@emotion/react": "11.9.0",
     "@emotion/styled": "11.8.1",
+    "@types/hark": "1.2.2",
     "@types/node": "18.11.18",
     "@types/react": "18.0.19",
     "@types/react-router-dom": "5.3.3",
