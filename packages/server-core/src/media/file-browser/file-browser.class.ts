@@ -91,7 +91,18 @@ export class FileBrowserService implements ServiceMethods<any> {
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
       throw new Forbidden('Not allowed to access that directory')
-    let result = await storageProvider.listFolderContent(directory, recursive)
+    let result = await storageProvider.listFolderContent(directory)
+
+    if (recursive) {
+      for (let i = 0; i < result.length; i++) {
+        if (result[i].type == 'folder') {
+          let content = await storageProvider.listFolderContent(result[i].key)
+          content.forEach((f) => {
+            result.push(f)
+          })
+        }
+      }
+    }
 
     const total = result.length
 
