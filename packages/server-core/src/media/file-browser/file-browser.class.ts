@@ -95,7 +95,6 @@ export class FileBrowserService implements ServiceMethods<any> {
     let result = await storageProvider.listFolderContent(directory)
     let resultClone = [] as FileContentType[]
 
-    logger.info(recursive)
     if (recursive) {
       for (let i = 0; i < result.length; i++) {
         if (result[i].type == 'folder') {
@@ -105,7 +104,6 @@ export class FileBrowserService implements ServiceMethods<any> {
           })
         }
       }
-      logger.info(result)
     }
 
     const total = result.length

@@ -156,7 +156,6 @@ const ProjectTable = ({ className }: Props) => {
     }
 
     const files = (await API.instance.client.service('file-browser').get(url, params)) as Paginated<FileContentType>
-    console.log(files)
 
     if (files.total > 0) {
       const el = document.createElement('a')
