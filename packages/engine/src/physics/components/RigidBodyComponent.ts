@@ -1,17 +1,10 @@
 import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
-import { Quaternion, Vector3 } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  createMappedComponent,
-  defineComponent,
-  getComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 const { f64 } = Types
 const Vector3Schema = { x: f64, y: f64, z: f64 }

@@ -32,7 +32,7 @@ export const AvatarAnimationComponent = defineComponent({
         transitionRules: {},
         currentState: null!,
         stateChanged: null!
-      },
+      } as AnimationGraph,
       /** ratio between original and target skeleton's root.position.y */
       rootYRatio: 1,
       /** The input vector for 2D locomotion blending space */
@@ -44,7 +44,7 @@ export const AvatarAnimationComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.object.test(json.animationGraph)) component.animationGraph.set(json.animationGraph)
+    if (matches.object.test(json.animationGraph)) component.animationGraph.set(json.animationGraph as AnimationGraph)
     if (matches.number.test(json.rootYRatio)) component.rootYRatio.set(json.rootYRatio)
     if (matches.object.test(json.locomotion)) component.locomotion.value.copy(json.locomotion)
     if (matches.number.test(json.deltaAccumulator)) component.deltaAccumulator.set(json.deltaAccumulator)

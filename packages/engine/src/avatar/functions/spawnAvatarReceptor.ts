@@ -172,5 +172,5 @@ export const createAvatarController = (entity: Entity) => {
     controller: Physics.createCharacterController(Engine.instance.physicsWorld, {})
   })
 
-  addComponent(entity, CollisionComponent, new Map())
+  addComponent(entity, CollisionComponent)
 }

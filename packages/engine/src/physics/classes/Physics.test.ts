@@ -214,8 +214,8 @@ describe('Physics', () => {
     const entity1 = createEntity()
     const entity2 = createEntity()
 
-    addComponent(entity1, CollisionComponent, new Map())
-    addComponent(entity2, CollisionComponent, new Map())
+    addComponent(entity1, CollisionComponent)
+    addComponent(entity2, CollisionComponent)
 
     setTransformComponent(entity1)
     setTransformComponent(entity2)
@@ -271,8 +271,8 @@ describe('Physics', () => {
     const entity1 = createEntity()
     const entity2 = createEntity()
 
-    addComponent(entity1, CollisionComponent, new Map())
-    addComponent(entity2, CollisionComponent, new Map())
+    addComponent(entity1, CollisionComponent)
+    addComponent(entity2, CollisionComponent)
 
     setTransformComponent(entity1)
     setTransformComponent(entity2)

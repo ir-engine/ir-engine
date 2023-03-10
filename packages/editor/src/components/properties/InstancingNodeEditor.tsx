@@ -108,13 +108,13 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const onUnstage = () => {
     if (!hasComponent(entity, InstancingUnstagingComponent)) {
-      addComponent(entity, InstancingUnstagingComponent, {})
+      addComponent(entity, InstancingUnstagingComponent)
     }
   }
 
   const onStage = async () => {
     if (!hasComponent(entity, InstancingStagingComponent)) {
-      addComponent(entity, InstancingStagingComponent, {})
+      addComponent(entity, InstancingStagingComponent)
     }
   }
 

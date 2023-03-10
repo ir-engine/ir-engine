@@ -1,10 +1,21 @@
 import { AvatarStates } from '../../avatar/animation/Util'
-import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { UndefinedEntity } from '../../ecs/classes/Entity'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type SittingComponentType = {
-  mountPointEntity: Entity
-  state: typeof AvatarStates.SIT_ENTER | typeof AvatarStates.SIT_IDLE | typeof AvatarStates.SIT_LEAVE
-}
+export const SittingComponent = defineComponent({
+  name: 'SittingComponent',
 
-export const SittingComponent = createMappedComponent<SittingComponentType>('SittingComponent')
+  onInit(entity) {
+    return {
+      mountPointEntity: UndefinedEntity,
+      state: null! as typeof AvatarStates[keyof typeof AvatarStates]
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (typeof json.mountPointEntity === 'number') component.mountPointEntity.set(json.mountPointEntity)
+    if (typeof json.state === 'string') component.state.set(json.state)
+  }
+})

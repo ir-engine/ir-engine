@@ -341,7 +341,7 @@ export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
 
   if (scatterProps.state === ScatterState.STAGED) {
     const executeStaging = () => {
-      addComponent(entity, InstancingStagingComponent, {})
+      addComponent(entity, InstancingStagingComponent)
     }
     if (!getEngineState().sceneLoaded.value) matchActionOnce(EngineActions.sceneLoaded.matches, executeStaging)
     else executeStaging()
