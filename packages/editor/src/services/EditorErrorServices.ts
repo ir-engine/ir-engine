@@ -32,7 +32,7 @@ export const EditorErrorService = {}
 //Action
 export class EditorErrorAction {
   static throwError = defineAction({
-    type: 'xre.editor.EditorError.ERROR_THROWN' as const,
+    type: 'ee.editor.EditorError.ERROR_THROWN' as const,
     error: matches.object as Validator<unknown, Error>
   })
 }

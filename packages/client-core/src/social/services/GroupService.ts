@@ -41,7 +41,7 @@ export const GroupServiceReceptor = (action) => {
   const s = getMutableState(GroupState)
   matches(action)
     .when(GroupAction.loadedGroups.matches, (action) => {
-      if (s.updateNeeded.value === true) {
+      if (s.updateNeeded.value) {
         s.groups.groups.set(action.groups)
       } else {
         s.groups.groups.set([...s.groups.groups.value, ...action.groups])
@@ -51,7 +51,7 @@ export const GroupServiceReceptor = (action) => {
       return s.getGroupsInProgress.set(false)
     })
     .when(GroupAction.loadedInvitableGroups.matches, (action) => {
-      if (s.updateNeeded.value === true) {
+      if (s.updateNeeded.value) {
         s.invitableGroups.groups.set(action.groups)
       } else {
         s.invitableGroups.groups.set([...s.invitableGroups.groups.value, ...action.groups])
@@ -65,7 +65,7 @@ export const GroupServiceReceptor = (action) => {
       return s.merge({ updateNeeded: true, invitableUpdateNeeded: true })
     })
     .when(GroupAction.patchedGroup.matches, (action) => {
-      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+      const groupIndex = s.groups.groups.get({ noproxy: true }).findIndex((groupItem) => {
         return groupItem != null && groupItem.id === action.group.id
       })
       if (groupIndex !== -1) {
@@ -90,7 +90,7 @@ export const GroupServiceReceptor = (action) => {
       return s.getInvitableGroupsInProgress.set(true)
     })
     .when(GroupAction.createdGroupUser.matches, (action) => {
-      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+      const groupIndex = s.groups.groups.get({ noproxy: true }).findIndex((groupItem) => {
         return groupItem != null && groupItem.id === action.groupUser.groupId
       })
       if (groupIndex !== -1) {
@@ -108,7 +108,7 @@ export const GroupServiceReceptor = (action) => {
       return s.merge({ updateNeeded: true })
     })
     .when(GroupAction.patchedGroupUser.matches, (action) => {
-      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+      const groupIndex = s.groups.groups.get({ noproxy: true }).findIndex((groupItem) => {
         return groupItem != null && groupItem.id === action.groupUser.groupId
       })
       if (groupIndex !== -1) {
@@ -125,7 +125,7 @@ export const GroupServiceReceptor = (action) => {
       return s
     })
     .when(GroupAction.removedGroupUser.matches, (action) => {
-      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+      const groupIndex = s.groups.groups.get({ noproxy: true }).findIndex((groupItem) => {
         return groupItem != null && groupItem.id === action.groupUser.groupId
       })
       if (groupIndex !== -1) {
@@ -333,7 +333,7 @@ export const GroupService = {
 //Action
 export class GroupAction {
   static loadedGroups = defineAction({
-    type: 'xre.client.Group.LOADED_GROUPS' as const,
+    type: 'ee.client.Group.LOADED_GROUPS' as const,
     groups: matches.array as Validator<unknown, Group[]>,
     total: matches.number,
     limit: matches.number,
@@ -341,50 +341,50 @@ export class GroupAction {
   })
 
   static createdGroup = defineAction({
-    type: 'xre.client.Group.CREATED_GROUP' as const,
+    type: 'ee.client.Group.CREATED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static patchedGroup = defineAction({
-    type: 'xre.client.Group.PATCHED_GROUP' as const,
+    type: 'ee.client.Group.PATCHED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static removedGroup = defineAction({
-    type: 'xre.client.Group.REMOVED_GROUP' as const,
+    type: 'ee.client.Group.REMOVED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static createdGroupUser = defineAction({
-    type: 'xre.client.Group.CREATED_GROUP_USER' as const,
+    type: 'ee.client.Group.CREATED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>
   })
 
   static patchedGroupUser = defineAction({
-    type: 'xre.client.Group.PATCHED_GROUP_USER' as const,
+    type: 'ee.client.Group.PATCHED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>
   })
 
   static removedGroupUser = defineAction({
-    type: 'xre.client.Group.REMOVED_GROUP_USER' as const,
+    type: 'ee.client.Group.REMOVED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>,
     self: matches.boolean
   })
 
   static invitedGroupUser = defineAction({
-    type: 'xre.client.Group.INVITED_GROUP_USER' as const
+    type: 'ee.client.Group.INVITED_GROUP_USER' as const
   })
 
   static leftGroup = defineAction({
-    type: 'xre.client.Group.LEFT_GROUP' as const
+    type: 'ee.client.Group.LEFT_GROUP' as const
   })
 
   static fetchingGroups = defineAction({
-    type: 'xre.client.Group.FETCHING_GROUPS' as const
+    type: 'ee.client.Group.FETCHING_GROUPS' as const
   })
 
   static loadedInvitableGroups = defineAction({
-    type: 'xre.client.Group.LOADED_INVITABLE_GROUPS' as const,
+    type: 'ee.client.Group.LOADED_INVITABLE_GROUPS' as const,
     groups: matches.array as Validator<unknown, Group[]>,
     total: matches.number,
     limit: matches.number,
@@ -392,10 +392,10 @@ export class GroupAction {
   })
 
   static fetchingInvitableGroups = defineAction({
-    type: 'xre.client.Group.FETCHING_INVITABLE_GROUPS' as const
+    type: 'ee.client.Group.FETCHING_INVITABLE_GROUPS' as const
   })
 
   static removeCloseGroupDetail = defineAction({
-    type: 'xre.client.Group.REMOVE_CLOSE_GROUP_DETAIL' as const
+    type: 'ee.client.Group.REMOVE_CLOSE_GROUP_DETAIL' as const
   })
 }

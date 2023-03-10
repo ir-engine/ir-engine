@@ -1,16 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import multiLogger from '@etherealengine/common/src/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
-import { useServerInfoState } from '../../services/ServerInfoService'
-import { ServerLogsService, useServerLogsState } from '../../services/ServerLogsService'
+import { AdminServerInfoState } from '../../services/ServerInfoService'
+import { AdminServerLogsState, ServerLogsService } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
@@ -18,10 +19,10 @@ const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
 const ServerLogs = () => {
   const { t } = useTranslation()
   const logsEndRef = useRef(null)
-  const [autoRefresh, setAutoRefresh] = useState('60')
-  const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
-  const serverInfo = useServerInfoState()
-  const serverLogs = useServerLogsState()
+  const autoRefresh = useHookstate('60')
+  const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
+  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
+  const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
 
   const scrollLogsToBottom = () => {
     ;(logsEndRef.current as any)?.scrollIntoView({ behavior: 'smooth' })
@@ -33,19 +34,19 @@ const ServerLogs = () => {
   }, [serverLogs.logs.value])
 
   useEffect(() => {
-    if (autoRefresh !== '0') {
+    if (autoRefresh.value !== '0') {
       const interval = setInterval(() => {
         handleRefreshServerLogs()
-      }, parseInt(autoRefresh) * 1000)
-      setIntervalTimer(interval)
+      }, parseInt(autoRefresh.value) * 1000)
+      intervalTimer.set(interval)
       return () => {
         if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
       }
-    } else if (intervalTimer) {
-      clearInterval(intervalTimer)
-      setIntervalTimer(undefined)
+    } else if (intervalTimer.value) {
+      clearInterval(intervalTimer.value)
+      intervalTimer.set(undefined)
     }
-  }, [autoRefresh])
+  }, [autoRefresh.value])
 
   const handleRefreshServerLogs = () => {
     logger.info('Refreshing server logs.')
@@ -55,7 +56,7 @@ const ServerLogs = () => {
   const handleAutoRefreshServerLogsChange = (e) => {
     const { value } = e.target
 
-    setAutoRefresh(value)
+    autoRefresh.set(value)
   }
 
   const handleCloseServerLogs = () => {
@@ -73,7 +74,8 @@ const ServerLogs = () => {
     ServerLogsService.fetchServerLogs(serverLogs.podName.value!, value)
   }
 
-  const containers = serverInfo.servers.value
+  const containers = serverInfo.servers
+    .get({ noproxy: true })
     .find((item) => item.id === 'all')
     ?.pods.find((item) => item.name === serverLogs.podName.value!)
   const containersMenu = containers?.containers.map((item) => {
@@ -160,7 +162,7 @@ const ServerLogs = () => {
         <InputSelect
           name="autoRefresh"
           label={t('admin:components.server.autoRefresh')}
-          value={autoRefresh}
+          value={autoRefresh.value}
           menu={autoRefreshMenu}
           sx={{ marginBottom: 0, width: '160px', marginRight: 1.5 }}
           onChange={handleAutoRefreshServerLogsChange}

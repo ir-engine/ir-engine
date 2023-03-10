@@ -1,12 +1,12 @@
 import { ServerInfoInterface, ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 //State
-const AdminServerInfoState = defineState({
+export const AdminServerInfoState = defineState({
   name: 'AdminServerInfoState',
   initial: () => ({
     servers: [] as Array<ServerInfoInterface>,
@@ -53,10 +53,6 @@ export const AdminServerInfoReceptors = {
   fetchServerInfoRetrievedReceptor,
   serverInfoPodRemovedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessServerInfoState = () => getMutableState(AdminServerInfoState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useServerInfoState = () => useState(accessServerInfoState())
 
 //Service
 export const ServerInfoService = {
@@ -89,13 +85,13 @@ export const ServerInfoService = {
 //Action
 export class AdminServerInfoActions {
   static fetchServerInfoRequested = defineAction({
-    type: 'xre.client.AdminServerInfo.FETCH_SERVER_INFO_REQUESTED' as const
+    type: 'ee.client.AdminServerInfo.FETCH_SERVER_INFO_REQUESTED' as const
   })
   static fetchServerInfoRetrieved = defineAction({
-    type: 'xre.client.AdminServerInfo.FETCH_SERVER_INFO_RETRIEVED' as const,
+    type: 'ee.client.AdminServerInfo.FETCH_SERVER_INFO_RETRIEVED' as const,
     data: matches.array as Validator<unknown, ServerInfoInterface[]>
   })
   static serverInfoPodRemoved = defineAction({
-    type: 'xre.client.AdminLocation.SERVER_INFO_POD_REMOVED' as const
+    type: 'ee.client.AdminLocation.SERVER_INFO_POD_REMOVED' as const
   })
 }

@@ -194,14 +194,14 @@ export const AvatarService = {
 
 export class AvatarActions {
   static updateAvatarListAction = defineAction({
-    type: 'xre.client.avatar.AVATAR_FETCHED' as const,
+    type: 'ee.client.avatar.AVATAR_FETCHED' as const,
     avatarList: matches.array as Validator<unknown, AvatarInterface[]>,
     search: matches.string.optional(),
     skip: matches.number,
     total: matches.number
   })
   static updateAvatarAction = defineAction({
-    type: 'xre.client.avatar.AVATAR_UPDATED' as const,
+    type: 'ee.client.avatar.AVATAR_UPDATED' as const,
     avatar: matches.object as Validator<unknown, AvatarInterface>
   })
 }

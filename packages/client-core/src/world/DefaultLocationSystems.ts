@@ -10,37 +10,37 @@ import UpdateNearbyUsersSystem from '../transports/UpdateNearbyUsersSystem'
 
 export const DefaultLocationSystems: SystemModuleType<any>[] = [
   {
-    uuid: 'xre.client.core.LoadingUISystem',
+    uuid: 'ee.client.core.LoadingUISystem',
     type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: LoadingUISystem })
   },
   {
-    uuid: 'xre.client.core.AvatarUISystem',
+    uuid: 'ee.client.core.AvatarUISystem',
     type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: AvatarUISystem })
   },
   {
-    uuid: 'xre.client.core.WidgetUISystem',
+    uuid: 'ee.client.core.WidgetUISystem',
     type: 'UPDATE',
     systemLoader: () => Promise.resolve({ default: WidgetUISystem })
   },
   {
-    uuid: 'xre.client.core.PartySystem',
+    uuid: 'ee.client.core.PartySystem',
     type: 'PRE_RENDER',
     systemLoader: () => Promise.resolve({ default: PartySystem })
   },
   {
-    uuid: 'xre.client.core.PortalLoadSystem',
+    uuid: 'ee.client.core.PortalLoadSystem',
     type: 'FIXED',
     systemLoader: () => Promise.resolve({ default: PortalLoadSystem })
   },
   {
-    uuid: 'xre.client.core.UpdateNearbyUsersSystem',
+    uuid: 'ee.client.core.UpdateNearbyUsersSystem',
     type: 'FIXED',
     systemLoader: () => Promise.resolve({ default: UpdateNearbyUsersSystem })
   },
   {
-    uuid: 'xre.client.core.WebcamInputSystem',
+    uuid: 'ee.client.core.WebcamInputSystem',
     type: 'UPDATE_EARLY',
     systemLoader: () => Promise.resolve({ default: WebcamInputSystem })
   }

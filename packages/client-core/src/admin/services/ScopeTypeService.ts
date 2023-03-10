@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -10,7 +10,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 //State
 export const SCOPE_PAGE_LIMIT = 100
 
-const AdminScopeTypeState = defineState({
+export const AdminScopeTypeState = defineState({
   name: 'AdminScopeTypeState',
   initial: () => ({
     skip: 0,
@@ -42,15 +42,11 @@ const getScopeTypesReceptor = (action: typeof AdminScopeTypeActions.getScopeType
 export const AdminScopeTypeReceptor = {
   getScopeTypesReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessScopeTypeState = () => getMutableState(AdminScopeTypeState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useScopeTypeState = () => useState(accessScopeTypeState())
 
 //Service
 export const AdminScopeTypeService = {
   getScopeTypeService: async (incDec?: 'increment' | 'decrement') => {
-    const scopeState = accessScopeTypeState()
+    const scopeState = getMutableState(AdminScopeTypeState)
     const skip = scopeState.skip.value
     const limit = scopeState.limit.value
     try {
@@ -70,7 +66,7 @@ export const AdminScopeTypeService = {
 //Action
 export class AdminScopeTypeActions {
   static getScopeTypes = defineAction({
-    type: 'xre.client.AdminScopeType.SCOPE_TYPES_RETRIEVED' as const,
+    type: 'ee.client.AdminScopeType.SCOPE_TYPES_RETRIEVED' as const,
     adminScopeTypeResult: matches.object as Validator<unknown, Paginated<AdminScopeType>>
   })
 }

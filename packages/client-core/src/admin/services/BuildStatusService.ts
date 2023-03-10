@@ -2,15 +2,14 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import { BuildStatusResult } from '@etherealengine/common/src/interfaces/BuildStatusResult'
-import { Invite } from '@etherealengine/common/src/interfaces/Invite'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 //State
-const AdminBuildStatusState = defineState({
+export const AdminBuildStatusState = defineState({
   name: 'AdminBuildStatusState',
   initial: () => ({
     buildStatuses: [] as Array<BuildStatus>,
@@ -41,10 +40,6 @@ const fetchBuildStatusReceptor = (action: typeof AdminBuildStatusActions.fetchBu
 export const AdminBuildStatusReceptors = {
   fetchBuildStatusReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessBuildStatusState = () => getMutableState(AdminBuildStatusState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useBuildStatusState = () => useState(accessBuildStatusState())
 
 //Service
 export const BuildStatusService = {
@@ -73,7 +68,7 @@ export const BuildStatusService = {
 //Action
 export class AdminBuildStatusActions {
   static fetchBuildStatusRetrieved = defineAction({
-    type: 'xre.client.AdminBuildStatus.FETCH_BUILD_STATUS_RETRIEVED' as const,
+    type: 'ee.client.AdminBuildStatus.FETCH_BUILD_STATUS_RETRIEVED' as const,
     data: matches.array as Validator<unknown, BuildStatus[]>,
     total: matches.number,
     limit: matches.number,
