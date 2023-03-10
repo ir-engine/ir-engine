@@ -22,13 +22,13 @@ import {
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
-import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
+import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -270,9 +270,9 @@ export default function HierarchyPanel({
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (node.obj3d) return // todo
     if (e.detail === 2) {
-      const cameraComponent = getComponent(Engine.instance.cameraEntity, EditorCameraComponent)
-      cameraComponent.focusedObjects = [node.entityNode]
-      cameraComponent.refocus = true
+      const editorCameraState = getMutableState(EditorCameraState)
+      editorCameraState.focusedObjects.set([node.entityNode])
+      editorCameraState.refocus.set(true)
     }
   }, [])
 

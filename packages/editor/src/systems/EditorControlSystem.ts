@@ -51,7 +51,7 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { createActionQueue, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
+import { EditorCameraState } from '../classes/EditorCameraState'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
@@ -117,7 +117,6 @@ export default async function EditorControlSystem() {
   let lastZoom = 0
   let prevRotationAngle = 0
 
-  let cameraComponent: EditorCameraComponentType
   let selectedEntities: (Entity | string)[]
   let selectedParentEntities: (Entity | string)[]
   let selectionCounter: number = 0
@@ -168,8 +167,8 @@ export default async function EditorControlSystem() {
   }
 
   const onKeyF = () => {
-    cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
-    cameraComponent.refocus = true
+    editorCameraState.focusedObjects.set(getEntityNodeArrayFromEntities(selectedEntities))
+    editorCameraState.refocus.set(true)
   }
 
   const onKeyT = () => {
@@ -270,8 +269,10 @@ export default async function EditorControlSystem() {
   const doZoom = (zoom) => {
     const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
     lastZoom = zoom
-    if (cameraComponent) cameraComponent.zoomDelta = zoomDelta
+    editorCameraState.zoomDelta.set(zoomDelta)
   }
+
+  const editorCameraState = getMutableState(EditorCameraState)
 
   const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
@@ -550,7 +551,6 @@ export default async function EditorControlSystem() {
     }
 
     selectionCounter = selectionState.selectionCounter.value
-    cameraComponent = getComponent(Engine.instance.cameraEntity, EditorCameraComponent)
     const shift = inputState.ShiftLeft?.pressed
 
     if (isPrimaryClickUp) {
@@ -605,18 +605,18 @@ export default async function EditorControlSystem() {
     const panning = inputState.AuxiliaryClick?.pressed
 
     if (selecting) {
-      cameraComponent.isOrbiting = true
+      editorCameraState.isOrbiting.set(true)
       const mouseMovement = Engine.instance.pointerState.movement
       if (mouseMovement) {
-        cameraComponent.cursorDeltaX = mouseMovement.x
-        cameraComponent.cursorDeltaY = mouseMovement.y
+        editorCameraState.cursorDeltaX.set(mouseMovement.x)
+        editorCameraState.cursorDeltaY.set(mouseMovement.y)
       }
     } else if (panning) {
-      cameraComponent.isPanning = true
+      editorCameraState.isPanning.set(true)
       const mouseMovement = Engine.instance.pointerState.movement
       if (mouseMovement) {
-        cameraComponent.cursorDeltaX = mouseMovement.x
-        cameraComponent.cursorDeltaY = mouseMovement.y
+        editorCameraState.cursorDeltaX.set(mouseMovement.x)
+        editorCameraState.cursorDeltaY.set(mouseMovement.y)
       }
     } else if (zoom) {
       throttleZoom(zoom)

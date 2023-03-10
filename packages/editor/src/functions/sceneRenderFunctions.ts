@@ -14,9 +14,9 @@ import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGi
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { EditorCameraComponent } from '../classes/EditorCameraComponent'
+import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 
@@ -62,15 +62,15 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
   Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
 
-  removeComponent(Engine.instance.cameraEntity, EditorCameraComponent)
-  addComponent(Engine.instance.cameraEntity, EditorCameraComponent, {
+  getMutableState(EditorCameraState).set({
     center: new Vector3(),
     zoomDelta: 0,
-    isOrbiting: false,
+    focusedObjects: [],
     isPanning: false,
     cursorDeltaX: 0,
     cursorDeltaY: 0,
-    focusedObjects: []
+    isOrbiting: false,
+    refocus: false
   })
 
   // Require when changing scene
