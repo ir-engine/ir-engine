@@ -26,9 +26,9 @@ const redisSettingRetrievedReceptor = (action: typeof AdminRedisSettingActions.r
 export const RedisSettingReceptors = {
   redisSettingRetrievedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminRedisSettingState = () => getMutableState(AdminRedisSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminRedisSettingState = () => useState(accessAdminRedisSettingState())
 
 export const AdminRedisSettingService = {

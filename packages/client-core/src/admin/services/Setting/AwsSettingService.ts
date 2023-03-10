@@ -32,9 +32,9 @@ export const AwsSettingReceptors = {
   awsSettingRetrievedReceptor,
   awsSettingPatchedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminAwsSettingState = () => getMutableState(AdminAwsSettingState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminAwsSettingState = () => useState(accessAdminAwsSettingState())
 
 export const AwsSettingService = {

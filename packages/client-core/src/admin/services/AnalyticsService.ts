@@ -90,9 +90,9 @@ export const AdminAnalyticsReceptors = {
   dailyNewUsersFetchedReceptor,
   dailyUsersFetchedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminAnalyticsState = () => getMutableState(AdminAnalyticsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminAnalyticsState = () => useState(accessAdminAnalyticsState())
 
 //Service

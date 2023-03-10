@@ -73,9 +73,9 @@ export const AdminLocationReceptors = {
   locationRemovedReceptor,
   locationTypesRetrievedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminLocationState = () => getMutableState(AdminLocationState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminLocationState = () => useState(accessAdminLocationState())
 
 //Service

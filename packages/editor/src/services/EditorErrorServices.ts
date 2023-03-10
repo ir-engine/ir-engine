@@ -21,9 +21,9 @@ export const EditorErrorServiceReceptor = (action): any => {
     return s.merge({ error: action.error })
   })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessEditorErrorState = () => getMutableState(EditorErrorState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEditorErrorState = () => useState(accessEditorErrorState())
 
 //Service

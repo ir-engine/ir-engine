@@ -25,9 +25,9 @@ const fetchedInstanceServerReceptor = (
 export const AdminInstanceServerReceptors = {
   fetchedInstanceServerReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessInstanceServerSettingState = () => getMutableState(AdminInstanceServerSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useInstanceServerSettingState = () => useState(accessInstanceServerSettingState())
 
 export const InstanceServerSettingService = {

@@ -65,9 +65,9 @@ export const AdminInviteReceptors = {
   invitePatchedReceptor,
   inviteRemovedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminInviteState = () => getMutableState(AdminInviteState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminInviteState = () => useState(accessAdminInviteState())
 
 //Service

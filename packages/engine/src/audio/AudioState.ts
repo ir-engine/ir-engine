@@ -44,8 +44,9 @@ export const AudioState = defineState({
     ])
   }
 })
-
+/**@deprecated use getMutableState directly instead */
 export const accessAudioState = () => getMutableState(AudioState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAudioState = () => useState(accessAudioState())
 
 export function AudioSettingReceptor(action) {

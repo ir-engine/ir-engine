@@ -29,9 +29,9 @@ export const ServerSettingReceptors = {
   fetchedSeverInfoReceptor,
   serverSettingPatchedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessServerSettingState = () => getMutableState(AdminServerSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useServerSettingState = () => useState(accessServerSettingState())
 
 export const ServerSettingService = {

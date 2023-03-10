@@ -110,9 +110,9 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       s.instances[action.currentInstanceId].set(none)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessMediaInstanceConnectionState = () => getMutableState(MediaInstanceState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMediaInstanceConnectionState = () => useState(accessMediaInstanceConnectionState())
 
 //Service
