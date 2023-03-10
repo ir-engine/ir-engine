@@ -185,19 +185,18 @@ describe('WorldNetworkActionReceptors', () => {
 
   describe('destroyObject', () => {})
 
-  describe('transfer ownership of object', () => {
-    it('should transfer ownership of object from host to client', async () => {
+  describe('transfer authority of object', () => {
+    it('should transfer authority of object (and not ownership)', async () => {
+      const hostUserId = 'world' as UserId
       const userId = 'user id' as UserId
-      const hostId = 'host' as UserId
       const peerID = 'peer id' as PeerID
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userId = userId
-
       const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
@@ -205,9 +204,10 @@ describe('WorldNetworkActionReceptors', () => {
 
       WorldNetworkActionReceptor.receiveSpawnObject(
         WorldNetworkAction.spawnObject({
-          $from: hostId, // from  host
+          $from: Engine.instance.worldNetwork.hostId, // from  host
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
+          $topic: NetworkTopics.world,
           $peer: network.peerID
         })
       )
@@ -221,12 +221,13 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectEntitiesBefore.length, 1)
       assert.equal(networkObjectOwnedEntitiesBefore.length, 0)
 
-      console.log(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent), '----')
+      assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).ownerId, hostUserId)
+      assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
 
       WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
         WorldNetworkAction.requestAuthorityOverObject({
-          $from: hostId, // from host
-          ownerId: hostId,
+          $from: hostUserId, // from host
+          ownerId: hostUserId,
           networkId: objNetId,
           $topic: NetworkTopics.world,
           newAuthority: peerID2
@@ -246,73 +247,8 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectEntitiesAfter.length, 1)
       assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
 
-      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID2)
-      assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
-    })
-
-    it('should not transfer authority of object (only host can process authority transfer)', async () => {
-      const userId = 'user id' as UserId
-      const hostId = 'host' as UserId
-      const peerID = 'peer id' as PeerID
-      const peerID2 = 'peer id 2' as PeerID
-
-      Engine.instance.userId = userId
-
-      const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
-
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
-
-      const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
-
-      WorldNetworkActionReceptor.receiveSpawnObject(
-        WorldNetworkAction.spawnObject({
-          $from: hostId, // from  host
-          prefab: objPrefab, // generic prefab
-          networkId: objNetId,
-          $peer: network.peerID
-        })
-      )
-
-      const networkObjectQuery = defineQuery([NetworkObjectComponent])
-      const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
-
-      const networkObjectEntitiesBefore = networkObjectQuery()
-      const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery()
-
-      assert.equal(networkObjectEntitiesBefore.length, 1)
-      assert.equal(networkObjectOwnedEntitiesBefore.length, 0)
-
-      console.log(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent), '----')
-
-      WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
-        WorldNetworkAction.requestAuthorityOverObject({
-          $from: userId, // from user
-          ownerId: hostId,
-          networkId: objNetId,
-          $topic: NetworkTopics.world,
-          newAuthority: peerID2
-        })
-      )
-
-      const system = await WorldNetworkActionSystem()
-
-      ActionFunctions.clearOutgoingActions(network.topic)
-      ActionFunctions.applyIncomingActions()
-
-      system.execute()
-
-      const networkObjectEntitiesAfter = networkObjectQuery()
-      const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
-
-      assert.equal(networkObjectEntitiesAfter.length, 1)
-      assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
-
-      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID)
+      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, hostUserId) // owner remains same
+      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID2) // peer has changed
       assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
     })
   })
