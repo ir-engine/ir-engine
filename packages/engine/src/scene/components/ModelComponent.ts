@@ -153,7 +153,6 @@ function ModelReactor({ root }: EntityReactorProps) {
     if (model.generateBVH) {
       const bvhDone = [] as Promise<void>[]
       scene.traverse((obj: Mesh) => {
-        if (obj.geometry?.boundsTree) return
         bvhDone.push(generateMeshBVH(obj))
       })
       // trigger group state invalidation when bvh is done
