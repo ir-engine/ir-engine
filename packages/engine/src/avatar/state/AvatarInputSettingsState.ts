@@ -4,7 +4,7 @@ import {
   defineAction,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   syncStateWithLocalStorage,
   useState
 } from '@etherealengine/hyperflux'
@@ -60,7 +60,7 @@ export const AvatarInputSettingsState = defineState({
 })
 
 export function AvatarInputSettingsReceptor(action) {
-  const s = getState(AvatarInputSettingsState)
+  const s = getMutableState(AvatarInputSettingsState)
   matches(action)
     .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
       return s.controlType.set(action.controlType)

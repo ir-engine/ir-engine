@@ -3,6 +3,7 @@ import {
   AudioLoader,
   BufferAttribute,
   BufferGeometry,
+  CompressedTextureLoader,
   FileLoader,
   Group,
   LOD,
@@ -19,21 +20,22 @@ import {
   TextureLoader
 } from 'three'
 
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
-import { getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
-import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
-import type { GLTF } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { DependencyTreeActions } from './DependencyTree'
@@ -53,16 +55,6 @@ export interface LoadGLTFResultInterface {
 
 export function disposeDracoLoaderWorkers(): void {
   Engine.instance.gltfLoader.dracoLoader?.dispose()
-}
-
-export const loadExtensions = async (gltf: GLTF) => {
-  if (isClient) {
-    const bvhTraverse: Promise<void>[] = []
-    gltf.scene.traverse((mesh) => {
-      ;(mesh as Mesh).isMesh && bvhTraverse.push(generateMeshBVH(mesh as Mesh))
-    })
-    await Promise.all(bvhTraverse)
-  }
 }
 
 const onUploadDropBuffer = (uuid?: string) =>
@@ -95,7 +87,7 @@ const onTextureUploadDropSource = (uuid?: string) =>
   }
 
 export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
-  if (Engine.instance.isEditor || !child.isMesh) return
+  if (getMutableState(EngineState).isEditor.value || !child.isMesh) return
   const geo = child.geometry as BufferGeometry
   const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
   const attributes = geo.attributes
@@ -149,7 +141,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState(Engine.instance.currentWorld).LODs.value
+  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState(Engine.instance.currentScene).LODs.value
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {
@@ -187,25 +179,47 @@ const handleLODs = (asset: Object3D): Object3D => {
  */
 const getAssetType = (assetFileName: string): AssetType => {
   assetFileName = assetFileName.toLowerCase()
-
-  if (/\.xre\.gltf$/.test(assetFileName)) return AssetType.XRE
-  else if (/\.(?:gltf)$/.test(assetFileName)) return AssetType.glTF
-  else if (/\.(?:glb)$/.test(assetFileName)) return AssetType.glB
-  else if (/\.(?:usdz)$/.test(assetFileName)) return AssetType.USDZ
-  else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
-  else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
-  else if (/\.(?:tga)$/.test(assetFileName)) return AssetType.TGA
-  else if (/\.(?:ktx2)$/.test(assetFileName)) return AssetType.KTX2
-  else if (/\.(?:png)$/.test(assetFileName)) return AssetType.PNG
-  else if (/\.(?:jpg|jpeg|)$/.test(assetFileName)) return AssetType.JPEG
-  else if (/\.(?:mp3)$/.test(assetFileName)) return AssetType.MP3
-  else if (/\.(?:aac)$/.test(assetFileName)) return AssetType.AAC
-  else if (/\.(?:ogg)$/.test(assetFileName)) return AssetType.OGG
-  else if (/\.(?:m4a)$/.test(assetFileName)) return AssetType.M4A
-  else if (/\.(?:mp4)$/.test(assetFileName)) return AssetType.MP4
-  else if (/\.(?:mkv)$/.test(assetFileName)) return AssetType.MKV
-  else if (/\.(?:m3u8)$/.test(assetFileName)) return AssetType.M3U8
-  return null!
+  if (assetFileName.endsWith('.xre.gltf')) return AssetType.XRE
+  const suffix = assetFileName.split('.').pop()
+  switch (suffix) {
+    case 'gltf':
+      return AssetType.glTF
+    case 'glb':
+      return AssetType.glB
+    case 'usdz':
+      return AssetType.USDZ
+    case 'fbx':
+      return AssetType.FBX
+    case 'vrm':
+      return AssetType.VRM
+    case 'tga':
+      return AssetType.TGA
+    case 'ktx2':
+      return AssetType.KTX2
+    case 'ddx':
+      return AssetType.DDS
+    case 'png':
+      return AssetType.PNG
+    case 'jpg':
+    case 'jpeg':
+      return AssetType.JPEG
+    case 'mp3':
+      return AssetType.MP3
+    case 'aac':
+      return AssetType.AAC
+    case 'ogg':
+      return AssetType.OGG
+    case 'm4a':
+      return AssetType.M4A
+    case 'mp4':
+      return AssetType.MP4
+    case 'mkv':
+      return AssetType.MKV
+    case 'm3u8':
+      return AssetType.M3U8
+    default:
+      return null!
+  }
 }
 
 /**
@@ -220,7 +234,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     return AssetClass.Asset
   } else if (/\.(?:gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg|tga|ktx2$/.test(assetFileName)) {
+  } else if (/\.png|jpg|jpeg|tga|ktx2|dds$/.test(assetFileName)) {
     return AssetClass.Image
   } else if (/\.mp4|avi|webm|mov|m3u8$/.test(assetFileName)) {
     return AssetClass.Video
@@ -244,6 +258,7 @@ const isSupported = (assetFileName: string) => {
 }
 
 //@ts-ignore
+const ddsLoader = () => new DDSLoader()
 const fbxLoader = () => new FBXLoader()
 const textureLoader = () => new TextureLoader()
 const fileLoader = () => new FileLoader()
@@ -275,6 +290,8 @@ export const getLoader = (assetType: AssetType) => {
       return xreLoader()
     case AssetType.KTX2:
       return ktx2Loader()
+    case AssetType.DDS:
+      return ddsLoader()
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
@@ -331,7 +348,7 @@ const assetLoadCallback =
     onLoad(asset)
   }
 
-const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
+const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean

@@ -19,7 +19,7 @@ import { EngineState, useEngineState } from '@etherealengine/engine/src/ecs/clas
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/Avatar'
 import Badge from '@etherealengine/ui/src/Badge'
 import Card from '@etherealengine/ui/src/Card'
@@ -52,7 +52,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const currentInstanceConnection = useWorldInstance()
 
   useEffect(() => {
-    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
       ChatService.getInstanceChannel()
     }
   }, [currentInstanceConnection?.connected])
@@ -287,7 +287,7 @@ export const InstanceChat = ({
     setIsInitRender(false)
   }
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   return (
     <>
@@ -448,7 +448,7 @@ export const InstanceChat = ({
 }
 
 export const InstanceChatWrapper = () => {
-  const engineState = useHookstate(getState(EngineState))
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
   return (

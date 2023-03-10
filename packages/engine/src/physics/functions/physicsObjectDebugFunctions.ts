@@ -10,7 +10,6 @@ import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3
 
 // import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { World } from '@etherealengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
@@ -62,10 +61,10 @@ function getUUID() {
 }
 
 let simulationObjectsGenerated = false
-export default async function PhysicsSimulationTestSystem(world: World) {
+export default async function PhysicsSimulationTestSystem() {
   return () => {
     const isInitialized = getEngineState().isEngineInitialized.value
-    if (!isInitialized || !world.physicsWorld || simulationObjectsGenerated) return
+    if (!isInitialized || !Engine.instance.physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }
@@ -157,9 +156,7 @@ export const generatePhysicsObject = (
 
   addObjectToGroup(entity, mesh)
 
-  Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, mesh.userData)
-
-  const world = Engine.instance.currentWorld
+  Physics.createRigidBodyForGroup(entity, Engine.instance.physicsWorld, mesh.userData)
 
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
@@ -167,7 +164,7 @@ export const generatePhysicsObject = (
   const body = getComponent(entity, RigidBodyComponent).body
   body.setTranslation(transform.position, true)
 
-  if (isNetworkObject && world.worldNetwork.isHosting) {
+  if (isNetworkObject && Engine.instance.worldNetwork.isHosting) {
     // body.addTorque(defaultTorqueForce, true)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 

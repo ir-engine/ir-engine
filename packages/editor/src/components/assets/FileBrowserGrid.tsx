@@ -80,6 +80,7 @@ type FileBrowserItemType = {
   setFileProperties: any
   setOpenPropertiesModal: any
   setOpenCompress: any
+  setOpenConvert: any
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
@@ -94,6 +95,7 @@ export function FileBrowserItem({
   setOpenPropertiesModal,
   setFileProperties,
   setOpenCompress,
+  setOpenConvert,
   deleteContent,
   onClick,
   dropItemsOnPanel,
@@ -179,12 +181,15 @@ export function FileBrowserItem({
   }
 
   const viewCompress = () => {
-    if (item.isFolder) {
-      //todo: add folder compress
-    } else {
-      setFileProperties(item)
-      setOpenCompress(true)
-    }
+    setFileProperties(item)
+    setOpenCompress(true)
+
+    handleClose()
+  }
+
+  const viewConvert = () => {
+    setFileProperties(item)
+    setOpenConvert(true)
 
     handleClose()
   }
@@ -258,6 +263,7 @@ export function FileBrowserItem({
           <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
           <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>
           <MenuItem onClick={viewCompress}>{t('editor:layout.filebrowser.compress')}</MenuItem>
+          <MenuItem onClick={viewConvert}>{t('editor:layout.filebrowser.convert')}</MenuItem>
         </ContextMenu>
       </div>
     </div>

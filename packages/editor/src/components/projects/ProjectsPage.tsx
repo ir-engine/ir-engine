@@ -216,7 +216,7 @@ const ProjectsPage = () => {
   }
 
   useEffect(() => {
-    initSystems(Engine.instance.currentWorld, [ProjectUpdateSystemInjection])
+    initSystems([ProjectUpdateSystemInjection])
   }, [])
 
   useEffect(() => {

@@ -4,8 +4,10 @@ import { resolveUser } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -20,10 +22,11 @@ export const userPatched = (params) => {
   const selfUser = accessAuthState().user
   const userState = accessNetworkUserState()
   const patchedUser = resolveUser(params.userRelationship)
+  const worldHostID = getState(NetworkState).hostIds.world
 
   logger.info('Resolved patched user %o', patchedUser)
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[patchedUser.id].set(patchedUser.name)
 
   if (selfUser.id.value === patchedUser.id) {
@@ -36,14 +39,10 @@ export const userPatched = (params) => {
     //   setRelationship('party', user.partyId);
     // }
     if (patchedUser.instanceId !== selfUser.instanceId.value) {
-      if (
-        Engine.instance.currentWorld.hostIds.world.value &&
-        patchedUser.instanceId &&
-        Engine.instance.currentWorld.hostIds.world.value !== patchedUser.instanceId
-      ) {
+      if (worldHostID && patchedUser.instanceId && worldHostID !== patchedUser.instanceId) {
         dispatchAction(
           LocationInstanceConnectionAction.changeActiveConnectionHostId({
-            currentInstanceId: Engine.instance.currentWorld.hostIds.world.value,
+            currentInstanceId: worldHostID,
             newInstanceId: patchedUser.instanceId as UserId
           })
         )
@@ -56,12 +55,12 @@ export const userPatched = (params) => {
       dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: patchedUser }))
     if (!isLayerUser && patchedUser.instanceId === selfUser.instanceId.value) {
       dispatchAction(NetworkUserAction.addedLayerUserAction({ user: patchedUser }))
-      !Engine.instance.isEditor &&
+      !getMutableState(EngineState).isEditor.value &&
         NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.joined')}`, { variant: 'default' })
     }
     if (isLayerUser && patchedUser.instanceId !== selfUser.instanceId.value) {
       dispatchAction(NetworkUserAction.removedLayerUserAction({ user: patchedUser }))
-      !Engine.instance.isEditor &&
+      !getMutableState(EngineState).isEditor.value &&
         NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.left')}`, { variant: 'default' })
     }
     if (patchedUser.channelInstanceId !== selfUser.channelInstanceId.value)

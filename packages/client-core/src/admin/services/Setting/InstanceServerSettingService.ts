@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { InstanceServerSetting } from '@etherealengine/common/src/interfaces/InstanceServerSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -18,7 +18,7 @@ const AdminInstanceServerSettingsState = defineState({
 const fetchedInstanceServerReceptor = (
   action: typeof InstanceServerSettingActions.fetchedInstanceServer.matches._TYPE
 ) => {
-  const state = getState(AdminInstanceServerSettingsState)
+  const state = getMutableState(AdminInstanceServerSettingsState)
   return state.merge({ instanceserver: action.instanceServerSettings.data, updateNeeded: false })
 }
 
@@ -26,7 +26,7 @@ export const AdminInstanceServerReceptors = {
   fetchedInstanceServerReceptor
 }
 
-export const accessInstanceServerSettingState = () => getState(AdminInstanceServerSettingsState)
+export const accessInstanceServerSettingState = () => getMutableState(AdminInstanceServerSettingsState)
 
 export const useInstanceServerSettingState = () => useState(accessInstanceServerSettingState())
 

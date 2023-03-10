@@ -15,6 +15,7 @@ import { EquippedComponent } from '../../src/interaction/components/EquippedComp
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { equipperQueryExit } from '../../src/interaction/systems/EquippableSystem'
+import { Network } from '../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
 import { addObjectToGroup } from '../../src/scene/components/GroupComponent'
@@ -26,17 +27,15 @@ describe.skip('Equippables Integration Tests', () => {
     createEngine()
     createMockNetwork()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
   })
 
   it('Can equip and unequip', async () => {
-    const world = Engine.instance.currentWorld
-
     const hostUserId = 'world' as UserId & PeerID
-    world.worldNetwork.hostId = hostUserId
+    ;(Engine.instance.worldNetwork as Network).hostId = hostUserId
     const hostIndex = 0
 
-    world.worldNetwork.peers.set(hostUserId, {
+    Engine.instance.worldNetwork.peers.set(hostUserId, {
       peerID: hostUserId,
       peerIndex: hostIndex,
       userId: hostUserId,
@@ -64,12 +63,12 @@ describe.skip('Equippables Integration Tests', () => {
     mesh.userData = bodyOptions
 
     addObjectToGroup(equippableEntity, mesh)
-    Physics.createRigidBodyForGroup(equippableEntity, world.physicsWorld, bodyOptions)
+    Physics.createRigidBodyForGroup(equippableEntity, Engine.instance.physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
     addComponent(equippableEntity, NetworkObjectComponent, {
-      ownerId: world.worldNetwork.hostId,
-      authorityPeerID: world.worldNetwork.peerID,
+      ownerId: Engine.instance.worldNetwork.hostId,
+      authorityPeerID: Engine.instance.worldNetwork.peerID,
       networkId: 0 as NetworkId
     })
 
@@ -82,7 +81,7 @@ describe.skip('Equippables Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    clearOutgoingActions(world.worldNetwork.topic)
+    clearOutgoingActions(Engine.instance.worldNetwork.topic)
     applyIncomingActions()
 
     // equipperQueryEnter(equipperEntity)
@@ -97,7 +96,7 @@ describe.skip('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    clearOutgoingActions(world.worldNetwork.topic)
+    clearOutgoingActions(Engine.instance.worldNetwork.topic)
     applyIncomingActions()
 
     equipperQueryExit(equipperEntity)

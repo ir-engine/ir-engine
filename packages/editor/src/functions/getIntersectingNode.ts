@@ -39,7 +39,7 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
       return result
     }
 
-    if (obj && (obj as Object3D) !== Engine.instance.currentWorld.scene) {
+    if (obj && (obj as Object3D) !== Engine.instance.scene) {
       result.obj3d = obj
       result.node = obj.entity ?? obj.uuid
       //if(result.node && hasComponent(result.node.entity, GroupComponent))
@@ -54,14 +54,14 @@ export const getIntersectingNodeOnScreen = (
   raycaster: Raycaster,
   coord: Vector2,
   target: Intersection<Object3D>[] = [],
-  camera: Camera = Engine.instance.currentWorld.camera,
+  camera: Camera = Engine.instance.camera,
   object?: Object3D,
   recursive: boolean = true
 ): RaycastIntersectionNode | undefined => {
   raycaster.setFromCamera(coord, camera)
   raycaster.layers.enable(ObjectLayers.NodeHelper)
   raycaster.intersectObject<Object3DWithEntity>(
-    object ?? Engine.instance.currentWorld.scene,
+    object ?? Engine.instance.scene,
     recursive,
     target as Intersection<Object3DWithEntity>[]
   )

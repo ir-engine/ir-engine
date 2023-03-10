@@ -1,7 +1,7 @@
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
@@ -79,7 +79,9 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 export const loadAvatarForUser = async (
   entity: Entity,
   avatarURL: string,
-  loadingEffect = getState(EngineState).avatarLoadingEffect.value && !getState(XRState).sessionActive.value && !iOS
+  loadingEffect = getMutableState(EngineState).avatarLoadingEffect.value &&
+    !getMutableState(XRState).sessionActive.value &&
+    !iOS
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     return

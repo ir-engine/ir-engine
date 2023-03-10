@@ -4,7 +4,7 @@ import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
@@ -17,17 +17,23 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  readRotation,
+  TransformSerialization,
+  writePosition,
+  writeRotation,
+  writeTransform
+} from '../../transform/TransformSerialization'
+import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { readCompressedVector3, readRotation } from './DataReader'
+import { NetworkState } from '../NetworkState'
+import { readCompressedVector3 } from './DataReader'
 import {
   createDataWriter,
   writeComponent,
   writeCompressedVector3,
   writeEntities,
   writeEntity,
-  writePosition,
-  writeRotation,
-  writeTransform,
   writeVector3
   // writeXRHands
 } from './DataWriter'
@@ -45,12 +51,16 @@ describe('DataWriter', () => {
   before(() => {
     createEngine()
     createMockNetwork()
+    getMutableState(NetworkState).networkSchema['ee.core.transform'].set({
+      read: TransformSerialization.readTransform,
+      write: TransformSerialization.writeTransform
+    })
   })
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
     const entity = 42 as Entity
-    const engineState = getState(EngineState)
+    const engineState = getMutableState(EngineState)
     engineState.fixedTick.set(1)
 
     const [x, y, z] = [1.5, 2.5, 3.5]
@@ -362,7 +372,7 @@ describe('DataWriter', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    writeEntity(writeView, networkId, entity)
+    writeEntity(writeView, networkId, entity, Object.values(getState(NetworkState).networkSchema))
 
     const readView = createViewCursor(writeView.buffer)
 
@@ -485,7 +495,6 @@ describe('DataWriter', () => {
   })
 
   it('should createDataWriter', () => {
-    const world = Engine.instance.currentWorld
     const peerID = 'peerID' as PeerID
 
     const write = createDataWriter()
@@ -522,8 +531,8 @@ describe('DataWriter', () => {
       })
     })
 
-    const network = Engine.instance.currentWorld.worldNetwork
-    const packet = write(world, network, Engine.instance.userId, peerID, entities)
+    const network = Engine.instance.worldNetwork as Network
+    const packet = write(network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =
       4 * Uint32Array.BYTES_PER_ELEMENT +

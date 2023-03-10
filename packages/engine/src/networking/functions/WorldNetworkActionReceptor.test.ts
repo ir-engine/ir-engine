@@ -13,7 +13,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
-import { NetworkTopics } from '../classes/Network'
+import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
 import WorldNetworkActionSystem from '../systems/WorldNetworkActionSystem'
@@ -26,7 +26,7 @@ describe('WorldNetworkActionReceptors', () => {
     createEngine()
     createMockNetwork()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
   })
 
   describe('spawnObject', () => {
@@ -37,32 +37,30 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userId = userId
-      const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host', world)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
       WorldNetworkActionReceptor.receiveSpawnObject(
         WorldNetworkAction.spawnObject({
-          $from: world.worldNetwork.hostId, // from  host
+          $from: Engine.instance.worldNetwork.hostId, // from  host
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: network.peerID
-        }),
-        world
+        })
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntities = networkObjectQuery(world)
-      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+      const networkObjectEntities = networkObjectQuery()
+      const networkObjectOwnedEntities = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
@@ -80,12 +78,11 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
 
-      const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID2
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host', world)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objParams = 123
       const objNetId = 3 as NetworkId
@@ -103,8 +100,8 @@ describe('WorldNetworkActionReceptors', () => {
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntities = networkObjectQuery(world)
-      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+      const networkObjectEntities = networkObjectQuery()
+      const networkObjectOwnedEntities = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 1)
@@ -123,13 +120,12 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID3 = 'peer id 3' as PeerID
 
       Engine.instance.userId = userId
-      const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world', world)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
-      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name')
 
       const objParams = {
         position: new Vector3(),
@@ -145,15 +141,14 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world
-        }),
-        world
+        })
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntities = networkObjectQuery(world)
-      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+      const networkObjectEntities = networkObjectQuery()
+      const networkObjectOwnedEntities = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
@@ -168,11 +163,10 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID = 'peer id' as PeerID
 
       Engine.instance.userId = userId
-      const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
       const action = WorldNetworkAction.spawnAvatar({
         networkId: 42 as NetworkId,
@@ -181,7 +175,7 @@ describe('WorldNetworkActionReceptors', () => {
       WorldNetworkActionReceptor.receiveSpawnObject(action)
       spawnAvatarReceptor(action)
 
-      const entity = world.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+      const entity = Engine.instance.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
 
       assert.equal(getComponent(entity, NetworkObjectComponent).networkId, 42)
       assert.equal(getComponent(entity, NetworkObjectComponent).authorityPeerID, peerID)
@@ -200,12 +194,11 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
 
-      const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host', world)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
@@ -222,8 +215,8 @@ describe('WorldNetworkActionReceptors', () => {
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntitiesBefore = networkObjectQuery(world)
-      const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery(world)
+      const networkObjectEntitiesBefore = networkObjectQuery()
+      const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntitiesBefore.length, 1)
       assert.equal(networkObjectOwnedEntitiesBefore.length, 0)
@@ -247,8 +240,8 @@ describe('WorldNetworkActionReceptors', () => {
 
       system.execute()
 
-      const networkObjectEntitiesAfter = networkObjectQuery(world)
-      const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery(world)
+      const networkObjectEntitiesAfter = networkObjectQuery()
+      const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntitiesAfter.length, 1)
       assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
@@ -266,12 +259,11 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
 
-      const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+      const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host', world)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name', world)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
@@ -288,8 +280,8 @@ describe('WorldNetworkActionReceptors', () => {
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntitiesBefore = networkObjectQuery(world)
-      const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery(world)
+      const networkObjectEntitiesBefore = networkObjectQuery()
+      const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntitiesBefore.length, 1)
       assert.equal(networkObjectOwnedEntitiesBefore.length, 0)
@@ -313,8 +305,8 @@ describe('WorldNetworkActionReceptors', () => {
 
       system.execute()
 
-      const networkObjectEntitiesAfter = networkObjectQuery(world)
-      const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery(world)
+      const networkObjectEntitiesAfter = networkObjectQuery()
+      const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntitiesAfter.length, 1)
       assert.equal(networkObjectOwnedEntitiesAfter.length, 0)

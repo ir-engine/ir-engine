@@ -34,7 +34,6 @@ export const LoadVolumeComponent = defineComponent({
   },
   onSet: (entity, component, json) => {
     if (!json) return
-    const world = Engine.instance.currentWorld
 
     if ((matches.object as Validator<unknown, Record<EntityUUID, LoadVolumeTarget>>).test(json.targets)) {
       component.targets.set(json.targets)

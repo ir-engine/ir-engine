@@ -5,7 +5,9 @@ import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
-import { ControlledStringInput, StringInputProp } from './StringInput'
+import { ControlledStringInput, StringInputProps } from './StringInput'
+
+export type FileBrowserInputProps = StringInputProps & { acceptFileTypes: string[]; acceptDropItems: string[] }
 
 /**
  * Function component used for rendering FileBrowserInput.
@@ -16,10 +18,11 @@ import { ControlledStringInput, StringInputProp } from './StringInput'
  */
 export function FileBrowserInput({
   onChange,
+  value,
   acceptFileTypes,
   acceptDropItems,
   ...rest
-}: StringInputProp & { acceptFileTypes: string[]; acceptDropItems: string[] }) {
+}: FileBrowserInputProps) {
   const uploadOptions = {
     multiple: false,
     accepts: acceptFileTypes
@@ -62,6 +65,7 @@ export function FileBrowserInput({
     <>
       <ControlledStringInput
         ref={dropRef}
+        value={value}
         onChange={(value, e) => onChange?.(value, {}, e)}
         error={isOver && !canDrop}
         canDrop={isOver && canDrop}

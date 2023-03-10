@@ -1,15 +1,13 @@
-import { createActionQueue, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
 import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
 
-export default async function PortalSystem(world: World) {
+export default async function PortalSystem() {
   const sceneLoadedQueue = createActionQueue(EngineActions.sceneLoaded.matches)
   const execute = () => {
-    if (sceneLoadedQueue().length && getState(EngineState).isTeleporting.value)
-      revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
+    if (sceneLoadedQueue().length && getMutableState(EngineState).isTeleporting.value)
+      revertAvatarToMovingStateFromTeleport()
   }
 
   const cleanup = async () => {

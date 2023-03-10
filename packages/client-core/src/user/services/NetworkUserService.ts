@@ -4,7 +4,15 @@ import { none } from '@hookstate/core'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -22,7 +30,7 @@ export const NetworkUserState = defineState({
 })
 
 export const NetworkUserServiceReceptor = (action) => {
-  const s = getState(NetworkUserState)
+  const s = getMutableState(NetworkUserState)
   matches(action)
     .when(NetworkUserAction.clearLayerUsersAction.matches, () => {
       return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
@@ -79,7 +87,7 @@ export const NetworkUserServiceReceptor = (action) => {
     })
 }
 
-export const accessNetworkUserState = () => getState(NetworkUserState)
+export const accessNetworkUserState = () => getMutableState(NetworkUserState)
 export const useNetworkUserState = () => useState(accessNetworkUserState())
 
 //Service
@@ -89,13 +97,13 @@ export const NetworkUserService = {
       $limit: 1000,
       action: instance ? 'layer-users' : 'channel-users'
     } as any
-    if (!instance) query.channelInstanceId = Engine.instance.currentWorld.hostIds.media.value
-    else query.instanceId = Engine.instance.currentWorld.hostIds.world.value
+    if (!instance) query.channelInstanceId = getState(NetworkState).hostIds.media
+    else query.instanceId = getState(NetworkState).hostIds.world
     const layerUsers = (await API.instance.client.service('user').find({
       query: query
     })) as Paginated<UserInterface>
 
-    const state = getState(NetworkUserState)
+    const state = getMutableState(NetworkUserState)
 
     if (
       JSON.stringify(instance ? state.layerUsers.value : state.channelLayerUsers.value) !==

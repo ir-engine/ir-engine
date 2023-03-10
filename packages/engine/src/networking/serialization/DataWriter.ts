@@ -1,23 +1,25 @@
-import { Group } from 'three'
-
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarLeftArmIKComponent, AvatarRightArmIKComponent } from '../../avatar/components/AvatarIKComponents'
-import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { compress, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
+import { NetworkState } from '../NetworkState'
+import {
+  compress,
+  QUAT_MAX_RANGE,
+  QUAT_PRECISION_MULT,
+  SerializationSchema,
+  VEC3_MAX_RANGE,
+  VEC3_PRECISION_MULT
+} from './Utils'
 import { flatten, getVector4IndexBasedComponentValue, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
@@ -28,10 +30,7 @@ import {
   spaceUint32,
   spaceUint64,
   ViewCursor,
-  writeInt16,
   writePropIfChanged,
-  writeUint8,
-  writeUint16,
   writeUint32
 } from './ViewCursor'
 
@@ -221,154 +220,12 @@ export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writePosition = writeVector3(TransformComponent.position)
-export const writeRotation = writeCompressedRotation(TransformComponent.rotation)
-
-export const writeBodyPosition = writeVector3(RigidBodyComponent.position)
-export const writeBodyRotation = writeCompressedRotation(RigidBodyComponent.rotation)
-export const writeBodyLinearVelocity = writeVector3(RigidBodyComponent.linearVelocity)
-export const writeBodyAngularVelocity = writeVector3(RigidBodyComponent.angularVelocity)
-
-export const writeTransform = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, TransformComponent) || hasComponent(entity, RigidBodyComponent)) return
-
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint8(v)
-  let changeMask = 0
-  let b = 0
-
-  changeMask |= writePosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeRotation(v, entity) ? 1 << b++ : b++ && 0
-
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
-
-export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, RigidBodyComponent)) return
-
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint8(v)
-  let changeMask = 0
-  let b = 0
-
-  changeMask |= writeBodyPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyRotation(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
-
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
-
-export const writeXRHeadPosition = writeVector3(AvatarHeadIKComponent.target.position)
-export const writeXRHeadRotation = writeCompressedRotation(AvatarHeadIKComponent.target.rotation)
-
-export const writeXRControllerLeftPosition = writeVector3(AvatarLeftArmIKComponent.target.position)
-export const writeXRControllerLeftRotation = writeCompressedRotation(AvatarLeftArmIKComponent.target.rotation)
-
-export const writeXRControllerRightPosition = writeVector3(AvatarRightArmIKComponent.target.position)
-export const writeXRControllerRightRotation = writeCompressedRotation(AvatarRightArmIKComponent.target.rotation)
-
-export const writeXRHead = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, AvatarHeadIKComponent)) return
-
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint16(v)
-  let changeMask = 0
-  let b = 0
-
-  changeMask |= writeXRHeadPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRHeadRotation(v, entity) ? 1 << b++ : b++ && 0
-
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
-
-export const writeXRLeftHand = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, AvatarLeftArmIKComponent)) return
-
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint16(v)
-  let changeMask = 0
-  let b = 0
-
-  changeMask |= writeXRControllerLeftPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRControllerLeftRotation(v, entity) ? 1 << b++ : b++ && 0
-
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
-
-export const writeXRRightHand = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, AvatarRightArmIKComponent)) return
-
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint16(v)
-  let changeMask = 0
-  let b = 0
-
-  changeMask |= writeXRControllerRightPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRControllerRightRotation(v, entity) ? 1 << b++ : b++ && 0
-
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
-
-/**@deprecated */
-// export const writeXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness, bone: string[]) => {
-//   const rewind = rewindViewCursor(v)
-//   const writeChangeMask = spaceUint16(v)
-//   let changeMask = 0
-//   let b = 0
-
-//   bone.forEach((jointName) => {
-//     changeMask |= writeVector3(XRHandsInputComponent[handedness][jointName].position)(v, entity) ? 1 << b++ : b++ && 0
-//     changeMask |= writeCompressedRotation(XRHandsInputComponent[handedness][jointName].quaternion)(v, entity)
-//       ? 1 << b++
-//       : b++ && 0
-//   })
-
-//   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-// }
-
-/**@deprecated */
-// export const writeXRHandBones = (v: ViewCursor, entity: Entity, hand: Group) => {
-//   const rewind = rewindViewCursor(v)
-//   const writeChangeMask = spaceUint16(v)
-//   const writeHandedness = spaceUint8(v)
-//   let changeMask = 0
-//   let b = 0
-
-//   let handednessBitValue = 0
-
-//   // Only write if hand is connected.
-//   if (hand.userData.mesh) {
-//     const handMesh = hand.userData.mesh
-//     const handedness = handMesh.handedness
-//     handednessBitValue = handedness === 'left' ? 0 : 1
-
-//     XRHandBones.forEach((bone) => {
-//       changeMask |= writeXRHandBoneJoints(v, entity, handedness, bone) ? 1 << b++ : b++ && 0
-//     })
-//   }
-
-//   return (changeMask > 0 && writeChangeMask(changeMask) && writeHandedness(handednessBitValue)) || rewind()
-// }
-
-/**@deprecated */
-// export const writeXRHands = (v: ViewCursor, entity: Entity) => {
-//   if (!hasComponent(entity, XRHandsInputComponent)) return
-
-//   const rewind = rewindViewCursor(v)
-//   const writeChangeMask = spaceUint16(v)
-//   let changeMask = 0
-//   let b = 0
-
-//   const xrHandsComponent = getComponent(entity as Entity, XRHandsInputComponent)
-//   xrHandsComponent.hands.forEach((hand) => {
-//     changeMask |= writeXRHandBones(v, entity, hand) ? 1 << b++ : b++ && 0
-//   })
-
-//   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-// }
-
-export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity) => {
+export const writeEntity = (
+  v: ViewCursor,
+  networkId: NetworkId,
+  entity: Entity,
+  serializationSchema: SerializationSchema[]
+) => {
   const rewind = rewindViewCursor(v)
 
   const writeNetworkId = spaceUint32(v)
@@ -377,41 +234,40 @@ export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity)
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeTransform(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeRigidBody(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRHead(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRLeftHand(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeXRRightHand(v, entity) ? 1 << b++ : b++ && 0
-  // changeMask |= writeXRHands(v, entity) ? 1 << b++ : b++ && 0
+  for (const component of serializationSchema) {
+    changeMask |= component.write(v, entity) ? 1 << b++ : b++ && 0
+  }
 
   return (changeMask > 0 && writeNetworkId(networkId) && writeChangeMask(changeMask)) || rewind()
 }
 
 export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
+  const entitySchema = Object.values(getState(NetworkState).networkSchema)
+
   const writeCount = spaceUint32(v)
 
   let count = 0
   for (let i = 0, l = entities.length; i < l; i++) {
     const entity = entities[i]
     const networkId = NetworkObjectComponent.networkId[entity] as NetworkId
-    count += writeEntity(v, networkId, entity) ? 1 : 0
+    count += writeEntity(v, networkId, entity, entitySchema) ? 1 : 0
   }
 
   if (count > 0) writeCount(count)
   else v.cursor = 0 // nothing written
 }
 
-export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID, world: World) => {
+export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID) => {
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
-  writeUint32(v, world.fixedTick)
+  writeUint32(v, Engine.instance.fixedTick)
 }
 
 export const createDataWriter = (size: number = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
-  return (world: World, network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
-    writeMetadata(view, network, userId, peerID, world)
+  return (network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
+    writeMetadata(view, network, userId, peerID)
     writeEntities(view, entities)
     return sliceViewCursor(view)
   }

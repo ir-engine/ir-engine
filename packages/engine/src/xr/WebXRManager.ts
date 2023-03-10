@@ -16,7 +16,7 @@ import {
   WebGLRenderTargetOptions
 } from 'three'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
@@ -71,8 +71,8 @@ export const XRRendererState = defineState({
 })
 
 export function createWebXRManager() {
-  const xrState = getState(XRState)
-  const xrRendererState = getState(XRRendererState)
+  const xrState = getMutableState(XRState)
+  const xrRendererState = getMutableState(XRRendererState)
 
   const scope = function () {}
 
@@ -226,7 +226,7 @@ export function createWebXRManager() {
   scope.updateCamera = function () {}
 
   scope.getCamera = function () {
-    return Engine.instance.currentWorld.camera
+    return Engine.instance.camera
   }
 
   scope.getFoveation = function () {

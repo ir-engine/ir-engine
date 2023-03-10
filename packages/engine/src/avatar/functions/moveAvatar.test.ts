@@ -2,7 +2,7 @@ import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -20,13 +20,13 @@ describe('moveAvatar function tests', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
     Engine.instance.userId = 'userId' as UserId
   })
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
-    const world = Engine.instance.currentWorld
-    const engineState = getState(EngineState)
+    const world = Engine.instance.currentScene
+    const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
@@ -35,10 +35,10 @@ describe('moveAvatar function tests', () => {
       rotation: new Quaternion()
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
 
     spawnAvatarReceptor(spawnAvatar)
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -58,8 +58,8 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
-    const world = Engine.instance.currentWorld
-    const engineState = getState(EngineState)
+    const world = Engine.instance.currentScene
+    const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
@@ -68,10 +68,10 @@ describe('moveAvatar function tests', () => {
       rotation: new Quaternion()
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
 
     spawnAvatarReceptor(spawnAvatar)
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -90,12 +90,12 @@ describe('moveAvatar function tests', () => {
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
     Engine.instance.userId = 'user' as UserId
 
-    const world = Engine.instance.currentWorld
-    const engineState = getState(EngineState)
+    const world = Engine.instance.currentScene
+    const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     /* mock */
-    world.physicsWorld.timestep = 1 / 2
+    Engine.instance.physicsWorld.timestep = 1 / 2
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
@@ -103,10 +103,10 @@ describe('moveAvatar function tests', () => {
       rotation: new Quaternion()
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
 
     spawnAvatarReceptor(spawnAvatar)
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -125,8 +125,8 @@ describe('moveAvatar function tests', () => {
   it('should not allow velocity to breach a full unit through multiple frames', () => {
     Engine.instance.userId = 'user' as UserId
 
-    const world = Engine.instance.currentWorld
-    const engineState = getState(EngineState)
+    const world = Engine.instance.currentScene
+    const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
@@ -135,10 +135,10 @@ describe('moveAvatar function tests', () => {
       rotation: new Quaternion()
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar, world)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
 
     spawnAvatarReceptor(spawnAvatar)
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
@@ -150,15 +150,15 @@ describe('moveAvatar function tests', () => {
 
     /* run */
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
-    Engine.instance.currentWorld.physicsWorld.step()
+    Engine.instance.physicsWorld.step()
     applyGamepadInput(entity)
 
     /* assert */

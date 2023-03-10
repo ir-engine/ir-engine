@@ -4,6 +4,7 @@ import { ModelFileTypes } from '@etherealengine/engine/src/assets/constants/file
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
+import { StringInputProps } from './StringInput'
 
 /**
  * ModelInput used to render component view for script inputs.
@@ -12,7 +13,7 @@ import FileBrowserInput from './FileBrowserInput'
  * @param       {any} rest
  * @constructor
  */
-export function ModelInput({ onChange, ...rest }) {
+export function ModelInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={ModelFileTypes}

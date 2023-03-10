@@ -76,7 +76,7 @@ export const getClientSetting = async () => {
       }) || {
         logo: './logo.svg',
         title: 'Ethereal Engine',
-        url: 'https://local.etherealengine.com',
+        url: 'https://local.etherealengine.org',
         releaseName: 'local',
         siteDescription: 'Connected Worlds for Everyone',
         favicon32px: '/favicon-32x32.png',

@@ -6,7 +6,7 @@ import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/De
 import { ButtonTypes } from '@etherealengine/engine/src/input/InputState'
 import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { useIsHeadset } from '@etherealengine/engine/src/xr/XRState'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { AppState } from '../../services/AppService'
@@ -54,9 +54,9 @@ const buttonsConfig: Array<{ button: ButtonTypes; label: string }> = [
 ]
 
 export const TouchGamepad = () => {
-  const interactState = useHookstate(getState(InteractState))
+  const interactState = useHookstate(getMutableState(InteractState))
   const availableInteractable = interactState.available.value?.[0]
-  const appState = useHookstate(getState(AppState))
+  const appState = useHookstate(getMutableState(AppState))
   const isHeadset = useIsHeadset()
 
   if (!isTouchAvailable || isHeadset || !appState.showTouchPad.value) return <></>

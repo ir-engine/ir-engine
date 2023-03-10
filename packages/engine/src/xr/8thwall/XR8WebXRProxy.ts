@@ -1,6 +1,6 @@
 import { EventDispatcher, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { V_111 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -21,7 +21,7 @@ export class XRView {
 
   constructor(transform: XRRigidTransform) {
     this.transform = transform
-    const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+    const camera = Engine.instance.camera as PerspectiveCamera
     this.projectionMatrix = camera.projectionMatrix.toArray()
   }
 }
@@ -176,7 +176,7 @@ export class XRFrameProxy {
   }
 
   get session() {
-    return getState(XRState).session.value
+    return getMutableState(XRState).session.value
   }
 
   getPose(space: XRSpace, baseSpace: XRSpace) {
@@ -186,8 +186,6 @@ export class XRFrameProxy {
   }
 
   getViewerPose(space: XRReferenceSpace) {
-    return new XRViewerPose(
-      new XRRigidTransform(Engine.instance.currentWorld.camera.position, Engine.instance.currentWorld.camera.quaternion)
-    )
+    return new XRViewerPose(new XRRigidTransform(Engine.instance.camera.position, Engine.instance.camera.quaternion))
   }
 }

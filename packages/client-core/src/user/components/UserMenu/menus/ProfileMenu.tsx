@@ -20,7 +20,7 @@ import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/c
 // import { requestVcForEvent, vpRequestQuery } from '@etherealengine/common/src/credentials/credentials'
 import multiLogger from '@etherealengine/common/src/logger'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 import Icon from '@etherealengine/ui/src/Icon'
@@ -70,7 +70,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   useEffect(() => {
     if (authSetting) {

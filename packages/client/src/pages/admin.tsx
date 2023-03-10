@@ -1,9 +1,8 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
-import { BrowserRouter, useLocation } from 'react-router-dom'
+import React, { lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
-import AdminRoutes from '@etherealengine/client-core/src/admin/adminRoutes'
 import {
   ClientSettingService,
   useClientSettingState
@@ -22,6 +21,8 @@ import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjectio
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
+import AdminRouterComp from '../route/admin'
+
 import './styles.scss'
 
 import {
@@ -29,6 +30,7 @@ import {
   useCoilSettingState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
+import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
@@ -50,7 +52,7 @@ import Debug from '@etherealengine/client-core/src/components/Debug'
 import config from '@etherealengine/common/src/config'
 import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -62,13 +64,13 @@ declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
-const App = (): any => {
+const AdminPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useAuthState()
   const selfUser = authState.user
   const clientSettingState = useClientSettingState()
   const coilSettingState = useCoilSettingState()
-  const appTheme = useHookstate(getState(AppThemeState))
+  const appTheme = useHookstate(getMutableState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
   const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
@@ -90,6 +92,7 @@ const App = (): any => {
 
   useEffect(() => {
     const receptor = (action): any => {
+      // @ts-ignore
       matches(action).when(NotificationAction.notify.matches, (action) => {
         AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {
@@ -248,7 +251,7 @@ const App = (): any => {
               <UIDialog />
               <Debug />
             </div>
-            <AdminRoutes />
+            <AdminRouterComp />
             {projectComponents.map((Component, i) => (
               <Component key={i} />
             ))}
@@ -259,12 +262,4 @@ const App = (): any => {
   )
 }
 
-const AppPage = () => {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  )
-}
-
-export default AppPage
+export default AdminPage

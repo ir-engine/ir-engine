@@ -10,7 +10,7 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Chip from '@etherealengine/ui/src/Chip'
 
@@ -37,7 +37,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
   const authState = useAuthState()
   const selfId = authState.user.id?.value ?? ''
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
   const partyOwner = partyState.party?.partyUsers?.value
     ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
     : null

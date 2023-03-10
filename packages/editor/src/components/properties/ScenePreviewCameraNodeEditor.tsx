@@ -23,7 +23,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onSetFromViewport = () => {
-    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const transform = getComponent(props.entity, LocalTransformComponent)
     transform.position.copy(position)
     transform.rotation.copy(rotation)

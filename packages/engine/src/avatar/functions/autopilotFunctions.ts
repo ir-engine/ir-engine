@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
 import { Vector3 } from 'three'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -31,15 +31,14 @@ const autopilotRaycastArgs = {
 
 export const autopilotSetPosition = (entity: Entity) => {
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
-  const markerState = getState(AutopilotMarker)
+  const markerState = getMutableState(AutopilotMarker)
   if (avatarControllerComponent.gamepadLocalInput.lengthSq() > 0) return
 
-  const physicsWorld = Engine.instance.currentWorld.physicsWorld
-  const world = Engine.instance.currentWorld
+  const physicsWorld = Engine.instance.physicsWorld
 
   const castedRay = Physics.castRayFromCamera(
-    world.camera,
-    world.pointerState.position,
+    Engine.instance.camera,
+    Engine.instance.pointerState.position,
     physicsWorld,
     autopilotRaycastArgs
   )
@@ -65,30 +64,30 @@ export const AutopilotMarker = defineState({
 })
 
 const setupMarker = () => {
-  const markerState = getState(AutopilotMarker)
+  const markerState = getMutableState(AutopilotMarker)
   const markerGeometry = new CylinderGeometry(0.175, 0.175, 0.05, 24, 1)
   const material = new MeshBasicMaterial({ color: '#FFF' })
   const mesh = new Mesh(markerGeometry, material)
   mesh.visible = false
-  Engine.instance.currentWorld.scene.add(mesh)
+  Engine.instance.scene.add(mesh)
   markerState.merge({ markerObject: mesh })
 }
 
 export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
-  const marker = getState(AutopilotMarker).markerObject.value!
-  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.currentWorld.elapsedSeconds))
+  const marker = getMutableState(AutopilotMarker).markerObject.value!
+  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.elapsedSeconds))
   marker.scale.set(scalePulse, 1, scalePulse)
   marker.updateMatrixWorld()
 }
 
 export async function placeMarker(rayNormal: Vector3) {
-  const markerState = getState(AutopilotMarker)
+  const markerState = getMutableState(AutopilotMarker)
 
   if (!markerState.walkTarget.value) return
 
   if (!markerState.markerObject.value) setupMarker()
 
-  const state = getState(AutopilotMarker)
+  const state = getMutableState(AutopilotMarker)
   const marker = state.markerObject.value!
   marker.visible = true
 
@@ -119,7 +118,7 @@ export const assessWalkability = (
 }
 
 export const clearWalkPoint = () => {
-  const markerState = getState(AutopilotMarker)
+  const markerState = getMutableState(AutopilotMarker)
   markerState.walkTarget.set(undefined)
   markerState.markerObject.value!.visible = false
 }

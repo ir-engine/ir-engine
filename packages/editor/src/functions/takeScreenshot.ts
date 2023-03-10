@@ -48,10 +48,10 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     const entity = createEntity()
     addComponent(entity, ScenePreviewCameraComponent, null)
     scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
-    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
     setTransformComponent(entity, position, rotation)
     addObjectToGroup(entity, scenePreviewCamera)
-    addEntityNodeChild(entity, Engine.instance.currentWorld.sceneEntity)
+    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
     scenePreviewCamera.updateMatrixWorld(true)
   }
 
@@ -64,12 +64,12 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   // Rendering the scene to the new canvas with given size
-  if (getPostProcessingSceneMetadataState(Engine.instance.currentWorld).enabled.value) {
+  if (getPostProcessingSceneMetadataState(Engine.instance.currentScene).enabled.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.render()
-    configureEffectComposer(false, Engine.instance.currentWorld.camera)
+    configureEffectComposer(false, Engine.instance.camera)
   } else {
-    EngineRenderer.instance.renderer.render(Engine.instance.currentWorld.scene, scenePreviewCamera)
+    EngineRenderer.instance.renderer.render(Engine.instance.scene, scenePreviewCamera)
   }
   const blob = await getCanvasBlob(getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height))
 

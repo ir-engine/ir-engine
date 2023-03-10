@@ -13,7 +13,7 @@ export async function bakeLightmaps(
   props: WorkbenchSettings,
   requestWork: () => Promise<WebGLRenderer>
 ) {
-  const scene = Engine.instance.currentWorld.scene
+  const scene = Engine.instance.scene
   iterateObject3D(
     scene,
     (child: Mesh) => {

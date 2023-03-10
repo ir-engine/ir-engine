@@ -1,6 +1,6 @@
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
-import { World } from '../ecs/classes/World'
+import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent, getComponentState, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import {
@@ -9,9 +9,9 @@ import {
   SCENE_COMPONENT_PERSISTENT_ANCHOR
 } from './XRAnchorComponents'
 
-export async function VPSSystem(world: World) {
-  world.sceneComponentRegistry.set(PersistentAnchorComponent.name, SCENE_COMPONENT_PERSISTENT_ANCHOR)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSISTENT_ANCHOR, {
+export async function VPSSystem() {
+  Engine.instance.sceneComponentRegistry.set(PersistentAnchorComponent.name, SCENE_COMPONENT_PERSISTENT_ANCHOR)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSISTENT_ANCHOR, {
     defaultData: {}
   })
 
@@ -55,12 +55,12 @@ export async function VPSSystem(world: World) {
   }
 
   const cleanup = async () => {
-    world.sceneComponentRegistry.delete(PersistentAnchorComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PERSISTENT_ANCHOR)
+    Engine.instance.sceneComponentRegistry.delete(PersistentAnchorComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PERSISTENT_ANCHOR)
     removeActionQueue(vpsAnchorFoundQueue)
     removeActionQueue(vpsAnchorUpdatedQueue)
     removeActionQueue(vpsAnchorLostQueue)
-    removeQuery(world, vpsAnchorQuery)
+    removeQuery(vpsAnchorQuery)
   }
 
   return { execute, cleanup, subsystems: [] }

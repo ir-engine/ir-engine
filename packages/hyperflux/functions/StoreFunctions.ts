@@ -30,7 +30,12 @@ export interface HyperStore {
   /**
    * State dictionary
    */
-  state: { [type: string]: State<any> }
+  stateMap: { [type: string]: State<any> }
+  /**
+   * Underlying non-reactive states
+   */
+  valueMap: { [type: string]: any }
+
   actions: {
     /** */
     queues: Map<Validator<any, any>, Array<Array<ResolvedActionType>>>
@@ -75,7 +80,8 @@ export function createHyperStore(options: {
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
-    state: {},
+    stateMap: {},
+    valueMap: {},
     actions: {
       queues: new Map(),
       cached: [],
@@ -87,7 +93,7 @@ export function createHyperStore(options: {
     receptors: [],
     reactors: new WeakMap(),
     toJSON: () => {
-      const state = Object.entries(store.state).reduce((obj, [name, state]) => {
+      const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
         return merge(obj, { [name]: state.attach(Downgraded).value })
       }, {})
       return {

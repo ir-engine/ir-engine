@@ -20,7 +20,7 @@ export default async function bakeToVertices<T extends Material>(
   material: T,
   colors: (keyof T)[],
   maps: { field: keyof T; attribName: string }[],
-  root: Object3D = Engine.instance.currentWorld.scene,
+  root: Object3D = Engine.instance.scene,
   nuPrototype: string = 'MeshMatcapMaterial'
 ) {
   const pending = new Array<Promise<void>>()

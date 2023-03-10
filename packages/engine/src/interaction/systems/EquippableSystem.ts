@@ -5,7 +5,7 @@ import { Quaternion, Vector3 } from 'three'
 import {
   createActionQueue,
   dispatchAction,
-  getState,
+  getMutableState,
   removeActionQueue,
   startReactor,
   useHookstate
@@ -16,7 +16,6 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -42,13 +41,10 @@ import { changeHand, equipEntity, unequipEntity } from '../functions/equippableF
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
 
-export function setEquippedObjectReceptor(
-  action: ReturnType<typeof WorldNetworkAction.setEquippedObject>,
-  world = Engine.instance.currentWorld
-) {
-  const equippedEntity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
+export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetworkAction.setEquippedObject>) {
+  const equippedEntity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
   if (action.$from === Engine.instance.userId) {
-    const equipperEntity = world.localClientEntity
+    const equipperEntity = Engine.instance.localClientEntity
     addComponent(equipperEntity, EquipperComponent, { equippedEntity })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint: action.attachmentPoint })
   }
@@ -73,11 +69,10 @@ export function setEquippedObjectReceptor(
 }
 
 export function transferAuthorityOfObjectReceptor(
-  action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>,
-  world = Engine.instance.currentWorld
+  action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
-  if (action.newAuthority !== world.worldNetwork?.peerID) return
-  const equippableEntity = world.getNetworkObject(action.ownerId, action.networkId)!
+  if (action.newAuthority !== Engine.instance.worldNetwork?.peerID) return
+  const equippableEntity = Engine.instance.getNetworkObject(action.ownerId, action.networkId)!
   if (hasComponent(equippableEntity, EquippableComponent)) {
     dispatchAction(
       WorldNetworkAction.setEquippedObject({
@@ -94,7 +89,7 @@ export function transferAuthorityOfObjectReceptor(
 }
 
 // since equippables are all client authoritative, we don't need to recompute this for all users
-export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance.currentWorld) {
+export function equipperQueryAll(equipperEntity: Entity) {
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   const equippedEntity = equipperComponent.equippedEntity
   if (!equippedEntity) return
@@ -109,7 +104,7 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
   target.getWorldQuaternion(equippableTransform.rotation)
 }
 
-export function equipperQueryExit(entity: Entity, world = Engine.instance.currentWorld) {
+export function equipperQueryExit(entity: Entity) {
   // const equipperComponent = getComponent(entity, EquipperComponent, true)
   // const equippedEntity = equipperComponent.equippedEntity
   // removeComponent(equippedEntity, EquippedComponent)
@@ -118,10 +113,9 @@ export function equipperQueryExit(entity: Entity, world = Engine.instance.curren
 const vec3 = new Vector3()
 
 // export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-//   const world = Engine.instance.currentWorld
-
+//
 //   const transform = getComponent(xrui.entity, TransformComponent)
-//   if (!transform || !hasComponent(world.localClientEntity, TransformComponent)) return
+//   if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
 //   transform.position.copy(getComponent(entity, TransformComponent).position)
 //   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
 //   transform.position.y += 1
@@ -133,7 +127,7 @@ const vec3 = new Vector3()
 //       transition.setState('OUT')
 //     }
 //   } else {
-//     getAvatarBoneWorldPosition(world.localClientEntity, 'Hips', vec3)
+//     getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
 //     const distance = vec3.distanceToSquared(transform.position)
 //     const inRange = distance < 5
 //     if (transition.state === 'OUT' && inRange) {
@@ -156,9 +150,9 @@ const vec3 = new Vector3()
  */
 export const equippableInteractMessage = 'Equip'
 
-export default async function EquippableSystem(world: World) {
-  world.sceneComponentRegistry.set(EquippableComponent.name, SCENE_COMPONENT_EQUIPPABLE)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {})
+export default async function EquippableSystem() {
+  Engine.instance.sceneComponentRegistry.set(EquippableComponent.name, SCENE_COMPONENT_EQUIPPABLE)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {})
 
   const interactedActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
@@ -177,14 +171,14 @@ export default async function EquippableSystem(world: World) {
   }
 
   const execute = () => {
-    const keys = world.buttons
+    const keys = Engine.instance.buttons
     if (keys.KeyU?.down) onKeyU()
 
     for (const action of interactedActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
       if (!hasComponent(action.targetEntity!, EquippableComponent)) continue
 
-      const avatarEntity = Engine.instance.currentWorld.localClientEntity
+      const avatarEntity = Engine.instance.localClientEntity
 
       const equipperComponent = getComponent(avatarEntity, EquipperComponent)
       if (equipperComponent?.equippedEntity) {
@@ -209,7 +203,7 @@ export default async function EquippableSystem(world: World) {
      */
     for (const entity of equippableQuery.enter()) {
       if (isClient) addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
-      if (Engine.instance.currentWorld.worldNetwork?.isHosting) {
+      if (Engine.instance.worldNetwork?.isHosting) {
         const objectUuid = getComponent(entity, UUIDComponent)
         dispatchAction(WorldNetworkAction.registerSceneObject({ objectUuid }))
       }
@@ -220,24 +214,24 @@ export default async function EquippableSystem(world: World) {
     }
 
     for (const entity of equipperQuery()) {
-      equipperQueryAll(entity, world)
+      equipperQueryAll(entity)
     }
 
     for (const entity of equipperQuery.exit()) {
-      equipperQueryExit(entity, world)
+      equipperQueryExit(entity)
     }
   }
 
   const cleanup = async () => {
-    world.sceneComponentRegistry.delete(EquippableComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_EQUIPPABLE)
+    Engine.instance.sceneComponentRegistry.delete(EquippableComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_EQUIPPABLE)
 
     removeActionQueue(interactedActionQueue)
     removeActionQueue(transferAuthorityOfObjectQueue)
     removeActionQueue(setEquippedObjectQueue)
 
-    removeQuery(world, equipperQuery)
-    removeQuery(world, equippableQuery)
+    removeQuery(equipperQuery)
+    removeQuery(equippableQuery)
   }
 
   return { execute, cleanup }

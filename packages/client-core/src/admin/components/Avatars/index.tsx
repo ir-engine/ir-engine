@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AvatarClientModule } from '@etherealengine/engine/src/avatar/AvatarClientModule'
 import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { initSystems, unloadSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { RendererModule } from '@etherealengine/engine/src/renderer/RendererModule'
 import { SceneClientModule } from '@etherealengine/engine/src/scene/SceneClientModule'
 import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
 import { TransformModule } from '@etherealengine/engine/src/transform/TransformModule'
@@ -31,17 +31,15 @@ const Avatar = () => {
   useEffect(() => {
     const systems = [
       ...TransformModule(),
+      ...RendererModule(),
       ...SceneCommonModule(),
       ...SceneClientModule(),
       ...AvatarCommonModule(),
       ...AvatarClientModule()
     ]
-    initSystems(Engine.instance.currentWorld, systems)
+    initSystems(systems)
     return () => {
-      unloadSystems(
-        Engine.instance.currentWorld,
-        systems.map((s) => s.uuid)
-      )
+      unloadSystems(systems.map((s) => s.uuid))
     }
   }, [])
 

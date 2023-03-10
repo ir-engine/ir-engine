@@ -7,7 +7,6 @@ import { SceneObjectComponent } from '../../scene/components/SceneObjectComponen
 import { Engine } from '../classes/Engine'
 import { EngineActions } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
 import { removeEntityNodeRecursively } from '../functions/EntityTree'
 import { defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
@@ -15,7 +14,8 @@ import { unloadAllSystems } from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 
-export const unloadScene = async (world: World) => {
+export const unloadScene = async () => {
+  const world = Engine.instance.currentScene
   const entitiesToRemove = [] as Entity[]
   const sceneObjectsToRemove = [] as Object3D[]
 
@@ -23,7 +23,7 @@ export const unloadScene = async (world: World) => {
 
   removeEntityNodeRecursively(world.sceneEntity)
 
-  Engine.instance.currentWorld.scene.traverse((o: any) => {
+  Engine.instance.scene.traverse((o: any) => {
     if (!o.entity) return
     if (!entitiesToRemove.includes(o.entity)) return
 
@@ -44,9 +44,9 @@ export const unloadScene = async (world: World) => {
     sceneObjectsToRemove.push(o)
   })
 
-  for (const o of sceneObjectsToRemove) Engine.instance.currentWorld.scene.remove(o)
+  for (const o of sceneObjectsToRemove) Engine.instance.scene.remove(o)
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
-  await unloadAllSystems(world, true)
+  await unloadAllSystems(true)
   dispatchAction(EngineActions.sceneUnloaded({}))
 }
