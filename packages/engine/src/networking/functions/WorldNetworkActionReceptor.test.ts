@@ -192,7 +192,7 @@ describe('WorldNetworkActionReceptors', () => {
       const peerID = 'peer id' as PeerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.userId = userId
+      Engine.instance.userId = hostUserId // host being the action dispatcher
       const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
@@ -219,7 +219,7 @@ describe('WorldNetworkActionReceptors', () => {
       const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntitiesBefore.length, 1)
-      assert.equal(networkObjectOwnedEntitiesBefore.length, 0)
+      assert.equal(networkObjectOwnedEntitiesBefore.length, 1)
 
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).ownerId, hostUserId)
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
@@ -245,11 +245,77 @@ describe('WorldNetworkActionReceptors', () => {
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
 
       assert.equal(networkObjectEntitiesAfter.length, 1)
-      assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
+      assert.equal(networkObjectOwnedEntitiesAfter.length, 1)
 
       assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, hostUserId) // owner remains same
       assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID2) // peer has changed
-      assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
+      assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), true)
     })
+  })
+
+  it('should not transfer authority if it is not the owner', async () => {
+    const hostUserId = 'world' as UserId
+    const userId = 'user id' as UserId
+    const peerID = 'peer id' as PeerID
+    const peerID2 = 'peer id 2' as PeerID
+
+    Engine.instance.userId = userId // user being the action dispatcher
+    const network = Engine.instance.worldNetwork as Network
+    network.peerID = peerID
+
+    NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
+    NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+
+    const objNetId = 3 as NetworkId
+    const objPrefab = 'generic prefab'
+
+    WorldNetworkActionReceptor.receiveSpawnObject(
+      WorldNetworkAction.spawnObject({
+        $from: Engine.instance.worldNetwork.hostId, // from  host
+        prefab: objPrefab, // generic prefab
+        networkId: objNetId,
+        $topic: NetworkTopics.world,
+        $peer: network.peerID
+      })
+    )
+
+    const networkObjectQuery = defineQuery([NetworkObjectComponent])
+    const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
+
+    const networkObjectEntitiesBefore = networkObjectQuery()
+    const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery()
+
+    assert.equal(networkObjectEntitiesBefore.length, 1)
+    assert.equal(networkObjectOwnedEntitiesBefore.length, 0)
+
+    assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).ownerId, hostUserId)
+    assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
+
+    WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
+      WorldNetworkAction.requestAuthorityOverObject({
+        $from: userId, // from user
+        ownerId: hostUserId,
+        networkId: objNetId,
+        $topic: NetworkTopics.world,
+        newAuthority: peerID2
+      })
+    )
+
+    const system = await WorldNetworkActionSystem()
+
+    ActionFunctions.clearOutgoingActions(network.topic)
+    ActionFunctions.applyIncomingActions()
+
+    system.execute()
+
+    const networkObjectEntitiesAfter = networkObjectQuery()
+    const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
+
+    assert.equal(networkObjectEntitiesAfter.length, 1)
+    assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
+
+    assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, hostUserId) // owner remains same
+    assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID) // peer remains same
+    assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
   })
 })
