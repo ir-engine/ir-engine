@@ -86,8 +86,9 @@ export const NetworkUserServiceReceptor = (action) => {
       } else return s
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessNetworkUserState = () => getMutableState(NetworkUserState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useNetworkUserState = () => useState(accessNetworkUserState())
 
 //Service

@@ -65,9 +65,9 @@ export const AdminGroupServiceReceptors = {
   removeGroupActionReceptor,
   addAdminGroupReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminGroupState = () => getMutableState(AdminGroupState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminGroupState = () => useState(accessAdminGroupState())
 
 //Service

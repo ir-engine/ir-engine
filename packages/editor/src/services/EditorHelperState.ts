@@ -107,9 +107,9 @@ export const EditorHelperServiceReceptor = (action): any => {
       s.isGenerateThumbnailsEnabled.set(action.isGenerateThumbnailsEnabled)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessEditorHelperState = () => getMutableState(EditorHelperState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEditorHelperState = (() =>
   useHookstate(getMutableState(EditorHelperState))) as typeof accessEditorHelperState
 

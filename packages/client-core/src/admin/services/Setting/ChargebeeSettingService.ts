@@ -25,9 +25,9 @@ const chargebeeSettingRetrievedReceptor = (
 export const AdminChargebeeReceptors = {
   chargebeeSettingRetrievedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminChargebeeSettingState = () => getMutableState(AdminChargebeeSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminChargebeeSettingState = () => useState(accessAdminChargebeeSettingState())
 
 export const ChargebeeSettingService = {

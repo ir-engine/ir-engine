@@ -102,9 +102,9 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       s.instances[action.currentInstanceId].set(none)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessLocationInstanceConnectionState = () => getMutableState(LocationInstanceState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLocationInstanceConnectionState = () => useState(accessLocationInstanceConnectionState())
 
 //Service

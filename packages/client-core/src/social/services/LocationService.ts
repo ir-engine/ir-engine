@@ -94,8 +94,9 @@ export const LocationServiceReceptor = (action) => {
     })
 }
 
+/**@deprecated use getMutableState directly instead */
 export const accessLocationState = () => getMutableState(LocationState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLocationState = () => useState(accessLocationState())
 
 //Service

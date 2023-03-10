@@ -32,9 +32,9 @@ export const AppLoadingServiceReceptor = (action) => {
       })
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessLoadingState = () => getMutableState(AppLoadingState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLoadingState = () => useState(accessLoadingState())
 
 export class AppLoadingAction {

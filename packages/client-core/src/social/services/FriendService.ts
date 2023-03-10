@@ -48,9 +48,9 @@ export const FriendServiceReceptor = (action) => {
       return
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessFriendState = () => getMutableState(FriendState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useFriendState = () => useState(accessFriendState())
 
 //Service

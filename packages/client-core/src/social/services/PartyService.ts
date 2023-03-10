@@ -122,9 +122,9 @@ export const PartyServiceReceptors = {
   changedPartyReceptor,
   resetUpdateNeededReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessPartyState = () => getMutableState(PartyState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const usePartyState = () => useState(accessPartyState())
 
 //Service
