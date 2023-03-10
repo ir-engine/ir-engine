@@ -66,8 +66,6 @@ export const EnvMapBakeComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, EnvMapBakeComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const bake = useComponent(root.entity, EnvMapBakeComponent)
 

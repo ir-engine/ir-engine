@@ -44,7 +44,6 @@ export const PrefabComponent = defineComponent({
 
   reactor: function ({ root }: EntityReactorProps) {
     const entity = root.entity
-    if (!hasComponent(entity, PrefabComponent)) throw root.stop()
     const assembly = getComponent(entity, PrefabComponent)
     const assemblyState = useComponent(entity, PrefabComponent)
 

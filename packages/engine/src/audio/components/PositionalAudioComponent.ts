@@ -78,8 +78,6 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, PositionalAudioComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(root.entity, PositionalAudioComponent)
     const mediaElement = useComponent(root.entity, MediaElementComponent)

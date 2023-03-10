@@ -71,7 +71,6 @@ export const SCENE_COMPONENT_VIDEO = 'video'
 
 function VideoReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, VideoComponent)) throw root.stop()
 
   const video = useComponent(entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value ?? ''

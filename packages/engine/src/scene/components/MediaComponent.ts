@@ -197,8 +197,6 @@ export const MediaComponent = defineComponent({
 
 export function MediaReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, MediaComponent)) throw root.stop()
-
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
   const userHasInteracted = useHookstate(getMutableState(EngineState).userHasInteracted)

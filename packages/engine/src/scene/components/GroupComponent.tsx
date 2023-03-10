@@ -14,6 +14,7 @@ import {
   hasComponent,
   QueryComponents,
   removeComponent,
+  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
@@ -105,13 +106,10 @@ export const startGroupQueryReactor = (
 ) =>
   startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
     const entity = props.root.entity
-    // if (!hasComponent(entity, GroupComponent)) throw props.root.stop()
-
-    const groupComponent = useOptionalComponent(entity, GroupComponent)
-
+    const groupComponent = useComponent(entity, GroupComponent)
     return (
       <>
-        {groupComponent?.value?.map((obj, i) => (
+        {groupComponent.value.map((obj, i) => (
           <GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
         ))}
       </>

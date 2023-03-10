@@ -117,8 +117,6 @@ export const SCENE_COMPONENT_IMAGE = 'image'
 
 export function ImageReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, ImageComponent)) throw root.stop()
-
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
 

@@ -38,8 +38,6 @@ export const AmbientLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, AmbientLightComponent)) throw root.stop()
-
     const light = useComponent(root.entity, AmbientLightComponent)
 
     useEffect(() => {
