@@ -23,8 +23,9 @@ const fetchedTaskServersReceptor = (action: typeof AdminTaskServerSettingActions
 export const TaskServerSettingReceptors = {
   fetchedTaskServersReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessSettingTaskServerState = () => getMutableState(AdminTaskServerSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useSettingTaskServerState = () => useState(accessSettingTaskServerState())
 
 export const AdminSettingTaskServerService = {

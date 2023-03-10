@@ -81,9 +81,9 @@ export const ProjectUpdateReceptors = {
   setProjectUpdateFieldReceptor,
   mergeProjectUpdateFieldReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessProjectUpdateState = () => getMutableState(ProjectUpdateState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useProjectUpdateState = () => useState(accessProjectUpdateState())
 
 export const ProjectUpdateService = {

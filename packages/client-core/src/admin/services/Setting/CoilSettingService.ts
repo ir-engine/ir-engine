@@ -23,9 +23,9 @@ const fetchedCoilReceptor = (action: typeof AdminCoilSettingActions.fetchedCoil.
 export const CoilSettingReceptors = {
   fetchedCoilReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessCoilSettingState = () => getMutableState(AdminCoilSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useCoilSettingState = () => useState(accessCoilSettingState())
 
 export const AdminCoilSettingService = {

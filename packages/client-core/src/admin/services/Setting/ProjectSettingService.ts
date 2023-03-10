@@ -29,9 +29,9 @@ const projectSettingFetchedReceptor = (
 export const ProjectSettingReceptors = {
   projectSettingFetchedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessProjectSettingState = () => getMutableState(AdminProjectSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useProjectSettingState = () => useState(accessProjectSettingState())
 
 export const ProjectSettingService = {

@@ -31,9 +31,9 @@ const activeRoutesRetrievedReceptor = (action: typeof AdminActiveRouteActions.ac
 export const AdminActiveRouteReceptors = {
   activeRoutesRetrievedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminActiveRouteState = () => getMutableState(AdminActiveRouteState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminActiveRouteState = () => useState(accessAdminActiveRouteState())
 
 //Service

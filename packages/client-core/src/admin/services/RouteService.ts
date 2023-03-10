@@ -33,9 +33,9 @@ const installedRoutesRetrievedReceptor = (action: typeof AdminRouteActions.insta
 export const AdminRouteReceptors = {
   installedRoutesRetrievedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessRouteState = () => getMutableState(AdminRouteState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useRouteState = () => useState(accessRouteState())
 
 //Service

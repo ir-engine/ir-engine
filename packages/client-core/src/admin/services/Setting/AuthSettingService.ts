@@ -58,9 +58,9 @@ export const AuthSettingsServiceReceptor = (action) => {
 //   authSettingRetrievedReceptor,
 //   authSettingPatchedReceptor
 // }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAuthSettingState = () => getMutableState(AuthSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAuthSettingState = () => useState(accessAuthSettingState())
 
 export const AuthSettingsService = {

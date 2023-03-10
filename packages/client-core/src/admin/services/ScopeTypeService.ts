@@ -42,9 +42,9 @@ const getScopeTypesReceptor = (action: typeof AdminScopeTypeActions.getScopeType
 export const AdminScopeTypeReceptor = {
   getScopeTypesReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessScopeTypeState = () => getMutableState(AdminScopeTypeState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useScopeTypeState = () => useState(accessScopeTypeState())
 
 //Service

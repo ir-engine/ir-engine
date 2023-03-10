@@ -59,9 +59,9 @@ export const AdminPartyReceptors = {
   partyRemovedReceptor,
   partyPatchedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessPartyState = () => getMutableState(AdminPartyState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const usePartyState = () => useState(accessPartyState())
 
 //Service

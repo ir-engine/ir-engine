@@ -64,9 +64,9 @@ export const AdminAvatarReceptors = {
   avatarRemovedReceptor,
   avatarUpdatedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminAvatarState = () => getMutableState(AdminAvatarState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminAvatarState = () => useState(accessAdminAvatarState())
 
 //Service

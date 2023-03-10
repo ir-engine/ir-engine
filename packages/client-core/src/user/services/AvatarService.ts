@@ -42,9 +42,9 @@ export const AvatarServiceReceptor = (action) => {
       return s.avatarList[index].set(action.avatar)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAvatarState = () => getMutableState(AvatarState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAvatarService = () => useState(accessAvatarState())
 
 export const AvatarService = {
