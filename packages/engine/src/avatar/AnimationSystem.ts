@@ -42,7 +42,7 @@ export default async function AnimationSystem() {
 
     for (const entity of tweenQuery()) {
       const tween = getComponent(entity, TweenComponent)
-      tween.tween.update()
+      tween.update()
     }
 
     for (const entity of animationQuery()) {
