@@ -1,5 +1,6 @@
 import potpack, { PotpackBox } from 'potpack'
 import * as THREE from 'three'
+import { BufferAttribute, InterleavedBufferAttribute } from 'three'
 
 const tmpOrigin = new THREE.Vector3()
 const tmpU = new THREE.Vector3()
@@ -45,11 +46,11 @@ function findVertex(
 }
 
 function convertGeometryToIndexed(buffer: THREE.BufferGeometry) {
-  const posArray = buffer.attributes.position.array
+  const posArray = (buffer.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
   const posVertexCount = Math.floor(posArray.length / 3)
   const faceCount = Math.floor(posVertexCount / 3)
 
-  const normalArray = buffer.attributes.normal.array
+  const normalArray = (buffer.attributes.normal as BufferAttribute | InterleavedBufferAttribute).array
 
   // fill out a group index lookup to keep faces separate by material
   const origGroups = buffer.groups || []
@@ -167,8 +168,8 @@ export function computeAutoUV2Layout(
     const indexArray = indexAttr.array
     const faceCount = Math.floor(indexArray.length / 3)
 
-    const posArray = buffer.attributes.position.array
-    const normalArray = buffer.attributes.normal.array
+    const posArray = (buffer.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
+    const normalArray = (buffer.attributes.normal as BufferAttribute | InterleavedBufferAttribute).array
 
     const vertexBoxMap: (AutoUVBox | undefined)[] = new Array(posArray.length / 3)
 

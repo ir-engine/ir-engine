@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import React from 'react'
-import { BufferGeometry } from 'three'
+import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
 
 import { useHookstate } from '@etherealengine/hyperflux'
 
@@ -21,7 +21,7 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
         name: attribName,
         count: attrib.count,
         itemSize: attrib.itemSize,
-        normalized: attrib.normalized
+        normalized: (attrib as BufferAttribute | InterleavedBufferAttribute).normalized
       }))
     }),
     [updateGeo]
