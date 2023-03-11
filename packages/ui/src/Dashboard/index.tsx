@@ -4,7 +4,8 @@ import React, { useState } from 'react'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import { Views } from '@etherealengine/client-core/src/user/components/UserMenu/util'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import AppBar from '@etherealengine/ui/src/AppBar'
 import Box from '@etherealengine/ui/src/Box'
 import Drawer from '@etherealengine/ui/src/Drawer'
@@ -26,7 +27,7 @@ import styles from './index.module.scss'
  */
 
 const Dashboard = ({ children }) => {
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const theme = useTheme()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
   const [open, setOpen] = React.useState(false)
