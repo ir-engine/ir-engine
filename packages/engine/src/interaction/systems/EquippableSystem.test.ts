@@ -6,7 +6,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   ComponentType,
@@ -31,6 +31,10 @@ describe.skip('EquippableSystem Integration Tests', () => {
     createEngine()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('system test', async () => {

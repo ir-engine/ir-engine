@@ -256,6 +256,8 @@ export default async function PhysicsSystem() {
 
     removeQuery(allRigidBodyQuery)
     removeQuery(collisionQuery)
+    removeQuery(kinematicPositionBodyQuery)
+    removeQuery(kinematicVelocityBodyQuery)
 
     removeActionQueue(teleportObjectQueue)
     removeActionQueue(modifyPropertyActionQueue)

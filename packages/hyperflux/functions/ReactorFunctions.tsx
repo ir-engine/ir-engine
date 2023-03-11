@@ -8,6 +8,7 @@ import {
 } from 'react-reconciler/constants'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 const ReactorReconciler = Reconciler({
   getPublicInstance: (instance) => instance,
@@ -85,10 +86,12 @@ export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
   const reactorRoot = {
     fiber: fiberRoot,
     isRunning: false,
+    Reactor,
     run() {
       if (reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
+        Engine.instance.activeReactors.add(reactorRoot)
         ReactorReconciler.updateContainer(<Reactor root={reactorRoot} />, fiberRoot, null, () => resolve())
       })
     },
@@ -97,6 +100,7 @@ export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
       return Promise.resolve().then(() => {
         ReactorReconciler.updateContainer(null, fiberRoot, null, () => {})
         reactorRoot.isRunning = false
+        Engine.instance.activeReactors.delete(reactorRoot)
       })
     }
   }

@@ -1,12 +1,12 @@
 import * as bitecs from 'bitecs'
 
 import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createHyperStore, getMutableState, getState, hookstate, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getMutableState, getState, hookstate, ReactorRoot, State } from '@etherealengine/hyperflux'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createScene, destroyScene, Scene } from '../classes/Scene'
+import { createScene, Scene } from '../classes/Scene'
 
 import '../utils/threejsPatches'
 
@@ -56,6 +56,7 @@ import {
   hasComponent,
   Query,
   QueryComponents,
+  removeQuery,
   setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
@@ -116,6 +117,8 @@ export class Engine {
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate
   }) as HyperStore
+
+  activeReactors: Set<ReactorRoot> = new Set()
 
   /**
    * Current frame timestamp, relative to performance.timeOrigin
@@ -361,11 +364,19 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function destroyEngine() {
-  if (Engine.instance?.currentScene) {
-    destroyScene(Engine.instance.currentScene)
+export async function destroyEngine() {
+  /** Remove all entities */
+  const entities = Engine.instance.entityQuery()
+  for (const entity of entities) if (entity) removeEntity(entity, true)
+
+  for (const query of Engine.instance.reactiveQueryStates) {
+    removeQuery(query.query)
   }
-  unloadAllSystems()
+
+  /** Unload and clean up all systems */
+  await unloadAllSystems()
+
   /** @todo include in next bitecs update */
   // bitecs.deleteWorld(Engine.instance)
+  Engine.instance = null!
 }

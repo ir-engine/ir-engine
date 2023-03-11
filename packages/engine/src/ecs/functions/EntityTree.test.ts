@@ -8,7 +8,7 @@ import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Engine } from '../classes/Engine'
+import { destroyEngine, Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { Scene } from '../classes/Scene'
 import { createEntity } from '../functions/EntityFunctions'
@@ -30,6 +30,10 @@ import {
 describe('EntityTreeComponent', () => {
   beforeEach(() => {
     createEngine()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('should add default values', () => {
@@ -129,6 +133,10 @@ describe('EntityTreeFunctions', () => {
     scene = Engine.instance.currentScene
 
     root = scene.sceneEntity
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   describe('initializeEntityTree function', () => {

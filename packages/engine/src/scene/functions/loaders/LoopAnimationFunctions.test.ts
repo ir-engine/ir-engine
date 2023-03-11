@@ -7,7 +7,7 @@ import {
   LoopAnimationComponentType,
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
 } from '../../../avatar/components/LoopAnimationComponent'
-import { Engine } from '../../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -84,6 +84,10 @@ describe('LoopAnimationFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   const sceneComponentData = {

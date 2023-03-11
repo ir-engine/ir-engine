@@ -6,7 +6,7 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { applyIncomingActions, clearOutgoingActions, getMutableState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { executeSystems } from '../../ecs/functions/SystemFunctions'
@@ -20,6 +20,10 @@ describe('NetworkPeerFunctions', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   describe('addPeers', () => {

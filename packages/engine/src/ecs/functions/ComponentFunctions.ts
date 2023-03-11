@@ -284,7 +284,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   component.stateMap[entity]?.set(none)
   delete component.valueMap[entity]
   const root = component.reactorMap.get(entity)
-  if (!root?.isRunning) root?.stop()
+  if (root?.isRunning) root?.stop()
   component.reactorMap.delete(entity)
 }
 
