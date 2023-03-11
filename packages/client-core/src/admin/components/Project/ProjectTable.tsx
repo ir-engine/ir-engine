@@ -147,36 +147,9 @@ const ProjectTable = ({ className }: Props) => {
     setProject(row)
     const url = `/projects/${row.name}`
 
-    const params = {
-      query: {
-        recursive: true,
-        $skip: 0,
-        $limit: 1000
-      }
-    }
-
-    const files = (await API.instance.client.service('file-browser').get(url, params)) as Paginated<FileContentType>
-
-    if (files.total > 0) {
-      const el = document.createElement('a')
-      el.download = row.name + '.zip'
-      const zip = new JSZip()
-
-      const keys = files.data
-      for (let i = 0; i < keys.length; i++) {
-        const blobPromise = fetch(keys[i].url).then((r) => {
-          if (r.status === 200) return r.blob()
-          return Promise.reject(new Error(r.statusText))
-        })
-        const name = keys[i].name
-        zip.file(keys[i].key, blobPromise)
-      }
-
-      zip
-        .generateAsync({ type: 'blob' })
-        .then((blob) => saveAs(blob, row.name))
-        .catch((e) => console.log(e))
-    }
+    const data = await API.instance.client.service('archiver').get(url)
+    const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
+    saveAs(blob, row.name + '.zip')
   }
 
   const openInvalidateConfirmation = (row) => {
