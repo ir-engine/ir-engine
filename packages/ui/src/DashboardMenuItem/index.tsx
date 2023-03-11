@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Divider from '@etherealengine/ui/src/Divider'
 import List from '@etherealengine/ui/src/List'
 import ListItem from '@etherealengine/ui/src/ListItem'
@@ -16,7 +17,7 @@ const DashboardMenuItem = () => {
   const location = useLocation()
   const { pathname } = location
 
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const { user } = authState
   const { scopes } = user
 
