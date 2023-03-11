@@ -275,12 +275,12 @@ const ProjectTable = ({ className }: Props) => {
               name="update"
               disabled={el.repositoryPath === null}
               onClick={() => handleOpenProjectDrawer(el)}
-              icon={<Icon type="Download" />}
+              icon={<Icon type="Refresh" />}
             />
           )}
           {isAdmin && name === 'default-project' && (
             <Tooltip title={t('admin:components.project.defaultProjectUpdateTooltip')} arrow>
-              <IconButton className={styles.iconButton} name="update" disabled={true} icon={<Icon type="Download" />} />
+              <IconButton className={styles.iconButton} name="update" disabled={true} icon={<Icon type="Refresh" />} />
             </Tooltip>
           )}
         </>
