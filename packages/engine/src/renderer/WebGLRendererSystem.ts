@@ -395,7 +395,7 @@ export default async function WebGLRendererSystem() {
   }
 
   const cleanup = async () => {
-    reactor.stop()
+    await reactor.stop()
   }
 
   return { execute, cleanup }

@@ -33,6 +33,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { Timer } from '../../common/functions/Timer'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { ButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -127,7 +128,7 @@ export class Engine {
     return getMutableState(EngineState).frameTime.value
   }
 
-  engineTimer: { start: Function; stop: Function; clear: Function } = null!
+  engineTimer = null! as ReturnType<typeof Timer>
 
   /**
    * The current world
@@ -375,6 +376,13 @@ export async function destroyEngine() {
 
   /** Unload and clean up all systems */
   await unloadAllSystems()
+
+  const activeReactors = [] as Promise<void>[]
+  console.log(Engine.instance.activeReactors)
+  for (const reactor of Engine.instance.activeReactors) {
+    activeReactors.push(reactor.stop())
+  }
+  await Promise.all(activeReactors)
 
   /** @todo include in next bitecs update */
   // bitecs.deleteWorld(Engine.instance)
