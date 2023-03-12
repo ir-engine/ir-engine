@@ -33,6 +33,7 @@ describe('project.test', () => {
   let app: Application
   before(async () => {
     app = createFeathersExpressApp()
+    await app.setup()
     await cleanup(app)
   })
   after(() => {

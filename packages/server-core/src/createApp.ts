@@ -131,7 +131,6 @@ export const createFeathersExpressApp = (
     createIPFSStorageProvider()
   }
 
-  console.log(appConfig.db)
   if (!appConfig.db.forceRefresh) {
     createEngine()
     getMutableState(EngineState).publicPath.set(config.client.dist)
