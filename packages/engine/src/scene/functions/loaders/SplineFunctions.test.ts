@@ -1,7 +1,7 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -15,6 +15,10 @@ describe('SplineFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   const sceneComponentData = {

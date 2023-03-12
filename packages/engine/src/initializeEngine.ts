@@ -7,7 +7,6 @@ import { AudioState } from './audio/AudioState'
 import { Timer } from './common/functions/Timer'
 import { destroyEngine, Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
-import { destroyScene } from './ecs/classes/Scene'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
 import { executeSystems, initSystemSync } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
@@ -24,7 +23,7 @@ import { FontManager } from './xrui/classes/FontManager'
  */
 export const createEngine = () => {
   if (Engine.instance) {
-    destroyEngine()
+    throw new Error('Engine already exists')
   }
   Engine.instance = new Engine()
   EngineRenderer.instance = new EngineRenderer()

@@ -35,9 +35,9 @@ export const EditorActiveInstanceServiceReceptor = (action): any => {
       return state.merge({ activeInstances: action.activeInstances, fetching: false })
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessEditorActiveInstanceState = () => getMutableState(EditorActiveInstanceState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEditorActiveInstanceState = () => useState(accessEditorActiveInstanceState())
 
 //Service

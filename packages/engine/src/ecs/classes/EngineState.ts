@@ -23,7 +23,6 @@ export const EngineState = defineState({
     isTeleporting: false,
     leaveWorld: false,
     socketInstance: false,
-    userHasInteracted: false,
     spectating: false,
     usersTyping: {} as { [key: string]: true },
     avatarLoadingEffect: true,
@@ -58,12 +57,11 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
     .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
-    .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
-
+/**@deprecated use getMutableState directly instead */
 export const getEngineState = () => getMutableState(EngineState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEngineState = () => useState(getEngineState())
 
 export class EngineActions {

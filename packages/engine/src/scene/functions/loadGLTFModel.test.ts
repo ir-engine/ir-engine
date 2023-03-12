@@ -2,7 +2,7 @@ import assert from 'assert'
 import { Group, Layers, Mesh, Scene } from 'three'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   createMappedComponent,
@@ -25,6 +25,10 @@ describe('loadGLTFModel', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   // TODO: - this needs to be broken down and more comprehensive

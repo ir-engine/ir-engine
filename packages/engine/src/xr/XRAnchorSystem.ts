@@ -343,7 +343,7 @@ export default async function XRAnchorSystem() {
   const cleanup = async () => {
     removeQuery(xrHitTestQuery)
     removeActionQueue(xrSessionChangedQueue)
-    scenePlacementReactor.stop()
+    await scenePlacementReactor.stop()
   }
 
   const execute = () => {

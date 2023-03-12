@@ -100,9 +100,9 @@ export const AdminUserReceptors = {
   setSkipGuestsReceptor,
   resetFilterReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessUserState = () => getMutableState(AdminUserState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useUserState = () => useState(accessUserState())
 
 //Service

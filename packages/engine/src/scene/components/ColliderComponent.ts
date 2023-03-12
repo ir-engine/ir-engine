@@ -8,6 +8,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
@@ -102,14 +103,12 @@ export const ColliderComponent = defineComponent({
   reactor: function ({ root }) {
     const entity = root.entity
 
+    const transformComponent = useComponent(entity, TransformComponent)
+    const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
-    const transformComponent = useOptionalComponent(entity, TransformComponent)
-    const colliderComponent = useOptionalComponent(entity, ColliderComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      if (!colliderComponent?.value || !transformComponent?.value) return
-
       if (!!isLoadedFromGLTF?.value) {
         const colliderComponent = getComponent(entity, ColliderComponent)
 

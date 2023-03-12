@@ -41,9 +41,9 @@ const fetchBuildStatusReceptor = (action: typeof AdminBuildStatusActions.fetchBu
 export const AdminBuildStatusReceptors = {
   fetchBuildStatusReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessBuildStatusState = () => getMutableState(AdminBuildStatusState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useBuildStatusState = () => useState(accessBuildStatusState())
 
 //Service

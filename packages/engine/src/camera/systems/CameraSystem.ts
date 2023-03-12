@@ -356,7 +356,7 @@ export default async function CameraSystem() {
     removeQuery(spectatorQuery)
     removeActionQueue(cameraSpawnActions)
     removeActionQueue(spectateUserActions)
-    reactor.stop()
+    await reactor.stop()
   }
 
   return { execute, cleanup, subsystems: [async () => ({ default: CameraFadeBlackEffectSystem })] }

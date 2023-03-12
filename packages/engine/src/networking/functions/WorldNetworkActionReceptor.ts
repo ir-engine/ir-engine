@@ -105,6 +105,7 @@ const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destr
 const receiveRequestAuthorityOverObject = (
   action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
 ) => {
+  console.log('receiveRequestAuthorityOverObject', action, Engine.instance.userId)
   // Authority request can only be processed by owner
   if (Engine.instance.userId !== action.ownerId) return
 
@@ -131,6 +132,7 @@ const receiveRequestAuthorityOverObject = (
 const receiveTransferAuthorityOfObject = (
   action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE
 ) => {
+  console.log('receiveTransferAuthorityOfObject', action)
   // Authority request can only be processed by owner
   if (action.$from !== action.ownerId) return
 

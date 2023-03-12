@@ -508,6 +508,7 @@ export default async function SceneObjectUpdateSystem() {
     removeQuery(oceanQuery)
     removeQuery(interiorQuery)
     removeQuery(scenePreviewCameraQuery)
+    removeQuery(spawnPointComponent)
 
     removeActionQueue(modifyPropertyActionQueue)
   }

@@ -1,7 +1,7 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
   createMappedComponent,
@@ -95,6 +95,10 @@ describe('EditorControlFunctions', () => {
       }
     })
 
+    afterEach(() => {
+      return destroyEngine()
+    })
+
     it('will execute the command', () => {
       const prop = getRandomValues()
       EditorControlFunctions.modifyProperty(nodes, TestComponent, prop)
@@ -117,6 +121,10 @@ describe('EditorControlFunctions', () => {
       Engine.instance.store.defaultDispatchDelay = 0
 
       rootNode = Engine.instance.currentScene.sceneEntity
+    })
+
+    afterEach(() => {
+      return destroyEngine()
     })
   })
 
@@ -143,6 +151,10 @@ describe('EditorControlFunctions', () => {
       })
 
       rootNode = world.sceneEntity
+    })
+
+    afterEach(() => {
+      return destroyEngine()
     })
 
     it('creates prefab of given type', () => {
@@ -209,6 +221,10 @@ describe('EditorControlFunctions', () => {
       addEntityNodeChild(beforeNodes[1], parentNodes[1])
     })
 
+    afterEach(() => {
+      return destroyEngine()
+    })
+
     it('duplicates objects', () => {
       EditorControlFunctions.duplicateObject(nodes)
       applyIncomingActions()
@@ -257,6 +273,10 @@ describe('EditorControlFunctions', () => {
       addEntityNodeChild(beforeNodes[1], parentNodes[1])
     })
 
+    afterEach(() => {
+      return destroyEngine()
+    })
+
     it('duplicates objects', () => {
       EditorControlFunctions.groupObjects(nodes)
       for (const node of nodes) {
@@ -290,6 +310,10 @@ describe('EditorControlFunctions', () => {
       addEntityNodeChild(parentNodes[1], rootNode)
       addEntityNodeChild(nodes[0], parentNodes[0])
       addEntityNodeChild(nodes[1], parentNodes[1])
+    })
+
+    afterEach(() => {
+      return destroyEngine()
     })
 
     it('Removes given nodes', () => {

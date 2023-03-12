@@ -125,8 +125,6 @@ export const updateVolumetric = async (entity: Entity) => {
       } else {
         volumetric.loadingEffectActive = false
         endLoadingEffect(volumetric.entity, player.mesh)
-        const media = getMutableComponent(entity, MediaComponent)
-        if (media.autoplay.value && getMutableState(EngineState).userHasInteracted.value) media.paused.set(false)
       }
     }
   }

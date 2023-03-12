@@ -106,9 +106,9 @@ export const InviteServiceReceptor = (action) => {
       return s.getReceivedInvitesInProgress.set(true)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessInviteState = () => getMutableState(InviteState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useInviteState = () => useState(accessInviteState())
 
 //Service

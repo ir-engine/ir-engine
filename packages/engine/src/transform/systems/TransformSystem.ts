@@ -410,10 +410,18 @@ export default async function TransformSystem() {
     removeActionQueue(modifyPropertyActionQueue)
 
     removeQuery(transformQuery)
+    removeQuery(nonDynamicLocalTransformQuery)
+    removeQuery(rigidbodyTransformQuery)
+    removeQuery(fixedRigidBodyQuery)
+    removeQuery(groupQuery)
+
     removeQuery(staticBoundingBoxQuery)
     removeQuery(dynamicBoundingBoxQuery)
+
     removeQuery(distanceFromLocalClientQuery)
     removeQuery(distanceFromCameraQuery)
+    removeQuery(frustumCulledQuery)
+
     Skeleton.prototype.update = skeletonUpdate
 
     networkState.networkSchema['ee.core.transform'].set(none)

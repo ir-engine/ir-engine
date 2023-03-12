@@ -13,7 +13,7 @@ export const createEntity = (): Entity => {
 }
 
 export const removeEntity = (entity: Entity, immediately = false) => {
-  if (!entityExists(entity)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
+  if (!entity || !entityExists(entity)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
   removeAllComponents(entity)
   setComponent(entity, EntityRemovedComponent, true)

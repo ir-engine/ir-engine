@@ -36,9 +36,9 @@ export const InviteTypeServiceReceptor = (action) => {
     })
   })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessInviteTypeState = () => getMutableState(InviteTypeState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useInviteTypeState = () => useState(accessInviteTypeState())
 
 //Service
