@@ -43,7 +43,7 @@ export const TransformComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    const dirtyTransforms = Engine.instance.dirtyTransforms
+    const dirtyTransforms = TransformComponent.dirtyTransforms
 
     if (!component.position.value)
       component.position.set(
@@ -71,7 +71,13 @@ export const TransformComponent = defineComponent({
       rotation: component.rotation.value,
       scale: component.scale.value
     }
-  }
+  },
+
+  onRemove: (entity) => {
+    delete TransformComponent.dirtyTransforms[entity]
+  },
+
+  dirtyTransforms: {} as Record<Entity, boolean>
 })
 
 export const LocalTransformComponent = defineComponent({
@@ -96,7 +102,7 @@ export const LocalTransformComponent = defineComponent({
     const scale = json.scale ?? new Vector3(1, 1, 1)
     const parentEntity = json.parentEntity
 
-    const dirtyTransforms = Engine.instance.dirtyTransforms
+    const dirtyTransforms = TransformComponent.dirtyTransforms
 
     if (entity === parentEntity!) throw new Error('Tried to parent entity to self - this is not allowed')
     if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)

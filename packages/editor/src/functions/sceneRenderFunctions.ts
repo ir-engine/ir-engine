@@ -55,7 +55,7 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   camera.lookAt(new Vector3())
   transform.position.copy(camera.position)
   transform.rotation.copy(camera.quaternion)
-  Engine.instance.dirtyTransforms[Engine.instance.cameraEntity] = true
+  TransformComponent.dirtyTransforms[Engine.instance.cameraEntity] = true
 
   Engine.instance.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)

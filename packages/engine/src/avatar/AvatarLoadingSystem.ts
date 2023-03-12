@@ -181,7 +181,7 @@ export default async function AvatarLoadingSystem() {
     }
 
     for (const entity of growQuery()) {
-      Engine.instance.dirtyTransforms[entity] = true
+      TransformComponent.dirtyTransforms[entity] = true
     }
 
     for (const entity of commonQuery()) {

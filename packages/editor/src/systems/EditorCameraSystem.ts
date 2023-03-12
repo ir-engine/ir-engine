@@ -114,7 +114,7 @@ export default async function EditorCameraSystem() {
     }
     transform.position.copy(camera.position)
     transform.rotation.copy(camera.quaternion)
-    Engine.instance.dirtyTransforms[entity] = true
+    TransformComponent.dirtyTransforms[entity] = true
   }
 
   const cleanup = async () => {}

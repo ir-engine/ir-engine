@@ -67,9 +67,9 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
-  proxifyVector3WithDirty(TransformComponent.position, entity, Engine.instance.dirtyTransforms, obj.position)
-  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, Engine.instance.dirtyTransforms, obj.quaternion)
-  proxifyVector3WithDirty(TransformComponent.scale, entity, Engine.instance.dirtyTransforms, obj.scale)
+  proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
+  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
+  proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
 }
 
 export function removeGroupComponent(entity: Entity) {
