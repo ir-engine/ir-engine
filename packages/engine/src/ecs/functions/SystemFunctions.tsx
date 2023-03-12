@@ -274,7 +274,7 @@ export const initSystemSync = (systemArgs: SystemSyncFunctionType<any>) => {
 export const unloadAllSystems = (sceneSystemsOnly = false) => {
   const promises = [] as Promise<void>[]
   Object.entries(Engine.instance.pipelines).forEach(([type, pipeline]) => {
-    const systemsToRemove: any[] = []
+    const systemsToRemove: SystemInstance[] = []
     pipeline.forEach((s) => {
       if (sceneSystemsOnly) {
         if (s.sceneSystem) systemsToRemove.push(s)
@@ -287,6 +287,14 @@ export const unloadAllSystems = (sceneSystemsOnly = false) => {
       pipeline.splice(i, 1)
       delete Engine.instance.systemsByUUID[s.uuid]
       promises.push(s.cleanup())
+      const cleanupSubsystems = (subsystems: SystemInstance[]) => {
+        for (const subsystem of subsystems) {
+          delete Engine.instance.systemsByUUID[subsystem.uuid]
+          promises.push(subsystem.cleanup())
+          cleanupSubsystems(subsystem.subsystems)
+        }
+      }
+      cleanupSubsystems(s.subsystems)
     })
   })
   return promises

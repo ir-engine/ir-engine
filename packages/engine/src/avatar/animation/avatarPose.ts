@@ -1,4 +1,14 @@
-import { Bone, Matrix3, Matrix4, Quaternion, SkinnedMesh, Vector3, Vector4 } from 'three'
+import {
+  Bone,
+  BufferAttribute,
+  InterleavedBufferAttribute,
+  Matrix3,
+  Matrix4,
+  Quaternion,
+  SkinnedMesh,
+  Vector3,
+  Vector4
+} from 'three'
 
 import { BoneStructure } from '../AvatarBoneMatching'
 
@@ -133,8 +143,8 @@ export function makeTPose(rig: BoneStructure) {
  */
 export function applySkeletonPose(mesh: SkinnedMesh) {
   const target = new Vector3()
-  const posAttr = mesh.geometry.attributes.position
-  const normalAttr = mesh.geometry.attributes.normal
+  const posAttr = mesh.geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute
+  const normalAttr = mesh.geometry.attributes.normal as BufferAttribute | InterleavedBufferAttribute
   const { bones } = mesh.skeleton
 
   bones.forEach((bone) => {
@@ -164,7 +174,7 @@ export function boneNormalTransform(mesh: SkinnedMesh, index: number, target: Ve
   skinIndex.fromBufferAttribute(geometry.attributes.skinIndex as any, index)
   skinWeight.fromBufferAttribute(geometry.attributes.skinWeight as any, index)
   baseNormal
-    .fromBufferAttribute(geometry.attributes.normal, index)
+    .fromBufferAttribute(geometry.attributes.normal as BufferAttribute | InterleavedBufferAttribute, index)
     .applyNormalMatrix(matrix3.getNormalMatrix(mesh.bindMatrix))
 
   target.set(0, 0, 0)

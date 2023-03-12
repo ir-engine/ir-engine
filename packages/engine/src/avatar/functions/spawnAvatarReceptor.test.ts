@@ -3,7 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -27,6 +27,10 @@ describe('spawnAvatarReceptor', () => {
     createEngine()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('check the create avatar function', () => {

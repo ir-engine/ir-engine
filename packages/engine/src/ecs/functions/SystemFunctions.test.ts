@@ -1,7 +1,7 @@
 import assert from 'assert'
 
 import { createEngine } from '../../initializeEngine'
-import { Engine } from '../classes/Engine'
+import { destroyEngine, Engine } from '../classes/Engine'
 import { initSystems, unloadAllSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
@@ -31,9 +31,16 @@ async function AnotherMockSystemInitialiser() {
   }
 }
 describe('SystemFunctions', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   describe('initSystems', () => {
     it('can initialize systems', async () => {
-      createEngine()
       const fixedPipeline = SystemUpdateType.FIXED
       await initSystems([
         {
@@ -52,7 +59,6 @@ describe('SystemFunctions', () => {
     })
 
     it('can initialize multiple systems of same type', async () => {
-      createEngine()
       const fixedPipeline = SystemUpdateType.FIXED
       await initSystems([
         {
@@ -81,7 +87,6 @@ describe('SystemFunctions', () => {
     })
 
     it('can initialize multiple systems of different type', async () => {
-      createEngine()
       const fixedPipeline = SystemUpdateType.FIXED
       const updatePipeline = SystemUpdateType.UPDATE
       await initSystems([
@@ -115,7 +120,6 @@ describe('SystemFunctions', () => {
 
   describe('unloadAllSystems', () => {
     it('can remove scene system', async () => {
-      createEngine()
       const pipelineType = SystemUpdateType.FIXED
       await initSystems([
         {
@@ -134,7 +138,6 @@ describe('SystemFunctions', () => {
     })
 
     it('can remove all systems', async () => {
-      createEngine()
       const pipelineType = SystemUpdateType.FIXED
       await initSystems([
         {
@@ -159,7 +162,6 @@ describe('SystemFunctions', () => {
     })
 
     it('can remove only scene systems', async () => {
-      createEngine()
       const pipelineType = SystemUpdateType.FIXED
       await initSystems([
         {

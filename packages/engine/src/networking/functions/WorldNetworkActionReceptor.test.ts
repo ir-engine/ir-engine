@@ -9,7 +9,7 @@ import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunc
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
@@ -27,6 +27,11 @@ describe('WorldNetworkActionReceptors', () => {
     createMockNetwork()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
+    Engine.instance.store.defaultDispatchDelay = 0
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   describe('spawnObject', () => {
@@ -188,15 +193,17 @@ describe('WorldNetworkActionReceptors', () => {
   describe('transfer authority of object', () => {
     it('should transfer authority of object (and not ownership)', async () => {
       const hostUserId = 'world' as UserId
+      const hostPeerId = 'host peer id' as PeerID
       const userId = 'user id' as UserId
       const peerID = 'peer id' as PeerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.userId = hostUserId // host being the action dispatcher
+      Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
       network.peerID = peerID
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
+      NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
@@ -204,8 +211,8 @@ describe('WorldNetworkActionReceptors', () => {
 
       WorldNetworkActionReceptor.receiveSpawnObject(
         WorldNetworkAction.spawnObject({
-          $from: Engine.instance.worldNetwork.hostId, // from  host
-          prefab: objPrefab, // generic prefab
+          $from: userId,
+          prefab: objPrefab,
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: network.peerID
@@ -221,25 +228,28 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectEntitiesBefore.length, 1)
       assert.equal(networkObjectOwnedEntitiesBefore.length, 1)
 
-      assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).ownerId, hostUserId)
+      assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).ownerId, userId)
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
+      assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), true)
+
+      const transferAuthorityOfObjectQueue = ActionFunctions.createActionQueue(
+        WorldNetworkAction.transferAuthorityOfObject.matches
+      )
 
       WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
         WorldNetworkAction.requestAuthorityOverObject({
-          $from: hostUserId, // from host
-          ownerId: hostUserId,
+          $from: userId,
+          ownerId: userId,
           networkId: objNetId,
           $topic: NetworkTopics.world,
           newAuthority: peerID2
         })
       )
 
-      const system = await WorldNetworkActionSystem()
-
-      ActionFunctions.clearOutgoingActions(network.topic)
       ActionFunctions.applyIncomingActions()
 
-      system.execute()
+      for (const action of transferAuthorityOfObjectQueue())
+        WorldNetworkActionReceptor.receiveTransferAuthorityOfObject(action)
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -247,7 +257,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectEntitiesAfter.length, 1)
       assert.equal(networkObjectOwnedEntitiesAfter.length, 1)
 
-      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, hostUserId) // owner remains same
+      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, userId) // owner remains same
       assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID2) // peer has changed
       assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), true)
     })
@@ -255,6 +265,7 @@ describe('WorldNetworkActionReceptors', () => {
 
   it('should not transfer authority if it is not the owner', async () => {
     const hostUserId = 'world' as UserId
+    const hostPeerId = 'host peer id' as PeerID
     const userId = 'user id' as UserId
     const peerID = 'peer id' as PeerID
     const peerID2 = 'peer id 2' as PeerID
@@ -263,7 +274,8 @@ describe('WorldNetworkActionReceptors', () => {
     const network = Engine.instance.worldNetwork as Network
     network.peerID = peerID
 
-    NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
+    NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
+    NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
     NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
     const objNetId = 3 as NetworkId
@@ -271,7 +283,7 @@ describe('WorldNetworkActionReceptors', () => {
 
     WorldNetworkActionReceptor.receiveSpawnObject(
       WorldNetworkAction.spawnObject({
-        $from: Engine.instance.worldNetwork.hostId, // from  host
+        $from: hostUserId, // from  host
         prefab: objPrefab, // generic prefab
         networkId: objNetId,
         $topic: NetworkTopics.world,
@@ -290,6 +302,11 @@ describe('WorldNetworkActionReceptors', () => {
 
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).ownerId, hostUserId)
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
+    assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), false)
+
+    const transferAuthorityOfObjectQueue = ActionFunctions.createActionQueue(
+      WorldNetworkAction.transferAuthorityOfObject.matches
+    )
 
     WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
       WorldNetworkAction.requestAuthorityOverObject({
@@ -301,12 +318,10 @@ describe('WorldNetworkActionReceptors', () => {
       })
     )
 
-    const system = await WorldNetworkActionSystem()
-
-    ActionFunctions.clearOutgoingActions(network.topic)
     ActionFunctions.applyIncomingActions()
 
-    system.execute()
+    for (const action of transferAuthorityOfObjectQueue())
+      WorldNetworkActionReceptor.receiveTransferAuthorityOfObject(action)
 
     const networkObjectEntitiesAfter = networkObjectQuery()
     const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()

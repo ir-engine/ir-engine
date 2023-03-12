@@ -5,7 +5,7 @@ import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent, ComponentType, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -36,6 +36,10 @@ describe('avatarFunctions Unit', async () => {
     createEngine()
     Engine.instance.gltfLoader = createGLTFLoader()
     assetModel = await AssetLoader.loadAsync(testGLTF)
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   // describe('boneMatchAvatarModel', () => {

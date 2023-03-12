@@ -9,7 +9,7 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -34,6 +34,10 @@ describe('Physics', () => {
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
     Engine.instance.physicsWorld.timestep = 1 / 60
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('should create rapier world & event queue', async () => {

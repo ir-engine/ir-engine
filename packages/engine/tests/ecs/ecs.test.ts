@@ -1,7 +1,7 @@
 import assert from 'assert'
 import * as bitecs from 'bitecs'
 
-import { Engine } from '../../src/ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../src/ecs/classes/Engine'
 import { Scene } from '../../src/ecs/classes/Scene'
 import {
   addComponent,
@@ -79,9 +79,9 @@ describe('ECS', () => {
     ])
   })
 
-  // afterEach(() => {
-  //   // deletEngine.instance.currentScene
-  // })
+  afterEach(() => {
+    return destroyEngine()
+  })
 
   it('should create ECS world', () => {
     const world = Engine.instance.currentScene

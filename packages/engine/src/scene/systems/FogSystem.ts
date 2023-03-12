@@ -171,8 +171,8 @@ export default async function FogSystem() {
   const execute = () => {}
 
   const cleanup = async () => {
-    fogGroupQueryReactor.stop()
-    fogStateReactor.stop()
+    await fogGroupQueryReactor.stop()
+    await fogStateReactor.stop()
   }
 
   return { execute, cleanup }

@@ -1,6 +1,7 @@
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
+import { destroyEngine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -19,6 +20,10 @@ describe('TransformFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   const sceneComponentData = {
