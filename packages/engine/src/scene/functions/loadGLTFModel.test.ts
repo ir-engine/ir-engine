@@ -40,8 +40,12 @@ describe('loadGLTFModel', () => {
       name: 'CustomComponent',
       onInit(entity) {
         return {
-          value: 0
+          val: 0
         }
+      },
+      onSet(entity, component, json) {
+        if (!json) return
+        if (typeof json.val === 'number') component.val.set(json.val)
       }
     })
 
@@ -57,7 +61,7 @@ describe('loadGLTFModel', () => {
     mesh.userData = {
       'xrengine.entity': entityName,
       // 'xrengine.spawn-point': '',
-      'xrengine.CustomComponent.value': number
+      'xrengine.CustomComponent.val': number
     }
     const modelComponent = getMutableComponent(entity, ModelComponent)
     modelComponent.scene.set(mesh)
@@ -82,7 +86,7 @@ describe('loadGLTFModel', () => {
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))
 
     // assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
-    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).value, number)
+    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).val, number)
     assert.equal(getComponent(mockSpawnPointEntity, NameComponent), entityName)
     assert(getComponent(mockSpawnPointEntity, GroupComponent)[0].layers.test(expectedLayer))
   })
