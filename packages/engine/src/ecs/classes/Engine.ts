@@ -251,8 +251,6 @@ export class Engine {
     return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
   }
 
-  readonly dirtyTransforms = {} as Record<Entity, boolean>
-
   inputSources: Readonly<XRInputSourceArray> = []
 
   pointerState = {

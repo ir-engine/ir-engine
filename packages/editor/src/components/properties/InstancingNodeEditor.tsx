@@ -7,7 +7,7 @@ import {
   addComponent,
   ComponentType,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOrAddComponent,
   hasComponent,
   useComponent
@@ -93,7 +93,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       (eNode) => {
         if (eNode === entity) return false
         if (hasComponent(eNode, ModelComponent)) {
-          const obj3d = getComponentState(eNode, ModelComponent).scene.value as Scene | undefined
+          const obj3d = getMutableComponent(eNode, ModelComponent).scene.value as Scene | undefined
           if (!obj3d) return false
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')
@@ -108,13 +108,13 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const onUnstage = () => {
     if (!hasComponent(entity, InstancingUnstagingComponent)) {
-      addComponent(entity, InstancingUnstagingComponent, {})
+      addComponent(entity, InstancingUnstagingComponent)
     }
   }
 
   const onStage = async () => {
     if (!hasComponent(entity, InstancingStagingComponent)) {
-      addComponent(entity, InstancingStagingComponent, {})
+      addComponent(entity, InstancingStagingComponent)
     }
   }
 
@@ -125,7 +125,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const onChangeMode = (mode) => {
     if (scatter.mode === mode) return
-    const scene = getComponentState(entity, ModelComponent).scene! as any
+    const scene = getMutableComponent(entity, ModelComponent).scene! as any
     if (!scene.value) return
     const uData = JSON.parse(JSON.stringify(scene.userData.value))
     uData[scatter.mode] = scatter.sourceProperties

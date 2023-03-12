@@ -223,7 +223,7 @@ export const updateComponent = <C extends Component>(
 ) => {
   if (typeof props === 'undefined') return
 
-  const comp = getComponentState(entity, Component)
+  const comp = getMutableComponent(entity, Component)
   if (!comp) {
     throw new Error('[updateComponent]: component does not exist')
   }
@@ -324,7 +324,7 @@ export const removeAllComponents = (entity: Entity) => {
 }
 
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {
-  const component = getComponentState(entity, Component)
+  const component = getMutableComponent(entity, Component)
   return Component.toJSON(entity, component) as ReturnType<C['toJSON']>
 }
 

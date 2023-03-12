@@ -18,7 +18,6 @@ import { matches } from '../../common/functions/MatchesUtils'
 import {
   addComponent,
   ComponentType,
-  createMappedComponent,
   defineComponent,
   hasComponent,
   useComponent

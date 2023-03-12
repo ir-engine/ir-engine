@@ -159,20 +159,6 @@ export const createAvatarController = (entity: Entity) => {
   rigidbody.targetKinematicPosition.copy(transform.position)
   rigidbody.targetKinematicRotation.copy(transform.rotation)
 
-  addComponent(entity, AvatarControllerComponent, {
-    cameraEntity: Engine.instance.cameraEntity,
-    bodyCollider: undefined!,
-    movementEnabled: true,
-    isJumping: false,
-    isWalking: false,
-    isInAir: false,
-    gamepadLocalInput: new Vector3(),
-    gamepadWorldMovement: new Vector3(),
-    verticalVelocity: 0,
-    speedVelocity: { value: 0 },
-    translationApplied: new Vector3()
-  })
-
   const CameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   const avatarForward = new Vector3(0, 0, -1).applyQuaternion(transform.rotation)
   const cameraForward = new Vector3(0, 0, 1).applyQuaternion(CameraTransform.rotation)
@@ -181,9 +167,10 @@ export const createAvatarController = (entity: Entity) => {
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
   setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta)
 
-  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
-  avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
-  avatarControllerComponent.controller = Physics.createCharacterController(Engine.instance.physicsWorld, {})
+  setComponent(entity, AvatarControllerComponent, {
+    bodyCollider: createAvatarCollider(entity),
+    controller: Physics.createCharacterController(Engine.instance.physicsWorld, {})
+  })
 
-  addComponent(entity, CollisionComponent, new Map())
+  addComponent(entity, CollisionComponent)
 }

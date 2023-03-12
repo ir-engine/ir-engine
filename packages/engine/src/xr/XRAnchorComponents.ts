@@ -17,7 +17,11 @@ import {
 import { EntityReactorProps } from '../ecs/functions/EntityFunctions'
 import { GroupComponent, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  setLocalTransformComponent,
+  TransformComponent
+} from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
 /**
@@ -172,7 +176,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       originalParentEntityUUID.set(originalParent)
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = Engine.instance.originEntity
-      Engine.instance.dirtyTransforms[entity] = true
+      TransformComponent.dirtyTransforms[entity] = true
 
       const wireframe = anchor.wireframe.value
       anchorMeshFound(group, wireframe, meshes)
@@ -181,7 +185,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value].value
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = originalParent
-      Engine.instance.dirtyTransforms[entity] = true
+      TransformComponent.dirtyTransforms[entity] = true
 
       anchorMeshLost(group, meshes)
     }
