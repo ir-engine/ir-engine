@@ -217,8 +217,8 @@ describe('DataWriter', () => {
 
     setTransformComponent(
       entity,
-      proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-      proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      new Vector3().set(posX, posY, posZ),
+      new Quaternion().set(rotX, rotY, rotZ, rotW),
       new Vector3(1, 1, 1)
     )
 
@@ -359,8 +359,8 @@ describe('DataWriter', () => {
 
     setTransformComponent(
       entity,
-      proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-      proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      new Vector3().set(posX, posY, posZ),
+      new Quaternion().set(rotX, rotY, rotZ, rotW),
       new Vector3(1, 1, 1)
     )
 
@@ -434,8 +434,8 @@ describe('DataWriter', () => {
 
       setTransformComponent(
         entity,
-        proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-        proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        new Vector3().set(posX, posY, posZ),
+        new Quaternion().set(rotX, rotY, rotZ, rotW),
         new Vector3(1, 1, 1)
       )
 
@@ -519,8 +519,8 @@ describe('DataWriter', () => {
 
       setTransformComponent(
         entity,
-        proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-        proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        new Vector3().set(posX, posY, posZ),
+        new Quaternion().set(rotX, rotY, rotZ, rotW),
         new Vector3(1, 1, 1)
       )
 

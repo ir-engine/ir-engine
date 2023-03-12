@@ -2,14 +2,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import {
   SnapMode,
   SnapModeType,
@@ -26,8 +19,6 @@ import {
   startReactor,
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
-
-import { createTransformGizmo } from '../systems/EditorControlSystem'
 
 export const EditorHelperState = defineState({
   name: 'EditorHelperState',

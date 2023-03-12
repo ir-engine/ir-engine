@@ -10,7 +10,6 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'

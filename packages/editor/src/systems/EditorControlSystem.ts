@@ -30,7 +30,6 @@ import {
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
@@ -70,12 +69,10 @@ const SELECT_SENSITIVITY = 0.001
 
 export const createTransformGizmo = () => {
   const gizmoEntity = createEntity()
-  addComponent(gizmoEntity, NameComponent, 'Transform Gizmo')
-  const gizmo = new TransformGizmo()
-  gizmo.load()
-  addComponent(gizmoEntity, TransformGizmoComponent, { gizmo })
-  setTransformComponent(gizmoEntity)
-  addObjectToGroup(gizmoEntity, gizmo)
+  setComponent(gizmoEntity, NameComponent, 'Transform Gizmo')
+  setComponent(gizmoEntity, TransformGizmoComponent)
+  setComponent(gizmoEntity, TransformComponent)
+  addObjectToGroup(gizmoEntity, getComponent(gizmoEntity, TransformGizmoComponent))
   setTransformMode(TransformMode.Translate)
   return gizmoEntity
 }
@@ -276,7 +273,7 @@ export default async function EditorControlSystem() {
 
   const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
-  const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent).gizmo
+  const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
   const changedTransformMode = createActionQueue(EditorHelperAction.changedTransformMode.matches)
 
   const execute = () => {

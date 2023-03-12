@@ -1,31 +1,31 @@
 import { Types } from 'bitecs'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { createMappedComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const DistanceComponentSchema = { squaredDistance: Types.f32 }
 
-export const DistanceFromLocalClientComponent = createMappedComponent<{}, typeof DistanceComponentSchema>(
-  'DistanceFromLocalClientComponent',
-  DistanceComponentSchema
-)
-export const DistanceFromCameraComponent = createMappedComponent<{}, typeof DistanceComponentSchema>(
-  'DistanceFromCameraComponent',
-  DistanceComponentSchema
-)
+export const DistanceFromLocalClientComponent = defineComponent({
+  name: 'DistanceFromLocalClientComponent',
+  schema: DistanceComponentSchema
+})
+export const DistanceFromCameraComponent = defineComponent({
+  name: 'DistanceFromCameraComponent',
+  schema: DistanceComponentSchema
+})
 
 export const FrustumCullCameraSchema = { isCulled: Types.ui8 }
-export const FrustumCullCameraComponent = createMappedComponent<{}, typeof FrustumCullCameraSchema>(
-  'FrustumCullCameraComponent',
-  FrustumCullCameraSchema
-)
+export const FrustumCullCameraComponent = defineComponent({
+  name: 'FrustumCullCameraComponent',
+  schema: FrustumCullCameraSchema
+})
 
 export function setDistanceFromLocalClientComponent(entity: Entity) {
-  setComponent(entity, DistanceFromLocalClientComponent, {})
+  setComponent(entity, DistanceFromLocalClientComponent)
 }
 
 export function setDistanceFromCameraComponent(entity: Entity) {
-  setComponent(entity, DistanceFromCameraComponent, {})
+  setComponent(entity, DistanceFromCameraComponent)
 }
 
 export const compareDistance = (a: Entity, b: Entity) => {

@@ -5,6 +5,7 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   createMappedComponent,
+  defineComponent,
   getComponent,
   getOptionalComponent,
   setComponent
@@ -36,16 +37,31 @@ class ComputedTransform {
   }
 }
 
-export const ComputedTransformComponent = createMappedComponent<ComputedTransform>('ComputedTransformComponent')
+export const ComputedTransformComponent = defineComponent({
+  name: 'ComputedTransformComponent',
 
+  onInit(entity) {
+    return {
+      referenceEntity: UndefinedEntity,
+      computeFunction: (entity: Entity, referenceEntity: Entity) => {}
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (typeof json.referenceEntity === 'number') component.referenceEntity.set(json.referenceEntity)
+    if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
+
+    getMutableState(EngineState).transformsNeedSorting.set(true)
+  }
+})
+
+/** @deprecated */
 export function setComputedTransformComponent(
   entity: Entity,
   referenceEntity: Entity,
   computeFunction: (entity: Entity, referenceEntity: Entity) => void
 ) {
-  setComponent(entity, ComputedTransformComponent, new ComputedTransform())
-  const computed = getComponent(entity, ComputedTransformComponent)
-  computed.referenceEntity = referenceEntity
-  computed.computeFunction = computeFunction
-  return computed
+  setComponent(entity, ComputedTransformComponent, { referenceEntity, computeFunction })
 }

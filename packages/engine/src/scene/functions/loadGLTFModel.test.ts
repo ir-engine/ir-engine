@@ -6,6 +6,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   createMappedComponent,
+  defineComponent,
   defineQuery,
   getComponent,
   getMutableComponent
@@ -31,7 +32,14 @@ describe('loadGLTFModel', () => {
     const world = Engine.instance.currentScene
 
     const mockComponentData = { src: '' } as any
-    const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
+    const CustomComponent = defineComponent({
+      name: 'CustomComponent',
+      onInit(entity) {
+        return {
+          value: 0
+        }
+      }
+    })
 
     const entity = createEntity()
     addEntityNodeChild(entity, world.sceneEntity)
