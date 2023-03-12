@@ -1,4 +1,4 @@
-import { NotFound } from '@feathersjs/errors'
+import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
@@ -44,6 +44,18 @@ const checkIdentityProvider = (): any => {
   }
 }
 
+const checkOnlyIdentityProvider = () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const providers = await context.app
+      .service('identity-provider')
+      .find({ query: { userId: context.params.query.userId } })
+    if (providers.total <= 1) {
+      throw new MethodNotAllowed('Cannot remove the only provider')
+    }
+    return context
+  }
+}
+
 export default {
   before: {
     all: [],
@@ -52,7 +64,7 @@ export default {
     create: [],
     update: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
     patch: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
-    remove: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())]
+    remove: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider()), checkOnlyIdentityProvider()]
   },
   after: {
     all: [],

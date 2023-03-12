@@ -93,6 +93,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
     (authState.linkedin && !oauthConnectedState.linkedin) ||
     (authState.twitter && !oauthConnectedState.twitter)
 
+  /**allow removing social logins if there are at least 2 social logins connected*/
   const removeSocial = Object.values(oauthConnectedState).filter((value) => value).length > 1
 
   // const loadCredentialHandler = async () => {
