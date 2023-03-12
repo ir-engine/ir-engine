@@ -110,7 +110,7 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
             : 'user'
       })
     } catch (err) {
-      logger.error(err)
+      //logger.error(err)
       throw err
     }
   }
