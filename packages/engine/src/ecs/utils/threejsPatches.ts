@@ -108,7 +108,7 @@ declare module 'three/src/math/Quaternion' {
   }
 }
 
-Scene.DEFAULT_MATRIX_AUTO_UPDATE = false
+Scene.DefaultMatrixAutoUpdate = false
 
 /**
  * Since we have complete control over matrix updates, we know that at any given point
