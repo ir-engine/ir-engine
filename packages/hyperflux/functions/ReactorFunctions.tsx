@@ -97,10 +97,12 @@ export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
     },
     stop() {
       if (!reactorRoot.isRunning) return Promise.resolve()
-      return Promise.resolve().then(() => {
-        ReactorReconciler.updateContainer(null, fiberRoot, null, () => {})
-        reactorRoot.isRunning = false
-        Engine.instance.activeReactors.delete(reactorRoot)
+      return new Promise<void>((resolve) => {
+        ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
+          reactorRoot.isRunning = false
+          Engine.instance.activeReactors.delete(reactorRoot)
+          resolve()
+        })
       })
     }
   }
