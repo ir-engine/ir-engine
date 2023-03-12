@@ -2,6 +2,8 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -32,6 +34,9 @@ describe('project.test', () => {
   before(async () => {
     app = createFeathersExpressApp()
     await cleanup(app)
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   describe("'project' service'", () => {

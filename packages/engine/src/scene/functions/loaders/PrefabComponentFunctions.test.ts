@@ -78,7 +78,6 @@ describe('PrefabComponentFunctions', async () => {
   })
 
   afterEach(() => {
-    Engine.instance.engineTimer.clear()
     return destroyEngine()
   })
 

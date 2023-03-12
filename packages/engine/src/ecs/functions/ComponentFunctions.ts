@@ -366,7 +366,6 @@ export function useQuery(components: QueryComponents) {
     const queryState = { query, result, components }
     Engine.instance.reactiveQueryStates.add(queryState)
     return () => {
-      console.log('unmount use query')
       removeQuery(query)
       Engine.instance.reactiveQueryStates.delete(queryState)
     }
@@ -383,7 +382,6 @@ export function useQuery(components: QueryComponents) {
       return null
     })
     return () => {
-      console.log('stop use query')
       root.stop()
     }
   }, [result])

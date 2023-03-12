@@ -3,6 +3,7 @@ import assert from 'assert'
 import _ from 'lodash'
 import path from 'path'
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
@@ -30,6 +31,9 @@ describe('scene.test', () => {
     app = createFeathersExpressApp()
     const storageProvider = getStorageProvider()
     parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   describe("'scene-data' service", () => {

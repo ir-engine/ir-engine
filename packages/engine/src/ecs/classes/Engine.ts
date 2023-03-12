@@ -366,6 +366,8 @@ globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
 export async function destroyEngine() {
+  Engine.instance.engineTimer.clear()
+
   /** Remove all entities */
   const entities = Engine.instance.entityQuery()
   for (const entity of entities) if (entity) removeEntity(entity, true)
@@ -378,7 +380,7 @@ export async function destroyEngine() {
   await unloadAllSystems()
 
   const activeReactors = [] as Promise<void>[]
-  console.log(Engine.instance.activeReactors)
+
   for (const reactor of Engine.instance.activeReactors) {
     activeReactors.push(reactor.stop())
   }
