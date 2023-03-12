@@ -93,13 +93,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
     (authState.linkedin && !oauthConnectedState.linkedin) ||
     (authState.twitter && !oauthConnectedState.twitter)
 
-  const removeSocial =
-    (authState?.discord && oauthConnectedState.discord) ||
-    (authState.facebook && oauthConnectedState.facebook) ||
-    (authState.github && oauthConnectedState.github) ||
-    (authState.google && oauthConnectedState.google) ||
-    (authState.linkedin && oauthConnectedState.linkedin) ||
-    (authState.twitter && oauthConnectedState.twitter)
+  const removeSocial = Object.values(oauthConnectedState).filter((value) => value).length > 1
 
   // const loadCredentialHandler = async () => {
   //   try {
@@ -557,51 +551,53 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                 </div>
 
                 {!selfUser?.isGuest.value && removeSocial && (
-                  <Text align="center" variant="body2" mb={1} mt={2}>
-                    {t('user:usermenu.profile.removeSocial')}
-                  </Text>
-                )}
+                  <>
+                    <Text align="center" variant="body2" mb={1} mt={2}>
+                      {t('user:usermenu.profile.removeSocial')}
+                    </Text>
 
-                <div className={styles.socialContainer}>
-                  {authState?.discord && oauthConnectedState.discord && (
-                    <IconButton
-                      id="discord"
-                      icon={<DiscordIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.google && oauthConnectedState.google && (
-                    <IconButton
-                      id="google"
-                      icon={<GoogleIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.facebook && oauthConnectedState.facebook && (
-                    <IconButton
-                      id="facebook"
-                      icon={<Icon type="Facebook" viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.linkedin && oauthConnectedState.linkedin && (
-                    <IconButton
-                      id="linkedin"
-                      icon={<LinkedInIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.twitter && oauthConnectedState.twitter && (
-                    <IconButton
-                      id="twitter"
-                      icon={<Icon type="Twitter" viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.github && oauthConnectedState.github && (
-                    <IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleRemoveOAuthServiceClick} />
-                  )}
-                </div>
+                    <div className={styles.socialContainer}>
+                      {authState?.discord && oauthConnectedState.discord && (
+                        <IconButton
+                          id="discord"
+                          icon={<DiscordIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.google && oauthConnectedState.google && (
+                        <IconButton
+                          id="google"
+                          icon={<GoogleIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.facebook && oauthConnectedState.facebook && (
+                        <IconButton
+                          id="facebook"
+                          icon={<Icon type="Facebook" viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.linkedin && oauthConnectedState.linkedin && (
+                        <IconButton
+                          id="linkedin"
+                          icon={<LinkedInIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.twitter && oauthConnectedState.twitter && (
+                        <IconButton
+                          id="twitter"
+                          icon={<Icon type="Twitter" viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.github && oauthConnectedState.github && (
+                        <IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleRemoveOAuthServiceClick} />
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
 
