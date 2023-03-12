@@ -150,7 +150,7 @@ export default async function LoadingUISystem() {
     removeActionQueue(spectateUserQueue)
     removeEntity(ui.entity)
     mesh.removeFromParent()
-    reactor.stop()
+    await reactor.stop()
   }
 
   return { execute, cleanup }

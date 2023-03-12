@@ -161,7 +161,7 @@ export default async function SceneObjectSystem() {
   const cleanup = async () => {
     removeQuery(groupQuery)
     removeQuery(updatableQuery)
-    groupReactor.stop()
+    await groupReactor.stop()
   }
 
   const subsystems = [() => Promise.resolve({ default: FogSystem })]

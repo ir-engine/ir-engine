@@ -3,7 +3,7 @@ import { Types } from 'bitecs'
 import * as bitECS from 'bitecs'
 
 import { createEngine } from '../../initializeEngine'
-import { Engine } from '../classes/Engine'
+import { destroyEngine, Engine } from '../classes/Engine'
 import {
   addComponent,
   ComponentMap,
@@ -19,6 +19,10 @@ describe('ComponentFunctions', async () => {
   beforeEach(() => {
     createEngine()
     ComponentMap.clear()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   describe('createMappedComponent', () => {

@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path/posix'
 
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -30,6 +31,9 @@ describe('file browser service', () => {
 
     fs.mkdirSync(PROJECT_PATH)
     fs.mkdirSync(STORAGE_PATH)
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   it('should register the service', async () => {

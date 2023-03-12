@@ -10,7 +10,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -80,6 +80,10 @@ describe('DataReader', () => {
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
     })
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('should checkBitflag', () => {

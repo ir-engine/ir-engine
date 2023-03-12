@@ -273,7 +273,7 @@ export default async function PositionalAudioSystem() {
     removeQuery(positionalAudioQuery)
     removeQuery(networkedAvatarAudioQuery)
     removeActionQueue(setMediaStreamVolumeActionQueue)
-    positionalAudioPannerReactor.stop()
+    await positionalAudioPannerReactor.stop()
   }
 
   return { execute, cleanup }

@@ -1,6 +1,8 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 
@@ -11,6 +13,10 @@ describe('identity-provider service', () => {
   before(async () => {
     app = createFeathersExpressApp()
     await app.setup()
+  })
+
+  after(() => {
+    return destroyEngine()
   })
 
   it('registered the service', async () => {

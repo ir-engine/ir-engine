@@ -34,7 +34,7 @@ export function Timer(update: TimerUpdateCallback, tickRate: number) {
   let nextTpsReportTime = 0
   let timerRuns = 0
   let prevTimerRuns = 0
-  let serverLoop = null! as ServerLoop
+  let serverLoop = null as ServerLoop | null
 
   function onFrame(time, xrFrame) {
     timerRuns += 1
@@ -144,7 +144,7 @@ export function Timer(update: TimerUpdateCallback, tickRate: number) {
     if (isClient) {
       EngineRenderer.instance.renderer.setAnimationLoop(null)
     } else {
-      serverLoop.stop()
+      serverLoop?.stop()
     }
   }
 

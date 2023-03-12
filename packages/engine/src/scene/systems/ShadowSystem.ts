@@ -276,8 +276,8 @@ export default async function ShadowSystem() {
   }
 
   const cleanup = async () => {
-    csmReactor.stop()
-    dropShadowReactor.stop()
+    await csmReactor.stop()
+    await dropShadowReactor.stop()
   }
 
   return { execute, cleanup }
