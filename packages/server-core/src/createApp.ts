@@ -22,6 +22,7 @@ import { Application, ServerTypeMode } from '../declarations'
 import appConfig from './appconfig'
 import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
+import mysql from './mysql'
 import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
 import services from './services'
@@ -180,6 +181,8 @@ export const createFeathersExpressApp = (
   //   ;(req as any).feathers.res = res
   //   next()
   // })
+
+  app.configure(mysql)
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)
