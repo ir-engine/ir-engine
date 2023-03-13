@@ -244,7 +244,7 @@ export class Location<T = LocationDataType> extends Service<T> {
    * @param params
    * @returns new location object
    */
-  async create(data: any, params?: UserParams): Promise<T> {
+  async createSingle(data: any, params?: UserParams): Promise<T> {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
@@ -294,11 +294,26 @@ export class Location<T = LocationDataType> extends Service<T> {
     } catch (err) {
       logger.error(err)
       await t.rollback()
-      if (err.errors[0].message === 'slugifiedName must be unique') {
+      if (err && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('Name is in use.')
       }
       throw err
     }
+  }
+
+  /**
+   * A function which is used to create new location
+   *
+   * @param data of location
+   * @param params
+   * @returns new location object
+   */
+  async create(data: any | any[], params?: UserParams): Promise<T | Awaited<T>[]> {
+    if (Array.isArray(data)) {
+      return Promise.all(data.map((d) => this.createSingle(d, params)))
+    }
+
+    return this.createSingle(data, params)
   }
 
   /**

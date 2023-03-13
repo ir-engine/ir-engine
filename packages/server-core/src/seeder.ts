@@ -1,3 +1,4 @@
+import { FeathersService } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
@@ -7,49 +8,18 @@ import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
 import seederConfig from './seeder-config'
 
-const settingsServiceNames = [
-  'authentication-setting',
-  'aws-setting',
-  'chargebee-setting',
-  'coil-setting',
-  'client-setting',
-  'email-setting',
-  'instance-server-setting',
-  'redis-setting',
-  'server-setting',
-  'task-server-setting'
-]
-
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {
-  if (forceRefresh || prepareDb)
-    for (let config of seederConfig) {
-      if (config.path) {
-        const templates = config.templates
-        const service = app.service(config.path as any)
-        if (templates)
-          for (let template of templates) {
-            let isSeeded
-            if (settingsServiceNames.indexOf(config.path) > -1) {
-              const result = await service.find()
-              isSeeded = result.total > 0
-            } else {
-              const searchTemplate = {}
+  if (!forceRefresh && !prepareDb) return
 
-              const sequelizeModel = service.Model
-              const uniqueField = Object.values(sequelizeModel.rawAttributes).find((value: any) => value.unique) as any
-              if (uniqueField) searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
-              else
-                for (let key of Object.keys(template))
-                  if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
-              const result = await service.find({
-                query: searchTemplate
-              })
-              isSeeded = result.total > 0
-            }
-            if (!isSeeded) await service.create(template)
-          }
-      }
-    }
+  for (const config of seederConfig) {
+    if (!config.path || !config.templates) return
+
+    const templates = config.templates
+
+    const service = app.service(config.path as any) as FeathersService
+
+    await service.create(templates)
+  }
 
   if (forceRefresh) {
     // for local dev clear the storage provider
