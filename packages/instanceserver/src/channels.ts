@@ -31,7 +31,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
-import { initializeNetwork, SocketWebRTCServerFunctions } from './SocketWebRTCServerFunctions'
+import { initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { WorldHostModule } from './WorldHostModule'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })

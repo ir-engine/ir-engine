@@ -353,6 +353,7 @@ type Primus = EventEmitter & {
   write: Function
   _write: Function
 }
+
 export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = getState(MediaInstanceState)
   const mediaNetwork = Engine.instance.mediaNetwork

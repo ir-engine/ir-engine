@@ -26,7 +26,7 @@ import { localConfig } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { SocketWebRTCServerFunctions } from './SocketWebRTCServerFunctions'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
@@ -80,7 +80,7 @@ export const setupSubdomain = async (app: Application) => {
 }
 
 export async function getFreeSubdomain(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   isIdentifier: string,
   subdomainNumber: number
 ): Promise<string> {
@@ -219,12 +219,12 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   return true
 }
 
-export function getUserIdFromPeerID(network: SocketWebRTCServerFunctions, sparkID: PeerID) {
+export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, sparkID: PeerID) {
   const client = Array.from(network.peers.values()).find((c) => c.peerID === sparkID)
   return client?.userId
 }
 
-export const handleConnectingPeer = async (network: SocketWebRTCServerFunctions, spark: Spark, user: UserInterface) => {
+export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, spark: Spark, user: UserInterface) => {
   const userId = user.id
   const avatarDetail = user.avatar
   const peerID = spark.id as PeerID
@@ -284,7 +284,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerFunctions,
 }
 
 export async function handleJoinWorld(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data: JoinWorldRequestData,
   messageId: string,
@@ -316,7 +316,7 @@ export async function handleJoinWorld(
 }
 
 const getUserSpawnFromInvite = async (
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   user: UserInterface,
   inviteCode: string,
   iteration = 0
@@ -376,7 +376,7 @@ const getUserSpawnFromInvite = async (
   }
 }
 
-export function handleIncomingActions(network: SocketWebRTCServerFunctions, spark: Spark, message) {
+export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, message) {
   if (!message) return
   const networkPeer = network.peers.get(spark.id as PeerID)
   if (!networkPeer) throw new Error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
@@ -390,13 +390,13 @@ export function handleIncomingActions(network: SocketWebRTCServerFunctions, spar
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
-export async function handleHeartbeat(network: SocketWebRTCServerFunctions, spark: Spark): Promise<any> {
+export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark: Spark): Promise<any> {
   const peerID = spark.id as PeerID
   // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
   if (network.peers.has(peerID)) network.peers.get(peerID)!.lastSeenTs = Date.now()
 }
 
-export async function handleDisconnect(network: SocketWebRTCServerFunctions, spark: Spark): Promise<any> {
+export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark): Promise<any> {
   const peerID = spark.id as PeerID
   const userId = getUserIdFromPeerID(network, peerID) as UserId
   const disconnectedClient = network.peers.get(peerID)
@@ -435,7 +435,7 @@ export async function handleDisconnect(network: SocketWebRTCServerFunctions, spa
 }
 
 export async function handleLeaveWorld(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string

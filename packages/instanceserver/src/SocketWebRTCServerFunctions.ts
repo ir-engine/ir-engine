@@ -80,4 +80,4 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
   }
 }
 
-export type SocketWebRTCServerFunctions = Awaited<ReturnType<typeof initializeNetwork>>
+export type SocketWebRTCServerNetwork = Awaited<ReturnType<typeof initializeNetwork>>

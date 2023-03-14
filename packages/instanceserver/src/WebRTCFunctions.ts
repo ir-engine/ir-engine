@@ -27,7 +27,7 @@ import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
   ConsumerExtension,
   ProducerExtension,
-  SocketWebRTCServerFunctions,
+  SocketWebRTCServerNetwork,
   WebRTCTransportExtension
 } from './SocketWebRTCServerFunctions'
 
@@ -75,7 +75,7 @@ export async function startWebRTC() {
 }
 
 export const sendNewProducer =
-  (network: SocketWebRTCServerFunctions, spark: Spark, channelType: string, channelId?: string) =>
+  (network: SocketWebRTCServerNetwork, spark: Spark, channelType: string, channelId?: string) =>
   async (producer: ProducerExtension): Promise<void> => {
     const peerID = spark.id as PeerID
     const userId = getUserIdFromPeerID(network, peerID)!
@@ -106,7 +106,7 @@ export const sendNewProducer =
   }
 // Create consumer for each client!
 export const sendCurrentProducers = async (
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   userIds: string[],
   channelType: string,
@@ -147,7 +147,7 @@ export const sendCurrentProducers = async (
 }
 
 export const handleConsumeDataEvent =
-  (network: SocketWebRTCServerFunctions, spark: Spark) =>
+  (network: SocketWebRTCServerNetwork, spark: Spark) =>
   async (dataProducer: DataProducer): Promise<any> => {
     const peerID = spark.id as PeerID
     const userId = getUserIdFromPeerID(network, peerID)!
@@ -206,7 +206,7 @@ export const handleConsumeDataEvent =
   }
 
 export async function closeTransport(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   transport: WebRTCTransportExtension
 ): Promise<void> {
   logger.info(`Closing transport id "${transport.id}", appData: %o`, transport.appData)
@@ -219,7 +219,7 @@ export async function closeTransport(
   }
 }
 
-export async function closeProducer(network: SocketWebRTCServerFunctions, producer: ProducerExtension): Promise<void> {
+export async function closeProducer(network: SocketWebRTCServerNetwork, producer: ProducerExtension): Promise<void> {
   logger.info(`Closing producer id "${producer.id}", appData: %o`, producer.appData)
   await producer.close()
 
@@ -232,7 +232,7 @@ export async function closeProducer(network: SocketWebRTCServerFunctions, produc
 }
 
 export async function closeProducerAndAllPipeProducers(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   producer: ProducerExtension
 ): Promise<void> {
   logger.info(`Closing producer id "${producer?.id}" and all pipe producers, appData: %o`, producer?.appData)
@@ -254,7 +254,7 @@ export async function closeProducerAndAllPipeProducers(
   }
 }
 
-export async function closeConsumer(network: SocketWebRTCServerFunctions, consumer: ConsumerExtension): Promise<void> {
+export async function closeConsumer(network: SocketWebRTCServerNetwork, consumer: ConsumerExtension): Promise<void> {
   await consumer.close()
 
   network.consumers = network.consumers.filter((c) => c.id !== consumer.id)
@@ -269,7 +269,7 @@ export async function closeConsumer(network: SocketWebRTCServerFunctions, consum
 }
 
 export async function createWebRtcTransport(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   { peerID, direction, sctpCapabilities, channelType, channelId }: WebRtcTransportParams
 ): Promise<WebRtcTransport> {
   const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
@@ -313,7 +313,7 @@ export async function createWebRtcTransport(
 }
 
 export async function createInternalDataConsumer(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   dataProducer: DataProducer,
   peerID: PeerID
 ): Promise<DataConsumer | null> {
@@ -340,7 +340,7 @@ export async function createInternalDataConsumer(
 }
 
 export async function handleWebRtcTransportCreate(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data: WebRtcTransportParams,
   messageId: string
@@ -441,7 +441,7 @@ export async function handleWebRtcTransportCreate(
 }
 
 export async function handleWebRtcProduceData(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -569,7 +569,7 @@ export async function handleWebRtcProduceData(
 }
 
 export async function handleWebRtcTransportClose(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -583,7 +583,7 @@ export async function handleWebRtcTransportClose(
 }
 
 export async function handleWebRtcTransportConnect(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -611,7 +611,7 @@ export async function handleWebRtcTransportConnect(
   }
 }
 
-export async function handleWebRtcCloseProducer(network: SocketWebRTCServerFunctions, spark: Spark, data, messageId) {
+export async function handleWebRtcCloseProducer(network: SocketWebRTCServerNetwork, spark: Spark, data, messageId) {
   const { producerId } = data
   const producer = network.producers.find((p) => p.id === producerId)!
   try {
@@ -636,7 +636,7 @@ type HandleWebRtcSendTrackData = {
 }
 
 export async function handleWebRtcSendTrack(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data: HandleWebRtcSendTrackData,
   messageId: string
@@ -732,7 +732,7 @@ type HandleWebRtcReceiveTrackData = {
 }
 
 export async function handleWebRtcReceiveTrack(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data: HandleWebRtcReceiveTrackData,
   messageId: string
@@ -836,7 +836,7 @@ export async function handleWebRtcReceiveTrack(
 }
 
 export async function handleWebRtcPauseConsumer(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -851,7 +851,7 @@ export async function handleWebRtcPauseConsumer(
 }
 
 export async function handleWebRtcResumeConsumer(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -866,7 +866,7 @@ export async function handleWebRtcResumeConsumer(
 }
 
 export async function handleWebRtcCloseConsumer(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -880,7 +880,7 @@ export async function handleWebRtcCloseConsumer(
 }
 
 export async function handleWebRtcConsumerSetLayers(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -893,7 +893,7 @@ export async function handleWebRtcConsumerSetLayers(
 }
 
 export async function handleWebRtcResumeProducer(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -923,7 +923,7 @@ export async function handleWebRtcResumeProducer(
 }
 
 export async function handleWebRtcPauseProducer(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -954,7 +954,7 @@ export async function handleWebRtcPauseProducer(
 }
 
 export async function handleWebRtcRequestCurrentProducers(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string
@@ -965,7 +965,7 @@ export async function handleWebRtcRequestCurrentProducers(
 }
 
 export async function handleWebRtcInitializeRouter(
-  network: SocketWebRTCServerFunctions,
+  network: SocketWebRTCServerNetwork,
   spark: Spark,
   data,
   messageId: string

@@ -7,7 +7,7 @@ import * as k8s from '@kubernetes/client-node'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
 
-import { SocketWebRTCServerFunctions } from '../instanceserver/src/SocketWebRTCServerFunctions'
+import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerFunctions'
 
 export const ServerMode = {
   API: 'API' as const,
@@ -31,7 +31,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   agonesSDK: any
   sync: any
   primus: PrimusType
-  network: SocketWebRTCServerFunctions
+  network: SocketWebRTCServerNetwork
   seed: () => Application // function
   serverMode: ServerTypeMode
 
