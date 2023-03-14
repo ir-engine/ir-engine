@@ -31,7 +31,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
-import { initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
+import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { WorldHostModule } from './WorldHostModule'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -268,7 +268,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
   }
 
   const network = await networkPromise
-  app.network = network
 
   addNetwork(network)
 
@@ -412,7 +411,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
-  const activeClients = app.network.peers
+  const activeClients = getServerNetwork(app).peers
   const activeUsers = [...activeClients].filter(
     ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
   )
@@ -493,9 +492,11 @@ const handleUserDisconnect = async (
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
+  const network = getServerNetwork(app)
+
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (app.network.peers.size <= 1) {
+  if (network.peers.size <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }
