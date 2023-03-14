@@ -315,20 +315,22 @@ export const PartyService = {
         NetworkUserService.getLayerUsers(false)
       }
 
-      const partyCreatedListener = (params) => {
-        params.party.partyUsers = params.party.party_users
+      const partyCreatedListener = (party: Party) => {
+        party.partyUsers = party.party_users
         dispatchAction(ChatAction.refetchPartyChannelAction({}))
-        dispatchAction(PartyActions.createdPartyAction({ party: params.party }))
+        dispatchAction(PartyActions.createdPartyAction({ party }))
       }
 
-      const partyPatchedListener = (params) => {
-        dispatchAction(PartyActions.patchedPartyAction({ party: params.party }))
-        ChatService.clearChatTargetIfCurrent('party', params.party)
+      const partyPatchedListener = (party: Party) => {
+        party.partyUsers = party.party_users
+        dispatchAction(PartyActions.patchedPartyAction({ party }))
+        ChatService.clearChatTargetIfCurrent('party', party)
       }
 
-      const partyRemovedListener = (params) => {
+      const partyRemovedListener = (party: Party) => {
+        party.partyUsers = party.party_users
         dispatchAction(ChatAction.refetchPartyChannelAction({}))
-        dispatchAction(PartyActions.removedPartyAction({ party: params.party }))
+        dispatchAction(PartyActions.removedPartyAction({ party }))
       }
 
       API.instance.client.service('party-user').on('created', partyUserCreatedListener)
