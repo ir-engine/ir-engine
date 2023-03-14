@@ -132,9 +132,9 @@ export const createFeathersExpressApp = (
     createIPFSStorageProvider()
   }
 
+  createEngine()
+  getMutableState(EngineState).publicPath.set(config.client.dist)
   if (!appConfig.db.forceRefresh) {
-    createEngine()
-    getMutableState(EngineState).publicPath.set(config.client.dist)
     setupEngineActionSystems()
     initializeNode()
   }
@@ -201,7 +201,7 @@ export const createFeathersExpressApp = (
 
   app.use(errorHandler({ logger }))
 
-  getMutableState(ServerState).app.set(app)
+  getMutableState(ServerState).merge({ app })
 
   return app
 }
