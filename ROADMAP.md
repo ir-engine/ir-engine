@@ -24,6 +24,7 @@ Q2
 - [ ] Desktop AR Mode
 
 ## Future
+- [ ] Immersive Multiuser Editor
 - [ ] Object Persistence
 - [ ] Entity & Asset Servers
 - [ ] Mobile App for Interoperable DID Social Account
