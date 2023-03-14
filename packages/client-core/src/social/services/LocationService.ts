@@ -9,7 +9,7 @@ import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 //State
-const LocationState = defineState({
+export const LocationState = defineState({
   name: 'LocationState',
   initial: () => ({
     locationName: null! as string,

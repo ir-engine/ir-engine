@@ -9,7 +9,8 @@ import {
   RtpCodecCapability,
   RtpParameters,
   Transport,
-  WebRtcTransport
+  WebRtcTransport,
+  Worker
 } from 'mediasoup/node/lib/types'
 import os from 'os'
 import { Spark } from 'primus'
@@ -17,9 +18,11 @@ import { Spark } from 'primus'
 import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -28,7 +31,7 @@ import {
   ProducerExtension,
   SocketWebRTCServerNetwork,
   WebRTCTransportExtension
-} from './SocketWebRTCServerNetwork'
+} from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
@@ -41,11 +44,12 @@ const toArrayBuffer = (buf): any => {
   return ab
 }
 
-export async function startWebRTC(network: SocketWebRTCServerNetwork): Promise<void> {
+export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   // Initialize roomstate
   const cores = os.cpus()
-  network.routers = { instance: [] }
+  const routers = { instance: [] } as { instance: Router[] }
+  const workers = [] as Worker[]
   for (let i = 0; i < cores.length; i++) {
     const newWorker = await createWorker({
       logLevel: 'debug',
@@ -65,17 +69,18 @@ export async function startWebRTC(network: SocketWebRTCServerNetwork): Promise<v
 
     const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
     const newRouter = await newWorker.createRouter({ mediaCodecs })
-    network.routers.instance.push(newRouter)
+    routers.instance.push(newRouter)
     logger.info('Worker created router.')
-    network.workers.push(newWorker)
+    workers.push(newWorker)
   }
+  return { routers, workers }
 }
 
 export const sendNewProducer =
   (network: SocketWebRTCServerNetwork, spark: Spark, channelType: string, channelId?: string) =>
   async (producer: ProducerExtension): Promise<void> => {
     const peerID = spark.id as PeerID
-    const userId = getUserIdFromPeerID(network, spark.id)!
+    const userId = getUserIdFromPeerID(network, peerID)!
     const selfClient = network.peers.get(peerID)!
     if (selfClient?.peerID != null) {
       for (const [, client] of network.peers) {
@@ -110,7 +115,7 @@ export const sendCurrentProducers = async (
   channelId?: string
 ): Promise<void> => {
   const peerID = spark.id as PeerID
-  const selfUserId = getUserIdFromPeerID(network, spark.id)!
+  const selfUserId = getUserIdFromPeerID(network, peerID)!
   const selfClient = network.peers.get(peerID)!
   if (selfClient?.peerID) {
     for (const [peerID, client] of network.peers) {
@@ -147,7 +152,7 @@ export const handleConsumeDataEvent =
   (network: SocketWebRTCServerNetwork, spark: Spark) =>
   async (dataProducer: DataProducer): Promise<any> => {
     const peerID = spark.id as PeerID
-    const userId = getUserIdFromPeerID(network, spark.id)!
+    const userId = getUserIdFromPeerID(network, peerID)!
     logger.info('Data Consumer being created on server by client: ' + userId)
     if (!network.peers.has(peerID)) {
       return false
@@ -327,7 +332,7 @@ export async function createInternalDataConsumer(
       network.incomingMessageQueueUnreliableIDs.add(peerID)
       // forward data to clients in world immediately
       // TODO: need to include the userId (or index), so consumers can validate
-      network.sendData(message)
+      network.transport.bufferToAll(message)
     })
     return consumer
   } catch (err) {
@@ -392,14 +397,15 @@ export async function handleWebRtcTransportCreate(
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
     if (config.kubernetes.enabled) {
-      const serverResult = await network.app.k8AgonesClient.listNamespacedCustomObject(
+      const app = getState(ServerState).app
+      const serverResult = await app.k8AgonesClient.listNamespacedCustomObject(
         'agones.dev',
         'v1',
         'default',
         'gameservers'
       )
       const thisGs = (serverResult?.body! as any).items.find(
-        (server) => server.metadata.name === network.app.instanceServer.objectMeta.name
+        (server) => server.metadata.name === app.instanceServer.objectMeta.name
       )
 
       for (let [index, candidate] of iceCandidates.entries()) {
@@ -446,9 +452,9 @@ export async function handleWebRtcProduceData(
   try {
     console.log('webRTCProduceData')
     const peerID = spark.id as PeerID
-    const userId = getUserIdFromPeerID(network, spark.id)
+    const userId = getUserIdFromPeerID(network, peerID)
     if (!userId) {
-      logger.info('userId could not be found for sparkID ' + spark.id)
+      logger.info('userId could not be found for sparkID ' + peerID)
       return
     }
     if (!data.label) {
@@ -639,7 +645,7 @@ export async function handleWebRtcSendTrack(
   messageId: string
 ) {
   const peerID = spark.id as PeerID
-  const userId = getUserIdFromPeerID(network, spark.id)
+  const userId = getUserIdFromPeerID(network, peerID)
   const { transportId, kind, rtpParameters, paused = false, appData } = data
   const transport = network.mediasoupTransports[transportId]
 

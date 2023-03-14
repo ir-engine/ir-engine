@@ -18,7 +18,7 @@ import {
 } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkUserAction, NetworkUserService } from '../../user/services/NetworkUserService'
 import { accessChatState, ChatAction, ChatService } from './ChatService'
