@@ -72,6 +72,7 @@ export const updatePlaneGeometry = (entity: Entity, plane: XRPlane) => {
 
 export const updatePlanePose = (entity: Entity, plane: XRPlane) => {
   const planePose = Engine.instance.xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
+  if (!planePose) return
   LocalTransformComponent.position.x[entity] = planePose.transform.position.x
   LocalTransformComponent.position.y[entity] = planePose.transform.position.y
   LocalTransformComponent.position.z[entity] = planePose.transform.position.z
