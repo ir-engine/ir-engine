@@ -42,7 +42,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -343,7 +343,7 @@ export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
 
   if (scatterProps.state === ScatterState.STAGED) {
     const executeStaging = () => {
-      addComponent(entity, InstancingStagingComponent, {})
+      addComponent(entity, InstancingStagingComponent)
     }
     if (!getEngineState().sceneLoaded.value) matchActionOnce(EngineActions.sceneLoaded.matches, executeStaging)
     else executeStaging()
@@ -365,7 +365,7 @@ async function loadGrassTextures(props: State<GrassProperties>) {
 
 export async function stageInstancing(entity: Entity) {
   const scatter = getComponent(entity, InstancingComponent)
-  const scatterState = getComponentState(entity, InstancingComponent)
+  const scatterState = getMutableComponent(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
     console.error('scatter component is already staging')
     return

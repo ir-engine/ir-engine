@@ -14,7 +14,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent

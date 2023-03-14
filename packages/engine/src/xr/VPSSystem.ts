@@ -1,7 +1,7 @@
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
-import { defineQuery, getComponent, getComponentState, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import {
   PersistentAnchorActions,
@@ -25,7 +25,7 @@ export async function VPSSystem() {
 
     for (const action of vpsAnchorFoundQueue()) {
       for (const entity of anchors) {
-        const anchor = getComponentState(entity, PersistentAnchorComponent)
+        const anchor = getMutableComponent(entity, PersistentAnchorComponent)
         if (anchor.name.value === action.name) {
           anchor.active.set(true)
           const localTransform = getComponent(entity, LocalTransformComponent)
@@ -37,7 +37,7 @@ export async function VPSSystem() {
 
     for (const action of vpsAnchorUpdatedQueue()) {
       for (const entity of anchors) {
-        const anchor = getComponentState(entity, PersistentAnchorComponent)
+        const anchor = getMutableComponent(entity, PersistentAnchorComponent)
         if (anchor.name.value === action.name) {
           const localTransform = getComponent(entity, LocalTransformComponent)
           localTransform.position.copy(action.position)
@@ -48,7 +48,7 @@ export async function VPSSystem() {
 
     for (const action of vpsAnchorLostQueue()) {
       for (const entity of anchors) {
-        const anchor = getComponentState(entity, PersistentAnchorComponent)
+        const anchor = getMutableComponent(entity, PersistentAnchorComponent)
         if (anchor.name.value === action.name) anchor.active.set(false)
       }
     }

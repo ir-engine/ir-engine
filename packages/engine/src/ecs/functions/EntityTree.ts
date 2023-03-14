@@ -22,7 +22,7 @@ import { Entity, UndefinedEntity } from '../classes/Entity'
 import {
   defineComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponentState,
   hasComponent,
   removeComponent,
@@ -63,7 +63,7 @@ export const EntityTreeComponent = defineComponent({
 
     // If a previous parentEntity, remove this entity from its children
     if (component.parentEntity.value && component.parentEntity.value !== json.parentEntity) {
-      const oldParent = getComponentState(component.parentEntity.value, EntityTreeComponent)
+      const oldParent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
       const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
       const children = oldParent.children.get(NO_PROXY)
       oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
@@ -106,7 +106,7 @@ export const EntityTreeComponent = defineComponent({
     if (entity === Engine.instance.originEntity) return
 
     if (component.parentEntity.value) {
-      const parent = getComponentState(component.parentEntity.value, EntityTreeComponent)
+      const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
       const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
       const children = parent.children.get(NO_PROXY)
       parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])

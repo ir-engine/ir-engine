@@ -3,7 +3,7 @@ import { BufferGeometry, Color, Material, MathUtils, Mesh, Texture } from 'three
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { State } from '@etherealengine/hyperflux'
 
-import { createMappedComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   SCATTER_PROPERTIES_DEFAULT_VALUES
@@ -196,6 +196,6 @@ export const InstancingComponent = defineComponent({
   }
 })
 
-export const InstancingStagingComponent = createMappedComponent('InstancingStagingComponent')
+export const InstancingStagingComponent = defineComponent({ name: 'InstancingStagingComponent' })
 
-export const InstancingUnstagingComponent = createMappedComponent('InstancingUnstagingComponent')
+export const InstancingUnstagingComponent = defineComponent({ name: 'InstancingUnstagingComponent' })

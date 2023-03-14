@@ -4,7 +4,7 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, getComponentState, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'

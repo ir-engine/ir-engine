@@ -5,6 +5,7 @@ import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/En
 import {
   addComponent,
   createMappedComponent,
+  defineComponent,
   getComponent,
   hasComponent,
   setComponent
@@ -49,7 +50,25 @@ type TestComponentType = {
   data: TempProp
 }
 
-export const TestComponent = createMappedComponent<TestComponentType>('TestComponent')
+export const TestComponent = defineComponent({
+  name: 'TestComponent',
+
+  onInit(entity) {
+    return {
+      pos: new Vector3(),
+      index: 0,
+      data: new TempProp(0)
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (json.pos) component.pos.value.copy(json.pos)
+    if (json.index) component.index.set(json.index)
+    if (json.data) component.data.set(json.data)
+  }
+})
 function getRandomValues(): TestComponentType {
   return {
     pos: new Vector3(Math.random(), Math.random(), Math.random()),

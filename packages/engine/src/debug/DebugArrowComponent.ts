@@ -1,11 +1,23 @@
 import { Vector3 } from 'three'
 
-import { createMappedComponent } from '../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../ecs/functions/ComponentFunctions'
 
-export type DebugArrowComponentType = {
-  color: number
-  direction: Vector3
-  position: Vector3
-}
+export const DebugArrowComponent = defineComponent({
+  name: 'DebugArrowComponent',
 
-export const DebugArrowComponent = createMappedComponent<DebugArrowComponentType>('DebugArrowComponent')
+  onInit: (entity) => {
+    return {
+      color: 0xffffff,
+      direction: new Vector3(),
+      position: new Vector3()
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.color) component.color.set(json.color)
+    if (json.direction) component.direction.set(json.direction)
+    if (json.position) component.position.set(json.position)
+  }
+})

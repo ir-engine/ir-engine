@@ -5,7 +5,7 @@ import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Scene } from '../../ecs/classes/Scene'
 import {
   defineQuery,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   removeQuery
@@ -60,7 +60,7 @@ export default async function ScatterSystem() {
       const executeStaging = () =>
         stageInstancing(entity).then(() => {
           removeComponent(entity, InstancingStagingComponent)
-          const instancingState = getComponentState(entity, InstancingComponent)
+          const instancingState = getMutableComponent(entity, InstancingComponent)
           instancingState.state.set(ScatterState.STAGED)
         })
       if (engineState.sceneLoaded.value) executeStaging()
@@ -73,7 +73,7 @@ export default async function ScatterSystem() {
     for (const entity of unstagingQuery.enter()) {
       unstageInstancing(entity)
       removeComponent(entity, InstancingUnstagingComponent)
-      const instancingState = getComponentState(entity, InstancingComponent)
+      const instancingState = getMutableComponent(entity, InstancingComponent)
       instancingState.state.set(ScatterState.UNSTAGED)
     }
   }

@@ -16,7 +16,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Scene } from '../../ecs/classes/Scene'
-import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
@@ -242,7 +242,7 @@ export default async function MediaSystem() {
 
   const execute = () => {
     for (const entity of mediaQuery.enter()) {
-      const media = getComponentState(entity, MediaComponent)
+      const media = getMutableComponent(entity, MediaComponent)
       setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
       setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }

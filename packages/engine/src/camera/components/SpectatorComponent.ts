@@ -1,8 +1,19 @@
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type SpectatorComponentType = {
-  userId: UserId
-}
-export const SpectatorComponent = createMappedComponent<SpectatorComponentType>('SpectatorComponent')
+export const SpectatorComponent = defineComponent({
+  name: 'SpectatorComponent',
+
+  onInit: (entity) => {
+    return {
+      userId: '' as UserId
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.userId) component.userId.set(json.userId)
+  }
+})

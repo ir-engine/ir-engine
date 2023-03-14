@@ -11,7 +11,7 @@ import {
   addComponent,
   Component,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,

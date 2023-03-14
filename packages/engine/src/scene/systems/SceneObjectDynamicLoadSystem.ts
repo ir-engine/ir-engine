@@ -6,18 +6,14 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import {
-  SCENE_COMPONENT_DYNAMIC_LOAD,
-  SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES,
-  SceneDynamicLoadTagComponent
-} from '../components/SceneDynamicLoadTagComponent'
+import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { updateSceneEntitiesFromJSON } from '../systems/SceneLoadingSystem'
 
 export default async function SceneObjectDynamicLoadSystem() {
   Engine.instance.sceneComponentRegistry.set(SceneDynamicLoadTagComponent.name, SCENE_COMPONENT_DYNAMIC_LOAD)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {
-    defaultData: SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES
+    defaultData: {}
   })
 
   if (getMutableState(EngineState).isEditor.value)

@@ -10,7 +10,7 @@ import {
   addComponent,
   defineComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   QueryComponents,
   removeComponent,
@@ -52,7 +52,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
-  getComponentState(entity, GroupComponent).merge([obj])
+  getMutableComponent(entity, GroupComponent).merge([obj])
 
   const transform = getComponent(entity, TransformComponent)
   obj.position.copy(transform.position)
@@ -67,9 +67,9 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
-  proxifyVector3WithDirty(TransformComponent.position, entity, Engine.instance.dirtyTransforms, obj.position)
-  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, Engine.instance.dirtyTransforms, obj.quaternion)
-  proxifyVector3WithDirty(TransformComponent.scale, entity, Engine.instance.dirtyTransforms, obj.scale)
+  proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
+  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
+  proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
 }
 
 export function removeGroupComponent(entity: Entity) {
@@ -85,7 +85,7 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   if (hasComponent(entity, GroupComponent)) {
     const group = getComponent(entity, GroupComponent)
     if (group.includes(obj)) {
-      getComponentState(entity, GroupComponent)[group.indexOf(obj)].set(none)
+      getMutableComponent(entity, GroupComponent)[group.indexOf(obj)].set(none)
     }
     if (!group.length) removeComponent(entity, GroupComponent)
   }
