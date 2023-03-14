@@ -4,7 +4,7 @@ import { RedisSetting } from './redis-setting.class'
 import hooks from './redis-setting.hooks'
 import createModel from './redis-setting.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'redis-setting': RedisSetting
   }

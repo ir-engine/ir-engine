@@ -1,12 +1,12 @@
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   ComponentType,
@@ -30,13 +30,16 @@ describe.skip('EquippableSystem Integration Tests', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('system test', async () => {
-    const world = Engine.instance.currentWorld
-    const player = createEntity(world)
-    const item = createEntity(world)
+    const player = createEntity()
+    const item = createEntity()
 
     addComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userId,

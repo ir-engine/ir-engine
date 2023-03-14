@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { patchInstanceserverLocation } from './instanceserver-provision-helper'
 import hooks from './instanceserver-provision.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'instanceserver-provision': {
       patch: ReturnType<typeof patchInstanceserverLocation>

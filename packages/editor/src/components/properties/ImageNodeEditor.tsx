@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 

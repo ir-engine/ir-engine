@@ -1,8 +1,12 @@
 import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { defineComponent, hasComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createState, getState, none, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
@@ -74,9 +78,7 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, PositionalAudioComponent)) throw root.stop()
-
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(root.entity, PositionalAudioComponent)
     const mediaElement = useComponent(root.entity, MediaElementComponent)
 

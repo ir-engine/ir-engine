@@ -1,11 +1,11 @@
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Relationship } from '@etherealengine/common/src/interfaces/Relationship'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -30,7 +30,7 @@ const FriendState = defineState({
 })
 
 export const FriendServiceReceptor = (action) => {
-  const s = getState(FriendState)
+  const s = getMutableState(FriendState)
   matches(action)
     .when(FriendAction.fetchingFriendsAction.matches, () => {
       return s.isFetching.set(true)
@@ -48,9 +48,9 @@ export const FriendServiceReceptor = (action) => {
       return
     })
 }
-
-export const accessFriendState = () => getState(FriendState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessFriendState = () => getMutableState(FriendState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useFriendState = () => useState(accessFriendState())
 
 //Service

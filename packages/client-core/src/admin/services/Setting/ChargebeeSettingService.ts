@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { ChargebeeSetting } from '@xrengine/common/src/interfaces/ChargebeeSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { ChargebeeSetting } from '@etherealengine/common/src/interfaces/ChargebeeSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -18,16 +18,16 @@ const AdminChargebeeSettingsState = defineState({
 const chargebeeSettingRetrievedReceptor = (
   action: typeof AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches._TYPE
 ) => {
-  const state = getState(AdminChargebeeSettingsState)
+  const state = getMutableState(AdminChargebeeSettingsState)
   return state.merge({ chargebee: action.chargebeeSetting.data, updateNeeded: false })
 }
 
 export const AdminChargebeeReceptors = {
   chargebeeSettingRetrievedReceptor
 }
-
-export const accessAdminChargebeeSettingState = () => getState(AdminChargebeeSettingsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAdminChargebeeSettingState = () => getMutableState(AdminChargebeeSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminChargebeeSettingState = () => useState(accessAdminChargebeeSettingState())
 
 export const ChargebeeSettingService = {

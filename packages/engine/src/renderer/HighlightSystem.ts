@@ -1,12 +1,11 @@
 import { Object3D } from 'three'
 
-import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { HighlightComponent } from './components/HighlightComponent'
 import { EngineRenderer } from './WebGLRendererSystem'
 
-export default async function HighlightSystem(world: World) {
+export default async function HighlightSystem() {
   const highlightedObjectQuery = defineQuery([GroupComponent, HighlightComponent])
 
   const addToSelection = (obj: Object3D) => {
@@ -25,7 +24,7 @@ export default async function HighlightSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, highlightedObjectQuery)
+    removeQuery(highlightedObjectQuery)
   }
 
   return { execute, cleanup }

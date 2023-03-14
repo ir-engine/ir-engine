@@ -11,7 +11,7 @@ import {
 } from 'three'
 import { RenderMode } from 'three.quarks/dist/three.quarks'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,
@@ -23,8 +23,8 @@ import {
   POINT_SHAPE_DEFAULT,
   SPHERE_SHAPE_DEFAULT,
   ValueGeneratorJSON
-} from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
+import { State } from '@etherealengine/hyperflux'
 
 import { ScatterPlotOutlined } from '@mui/icons-material'
 

@@ -1,12 +1,12 @@
 import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 
-import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
-import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import Button from '@xrengine/ui/src/Button'
-import Icon from '@xrengine/ui/src/Icon'
+import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
+import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import Button from '@etherealengine/ui/src/Button'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
@@ -116,7 +116,7 @@ const EmoteDetailView = () => {
   }
 
   const runAnimation = (stateName: string) => {
-    const entity = Engine.instance.currentWorld.localClientEntity
+    const entity = Engine.instance.localClientEntity
     changeAvatarAnimationState(entity, stateName)
   }
 

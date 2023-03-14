@@ -4,15 +4,16 @@ import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState,
   useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useHookstate } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 export const useEditorNetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
+  const worldHostID = useHookstate(getMutableState(NetworkState).hostIds.world).value
 
-  const worldNetworkHostId = useHookstate(Engine.instance.currentWorld.hostIds.world).value!
   const currentLocationInstanceConnection = useWorldInstance()
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export const useEditorNetworkInstanceProvisioning = () => {
       currentLocationInstanceConnection.provisioned.value &&
       !currentLocationInstanceConnection.connecting.value
     )
-      LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
+      LocationInstanceConnectionService.connectToServer(worldHostID!)
   }, [
     engineState.isEngineInitialized,
     currentLocationInstanceConnection?.connected,

@@ -3,18 +3,22 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
-import { API } from '@xrengine/client-core/src/API'
-import { FileBrowserService } from '@xrengine/client-core/src/common/services/FileBrowserService'
-import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { ComponentType, getComponentState, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { MaterialSource, SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
-import MeshBasicMaterial from '@xrengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
-import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
-import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { useHookstate } from '@xrengine/hyperflux'
-import { State } from '@xrengine/hyperflux/functions/StateFunctions'
+import { API } from '@etherealengine/client-core/src/API'
+import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import {
+  ComponentType,
+  getMutableComponent,
+  hasComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
+import bakeToVertices from '@etherealengine/engine/src/renderer/materials/functions/bakeToVertices'
+import { materialsFromSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { ToggleButton } from '@mui/material'
 
@@ -103,6 +107,11 @@ export default function ModelTransformProperties({
     modelFormat: 'glb',
     dedup: true,
     prune: true,
+    reorder: true,
+    weld: {
+      enabled: true,
+      tolerance: 0.001
+    },
     dracoCompression: {
       enabled: true,
       options: {
@@ -140,6 +149,8 @@ export default function ModelTransformProperties({
       }
     },
     textureFormat: 'ktx2',
+    textureCompressionType: 'etc1',
+    textureCompressionQuality: 128,
     maxTextureSize: 1024
   })
 
@@ -235,7 +246,7 @@ export default function ModelTransformProperties({
       .map((entity: Entity) => entity)
     for (const entity of selectedModelEntities) {
       console.log('at entity ' + entity)
-      const modelComponent = getComponentState(entity, ModelComponent)
+      const modelComponent = getMutableComponent(entity, ModelComponent)
       console.log('processing model from src ' + modelComponent.src.value)
       //bake lightmaps to vertices
       console.log('baking vertices...')
@@ -295,39 +306,76 @@ export default function ModelTransformProperties({
                 onChange={onChangeTransformParm(transformParms, 'prune')}
               />
             </InputGroup>
+            <InputGroup name="Reorder" label={t('editor:properties.model.transform.reorder')}>
+              <BooleanInput
+                value={transformParms.reorder.value}
+                onChange={onChangeTransformParm(transformParms, 'reorder')}
+              />
+            </InputGroup>
+            <InputGroup name="Weld Vertices" label={t('editor:properties.model.transform.weldVertices')}>
+              <BooleanInput
+                value={transformParms.weld.enabled.value}
+                onChange={onChangeTransformParm(transformParms.weld, 'enabled')}
+              />
+            </InputGroup>
+            {transformParms.weld.enabled.value && (
+              <>
+                <NumericInputGroup
+                  name="Weld Threshold"
+                  label={t('editor:properties.model.transform.weldThreshold')}
+                  value={transformParms.weld.tolerance.value}
+                  onChange={onChangeTransformParm(transformParms.weld, 'tolerance')}
+                  min={0}
+                  max={1}
+                />
+              </>
+            )}
+
             <InputGroup name="Use Mesh Quantization" label={t('editor:properties.model.transform.useQuantization')}>
               <BooleanInput
                 value={transformParms.meshQuantization.enabled.value}
                 onChange={onChangeTransformParm(transformParms.meshQuantization, 'enabled')}
               />
-              <ParameterInput
-                entity={`${modelState.src.value}-mesh-quantization`}
-                values={transformParms.meshQuantization.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.meshQuantization.options)}
-              />
             </InputGroup>
+            {transformParms.meshQuantization.enabled.value && (
+              <>
+                <ParameterInput
+                  entity={`${modelState.src.value}-mesh-quantization`}
+                  values={transformParms.meshQuantization.options.value}
+                  onChange={onChangeTransformParm.bind({}, transformParms.meshQuantization.options)}
+                />
+              </>
+            )}
             <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
               <BooleanInput
                 value={transformParms.dracoCompression.enabled.value}
                 onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
               />
-              <ParameterInput
-                entity={`${modelState.src.value}-draco-compression`}
-                values={transformParms.dracoCompression.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
-              />
             </InputGroup>
+            {transformParms.dracoCompression.enabled.value && (
+              <>
+                <ParameterInput
+                  entity={`${modelState.src.value}-draco-compression`}
+                  values={transformParms.dracoCompression.options.value}
+                  onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
+                />
+              </>
+            )}
             <InputGroup name="Use GLTFPack" label={t('editor:properties.model.transform.useGLTFPack')}>
               <BooleanInput
                 value={transformParms.gltfPack.enabled.value}
                 onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
               />
-              <ParameterInput
-                entity={`${modelState.src.value}-gltfpack`}
-                values={transformParms.gltfPack.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.gltfPack.options)}
-              />
             </InputGroup>
+            {transformParms.gltfPack.enabled.value && (
+              <>
+                <ParameterInput
+                  entity={`${modelState.src.value}-gltfpack`}
+                  values={transformParms.gltfPack.options.value}
+                  onChange={onChangeTransformParm.bind({}, transformParms.gltfPack.options)}
+                />
+              </>
+            )}
             <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
               <SelectInput
                 value={transformParms.textureFormat.value}
@@ -349,6 +397,34 @@ export default function ModelTransformProperties({
               max={4096}
               min={64}
             />
+            {transformParms.textureFormat.value === 'ktx2' && (
+              <>
+                <InputGroup
+                  name="Texture Compression Type"
+                  label={t('editor:properties.model.transform.textureCompressionType')}
+                >
+                  <SelectInput
+                    value={transformParms.textureCompressionType.value}
+                    onChange={onChangeTransformParm(transformParms, 'textureCompressionType')}
+                    options={[
+                      { label: 'UASTC', value: 'uastc' },
+                      { label: 'ETC1', value: 'etc1' }
+                    ]}
+                  />
+                </InputGroup>
+                <NumericInputGroup
+                  name="KTX2 Quality"
+                  label={t('editor:properties.model.transform.ktx2Quality')}
+                  value={transformParms.textureCompressionQuality.value}
+                  onChange={onChangeTransformParm(transformParms, 'textureCompressionQuality')}
+                  max={255}
+                  min={1}
+                  smallStep={1}
+                  mediumStep={1}
+                  largeStep={2}
+                />
+              </>
+            )}
             {!transforming.value && <OptimizeButton onClick={onTransformModel(modelState)}>Optimize</OptimizeButton>}
             {transforming.value && <p>Transforming...</p>}
             {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}

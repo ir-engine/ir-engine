@@ -1,5 +1,5 @@
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
 
 export const AppLoadingStates = {
   START_STATE: 'START_STATE' as const,
@@ -20,7 +20,7 @@ export const AppLoadingState = defineState({
 })
 
 export const AppLoadingServiceReceptor = (action) => {
-  const s = getState(AppLoadingState)
+  const s = getMutableState(AppLoadingState)
   matches(action)
     .when(AppLoadingAction.setLoadPercent.matches, (action) => {
       return s.merge({ loadPercent: action.loadPercent })
@@ -32,9 +32,9 @@ export const AppLoadingServiceReceptor = (action) => {
       })
     })
 }
-
-export const accessLoadingState = () => getState(AppLoadingState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessLoadingState = () => getMutableState(AppLoadingState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLoadingState = () => useState(accessLoadingState())
 
 export class AppLoadingAction {

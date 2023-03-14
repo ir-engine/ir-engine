@@ -1,10 +1,13 @@
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { StaticResourceFilterResult, StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import {
+  StaticResourceFilterResult,
+  StaticResourceResult
+} from '@etherealengine/common/src/interfaces/StaticResourceResult'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -33,12 +36,12 @@ const AdminResourceState = defineState({
 })
 
 const resourceNeedsUpdateReceptor = (action: typeof AdminResourceActions.resourceNeedsUpdated.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({ updateNeeded: true })
 }
 
 const resourcesFetchedReceptor = (action: typeof AdminResourceActions.resourcesFetched.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     resources: action.resources.data,
     skip: action.resources.skip,
@@ -52,7 +55,7 @@ const resourcesFetchedReceptor = (action: typeof AdminResourceActions.resourcesF
 }
 
 const resourceFiltersFetchedReceptor = (action: typeof AdminResourceActions.resourceFiltersFetched.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     filters: action.filters,
     selectedMimeTypes: action.filters.mimeTypes,
@@ -61,7 +64,7 @@ const resourceFiltersFetchedReceptor = (action: typeof AdminResourceActions.reso
 }
 
 const setSelectedMimeTypesReceptor = (action: typeof AdminResourceActions.setSelectedMimeTypes.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     updateNeeded: true,
     selectedMimeTypes: action.types
@@ -71,7 +74,7 @@ const setSelectedMimeTypesReceptor = (action: typeof AdminResourceActions.setSel
 const setSelectedResourceTypesReceptor = (
   action: typeof AdminResourceActions.setSelectedResourceTypes.matches._TYPE
 ) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     updateNeeded: true,
     selectedResourceTypes: action.types
@@ -79,7 +82,7 @@ const setSelectedResourceTypesReceptor = (
 }
 
 const resourcesResetFilterReceptor = (action: typeof AdminResourceActions.resourcesResetFilter.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     updateNeeded: true,
     selectedMimeTypes: state.filters.value?.mimeTypes,
@@ -95,9 +98,9 @@ export const AdminResourceReceptors = {
   resourceNeedsUpdateReceptor,
   resourcesResetFilterReceptor
 }
-
-export const accessAdminResourceState = () => getState(AdminResourceState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAdminResourceState = () => getMutableState(AdminResourceState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminResourceState = () => useState(accessAdminResourceState())
 
 export const ResourceService = {

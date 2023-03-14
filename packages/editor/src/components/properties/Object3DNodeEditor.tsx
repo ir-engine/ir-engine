@@ -5,17 +5,17 @@ import { useTranslation } from 'react-i18next'
 import ReactJson from 'react-json-view'
 import { BoxGeometry, Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
 
-import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
-import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
-import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
+import { AxisIcon } from '@etherealengine/client-core/src/util/AxisIcon'
+import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
+import { Deg2Rad, Rad2Deg } from '@etherealengine/engine/src/common/functions/MathFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { dispatchAction, useHookstate } from '@etherealengine/hyperflux'
 
 import { SpaceBar } from '@mui/icons-material'
 import { Divider } from '@mui/material'
@@ -55,7 +55,7 @@ type Object3DProps = {
 export const Object3DNodeEditor = (props: Object3DProps) => {
   const { t } = useTranslation()
   console.log(props)
-  const scene: Scene = Engine.instance.currentWorld.scene
+  const scene: Scene = Engine.instance.scene
   const selectionState = accessSelectionState()
   const materialLibrary = getMaterialLibrary()
   const obj3d: Object3D = props.obj3d as any
@@ -106,7 +106,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
   const currentMaterialId = useHookstate(materialIds.value.length > 0 ? 0 : -1)
   function getGeometries() {
     const result: Geometry[] = []
-    Engine.instance.currentWorld.scene.traverse((child: Mesh<Geometry>) => {
+    Engine.instance.scene.traverse((child: Mesh<Geometry>) => {
       if (!child?.isMesh) return
       if (child.geometry) {
         result.push(child.geometry)
@@ -274,9 +274,9 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                   onChange={(nuId) => {
                     if (!!materialLibrary.materials[nuId].value) {
                       if (Array.isArray(mesh.material)) {
-                        mesh.material[currentMaterialId.value] = materialFromId(nuId).material
+                        mesh.material[currentMaterialId.value] = materialFromId('' + nuId).material
                       } else {
-                        mesh.material = materialFromId(nuId).material
+                        mesh.material = materialFromId('' + nuId).material
                         mesh.material.needsUpdate = true
                       }
                     }

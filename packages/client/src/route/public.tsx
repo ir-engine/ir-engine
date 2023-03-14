@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
@@ -6,35 +6,40 @@ import {
   AuthSettingsService,
   AuthSettingsServiceReceptor,
   useAuthSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/AuthSettingService'
+} from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import {
   ClientSettingsServiceReceptor,
   useClientSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
-import { AppLoadingServiceReceptor } from '@xrengine/client-core/src/common/services/AppLoadingService'
-import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/AppService'
-import { DialogServiceReceptor } from '@xrengine/client-core/src/common/services/DialogService'
-import { MediaInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { ProjectServiceReceptor } from '@xrengine/client-core/src/common/services/ProjectService'
-import { RouterServiceReceptor, RouterState, useRouter } from '@xrengine/client-core/src/common/services/RouterService'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { FriendServiceReceptor } from '@xrengine/client-core/src/social/services/FriendService'
-import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
-import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
-import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
+import { AppLoadingServiceReceptor } from '@etherealengine/client-core/src/common/services/AppLoadingService'
+import { AppServiceReceptor } from '@etherealengine/client-core/src/common/services/AppService'
+import { DialogServiceReceptor } from '@etherealengine/client-core/src/common/services/DialogService'
+import { MediaInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
+import {
+  RouterServiceReceptor,
+  RouterState,
+  useRouter
+} from '@etherealengine/client-core/src/common/services/RouterService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { FriendServiceReceptor } from '@etherealengine/client-core/src/social/services/FriendService'
+import { InviteService, InviteServiceReceptor } from '@etherealengine/client-core/src/social/services/InviteService'
+import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
+import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
-const $index = lazy(() => import('@xrengine/client/src/pages'))
-const $auth = lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
-const $offline = lazy(() => import('@xrengine/client/src/pages/offline/offline'))
-const $custom = lazy(() => import('@xrengine/client/src/route/customRoutes'))
-const $admin = lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
+const $index = lazy(() => import('@etherealengine/client/src/pages'))
+const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoutes'))
+const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
+const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
+const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
+const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
@@ -43,7 +48,7 @@ function RouterComp() {
   const location = useLocation()
   const navigate = useNavigate()
   const [routesReady, setRoutesReady] = useState(false)
-  const routerState = useHookstate(getState(RouterState))
+  const routerState = useHookstate(getMutableState(RouterState))
   const route = useRouter()
   const { t } = useTranslation()
 
@@ -105,6 +110,13 @@ function RouterComp() {
     }
   }, [routerState.pathname])
 
+  // Redirect from /editor to /studio
+  useEffect(() => {
+    if (location.pathname === '/editor') {
+      navigate('/studio')
+    }
+  }, [location.pathname])
+
   useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes
     if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
@@ -120,9 +132,14 @@ function RouterComp() {
     <ErrorBoundary>
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
         <Routes>
-          <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
+          <Route
+            key={'custom'}
+            path={'/*'}
+            element={<$custom customRoutes={customRoutes.filter((c) => c.route !== '/admin')} />}
+          />
           <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
           {/* default to allowing admin access regardless */}
+          <Route key={'default-studio'} path={'/studio/*'} element={<$studio />} />
           <Route key={'default-admin'} path={'/admin/*'} element={<$admin />} />
           <Route key={'default-auth'} path={'/auth/*'} element={<$auth />} />
           <Route key={'default-index'} path={'/'} element={<$index />} />

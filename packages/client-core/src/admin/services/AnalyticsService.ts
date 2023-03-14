@@ -1,7 +1,7 @@
-import { AdminAnalytics, AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AdminAnalytics, AdminAnalyticsResult } from '@etherealengine/common/src/interfaces/AdminAnalyticsData'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -25,56 +25,56 @@ const AdminAnalyticsState = defineState({
 })
 
 const activeInstancesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeInstancesFetched.matches._TYPE) => {
-  const state = getState(AdminAnalyticsState)
+  const state = getMutableState(AdminAnalyticsState)
   return state.merge({
     activeInstances: action.analytics.data.reverse()
   })
 }
 
 const activePartiesFetchedReceptor = (action: typeof AdminAnalyticsActions.activePartiesFetched.matches._TYPE) => {
-  const state = getState(AdminAnalyticsState)
+  const state = getMutableState(AdminAnalyticsState)
   return state.merge({
     activeParties: action.analytics.data.reverse()
   })
 }
 
 const activeLocationsFetchedReceptor = (action: typeof AdminAnalyticsActions.activeLocationsFetched.matches._TYPE) => {
-  const state = getState(AdminAnalyticsState)
+  const state = getMutableState(AdminAnalyticsState)
   return state.merge({
     activeLocations: action.analytics.data.reverse()
   })
 }
 
 const activeScenesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeScenesFetched.matches._TYPE) => {
-  const state = getState(AdminAnalyticsState)
+  const state = getMutableState(AdminAnalyticsState)
   return state.merge({
     activeScenes: action.analytics.data.reverse()
   })
 }
 
 const channelUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.channelUsersFetched.matches._TYPE) => {
-  const state = getState(AdminAnalyticsState)
+  const state = getMutableState(AdminAnalyticsState)
   return state.merge({
     channelUsers: action.analytics.data.reverse()
   })
 }
 
 const instanceUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.instanceUsersFetched.matches._TYPE) => {
-  const state = getState(AdminAnalyticsState)
+  const state = getMutableState(AdminAnalyticsState)
   return state.merge({
     instanceUsers: action.analytics.data.reverse()
   })
 }
 
 const dailyNewUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyNewUsersFetched.matches._TYPE) => {
-  const state = getState(AdminAnalyticsState)
+  const state = getMutableState(AdminAnalyticsState)
   return state.merge({
     dailyNewUsers: action.analytics.data.reverse()
   })
 }
 
 const dailyUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyUsersFetched.matches._TYPE) => {
-  const state = getState(AdminAnalyticsState)
+  const state = getMutableState(AdminAnalyticsState)
   return state.merge({
     dailyUsers: action.analytics.data.reverse()
   })
@@ -90,9 +90,9 @@ export const AdminAnalyticsReceptors = {
   dailyNewUsersFetchedReceptor,
   dailyUsersFetchedReceptor
 }
-
-export const accessAdminAnalyticsState = () => getState(AdminAnalyticsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAdminAnalyticsState = () => getMutableState(AdminAnalyticsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminAnalyticsState = () => useState(accessAdminAnalyticsState())
 
 //Service

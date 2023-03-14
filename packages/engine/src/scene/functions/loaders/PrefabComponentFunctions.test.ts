@@ -2,33 +2,35 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import Sinon from 'sinon'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+// import Sinon from 'sinon'
+
+import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   getAllComponentsOfType,
   getComponent,
   hasComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
   destroyEntityTree,
   EntityTreeComponent
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
 
-import '@xrengine/engine/src/patchEngineNode'
+import '@etherealengine/engine/src/patchEngineNode'
 
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { LoadState, PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
-import { loadPrefab, unloadPrefab } from '@xrengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
-import { World } from '../../../ecs/classes/World'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { TransformModule } from '../../../transform/TransformModule'
 import { SceneClientModule } from '../../SceneClientModule'
@@ -36,25 +38,21 @@ import { SceneCommonModule } from '../../SceneCommonModule'
 
 describe('PrefabComponentFunctions', async () => {
   let entity: Entity
-  let world: World
-  let sandbox: Sinon.SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    world = Engine.instance.currentWorld
-    addEntityNodeChild(entity, world.sceneEntity)
+    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
   }
   const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {
-    sandbox = Sinon.createSandbox()
     createEngine()
     setupEngineActionSystems()
     initEntity()
     Engine.instance.engineTimer.start()
 
-    Engine.instance.publicPath = ''
+    getMutableState(EngineState).publicPath.set('')
 
-    await initSystems(world, [
+    await initSystems([
       ...TransformModule(),
       ...SceneCommonModule(),
       ...SceneClientModule(),
@@ -80,7 +78,7 @@ describe('PrefabComponentFunctions', async () => {
   })
 
   afterEach(() => {
-    sandbox.restore()
+    return destroyEngine()
   })
 
   function dupeLoader(): any {
@@ -131,7 +129,7 @@ describe('PrefabComponentFunctions', async () => {
       const emptyScene = await loadXRE('empty.xre.gltf')
       await loadPrefab(entity, setContent(emptyScene))
 
-      console.log('DEBUG EMPTY SCENE', entity, world.fixedTick)
+      console.log('DEBUG EMPTY SCENE', entity, Engine.instance.fixedTick)
 
       //wait one fixed frame for system to reparent
       await nextFixedStep
@@ -209,8 +207,8 @@ describe('PrefabComponentFunctions', async () => {
       destroyEntityTree(entity)
       //wait one fixed frame
       await nextFixedStep
-      assert.equal(getAllComponentsOfType(PrefabComponent, world).length, 0, 'no Asset components in scene')
-      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
+      assert.equal(getAllComponentsOfType(PrefabComponent).length, 0, 'no Asset components in scene')
+      assert.equal(getAllComponentsOfType(ModelComponent).length, 0, 'no ModelComponents in scene')
     })
   })
 
@@ -250,7 +248,7 @@ describe('PrefabComponentFunctions', async () => {
       assert.equal(assetComp.loaded, LoadState.UNLOADED, 'Asset state is set to unloaded')
       //check that asset child hierarchy is removed
       assert.equal(assetComp.roots.length, 0, 'Asset has no roots')
-      assert.equal(getAllComponentsOfType(ModelComponent, world).length, 0, 'no ModelComponents in scene')
+      assert.equal(getAllComponentsOfType(ModelComponent).length, 0, 'no ModelComponents in scene')
     })
 
     it('Correctly handles unloading empty asset', async () => {

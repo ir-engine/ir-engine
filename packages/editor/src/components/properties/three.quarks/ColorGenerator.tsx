@@ -10,8 +10,8 @@ import {
   ColorRangeJSON,
   ConstantColorJSON,
   RandomColorJSON
-} from '@xrengine/engine/src/scene/components/ParticleSystemComponent'
-import { State } from '@xrengine/hyperflux/functions/StateFunctions'
+} from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
+import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import ColorInput from '../../inputs/ColorInput'
 import InputGroup from '../../inputs/InputGroup'

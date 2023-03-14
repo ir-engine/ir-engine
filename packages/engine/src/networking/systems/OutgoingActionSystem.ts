@@ -1,7 +1,10 @@
-import { World } from '../../ecs/classes/World'
+import { getState } from '@etherealengine/hyperflux'
 
-const sendOutgoingActions = (world: World) => {
-  for (const [instanceId, network] of world.networks) {
+import { Engine } from '../../ecs/classes/Engine'
+import { NetworkState } from '../NetworkState'
+
+const sendOutgoingActions = () => {
+  for (const [instanceId, network] of Object.entries(getState(NetworkState).networks)) {
     try {
       network.sendActions()
     } catch (e) {
@@ -10,9 +13,9 @@ const sendOutgoingActions = (world: World) => {
   }
 }
 
-export default function OutgoingActionSystem(world: World) {
+export default function OutgoingActionSystem() {
   const execute = () => {
-    sendOutgoingActions(world)
+    sendOutgoingActions()
   }
 
   const cleanup = async () => {}

@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -26,7 +26,7 @@ const AdminScopeTypeState = defineState({
 })
 
 const getScopeTypesReceptor = (action: typeof AdminScopeTypeActions.getScopeTypes.matches._TYPE) => {
-  const state = getState(AdminScopeTypeState)
+  const state = getMutableState(AdminScopeTypeState)
   return state.merge({
     scopeTypes: action.adminScopeTypeResult.data,
     skip: action.adminScopeTypeResult.skip,
@@ -42,9 +42,9 @@ const getScopeTypesReceptor = (action: typeof AdminScopeTypeActions.getScopeType
 export const AdminScopeTypeReceptor = {
   getScopeTypesReceptor
 }
-
-export const accessScopeTypeState = () => getState(AdminScopeTypeState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessScopeTypeState = () => getMutableState(AdminScopeTypeState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useScopeTypeState = () => useState(accessScopeTypeState())
 
 //Service

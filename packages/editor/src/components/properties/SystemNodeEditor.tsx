@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { validatePath } from '@xrengine/common/src/utils/validatePath'
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemComponent'
+import { validatePath } from '@etherealengine/common/src/utils/validatePath'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
+import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 import ExtensionIcon from '@mui/icons-material/Extension'
 
@@ -100,7 +100,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
         <BooleanInput onChange={updateProperty(SystemComponent, 'enableServer')} value={systemComponent.enableServer} />
       </InputGroup>
       <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
-        <StringInput onChange={updateProperty(SystemComponent, 'args')} value={systemComponent.args} />
+        <StringInput onChange={updateProperty(SystemComponent, 'args')} value={systemComponent.args as any} />
       </InputGroup>
     </NodeEditor>
   )

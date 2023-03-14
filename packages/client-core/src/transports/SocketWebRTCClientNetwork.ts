@@ -2,16 +2,18 @@ import * as mediasoupClient from 'mediasoup-client'
 import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
 import Primus from 'primus-client'
 
-import config from '@xrengine/common/src/config'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { clearOutgoingActions, dispatchAction } from '@xrengine/hyperflux'
-import { addOutgoingTopicIfNecessary, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import config from '@etherealengine/common/src/config'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { MediaStreamAppData } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Network } from '@etherealengine/engine/src/networking/classes/Network'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { clearOutgoingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import {
   accessLocationInstanceConnectionState,
@@ -51,7 +53,7 @@ const promisedRequest = (primus: Primus) => {
         }
       }
       Object.defineProperty(responseFunction, 'name', { value: `responseFunction${id}`, writable: true })
-      let message = {
+      const message = {
         type: type,
         data: data,
         id: id++
@@ -67,7 +69,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
   if (locationConnectionFailed) {
     const currentLocation = accessLocationState().currentLocation.location
     const locationInstanceConnectionState = accessLocationInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld.hostIds.world.value ?? ''
+    const instanceId = getState(NetworkState).hostIds.world ?? ''
     if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
@@ -78,7 +80,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
     }
   } else {
     const mediaInstanceConnectionState = accessMediaInstanceConnectionState()
-    const instanceId = Engine.instance.currentWorld.hostIds.media.value ?? ''
+    const instanceId = getState(NetworkState).hostIds.media ?? ''
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = accessAuthState()
@@ -87,9 +89,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
       const channelState = chatState.channels
       const channels = channelState.channels.value as Channel[]
       const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-      const instanceChannel = channelEntries.find(
-        (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-      )
+      const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
       if (instanceChannel) {
         MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
       } else {
@@ -109,7 +109,9 @@ export class SocketWebRTCClientNetwork extends Network {
     addOutgoingTopicIfNecessary(topic)
   }
 
-  mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
+  mediasoupDevice = new mediasoupClient.Device(
+    getMutableState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
+  )
   reconnecting = false
   recvTransport: MediaSoupTransport
   sendTransport: MediaSoupTransport

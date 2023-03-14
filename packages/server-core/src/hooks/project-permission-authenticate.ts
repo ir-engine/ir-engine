@@ -1,8 +1,8 @@
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
-import { GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 

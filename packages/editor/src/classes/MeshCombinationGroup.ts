@@ -1,6 +1,6 @@
 import { BufferGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, SkinnedMesh, Texture } from 'three'
 
-import { mergeBufferGeometries } from '@xrengine/engine/src/common/classes/BufferGeometryUtils'
+import { mergeBufferGeometries } from '@etherealengine/engine/src/common/classes/BufferGeometryUtils'
 
 import asyncTraverse from '../functions/asyncTraverse'
 import hashImage from '../functions/hashImage'

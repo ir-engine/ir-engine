@@ -2,8 +2,8 @@ import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { Group as GroupInterface } from '@xrengine/common/src/interfaces/Group'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { Group as GroupInterface } from '@etherealengine/common/src/interfaces/Group'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'

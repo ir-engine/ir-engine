@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 
-import { BuilderInfo } from '@xrengine/common/src/interfaces/BuilderInfo'
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectInterface, ProjectUpdateType } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UpdateProjectInterface } from '@xrengine/common/src/interfaces/UpdateProjectInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
+import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -32,7 +32,7 @@ export const ProjectState = defineState({
 })
 
 export const ProjectServiceReceptor = (action) => {
-  const s = getState(ProjectState)
+  const s = getMutableState(ProjectState)
   matches(action)
     .when(ProjectAction.projectsFetched.matches, (action) => {
       s.projects.set(action.projectResult)
@@ -56,9 +56,9 @@ export const ProjectServiceReceptor = (action) => {
       return s.merge({ refreshingGithubRepoAccess: action.refreshing })
     })
 }
-
-export const accessProjectState = () => getState(ProjectState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessProjectState = () => getMutableState(ProjectState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useProjectState = () => useState(accessProjectState())
 
 //Service

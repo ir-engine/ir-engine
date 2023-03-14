@@ -1,4 +1,4 @@
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 
 export interface AvatarColumn {
   id: 'select' | 'id' | 'name' | 'thumbnail' | 'action'

@@ -1,4 +1,4 @@
-import { Message as MessageInterface } from '@xrengine/common/src/interfaces/Message'
+import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
 
 import { Application } from '../../../declarations'
 import { Message } from './message.class'
@@ -6,7 +6,7 @@ import messageDocs from './message.docs'
 import hooks from './message.hooks'
 import createModel from './message.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     message: Message
   }
@@ -76,9 +76,7 @@ export default (app: Application) => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(
       targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          message: data
-        })
+        return app.channel(`userIds/${userId}`).send(data)
       })
     )
   })
@@ -127,9 +125,7 @@ export default (app: Application) => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(
       targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          message: data
-        })
+        return app.channel(`userIds/${userId}`).send(data)
       })
     )
   })
@@ -178,9 +174,7 @@ export default (app: Application) => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return Promise.all(
       targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          message: data
-        })
+        return app.channel(`userIds/${userId}`).send(data)
       })
     )
   })

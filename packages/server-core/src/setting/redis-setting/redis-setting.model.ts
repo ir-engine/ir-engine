@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { RedisSettingInterface } from '@xrengine/common/src/dbmodels/RedisSetting'
+import { RedisSettingInterface } from '@etherealengine/common/src/dbmodels/RedisSetting'
 
 import { Application } from '../../../declarations'
 

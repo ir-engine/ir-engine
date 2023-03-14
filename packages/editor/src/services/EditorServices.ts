@@ -1,8 +1,8 @@
 import { useState } from '@hookstate/core'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const EditorState = defineState({
   name: 'EditorState',
@@ -19,7 +19,7 @@ export const EditorState = defineState({
 })
 
 export const EditorServiceReceptor = (action) => {
-  const s = getState(EditorState)
+  const s = getMutableState(EditorState)
   matches(action)
     .when(EditorAction.sceneChanged.matches, (action) => {
       return s.merge({ sceneName: action.sceneName, sceneModified: false })
@@ -46,9 +46,9 @@ export const EditorServiceReceptor = (action) => {
       return s.merge({ advancedMode: action.advanced })
     })
 }
-
-export const accessEditorState = () => getState(EditorState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessEditorState = () => getMutableState(EditorState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEditorState = () => useState(accessEditorState())
 
 //Service

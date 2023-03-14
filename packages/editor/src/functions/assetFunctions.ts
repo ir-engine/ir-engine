@@ -1,25 +1,25 @@
 import { Object3D } from 'three'
 
-import { API } from '@xrengine/client-core/src/API'
-import { FileBrowserService } from '@xrengine/client-core/src/common/services/FileBrowserService'
+import { API } from '@etherealengine/client-core/src/API'
+import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
-} from '@xrengine/client-core/src/util/upload'
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
-import { modelResourcesPath } from '@xrengine/engine/src/assets/functions/pathResolver'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
+} from '@etherealengine/client-core/src/util/upload'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   addObjectToGroup,
   GroupComponent,
   Object3DWithEntity,
   removeObjectFromGroup
-} from '@xrengine/engine/src/scene/components/GroupComponent'
-import { PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
-import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
+} from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 
 import { accessEditorState } from '../services/EditorServices'
 

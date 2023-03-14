@@ -2,19 +2,25 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, removeActionQueue, useHookstate } from '@xrengine/hyperflux'
+import {
+  createActionQueue,
+  getMutableState,
+  getState,
+  removeActionQueue,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
 import {
   ComponentType,
   defineQuery,
   getComponent,
   hasComponent,
   removeQuery,
+  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
@@ -28,12 +34,12 @@ import {
   MediaElementComponent
 } from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AudioSettingAction } from '../AudioState'
+import { AudioSettingAction, AudioState } from '../AudioState'
 import { PositionalAudioComponent, PositionalAudioInterface } from '../components/PositionalAudioComponent'
 import { getMediaSceneMetadataState } from './MediaSystem'
 
 export const addPannerNode = (audioNodes: AudioNodeGroup, opts: PositionalAudioInterface) => {
-  const panner = Engine.instance.audioContext.createPanner()
+  const panner = getState(AudioState).audioContext.createPanner()
   panner.refDistance = opts.refDistance
   panner.rolloffFactor = opts.rolloffFactor
   panner.maxDistance = opts.maxDistance
@@ -86,7 +92,7 @@ export const removePannerNode = (audioNodes: AudioNodeGroup) => {
 
 /** System class which provides methods for Positional Audio system. */
 
-export default async function PositionalAudioSystem(world: World) {
+export default async function PositionalAudioSystem() {
   const _vec3 = new Vector3()
 
   /**
@@ -110,36 +116,24 @@ export default async function PositionalAudioSystem(world: World) {
     [PositionalAudioComponent, TransformComponent],
     function PositionalAudioPannerReactor(props) {
       const entity = props.root.entity
-
-      const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-      const panner = useHookstate(null as ReturnType<typeof addPannerNode> | null)
-
+      const mediaElement = useComponent(entity, MediaElementComponent)
+      const positionalAudio = useComponent(entity, PositionalAudioComponent)
       useEffect(() => {
-        if (mediaElement?.value && !panner.value) {
-          const el = getComponent(entity, MediaElementComponent).element
-          const audioGroup = AudioNodeGroups.get(el)
-          if (audioGroup) panner.set(addPannerNode(audioGroup, getComponent(entity, PositionalAudioComponent)))
-        } else if (panner.value) {
-          const el = getComponent(entity, MediaElementComponent).element
-          const audioGroup = AudioNodeGroups.get(el)
-          if (audioGroup) {
-            removePannerNode(audioGroup)
-            panner.set(null)
-          }
-        }
-      }, [mediaElement])
-
-      if (!hasComponent(entity, PositionalAudioComponent)) throw props.root.stop()
-
+        const audioGroup = AudioNodeGroups.get(mediaElement.element.value)! // is it safe to assume this?
+        addPannerNode(audioGroup, positionalAudio.value)
+        return () => removePannerNode(audioGroup)
+      }, [mediaElement, positionalAudio])
       return null
     }
   )
 
+  const audioState = getState(AudioState)
+
   const execute = () => {
-    const audioContext = Engine.instance.audioContext
-    const network = Engine.instance.currentWorld.mediaNetwork
+    const audioContext = audioState.audioContext
+    const network = Engine.instance.mediaNetwork
     const immersiveMedia = shouldUseImmersiveMedia()
-    const positionalAudioSettings = getMediaSceneMetadataState(Engine.instance.currentWorld).value
+    const positionalAudioSettings = getMediaSceneMetadataState(Engine.instance.currentScene).value
 
     /**
      * Scene Objects
@@ -202,7 +196,7 @@ export default async function PositionalAudioSystem(world: World) {
       const audioNodes = createAudioNodeGroup(
         stream,
         audioContext.createMediaStreamSource(stream),
-        Engine.instance.gainNodeMixBuses.mediaStreams
+        audioState.gainNodeMixBuses.mediaStreams
       )
       audioNodes.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
 
@@ -224,7 +218,7 @@ export default async function PositionalAudioSystem(world: World) {
       }
     }
 
-    const endTime = Engine.instance.audioContext.currentTime + world.deltaSeconds
+    const endTime = audioContext.currentTime + Engine.instance.deltaSeconds
 
     /**
      * Update panner nodes
@@ -257,7 +251,7 @@ export default async function PositionalAudioSystem(world: World) {
     /**
      * Update camera listener position
      */
-    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
     if (isNaN(position.x)) return
     _rot.set(0, 0, -1).applyQuaternion(rotation)
     if (isNaN(_rot.x)) return
@@ -276,10 +270,10 @@ export default async function PositionalAudioSystem(world: World) {
 
   const cleanup = async () => {
     removeActionQueue(modifyPropertyActionQueue)
-    removeQuery(world, positionalAudioQuery)
-    removeQuery(world, networkedAvatarAudioQuery)
+    removeQuery(positionalAudioQuery)
+    removeQuery(networkedAvatarAudioQuery)
     removeActionQueue(setMediaStreamVolumeActionQueue)
-    positionalAudioPannerReactor.stop()
+    await positionalAudioPannerReactor.stop()
   }
 
   return { execute, cleanup }

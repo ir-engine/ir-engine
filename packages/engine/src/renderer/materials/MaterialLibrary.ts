@@ -1,7 +1,14 @@
 import { Material } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import { defineAction, defineState, dispatchAction, getState, StateDefinition, useState } from '@xrengine/hyperflux'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  StateDefinition,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
@@ -31,9 +38,9 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
     sources: {}
   } as MaterialLibraryType
 })
-
-export const getMaterialLibrary = () => getState(MaterialLibraryState)
-
+/**@deprecated use getMutableState directly instead */
+export const getMaterialLibrary = () => getMutableState(MaterialLibraryState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMaterialLibrary = () => useState(getMaterialLibrary())
 
 export const MaterialLibraryActions = {

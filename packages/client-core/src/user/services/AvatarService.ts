@@ -2,12 +2,12 @@ import { Paginated } from '@feathersjs/feathers'
 import axios from 'axios'
 import i18n from 'i18next'
 
-import config from '@xrengine/common/src/config'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -29,7 +29,7 @@ export const AvatarState = defineState({
 })
 
 export const AvatarServiceReceptor = (action) => {
-  const s = getState(AvatarState)
+  const s = getMutableState(AvatarState)
   matches(action)
     .when(AvatarActions.updateAvatarListAction.matches, (action) => {
       s.search.set(action.search ?? undefined)
@@ -42,9 +42,9 @@ export const AvatarServiceReceptor = (action) => {
       return s.avatarList[index].set(action.avatar)
     })
 }
-
-export const accessAvatarState = () => getState(AvatarState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAvatarState = () => getMutableState(AvatarState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAvatarService = () => useState(accessAvatarState())
 
 export const AvatarService = {

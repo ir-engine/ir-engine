@@ -1,4 +1,4 @@
-import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
 export type Entity = OpaqueType<'entity'> & number
 

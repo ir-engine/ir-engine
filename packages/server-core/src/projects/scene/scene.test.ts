@@ -3,7 +3,8 @@ import assert from 'assert'
 import _ from 'lodash'
 import path from 'path'
 
-import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -24,12 +25,16 @@ describe('scene.test', () => {
   let app: Application
   let parsedData
 
-  before(() => {
+  before(async () => {
     const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
     deleteFolderRecursive(projectDir)
     app = createFeathersExpressApp()
+    await app.setup()
     const storageProvider = getStorageProvider()
     parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   describe("'scene-data' service", () => {

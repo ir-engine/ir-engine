@@ -6,25 +6,29 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 import { Object3D } from 'three'
 
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   EntityTreeComponent,
   getEntityNodeArrayFromEntities,
   traverseEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
-import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
+import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -160,7 +164,7 @@ export default function HierarchyPanel({
   }
 
   const updateNodeHierarchy = useCallback(
-    (world = Engine.instance.currentWorld) => {
+    (world = Engine.instance.currentScene) => {
       setNodes(
         getModelNodesFromTreeWalker(
           Array.from(heirarchyTreeWalker(world.sceneEntity, selectionState.selectedEntities.value, collapsedNodes)),
@@ -266,9 +270,9 @@ export default function HierarchyPanel({
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (node.obj3d) return // todo
     if (e.detail === 2) {
-      const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
-      cameraComponent.focusedObjects = [node.entityNode]
-      cameraComponent.refocus = true
+      const editorCameraState = getMutableState(EditorCameraState)
+      editorCameraState.focusedObjects.set([node.entityNode])
+      editorCameraState.refocus.set(true)
     }
   }, [])
 
@@ -443,7 +447,7 @@ export default function HierarchyPanel({
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = Engine.instance.currentWorld
+        const world = Engine.instance.currentScene
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, world.sceneEntity))
           : isAncestor(item.value, world.sceneEntity))
@@ -501,7 +505,7 @@ export default function HierarchyPanel({
           )}
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
-        {Engine.instance.currentWorld.scene && (
+        {Engine.instance.scene && (
           <div style={{ height: '100%' }}>
             <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
           </div>

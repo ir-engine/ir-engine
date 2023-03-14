@@ -2,13 +2,26 @@ import { Paginated } from '@feathersjs/feathers'
 import { none, State } from '@hookstate/core'
 import React, { useEffect } from 'react'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import logger from '@xrengine/common/src/logger'
-import { matches, matchesUserId, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import logger from '@etherealengine/common/src/logger'
+import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import {
+  addNetwork,
+  NetworkState,
+  removeNetwork,
+  updateNetworkID
+} from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -37,24 +50,17 @@ export const LocationInstanceState = defineState({
 })
 
 export function useWorldInstance() {
-  const [state, setState] = React.useState(null as null | State<InstanceState>)
-  const worldInstanceState = useState(getState(LocationInstanceState).instances)
-  const worldHostId = useState(Engine.instance.currentWorld.hostIds.world)
-  useEffect(() => {
-    setState(worldHostId.value ? worldInstanceState[worldHostId.value] : null)
-  }, [worldInstanceState, worldHostId])
-  return state
+  const worldInstanceState = useState(getMutableState(LocationInstanceState).instances)
+  const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
+  return worldHostId.value ? worldInstanceState[worldHostId.value] : null
 }
 
 export const LocationInstanceConnectionServiceReceptor = (action) => {
-  const s = getState(LocationInstanceState)
+  const s = getMutableState(LocationInstanceState)
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.currentWorld.hostIds.world.set(action.instanceId)
-      Engine.instance.currentWorld.networks.set(
-        action.instanceId,
-        new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
-      )
+      getMutableState(NetworkState).hostIds.world.set(action.instanceId)
+      addNetwork(new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world))
       return s.instances.merge({
         [action.instanceId]: {
           ipAddress: action.ipAddress,
@@ -83,18 +89,18 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       return s.instances[action.instanceId].set(none)
     })
     .when(LocationInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
-      const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
-      Engine.instance.currentWorld.worldNetwork.hostId = action.newInstanceId as UserId
-      Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.worldNetwork)
-      Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
-      Engine.instance.currentWorld.hostIds.world.set(action.newInstanceId as UserId)
-      s.instances.merge({ [action.newInstanceId]: currentNetwork })
+      const currentNetworkState = s.instances[action.currentInstanceId].get({ noproxy: true })
+      const networkState = getMutableState(NetworkState)
+      const currentNework = getState(NetworkState).networks[action.currentInstanceId]
+      updateNetworkID(currentNework as SocketWebRTCClientNetwork, action.newInstanceId)
+      networkState.hostIds.world.set(action.newInstanceId as UserId)
+      s.instances.merge({ [action.newInstanceId]: currentNetworkState })
       s.instances[action.currentInstanceId].set(none)
     })
 }
-
-export const accessLocationInstanceConnectionState = () => getState(LocationInstanceState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessLocationInstanceConnectionState = () => getMutableState(LocationInstanceState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLocationInstanceConnectionState = () => useState(accessLocationInstanceConnectionState())
 
 //Service
@@ -231,7 +237,7 @@ export const LocationInstanceConnectionService = {
   },
   connectToServer: async (instanceId: string) => {
     dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
-    const network = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
+    const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, transport: network }, 'Connect To World Server')
     if (network.primus) {
       leaveNetwork(network, false)

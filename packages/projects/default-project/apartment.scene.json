@@ -897,7 +897,7 @@
           "name": "media",
           "props": {
             "controls": false,
-            "autoplay": true,
+            "paused": false,
             "paths": [
               "__$project$__/default-project/assets/apartment-ambience.mp3"
             ],

@@ -2,9 +2,9 @@ import { Paginated } from '@feathersjs/feathers'
 import { useState } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -27,7 +27,7 @@ export const AdminInstanceState = defineState({
 })
 
 const instancesRetrievedReceptor = (action: typeof AdminInstanceActions.instancesRetrieved.matches._TYPE) => {
-  const state = getState(AdminInstanceState)
+  const state = getMutableState(AdminInstanceState)
   return state.merge({
     instances: action.instanceResult.data,
     skip: action.instanceResult.skip,
@@ -41,7 +41,7 @@ const instancesRetrievedReceptor = (action: typeof AdminInstanceActions.instance
 }
 
 const instanceRemovedReceptor = (action: typeof AdminInstanceActions.instanceRemoved.matches._TYPE) => {
-  const state = getState(AdminInstanceState)
+  const state = getMutableState(AdminInstanceState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -49,9 +49,9 @@ export const AdminInstanceReceptors = {
   instancesRetrievedReceptor,
   instanceRemovedReceptor
 }
-
-export const accessAdminInstanceState = () => getState(AdminInstanceState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAdminInstanceState = () => getMutableState(AdminInstanceState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminInstanceState = () => useState(accessAdminInstanceState())
 
 //Service

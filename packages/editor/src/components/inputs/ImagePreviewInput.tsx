@@ -4,7 +4,8 @@ import styled from 'styled-components'
 import { Stack } from '@mui/material'
 
 import ImageInput from './ImageInput'
-import InputGroup from './InputGroup'
+import InputGroup, { InputGroupProps } from './InputGroup'
+import { StringInputProps } from './StringInput'
 
 export const ImageContainer = (styled as any).div`
   display: flex;
@@ -16,7 +17,7 @@ export const ImageContainer = (styled as any).div`
   padding: 4px;
 `
 
-export default function ImagePreviewInput({ value, onChange, ...rest }) {
+export default function ImagePreviewInput({ value, onChange, ...rest }: StringInputProps) {
   return (
     <ImageContainer>
       <Stack>
@@ -35,7 +36,7 @@ export default function ImagePreviewInput({ value, onChange, ...rest }) {
   )
 }
 
-export function ImagePreviewInputGroup({ name, label, value, onChange, ...rest }) {
+export function ImagePreviewInputGroup({ name, label, value, onChange, ...rest }: StringInputProps & InputGroupProps) {
   return (
     <InputGroup name={name} label={label} {...rest}>
       <ImagePreviewInput value={value} onChange={onChange} />

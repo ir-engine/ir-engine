@@ -2,7 +2,7 @@ import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import path from 'path'
 
-import { ClientSetting as ClientSettingInterface } from '@xrengine/common/src/interfaces/ClientSetting'
+import { ClientSetting as ClientSettingInterface } from '@etherealengine/common/src/interfaces/ClientSetting'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

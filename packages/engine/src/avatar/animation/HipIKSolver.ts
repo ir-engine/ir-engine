@@ -58,7 +58,7 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   if (debug && !hasAdded) {
     hasAdded = true
     addObjectToGroup(entity, group)
-    Engine.instance.currentWorld.scene.add(
+    Engine.instance.scene.add(
       leftFootTarget,
       leftFootTargetOffset,
       leftFootTargetHint,

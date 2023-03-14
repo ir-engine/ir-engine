@@ -1,10 +1,11 @@
 import assert from 'assert'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { destroyEngine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -18,6 +19,10 @@ describe.skip('equippableFunctions', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('equipEntity', () => {

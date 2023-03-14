@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {

@@ -2,15 +2,15 @@ import { createState, useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/VrIcon'
-import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
-import Icon from '@xrengine/ui/src/Icon'
+import { VrIcon } from '@etherealengine/client-core/src/common/components/Icons/VrIcon'
+import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { EmoteIcon } from '../../../user/components/UserMenu'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -27,7 +27,7 @@ function createLocationMenuState() {
 
 const LocationMenuView = () => {
   const { t } = useTranslation()
-  const xrState = useState(getState(XRState))
+  const xrState = useState(getMutableState(XRState))
 
   const isAdmin = useAuthState().user?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
@@ -38,7 +38,7 @@ const LocationMenuView = () => {
   }
 
   const handleRespawnAvatar = () => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+    respawnAvatar(Engine.instance.localClientEntity)
   }
 
   const handleOpenEmoteMenuWidget = () => {

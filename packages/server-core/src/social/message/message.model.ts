@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { MessageInterface } from '@xrengine/common/src/dbmodels/Message'
+import { MessageInterface } from '@etherealengine/common/src/dbmodels/Message'
 
 import { Application } from '../../../declarations'
 

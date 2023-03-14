@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { LocationAdmin as LocationAdminInterface } from '@xrengine/common/src/interfaces/LocationAdmin'
+import { LocationAdmin as LocationAdminInterface } from '@etherealengine/common/src/interfaces/LocationAdmin'
 
 import { Application } from '../../../declarations'
 

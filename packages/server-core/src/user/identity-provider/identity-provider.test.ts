@@ -1,6 +1,8 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 
@@ -11,6 +13,10 @@ describe('identity-provider service', () => {
   before(async () => {
     app = createFeathersExpressApp()
     await app.setup()
+  })
+
+  after(() => {
+    return destroyEngine()
   })
 
   it('registered the service', async () => {
@@ -38,7 +44,7 @@ describe('identity-provider service', () => {
 
   it('should create an identity provider for email', async () => {
     const type = 'email'
-    const token = `${v1()}@xrengine.io`
+    const token = `${v1()}@etherealengine.io`
 
     const item = await app.service('identity-provider').create(
       {
@@ -56,7 +62,7 @@ describe('identity-provider service', () => {
 
   it('should create an identity provider for password', async () => {
     const type = 'password'
-    const token = `${v1()}@xrengine.io`
+    const token = `${v1()}@etherealengine.io`
     const password = 'test@123'
 
     const item = await app.service('identity-provider').create(

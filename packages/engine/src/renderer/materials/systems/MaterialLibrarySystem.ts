@@ -1,18 +1,10 @@
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
-import { World } from '../../../ecs/classes/World'
-import { defineQuery, removeQuery } from '../../../ecs/functions/ComponentFunctions'
-import { MaterialComponent } from '../components/MaterialComponent'
-import { MaterialPrototypeComponent } from '../components/MaterialPrototypeComponent'
 import { registerMaterial, registerMaterialPrototype } from '../functions/MaterialLibraryFunctions'
-import {
-  initializeMaterialLibrary,
-  MaterialLibraryActions,
-  MaterialLibraryState,
-  useMaterialLibrary
-} from '../MaterialLibrary'
+import { initializeMaterialLibrary, MaterialLibraryActions, MaterialLibraryState } from '../MaterialLibrary'
 
-export default async function MaterialLibrarySystem(world: World) {
+export default async function MaterialLibrarySystem() {
+  const materialLibraryState = getMutableState(MaterialLibraryState)
   const registerMaterialQueue = createActionQueue(MaterialLibraryActions.RegisterMaterial.matches)
   const registerPrototypeQueue = createActionQueue(MaterialLibraryActions.RegisterPrototype.matches)
   initializeMaterialLibrary()
@@ -26,10 +18,9 @@ export default async function MaterialLibrarySystem(world: World) {
   }
 
   const cleanup = async () => {
-    const materialLibrary = useMaterialLibrary()
     // todo, to make extensible only clear those initialized in initializeMaterialLibrary
-    materialLibrary.materials.set({})
-    materialLibrary.prototypes.set({})
+    materialLibraryState.materials.set({})
+    materialLibraryState.prototypes.set({})
   }
 
   return { execute, cleanup }

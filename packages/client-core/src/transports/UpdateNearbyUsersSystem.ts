@@ -1,7 +1,6 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { accessMediaInstanceConnectionState } from '../common/services/MediaInstanceConnectionService'
 import { accessMediaStreamState, MediaStreamService } from '../media/services/MediaStreamService'
@@ -9,7 +8,7 @@ import { NetworkUserService } from '../user/services/NetworkUserService'
 import { MediaStreamActions } from './MediaStreams'
 
 export const updateNearbyAvatars = () => {
-  const network = Engine.instance.currentWorld.mediaNetwork
+  const network = Engine.instance.mediaNetwork
 
   MediaStreamService.updateNearbyLayerUsers()
 
@@ -37,12 +36,12 @@ export const updateNearbyAvatars = () => {
   })
 }
 
-export default async function UpdateNearbyUsersSystem(world: World) {
+export default async function UpdateNearbyUsersSystem() {
   // every 5 seconds
   const NEARBY_AVATAR_UPDATE_PERIOD = Engine.instance.tickRate * 5
 
   const execute = () => {
-    if (world.fixedTick % NEARBY_AVATAR_UPDATE_PERIOD === 0) {
+    if (Engine.instance.fixedTick % NEARBY_AVATAR_UPDATE_PERIOD === 0) {
       updateNearbyAvatars()
     }
   }

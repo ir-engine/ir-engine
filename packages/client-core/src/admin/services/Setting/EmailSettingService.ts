@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { EmailSetting, PatchEmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { EmailSetting, PatchEmailSetting } from '@etherealengine/common/src/interfaces/EmailSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -16,12 +16,12 @@ const AdminEmailSettingsState = defineState({
 })
 
 const fetchedEmailReceptor = (action: typeof EmailSettingActions.fetchedEmail.matches._TYPE) => {
-  const state = getState(AdminEmailSettingsState)
+  const state = getMutableState(AdminEmailSettingsState)
   return state.merge({ email: action.emailSettings.data, updateNeeded: false })
 }
 
 const emailSettingPatchedReceptor = (action: typeof EmailSettingActions.emailSettingPatched.matches._TYPE) => {
-  const state = getState(AdminEmailSettingsState)
+  const state = getMutableState(AdminEmailSettingsState)
   return state.updateNeeded.set(true)
 }
 
@@ -29,9 +29,9 @@ export const EmailSettingReceptors = {
   fetchedEmailReceptor,
   emailSettingPatchedReceptor
 }
-
-export const accessEmailSettingState = () => getState(AdminEmailSettingsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessEmailSettingState = () => getMutableState(AdminEmailSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEmailSettingState = () => useState(accessEmailSettingState())
 
 export const EmailSettingService = {

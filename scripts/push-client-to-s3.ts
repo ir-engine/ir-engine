@@ -5,14 +5,14 @@ import cli from 'cli'
 import fs from 'fs'
 import path from 'path'
 
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import {
   createDefaultStorageProvider,
   getStorageProvider
-} from '@xrengine/server-core/src/media/storageprovider/storageprovider'
-import logger from '@xrengine/server-core/src/ServerLogger'
-import { getContentType } from '@xrengine/server-core/src/util/fileUtils'
-import { getFilesRecursive } from '@xrengine/server-core/src/util/fsHelperFunctions'
+} from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import logger from '@etherealengine/server-core/src/ServerLogger'
+import { getContentType } from '@etherealengine/server-core/src/util/fileUtils'
+import { getFilesRecursive } from '@etherealengine/server-core/src/util/fsHelperFunctions'
 
 cli.enable('status')
 

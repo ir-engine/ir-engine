@@ -2,6 +2,7 @@ import React from 'react'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
+import { StringInputProps } from './StringInput'
 
 /**
  *
@@ -10,7 +11,7 @@ import FileBrowserInput from './FileBrowserInput'
  * @param       {any} rest
  * @constructor
  */
-function PrefabInput({ onChange, ...rest }) {
+function PrefabInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={['xre.gltf']}

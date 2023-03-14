@@ -2,13 +2,14 @@ import assert from 'assert'
 import { Group, Layers, Mesh, Scene } from 'three'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   createMappedComponent,
+  defineComponent,
   defineQuery,
   getComponent,
-  getComponentState
+  getMutableComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
@@ -26,12 +27,27 @@ describe('loadGLTFModel', () => {
     createMockNetwork()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const world = Engine.instance.currentWorld
+    const world = Engine.instance.currentScene
 
     const mockComponentData = { src: '' } as any
-    const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
+    const CustomComponent = defineComponent({
+      name: 'CustomComponent',
+      onInit(entity) {
+        return {
+          val: 0
+        }
+      },
+      onSet(entity, component, json) {
+        if (!json) return
+        if (typeof json.val === 'number') component.val.set(json.val)
+      }
+    })
 
     const entity = createEntity()
     addEntityNodeChild(entity, world.sceneEntity)
@@ -45,9 +61,9 @@ describe('loadGLTFModel', () => {
     mesh.userData = {
       'xrengine.entity': entityName,
       // 'xrengine.spawn-point': '',
-      'xrengine.CustomComponent.value': number
+      'xrengine.CustomComponent.val': number
     }
-    const modelComponent = getComponentState(entity, ModelComponent)
+    const modelComponent = getMutableComponent(entity, ModelComponent)
     modelComponent.scene.set(mesh)
     addObjectToGroup(entity, mesh)
     const modelQuery = defineQuery([TransformComponent, GroupComponent])
@@ -63,14 +79,14 @@ describe('loadGLTFModel', () => {
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
 
-    const [mockModelEntity] = modelQuery(world)
-    const [mockSpawnPointEntity] = childQuery(world)
+    const [mockModelEntity] = modelQuery()
+    const [mockSpawnPointEntity] = childQuery()
 
     assert.equal(typeof mockModelEntity, 'number')
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))
 
     // assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
-    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).value, number)
+    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).val, number)
     assert.equal(getComponent(mockSpawnPointEntity, NameComponent), entityName)
     assert(getComponent(mockSpawnPointEntity, GroupComponent)[0].layers.test(expectedLayer))
   })

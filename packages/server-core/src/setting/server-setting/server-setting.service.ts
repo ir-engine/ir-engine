@@ -4,7 +4,7 @@ import { ServerSetting } from './server-setting.class'
 import hooks from './server-setting.hooks'
 import createModel from './server-setting.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'server-setting': ServerSetting
   }

@@ -1,13 +1,13 @@
 import matches, { Validator } from 'ts-matches'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import {
   defineComponent,
   getComponent,
   hasComponent,
   removeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
@@ -34,7 +34,6 @@ export const LoadVolumeComponent = defineComponent({
   },
   onSet: (entity, component, json) => {
     if (!json) return
-    const world = Engine.instance.currentWorld
 
     if ((matches.object as Validator<unknown, Record<EntityUUID, LoadVolumeTarget>>).test(json.targets)) {
       component.targets.set(json.targets)

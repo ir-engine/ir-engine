@@ -1,7 +1,7 @@
 import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
+import { ActiveRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'

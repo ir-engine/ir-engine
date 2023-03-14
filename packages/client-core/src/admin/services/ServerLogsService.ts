@@ -1,5 +1,5 @@
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -20,7 +20,7 @@ const fetchServerLogsRequestedReceptor = (
   action: typeof AdminServerLogsActions.fetchServerLogsRequested.matches._TYPE
 ) => {
   try {
-    const state = getState(AdminServerLogsState)
+    const state = getMutableState(AdminServerLogsState)
 
     let newState: any = { retrieving: true }
     if (state.podName.value !== action.podName || state.containerName.value !== action.containerName) {
@@ -43,7 +43,7 @@ const fetchServerLogsRetrievedReceptor = (
   action: typeof AdminServerLogsActions.fetchServerLogsRetrieved.matches._TYPE
 ) => {
   try {
-    const state = getState(AdminServerLogsState)
+    const state = getMutableState(AdminServerLogsState)
     return state.merge({
       logs: action.logs,
       retrieving: false,
@@ -58,9 +58,9 @@ export const AdminServerLogsReceptors = {
   fetchServerLogsRequestedReceptor,
   fetchServerLogsRetrievedReceptor
 }
-
-export const accessServerLogsState = () => getState(AdminServerLogsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessServerLogsState = () => getMutableState(AdminServerLogsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useServerLogsState = () => useState(accessServerLogsState())
 
 //Service

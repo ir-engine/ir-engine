@@ -1,4 +1,4 @@
-import { defineAction } from '@xrengine/hyperflux'
+import { defineAction } from '@etherealengine/hyperflux'
 
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
@@ -39,7 +39,7 @@ export class WorldNetworkAction {
 
   static registerSceneObject = defineAction({
     type: 'xre.world.REGISTER_SCENE_OBJECT',
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
     objectUuid: matches.string,
     $cache: true,
     $topic: NetworkTopics.world
@@ -48,7 +48,7 @@ export class WorldNetworkAction {
   static spawnObject = defineAction({
     type: 'xre.world.SPAWN_OBJECT',
     prefab: matches.string,
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
     $cache: true,

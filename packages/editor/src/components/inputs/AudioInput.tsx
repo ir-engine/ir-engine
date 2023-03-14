@@ -1,9 +1,10 @@
 import React from 'react'
 
-import { AudioFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { AudioFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
+import { StringInputProps } from './StringInput'
 
 /**
  * AudioInput used to render component view for audio inputs.
@@ -12,7 +13,7 @@ import FileBrowserInput from './FileBrowserInput'
  * @param       {any} rest
  * @constructor
  */
-export function AudioInput({ onChange, ...rest }) {
+export function AudioInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={AudioFileTypes}

@@ -1,4 +1,4 @@
-import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 
 import { channelTypeSeed } from './channel-type/channel-type.seed'
 import { groupUserRankSeed } from './group-user-rank/group-user-rank.seed'

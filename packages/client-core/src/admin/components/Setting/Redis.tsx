@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Box from '@xrengine/ui/src/Box'
-import Grid from '@xrengine/ui/src/Grid'
-import Typography from '@xrengine/ui/src/Typography'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Box from '@etherealengine/ui/src/Box'
+import Grid from '@etherealengine/ui/src/Grid'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'

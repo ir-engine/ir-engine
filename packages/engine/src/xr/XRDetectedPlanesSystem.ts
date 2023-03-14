@@ -10,16 +10,15 @@ import {
 } from 'three'
 import matches from 'ts-matches'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { World } from '../ecs/classes/World'
 import {
   defineComponent,
   defineQuery,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
@@ -68,7 +67,7 @@ let planeId = 0
 export const updatePlaneGeometry = (entity: Entity, plane: XRPlane) => {
   planesLastChangedTimes.set(plane, plane.lastChangedTime)
   const geometry = createGeometryFromPolygon(plane)
-  getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
+  getMutableComponent(entity, XRPlaneComponent).geometry.set(geometry)
 }
 
 export const updatePlanePose = (entity: Entity, plane: XRPlane) => {
@@ -82,11 +81,11 @@ export const updatePlanePose = (entity: Entity, plane: XRPlane) => {
   LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
 }
 
-export const foundPlane = (world: World, plane: XRPlane) => {
+export const foundPlane = (plane: XRPlane) => {
   const geometry = createGeometryFromPolygon(plane)
 
   const entity = createEntity()
-  setLocalTransformComponent(entity, world.originEntity)
+  setLocalTransformComponent(entity, Engine.instance.originEntity)
   setVisibleComponent(entity, true)
   setComponent(entity, XRPlaneComponent)
   setComponent(entity, NameComponent, 'plane-' + planeId++)
@@ -126,7 +125,7 @@ export const lostPlane = (plane: XRPlane, entity: Entity) => {
 export const detectedPlanesMap = new Map<XRPlane, Entity>()
 export const planesLastChangedTimes = new Map<XRPlane, number>()
 
-export default async function XRDetectedPlanesSystem(world: World) {
+export default async function XRDetectedPlanesSystem() {
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   // detected planes should have significantly different poses very infrequently, so we can afford to run this at a low priority
@@ -159,7 +158,7 @@ export default async function XRDetectedPlanesSystem(world: World) {
 
     for (const plane of frame.detectedPlanes) {
       if (!detectedPlanesMap.has(plane)) {
-        foundPlane(world, plane)
+        foundPlane(plane)
       }
       const entity = detectedPlanesMap.get(plane)!
       planesQueue.addPriority(entity, 1)

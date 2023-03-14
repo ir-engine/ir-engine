@@ -2,19 +2,19 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler } from 'three'
 
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
@@ -46,7 +46,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   const onChangeDynamicLoad = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value).filter(
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n !== 'string'
     ) as Entity[]
     EditorControlFunctions.addOrRemoveComponent(nodes, SceneDynamicLoadTagComponent, value)
@@ -54,19 +54,19 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //function to handle the position properties
   const onChangePosition = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.positionObject(nodes, [value])
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value: Euler) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateObject(nodes, [value])
   }
 
   //function to handle changes in scale properties
   const onChangeScale = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities.value)
+    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.Local, true)
   }
 

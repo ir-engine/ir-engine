@@ -1,37 +1,36 @@
 import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
 
-import { addOBCPlugin, removeOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeCompilePlugin'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   defineQuery,
   getComponent,
   hasComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
-import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
-import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { ScenePreviewCameraComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { beforeMaterialCompile } from '@etherealengine/engine/src/scene/classes/BPCEMShader'
+import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
+import { convertCubemapToEquiImageData } from '@etherealengine/engine/src/scene/classes/ImageUtils'
+import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { accessEditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
 const query = defineQuery([ScenePreviewCameraComponent, TransformComponent])
 
-const getScenePositionForBake = (world: World, entity: Entity | null) => {
+const getScenePositionForBake = (entity: Entity | null) => {
   if (entity) {
     const transformComponent = getComponent(entity, TransformComponent)
     return transformComponent.position
   }
   let entityToBakeFrom: Entity
-  entityToBakeFrom = query(world)[0]
+  entityToBakeFrom = query()[0]
 
   // fall back somewhere behind the world origin
   if (entityToBakeFrom) {
@@ -53,7 +52,7 @@ const getScenePositionForBake = (world: World, entity: Entity | null) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const world = Engine.instance.currentWorld
+  const world = Engine.instance.currentScene
   const isSceneEntity = entity === world.sceneEntity
 
   if (isSceneEntity) {
@@ -63,10 +62,10 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   }
 
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
-  const position = getScenePositionForBake(world, isSceneEntity ? null : entity)
+  const position = getScenePositionForBake(isSceneEntity ? null : entity)
 
   // inject bpcem logic into material
-  Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material?.userData) return
     child.material.userData.BPCEMPlugin = beforeMaterialCompile(
       bakeComponent.bakeScale,
@@ -77,20 +76,20 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   const cubemapCapturer = new CubemapCapturer(
     EngineRenderer.instance.renderer,
-    Engine.instance.currentWorld.scene,
+    Engine.instance.scene,
     bakeComponent.resolution
   )
   const renderTarget = cubemapCapturer.update(position)
 
   // remove injected bpcem logic from material
-  Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
+  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (typeof child.material?.userData?.BPCEMPlugin === 'function') {
       removeOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
       delete child.material.userData.BPCEMPlugin
     }
   })
 
-  if (isSceneEntity) Engine.instance.currentWorld.scene.environment = renderTarget.texture
+  if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
   const blob = (await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
@@ -124,11 +123,7 @@ const resolution = 1024
  */
 
 export const uploadCubemapBakeToServer = async (name: string, position: Vector3) => {
-  const cubemapCapturer = new CubemapCapturer(
-    EngineRenderer.instance.renderer,
-    Engine.instance.currentWorld.scene,
-    resolution
-  )
+  const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
   const renderTarget = cubemapCapturer.update(position)
 
   const blob = (await convertCubemapToEquiImageData(

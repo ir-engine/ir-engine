@@ -1,8 +1,9 @@
 import assert from 'assert'
 import nock from 'nock'
 
-import { FRONTEND_SERVICE_URL } from '@xrengine/matchmaking/src/functions'
-import type { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
+import type { OpenMatchTicket } from '@etherealengine/matchmaking/src/interfaces'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -119,7 +120,6 @@ describe.skip('matchmaking match-instance service', () => {
 
     tickets.push(...(await Promise.all(ticketsPromises)))
   })
-
   after(async () => {
     const cleanupPromises: Promise<any>[] = []
 
@@ -139,6 +139,7 @@ describe.skip('matchmaking match-instance service', () => {
     cleanupPromises.push(app.service('location').remove(location.id, {}))
 
     await Promise.all(cleanupPromises)
+    return destroyEngine()
   })
 
   afterEach(() => {

@@ -1,13 +1,12 @@
 import fs from 'fs'
 import path from 'path'
 
-import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
-import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
+import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
+import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { analyticsSeeds } from './analytics/seeder-config'
 import { mediaSeeds } from './media/seeder-config'
 import { networkingSeeds } from './networking/seeder-config'
-import { paymentSeeds } from './payments/seeder-config'
 import { projectSeeds } from './projects/seeder-config'
 import { routeSeeds } from './route/seeder-config'
 import { scopeSeeds } from './scope/seeder-config'
@@ -37,7 +36,6 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
 export const seeds: Array<ServicesSeedConfig> = [
   ...mediaSeeds,
   ...networkingSeeds,
-  ...paymentSeeds,
   ...socialSeeds,
   ...userSeeds,
   ...scopeSeeds,

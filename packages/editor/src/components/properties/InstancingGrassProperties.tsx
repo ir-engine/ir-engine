@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Texture } from 'three'
 
-import { GrassProperties, TextureRef } from '@xrengine/engine/src/scene/components/InstancingComponent'
-import { State, useState } from '@xrengine/hyperflux'
+import { GrassProperties, TextureRef } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { State, useState } from '@etherealengine/hyperflux'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { Box, Collapse, IconButton, IconButtonProps } from '@mui/material'

@@ -1,6 +1,0 @@
-api:
-  extraEnv:
-    FORCE_DB_REFRESH: "false"
-media:
-  extraEnv:
-    FORCE_DB_REFRESH: "false"

@@ -1,5 +1,5 @@
 import { isClient } from '../../common/functions/isClient'
-import { World } from '../../ecs/classes/World'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'
@@ -16,7 +16,7 @@ interface ListenerBindingData {
 
 const boundListeners: ListenerBindingData[] = []
 
-export const addClientInputListeners = (world: World) => {
+export const addClientInputListeners = () => {
   if (!isClient) return
   const canvas = EngineRenderer.instance.canvas
 
@@ -56,14 +56,14 @@ export const addClientInputListeners = (world: World) => {
     if (event.button === 1) button = 'AuxiliaryClick'
     else if (event.button === 2) button = 'SecondaryClick'
 
-    const state = world.buttons as ButtonInputStateType
+    const state = Engine.instance.buttons as ButtonInputStateType
 
     if (down) state[button] = createInitialButtonState()
     else if (state[button]) state[button]!.up = true
   }
 
   const handleMouseMove = (event: MouseEvent) => {
-    world.pointerState.position.set(
+    Engine.instance.pointerState.position.set(
       (event.clientX / window.innerWidth) * 2 - 1,
       (event.clientY / window.innerHeight) * -2 + 1
     )
@@ -71,7 +71,7 @@ export const addClientInputListeners = (world: World) => {
 
   const handleTouchMove = (event: TouchEvent) => {
     const touch = event.touches[0]
-    world.pointerState.position.set(
+    Engine.instance.pointerState.position.set(
       (touch.clientX / window.innerWidth) * 2 - 1,
       (touch.clientY / window.innerHeight) * -2 + 1
     )
@@ -91,8 +91,8 @@ export const addClientInputListeners = (world: World) => {
     }
 
     // TODO: This is a hack to support gamepad input in WebXR AR sessions
-    const index = 0 //world.inputSources.length === 1 || stick === 'StickLeft' ? 0 : 1
-    const inputSource = world.inputSources[index]
+    const index = 0 //Engine.instance.inputSources.length === 1 || stick === 'StickLeft' ? 0 : 1
+    const inputSource = Engine.instance.inputSources[index]
 
     const axes = inputSource.gamepad!.axes as number[]
 
@@ -103,7 +103,7 @@ export const addClientInputListeners = (world: World) => {
 
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
   const clearKeyState = () => {
-    const state = world.buttons as ButtonInputStateType
+    const state = Engine.instance.buttons as ButtonInputStateType
     for (const button of pointerButtons) {
       const val = state[button]
       if (!val?.up && val?.pressed) state[button].up = true
@@ -128,8 +128,8 @@ export const addClientInputListeners = (world: World) => {
     const code = event.code
     const down = event.type === 'keydown'
 
-    if (down) world.buttons[code] = createInitialButtonState()
-    else if (world.buttons[code]) world.buttons[code].up = true
+    if (down) Engine.instance.buttons[code] = createInitialButtonState()
+    else if (Engine.instance.buttons[code]) Engine.instance.buttons[code].up = true
   }
   addListener(document, 'keyup', onKeyEvent)
   addListener(document, 'keydown', onKeyEvent)
@@ -138,8 +138,8 @@ export const addClientInputListeners = (world: World) => {
     const normalizedValues = normalizeWheel(event)
     const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
     const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
-    world.pointerState.scroll.x += x
-    world.pointerState.scroll.y += y
+    Engine.instance.pointerState.scroll.x += x
+    Engine.instance.pointerState.scroll.y += y
   }
   addListener(canvas, 'wheel', onWheelEvent, { passive: true, capture: true })
 }
@@ -204,7 +204,7 @@ export const GamepadMapping = {
     }
   }
 }
-export function updateGamepadInput(world: World, source: XRInputSource) {
+export function updateGamepadInput(source: XRInputSource) {
   if (!source.gamepad) return
   if (source.gamepad.mapping in GamepadMapping) {
     const ButtonAlias = GamepadMapping[source.gamepad!.mapping]
@@ -214,35 +214,39 @@ export function updateGamepadInput(world: World, source: XRInputSource) {
       for (let i = 0; i < buttons.length; i++) {
         const buttonMapping = mapping[i]
         const button = buttons[i]
-        if (!world.buttons[buttonMapping] && (button.pressed || button.touched)) {
-          world.buttons[buttonMapping] = createInitialButtonState(button)
+        if (!Engine.instance.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          Engine.instance.buttons[buttonMapping] = createInitialButtonState(button)
         }
-        if (world.buttons[buttonMapping] && (button.pressed || button.touched)) {
-          if (!world.buttons[buttonMapping].pressed && button.pressed) world.buttons[buttonMapping].down = true
-          world.buttons[buttonMapping].pressed = button.pressed
-          world.buttons[buttonMapping].touched = button.touched
-          world.buttons[buttonMapping].value = button.value
-        } else if (world.buttons[buttonMapping]) {
-          world.buttons[buttonMapping].up = true
+        if (Engine.instance.buttons[buttonMapping] && (button.pressed || button.touched)) {
+          if (!Engine.instance.buttons[buttonMapping].pressed && button.pressed)
+            Engine.instance.buttons[buttonMapping].down = true
+          Engine.instance.buttons[buttonMapping].pressed = button.pressed
+          Engine.instance.buttons[buttonMapping].touched = button.touched
+          Engine.instance.buttons[buttonMapping].value = button.value
+        } else if (Engine.instance.buttons[buttonMapping]) {
+          Engine.instance.buttons[buttonMapping].up = true
         }
       }
     }
   }
 }
 
-export default async function ClientInputSystem(world: World) {
-  addClientInputListeners(world)
-  world.pointerScreenRaycaster.layers.enableAll()
+export default async function ClientInputSystem() {
+  addClientInputListeners()
+  Engine.instance.pointerScreenRaycaster.layers.enableAll()
 
   const execute = () => {
-    for (const source of world.inputSources) updateGamepadInput(world, source)
+    for (const source of Engine.instance.inputSources) updateGamepadInput(source)
 
-    world.pointerScreenRaycaster.setFromCamera(world.pointerState.position, world.camera)
+    Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
 
-    world.pointerState.movement.subVectors(world.pointerState.position, world.pointerState.lastPosition)
-    world.pointerState.lastPosition.copy(world.pointerState.position)
+    Engine.instance.pointerState.movement.subVectors(
+      Engine.instance.pointerState.position,
+      Engine.instance.pointerState.lastPosition
+    )
+    Engine.instance.pointerState.lastPosition.copy(Engine.instance.pointerState.position)
 
-    world.pointerState.lastScroll.copy(world.pointerState.scroll)
+    Engine.instance.pointerState.lastScroll.copy(Engine.instance.pointerState.scroll)
   }
 
   const cleanup = async () => {

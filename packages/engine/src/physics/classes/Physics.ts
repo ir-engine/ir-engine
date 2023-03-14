@@ -14,11 +14,14 @@ import RAPIER, {
   TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
-import { Line, Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import { BufferAttribute, Line, Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -205,7 +208,7 @@ function createColliderDesc(
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
       try {
         const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
-        const vertices = new Float32Array(_buff.attributes.position.array)
+        const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
       } catch (e) {
@@ -220,7 +223,7 @@ function createColliderDesc(
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
       try {
         const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
-        const vertices = new Float32Array(_buff.attributes.position.array)
+        const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.trimesh(vertices, indices)
       } catch (e) {
@@ -300,7 +303,7 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
 
   const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 
-  if (!Engine.instance.isEditor)
+  if (!getMutableState(EngineState).isEditor.value)
     for (const mesh of meshesToRemove) {
       mesh.removeFromParent()
       mesh.traverse((obj: Mesh<any, any>) => cleanupAllMeshData(obj, { uuid: getComponent(entity, UUIDComponent) }))

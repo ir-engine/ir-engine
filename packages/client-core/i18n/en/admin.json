@@ -44,7 +44,7 @@
       "spawnBot": "Spawn Bot",
       "lastRunStatus": "Last run status",
       "autoRefreshing": "auto refreshing in 10s",
-      "xrEngineBots": "XREngine bots",
+      "engineBots": "Ethereal Engine bots",
       "updateBot": "UPDATE BOT",
       "name": "Name",
       "confirmBotDelete": "Do you want to delete bot"
