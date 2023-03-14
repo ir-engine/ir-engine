@@ -7,7 +7,7 @@ import * as k8s from '@kubernetes/client-node'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
 
-import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerNetwork'
+import { SocketWebRTCServerFunctions } from '../instanceserver/src/SocketWebRTCServerFunctions'
 
 export const ServerMode = {
   API: 'API' as const,
@@ -17,6 +17,11 @@ export const ServerMode = {
 
 export type ServerTypeMode = typeof ServerMode[keyof typeof ServerMode]
 
+export type PrimusType = Primus & {
+  forEach(cb: (spark: Primus.Spark, id: string, connections: { [id: string]: Primus.Spark }) => boolean | void): Primus
+  use(name: string, fn: (req: any, res: any, next: any) => void, level?: number): Primus
+}
+
 export type Application = ExpressFeathers<ServiceTypes> & {
   // Common
   k8AgonesClient: k8s.CustomObjectsApi
@@ -25,8 +30,8 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   k8BatchClient: k8s.BatchV1Api
   agonesSDK: any
   sync: any
-  primus: Primus
-  network: SocketWebRTCServerNetwork
+  primus: PrimusType
+  network: SocketWebRTCServerFunctions
   seed: () => Application // function
   serverMode: ServerTypeMode
 

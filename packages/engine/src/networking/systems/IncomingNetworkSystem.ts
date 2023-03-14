@@ -1,7 +1,5 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
-import { Network } from '../classes/Network'
-import { validateNetworkObjects } from '../functions/validateNetworkObjects'
 import { createDataReader } from '../serialization/DataReader'
 
 export const applyUnreliableQueueFast = (deserialize: Function) => () => {
@@ -23,15 +21,11 @@ export default async function IncomingNetworkSystem() {
   const deserialize = createDataReader()
   const applyIncomingNetworkState = applyUnreliableQueueFast(deserialize)
 
-  const VALIDATE_NETWORK_INTERVAL = Engine.instance.tickRate * 5
-
   const engineState = getEngineState()
 
   const execute = () => {
     if (!engineState.isEngineInitialized.value) return
     applyIncomingNetworkState()
-    if (Engine.instance.worldNetwork?.isHosting && Engine.instance.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
-      validateNetworkObjects(Engine.instance.worldNetwork as Network)
   }
 
   const cleanup = async () => {}

@@ -27,7 +27,7 @@ import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../commo
 import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { initClient, loadScene } from './LocationLoadHelper'
 
 const logger = multiLogger.child({ component: 'client-core:world' })

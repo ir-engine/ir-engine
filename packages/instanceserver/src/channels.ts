@@ -30,8 +30,9 @@ import { getProjectsList } from '@etherealengine/server-core/src/projects/projec
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { authorizeUserToJoinServer } from './NetworkFunctions'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
+import { initializeNetwork, SocketWebRTCServerFunctions } from './SocketWebRTCServerFunctions'
+import { WorldHostModule } from './WorldHostModule'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -229,11 +230,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.userId = hostId
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
-  const network = new SocketWebRTCServerNetwork(hostId, topic, app)
-  app.network = network
-  const initPromise = network.initialize()
-
-  addNetwork(network)
+  await setupSubdomain(app)
+  const networkPromise = initializeNetwork(app, hostId, topic)
   const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
@@ -253,7 +251,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
       ...TransformModule(),
       ...SceneCommonModule(),
       ...AvatarCommonModule(),
-      ...RealtimeNetworkingModule(false, true)
+      ...RealtimeNetworkingModule(false, true),
+      ...WorldHostModule()
     ])
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
@@ -267,7 +266,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     logger.info('Scene loaded!')
   }
-  await initPromise
+
+  const network = await networkPromise
+  app.network = network
+
+  addNetwork(network)
+
   network.ready = true
 
   NetworkPeerFunctions.createPeer(
