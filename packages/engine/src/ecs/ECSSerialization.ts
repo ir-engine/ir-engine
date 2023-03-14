@@ -1,18 +1,14 @@
 import { TypedArray } from 'bitecs'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { defineState } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { AvatarControllerComponent } from '../avatar/components/AvatarControllerComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { Engine } from './classes/Engine'
 import { Entity } from './classes/Entity'
-import { World } from './classes/World'
 import {
   Component,
   ComponentMap,
-  ComponentType,
   defineQuery,
   getComponent,
   hasComponent,
@@ -85,8 +81,6 @@ const setNestedProperty = (obj: any, path: string, value: any) => {
 }
 
 const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: SerializerArgs) => {
-  const world = Engine.instance.currentWorld
-
   const eidMap = new Map<Entity, number>()
 
   let data = {
@@ -186,8 +180,6 @@ export type ECSSerializer = ReturnType<typeof createSerializer>
 export const ActiveSerializers = new Set<ECSSerializer>()
 
 export const createDeserializer = (chunks: SerializedChunk[]) => {
-  const world = Engine.instance.currentWorld
-
   const eidMap = new Map<number, Entity>()
 
   let chunk = 0
@@ -256,7 +248,7 @@ export const ECSSerialization = {
   createDeserializer
 }
 
-export default async function ECSSerializationSystem(world: World) {
+export default async function ECSSerializationSystem() {
   /** temporary test */
   document.addEventListener('keydown', (e) => {
     if (e.code === 'KeyM') {
