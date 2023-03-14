@@ -38,6 +38,12 @@ function createPeer(
     userIndex
   })
 
+  if (!network.users.has(userID)) {
+    network.users.set(userID, [peerID])
+  } else {
+    network.users.get(userID)!.push(peerID)
+  }
+
   const worldState = getMutableState(WorldState)
   worldState.userNames[userID].set(name)
 }
@@ -59,6 +65,11 @@ function destroyPeer(network: Network, peerID: PeerID) {
   const peerIndex = network.peerIDToPeerIndex.get(peerID)!
   network.peerIDToPeerIndex.delete(peerID)
   network.peerIndexToPeerID.delete(peerIndex)
+
+  const userPeers = network.users.get(userID)!
+  const peerIndexInUserPeers = userPeers.indexOf(peerID)
+  userPeers.splice(peerIndexInUserPeers, 1)
+  if (!userPeers.length) network.users.delete(userID)
 
   /**
    * if no other connections exist for this user, and this action is occurring on the world network,

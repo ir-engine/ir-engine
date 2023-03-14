@@ -8,7 +8,7 @@ import {
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
 import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { ProducerExtension } from './SocketWebRTCClientNetwork'
+import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
 

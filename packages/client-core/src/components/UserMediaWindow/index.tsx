@@ -10,6 +10,7 @@ import {
   globalMuteProducer,
   globalUnmuteProducer,
   pauseConsumer,
+  ProducerExtension,
   resumeConsumer,
   toggleMicrophonePaused,
   toggleScreenshareAudioPaused,
@@ -38,7 +39,7 @@ import Tooltip from '@etherealengine/ui/src/Tooltip'
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
@@ -163,7 +164,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       audioTrackClones.forEach((track) => track.stop())
       if (harkListener) (harkListener as any).stop()
     }
-  }, [audioTrackId, harkListener])
+  }, [audioTrackId])
 
   useEffect(() => {
     videoElement.id = `${peerID}_video`

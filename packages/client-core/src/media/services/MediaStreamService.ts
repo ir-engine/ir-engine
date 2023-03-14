@@ -7,7 +7,7 @@ import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
 //State
