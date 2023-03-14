@@ -1,7 +1,6 @@
-import { getState } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace } from './XRState'
 
@@ -24,7 +23,7 @@ declare global {
   }
 }
 
-export default async function XRCameraViewSystem(world: World) {
+export default async function XRCameraViewSystem() {
   const xrRendererState = getState(XRRendererState)
 
   const execute = () => {
@@ -32,9 +31,9 @@ export default async function XRCameraViewSystem(world: World) {
       const viewer = Engine.instance.xrFrame.getViewerPose(ReferenceSpace.localFloor)
       if (viewer) {
         for (const view of viewer.views) {
-          console.log('XRCamera supported:', view.camera !== null)
-          if (view.camera) {
-            const cameraImage = xrRendererState.glBinding.value!.getCameraImage(view.camera)
+          console.log('XRCamera supported:', view.camera !== null && xrRendererState.glBinding !== null)
+          if (view.camera && xrRendererState.glBinding) {
+            const cameraImage = xrRendererState.glBinding?.getCameraImage(view.camera)
             console.log('WebGLTexture:', cameraImage)
           }
         }
