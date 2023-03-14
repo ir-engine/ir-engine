@@ -9,6 +9,7 @@ import { defineConfig, loadEnv, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import PkgConfig from 'vite-plugin-package-config'
+import wasm from 'vite-plugin-wasm'
 
 import { getClientSetting } from './scripts/getClientSettings'
 
@@ -72,13 +73,14 @@ export default defineConfig(async () => {
 
   const returned = {
     optimizeDeps: {
-      exclude: ['@etherealengine/volumetric'],
+      exclude: ['@etherealengine/volumetric', '@automerge/automerge-wasm'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
         target: 'es2020'
       }
     },
     plugins: [
+      wasm(),
       PkgConfig(),
       // OptimizationPersist(),
       createHtmlPlugin({

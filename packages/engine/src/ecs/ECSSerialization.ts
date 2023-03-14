@@ -1,3 +1,4 @@
+import * as Automerge from '@automerge/automerge'
 import { TypedArray } from 'bitecs'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -22,24 +23,26 @@ export type ComponentSerializationSchema = {
   }
 }
 
+export type CRDTType = {
+  data: SerializedEntityProps
+}
+
+export type SerializedEntityProps = {
+  [uuid: EntityUUID]: {
+    [componentName: string]: {
+      json: {
+        [propertyName: string]: any
+      }
+      buffers: {
+        [propertyName: string]: number
+      }
+    }
+  }
+}
+
 export type SerializedChunk = {
   startTimecode: number
-  entities: { [eid: number]: EntityUUID }
-  frames: Array<
-    Array<{
-      components: {
-        [componentName: string]: {
-          props: {
-            [propertyName: string]: any
-          }
-          buffers: {
-            [propertyName: string]: number
-          }
-        }
-      }
-      eid: number
-    }>
-  >
+  changes: Uint8Array[]
 }
 
 export type SerializerArgs = {
@@ -85,63 +88,58 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
 
   let data = {
     startTimecode: Date.now(),
-    entities: {},
-    frames: []
+    changes: []
   } as SerializedChunk
-  new Float32Array(16).fill(5)
+
+  let lastDoc = Automerge.init<CRDTType>()
 
   let frame = 0
 
   const write = () => {
-    const frameData = [] as SerializedChunk['frames'][0]
-    for (const entity of entities) {
-      if (!eidMap.has(entity)) {
-        const eid = eidMap.size
-        eidMap.set(entity, eid)
-        data.entities[eid] = getComponent(entity, UUIDComponent)
-      }
-      const eid = eidMap.get(entity)!
-      const entityData = {
-        components: {},
-        eid
-      } as SerializedChunk['frames'][0][0]
-      for (const componentSchema of schema) {
-        const componentData = {
-          props: {},
-          buffers: {}
-        } as SerializedChunk['frames'][0][0]['components'][0]
-        if (hasComponent(entity, componentSchema.component)) {
-          const component = componentSchema.component
+    const newDoc = Automerge.change(lastDoc, (doc) => {
+      for (const entity of entities) {
+        const uuid = getComponent(entity, UUIDComponent)
 
-          /** Properties */
-          const comp = getComponent(entity, component)
+        doc.data = {}
 
-          if (componentSchema.properties) {
-            for (const prop of componentSchema.properties!) {
-              // @TODO implement delta compression
-              // const lastValue = data.frames[frame - 1]?.[eid]?.components?.props[prop]
-              // const currentValue = getNestedProperty(comp, prop)
-              // if (frame === 0 || lastValue !== currentValue) {
-              //   componentData.props[prop] = currentValue
-              // }
-              componentData.props[prop] = getNestedProperty(comp, prop)
+        doc.data[uuid] = {}
+
+        const entityData = doc.data[uuid]
+
+        for (const componentSchema of schema) {
+          if (hasComponent(entity, componentSchema.component)) {
+            entityData[componentSchema.component.name] = {
+              json: {},
+              buffers: {}
+            }
+            const componentData = entityData[componentSchema.component.name]
+
+            const component = componentSchema.component
+
+            /** Properties */
+            const comp = getComponent(entity, component)
+
+            if (componentSchema.properties) {
+              for (const prop of componentSchema.properties) {
+                componentData.json[prop] = getNestedProperty(comp, prop)
+              }
+            }
+
+            if (componentSchema.buffers) {
+              for (const prop in componentSchema.buffers) {
+                componentData.buffers[prop] = getNestedProperty(comp, prop)
+              }
             }
           }
-
-          /** Buffers */
-          if (componentSchema.buffers) {
-            for (const prop in componentSchema.buffers) {
-              componentData.buffers[prop] = getNestedProperty(comp, prop)
-            }
-          }
-
-          entityData.components[component.name] = componentData
         }
       }
-      frameData.push(entityData)
-    }
+    })
 
-    data.frames.push(frameData)
+    const frameData = frame > 0 ? Automerge.getChanges(lastDoc, newDoc)[0] : Automerge.save(newDoc)
+
+    lastDoc = newDoc
+
+    data.changes.push(frameData)
 
     frame++
 
@@ -157,8 +155,7 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
     onCommitChunk(data)
     data = {
       startTimecode: Date.now(),
-      entities: {},
-      frames: []
+      changes: []
     } as SerializedChunk
     eidMap.clear()
   }
@@ -185,33 +182,34 @@ export const createDeserializer = (chunks: SerializedChunk[]) => {
   let chunk = 0
   let frame = 0
 
+  let doc = Automerge.init<CRDTType>()
+
   const read = () => {
     const data = chunks[chunk]
-    const frameData = data.frames[frame]
-    for (const entityData of frameData) {
-      if (!eidMap.has(entityData.eid)) {
-        const eid = entityData.eid
-        const uuid = data.entities[eid]
-        console.log({ eid, uuid })
-        if (UUIDComponent.entitiesByUUID.value[uuid]) {
-          const entity = UUIDComponent.entitiesByUUID.value[uuid]
-          eidMap.set(eid, entity)
-        } else {
-          const entity = createEntity()
-          eidMap.set(eid, entity)
-          setComponent(entity, UUIDComponent, data.entities[eid])
-        }
+    const frameData = data.changes[frame]
+
+    doc = frame === 0 ? Automerge.load(chunks[chunk].changes[frame]) : Automerge.applyChanges(doc, [frameData])[0]
+
+    for (const [uuid, data] of Object.entries(doc.data)) {
+      console.log(uuid, data)
+      /** Create entity if it doesn't exist */
+      if (!UUIDComponent.entitiesByUUID.value[uuid]) {
+        const entity = createEntity()
+        eidMap.set(entity, entity)
+        setComponent(entity, UUIDComponent, data.entities[entity])
       }
-      const entity = eidMap.get(entityData.eid)!
-      for (const componentName in entityData.components) {
-        const componentData = entityData.components[componentName]
+      /** Apply data to entity */
+      const entity = UUIDComponent.entitiesByUUID.value[uuid]
+      for (const componentName in data) {
+        const componentData = data[componentName]
+        console.log(componentData)
         const component = ComponentMap.get(componentName)!
         if (!hasComponent(entity, component)) {
           setComponent(entity, component)
         }
         const comp = getComponent(entity, component)
-        for (const prop in componentData.props) {
-          setNestedProperty(comp, prop, componentData.props[prop])
+        for (const prop in componentData.json) {
+          setNestedProperty(comp, prop, componentData.json[prop])
         }
         for (const prop in componentData.buffers) {
           setNestedProperty(comp, prop, componentData.buffers[prop])
@@ -220,7 +218,7 @@ export const createDeserializer = (chunks: SerializedChunk[]) => {
     }
     frame++
 
-    if (frame >= data.frames.length) {
+    if (frame >= data.changes.length) {
       chunk++
       if (chunk >= chunks.length) {
         end()
