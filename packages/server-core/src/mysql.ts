@@ -30,7 +30,7 @@ export default (app: Application): void => {
         password: appConfig.db.password,
         host: appConfig.db.host,
         port: parseInt(appConfig.db.port),
-        db: appConfig.db.database,
+        database: appConfig.db.database,
         charset: 'utf8mb4'
       }
     })

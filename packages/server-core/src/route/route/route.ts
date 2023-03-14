@@ -2,19 +2,19 @@ import { Params } from '@feathersjs/feathers'
 import fs from 'fs'
 import path from 'path'
 
-import { ActiveRoutesInterface, InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { Route } from './route.class'
+import { RouteService } from './route.class'
 import routeDocs from './route.docs'
 import hooks from './route.hooks'
-import createModel from './route.model'
+import { RouteType } from './route.schema'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    route: Route
+    route: RouteService
   }
 
   interface ServiceTypes {
@@ -60,18 +60,18 @@ export const getInstalledRoutes = (): any => {
   }
 }
 
-export const activateRoute = (routeService: Route): any => {
+export const activateRoute = (routeService: RouteService): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
-    const activatedRoutes = (await routeService.find(null!)).data as ActiveRoutesInterface[]
+    const activatedRoutes = (await routeService.find(null!) as any).data as RouteType[]
     const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
       if (routeToActivate) {
         // if any projects already have this route, deactivate them
         for (const route of activatedRoutes) {
-          if (route.route === data.route) await routeService.remove(route.id)
+          if (route.route === data.route) await routeService._remove(route.id)
         }
-        await routeService.create({
+        await routeService._create({
           route: data.route,
           project: data.project
         })
@@ -80,7 +80,7 @@ export const activateRoute = (routeService: Route): any => {
     } else {
       const routeToDeactivate = activatedRoutes.find((r) => r.project === data.project && r.route === data.route)
       if (routeToDeactivate) {
-        await routeService.remove(routeToDeactivate.id)
+        await routeService._remove(routeToDeactivate.id)
         return true
       }
     }
@@ -90,12 +90,13 @@ export const activateRoute = (routeService: Route): any => {
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: 'route',
     paginate: app.get('paginate'),
+    Model: app.get('mysqlClient'),
     multi: true
   }
 
-  const event = new Route(options, app)
+  const event = new RouteService(options, app)
   event.docs = routeDocs
   app.use('route', event)
   // @ts-ignore
