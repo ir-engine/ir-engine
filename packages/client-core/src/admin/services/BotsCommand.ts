@@ -1,7 +1,7 @@
-import { BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { BotCommands, CreateBotCammand } from '@etherealengine/common/src/interfaces/AdminBot'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -25,11 +25,11 @@ const AdminBotsCommandState = defineState({
 })
 
 const botCommandCreatedReceptor = (action: typeof AdminBotCommandActions.botCommandCreated.matches._TYPE) => {
-  const state = getState(AdminBotsCommandState)
+  const state = getMutableState(AdminBotsCommandState)
   return state.merge({ updateNeeded: true })
 }
 const botCommandRemovedReceptor = (action: typeof AdminBotCommandActions.botCommandRemoved.matches._TYPE) => {
-  const state = getState(AdminBotsCommandState)
+  const state = getMutableState(AdminBotsCommandState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -37,9 +37,9 @@ export const AdminBotsCommandReceptors = {
   botCommandCreatedReceptor,
   botCommandRemovedReceptor
 }
-
-export const accessAdminBotCommandState = () => getState(AdminBotsCommandState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAdminBotCommandState = () => getMutableState(AdminBotsCommandState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminBotCommandState = () => useState(accessAdminBotCommandState())
 
 //Service

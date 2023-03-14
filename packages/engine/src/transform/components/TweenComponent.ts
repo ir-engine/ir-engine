@@ -1,9 +1,15 @@
 import { Tween } from '@tweenjs/tween.js'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type TweenComponentType = {
-  tween: Tween<any>
-}
+export const TweenComponent = defineComponent({
+  name: 'TweenComponent',
 
-export const TweenComponent = createMappedComponent<TweenComponentType>('TweenComponent')
+  onInit(entity) {
+    return null! as Tween<any>
+  },
+
+  onSet(entity, component, json) {
+    component.set(json as Tween<any>)
+  }
+})

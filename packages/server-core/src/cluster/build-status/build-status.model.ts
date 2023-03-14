@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { BuildStatusInterface } from '@xrengine/common/src/dbmodels/BuildStatus'
+import { BuildStatusInterface } from '@etherealengine/common/src/dbmodels/BuildStatus'
 
 import { Application } from '../../../declarations'
 
@@ -26,6 +26,9 @@ export default (app: Application) => {
       },
       dateEnded: {
         type: DataTypes.DATE
+      },
+      commitSHA: {
+        type: DataTypes.STRING
       }
     },
     {

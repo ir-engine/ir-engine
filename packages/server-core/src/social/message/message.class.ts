@@ -2,8 +2,8 @@ import { BadRequest } from '@feathersjs/errors'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { Message as MessageInterface } from '@xrengine/common/src/interfaces/Message'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -150,6 +150,7 @@ export class Message<T = MessageDataType> extends Service<T> {
       isNotification: data.isNotification
     }
     const newMessage: any = await super.create({ ...messageData })
+    newMessage.sender = loggedInUser
 
     await Promise.all(
       userIdList.map((mappedUserId: string) => {

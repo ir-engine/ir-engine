@@ -3,8 +3,10 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { State } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -77,6 +79,8 @@ type FileBrowserItemType = {
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
   setFileProperties: any
   setOpenPropertiesModal: any
+  setOpenCompress: any
+  setOpenConvert: any
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
@@ -90,6 +94,8 @@ export function FileBrowserItem({
   currentContent,
   setOpenPropertiesModal,
   setFileProperties,
+  setOpenCompress,
+  setOpenConvert,
   deleteContent,
   onClick,
   dropItemsOnPanel,
@@ -127,7 +133,8 @@ export function FileBrowserItem({
 
   const placeObjectAtOrigin = async () => {
     const node = await addMediaNode(item.url)
-    const transformComponent = getComponent(node.entity, TransformComponent)
+    if (!node) return
+    const transformComponent = getComponent(node, TransformComponent)
     if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
 
     handleClose()
@@ -169,6 +176,20 @@ export function FileBrowserItem({
       setFileProperties(item)
     }
     setOpenPropertiesModal(true)
+
+    handleClose()
+  }
+
+  const viewCompress = () => {
+    setFileProperties(item)
+    setOpenCompress(true)
+
+    handleClose()
+  }
+
+  const viewConvert = () => {
+    setFileProperties(item)
+    setOpenConvert(true)
 
     handleClose()
   }
@@ -241,6 +262,8 @@ export function FileBrowserItem({
           <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
           <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
           <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>
+          <MenuItem onClick={viewCompress}>{t('editor:layout.filebrowser.compress')}</MenuItem>
+          <MenuItem onClick={viewConvert}>{t('editor:layout.filebrowser.convert')}</MenuItem>
         </ContextMenu>
       </div>
     </div>

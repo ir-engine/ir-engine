@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { CoilSetting } from '@xrengine/common/src/interfaces/CoilSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { CoilSetting } from '@etherealengine/common/src/interfaces/CoilSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -16,16 +16,16 @@ const AdminCoilSettingsState = defineState({
 })
 
 const fetchedCoilReceptor = (action: typeof AdminCoilSettingActions.fetchedCoil.matches._TYPE) => {
-  const state = getState(AdminCoilSettingsState)
+  const state = getMutableState(AdminCoilSettingsState)
   return state.merge({ coil: action.coilSettings.data, updateNeeded: false })
 }
 
 export const CoilSettingReceptors = {
   fetchedCoilReceptor
 }
-
-export const accessCoilSettingState = () => getState(AdminCoilSettingsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessCoilSettingState = () => getMutableState(AdminCoilSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useCoilSettingState = () => useState(accessCoilSettingState())
 
 export const AdminCoilSettingService = {

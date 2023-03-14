@@ -2,24 +2,22 @@ import { createState } from '@hookstate/core'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
-import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
-import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
+import { UserSetting } from '@etherealengine/common/src/interfaces/User'
+import { AudioSettingAction, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarAxesControlScheme,
   AvatarControllerType,
   AvatarInputSettingsAction,
   AvatarInputSettingsState
-} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
-import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
+} from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
@@ -39,10 +37,10 @@ function createSettingDetailState() {
 // TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
-  const rendererState = useEngineRendererState()
+  const rendererState = useHookstate(getMutableState(RendererState))
   const audioState = useAudioState()
-  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
-  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
+  const xrSessionActive = useHookstate(getMutableState(XRState).sessionActive)
+  const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
@@ -59,8 +57,7 @@ const SettingDetailView = () => {
   const controlSchemes = Object.values(AvatarAxesControlScheme).filter((value) => typeof value === 'string')
 
   useEffect(() => {
-    const world = Engine.instance.currentWorld
-    const entity = world.localClientEntity
+    const entity = Engine.instance.localClientEntity
     const avatar = getComponent(entity, AvatarComponent)
     if (!avatar) return
     if (showAvatar) {
@@ -110,22 +107,23 @@ const SettingDetailView = () => {
     setShowAudioDetails(!showAudioDetails)
   }
 
+  const handleQualityLevelChange = (value) => {
+    rendererState.qualityLevel.set(value)
+    rendererState.automatic.set(false)
+  }
+
   const handlePostProcessingCheckbox = () => {
-    dispatchAction(
-      EngineRendererAction.setPostProcessing({
-        usePostProcessing: !rendererState.usePostProcessing.value
-      })
-    )
-    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
+    rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
+    rendererState.automatic.set(false)
   }
 
   const handleShadowCheckbox = () => {
-    dispatchAction(EngineRendererAction.setShadows({ useShadows: !rendererState.useShadows.value }))
-    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
+    rendererState.useShadows.set(!rendererState.useShadows.value)
+    rendererState.automatic.set(false)
   }
 
   const handleAutomaticCheckbox = () => {
-    dispatchAction(EngineRendererAction.setAutomatic({ automatic: !rendererState.automatic.value }))
+    rendererState.automatic.set(!rendererState.automatic.value)
   }
 
   return (
@@ -136,7 +134,7 @@ const SettingDetailView = () => {
           <section className="audioSection">
             <h4 className="title">{t('user:usermenu.setting.audio')}</h4>
             <div className="sectionRow">
-              <VolumeUp />
+              <Icon type="VolumeUp" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-volume')}
                 min="0"
@@ -149,7 +147,7 @@ const SettingDetailView = () => {
               />
             </div>
             <div className="sectionRow">
-              <Mic />
+              <Icon type="Mic" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-microphone')}
                 min="0"
@@ -170,17 +168,17 @@ const SettingDetailView = () => {
             {showAudioDetails && (
               <>
                 <div className="sectionRow">
-                  <SurroundSoundIcon />
+                  <Icon type="SurroundSound" />
                   <XRCheckboxButton
                     labelContent={t('user:usermenu.setting.use-positional-media')}
-                    checked={audioState.usePositionalMedia.value}
+                    checked={audioState.positionalMedia.value}
                     onChange={(_, value: boolean) => {
                       dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
                     }}
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-media-instance')}
                     min="0"
@@ -193,7 +191,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-notification')}
                     min="0"
@@ -206,7 +204,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-sound-effect')}
                     min="0"
@@ -219,7 +217,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-background-music-volume')}
                     min="0"
@@ -241,17 +239,14 @@ const SettingDetailView = () => {
           <section className="graphicsSection">
             <h4 className="title">{t('user:usermenu.setting.graphics')}</h4>
             <div className="sectionRow">
-              <BlurLinear />
+              <Icon type="BlurLinear" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-resolution')}
                 min="1"
                 max="5"
                 step="1"
                 value={rendererState.qualityLevel.value}
-                onChange={(event: any) => {
-                  dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: parseInt(event.target.value) }))
-                  dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-                }}
+                onChange={handleQualityLevelChange}
               />
             </div>
 

@@ -6,7 +6,7 @@ import hooks from './analytics.hooks'
 import createModel from './analytics.model'
 
 // Add this service to the service type index
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     analytics: Analytics
   }

@@ -13,7 +13,13 @@ interface Props {
 
 const DrawerView = ({ open, classes, children, onClose }: Props) => {
   return (
-    <Drawer anchor="right" open={open} onClose={onClose} classes={{ paper: styles.paperDrawer, ...classes }}>
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      classes={classes}
+      PaperProps={{ className: styles.paperDrawer }}
+    >
       {children}
     </Drawer>
   )

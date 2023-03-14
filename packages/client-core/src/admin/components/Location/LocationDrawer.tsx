@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { LocationFetched } from '@xrengine/common/src/interfaces/Location'
-
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import Grid from '@mui/material/Grid'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { LocationFetched } from '@etherealengine/common/src/interfaces/Location'
+import Button from '@etherealengine/ui/src/Button'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Grid from '@etherealengine/ui/src/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -195,8 +194,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         <InputText
           name="name"
           label={t('admin:components.location.lbl-name')}
-          value={state.name ?? ''}
-          error={state.formErrors.name}
+          value={state?.name || ''}
+          error={state?.formErrors?.name}
           disabled={viewMode}
           onChange={handleChange}
         />
@@ -204,8 +203,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         <InputText
           name="maxUsers"
           label={t('admin:components.location.lbl-maxuser')}
-          value={state.maxUsers}
-          error={state.formErrors.maxUsers}
+          value={state?.maxUsers}
+          error={state?.formErrors?.maxUsers}
           type="number"
           disabled={viewMode}
           onChange={handleChange}
@@ -214,8 +213,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         <InputSelect
           name="scene"
           label={t('admin:components.location.lbl-scene')}
-          value={state.scene}
-          error={state.formErrors.scene}
+          value={state?.scene}
+          error={state?.formErrors?.scene}
           menu={sceneMenu}
           disabled={viewMode}
           onChange={handleChange}
@@ -224,7 +223,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         <InputSelect
           name="type"
           label={t('admin:components.location.type')}
-          value={state.type}
+          value={state?.type}
           menu={locationTypesMenu}
           disabled={viewMode}
           onChange={handleChange}
@@ -235,7 +234,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
             <InputSwitch
               name="videoEnabled"
               label={t('admin:components.location.lbl-ve')}
-              checked={state.videoEnabled}
+              checked={state?.videoEnabled}
               disabled={viewMode}
               onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
             />
@@ -243,7 +242,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
             <InputSwitch
               name="audioEnabled"
               label={t('admin:components.location.lbl-ae')}
-              checked={state.audioEnabled}
+              checked={state?.audioEnabled}
               disabled={viewMode}
               onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
             />
@@ -251,7 +250,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
             <InputSwitch
               name="screenSharingEnabled"
               label={t('admin:components.location.lbl-se')}
-              checked={state.screenSharingEnabled}
+              checked={state?.screenSharingEnabled}
               disabled={viewMode}
               onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
             />
@@ -261,7 +260,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
               <InputSwitch
                 name="faceStreamingEnabled"
                 label={t('admin:components.location.lbl-fe')}
-                checked={state.faceStreamingEnabled}
+                checked={state?.faceStreamingEnabled}
                 disabled={viewMode}
                 onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
               />
@@ -269,7 +268,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
               <InputSwitch
                 name="isLobby"
                 label={t('admin:components.location.lbl-lobby')}
-                checked={state.isLobby}
+                checked={state?.isLobby}
                 disabled={viewMode}
                 onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
               />
@@ -277,7 +276,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
               <InputSwitch
                 name="isFeatured"
                 label={t('admin:components.location.lbl-featured')}
-                checked={state.isFeatured}
+                checked={state?.isFeatured}
                 disabled={viewMode}
                 onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
               />

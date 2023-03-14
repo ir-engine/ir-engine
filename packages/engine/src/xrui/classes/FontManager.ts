@@ -1,7 +1,10 @@
 import { ExtrudeGeometry, Vector3 } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { Font, FontLoader } from '../../assets/font/FontLoader'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 
 export class FontManager {
   static instance: FontManager = new FontManager()
@@ -24,7 +27,7 @@ export class FontManager {
       if (this._defaultFont) {
         resolve(this._defaultFont)
       }
-      this._loader.load(Engine.instance.publicPath + '/fonts/IBMPlexSans-Regular.json', (font) => {
+      this._loader.load(getState(EngineState).publicPath + '/fonts/IBMPlexSans-Regular.json', (font) => {
         this._defaultFont = font
         resolve(this._defaultFont)
       })

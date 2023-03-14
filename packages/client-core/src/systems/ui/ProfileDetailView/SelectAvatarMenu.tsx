@@ -2,16 +2,15 @@ import { createState, useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { getState } from '@xrengine/hyperflux'
-
-import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService, AvatarState } from '../../../user/services/AvatarService'
@@ -34,7 +33,7 @@ const SelectAvatarMenu = () => {
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
-  const avatarState = useHookstate(getState(AvatarState))
+  const avatarState = useHookstate(getMutableState(AvatarState))
 
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.total.value))
@@ -52,7 +51,7 @@ const SelectAvatarMenu = () => {
   }, [avatarState.total])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
+    if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value)
       AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
   }
@@ -135,7 +134,7 @@ const SelectAvatarMenu = () => {
             className="iconBlock"
             variant="iconOnly"
             onClick={openProfileMenu}
-            content={<ArrowBack />}
+            content={<Icon type="ArrowBack" />}
           />
           <h2>{t('user:avatar.titleUploadAvatar')}</h2>
         </div>
@@ -149,7 +148,7 @@ const SelectAvatarMenu = () => {
             xr-layer="true"
             onClick={loadPreviousAvatars}
             disabled={page === 0}
-            content={<ArrowBackIos className="size" />}
+            content={<Icon type="ArrowBackIos" className="size" />}
           />
           <div className="innerMenuContainer">
             <XRIconButton
@@ -166,20 +165,20 @@ const SelectAvatarMenu = () => {
               backgroundColor="#23af3a"
               onClick={confirmAvatar}
               disabled={selectedAvatar?.avatar?.name == avatarId}
-              content={<Check />}
+              content={<Icon type="Check" />}
             />
             <XRIconButton
               xr-layer="true"
               backgroundColor="rgb(255 255 255 / 70%)"
               onClick={openAvatarSelectMenu}
-              content={<PersonAdd className="size" />}
+              content={<Icon type="PersonAdd" className="size" />}
             />
           </div>
           <XRIconButton
             xr-layer="true"
             onClick={loadNextAvatars}
             disabled={(page + 1) * imgPerPage >= avatarState.total.value}
-            content={<ArrowForwardIos className="size" />}
+            content={<Icon type="ArrowForwardIos" className="size" />}
           />
         </div>
       </div>

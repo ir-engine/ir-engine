@@ -2,13 +2,12 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { Joystick } from 'react-joystick-component'
 
-import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { isHMD } from '@xrengine/engine/src/common/functions/isMobile'
-import { ButtonTypes } from '@xrengine/engine/src/input/InputState'
-import { InteractState } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
-import { getState } from '@xrengine/hyperflux'
-
-import TouchAppIcon from '@mui/icons-material/TouchApp'
+import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
+import { ButtonTypes } from '@etherealengine/engine/src/input/InputState'
+import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
+import { useIsHeadset } from '@etherealengine/engine/src/xr/XRState'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
@@ -33,7 +32,7 @@ const normalizeValues = (val) => {
 const handleMove = (e) => {
   const event = new CustomEvent('touchstickmove', {
     detail: {
-      stick: 'RightStick',
+      stick: 'LeftStick',
       value: { x: normalizeValues(-e.x), y: normalizeValues(e.y), angleRad: 0 }
     }
   })
@@ -42,7 +41,7 @@ const handleMove = (e) => {
 
 const handleStop = () => {
   const event = new CustomEvent('touchstickmove', {
-    detail: { stick: 'RightStick', value: { x: 0, y: 0, angleRad: 0 } }
+    detail: { stick: 'LeftStick', value: { x: 0, y: 0, angleRad: 0 } }
   })
   document.dispatchEvent(event)
 }
@@ -55,11 +54,12 @@ const buttonsConfig: Array<{ button: ButtonTypes; label: string }> = [
 ]
 
 export const TouchGamepad = () => {
-  const interactState = useHookstate(getState(InteractState))
+  const interactState = useHookstate(getMutableState(InteractState))
   const availableInteractable = interactState.available.value?.[0]
-  const appState = useHookstate(getState(AppState))
+  const appState = useHookstate(getMutableState(AppState))
+  const isHeadset = useIsHeadset()
 
-  if (!isTouchAvailable || isHMD || !appState.showTouchPad.value) return <></>
+  if (!isTouchAvailable || isHeadset || !appState.showTouchPad.value) return <></>
 
   const buttons = buttonsConfig.map((value, index) => {
     return (
@@ -69,7 +69,7 @@ export const TouchGamepad = () => {
         onPointerDown={(): void => triggerButton(value.button, true)}
         onPointerUp={(): void => triggerButton(value.button, false)}
       >
-        <TouchAppIcon />
+        <Icon type="TouchApp" />
       </div>
     )
   })

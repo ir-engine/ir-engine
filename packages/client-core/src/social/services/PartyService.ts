@@ -2,14 +2,14 @@ import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { Party } from '@xrengine/common/src/interfaces/Party'
-import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
+import { Party } from '@etherealengine/common/src/interfaces/Party'
+import { PartyUser } from '@etherealengine/common/src/interfaces/PartyUser'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import {
@@ -37,27 +37,27 @@ const PartyState = defineState({
 })
 
 const loadedPartyReceptor = (action: typeof PartyActions.loadedPartyAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.merge({ party: action.party, isOwned: action.isOwned, updateNeeded: false })
 }
 
 const createdPartyReceptor = (action: typeof PartyActions.createdPartyAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.merge({ party: action.party, updateNeeded: true })
 }
 
 const removedPartyReceptor = (action: typeof PartyActions.removedPartyAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.merge({ party: null!, updateNeeded: true })
 }
 
 const invitedPartyUserReceptor = (action: typeof PartyActions.invitedPartyUserAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.updateNeeded.set(true)
 }
 
 const createdPartyUserReceptor = (action: typeof PartyActions.createdPartyUserAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
     const users = JSON.parse(JSON.stringify(state.party.partyUsers.value)) as PartyUser[]
     const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
@@ -71,12 +71,12 @@ const createdPartyUserReceptor = (action: typeof PartyActions.createdPartyUserAc
 }
 
 const changedPartyReceptor = (action: typeof PartyActions.changedPartyAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.updateNeeded.set(true)
 }
 
 const patchedPartyUserReceptor = (action: typeof PartyActions.patchedPartyUserAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
     const users = JSON.parse(JSON.stringify(state.party.partyUsers.value)) as PartyUser[]
     const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
@@ -92,12 +92,12 @@ const patchedPartyUserReceptor = (action: typeof PartyActions.patchedPartyUserAc
 }
 
 const resetUpdateNeededReceptor = (action: typeof PartyActions.resetUpdateNeededAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
   return state.updateNeeded.set(false)
 }
 
 const removedPartyUserReceptor = (action: typeof PartyActions.removedPartyUserAction.matches._TYPE) => {
-  const state = getState(PartyState)
+  const state = getMutableState(PartyState)
 
   if (action.partyUser.userId === accessAuthState().user.id.value) state.merge({ party: null!, isOwned: false })
 
@@ -122,9 +122,9 @@ export const PartyServiceReceptors = {
   changedPartyReceptor,
   resetUpdateNeededReceptor
 }
-
-export const accessPartyState = () => getState(PartyState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessPartyState = () => getMutableState(PartyState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const usePartyState = () => useState(accessPartyState())
 
 //Service
@@ -151,7 +151,7 @@ export const PartyService = {
   },
   createParty: async () => {
     try {
-      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
       await endVideoChat(network, {})
       leaveNetwork(network)
       await API.instance.client.service('party').create()
@@ -202,13 +202,13 @@ export const PartyService = {
     }
   },
   leaveNetwork: async (joinInstanceChannelServer = false) => {
-    const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     await endVideoChat(network, {})
     leaveNetwork(network)
     if (joinInstanceChannelServer && !accessMediaInstanceConnectionState().joiningNonInstanceMediaChannel.value) {
       const channels = accessChatState().channels.channels.value
       const instanceChannel = Object.values(channels).find(
-        (channel) => channel.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
+        (channel) => channel.instanceId === Engine.instance.worldNetwork?.hostId
       )
       if (instanceChannel) await MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
@@ -301,7 +301,7 @@ export const PartyService = {
 
           if (
             selfUser.partyId === deletedPartyUser.partyId ||
-            removedPartyChannel?.id === Engine.instance.currentWorld.mediaNetwork?.hostId
+            removedPartyChannel?.id === Engine.instance.mediaNetwork?.hostId
           )
             PartyService.leaveNetwork(true)
           // ChatService.clearChatTargetIfCurrent('party', {

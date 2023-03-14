@@ -8,7 +8,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new HemisphereLight()
     addObjectToGroup(entity, light)
     return {
@@ -41,8 +41,6 @@ export const HemisphereLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, HemisphereLightComponent)) throw root.stop()
-
     const light = useComponent(root.entity, HemisphereLightComponent)
 
     useEffect(() => {

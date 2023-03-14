@@ -1,7 +1,7 @@
 import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
+import { UserSetting } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 

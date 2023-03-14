@@ -2,8 +2,8 @@ import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

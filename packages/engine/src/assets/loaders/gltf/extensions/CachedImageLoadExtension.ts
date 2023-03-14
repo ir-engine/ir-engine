@@ -9,8 +9,11 @@ class CachedImageLoadExtension extends ImporterExtension implements GLTFLoaderPl
   static cache = new Map<string, Promise<Texture>>()
 
   loadTexture(textureIndex) {
-    const json = this.parser.json
     const options = this.parser.options
+    if (options.url?.endsWith('.glb')) {
+      return this.parser.loadTexture(textureIndex)
+    }
+    const json = this.parser.json
     const textureDef = json.textures[textureIndex]
     const sourceIdx = textureDef.source
     const sourceDef = json.images[sourceIdx]

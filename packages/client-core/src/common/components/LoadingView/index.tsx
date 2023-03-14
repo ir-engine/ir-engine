@@ -1,10 +1,11 @@
 import React from 'react'
 
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
+import Box from '@etherealengine/ui/src/Box'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Typography from '@etherealengine/ui/src/Typography'
+
 import { SxProps, Theme } from '@mui/material/styles'
 import { Variant } from '@mui/material/styles/createTypography'
-import Typography from '@mui/material/Typography'
 
 interface Props {
   className?: string

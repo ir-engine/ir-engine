@@ -1,27 +1,21 @@
 import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+  addComponent,
+  getComponent,
+  removeComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { EditorCameraComponent } from '../classes/EditorCameraComponent'
+import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 
@@ -37,21 +31,17 @@ export const DefaultExportOptions: DefaultExportOptionsType = {
 
 type SceneStateType = {
   isInitialized: boolean
-  transformGizmo: TransformGizmo
   onUpdateStats?: (info: WebGLInfo) => void
 }
 
 export const SceneState: SceneStateType = {
-  isInitialized: false,
-  transformGizmo: null!
+  isInitialized: false
 }
 
 export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
   SceneState.isInitialized = false
 
-  const world = Engine.instance.currentWorld
-
-  if (!world.scene) world.scene = new Scene()
+  if (!Engine.instance.scene) Engine.instance.scene = new Scene()
 
   // getting scene data
   await updateSceneFromJSON(sceneData)
@@ -59,33 +49,33 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
 
   dispatchAction(EditorHistoryAction.clearHistory({}))
 
-  const camera = world.camera
-  const transform = getComponent(world.cameraEntity, TransformComponent)
+  const camera = Engine.instance.camera
+  const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   camera.position.set(0, 5, 10)
   camera.lookAt(new Vector3())
   transform.position.copy(camera.position)
   transform.rotation.copy(camera.quaternion)
-  world.dirtyTransforms[world.cameraEntity] = true
+  TransformComponent.dirtyTransforms[Engine.instance.cameraEntity] = true
 
-  world.camera.layers.enable(ObjectLayers.Scene)
-  world.camera.layers.enable(ObjectLayers.NodeHelper)
-  world.camera.layers.enable(ObjectLayers.Gizmos)
+  Engine.instance.camera.layers.enable(ObjectLayers.Scene)
+  Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+  Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
 
-  removeComponent(world.cameraEntity, EditorCameraComponent)
-  addComponent(world.cameraEntity, EditorCameraComponent, {
+  getMutableState(EditorCameraState).set({
     center: new Vector3(),
     zoomDelta: 0,
-    isOrbiting: false,
+    focusedObjects: [],
     isPanning: false,
     cursorDeltaX: 0,
     cursorDeltaY: 0,
-    focusedObjects: []
+    isOrbiting: false,
+    refocus: false
   })
 
   // Require when changing scene
-  if (!world.scene.children.includes(InfiniteGridHelper.instance)) {
+  if (!Engine.instance.scene.children.includes(InfiniteGridHelper.instance)) {
     InfiniteGridHelper.instance = new InfiniteGridHelper()
-    world.scene.add(InfiniteGridHelper.instance)
+    Engine.instance.scene.add(InfiniteGridHelper.instance)
   }
 
   SceneState.isInitialized = true
@@ -101,9 +91,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
 export async function initializeRenderer(): Promise<void> {
   try {
     dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
-
-    accessEngineRendererState().automatic.set(false)
-    dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: EngineRenderer.instance.maxQualityLevel }))
   } catch (error) {
     console.error(error)
   }
@@ -162,11 +149,11 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
-  if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
-    ;(Engine.instance.currentWorld.scene as any).entity = Engine.instance.currentWorld.entityTree.rootNode.entity
+  if ((Engine.instance.scene as any).entity == undefined) {
+    ;(Engine.instance.scene as any).entity = Engine.instance.currentScene.sceneEntity
   }
 
-  const clonedScene = serializeForGLTFExport(Engine.instance.currentWorld.scene)
+  const clonedScene = serializeForGLTFExport(Engine.instance.scene)
 
   if (shouldCombineMeshes) await MeshCombinationGroup.combineMeshes(clonedScene)
   if (shouldRemoveUnusedObjects) removeUnusedObjects(clonedScene)
@@ -213,33 +200,3 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
     throw new RethrownError('Error creating glb blob', error)
   }
 }*/
-
-export function disposeScene() {
-  if (Engine.instance.currentWorld.scene) {
-    // Empty existing scene
-    Engine.instance.currentWorld.scene.traverse((child: any) => {
-      if (child.geometry) child.geometry.dispose()
-
-      if (child.material) {
-        if (child.material.length) {
-          for (let i = 0; i < child.material.length; ++i) {
-            child.material[i].dispose()
-          }
-        } else {
-          child.material.dispose()
-        }
-      }
-    })
-
-    //clear ecs
-    const eTree = Engine.instance.currentWorld.entityTree
-    for (const entity of Array.from(eTree.entityNodeMap.keys())) {
-      removeEntity(entity, true)
-    }
-    emptyEntityTree(eTree)
-    eTree.entityNodeMap.clear()
-    Engine.instance.currentWorld.scene.clear()
-  }
-
-  SceneState.isInitialized = false
-}

@@ -2,8 +2,8 @@ import { Id, NullableId, Params, Query, ServiceMethods } from '@feathersjs/feath
 import appRootPath from 'app-root-path'
 import path from 'path'
 
-import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
-import { Application } from '@xrengine/server-core/declarations'
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { Application } from '@etherealengine/server-core/declarations'
 
 import { transformModel } from './model-transform.helpers'
 
@@ -23,7 +23,7 @@ export class ModelTransform implements ServiceMethods<any> {
 
   constructor(app: Application) {
     this.app = app
-    this.rootPath = path.join(appRootPath.path, 'packages/projects/projects/')
+    this.rootPath = path.join(appRootPath.path, 'packages/projects/projects')
   }
 
   patch(id: NullableId, data: Partial<any>, params?: Params<Query> | undefined): Promise<any> {

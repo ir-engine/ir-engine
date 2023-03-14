@@ -1,8 +1,8 @@
 import { Id, Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { CoilSetting as CoilSettingDataType } from '@xrengine/common/src/interfaces/CoilSetting'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { CoilSetting as CoilSettingDataType } from '@etherealengine/common/src/interfaces/CoilSetting'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'

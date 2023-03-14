@@ -10,7 +10,7 @@ jobs:
         id: check-secrets
         run: |
           if [ ${{ secrets.PROJECT_BUILD_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   compile-codebase:
     needs:
@@ -18,10 +18,10 @@ jobs:
     if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout XREngine
+      - name: Checkout Ethereal Engine
         uses: actions/checkout@v3
         with:
-          repository: xrfoundation/xrengine
+          repository: etherealengine/etherealengine
       - name: Checkout Project
         uses: actions/checkout@v3
         with:
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 18.x
       - name: restore lerna
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             node_modules

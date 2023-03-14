@@ -1,6 +1,6 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {

@@ -2,10 +2,9 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import CloseIcon from '@mui/icons-material/Close'
-import Fade from '@mui/material/Fade'
-import IconButton from '@mui/material/IconButton'
-import Modal from '@mui/material/Modal'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Modal from '@etherealengine/ui/src/Modal'
 
 import styles from './index.module.scss'
 
@@ -79,38 +78,35 @@ const WarningRetryModal = ({
         }}
         closeAfterTransition
       >
-        <Fade in={open}>
-          <div
-            className={classNames({
-              [styles.paper]: true,
-              [styles.modalContent]: true
-            })}
-          >
-            <div className={styles.modalHeader}>
-              <div />
-              <div className={styles['title']}>{title}</div>
-              <IconButton
-                aria-label="close"
-                className={styles.closeButton}
-                onClick={handleCloseButtonClick}
-                size="large"
-              >
-                <CloseIcon />
-              </IconButton>
-            </div>
-            <div className={styles['modal-body']}>
-              {body}
-              {!noCountdown && (
-                <>
-                  <div>
-                    {timeRemaining} {t('common:alert.seconds')}
-                  </div>
-                  <div className={styles.footer}>{t('common:alert.cancelCountdown')}</div>
-                </>
-              )}
-            </div>
+        <div
+          className={classNames({
+            [styles.paper]: true,
+            [styles.modalContent]: true
+          })}
+        >
+          <div className={styles.modalHeader}>
+            <div />
+            <div className={styles['title']}>{title}</div>
+            <IconButton
+              aria-label="close"
+              className={styles.closeButton}
+              onClick={handleCloseButtonClick}
+              size="large"
+              icon={<Icon type="Close" />}
+            />
           </div>
-        </Fade>
+          <div className={styles['modal-body']}>
+            {body}
+            {!noCountdown && (
+              <>
+                <div>
+                  {timeRemaining} {t('common:alert.seconds')}
+                </div>
+                <div className={styles.footer}>{t('common:alert.cancelCountdown')}</div>
+              </>
+            )}
+          </div>
+        </div>
       </Modal>
     </div>
   )

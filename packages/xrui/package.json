@@ -1,0 +1,55 @@
+{
+  "name": "@etherealengine/xrui",
+  "version": "1.2.0-rc6",
+  "description": "A set of utilities for using DOM elements to create immerive user interfaces",
+  "homepage": "https://github.com/etherealengine/etherealengine#readme",
+  "keywords": [
+    "3D",
+    "AR",
+    "DOM",
+    "VR",
+    "XR",
+    "three",
+    "web"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/etherealengine/etherealengine.git"
+  },
+  "author": {
+    "name": "Ethereal Engine Collective",
+    "email": "hello@etherealengine.org",
+    "url": "http://github.com/etherealengine"
+  },
+  "bugs": {
+    "url": "https://github.com/etherealengine/etherealengine/issues"
+  },
+  "engines": {
+    "node": ">= 18.12.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "index.ts",
+  "npmClient": "npm",
+  "scripts": {
+    "build": "tsc && npm run build:worker && npm run build:encoder",
+    "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.txt --loader:.wasm=binary",
+    "build:encoder": "esbuild core/textures/KTX2Encoder.ts --bundle --format=esm --outfile=core/textures/KTX2Encoder.bundle.js",
+    "test": "cross-env TEST=true mocha --config .mocharc.cjs"
+  },
+  "dependencies": {
+    "@juggle/resize-observer": "^3.2.0",
+    "@loaders.gl/core": "^3.1.4",
+    "@loaders.gl/images": "^3.1.4",
+    "@zip.js/zip.js": "^2.4.4",
+    "dexie": "^3.2.0",
+    "fflate": "^0.7.3",
+    "msgpackr": "^1.5.4"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.14.11"
+  },
+  "license": "MIT"
+}

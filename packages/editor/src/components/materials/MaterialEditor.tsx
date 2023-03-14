@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect } from 'react'
 import { Material, Texture } from 'three'
 
-import styles from '@xrengine/editor/src/components/layout/styles.module.scss'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
+import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import {
   changeMaterialPrototype,
   materialFromId,
   prototypeFromId
-} from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { useMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { useMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { useState } from '@etherealengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
 

@@ -1,23 +1,23 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { createRef, useCallback, useEffect, useState } from 'react'
-import { BrowserRouter, useLocation } from 'react-router-dom'
+import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import {
   ClientSettingService,
   useClientSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { initGA, logPageView } from '@xrengine/client-core/src/common/analytics'
-import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
-import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
-import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import InviteToast from '@xrengine/client-core/src/components/InviteToast'
-import { theme } from '@xrengine/client-core/src/theme'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
+} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
+import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
+import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
+import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
+import { theme } from '@etherealengine/client-core/src/theme'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
@@ -28,27 +28,30 @@ import './styles.scss'
 import {
   AdminCoilSettingService,
   useCoilSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
-import { API } from '@xrengine/client-core/src/API'
-import UIDialog from '@xrengine/client-core/src/common/components/UIDialog'
+} from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
+import { API } from '@etherealengine/client-core/src/API'
+import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
   AppThemeState,
   getAppTheme,
   getAppThemeName,
   useAppThemeName
-} from '@xrengine/client-core/src/common/services/AppThemeState'
-import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+} from '@etherealengine/client-core/src/common/services/AppThemeState'
+import {
+  NotificationAction,
+  NotificationActions
+} from '@etherealengine/client-core/src/common/services/NotificationService'
 import {
   OEmbedService,
   OEmbedServiceReceptor,
   useOEmbedState
-} from '@xrengine/client-core/src/common/services/OEmbedService'
-import Debug from '@xrengine/client-core/src/components/Debug'
-import config from '@xrengine/common/src/config'
-import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/common/services/OEmbedService'
+import Debug from '@etherealengine/client-core/src/components/Debug'
+import config from '@etherealengine/common/src/config'
+import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -60,13 +63,13 @@ declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
-const App = (): any => {
-  const notistackRef = createRef<SnackbarProvider>()
+const AppPage = (): any => {
+  const notistackRef = useRef<SnackbarProvider>()
   const authState = useAuthState()
   const selfUser = authState.user
   const clientSettingState = useClientSettingState()
   const coilSettingState = useCoilSettingState()
-  const appTheme = useHookstate(getState(AppThemeState))
+  const appTheme = useHookstate(getMutableState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
   const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
@@ -88,6 +91,7 @@ const App = (): any => {
 
   useEffect(() => {
     const receptor = (action): any => {
+      // @ts-ignore
       matches(action).when(NotificationAction.notify.matches, (action) => {
         AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {
@@ -235,7 +239,7 @@ const App = (): any => {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <SnackbarProvider
-            ref={notistackRef}
+            ref={notistackRef as any}
             maxSnack={7}
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             action={defaultAction}
@@ -254,14 +258,6 @@ const App = (): any => {
         </ThemeProvider>
       </StyledEngineProvider>
     </>
-  )
-}
-
-const AppPage = () => {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
   )
 }
 

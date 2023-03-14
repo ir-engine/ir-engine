@@ -1,4 +1,4 @@
-import { OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+import { OpenMatchTicket, OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
 
 async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   return new Promise<any>((resolve, reject) => {

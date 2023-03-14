@@ -1,7 +1,7 @@
 ============================================================================
 ============================================================================
 
-The XREngine IK system is derived from Exokit Avatars, created and maintained
+The Ethereal Engine IK system is derived from Exokit Avatars, created and maintained
 by Avaer Kazmer.
 https://github.com/exokitxr/license
 

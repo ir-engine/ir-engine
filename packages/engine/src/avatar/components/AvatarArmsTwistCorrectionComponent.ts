@@ -1,15 +1,25 @@
 import { Quaternion } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type AvatarArmsTwistCorrectionComponentType = {
-  LeftHandBindRotationInv: Quaternion
-  LeftArmTwistAmount: number
+export const AvatarArmsTwistCorrectionComponent = defineComponent({
+  name: 'AvatarArmsTwistCorrectionComponent',
 
-  RightHandBindRotationInv: Quaternion
-  RightArmTwistAmount: number
-}
+  onInit: (entity) => {
+    return {
+      LeftHandBindRotationInv: new Quaternion(),
+      LeftArmTwistAmount: 0,
+      RightHandBindRotationInv: new Quaternion(),
+      RightArmTwistAmount: 0
+    }
+  },
 
-export const AvatarArmsTwistCorrectionComponent = createMappedComponent<AvatarArmsTwistCorrectionComponentType>(
-  'AvatarArmsTwistCorrectionComponent'
-)
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.LeftHandBindRotationInv) component.LeftHandBindRotationInv.set(json.LeftHandBindRotationInv)
+    if (json.LeftArmTwistAmount) component.LeftArmTwistAmount.set(json.LeftArmTwistAmount)
+    if (json.RightHandBindRotationInv) component.RightHandBindRotationInv.set(json.RightHandBindRotationInv)
+    if (json.RightArmTwistAmount) component.RightArmTwistAmount.set(json.RightArmTwistAmount)
+  }
+})

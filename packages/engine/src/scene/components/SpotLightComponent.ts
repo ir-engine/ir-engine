@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { Color, ConeGeometry, DoubleSide, Mesh, MeshBasicMaterial, Object3D, SpotLight, TorusGeometry } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { isHMD } from '../../common/functions/isMobile'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { RendererState } from '../../renderer/RendererState'
+import { isHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -14,12 +14,12 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new SpotLight()
     light.target.position.set(0, -1, 0)
     light.target.name = 'light-target'
     light.add(light.target)
-    if (!isHMD) addObjectToGroup(entity, light)
+    if (!isHeadset()) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 10,
@@ -27,8 +27,9 @@ export const SpotLightComponent = defineComponent({
       decay: 2,
       angle: Math.PI / 3,
       penumbra: 1,
+      castShadow: false,
       shadowMapResolution: 256,
-      shadowBias: 0.5,
+      shadowBias: 0.00001,
       shadowRadius: 1,
       light,
       helper: null as Object3D | null,
@@ -46,6 +47,7 @@ export const SpotLightComponent = defineComponent({
     if (matches.number.test(json.decay)) component.decay.set(json.decay)
     if (matches.number.test(json.angle)) component.angle.set(json.angle)
     if (matches.number.test(json.penumbra)) component.angle.set(json.penumbra)
+    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.array.test(json.shadowMapResolution))
       component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
@@ -62,6 +64,7 @@ export const SpotLightComponent = defineComponent({
       decay: component.decay.value,
       angle: component.angle.value,
       penumbra: component.penumbra.value,
+      castShadow: component.castShadow.value,
       shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value
@@ -69,14 +72,12 @@ export const SpotLightComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    if (!isHMD) removeObjectFromGroup(entity, component.light.value)
+    if (component.light.value) removeObjectFromGroup(entity, component.light.value)
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, SpotLightComponent)) throw root.stop()
-
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, SpotLightComponent)
 
     useEffect(() => {
@@ -112,6 +113,10 @@ export const SpotLightComponent = defineComponent({
     useEffect(() => {
       light.light.value.shadow.radius = light.shadowRadius.value
     }, [light.shadowRadius])
+
+    useEffect(() => {
+      light.light.value.castShadow = light.castShadow.value
+    }, [light.castShadow])
 
     useEffect(() => {
       if (light.light.value.shadow.mapSize.x !== light.shadowMapResolution.value) {

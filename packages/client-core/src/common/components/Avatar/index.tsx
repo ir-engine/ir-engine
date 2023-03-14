@@ -1,13 +1,13 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import Text from '@xrengine/client-core/src/common/components/Text'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Paper from '@etherealengine/ui/src/Paper'
 
-import CreateIcon from '@mui/icons-material/Create'
-import Box from '@mui/material/Box'
-import Paper from '@mui/material/Paper'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
@@ -69,7 +69,7 @@ const Avatar = ({
 
         {showChangeButton && (
           <IconButton
-            icon={<CreateIcon sx={{ fontSize: '20px' }} />}
+            icon={<Icon type="Create" sx={{ fontSize: '20px' }} />}
             title={t('user:common.edit')}
             onClick={handleChange}
           />
@@ -100,7 +100,12 @@ const Avatar = ({
     >
       <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
       {showChangeButton && (
-        <IconButton disableRipple icon={<CreateIcon sx={{ fontSize: '20px' }} />} type="glow" onClick={onChange} />
+        <IconButton
+          disableRipple
+          icon={<Icon type="Create" sx={{ fontSize: '20px' }} />}
+          type="glow"
+          onClick={onChange}
+        />
       )}
     </Box>
   )

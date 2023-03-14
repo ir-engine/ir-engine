@@ -30,7 +30,7 @@ export const Error = (props: any) => {
   const { t } = useTranslation()
 
   // rendering error message
-  const theme = context
+  const theme = context // TODO: this global context variable is from mocha... this seems incorrect
 
   return (
     <StyledError theme={theme}>

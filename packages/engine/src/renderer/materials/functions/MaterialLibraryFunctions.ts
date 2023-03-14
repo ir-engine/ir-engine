@@ -1,6 +1,6 @@
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { dispatchAction, getState, none } from '@xrengine/hyperflux'
+import { dispatchAction, getMutableState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -130,7 +130,7 @@ export function getSourceMaterials(src: MaterialSource): string[] | undefined {
 export function removeMaterialSource(src: MaterialSource): boolean {
   const materialLibrary = getMaterialLibrary()
   const srcId = hashMaterialSource(src)
-  if (materialLibrary.sources[srcId]) {
+  if (materialLibrary.sources[srcId].value) {
     const srcComp = materialLibrary.sources[srcId].value
     srcComp.entries.map((matId) => {
       const toDelete = materialFromId(matId)
@@ -167,6 +167,22 @@ export function registerMaterial(material: Material, src: MaterialSource, params
   })
 }
 
+export function unregisterMaterial(material: Material) {
+  const materialLibrary = getMaterialLibrary()
+  try {
+    const matEntry = materialFromId(material.uuid)
+    materialLibrary.materials[material.uuid].set(none)
+    const srcEntry = materialLibrary.sources[hashMaterialSource(matEntry.src)].entries
+    srcEntry.set(srcEntry.value.filter((matId) => matId !== material.uuid))
+    return matEntry
+  } catch (error) {
+    if (error instanceof MaterialNotFoundError) {
+      console.warn('material is already not registered')
+      return undefined
+    } else throw error
+  }
+}
+
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
   const materialLibrary = getMaterialLibrary()
   if (!!materialLibrary.prototypes[prototype.prototypeId].value) {
@@ -199,7 +215,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
-  Engine.instance.currentWorld.scene.traverse((mesh: Mesh) => {
+  Engine.instance.scene.traverse((mesh: Mesh) => {
     if (!mesh?.isMesh) return
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {

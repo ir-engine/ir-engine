@@ -17,7 +17,7 @@ import config from './config'
 
 const logRequestCache = new LruCache({
   max: 1000,
-  maxAge: 1000 * 5 // 5 seconds cache expiry
+  ttl: 1000 * 5 // 5 seconds cache expiry
 })
 
 const baseComponent = 'client-core'
@@ -46,7 +46,7 @@ const multiLogger = {
   /**
    * Usage:
    *
-   * import multiLogger from '@xrengine/common/src/logger'
+   * import multiLogger from '@etherealengine/common/src/logger'
    * const logger = multiLogger.child({ component: 'client-core:authentication' })
    *
    * logger.info('Logging in...')

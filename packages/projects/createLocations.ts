@@ -4,8 +4,8 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as generateUUID } from 'uuid'
 
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { Application } from '@xrengine/server-core/declarations'
+import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { Application } from '@etherealengine/server-core/declarations'
 
 function toCapitalCase(str: string) {
   return str

@@ -1,5 +1,5 @@
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
+import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 // Types borrowed from Mediasoup
 

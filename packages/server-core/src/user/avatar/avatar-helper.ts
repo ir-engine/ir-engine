@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'

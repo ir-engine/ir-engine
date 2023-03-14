@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { UserRelationshipTypeInterface } from '@xrengine/common/src/dbmodels/UserRelationshipType'
+import { UserRelationshipTypeInterface } from '@etherealengine/common/src/dbmodels/UserRelationshipType'
 
 import { Application } from '../../../declarations'
 

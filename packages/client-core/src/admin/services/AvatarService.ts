@@ -1,11 +1,11 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AvatarResult } from '@etherealengine/common/src/interfaces/AvatarResult'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -30,7 +30,7 @@ const AdminAvatarState = defineState({
 })
 
 const avatarsFetchedReceptor = (action: typeof AdminAvatarActions.avatarsFetched.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({
     avatars: action.avatars.data,
     skip: action.avatars.skip,
@@ -44,17 +44,17 @@ const avatarsFetchedReceptor = (action: typeof AdminAvatarActions.avatarsFetched
 }
 
 const avatarCreatedReceptor = (action: typeof AdminAvatarActions.avatarCreated.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
 const avatarRemovedReceptor = (action: typeof AdminAvatarActions.avatarRemoved.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
 const avatarUpdatedReceptor = (action: typeof AdminAvatarActions.avatarUpdated.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -64,9 +64,9 @@ export const AdminAvatarReceptors = {
   avatarRemovedReceptor,
   avatarUpdatedReceptor
 }
-
-export const accessAdminAvatarState = () => getState(AdminAvatarState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAdminAvatarState = () => getMutableState(AdminAvatarState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminAvatarState = () => useState(accessAdminAvatarState())
 
 //Service

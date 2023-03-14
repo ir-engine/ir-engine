@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -26,16 +26,16 @@ const AdminRouteState = defineState({
 })
 
 const installedRoutesRetrievedReceptor = (action: typeof AdminRouteActions.installedRoutesRetrieved.matches._TYPE) => {
-  const state = getState(AdminRouteState)
+  const state = getMutableState(AdminRouteState)
   return state.merge({ routes: action.data, updateNeeded: false })
 }
 
 export const AdminRouteReceptors = {
   installedRoutesRetrievedReceptor
 }
-
-export const accessRouteState = () => getState(AdminRouteState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessRouteState = () => getMutableState(AdminRouteState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useRouteState = () => useState(accessRouteState())
 
 //Service

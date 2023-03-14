@@ -4,15 +4,15 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   AudioFileTypes,
   ImageFileTypes,
   VideoFileTypes,
   VolumetricFileTypes
-} from '@xrengine/engine/src/assets/constants/fileTypes'
+} from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -133,7 +133,7 @@ export const getUserOrgs = async (token: string): Promise<any[]> => {
 export const getRepo = async (owner: string, repo: string, token: string): Promise<any> => {
   const octoKit = new Octokit({ auth: token })
   const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-  return repoResponse.data.svn_url
+  return repoResponse.data.html_url
 }
 
 export const pushProjectToGithub = async (
@@ -174,7 +174,7 @@ export const pushProjectToGithub = async (
     })
     const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
-    const split = githubPathRegexExec[1].split('/')
+    const split = githubPathRegexExec[2].split('/')
     const owner = split[0]
     const repo = split[1].replace('.git', '')
     const repos = await getUserRepos(githubIdentityProvider.oauthToken)
@@ -335,7 +335,7 @@ export const getGithubOwnerRepo = (url: string) => {
       error: 'invalidUrl',
       text: 'Project URL is not a valid GitHub URL, or the GitHub repo is private'
     }
-  const split = githubPathRegexExec[1].split('/')
+  const split = githubPathRegexExec[2].split('/')
   if (!split[0] || !split[1])
     return {
       error: 'invalidUrl',
@@ -363,7 +363,8 @@ export const getOctokitForChecking = async (app: Application, url: string, param
   return {
     owner,
     repo,
-    octoKit
+    octoKit,
+    token: githubIdentityProvider.oauthToken
   }
 }
 

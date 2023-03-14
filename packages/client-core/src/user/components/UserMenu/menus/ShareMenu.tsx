@@ -2,21 +2,19 @@ import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@xrengine/client-core/src/common/components/Button'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import { OculusIcon } from '@xrengine/client-core/src/common/components/Icons/OculusIcon'
-import InputCheck from '@xrengine/client-core/src/common/components/InputCheck'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
-import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import multiLogger from '@xrengine/common/src/logger'
-import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-
-import { FileCopy, IosShare, Send } from '@mui/icons-material'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import Box from '@mui/material/Box'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import { OculusIcon } from '@etherealengine/client-core/src/common/components/Icons/OculusIcon'
+import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
+import multiLogger from '@etherealengine/common/src/logger'
+import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import Box from '@etherealengine/ui/src/Box'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
@@ -174,7 +172,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
             {t('user:usermenu.share.shareQuest')}
           </Button>
           <IconButton
-            icon={<FileCopy sx={{ width: '18px' }} />}
+            icon={<Icon type="FileCopy" sx={{ width: '18px' }} />}
             sizePx={35}
             onClick={() => copyToClipboard(questShareLink.toString())}
           />
@@ -193,7 +191,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
         )}
 
         <InputText
-          endIcon={<ContentCopyIcon />}
+          endIcon={<Icon type="ContentCopy" />}
           inputRef={refLink}
           label={t('user:usermenu.share.shareDirect')}
           sx={{ mt: 2, mb: 3 }}
@@ -202,7 +200,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
         />
 
         <InputText
-          endIcon={<Send />}
+          endIcon={<Icon type="Send" />}
           label={t('user:usermenu.share.shareInvite')}
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           value={token}
@@ -211,7 +209,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
         />
 
         {isShareAvailable && (
-          <Button fullWidth type="solidRounded" endIcon={<IosShare />} onClick={shareOnApps}>
+          <Button fullWidth type="solidRounded" endIcon={<Icon type="IosShare" />} onClick={shareOnApps}>
             {t('user:usermenu.share.lbl-share')}
           </Button>
         )}

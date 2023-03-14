@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ProjectPermissionInterface } from '@xrengine/common/src/dbmodels/ProjectPermission'
+import { ProjectPermissionInterface } from '@etherealengine/common/src/dbmodels/ProjectPermission'
 
 import { Application } from '../../../declarations'
 

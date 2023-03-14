@@ -1,6 +1,6 @@
-import { ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { ActiveRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -24,16 +24,16 @@ const AdminActiveRouteState = defineState({
 })
 
 const activeRoutesRetrievedReceptor = (action: typeof AdminActiveRouteActions.activeRoutesRetrieved.matches._TYPE) => {
-  const state = getState(AdminActiveRouteState)
+  const state = getMutableState(AdminActiveRouteState)
   return state.merge({ activeRoutes: action.data, total: action.data.length, updateNeeded: false })
 }
 
 export const AdminActiveRouteReceptors = {
   activeRoutesRetrievedReceptor
 }
-
-export const accessAdminActiveRouteState = () => getState(AdminActiveRouteState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAdminActiveRouteState = () => getMutableState(AdminActiveRouteState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminActiveRouteState = () => useState(accessAdminActiveRouteState())
 
 //Service

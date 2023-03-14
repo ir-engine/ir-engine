@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AdminRedisSetting } from '@etherealengine/common/src/interfaces/AdminRedisSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -19,16 +19,16 @@ const AdminRedisSettingsState = defineState({
 })
 
 const redisSettingRetrievedReceptor = (action: typeof AdminRedisSettingActions.redisSettingRetrieved.matches._TYPE) => {
-  const state = getState(AdminRedisSettingsState)
+  const state = getMutableState(AdminRedisSettingsState)
   return state.merge({ redisSettings: action.adminRedisSetting.data, updateNeeded: false })
 }
 
 export const RedisSettingReceptors = {
   redisSettingRetrievedReceptor
 }
-
-export const accessAdminRedisSettingState = () => getState(AdminRedisSettingsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAdminRedisSettingState = () => getMutableState(AdminRedisSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminRedisSettingState = () => useState(accessAdminRedisSettingState())
 
 export const AdminRedisSettingService = {

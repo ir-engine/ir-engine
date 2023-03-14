@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { Material, Mesh } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { World } from '../ecs/classes/World'
 import { Object3DWithEntity, startGroupQueryReactor } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { XRState } from './XRState'
@@ -20,6 +19,7 @@ type ScenePlacementMaterialType = {
 const addShaderToObject = (object: Object3DWithEntity) => {
   const obj = object as any as Mesh<any, Material & ScenePlacementMaterialType>
   if (obj.material) {
+    if (!obj.material.userData) obj.material.userData = {}
     const userData = obj.material.userData
     if (!userData.ScenePlacement) {
       userData.ScenePlacement = {
@@ -49,16 +49,16 @@ const removeShaderFromObject = (object: Object3DWithEntity) => {
  * @param world
  * @returns
  */
-export default async function XRScenePlacementShader(world: World) {
-  const xrState = getState(XRState)
+export default async function XRScenePlacementShader() {
+  const xrState = getMutableState(XRState)
 
   const xrScenePlacementReactor = startGroupQueryReactor(
-    function ({ obj }) {
+    function XRScenePLacementReactor({ obj }) {
       const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
       const sessionActive = useHookstate(xrState.sessionActive)
 
       useEffect(() => {
-        const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value
+        const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value === 'placing'
         if (useShader) {
           obj.traverse(addShaderToObject)
         } else {

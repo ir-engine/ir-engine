@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminAuthSetting, PatchAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AdminAuthSetting, PatchAuthSetting } from '@etherealengine/common/src/interfaces/AdminAuthSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -22,7 +22,7 @@ const AuthSettingsState = defineState({
 })
 
 export const AuthSettingsServiceReceptor = (action) => {
-  const s = getState(AuthSettingsState)
+  const s = getMutableState(AuthSettingsState)
   matches(action)
     .when(AuthSettingsActions.authSettingRetrieved.matches, (action) => {
       return s.merge({
@@ -39,7 +39,7 @@ export const AuthSettingsServiceReceptor = (action) => {
 }
 
 // const authSettingRetrievedReceptor = (action: typeof AuthSettingsActions.authSettingRetrieved.matches._TYPE) => {
-//   const state = getState(AuthSettingsState)
+//   const state = getMutableState(AuthSettingsState)
 //   return state.merge({
 //     authSettings: action.authSetting.data,
 //     skip: action.authSetting.skip,
@@ -50,7 +50,7 @@ export const AuthSettingsServiceReceptor = (action) => {
 // }
 
 // const authSettingPatchedReceptor = (action: typeof AuthSettingsActions.authSettingPatched.matches._TYPE) => {
-//   const state = getState(AuthSettingsState)
+//   const state = getMutableState(AuthSettingsState)
 //   return state.updateNeeded.set(true)
 // }
 
@@ -58,9 +58,9 @@ export const AuthSettingsServiceReceptor = (action) => {
 //   authSettingRetrievedReceptor,
 //   authSettingPatchedReceptor
 // }
-
-export const accessAuthSettingState = () => getState(AuthSettingsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAuthSettingState = () => getMutableState(AuthSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAuthSettingState = () => useState(accessAuthSettingState())
 
 export const AuthSettingsService = {

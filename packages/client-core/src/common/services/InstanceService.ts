@@ -1,6 +1,6 @@
 import { Paginated } from '@feathersjs/client'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 
 import { API } from '../../API'
 

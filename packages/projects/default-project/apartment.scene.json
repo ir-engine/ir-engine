@@ -897,7 +897,7 @@
           "name": "media",
           "props": {
             "controls": false,
-            "autoplay": true,
+            "paused": false,
             "paths": [
               "__$project$__/default-project/assets/apartment-ambience.mp3"
             ],
@@ -1052,7 +1052,7 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/keycard.glb",
-            "generateBVH": false,
+            "generateBVH": true,
             "matrixAutoUpdate": true
           }
         },

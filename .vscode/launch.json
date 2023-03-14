@@ -1,40 +1,118 @@
 {
     "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Dev Mode",
+            "configurations": ["dev-agones", "dev-api-server", "dev-instanceserver", "dev-instanceserver-dev-channel", "dev-serve-local-files", "dev-client", "dev-taskserver", "Chrome",]
+            // npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver
+        },
+        {
+            "name": "Dev UI",
+            "configurations": ["ui-jest", "ui-storybook"]
+            // npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver
+        }
+    ],
     "configurations": [
+        {
+            "command": "cd packages/ui && npm run test:watch",
+            "name": "ui-jest",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/ui && npm run storybook",
+            "name": "ui-storybook",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Chrome",
+            "url": "https://localhost:3000/admin",
+            "runtimeArgs": [
+                "--ignore-certificate-errors",
+                "--unsafely-treat-insecure-origin-as-secure=https://localhost:3000"
+            ],
+            "webRoot": "${workspaceRoot}/packages/client/src"
+        },
+        {
+            "command": "cd packages/server && npm run dev-api-server",
+            "name": "dev-api-server",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/instanceserver && npm run dev",
+            "name": "dev-instanceserver",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/instanceserver && npm run dev-channel",
+            "name": "dev-instanceserver-dev-channel",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/server && npm run serve-local-files",
+            "name": "dev-serve-local-files",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "npm run dev-agones-silent",
+            "name": "dev-agones",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/server && npm run dev",
+            "name": "dev-server",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/client && npm run dev",
+            "name": "dev-client",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/taskserver && npm run dev",
+            "name": "dev-taskserver",
+            "request": "launch",
+            "type": "node-terminal",
+        },
         {
             "command": "cd packages/engine && npm run test",
             "name": "npm run test",
             "request": "launch",
             "type": "node-terminal",
-            "port": 3000
         },
         {
             "command": "npm run dev",
             "name": "npm run dev",
             "request": "launch",
             "type": "node-terminal",
-            "port": 3000
         },
         {
             "command": "npm run dev-taskserver",
             "name": "npm run dev-taskserver",
             "request": "launch",
             "type": "node-terminal",
-            "port": 3000
         },
         {
             "command": "npm run dev-reinit",
             "name": "npm run dev-reinit",
             "request": "launch",
             "type": "node-terminal",
-            "port": 3000
         },
         {
             "command": "npm run check-errors",
             "name": "npm run check-errors",
             "request": "launch",
             "type": "node-terminal",
-            "port": 3000
         },
         {
             "type": "node",

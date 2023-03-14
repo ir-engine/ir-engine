@@ -1,10 +1,10 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import config from '@xrengine/common/src/config'
-import { ClientSetting, PatchClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { ClientSetting, PatchClientSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -21,7 +21,7 @@ export const AdminClientSettingsState = defineState({
 })
 
 export const ClientSettingsServiceReceptor = (action) => {
-  const s = getState(AdminClientSettingsState)
+  const s = getMutableState(AdminClientSettingsState)
   matches(action)
     .when(ClientSettingActions.fetchedClient.matches, (action) => {
       const [clientSetting] = action.clientSettings.data
@@ -37,12 +37,12 @@ export const ClientSettingsServiceReceptor = (action) => {
 }
 
 // const fetchedClientReceptor = (action: typeof ClientSettingActions.fetchedClient.matches._TYPE) => {
-//   const state = getState(AdminClientSettingsState)
+//   const state = getMutableState(AdminClientSettingsState)
 //   return state.merge({ client: action.clientSettings.data, updateNeeded: false })
 // }
 
 // const clientSettingPatchedReceptor = (action: typeof ClientSettingActions.clientSettingPatched.matches._TYPE) => {
-//   const state = getState(AdminClientSettingsState)
+//   const state = getMutableState(AdminClientSettingsState)
 //   return state.updateNeeded.set(true)
 // }
 
@@ -50,9 +50,9 @@ export const ClientSettingsServiceReceptor = (action) => {
 //   fetchedClientReceptor,
 //   clientSettingPatchedReceptor
 // }
-
-export const accessClientSettingState = () => getState(AdminClientSettingsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessClientSettingState = () => getMutableState(AdminClientSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useClientSettingState = () => useState(accessClientSettingState())
 
 export const ClientSettingService = {

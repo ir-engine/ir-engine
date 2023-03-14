@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { Color, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, PointLight } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { isHMD } from '../../common/functions/isMobile'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { RendererState } from '../../renderer/RendererState'
+import { isHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -14,14 +14,15 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new PointLight()
-    if (!isHMD) addObjectToGroup(entity, light)
+    if (!isHeadset()) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,
       range: 0,
       decay: 2,
+      castShadow: false,
       shadowMapResolution: 256,
       shadowBias: 0.5,
       shadowRadius: 1,
@@ -37,6 +38,7 @@ export const PointLightComponent = defineComponent({
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.range)) component.range.set(json.range)
     if (matches.number.test(json.decay)) component.decay.set(json.decay)
+    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.array.test(json.shadowMapResolution))
       component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
@@ -51,6 +53,7 @@ export const PointLightComponent = defineComponent({
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,
+      castShadow: component.castShadow.value,
       shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value
@@ -58,14 +61,12 @@ export const PointLightComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    if (!isHMD) removeObjectFromGroup(entity, component.light.value)
+    if (component.light.value) removeObjectFromGroup(entity, component.light.value)
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, PointLightComponent)) throw root.stop()
-
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, PointLightComponent)
 
     useEffect(() => {
@@ -83,6 +84,10 @@ export const PointLightComponent = defineComponent({
     useEffect(() => {
       light.light.value.decay = light.decay.value
     }, [light.decay])
+
+    useEffect(() => {
+      light.light.value.castShadow = light.castShadow.value
+    }, [light.castShadow])
 
     useEffect(() => {
       light.light.value.shadow.bias = light.shadowBias.value

@@ -2,22 +2,21 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControlLabel from '@mui/material/FormControlLabel'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import Button from '@etherealengine/ui/src/Button'
+import Checkbox from '@etherealengine/ui/src/Checkbox'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
@@ -159,7 +158,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
         {updateProjects && (
           <>
             <div className={styles.projectUpdateWarning}>
-              <WarningAmberIcon />
+              <Icon type="WarningAmber" />
               {t('admin:components.project.projectWarning')}
             </div>
             <div className={styles.projectSelector}>

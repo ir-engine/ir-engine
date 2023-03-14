@@ -1,14 +1,14 @@
 import { none } from '@hookstate/core'
 
-import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
-import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
+import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 const ProjectUpdateState = defineState({
   name: 'ProjectUpdateState',
@@ -16,7 +16,7 @@ const ProjectUpdateState = defineState({
 })
 
 const initializeProjectUpdateReceptor = (action: typeof ProjectUpdateActions.initializeProjectUpdate.matches._TYPE) => {
-  const state = getState(ProjectUpdateState)
+  const state = getMutableState(ProjectUpdateState)
   return state[action.project.name].set({
     branchProcessing: false,
     destinationProcessing: false,
@@ -44,26 +44,26 @@ const initializeProjectUpdateReceptor = (action: typeof ProjectUpdateActions.ini
     selectedSHA: '',
     projectName: '',
     submitDisabled: true,
-    triggerSetDestination: false,
+    triggerSetDestination: '',
     updateType: 'none' as ProjectUpdateType,
     updateSchedule: DefaultUpdateSchedule
   })
 }
 
 const clearProjectUpdateReceptor = (action: typeof ProjectUpdateActions.clearProjectUpdates.matches._TYPE) => {
-  const state = getState(ProjectUpdateState)
+  const state = getMutableState(ProjectUpdateState)
   return state[action.project.name].set(none)
 }
 
 const setProjectUpdateFieldReceptor = (action: typeof ProjectUpdateActions.setProjectUpdateField.matches._TYPE) => {
-  const state = getState(ProjectUpdateState)
+  const state = getMutableState(ProjectUpdateState)
   if (state[action.project.name] && state[action.project.name][action.fieldName])
     return state[action.project.name][action.fieldName].set(action.value)
   return state
 }
 
 const mergeProjectUpdateFieldReceptor = (action: typeof ProjectUpdateActions.mergeProjectUpdateField.matches._TYPE) => {
-  const state = getState(ProjectUpdateState)
+  const state = getMutableState(ProjectUpdateState)
   if (state[action.project.name] && state[action.project.name][action.fieldName]) {
     const field = state[action.project.name][action.fieldName]
     const matchIndex = field.value!.findIndex((fieldItem) => {
@@ -81,9 +81,9 @@ export const ProjectUpdateReceptors = {
   setProjectUpdateFieldReceptor,
   mergeProjectUpdateFieldReceptor
 }
-
-export const accessProjectUpdateState = () => getState(ProjectUpdateState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessProjectUpdateState = () => getMutableState(ProjectUpdateState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useProjectUpdateState = () => useState(accessProjectUpdateState())
 
 export const ProjectUpdateService = {

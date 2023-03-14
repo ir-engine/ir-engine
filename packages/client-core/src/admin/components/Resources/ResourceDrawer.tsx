@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputFile from '@xrengine/client-core/src/common/components/InputFile'
-import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@xrengine/common/src/constants/AvatarConstants'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
+import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@etherealengine/common/src/constants/AvatarConstants'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
-} from '@xrengine/editor/src/components/assets/AssetsPreviewPanel'
-
-import FileUploadIcon from '@mui/icons-material/FileUpload'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
-import Typography from '@mui/material/Typography'
+} from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import FormControl from '@etherealengine/ui/src/FormControl'
+import FormHelperText from '@etherealengine/ui/src/FormHelperText'
+import Icon from '@etherealengine/ui/src/Icon'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -306,7 +305,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         <>
           <label htmlFor="select-file">
             <InputFile id="select-file" name="resourceFile" onChange={handleChangeFile} />
-            <Button className={styles.gradientButton} component="span" startIcon={<FileUploadIcon />}>
+            <Button className={styles.gradientButton} component="span" startIcon={<Icon type="FileUpload" />}>
               {t('admin:components.resources.selectFile')}
             </Button>
           </label>

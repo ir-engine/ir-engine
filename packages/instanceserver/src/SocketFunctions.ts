@@ -1,12 +1,12 @@
-import { AuthError } from '@xrengine/common/src/enums/AuthError'
-import { AuthTask } from '@xrengine/common/src/interfaces/AuthTask'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { Application } from '@xrengine/server-core/declarations'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
+import { AuthError } from '@etherealengine/common/src/enums/AuthError'
+import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
+import { Application } from '@etherealengine/server-core/declarations'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import {
   authorizeUserToJoinServer,

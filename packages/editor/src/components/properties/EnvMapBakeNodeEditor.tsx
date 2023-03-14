@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvMapBakeTypes } from '@xrengine/engine/src/scene/types/EnvMapBakeTypes'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
+import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'
 
 import SportsGolfIcon from '@mui/icons-material/SportsGolf'
 
@@ -89,7 +89,7 @@ const DefaultEnvMapBakeSettings = [
 
 export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
   const renderEnvMapBakeProperties = () => {
-    const bakeComponent = getComponent(props.node.entity, EnvMapBakeComponent)
+    const bakeComponent = getComponent(props.entity, EnvMapBakeComponent)
 
     const renderedProperty = DefaultEnvMapBakeSettings.map((element, id) => {
       if (element.label == 'Realtime Settings' && bakeComponent.bakeType == EnvMapBakeTypes.Realtime) {
@@ -104,7 +104,7 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
             key={id + '' + propertyid}
             element={property}
             bakeComponent={bakeComponent}
-            node={props.node}
+            entity={props.entity}
           />
         )
       })
@@ -119,7 +119,7 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor {...props} name="EnvMap Bake" description="For Adding EnvMap bake in your scene">
       {renderEnvMapBakeProperties()}
-      <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.node.entity)}>Bake</PropertiesPanelButton>
+      <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.entity)}>Bake</PropertiesPanelButton>
     </NodeEditor>
   )
 }

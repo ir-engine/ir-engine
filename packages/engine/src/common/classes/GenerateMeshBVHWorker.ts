@@ -63,7 +63,9 @@ export class GenerateMeshBVHWorker {
       }
 
       const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
-      const position = Float32Array.from(geometry.attributes.position.array)
+      const position = Float32Array.from(
+        (geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
+      )
 
       const transferrables = [position as ArrayLike<number>]
       if (index) {

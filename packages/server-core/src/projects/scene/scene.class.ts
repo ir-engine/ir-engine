@@ -3,9 +3,9 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { isDev } from '@xrengine/common/src/config'
-import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+import { isDev } from '@etherealengine/common/src/config'
+import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'

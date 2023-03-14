@@ -1,8 +1,8 @@
 ============================================================================
 ============================================================================
 
-Some portions of the XREngine codebase are derived from other projects.
-All original work by the XREngine team is subject to MIT license.
+Some portions of the Ethereal Engine team, formerly XREngine by XR Foundation codebase are derived from other projects.
+All original work by the Ethereal Engine team, formerly XREngine by XR Foundation team is subject to MIT license.
 
 
 
@@ -11,7 +11,7 @@ All original work by the XREngine team is subject to MIT license.
 
 MIT License
 
-Copyright (c) 2020-2022 XREngine
+Copyright (c) 2020-2023 Ethereal Engine team, formerly XREngine by XR Foundation
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

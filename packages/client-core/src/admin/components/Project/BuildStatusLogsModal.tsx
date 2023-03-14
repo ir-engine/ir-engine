@@ -1,12 +1,11 @@
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 
-import { BuildStatus } from '@xrengine/common/src/interfaces/BuildStatus'
-
-import CloseIcon from '@mui/icons-material/Close'
-import Fade from '@mui/material/Fade'
-import IconButton from '@mui/material/IconButton'
-import Modal from '@mui/material/Modal'
+import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
+import Fade from '@etherealengine/ui/src/Fade'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Modal from '@etherealengine/ui/src/Modal'
 
 import styles from '../../styles/admin.module.scss'
 
@@ -54,9 +53,13 @@ const BuildStatusLogsModal = ({ open, onClose, buildStatus }: Props) => {
         >
           <div className={styles.modalHeader}>
             <div className={styles['title']}>{title}</div>
-            <IconButton aria-label="close" className={styles.closeButton} onClick={onClose} size="large">
-              <CloseIcon />
-            </IconButton>
+            <IconButton
+              title="close"
+              className={styles.closeButton}
+              onClick={onClose}
+              size="large"
+              icon={<Icon type="Close" />}
+            />
           </div>
           <pre className={styles['modal-body']}>{buildStatus.logs}</pre>
         </div>

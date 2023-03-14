@@ -3,8 +3,9 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
-import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -106,6 +107,9 @@ describe('project-permission.test', () => {
       type: 'admin:admin',
       userId: user4.id
     })
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   describe("'project-permission' service'", () => {

@@ -1,7 +1,7 @@
 {
-  "name": "@xrengine/server",
-  "description": "API Server for XREngine",
-  "version": "1.0.0-rc8",
+  "name": "@etherealengine/server",
+  "description": "API Server for Ethereal Engine",
+  "version": "1.2.0-rc6",
   "private": true,
   "homepage": "",
   "main": "dist/index.js",
@@ -17,8 +17,8 @@
     "vr"
   ],
   "author": {
-    "name": "XRFoundation Collective",
-    "email": "hello@xrfoundation.io"
+    "name": "Ethereal Engine Collective",
+    "email": "hello@etherealengine.org"
   },
   "contributors": [],
   "bugs": {},
@@ -45,26 +45,26 @@
   },
   "types": "lib/",
   "dependencies": {
-    "@feathersjs/express": "5.0.0-pre.29",
-    "@feathersjs/feathers": "5.0.0-pre.29",
-    "@feathersjs/primus":  "4.5.15",
-    "@feathersjs/transport-commons": "5.0.0-pre.29",
+    "@etherealengine/server-core": "^1.2.0-rc6",
+    "@feathersjs/express": "5.0.0",
+    "@feathersjs/feathers": "5.0.0",
+    "@feathersjs/primus": "4.5.15",
+    "@feathersjs/transport-commons": "5.0.0",
     "@kubernetes/client-node": "0.16.3",
     "@swc/core": "^1.2.210",
-    "@xrengine/server-core": "^1.0.0-rc8",
     "aws-sdk": "2.1113.0",
     "cli": "1.0.1",
     "compression": "1.7.4",
     "cors": "2.8.5",
     "cross-env": "7.0.3",
-    "feathers-sync": "3.0.1",
+    "feathers-sync": "3.0.2",
     "helmet": "5.0.2",
     "nanoid": "3.3.1",
     "ps-list": "7.2.0",
     "sequelize": "6.21.6",
     "serve-favicon": "2.5.0",
     "ts-node": "10.8.2",
-    "typescript": "4.8.3",
+    "typescript": "4.9.5",
     "uuid": "8.3.2"
   },
   "devDependencies": {

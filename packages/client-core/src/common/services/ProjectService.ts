@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 
-import { BuilderInfo } from '@xrengine/common/src/interfaces/BuilderInfo'
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectInterface, ProjectUpdateType } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UpdateProjectInterface } from '@xrengine/common/src/interfaces/UpdateProjectInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
+import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -26,12 +26,13 @@ export const ProjectState = defineState({
     builderInfo: {
       engineVersion: '',
       engineCommit: ''
-    }
+    },
+    refreshingGithubRepoAccess: false
   })
 })
 
 export const ProjectServiceReceptor = (action) => {
-  const s = getState(ProjectState)
+  const s = getMutableState(ProjectState)
   matches(action)
     .when(ProjectAction.projectsFetched.matches, (action) => {
       s.projects.set(action.projectResult)
@@ -51,10 +52,13 @@ export const ProjectServiceReceptor = (action) => {
     .when(ProjectAction.builderInfoFetched.matches, (action) => {
       return s.merge({ builderInfo: action.builderInfo })
     })
+    .when(ProjectAction.setGithubRepoAccessRefreshing.matches, (action) => {
+      return s.merge({ refreshingGithubRepoAccess: action.refreshing })
+    })
 }
-
-export const accessProjectState = () => getState(ProjectState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessProjectState = () => getMutableState(ProjectState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useProjectState = () => useState(accessProjectState())
 
 //Service
@@ -179,7 +183,7 @@ export const ProjectService = {
       // })
 
       const projectPatchedListener = (params) => {
-        dispatchAction(ProjectAction.patchedProject({ project: params.project }))
+        dispatchAction(ProjectAction.patchedProject({ project: params }))
       }
 
       API.instance.client.service('project').on('patched', projectPatchedListener)
@@ -299,6 +303,18 @@ export const ProjectService = {
       logger.error('Error with getting engine info', err)
       throw err
     }
+  },
+
+  refreshGithubRepoAccess: async () => {
+    try {
+      dispatchAction(ProjectAction.setGithubRepoAccessRefreshing({ refreshing: true }))
+      await API.instance.client.service('github-repo-access-refresh').find()
+      dispatchAction(ProjectAction.setGithubRepoAccessRefreshing({ refreshing: false }))
+      await ProjectService.fetchProjects()
+    } catch (err) {
+      logger.error('Error with refreshing Github repo access', err)
+      throw err
+    }
   }
 }
 
@@ -335,6 +351,11 @@ export class ProjectAction {
   static builderInfoFetched = defineAction({
     type: 'xre.client.project.BUILDER_INFO_FETCHED' as const,
     builderInfo: matches.object as Validator<unknown, BuilderInfo>
+  })
+
+  static setGithubRepoAccessRefreshing = defineAction({
+    type: 'xre.client.project.SET_ACCESS_REFRESHING' as const,
+    refreshing: matches.boolean
   })
 
   // TODO #7254

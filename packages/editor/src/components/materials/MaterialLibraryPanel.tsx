@@ -4,18 +4,19 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
-import exportMaterialsGLTF from '@xrengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
-import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
+import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
   entryId,
   hashMaterialSource,
   materialFromId,
   registerMaterial
-} from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { useMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, getState, removeActionQueue, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { useMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { createActionQueue, getMutableState, getState, removeActionQueue, useState } from '@etherealengine/hyperflux'
 
 import { Divider, Grid, Stack } from '@mui/material'
 
@@ -35,6 +36,7 @@ export default function MaterialLibraryPanel() {
   const materialLibrary = useMaterialLibrary()
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
+  const publicPath = getState(EngineState).publicPath
 
   const createSrcs = useCallback(() => Object.values(materialLibrary.sources.value), [materialLibrary.sources])
   const srcs = useState(createSrcs())
@@ -154,7 +156,7 @@ export default function MaterialLibraryPanel() {
                   )
                   .map((selected) => materialFromId(selected.value as string))
                 const libraryName = 'material-test.gltf'
-                const path = `${Engine.instance.publicPath}/projects/${projectName}/assets/${libraryName}`
+                const path = `${publicPath}/projects/${projectName}/assets/${libraryName}`
                 const gltf = (await exportMaterialsGLTF(materials, {
                   binary: false,
                   path

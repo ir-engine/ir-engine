@@ -1,6 +1,6 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { EditorErrorAction } from '../services/EditorErrorServices'
 import { accessSelectionState } from '../services/SelectionServices'
@@ -31,9 +31,7 @@ export function paste(event) {
     const { entities } = JSON.parse(data)
 
     if (!Array.isArray(entities)) return
-    const nodes = entities
-      .map((entity) => Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
-      .filter((entity) => entity) as EntityTreeNode[]
+    const nodes = entities.filter((entity) => hasComponent(entity, EntityTreeComponent))
 
     if (nodes) {
       EditorControlFunctions.duplicateObject(nodes)

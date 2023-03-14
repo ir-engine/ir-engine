@@ -1,11 +1,10 @@
 import assert from 'assert'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { destroyEngine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
@@ -21,9 +20,10 @@ describe('TransformFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
-    const node = createEntityNode(entity)
-    const world = Engine.instance.currentWorld
-    addEntityNodeChild(node, world.entityTree.rootNode)
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   const sceneComponentData = {

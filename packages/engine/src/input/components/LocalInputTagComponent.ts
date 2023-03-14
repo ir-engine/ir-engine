@@ -1,3 +1,3 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const LocalInputTagComponent = createMappedComponent<true>('LocalInputTagComponent')
+export const LocalInputTagComponent = defineComponent({ name: 'LocalInputTagComponent' })

@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { LocationAuthorizedUser as LocationAuthorizedUserInterface } from '@xrengine/common/src/interfaces/LocationAuthorizedUser'
+import { LocationAuthorizedUser as LocationAuthorizedUserInterface } from '@etherealengine/common/src/interfaces/LocationAuthorizedUser'
 
 import { Application } from '../../../declarations'
 

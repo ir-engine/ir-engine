@@ -1,5 +1,11 @@
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import {
+  defineAction,
+  defineState,
+  getMutableState,
+  syncStateWithLocalStorage,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 
@@ -9,9 +15,18 @@ import { Engine } from '../ecs/classes/Engine'
 export const AudioState = defineState({
   name: 'AudioState',
   initial: () => ({
+    audioContext: null! as AudioContext,
+    cameraGainNode: null! as GainNode,
+    gainNodeMixBuses: {
+      mediaStreams: null! as GainNode,
+      notifications: null! as GainNode,
+      music: null! as GainNode,
+      soundEffects: null! as GainNode
+    },
     masterVolume: 0.5,
     microphoneGain: 0.5,
-    usePositionalMedia: false, // only for avatars - @todo make this `auto, on, off` #7260
+    positionalMedia: false,
+    usePositionalMedia: 'auto' as 'auto' | 'off' | 'on',
     mediaStreamVolume: 0.5,
     notificationVolume: 0.5,
     soundEffectsVolume: 0.2,
@@ -21,7 +36,7 @@ export const AudioState = defineState({
     syncStateWithLocalStorage(AudioState, [
       'masterVolume',
       'microphoneGain',
-      'usePositionalMedia',
+      'positionalMedia',
       'mediaStreamVolume',
       'notificationVolume',
       'soundEffectsVolume',
@@ -29,54 +44,39 @@ export const AudioState = defineState({
     ])
   }
 })
-
-export const accessAudioState = () => getState(AudioState)
+/**@deprecated use getMutableState directly instead */
+export const accessAudioState = () => getMutableState(AudioState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAudioState = () => useState(accessAudioState())
 
 export function AudioSettingReceptor(action) {
-  const s = getState(AudioState)
+  const s = getMutableState(AudioState)
   matches(action)
     .when(AudioSettingAction.setMasterVolume.matches, (action) => {
-      s.merge({ masterVolume: action.value })
-      Engine.instance.cameraGainNode.gain.setTargetAtTime(action.value, Engine.instance.audioContext.currentTime, 0.01)
+      s.masterVolume.set(action.value)
+      s.cameraGainNode.value.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setMicrophoneVolume.matches, (action) => {
-      s.merge({ microphoneGain: action.value })
+      s.microphoneGain.set(action.value)
     })
     .when(AudioSettingAction.setUsePositionalMedia.matches, (action) => {
-      s.merge({ usePositionalMedia: action.value })
+      s.positionalMedia.set(action.value)
     })
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
-      s.merge({ mediaStreamVolume: action.value })
-      Engine.instance.gainNodeMixBuses.mediaStreams.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.mediaStreamVolume.set(action.value)
+      s.gainNodeMixBuses.value.mediaStreams.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setNotificationVolume.matches, (action) => {
-      s.merge({ notificationVolume: action.value })
-      Engine.instance.gainNodeMixBuses.notifications.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.notificationVolume.set(action.value)
+      s.gainNodeMixBuses.value.notifications.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setSoundEffectsVolume.matches, (action) => {
-      s.merge({ soundEffectsVolume: action.value })
-      Engine.instance.gainNodeMixBuses.soundEffects.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.soundEffectsVolume.set(action.value)
+      s.gainNodeMixBuses.value.soundEffects.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setMusicVolume.matches, (action) => {
-      s.merge({ backgroundMusicVolume: action.value })
-      Engine.instance.gainNodeMixBuses.music.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.backgroundMusicVolume.set(action.value)
+      s.gainNodeMixBuses.value.music.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
 }
 
@@ -109,4 +109,11 @@ export class AudioSettingAction {
     type: 'xre.audio.AudioSetting.BACKGROUND_MUSIC_VOLUME' as const,
     value: matches.number
   })
+}
+
+export const getPositionalMedia = () => {
+  const audioState = getMutableState(AudioState)
+  return audioState.usePositionalMedia.value === 'auto'
+    ? audioState.positionalMedia.value
+    : audioState.usePositionalMedia.value === 'on'
 }

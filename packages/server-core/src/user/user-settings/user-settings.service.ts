@@ -4,7 +4,7 @@ import userSettingsDocs from './user-settings.docs'
 import hooks from './user-settings.hooks'
 import createModel from './user-settings.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'user-settings': UserSettings
   }

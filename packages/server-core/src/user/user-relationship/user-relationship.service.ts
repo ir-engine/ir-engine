@@ -1,6 +1,6 @@
 import { Op } from 'sequelize'
 
-import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRelationship'
+import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -9,7 +9,7 @@ import userRelationshipDocs from './user-relationship.docs'
 import hooks from './user-relationship.hooks'
 import createModel from './user-relationship.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'user-relationship': UserRelationship
   }

@@ -30,7 +30,10 @@ export default async function exportModelGLTF(
       (error) => {
         throw error
       },
-      options
+      {
+        ...options,
+        animations: scene.animations
+      }
     )
   })
   return gltf

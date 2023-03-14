@@ -1,8 +1,8 @@
 import i18n from 'i18next'
 import { lazy } from 'react'
 
-import { API } from '@xrengine/client-core/src/API'
-import { loadRoute } from '@xrengine/projects/loadRoute'
+import { API } from '@etherealengine/client-core/src/API'
+import { loadRoute } from '@etherealengine/projects/loadRoute'
 
 export type CustomRoute = {
   route: string
@@ -18,7 +18,7 @@ export type CustomRoute = {
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
   const routes = await API.instance.client.service('route').find()
 
-  const components: CustomRoute[] = []
+  const elements: CustomRoute[] = []
 
   if (!Array.isArray(routes.data) || routes.data == null) {
     throw new Error(
@@ -28,12 +28,12 @@ export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
     for (const project of routes.data) {
       const routeLazyLoad = await loadRoute(project.project, project.route)
       if (routeLazyLoad)
-        components.push({
+        elements.push({
           route: project.route,
           ...routeLazyLoad
         })
     }
   }
 
-  return components.filter((c) => !!c)
+  return elements.filter((c) => !!c)
 }

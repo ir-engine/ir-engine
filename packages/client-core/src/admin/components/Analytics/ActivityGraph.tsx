@@ -1,11 +1,56 @@
 import ApexCharts from 'apexcharts'
 import React from 'react'
 import ReactApexChart from 'react-apexcharts'
+import { useTranslation } from 'react-i18next'
 
-const ActivityGraph = ({ data, startDate, endDate }) => {
+import { useAdminAnalyticsState } from '../../services/AnalyticsService'
+
+const ActivityGraph = ({ startDate, endDate }) => {
+  const analyticsState = useAdminAnalyticsState()
+  const { t } = useTranslation()
+
   let maxY = 0
   let minX = new Date(startDate).getTime()
   let maxX = new Date(endDate).getTime()
+
+  const data = [
+    {
+      name: t('admin:components.analytics.activeParties'),
+      data: analyticsState.activeParties.value.map((item) => {
+        return [new Date(item.createdAt).getTime(), item.count]
+      })
+    },
+    {
+      name: t('admin:components.analytics.activeLocations'),
+      data: analyticsState.activeLocations.value.map((item) => {
+        return [new Date(item.createdAt).getTime(), item.count]
+      })
+    },
+    {
+      name: t('admin:components.analytics.activeInstances'),
+      data: analyticsState.activeInstances.value.map((item) => {
+        return [new Date(item.createdAt).getTime(), item.count]
+      })
+    },
+    {
+      name: t('admin:components.analytics.activeScenes'),
+      data: analyticsState.activeScenes.value.map((item) => {
+        return [new Date(item.createdAt).getTime(), item.count]
+      })
+    },
+    {
+      name: t('admin:components.analytics.instanceUsers'),
+      data: analyticsState.instanceUsers.value.map((item) => {
+        return [new Date(item.createdAt).getTime(), item.count]
+      })
+    },
+    {
+      name: t('admin:components.analytics.channelUsers'),
+      data: analyticsState.channelUsers.value.map((item) => {
+        return [new Date(item.createdAt).getTime(), item.count]
+      })
+    }
+  ]
 
   if (data) {
     for (let analytic of data) {

@@ -1,11 +1,11 @@
-import type VolumetricPlayer from '@xrfoundation/volumetric/player'
 import { Box3, Material, Mesh, Object3D } from 'three'
 
-import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
-import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
-import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
-import { getState } from '@xrengine/hyperflux'
+import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/components/AvatarDissolveComponent'
+import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { DissolveEffect } from '@etherealengine/engine/src/avatar/DissolveEffect'
+import { getMutableState } from '@etherealengine/hyperflux'
+import type VolumetricPlayer from '@etherealengine/volumetric/player'
 
 import { isClient } from '../../../common/functions/isClient'
 import { iOS } from '../../../common/functions/isMobile'
@@ -14,7 +14,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent
@@ -27,11 +27,11 @@ import { MediaComponent, MediaElementComponent } from '../../components/MediaCom
 import { VolumetricComponent } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 
-let VolumetricPlayerPromise = null! as Promise<typeof import('@xrfoundation/volumetric/player').default>
+let VolumetricPlayerPromise = null! as Promise<typeof import('@etherealengine/volumetric/player').default>
 
 if (isClient) {
   // todo: add top-level await here to ensure it's loaded when component is created
-  VolumetricPlayerPromise = import('@xrfoundation/volumetric/player').then((module) => module.default)
+  VolumetricPlayerPromise = import('@etherealengine/volumetric/player').then((module) => module.default)
 }
 
 const Volumetric = new WeakMap<
@@ -125,8 +125,6 @@ export const updateVolumetric = async (entity: Entity) => {
       } else {
         volumetric.loadingEffectActive = false
         endLoadingEffect(volumetric.entity, player.mesh)
-        const media = getComponentState(entity, MediaComponent)
-        if (media.autoplay.value && getState(EngineState).userHasInteracted.value) media.paused.set(false)
       }
     }
   }

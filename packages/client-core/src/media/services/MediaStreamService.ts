@@ -1,12 +1,12 @@
 import mediasoup from 'mediasoup-client'
 
-import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
+import { MediaStreamState } from '../../transports/MediaStreams'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
@@ -26,7 +26,7 @@ export const MediaState = defineState({
 })
 
 export const MediaServiceReceptor = (action) => {
-  const s = getState(MediaState)
+  const s = getMutableState(MediaState)
   matches(action)
     .when(MediaStreamAction.setCamVideoStateAction.matches, (action) => {
       return s.isCamVideoEnabled.set(action.isEnable)
@@ -50,8 +50,9 @@ export const MediaServiceReceptor = (action) => {
       return s.consumers.set(action.consumers)
     })
 }
-
-export const accessMediaStreamState = () => getState(MediaState)
+/**@deprecated use getMutableState directly instead */
+export const accessMediaStreamState = () => getMutableState(MediaState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMediaStreamState = () => useState(accessMediaStreamState())
 
 let updateConsumerTimeout
@@ -59,44 +60,48 @@ let updateConsumerTimeout
 //Service
 export const MediaStreamService = {
   updateCamVideoState: () => {
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(
       MediaStreamAction.setCamVideoStateAction({
-        isEnable: MediaStreams.instance.camVideoProducer != null && !MediaStreams.instance.videoPaused
+        isEnable: mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
       })
     )
   },
   updateCamAudioState: () => {
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(
       MediaStreamAction.setCamAudioStateAction({
-        isEnable: MediaStreams.instance.camAudioProducer != null && !MediaStreams.instance.audioPaused
+        isEnable: mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
       })
     )
   },
   updateScreenVideoState: () => {
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(
       MediaStreamAction.setScreenVideoStateAction({
-        isEnable: MediaStreams.instance.screenVideoProducer != null && !MediaStreams.instance.screenShareVideoPaused
+        isEnable: mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
       })
     )
   },
   updateScreenAudioState: () => {
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(
       MediaStreamAction.setScreenAudioStateAction({
-        isEnable: MediaStreams.instance.screenAudioProducer != null && !MediaStreams.instance.screenShareAudioPaused
+        isEnable: mediaStreamState.screenAudioProducer.value != null && !mediaStreamState.screenShareAudioPaused.value
       })
     )
   },
   triggerUpdateConsumers: () => {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
-        const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+        const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
         if (mediaNetwork) dispatchAction(MediaStreamAction.setConsumersAction({ consumers: mediaNetwork.consumers }))
         updateConsumerTimeout = null
       }, 1000)
     }
   },
   updateNearbyLayerUsers: () => {
-    const mediaState = getState(MediaState)
+    const mediaState = getMutableState(MediaState)
     const UserState = accessNetworkUserState()
 
     const nonPartyUserIds = UserState.layerUsers
@@ -107,7 +112,8 @@ export const MediaStreamService = {
       mediaState.nearbyLayerUsers.set(nearbyUsers)
   },
   updateFaceTrackingState: () => {
-    dispatchAction(MediaStreamAction.setFaceTrackingStateAction({ isEnable: MediaStreams.instance.faceTracking }))
+    const mediaStreamState = getMutableState(MediaStreamState)
+    dispatchAction(MediaStreamAction.setFaceTrackingStateAction({ isEnable: mediaStreamState.faceTracking.value }))
   },
   updateEnableMediaByDefault: () => {
     dispatchAction(MediaStreamAction.setMediaEnabledByDefaultAction({ isEnable: false }))

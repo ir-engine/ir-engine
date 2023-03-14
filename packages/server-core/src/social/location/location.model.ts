@@ -1,7 +1,7 @@
 // A place in physical or virtual space, with many copies (instances)
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { LocationInterface } from '@xrengine/common/src/dbmodels/Location'
+import { LocationInterface } from '@etherealengine/common/src/dbmodels/Location'
 
 import { Application } from '../../../declarations'
 

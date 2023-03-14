@@ -1,9 +1,9 @@
 import { Spark } from 'primus'
 
-import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 export interface NetworkPeer {
   userId: UserId

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { SketchPicker } from 'react-color'
 
-import { Button, Popover } from '@mui/material'
+import Button from '@etherealengine/ui/src/Button'
+import Popover from '@etherealengine/ui/src/Popover'
 
 interface SketchColorPickerProps {
   name: string

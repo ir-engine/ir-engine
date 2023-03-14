@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 
-import { API } from '@xrengine/client-core/src/API'
-import { LocationInstanceConnectionAction } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import logger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { API } from '@etherealengine/client-core/src/API'
+import { LocationInstanceConnectionAction } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { accessAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import logger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { accessEditorState } from '../../services/EditorServices'
 
@@ -26,7 +26,7 @@ const EditorActiveInstanceState = defineState({
 })
 
 export const EditorActiveInstanceServiceReceptor = (action): any => {
-  const state = getState(EditorActiveInstanceState)
+  const state = getMutableState(EditorActiveInstanceState)
   matches(action)
     .when(EditorActiveInstanceAction.fetchingActiveInstances.matches, (action) => {
       return state.merge({ fetching: true })
@@ -35,9 +35,9 @@ export const EditorActiveInstanceServiceReceptor = (action): any => {
       return state.merge({ activeInstances: action.activeInstances, fetching: false })
     })
 }
-
-export const accessEditorActiveInstanceState = () => getState(EditorActiveInstanceState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessEditorActiveInstanceState = () => getMutableState(EditorActiveInstanceState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEditorActiveInstanceState = () => useState(accessEditorActiveInstanceState())
 
 //Service

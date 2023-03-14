@@ -1,8 +1,7 @@
 import React from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-
-import { FullscreenExit, ZoomOutMap } from '@mui/icons-material'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { useFullscreen } from '../useFullscreen'
@@ -21,7 +20,7 @@ export const Fullscreen = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          <FullscreenExit />
+          <Icon type="FullscreenExit" />
         </button>
       ) : (
         <button
@@ -31,7 +30,7 @@ export const Fullscreen = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          <ZoomOutMap />
+          <Icon type="ZoomOutMap" />
         </button>
       )}
     </>

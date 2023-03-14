@@ -1,7 +1,7 @@
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import XR8 from './8thwall/XR8'
-import { World } from './../ecs/classes/World'
+import { VPSSystem } from './VPSSystem'
 import XRAnchorSystem from './XRAnchorSystem'
 import XRCameraSystem from './XRCameraSystem'
 import XRCameraViewSystem from './XRCameraViewSystem'
@@ -17,8 +17,8 @@ import { XRAction, XRState } from './XRState'
 /**
  * System for XR session and input handling
  */
-export default async function XRSystem(world: World) {
-  const xrState = getState(XRState)
+export default async function XRSystem() {
+  const xrState = getMutableState(XRState)
 
   const updateSessionSupportForMode = (mode: XRSessionMode) => {
     navigator.xr?.isSessionSupported(mode).then((supported) => xrState.supportedSessionModes[mode].set(supported))
@@ -57,8 +57,7 @@ export default async function XRSystem(world: World) {
     cleanup,
     subsystems: [
       () => Promise.resolve({ default: XR8 }),
-      () => Promise.resolve({ default: XRPersistentAnchorSystem }),
-      () => Promise.resolve({ default: XRAnchorSystem }),
+      () => Promise.resolve({ default: VPSSystem }),
       () => Promise.resolve({ default: XRCameraSystem }),
       () => Promise.resolve({ default: XRCameraViewSystem }),
       () => Promise.resolve({ default: XRInputSourceSystem }),

@@ -2,7 +2,7 @@
 // for more of what you can do here.
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { InviteInterface } from '@xrengine/common/src/dbmodels/Invite'
+import { InviteInterface } from '@etherealengine/common/src/dbmodels/Invite'
 
 import { Application } from '../../../declarations'
 

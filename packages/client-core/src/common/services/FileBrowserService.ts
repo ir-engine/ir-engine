@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -23,7 +23,7 @@ export const FileBrowserState = defineState({
 })
 
 export const FileBrowserServiceReceptor = (action) => {
-  const s = getState(FileBrowserState)
+  const s = getMutableState(FileBrowserState)
   matches(action)
     .when(FileBrowserAction.filesFetched.matches, (action) => {
       return s.merge({
@@ -42,10 +42,15 @@ export const FileBrowserServiceReceptor = (action) => {
         retrieving: true
       })
     })
+    .when(FileBrowserAction.setUpdateNeeded.matches, (action) => {
+      return s.merge({
+        updateNeeded: action.updateNeeded
+      })
+    })
 }
-
-export const accessFileBrowserState = () => getState(FileBrowserState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessFileBrowserState = () => getMutableState(FileBrowserState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useFileBrowserState = () => useState(accessFileBrowserState())
 
 export class FileBrowserAction {
@@ -61,6 +66,11 @@ export class FileBrowserAction {
   static filesDeleted = defineAction({
     type: 'xre.client.FileBrowser.FILES_DELETED' as const,
     contentPath: matches.any
+  })
+
+  static setUpdateNeeded = defineAction({
+    type: 'xre.editor.FileBrowser.SET_UPDATE_NEEDED' as const,
+    updateNeeded: matches.boolean
   })
 }
 
@@ -82,9 +92,6 @@ export const FileBrowserService = {
       .service('file-browser')
       .get(directory, params)) as Paginated<FileContentType>
     dispatchAction(FileBrowserAction.filesFetched({ files }))
-  },
-  putContent: async (fileName: string, path: string, body: Buffer, contentType: string) => {
-    return API.instance.client.service('file-browser').patch(null, { fileName, path, body, contentType })
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
     return API.instance.client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })

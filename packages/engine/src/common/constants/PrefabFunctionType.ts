@@ -13,13 +13,13 @@ export type SceneLoaderType = {
   /** @deprecated - use defineComponent API instead */
   defaultData?: any
   /**
-   * An override function to specify custom transformations from ECS to JSON
+   * @deprecated An override function to specify custom transformations from ECS to JSON
    * - if no function is set, data will be copied from the component via JSON serialization
    * - a function returning null or undefined will not add the component to JSON
    */
   serialize?: ComponentSerializeFunction
   /**
-   * An override function to specify custom transformations from JSON to ECS
+   * @deprecated An override function to specify custom transformations from JSON to ECS
    * - if no function is set, data will be copied to the component
    * - not setting defaultData will result in this component being treated as a tag component
    */

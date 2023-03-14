@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import {
+  BufferAttribute,
   BufferGeometry,
   CompressedTexture,
   DoubleSide,
+  InterleavedBufferAttribute,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -11,7 +13,7 @@ import {
 } from 'three'
 import { LinearMipmapLinearFilter, sRGBEncoding, Texture } from 'three'
 
-import { useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
@@ -105,7 +107,7 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 }
 
 function flipNormals<G extends BufferGeometry>(geometry: G) {
-  const uvs = geometry.attributes.uv.array
+  const uvs = (geometry.attributes.uv as BufferAttribute | InterleavedBufferAttribute).array
   for (let i = 1; i < uvs.length; i += 2) {
     // @ts-ignore
     uvs[i] = 1 - uvs[i]
@@ -117,8 +119,6 @@ export const SCENE_COMPONENT_IMAGE = 'image'
 
 export function ImageReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, ImageComponent)) throw root.stop()
-
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
 

@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getState } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { LocationInstanceState, useWorldInstance } from '../../common/services/LocationInstanceConnectionService'
 
 export const useRoomCodeURLParam = (roomCode = true, instanceId = true) => {
-  const locationInstance = getState(LocationInstanceState)
-  const worldNetwork = Engine.instance.currentWorld.worldNetwork
+  const locationInstance = getMutableState(LocationInstanceState)
+  const worldNetwork = Engine.instance.worldNetwork
   const instance = useWorldInstance()
 
   useEffect(() => {

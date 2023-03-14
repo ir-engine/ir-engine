@@ -6,7 +6,7 @@ import hooks from './verification-event.hooks'
 import createModel from './verification-event.model'
 
 // Add this service to the service type index
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'verification-event': VerificationEvent
   }

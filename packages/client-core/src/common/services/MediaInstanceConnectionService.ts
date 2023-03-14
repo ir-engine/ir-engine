@@ -1,13 +1,21 @@
 import { Downgraded, none, State } from '@hookstate/core'
 import React, { useEffect } from 'react'
 
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, matchesUserId, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { accessChatState } from '../../social/services/ChatService'
@@ -42,24 +50,17 @@ export const MediaInstanceState = defineState({
 })
 
 export function useMediaInstance() {
-  const [state, setState] = React.useState(null as null | State<InstanceState>)
-  const mediaInstanceState = useState(getState(MediaInstanceState).instances)
-  const mediaHostId = useState(Engine.instance.currentWorld.hostIds.media)
-  useEffect(() => {
-    setState(mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null)
-  }, [mediaInstanceState, mediaHostId])
-  return state
+  const mediaInstanceState = useState(getMutableState(MediaInstanceState).instances)
+  const mediaHostId = useState(getMutableState(NetworkState).hostIds.media)
+  return mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null
 }
 
 export const MediaInstanceConnectionServiceReceptor = (action) => {
-  const s = getState(MediaInstanceState)
+  const s = getMutableState(MediaInstanceState)
   matches(action)
     .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      Engine.instance.currentWorld.hostIds.media.set(action.instanceId)
-      Engine.instance.currentWorld.networks.set(
-        action.instanceId,
-        new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media)
-      )
+      getMutableState(NetworkState).hostIds.media.set(action.instanceId)
+      addNetwork(new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media))
       return s.instances[action.instanceId].set({
         ipAddress: action.ipAddress,
         port: action.port,
@@ -97,17 +98,17 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     })
     .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
       const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
-      Engine.instance.currentWorld.mediaNetwork.hostId = action.newInstanceId as UserId
-      Engine.instance.currentWorld.networks.set(action.newInstanceId, Engine.instance.currentWorld.mediaNetwork)
-      Engine.instance.currentWorld.networks.delete(action.currentInstanceId)
-      Engine.instance.currentWorld.hostIds.media.set(action.newInstanceId as UserId)
+      const networkState = getMutableState(NetworkState)
+      const currentNework = getState(NetworkState).networks[action.currentInstanceId]
+      updateNetworkID(currentNework as SocketWebRTCClientNetwork, action.newInstanceId)
+      networkState.hostIds.media.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })
 }
-
-export const accessMediaInstanceConnectionState = () => getState(MediaInstanceState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessMediaInstanceConnectionState = () => getMutableState(MediaInstanceState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMediaInstanceConnectionState = () => useState(accessMediaInstanceConnectionState())
 
 //Service
@@ -145,7 +146,7 @@ export const MediaInstanceConnectionService = {
     const user = authState.user.value
     const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
 
-    const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, network }, 'Connect To Media Server.')
     if (network.primus) {
       await endVideoChat(network, { endConsumers: true })

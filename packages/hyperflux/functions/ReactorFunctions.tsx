@@ -7,6 +7,9 @@ import {
   DiscreteEventPriority
 } from 'react-reconciler/constants'
 
+import { isDev } from '@etherealengine/common/src/config'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
 const ReactorReconciler = Reconciler({
   getPublicInstance: (instance) => instance,
   getRootHostContext: () => null,
@@ -44,6 +47,12 @@ const ReactorReconciler = Reconciler({
   clearContainer: () => {}
 })
 
+ReactorReconciler.injectIntoDevTools({
+  bundleType: isDev ? 1 : 0,
+  rendererPackageName: '@etherealengine/hyperflux-reactor',
+  version: '18.2.0'
+})
+
 export interface ReactorRoot {
   fiber: any
   isRunning: boolean
@@ -72,21 +81,28 @@ export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
     null
   )
 
+  if (!Reactor.name) Object.defineProperty(Reactor, 'name', { value: 'HyperFluxReactor' })
+
   const reactorRoot = {
     fiber: fiberRoot,
     isRunning: false,
+    Reactor,
     run() {
       if (reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
+        Engine.instance.activeReactors.add(reactorRoot)
         ReactorReconciler.updateContainer(<Reactor root={reactorRoot} />, fiberRoot, null, () => resolve())
       })
     },
     stop() {
       if (!reactorRoot.isRunning) return Promise.resolve()
-      return Promise.resolve().then(() => {
-        ReactorReconciler.updateContainer(null, fiberRoot, null, () => {})
-        reactorRoot.isRunning = false
+      return new Promise<void>((resolve) => {
+        ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
+          reactorRoot.isRunning = false
+          Engine.instance.activeReactors.delete(reactorRoot)
+          resolve()
+        })
       })
     }
   }

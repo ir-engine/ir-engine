@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
 
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 
@@ -18,7 +18,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.node.entity, HemisphereLightComponent).value
+  const lightComponent = useComponent(props.entity, HemisphereLightComponent).value
 
   return (
     <NodeEditor

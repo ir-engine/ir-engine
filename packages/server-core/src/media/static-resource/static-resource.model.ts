@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { StaticResourceInterface } from '@xrengine/common/src/dbmodels/StaticResource'
+import { StaticResourceInterface } from '@etherealengine/common/src/dbmodels/StaticResource'
 
 import { Application } from '../../../declarations'
 import generateShortId from '../../util/generate-short-id'

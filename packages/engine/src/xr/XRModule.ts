@@ -1,4 +1,5 @@
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
+import XRAnchorSystem from './XRAnchorSystem'
 import XRSystem from './XRSystem'
 
 export function XRModule() {

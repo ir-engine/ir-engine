@@ -1,16 +1,14 @@
 import React from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-
-import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
-import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AppAction, AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'
 
 export const Shelves = () => {
-  const appState = useHookstate(getState(AppState))
+  const appState = useHookstate(getMutableState(AppState))
   const showTopShelf = appState.showTopShelf.value
   const showBottomShelf = appState.showBottomShelf.value
 
@@ -21,9 +19,6 @@ export const Shelves = () => {
   const handleShowBottomIcons = () => {
     dispatchAction(AppAction.showBottomShelf({ show: !appState.showBottomShelf.value }))
   }
-
-  const MediaIconHider = showTopShelf ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
-  const BottomIconHider = showBottomShelf ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
@@ -36,7 +31,7 @@ export const Shelves = () => {
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
-        <MediaIconHider />
+        <Icon type={showTopShelf ? 'KeyboardDoubleArrowUp' : 'KeyboardDoubleArrowDown'} />
       </button>
       <button
         type="button"
@@ -47,7 +42,7 @@ export const Shelves = () => {
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
-        <BottomIconHider />
+        <Icon type={showBottomShelf ? 'KeyboardDoubleArrowDown' : 'KeyboardDoubleArrowUp'} />
       </button>
     </div>
   )

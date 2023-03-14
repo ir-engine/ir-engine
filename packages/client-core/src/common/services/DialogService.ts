@@ -1,6 +1,6 @@
-import { DialogSeed } from '@xrengine/common/src/interfaces/Dialog'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { DialogSeed } from '@etherealengine/common/src/interfaces/Dialog'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 //State
 const DialogState = defineState({
@@ -12,7 +12,7 @@ const DialogState = defineState({
 })
 
 export const DialogServiceReceptor = (action) => {
-  const s = getState(DialogState)
+  const s = getMutableState(DialogState)
   matches(action)
     .when(DialogAction.dialogShow.matches, (action) => {
       return s.merge({ isOpened: true, content: action.content })
@@ -21,9 +21,9 @@ export const DialogServiceReceptor = (action) => {
       return s.merge({ isOpened: false, content: DialogSeed })
     })
 }
-
-export const dialogState = () => getState(DialogState)
-
+/**@deprecated use getMutableState directly instead */
+export const dialogState = () => getMutableState(DialogState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useDialogState = () => useState(dialogState())
 
 //Action

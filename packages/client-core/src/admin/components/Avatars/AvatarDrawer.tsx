@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import InputFile from '@xrengine/client-core/src/common/components/InputFile'
-import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { getCanvasBlob, isValidHttpUrl } from '@xrengine/client-core/src/common/utils'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
+import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import { getCanvasBlob, isValidHttpUrl } from '@etherealengine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
@@ -16,26 +16,22 @@ import {
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
-} from '@xrengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { Help } from '@mui/icons-material'
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'
-import FaceIcon from '@mui/icons-material/Face'
-import MouseIcon from '@mui/icons-material/Mouse'
-import PortraitIcon from '@mui/icons-material/Portrait'
-import { FormHelperText, Typography } from '@mui/material'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControl from '@mui/material/FormControl'
-import Tooltip from '@mui/material/Tooltip'
+} from '@etherealengine/common/src/constants/AvatarConstants'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchAction } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import FormControl from '@etherealengine/ui/src/FormControl'
+import FormHelperText from '@etherealengine/ui/src/FormHelperText'
+import Icon from '@etherealengine/ui/src/Icon'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { loadAvatarForPreview, resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
@@ -368,7 +364,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
               onChange={handleChangeFile}
             />
-            <Button className={styles.gradientButton} component="span" startIcon={<FaceIcon />}>
+            <Button className={styles.gradientButton} component="span" startIcon={<Icon type="Face" />}>
               {t('admin:components.avatar.selectAvatar')}
             </Button>
           </label>
@@ -435,7 +431,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               </Typography>
               <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
                 {t('admin:components.avatar.leftClick')}
-                <MouseIcon fontSize="small" />
+                <Icon type="Mouse" fontSize="small" />
               </Typography>
 
               <br />
@@ -444,7 +440,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
                 {t('user:avatar.pan')}:
               </Typography>
               <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-                {t('admin:components.avatar.rightClick')} <MouseIcon fontSize="small" />
+                {t('admin:components.avatar.rightClick')} <Icon type="Mouse" fontSize="small" />
               </Typography>
 
               <br />
@@ -453,12 +449,12 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
                 {t('admin:components.avatar.zoom')}:
               </Typography>
               <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-                {t('admin:components.avatar.scroll')} <MouseIcon fontSize="small" />
+                {t('admin:components.avatar.scroll')} <Icon type="Mouse" fontSize="small" />
               </Typography>
             </Box>
           }
         >
-          <Help sx={{ position: 'absolute', top: 0, right: 0, margin: 1 }} />
+          <Icon type="Help" sx={{ position: 'absolute', top: 0, right: 0, margin: 1 }} />
         </Tooltip>
       </Box>
 
@@ -471,14 +467,14 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
               onChange={handleChangeFile}
             />
-            <Button className={styles.gradientButton} component="span" startIcon={<AccountCircleIcon />}>
+            <Button className={styles.gradientButton} component="span" startIcon={<Icon type="AccountCircle" />}>
               {t('admin:components.avatar.selectThumbnail')}
             </Button>
           </label>
 
           <Button
             className={styles.gradientButton}
-            startIcon={<PortraitIcon />}
+            startIcon={<Icon type="Portrait" />}
             sx={{ marginLeft: 1, width: '250px' }}
             title={t('admin:components.avatar.saveThumbnailTooltip')}
             disabled={!state.avatarFile || avatarLoading}
@@ -511,7 +507,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
           <Button
             className={styles.gradientButton}
-            startIcon={<PortraitIcon />}
+            startIcon={<Icon type="Portrait" />}
             sx={{ marginLeft: 1, width: '250px' }}
             title={t('admin:components.avatar.saveThumbnailTooltip')}
             disabled={viewMode || !state.avatarUrl || avatarLoading}

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-
-import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
-import HelpIcon from '@mui/icons-material/Help'
-import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
-import Tooltip from '@mui/material/Tooltip'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
@@ -233,13 +234,12 @@ const Client = () => {
                   title={t('admin:components.common.delete')}
                   className={styles.iconButton}
                   onClick={() => handleRemoveSocialLinks(index)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                  icon={<Icon type="Delete" />}
+                />
               </Box>
             ))}
           <Button variant="contained" onClick={handleAddSocialLinks}>
-            <AddIcon /> {t('admin:components.setting.addSocialLink')}
+            <Icon type="Add" /> {t('admin:components.setting.addSocialLink')}
           </Button>
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -258,7 +258,7 @@ const Client = () => {
               onChange={(e) => setShortTitle(e.target.value)}
             />
             <Tooltip title={t('admin:components.setting.shortTitleTooltip')} arrow>
-              <HelpIcon />
+              <Icon type="Help" />
             </Tooltip>
           </div>
 
@@ -270,7 +270,7 @@ const Client = () => {
               onChange={(e) => setStartPath(e.target.value)}
             />
             <Tooltip title={t('admin:components.setting.startPathTooltip')} arrow>
-              <HelpIcon />
+              <Icon type="Help" />
             </Tooltip>
           </div>
 

@@ -3,37 +3,37 @@ version: '2.3'
 services:
   db:
     image: mariadb:10.7
-    container_name: xrengine_db
+    container_name: etherealengine_db
     environment:
-      MYSQL_ROOT_PASSWORD: xrengine-root
-      MYSQL_DATABASE: xrengine
+      MYSQL_ROOT_PASSWORD: etherealengine-root
+      MYSQL_DATABASE: etherealengine
       MYSQL_USER: server
       MYSQL_PASSWORD: password
     ports:
       - '3306:3306'
   testdb:
     image: mariadb:10.7
-    container_name: xrengine_test_db
+    container_name: etherealengine_test_db
     environment:
-      MYSQL_ROOT_PASSWORD: xrengine-root
-      MYSQL_DATABASE: xrengine
+      MYSQL_ROOT_PASSWORD: etherealengine-root
+      MYSQL_DATABASE: etherealengine
       MYSQL_USER: server
       MYSQL_PASSWORD: password
     ports:
       - '3305:3306'
   minikubedb:
     image: mariadb:10.7
-    container_name: xrengine_minikube_db
+    container_name: etherealengine_minikube_db
     environment:
-      MYSQL_ROOT_PASSWORD: xrengine-root
-      MYSQL_DATABASE: xrengine
+      MYSQL_ROOT_PASSWORD: etherealengine-root
+      MYSQL_DATABASE: etherealengine
       MYSQL_USER: server
       MYSQL_PASSWORD: password
     ports:
       - '3304:3306'
   redis:
     image: redis
-    container_name: xrengine_redis
+    container_name: etherealengine_redis
     command: redis-server
     ports:
       - '6379:6379'
@@ -62,6 +62,7 @@ services:
     image: docker.elastic.co/kibana/kibana:7.4.0
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - telemetry.enabled=false
     ports:
       - 5601:5601
     depends_on:

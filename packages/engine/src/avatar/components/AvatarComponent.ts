@@ -1,12 +1,23 @@
 import { Object3D } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { matches } from '../../common/functions/MatchesUtils'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type AvatarComponentType = {
-  /** @todo move this to AvatarRigComponent */
-  model: Object3D | null
-  avatarHeight: number
-  avatarHalfHeight: number
-}
+export const AvatarComponent = defineComponent({
+  name: 'AvatarComponent',
 
-export const AvatarComponent = createMappedComponent<AvatarComponentType>('AvatarComponent')
+  onInit: (entity) => {
+    return {
+      model: null as Object3D | null,
+      avatarHeight: 0,
+      avatarHalfHeight: 0
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.model)) component.model.set(json.model as Object3D)
+    if (matches.number.test(json.avatarHeight)) component.avatarHeight.set(json.avatarHeight)
+    if (matches.number.test(json.avatarHalfHeight)) component.avatarHalfHeight.set(json.avatarHalfHeight)
+  }
+})

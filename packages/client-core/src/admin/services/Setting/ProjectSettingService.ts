@@ -1,5 +1,5 @@
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 
@@ -20,7 +20,7 @@ const AdminProjectSettingsState = defineState({
 const projectSettingFetchedReceptor = (
   action: typeof AdminProjectSettingsActions.projectSettingFetched.matches._TYPE
 ) => {
-  const state = getState(AdminProjectSettingsState)
+  const state = getMutableState(AdminProjectSettingsState)
   return state.merge({
     projectSetting: action.projectSettings
   })
@@ -29,9 +29,9 @@ const projectSettingFetchedReceptor = (
 export const ProjectSettingReceptors = {
   projectSettingFetchedReceptor
 }
-
-export const accessProjectSettingState = () => getState(AdminProjectSettingsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessProjectSettingState = () => getMutableState(AdminProjectSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useProjectSettingState = () => useState(accessProjectSettingState())
 
 export const ProjectSettingService = {

@@ -1,12 +1,16 @@
 import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { defineComponent, hasComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createState, getState, none, useHookstate } from '@xrengine/hyperflux/functions/StateFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
-import { EngineRendererState } from '../../renderer/EngineRendererState'
+import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -74,9 +78,7 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, PositionalAudioComponent)) throw root.stop()
-
-    const debugEnabled = useHookstate(getState(EngineRendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(root.entity, PositionalAudioComponent)
     const mediaElement = useComponent(root.entity, MediaElementComponent)
 

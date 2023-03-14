@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { TaskServerSetting } from '@xrengine/common/src/interfaces/TaskServerSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { TaskServerSetting } from '@etherealengine/common/src/interfaces/TaskServerSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -16,15 +16,16 @@ const AdminTaskServerSettingsState = defineState({
 })
 
 const fetchedTaskServersReceptor = (action: typeof AdminTaskServerSettingActions.fetchedTaskServers.matches._TYPE) => {
-  const state = getState(AdminTaskServerSettingsState)
+  const state = getMutableState(AdminTaskServerSettingsState)
   return state.merge({ taskservers: action.taskServerSettings.data, updateNeeded: false })
 }
 
 export const TaskServerSettingReceptors = {
   fetchedTaskServersReceptor
 }
-
-export const accessSettingTaskServerState = () => getState(AdminTaskServerSettingsState)
+/**@deprecated use getMutableState directly instead */
+export const accessSettingTaskServerState = () => getMutableState(AdminTaskServerSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useSettingTaskServerState = () => useState(accessSettingTaskServerState())
 
 export const AdminSettingTaskServerService = {

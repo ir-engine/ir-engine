@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { PatchServerSetting, ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { PatchServerSetting, ServerSetting } from '@etherealengine/common/src/interfaces/ServerSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -16,12 +16,12 @@ const AdminServerSettingsState = defineState({
 })
 
 const fetchedSeverInfoReceptor = (action: typeof AdminServerSettingActions.fetchedSeverInfo.matches._TYPE) => {
-  const state = getState(AdminServerSettingsState)
+  const state = getMutableState(AdminServerSettingsState)
   return state.merge({ server: action.serverSettings.data, updateNeeded: false })
 }
 
 const serverSettingPatchedReceptor = (action: typeof AdminServerSettingActions.serverSettingPatched.matches._TYPE) => {
-  const state = getState(AdminServerSettingsState)
+  const state = getMutableState(AdminServerSettingsState)
   return state.updateNeeded.set(true)
 }
 
@@ -29,9 +29,9 @@ export const ServerSettingReceptors = {
   fetchedSeverInfoReceptor,
   serverSettingPatchedReceptor
 }
-
-export const accessServerSettingState = () => getState(AdminServerSettingsState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessServerSettingState = () => getMutableState(AdminServerSettingsState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useServerSettingState = () => useState(accessServerSettingState())
 
 export const ServerSettingService = {

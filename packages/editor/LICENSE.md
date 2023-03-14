@@ -1,10 +1,10 @@
 ====================================================================
 ====================================================================
 
-Some portions of the XREngine codebase are derived from other projects.
-All original work by the XREngine team is subject to MIT license.
+Some portions of the Ethereal Engine codebase are derived from other projects.
+All original work by the Ethereal Engine team is subject to MIT license.
 
-The XREngine editor began as a Typescript conversion of Spoke,
+The Ethereal Engine editor began as a Typescript conversion of Spoke,
 created and maintained by Robert Long at Mozilla, and licensed under 
 the Mozilla Public License Version 2.0.
 https://github.com/mozilla/Spoke
@@ -17,7 +17,7 @@ project (https://github.com/mrdoob/three.js/), licensed under the MIT License.
 
 MIT License
 
-Copyright (c) 2020-2022 XREngine
+Copyright (c) 2020-2022 Ethereal Engine
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
