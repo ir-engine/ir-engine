@@ -18,12 +18,13 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -32,7 +33,8 @@ import { closeTransport } from './WebRTCFunctions'
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
-export const setupSubdomain = async (app: Application) => {
+export const setupSubdomain = async () => {
+  const app = getState(ServerState).app as Application
   let stringSubdomainNumber: string
 
   if (config.kubernetes.enabled) {
@@ -44,7 +46,7 @@ export const setupSubdomain = async (app: Application) => {
     // UDP, so the following was commented out.
     // const name = app.instanceServer.objectMeta.name
     // const isIdentifier = isNameRegex.exec(name)!
-    // stringSubdomainNumber = await getFreeSubdomain(transport, isIdentifier[1], 0)
+    // stringSubdomainNumber = await getFreeSubdomain(isIdentifier[1], 0)
     // app.isSubdomainNumber = stringSubdomainNumber
     //
     // const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
@@ -79,19 +81,17 @@ export const setupSubdomain = async (app: Application) => {
   ]
 }
 
-export async function getFreeSubdomain(
-  network: SocketWebRTCServerNetwork,
-  isIdentifier: string,
-  subdomainNumber: number
-): Promise<string> {
+export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: number): Promise<string> {
+  const app = getState(ServerState).app
+
   const stringSubdomainNumber = subdomainNumber.toString().padStart(config.instanceserver.identifierDigits, '0')
-  const subdomainResult = await network.app.service('instanceserver-subdomain-provision').find({
+  const subdomainResult = await app.service('instanceserver-subdomain-provision').find({
     query: {
       is_number: stringSubdomainNumber
     }
   })
   if ((subdomainResult as any).total === 0) {
-    await network.app.service('instanceserver-subdomain-provision').create({
+    await app.service('instanceserver-subdomain-provision').create({
       allocated: true,
       is_number: stringSubdomainNumber,
       is_id: isIdentifier
@@ -103,19 +103,19 @@ export async function getFreeSubdomain(
       }, 500)
     )
 
-    const newSubdomainResult = (await network.app.service('instanceserver-subdomain-provision').find({
+    const newSubdomainResult = (await app.service('instanceserver-subdomain-provision').find({
       query: {
         is_number: stringSubdomainNumber
       }
     })) as any
     if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
-    else return getFreeSubdomain(network, isIdentifier, subdomainNumber + 1)
+    else return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
   } else {
     const subdomain = (subdomainResult as any).data[0]
     if (subdomain.allocated === true || subdomain.allocated === 1) {
-      return getFreeSubdomain(network, isIdentifier, subdomainNumber + 1)
+      return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
     }
-    await network.app.service('instanceserver-subdomain-provision').patch(subdomain.id, {
+    await app.service('instanceserver-subdomain-provision').patch(subdomain.id, {
       allocated: true,
       is_id: isIdentifier
     })
@@ -126,13 +126,13 @@ export async function getFreeSubdomain(
       }, 500)
     )
 
-    const newSubdomainResult = (await network.app.service('instanceserver-subdomain-provision').find({
+    const newSubdomainResult = (await app.service('instanceserver-subdomain-provision').find({
       query: {
         is_number: stringSubdomainNumber
       }
     })) as any
     if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
-    else return getFreeSubdomain(network, isIdentifier, subdomainNumber + 1)
+    else return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
   }
 }
 
@@ -268,9 +268,11 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
   const spectating = network.peers.get(peerID)!.spectating
 
-  network.app.service('message').create(
+  const app = getState(ServerState).app
+
+  app.service('message').create(
     {
-      targetObjectId: network.app.instance.id,
+      targetObjectId: app.instance.id,
       targetObjectType: 'instance',
       text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
       isNotification: true
@@ -312,7 +314,9 @@ export async function handleJoinWorld(
     id: messageId
   })
 
-  if (data.inviteCode && !network.app.isChannelInstance) await getUserSpawnFromInvite(network, user, data.inviteCode!)
+  const app = getState(ServerState).app
+
+  if (data.inviteCode && !app.isChannelInstance) await getUserSpawnFromInvite(network, user, data.inviteCode!)
 }
 
 const getUserSpawnFromInvite = async (
@@ -322,7 +326,8 @@ const getUserSpawnFromInvite = async (
   iteration = 0
 ) => {
   if (inviteCode) {
-    const result = (await network.app.service('user').find({
+    const app = getState(ServerState).app
+    const result = (await app.service('user').find({
       query: {
         action: 'invite-code-lookup',
         inviteCode: inviteCode
@@ -408,9 +413,10 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
     const state = getMutableState(WorldState)
     const userName = state.userNames[userId].value
 
-    network.app.service('message').create(
+    const app = getState(ServerState).app
+    app.service('message').create(
       {
-        targetObjectId: network.app.instance.id,
+        targetObjectId: app.instance.id,
         targetObjectType: 'instance',
         text: `${userName} left`,
         isNotification: true

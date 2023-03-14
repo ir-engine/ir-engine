@@ -76,8 +76,7 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     mediasoupTransports: [] as WebRTCTransportExtension[],
     transportsConnectPending: [] as Promise<void>[],
     producers: [] as ProducerExtension[],
-    consumers: [] as ConsumerExtension[],
-    app
+    consumers: [] as ConsumerExtension[]
   }
 
   return network

@@ -18,9 +18,11 @@ import { Spark } from 'primus'
 import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import { getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -395,14 +397,15 @@ export async function handleWebRtcTransportCreate(
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
     if (config.kubernetes.enabled) {
-      const serverResult = await network.app.k8AgonesClient.listNamespacedCustomObject(
+      const app = getState(ServerState).app
+      const serverResult = await app.k8AgonesClient.listNamespacedCustomObject(
         'agones.dev',
         'v1',
         'default',
         'gameservers'
       )
       const thisGs = (serverResult?.body! as any).items.find(
-        (server) => server.metadata.name === network.app.instanceServer.objectMeta.name
+        (server) => server.metadata.name === app.instanceServer.objectMeta.name
       )
 
       for (let [index, candidate] of iceCandidates.entries()) {

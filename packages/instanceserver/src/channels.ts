@@ -230,7 +230,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.userId = hostId
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
-  await setupSubdomain(app)
+  await setupSubdomain()
   const networkPromise = initializeNetwork(app, hostId, topic)
   const projects = await getProjectsList()
 
