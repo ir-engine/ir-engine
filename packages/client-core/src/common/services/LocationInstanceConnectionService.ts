@@ -50,13 +50,9 @@ export const LocationInstanceState = defineState({
 })
 
 export function useWorldInstance() {
-  const [state, setState] = React.useState(null as null | State<InstanceState>)
   const worldInstanceState = useState(getMutableState(LocationInstanceState).instances)
   const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
-  useEffect(() => {
-    setState(worldHostId.value ? worldInstanceState[worldHostId.value] : null)
-  }, [worldInstanceState, worldHostId])
-  return state
+  return worldHostId.value ? worldInstanceState[worldHostId.value] : null
 }
 
 export const LocationInstanceConnectionServiceReceptor = (action) => {
@@ -102,9 +98,9 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       s.instances[action.currentInstanceId].set(none)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessLocationInstanceConnectionState = () => getMutableState(LocationInstanceState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLocationInstanceConnectionState = () => useState(accessLocationInstanceConnectionState())
 
 //Service

@@ -37,7 +37,3 @@ export class Scene {
 export function createScene() {
   return Scene[CreateScene]()
 }
-
-export function destroyScene(scene: Scene) {
-  unloadAllSystems(true)
-}

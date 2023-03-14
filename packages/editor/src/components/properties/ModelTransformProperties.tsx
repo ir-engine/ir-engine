@@ -9,7 +9,7 @@ import { ModelTransformParameters } from '@etherealengine/engine/src/assets/clas
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentType,
-  getComponentState,
+  getMutableComponent,
   hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
@@ -246,7 +246,7 @@ export default function ModelTransformProperties({
       .map((entity: Entity) => entity)
     for (const entity of selectedModelEntities) {
       console.log('at entity ' + entity)
-      const modelComponent = getComponentState(entity, ModelComponent)
+      const modelComponent = getMutableComponent(entity, ModelComponent)
       console.log('processing model from src ' + modelComponent.src.value)
       //bake lightmaps to vertices
       console.log('baking vertices...')

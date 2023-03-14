@@ -4,12 +4,7 @@ import { Color, DirectionalLight, IcosahedronGeometry, Mesh, MeshBasicMaterial, 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import {
-  createMappedComponent,
-  defineComponent,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -74,8 +69,6 @@ export const DirectionalLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, DirectionalLightComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, DirectionalLightComponent)
 

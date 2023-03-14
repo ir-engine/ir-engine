@@ -50,9 +50,9 @@ export const ClientSettingsServiceReceptor = (action) => {
 //   fetchedClientReceptor,
 //   clientSettingPatchedReceptor
 // }
-
+/**@deprecated use getMutableState directly instead */
 export const accessClientSettingState = () => getMutableState(AdminClientSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useClientSettingState = () => useState(accessClientSettingState())
 
 export const ClientSettingService = {

@@ -86,7 +86,7 @@ export const ObjectFitFunctions = {
     transform.matrix.multiplyMatrices(Engine.instance.camera.matrixWorld, _mat4)
     transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
     transform.matrixInverse.copy(transform.matrix).invert()
-    Engine.instance.dirtyTransforms[entity] = false
+    TransformComponent.dirtyTransforms[entity] = false
   },
 
   attachObjectToHand: (container: WebContainer3D, scale: number) => {

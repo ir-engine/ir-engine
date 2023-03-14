@@ -1,6 +1,6 @@
-## Contrib Rules
+## Contribution Rules
 
-When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
+When contributing to this repository, please first discuss the change you wish to make via issue or on our discord at https://discord.gg/xrf.
 
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
@@ -30,8 +30,7 @@ Increase the version numbers in any examples files and the README.md to the new 
 
 ## Summary
 
-* Some retargeting system clean-up
-* Removed redundant math functions
+* Dot point description of what this PR changes
 
 ## Checklist
 - [ ] CI/CD checks pass `npm run check`
@@ -46,14 +45,11 @@ Increase the version numbers in any examples files and the README.md to the new 
 
 ## References
 
-References to pertaining issue(s)
+References to relevant issue(s)
+
+closes #_insert number here_
 
 ## QA Steps
-
-1. git checkout pr_branch_name
-2. npm install
-3. npm run dev-reinit
-4. npm run dev
 
 List any additional steps required to QA the changes of this PR, as well as any supplemental images or videos.
 

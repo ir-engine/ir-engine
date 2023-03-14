@@ -29,9 +29,9 @@ export const EmailSettingReceptors = {
   fetchedEmailReceptor,
   emailSettingPatchedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessEmailSettingState = () => getMutableState(AdminEmailSettingsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEmailSettingState = () => useState(accessEmailSettingState())
 
 export const EmailSettingService = {

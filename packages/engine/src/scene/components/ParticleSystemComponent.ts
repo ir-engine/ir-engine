@@ -635,7 +635,6 @@ export const ParticleSystemComponent = defineComponent({
   }),
   reactor: function ({ root }: EntityReactorProps) {
     const entity = root.entity
-    if (!hasComponent(entity, ParticleSystemComponent)) throw root.stop()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const component = componentState.value
     const batchRenderer = getBatchRenderer()!

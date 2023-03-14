@@ -20,6 +20,7 @@ import {
   getComponent,
   hasComponent,
   removeQuery,
+  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
@@ -115,27 +116,13 @@ export default async function PositionalAudioSystem() {
     [PositionalAudioComponent, TransformComponent],
     function PositionalAudioPannerReactor(props) {
       const entity = props.root.entity
-
-      const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-      const panner = useHookstate(null as ReturnType<typeof addPannerNode> | null)
-
+      const mediaElement = useComponent(entity, MediaElementComponent)
+      const positionalAudio = useComponent(entity, PositionalAudioComponent)
       useEffect(() => {
-        if (mediaElement?.value && !panner.value) {
-          const el = getComponent(entity, MediaElementComponent).element
-          const audioGroup = AudioNodeGroups.get(el)
-          if (audioGroup) panner.set(addPannerNode(audioGroup, getComponent(entity, PositionalAudioComponent)))
-        } else if (panner.value) {
-          const el = getComponent(entity, MediaElementComponent).element
-          const audioGroup = AudioNodeGroups.get(el)
-          if (audioGroup) {
-            removePannerNode(audioGroup)
-            panner.set(null)
-          }
-        }
-      }, [mediaElement])
-
-      if (!hasComponent(entity, PositionalAudioComponent)) throw props.root.stop()
-
+        const audioGroup = AudioNodeGroups.get(mediaElement.element.value)! // is it safe to assume this?
+        addPannerNode(audioGroup, positionalAudio.value)
+        return () => removePannerNode(audioGroup)
+      }, [mediaElement, positionalAudio])
       return null
     }
   )
@@ -286,7 +273,7 @@ export default async function PositionalAudioSystem() {
     removeQuery(positionalAudioQuery)
     removeQuery(networkedAvatarAudioQuery)
     removeActionQueue(setMediaStreamVolumeActionQueue)
-    positionalAudioPannerReactor.stop()
+    await positionalAudioPannerReactor.stop()
   }
 
   return { execute, cleanup }

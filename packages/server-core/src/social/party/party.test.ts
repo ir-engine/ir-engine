@@ -4,6 +4,7 @@ import path from 'path'
 
 import { Party } from '@etherealengine/common/src/interfaces/Party'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -88,6 +89,10 @@ describe('party.test', () => {
       type: 'admin:admin',
       userId: user4.id
     })
+  })
+
+  after(() => {
+    return destroyEngine()
   })
 
   describe('party', () => {

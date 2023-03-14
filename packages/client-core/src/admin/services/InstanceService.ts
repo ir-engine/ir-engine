@@ -49,9 +49,9 @@ export const AdminInstanceReceptors = {
   instancesRetrievedReceptor,
   instanceRemovedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminInstanceState = () => getMutableState(AdminInstanceState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminInstanceState = () => useState(accessAdminInstanceState())
 
 //Service

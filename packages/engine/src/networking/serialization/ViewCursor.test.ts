@@ -1,8 +1,12 @@
 import assert, { strictEqual } from 'assert'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { getMutableState } from '@etherealengine/hyperflux'
 
+import { destroyEngine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
   createViewCursor,
@@ -26,6 +30,16 @@ import {
 } from './ViewCursor'
 
 describe('ViewCursor read/write', () => {
+  beforeEach(() => {
+    createEngine()
+    const engineState = getMutableState(EngineState)
+    engineState.fixedTick.set(1)
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   describe('ViewCursor', () => {
     it('should createViewCursor', () => {
       const view = createViewCursor()

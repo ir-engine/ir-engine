@@ -5,7 +5,7 @@ import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/co
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'

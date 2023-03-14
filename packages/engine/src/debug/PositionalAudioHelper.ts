@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, MathUtils } from 'three'
+import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute, Line, LineBasicMaterial, MathUtils } from 'three'
 
 import { AudioNodeGroup } from '../scene/components/MediaComponent'
 
@@ -49,7 +49,7 @@ class PositionalAudioHelper extends Line {
     let stride
 
     const geometry = this.geometry
-    const positionAttribute = geometry.attributes.position
+    const positionAttribute = geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute
 
     geometry.clearGroups()
 

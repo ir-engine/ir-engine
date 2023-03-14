@@ -53,9 +53,9 @@ export const AdminServerInfoReceptors = {
   fetchServerInfoRetrievedReceptor,
   serverInfoPodRemovedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessServerInfoState = () => getMutableState(AdminServerInfoState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useServerInfoState = () => useState(accessServerInfoState())
 
 //Service

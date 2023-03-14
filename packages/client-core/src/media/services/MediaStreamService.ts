@@ -50,8 +50,9 @@ export const MediaServiceReceptor = (action) => {
       return s.consumers.set(action.consumers)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessMediaStreamState = () => getMutableState(MediaState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMediaStreamState = () => useState(accessMediaStreamState())
 
 let updateConsumerTimeout

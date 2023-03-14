@@ -10,13 +10,12 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { EditorCameraComponent } from '../classes/EditorCameraComponent'
+import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
 
@@ -56,21 +55,21 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   camera.lookAt(new Vector3())
   transform.position.copy(camera.position)
   transform.rotation.copy(camera.quaternion)
-  Engine.instance.dirtyTransforms[Engine.instance.cameraEntity] = true
+  TransformComponent.dirtyTransforms[Engine.instance.cameraEntity] = true
 
   Engine.instance.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
   Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
 
-  removeComponent(Engine.instance.cameraEntity, EditorCameraComponent)
-  addComponent(Engine.instance.cameraEntity, EditorCameraComponent, {
+  getMutableState(EditorCameraState).set({
     center: new Vector3(),
     zoomDelta: 0,
-    isOrbiting: false,
+    focusedObjects: [],
     isPanning: false,
     cursorDeltaX: 0,
     cursorDeltaY: 0,
-    focusedObjects: []
+    isOrbiting: false,
+    refocus: false
   })
 
   // Require when changing scene

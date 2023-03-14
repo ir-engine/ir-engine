@@ -29,9 +29,9 @@ export const SceneServiceReceptor = (action) => {
       })
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessSceneState = () => getMutableState(SceneState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useSceneState = () => useState(accessSceneState())
 
 export const SceneService = {

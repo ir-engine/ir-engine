@@ -38,9 +38,9 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
     sources: {}
   } as MaterialLibraryType
 })
-
+/**@deprecated use getMutableState directly instead */
 export const getMaterialLibrary = () => getMutableState(MaterialLibraryState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMaterialLibrary = () => useState(getMaterialLibrary())
 
 export const MaterialLibraryActions = {

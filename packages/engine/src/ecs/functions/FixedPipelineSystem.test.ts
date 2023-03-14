@@ -1,9 +1,10 @@
 import assert from 'assert'
+import { afterEach } from 'mocha'
 
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
-import { Engine } from '../classes/Engine'
+import { destroyEngine, Engine } from '../classes/Engine'
 import { executeSystems, initSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
@@ -26,8 +27,13 @@ const MocksystemLoader = async () => {
 }
 
 describe('FixedPipelineSystem', () => {
-  it.skip('can run multiple fixed ticks to catch up to elapsed time', async () => {
+  beforeEach(() => {
     createEngine()
+  })
+  afterEach(() => {
+    return destroyEngine()
+  })
+  it.skip('can run multiple fixed ticks to catch up to elapsed time', async () => {
     setupEngineActionSystems()
 
     const injectedSystems = [
@@ -56,7 +62,6 @@ describe('FixedPipelineSystem', () => {
   })
 
   it('can skip fixed ticks to catch up to elapsed time', async () => {
-    createEngine()
     setupEngineActionSystems()
 
     const injectedSystems = [

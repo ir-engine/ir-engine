@@ -1,3 +1,3 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const LocalAvatarTagComponent = createMappedComponent<true>('LocalAvatarTagComponent')
+export const LocalAvatarTagComponent = defineComponent({ name: 'LocalAvatarTagComponent' })

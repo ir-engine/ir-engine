@@ -10,7 +10,7 @@ import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -19,7 +19,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getCameraMode, hasMovementControls, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent, AvatarControllerComponentType } from '../components/AvatarControllerComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
@@ -227,7 +227,7 @@ export const applyGamepadInput = (entity: Entity) => {
   updateLocalAvatarPosition(_additionalMovement)
 }
 
-const applyVerticalVelocity = (controller: AvatarControllerComponentType, avatarMovementSettings) => {
+const applyVerticalVelocity = (controller: ComponentType<typeof AvatarControllerComponent>, avatarMovementSettings) => {
   if (!controller.isInAir) {
     controller.verticalVelocity = 0
     if (controller.gamepadJumpActive) {

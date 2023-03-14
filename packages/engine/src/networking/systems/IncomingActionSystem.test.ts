@@ -10,7 +10,7 @@ import {
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
@@ -24,6 +24,10 @@ describe('IncomingActionSystem Unit Tests', async () => {
       return Engine.instance.fixedTick
     }
     createMockNetwork()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   describe('applyIncomingActions', () => {

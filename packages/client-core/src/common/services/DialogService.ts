@@ -21,9 +21,9 @@ export const DialogServiceReceptor = (action) => {
       return s.merge({ isOpened: false, content: DialogSeed })
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const dialogState = () => getMutableState(DialogState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useDialogState = () => useState(dialogState())
 
 //Action

@@ -3,7 +3,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, getComponentState, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, getMutableComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ModelComponent } from '../../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
 

@@ -412,7 +412,7 @@ export default async function AvatarAnimationSystem() {
     removeQuery(headIKQuery)
     removeQuery(armsTwistCorrectionQuery)
     removeQuery(avatarAnimationQuery)
-    reactor.stop()
+    await reactor.stop()
   }
 
   return { execute, cleanup }

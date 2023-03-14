@@ -98,9 +98,9 @@ export const AdminResourceReceptors = {
   resourceNeedsUpdateReceptor,
   resourcesResetFilterReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminResourceState = () => getMutableState(AdminResourceState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminResourceState = () => useState(accessAdminResourceState())
 
 export const ResourceService = {

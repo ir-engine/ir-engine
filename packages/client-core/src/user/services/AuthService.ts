@@ -51,8 +51,9 @@ export const AuthState = defineState({
     syncStateWithLocalStorage(AuthState, ['authUser'])
   }
 })
-
+/**@deprecated use getMutableState directly instead */
 export const accessAuthState = () => getMutableState(AuthState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAuthState = () => useState(accessAuthState())
 
 export interface EmailLoginForm {

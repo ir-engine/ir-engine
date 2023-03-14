@@ -10,7 +10,7 @@ import {
   addComponent,
   ComponentType,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -105,6 +105,7 @@ const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destr
 const receiveRequestAuthorityOverObject = (
   action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
 ) => {
+  console.log('receiveRequestAuthorityOverObject', action, Engine.instance.userId)
   // Authority request can only be processed by owner
   if (Engine.instance.userId !== action.ownerId) return
 
@@ -131,6 +132,7 @@ const receiveRequestAuthorityOverObject = (
 const receiveTransferAuthorityOfObject = (
   action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE
 ) => {
+  console.log('receiveTransferAuthorityOfObject', action)
   // Authority request can only be processed by owner
   if (action.$from !== action.ownerId) return
 
@@ -141,7 +143,7 @@ const receiveTransferAuthorityOfObject = (
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
     )
 
-  getComponentState(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
+  getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 
   if (Engine.instance.worldNetwork.peerID === action.newAuthority) {
     if (hasComponent(entity, NetworkObjectAuthorityTag))

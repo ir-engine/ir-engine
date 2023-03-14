@@ -58,9 +58,9 @@ export const AdminServerLogsReceptors = {
   fetchServerLogsRequestedReceptor,
   fetchServerLogsRetrievedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessServerLogsState = () => getMutableState(AdminServerLogsState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useServerLogsState = () => useState(accessServerLogsState())
 
 //Service

@@ -16,7 +16,6 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -256,6 +255,8 @@ export default async function PhysicsSystem() {
 
     removeQuery(allRigidBodyQuery)
     removeQuery(collisionQuery)
+    removeQuery(kinematicPositionBodyQuery)
+    removeQuery(kinematicVelocityBodyQuery)
 
     removeActionQueue(teleportObjectQueue)
     removeActionQueue(modifyPropertyActionQueue)

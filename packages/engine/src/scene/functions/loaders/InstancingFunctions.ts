@@ -1,5 +1,6 @@
 import { max, min } from 'lodash'
 import {
+  BufferAttribute,
   BufferGeometry,
   Color,
   ColorRepresentation,
@@ -7,6 +8,7 @@ import {
   InstancedBufferAttribute,
   InstancedBufferGeometry,
   InstancedMesh,
+  InterleavedBufferAttribute,
   Material,
   Matrix4,
   Mesh,
@@ -40,7 +42,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -341,7 +343,7 @@ export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
 
   if (scatterProps.state === ScatterState.STAGED) {
     const executeStaging = () => {
-      addComponent(entity, InstancingStagingComponent, {})
+      addComponent(entity, InstancingStagingComponent)
     }
     if (!getEngineState().sceneLoaded.value) matchActionOnce(EngineActions.sceneLoaded.matches, executeStaging)
     else executeStaging()
@@ -363,16 +365,16 @@ async function loadGrassTextures(props: State<GrassProperties>) {
 
 export async function stageInstancing(entity: Entity) {
   const scatter = getComponent(entity, InstancingComponent)
-  const scatterState = getComponentState(entity, InstancingComponent)
+  const scatterState = getMutableComponent(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
     console.error('scatter component is already staging')
     return
   }
   scatterState.state.set(ScatterState.STAGING)
   const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface))!.geometry
-  const normals = targetGeo.getAttribute('normal')
-  const positions = targetGeo.getAttribute('position')
-  const uvs = targetGeo.getAttribute('uv')
+  const normals = targetGeo.getAttribute('normal') as BufferAttribute | InterleavedBufferAttribute
+  const positions = targetGeo.getAttribute('position') as BufferAttribute | InterleavedBufferAttribute
+  const uvs = targetGeo.getAttribute('uv') as BufferAttribute | InterleavedBufferAttribute
   const uvBounds: any = { minU: null, maxU: null, minV: null, maxV: null }
   for (let i = 0; i < uvs.count; i += 1) {
     const u = uvs.getX(i)
@@ -535,16 +537,18 @@ export async function stageInstancing(entity: Entity) {
 
     let quaternion2 = new Quaternion()
 
+    const positionAttr = grassGeometry.attributes.position as BufferAttribute | InterleavedBufferAttribute
+
     //Bend grass base geometry for more organic look
-    for (let v = 0; v < grassGeometry.attributes.position.array.length / 3; v += 1) {
+    for (let v = 0; v < positionAttr.array.length / 3; v += 1) {
       quaternion2.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
-      vertex.x = grassGeometry.attributes.position.array[v * 3]
-      vertex.y = grassGeometry.attributes.position.array[v * 3 + 1]
-      vertex.z = grassGeometry.attributes.position.array[v * 3 + 2]
+      vertex.x = positionAttr.array[v * 3]
+      vertex.y = positionAttr.array[v * 3 + 1]
+      vertex.z = positionAttr.array[v * 3 + 2]
       let frac = vertex.y / (grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma)
       quaternion2.slerp(quaternion0, frac)
       vertex.applyQuaternion(quaternion2)
-      grassGeometry.attributes.position.setXYZ(v, vertex.x, vertex.y, vertex.z)
+      positionAttr.setXYZ(v, vertex.x, vertex.y, vertex.z)
     }
 
     grassGeometry.computeVertexNormals()

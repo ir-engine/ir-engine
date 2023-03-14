@@ -7,7 +7,7 @@ import {
   addComponent,
   Component,
   ComponentErrorsType,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -21,14 +21,14 @@ export const addError = <C extends Component>(
 ) => {
   console.error('[addError]:', entity, Component.name, error, message)
   if (!hasComponent(entity, ErrorComponent)) addComponent(entity, ErrorComponent)
-  const errors = getComponentState(entity, ErrorComponent)
+  const errors = getMutableComponent(entity, ErrorComponent)
   if (!errors[Component.name].value) errors[Component.name].set({})
   errors[Component.name][error].set(message ?? '')
 }
 
 export const removeError = <C extends Component>(entity: Entity, Component: C, error: ComponentErrorsType<C>) => {
   if (!hasComponent(entity, ErrorComponent)) return
-  const errors = getComponentState(entity, ErrorComponent)
+  const errors = getMutableComponent(entity, ErrorComponent)
   const componentErrors = errors[Component.name]
   if (componentErrors.value) componentErrors[error].set(none)
   if (isEmpty(componentErrors.value)) errors[Component.name].set(none)
@@ -37,6 +37,6 @@ export const removeError = <C extends Component>(entity: Entity, Component: C, e
 
 export const clearErrors = (entity: Entity, Component: Component) => {
   if (!hasComponent(entity, ErrorComponent)) return
-  const errors = getComponentState(entity, ErrorComponent)
+  const errors = getMutableComponent(entity, ErrorComponent)
   errors[Component.name].set(none)
 }

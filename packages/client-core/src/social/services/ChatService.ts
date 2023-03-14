@@ -231,9 +231,9 @@ export const ChatServiceReceptor = (action) => {
       return s
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessChatState = () => getMutableState(ChatState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useChatState = () => useState(accessChatState())
 
 globalThis.chatState = ChatState

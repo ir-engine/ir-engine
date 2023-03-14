@@ -3,7 +3,7 @@ import sinon from 'sinon'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -18,6 +18,10 @@ describe('PhysicsSystem', () => {
     createEngine()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   // @todo this is old code, needs to be updated to new physics implementation
