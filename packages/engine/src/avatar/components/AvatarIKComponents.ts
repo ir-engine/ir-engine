@@ -26,9 +26,8 @@ export const AvatarHeadDecapComponent = defineComponent({
 
     useEffect(() => {
       if (rig?.value) {
-        if (headDecap?.value) {
-          rig.value.rig.Head?.scale.setScalar(EPSILON)
-        } else {
+        if (headDecap?.value) rig.value.rig.Head?.scale.setScalar(EPSILON)
+        return () => {
           rig.value.rig.Head?.scale.setScalar(1)
         }
       }

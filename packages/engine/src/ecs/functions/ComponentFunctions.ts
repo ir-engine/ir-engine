@@ -97,6 +97,8 @@ export const defineComponent = <
   Component.toJSON = (entity, component) => null!
   Component.errors = []
   Object.assign(Component, def)
+  if (Component.reactor && (!Component.reactor.name || Component.reactor.name === 'reactor'))
+    Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor` })
   Component.reactorMap = new Map()
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
@@ -197,9 +199,7 @@ export const setComponent = <C extends Component>(
       })
     } else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
-    if (Component.reactor) {
-      if (!Component.reactor.name || Component.reactor.name === 'reactor')
-        Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor-${entity}` })
+    if (Component.reactor && !Component.reactorMap.has(entity)) {
       const root = startReactor(Component.reactor) as EntityReactorRoot
       root.entity = entity
       Component.reactorMap.set(entity, root)
@@ -269,7 +269,7 @@ export const addComponent = <C extends Component>(
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
-  return bitECS.hasComponent(Engine.instance, component, entity)
+  return component.existenceMap[entity]?.value ?? false
 }
 
 export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
@@ -277,10 +277,10 @@ export const getOrAddComponent = <C extends Component>(entity: Entity, component
 }
 
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
-  if (!bitECS.entityExists(Engine.instance, entity) || !bitECS.hasComponent(Engine.instance, component, entity)) return
+  if (!hasComponent(entity, component)) return
+  component.existenceMap[entity].set(false)
   component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(Engine.instance, component, entity, false)
-  component.existenceMap[entity].set(false)
   component.stateMap[entity]?.set(none)
   delete component.valueMap[entity]
   const root = component.reactorMap.get(entity)
