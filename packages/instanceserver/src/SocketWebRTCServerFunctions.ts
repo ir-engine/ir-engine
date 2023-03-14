@@ -61,11 +61,11 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     },
 
     bufferToAll: (data: any) => {
-      outgoingDataProducer.send(Buffer.from(new Uint8Array(data)))
+      network.outgoingDataProducer.send(Buffer.from(new Uint8Array(data)))
     }
   }
 
-  return {
+  const network = {
     ...createNetwork(hostId, topic),
     workers,
     routers,
@@ -78,6 +78,8 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     consumers: [] as ConsumerExtension[],
     app
   }
+
+  return network
 }
 
 export type SocketWebRTCServerNetwork = Awaited<ReturnType<typeof initializeNetwork>>

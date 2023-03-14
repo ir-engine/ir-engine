@@ -179,7 +179,7 @@ export const initializeNetwork = (hostId: UserId, topic: Topic) => {
     },
 
     bufferToPeer: (peerID: PeerID, data: any) => {
-      /** noop */
+      transport.bufferToAll(data)
     },
 
     bufferToAll: (data: any) => {
