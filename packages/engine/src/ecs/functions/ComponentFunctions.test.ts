@@ -192,9 +192,15 @@ describe('ComponentFunctions', async () => {
       assert.ok(hasComponent(entity, TestComponent))
     })
 
-    it('should return false for null entity argument', () => {
-      assert(!hasComponent(null!, null!))
-      assert(!hasComponent(undefined!, undefined!))
+    it('should return false for nullish entity argument', () => {
+      const TestComponent = defineComponent({ name: 'TestComponent' })
+      assert(!hasComponent(null!, TestComponent))
+      assert(!hasComponent(undefined!, TestComponent))
+    })
+
+    it('should throw nullish component argument', () => {
+      assert.throws(() => hasComponent(null!, null!))
+      assert.throws(() => hasComponent(undefined!, undefined!))
     })
   })
 
@@ -249,11 +255,6 @@ describe('ComponentFunctions', async () => {
       removeComponent(entity, TestComponent)
 
       assert.ok(!hasComponent(entity, TestComponent))
-    })
-
-    it('should return undefined on null entity argument', () => {
-      assert.equal(removeComponent(null!, null!), undefined)
-      assert.equal(removeComponent(undefined!, undefined!), undefined)
     })
   })
 
