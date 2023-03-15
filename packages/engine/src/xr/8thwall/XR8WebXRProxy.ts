@@ -44,7 +44,7 @@ export class XRHitTestResultProxy {
   getPose(baseSpace: XRSpace) {
     const _pos = new Vector3()
     const _rot = new Quaternion()
-    _mat4.decompose(_pos, _rot, _scale)
+    this._mat4.decompose(_pos, _rot, _scale)
     return (Engine.instance.xrFrame! as any as XRFrameProxy).getPose(baseSpace, new XRSpace(_pos, _rot))
   }
 
@@ -172,7 +172,10 @@ const _scale = new Vector3()
 export class XRFrameProxy {
   getHitTestResults(source: XRHitTestSource) {
     const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position as Vector3, rotation as Quaternion))
+    return hits.map(
+      ({ position, rotation }) =>
+        new XRHitTestResultProxy(position as Vector3, new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w))
+    )
   }
 
   get session() {
