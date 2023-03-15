@@ -9,7 +9,6 @@ import { defineConfig, loadEnv, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import PkgConfig from 'vite-plugin-package-config'
-import wasm from 'vite-plugin-wasm'
 
 import { getClientSetting } from './scripts/getClientSettings'
 
