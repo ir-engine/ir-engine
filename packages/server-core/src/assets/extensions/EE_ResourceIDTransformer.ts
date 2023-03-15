@@ -67,7 +67,14 @@ export class EEResourceIDExtension extends Extension {
 
   public write(writerContext: WriterContext): this {
     const jsonDoc = writerContext.jsonDoc
-
+    this.document
+      .getRoot()
+      .listTextures()
+      .map((texture, index) => {
+        const eeResourceID = texture.getExtension(EXTENSION_NAME) as EEResourceID
+        if (!eeResourceID) return
+        const textureDef = jsonDoc.json.textures![index]
+      })
     return this
   }
 }

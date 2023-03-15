@@ -95,7 +95,6 @@ function ModelReactor({ root }: EntityReactorProps) {
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
       DependencyTree.add(uuid)
-      let scene: Scene
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
         case 'glb':
@@ -109,14 +108,13 @@ function ModelReactor({ root }: EntityReactorProps) {
               uuid
             },
             (loadedAsset) => {
-              scene = loadedAsset.scene
-              scene.animations = loadedAsset.animations
+              loadedAsset.scene.animations = loadedAsset.animations
               if (!entityExists(entity)) return
               removeError(entity, ModelComponent, 'LOADING_ERROR')
-              scene.userData.src = model.src
-              if (scene.userData.type === 'glb') delete scene.userData.type
+              loadedAsset.scene.userData.src = model.src
+              loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               model.scene && removeObjectFromGroup(entity, model.scene)
-              modelComponent.scene.set(scene)
+              modelComponent.scene.set(loadedAsset.scene)
             }
           )
           break

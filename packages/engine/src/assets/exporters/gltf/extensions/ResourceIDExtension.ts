@@ -14,15 +14,6 @@ export default class ResourceIDExtension extends ExporterExtension implements GL
     this.name = 'EE_resourceId'
   }
 
-  /*writeImage(image: HTMLImageElement, imageDef: { [key: string]: any }) {
-    const result: ResourceIDExtensionType = {
-      resourceId: image.id as ResourceID
-    }
-    imageDef.extensions = imageDef.extensions ?? {}
-    imageDef.extensions[this.name] = result
-    this.writer.extensionsUsed[this.name] = true
-  }*/
-
   writeTexture(map: Texture, textureDef: { [key: string]: any }) {
     const result: ResourceIDExtensionType = {
       resourceId: map.image.id as ResourceID
