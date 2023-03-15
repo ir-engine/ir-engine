@@ -1,14 +1,14 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 import React, { useEffect } from 'react'
 
-import { API } from '@xrengine/client-core/src/API'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initSystems, unloadSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { MotionCaptureModule } from '@xrengine/engine/src/mocap/MotionCaptureModule'
-import { RealtimeNetworkingModule } from '@xrengine/engine/src/networking/RealtimeNetworkingModule'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { API } from '@etherealengine/client-core/src/API'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { initSystems, unloadSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
+import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import Mediapipe from './index'
 
@@ -29,15 +29,12 @@ export default {
       useEffect(() => {
         const systems = [...MotionCaptureModule(), ...RealtimeNetworkingModule(false, true)]
 
-        initSystems(Engine.instance?.currentWorld, systems).then(() => {
+        initSystems(systems).then(() => {
           dispatchAction(EngineActions.initializeEngine({ initialised: true }))
         })
 
         return () => {
-          unloadSystems(
-            Engine.instance?.currentWorld,
-            systems.map((s) => s.uuid)
-          )
+          unloadSystems(systems.map((s) => s.uuid))
         }
       }, [projects])
       return <Story />

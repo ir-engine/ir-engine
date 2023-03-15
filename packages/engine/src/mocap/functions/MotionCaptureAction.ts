@@ -1,5 +1,5 @@
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { defineAction } from '@xrengine/hyperflux'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { defineAction } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 

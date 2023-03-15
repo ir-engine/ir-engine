@@ -1,7 +1,7 @@
 import { NormalizedLandmark } from '@mediapipe/pose'
 
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -14,18 +14,12 @@ export const MotionCaptureState = defineState({
   })
 })
 
-export const MotionCaptureServiceReceptor = (action) => {
-  const s = getState(MotionCaptureState)
-  matches(action).when(MotionCaptureAction.setData.matches, (action) => {
-    return s.merge({
-      data: action.data
-    })
+export function motionCaptureDataReceptor(action: typeof MotionCaptureAction.getData.matches._TYPE) {
+  const s = getMutableState(MotionCaptureState)
+  s.merge({
+    data: action.data
   })
 }
-
-export const accessMotionCaptureState = () => getState(MotionCaptureState)
-
-export const useMotionCaptureState = () => useState(accessMotionCaptureState())
 
 //Service
 export const MotionCaptureService = {

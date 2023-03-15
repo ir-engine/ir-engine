@@ -43,7 +43,7 @@ globalThis.MotionCaptureComponent = MotionCaptureComponent
 export function setMotionCaptureData(entity: Entity, data?: []) {
   debugger
   // @ts-ignore
-  const mocap = useComponent(entity, MotionCaptureComponent, Engine.instance?.currentWorld)
+  const mocap = useComponent(entity, MotionCaptureComponent)
   useEffect(() => {
     mocap.value.data = data
   }, [mocap])

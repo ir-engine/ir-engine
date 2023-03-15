@@ -6,7 +6,7 @@ export function MotionCaptureModule() {
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push({
     uuid: 'xre.engine.MotionCaptureSystem',
-    type: SystemUpdateType.FIXED_EARLY,
+    type: SystemUpdateType.UPDATE_EARLY,
     systemLoader: () => Promise.resolve({ default: MotionCaptureSystem })
   })
 
