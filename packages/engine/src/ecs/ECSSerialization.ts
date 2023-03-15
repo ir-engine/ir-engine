@@ -135,7 +135,8 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
       }
     })
 
-    const frameData = frame > 0 ? Automerge.getChanges(lastDoc, newDoc)[0] : Automerge.save(newDoc)
+    const frameData = frame > 0 ? Automerge.getLastLocalChange(newDoc)! : Automerge.save(newDoc)
+    console.log('frameData', frame, newDoc, frameData)
 
     lastDoc = newDoc
 
@@ -189,6 +190,7 @@ export const createDeserializer = (chunks: SerializedChunk[]) => {
     const frameData = data.changes[frame]
 
     doc = frame === 0 ? Automerge.load(chunks[chunk].changes[frame]) : Automerge.applyChanges(doc, [frameData])[0]
+    console.log(doc)
 
     for (const [uuid, data] of Object.entries(doc.data)) {
       console.log(uuid, data)
@@ -202,7 +204,6 @@ export const createDeserializer = (chunks: SerializedChunk[]) => {
       const entity = UUIDComponent.entitiesByUUID.value[uuid]
       for (const componentName in data) {
         const componentData = data[componentName]
-        console.log(componentData)
         const component = ComponentMap.get(componentName)!
         if (!hasComponent(entity, component)) {
           setComponent(entity, component)
