@@ -140,7 +140,7 @@ function RouterComp() {
           <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
           {/* default to allowing admin access regardless */}
           <Route key={'default-studio'} path={'/studio/*'} element={<$studio />} />
-          <Route key={'default-recorder'} path={'/recorder/*'} element={<$recorder />} />
+          {/* <Route key={'default-recorder'} path={'/recorder/*'} element={<$recorder />} /> */}
           <Route key={'default-admin'} path={'/admin/*'} element={<$admin />} />
           <Route key={'default-auth'} path={'/auth/*'} element={<$auth />} />
           <Route key={'default-index'} path={'/'} element={<$index />} />
