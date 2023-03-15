@@ -73,14 +73,13 @@ export default defineConfig(async () => {
 
   const returned = {
     optimizeDeps: {
-      exclude: ['@etherealengine/volumetric', '@automerge/automerge-wasm'],
+      exclude: ['@etherealengine/volumetric'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
         target: 'es2020'
       }
     },
     plugins: [
-      wasm(),
       PkgConfig(),
       // OptimizationPersist(),
       createHtmlPlugin({
