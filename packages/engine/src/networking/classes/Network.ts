@@ -98,7 +98,15 @@ export const createNetwork = (hostId: UserId, topic: Topic) => {
      * The transport used by this network.
      * @todo non null this
      */
-    transport: null! as TransportInterface,
+    transport: {
+      get peers() {
+        return []
+      },
+      messageToPeer: (peerId: PeerID, data: any) => {},
+      messageToAll: (data: any) => {},
+      bufferToPeer: (peerId: PeerID, data: any) => {},
+      bufferToAll: (data: any) => {}
+    } as TransportInterface,
 
     /**
      * Check if this user is hosting the world.
