@@ -11,6 +11,7 @@ import checkPositionIsValid from '@etherealengine/engine/src/common/functions/ch
 import { performance } from '@etherealengine/engine/src/common/functions/performance'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
@@ -246,8 +247,9 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     media: {} as any,
     consumerLayers: {},
     stats: {},
-    dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
-    dataProducers: new Map<string, DataProducer>() // Key => label of data channel
+    incomingDataConsumers: new Map<DataChannelType, DataConsumer>(),
+    outgoingDataConsumers: new Map<DataChannelType, DataConsumer>(),
+    dataProducers: new Map<string, DataProducer>()
   })
 
   if (!network.users.has(userId)) {

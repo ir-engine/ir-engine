@@ -1,8 +1,50 @@
 import * as cam from '@mediapipe/camera_utils'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
+import { NormalizedLandmarkList, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
 import React, { useCallback, useEffect, useRef } from 'react'
 import Webcam from 'react-webcam'
+
+import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+
+let creatingProducer = false
+const startDataProducer = async () => {
+  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  if (!network?.sendTransport || creatingProducer) return
+  creatingProducer = true
+  const dataProducer = await network.sendTransport.produceData({
+    appData: { data: {} },
+    ordered: true,
+    label: mocapDataChannelType,
+    maxPacketLifeTime: 3000,
+    // maxRetransmits: 3,
+    protocol: 'raw'
+  })
+  dataProducer.on('transportclose', () => {
+    console.log('transportclose')
+  })
+  network.dataProducers.set(mocapDataChannelType, dataProducer)
+}
+
+/**
+ * Our results schema is the following:
+ *   [length, x0, y0, z0, visible, x1, y1, z1, visible, ...]
+ * @param results
+ */
+const sendResults = (results: NormalizedLandmarkList) => {
+  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  if (!network?.sendTransport) return
+  const dataProducer = network.dataProducers.get(mocapDataChannelType)
+  if (!dataProducer) {
+    startDataProducer()
+    return
+  }
+  if (!dataProducer.closed && dataProducer.readyState === 'open') {
+    const data = MotionCaptureFunctions.sendResults(results)
+    dataProducer.send(data)
+  }
+}
 
 const Mediapipe = ({}: {}) => {
   const canvasRef = useRef(null as any)
@@ -27,6 +69,8 @@ const Mediapipe = ({}: {}) => {
             lineWidth: 2
           })
           canvasCtxRef.current.restore()
+
+          sendResults(poseLandmarks)
         }
       }
     },

@@ -1,8 +1,11 @@
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
-import { Network } from './classes/Network'
+import { DataChannelType, Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
+
+type RegistryFunction = (network: Network, fromPeerID: PeerID, message: any) => void
 
 export const NetworkState = defineState({
   name: 'NetworkState',
@@ -12,7 +15,10 @@ export const NetworkState = defineState({
       world: null as UserId | null
     },
     networkSchema: {} as { [key: string]: SerializationSchema },
-    networks: {} as { [key: UserId]: Network }
+    networks: {} as { [key: UserId]: Network },
+    dataChannelRegistry: {} as {
+      [key: DataChannelType]: RegistryFunction
+    }
   }
 })
 

@@ -14,6 +14,7 @@ import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarComm
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -250,6 +251,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initSystems([
       ...TransformModule(),
       ...SceneCommonModule(),
+      ...MotionCaptureModule(),
       ...AvatarCommonModule(),
       ...RealtimeNetworkingModule(false, true),
       ...WorldHostModule()

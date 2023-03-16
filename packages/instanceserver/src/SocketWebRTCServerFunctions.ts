@@ -1,10 +1,10 @@
-import { Consumer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
+import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
 
 import { MediaStreamAppData } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
+import { createNetwork, DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -24,23 +24,6 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
   const { workers, routers } = await startWebRTC()
 
   const outgoingDataTransport = await routers.instance[0].createDirectTransport()
-  const options = {
-    ordered: false,
-    label: 'outgoingProducer',
-    protocol: 'raw',
-    appData: { peerID: 'outgoingProducer' }
-  }
-  const outgoingDataProducer = await outgoingDataTransport.produceData(options)
-
-  const currentRouter = routers.instance[0]
-
-  await Promise.all(
-    (routers.instance as any).map(async (router) => {
-      if (router.id !== currentRouter.id)
-        return currentRouter.pipeToRouter({ dataProducerId: outgoingDataProducer.id, router: router })
-      else return Promise.resolve()
-    })
-  )
   logger.info('Server transport initialized.')
 
   const transport = {
@@ -57,12 +40,18 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
       for (const spark of Object.values(app.primus.connections)) spark.write(data)
     },
 
-    bufferToPeer: (peerID: PeerID, data: any) => {
+    bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
       /** noop */
     },
 
-    bufferToAll: (data: any) => {
-      network.outgoingDataProducer.send(Buffer.from(new Uint8Array(data)))
+    /**
+     * We need a to specify which data channel type this is
+     * @param data
+     */
+    bufferToAll: (dataChannelType: DataChannelType, data: any) => {
+      const dataProducer = network.outgoingDataProducers[dataChannelType]
+      if (!dataProducer) return
+      dataProducer.send(Buffer.from(new Uint8Array(data)))
     }
   }
 
@@ -72,7 +61,7 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     routers,
     transport,
     outgoingDataTransport,
-    outgoingDataProducer,
+    outgoingDataProducers: {} as { [key: DataChannelType]: DataProducer },
     mediasoupTransports: [] as WebRTCTransportExtension[],
     transportsConnectPending: [] as Promise<void>[],
     producers: [] as ProducerExtension[],

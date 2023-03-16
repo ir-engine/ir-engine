@@ -13,11 +13,12 @@ import { SceneService } from '@etherealengine/client-core/src/world/services/Sce
 import { MediaModule } from '@etherealengine/engine/src/audio/MediaModule'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { addActionReceptor, dispatchAction, getMutableState, removeActionReceptor } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import Mediapipe from '@etherealengine/ui/src/Mediapipe'
 
-const systems = [...MediaModule()]
+const systems = [...MediaModule(), ...MotionCaptureModule()]
 
 export const initializeEngineForRecorder = async () => {
   if (getMutableState(EngineState).isEngineInitialized.value) return

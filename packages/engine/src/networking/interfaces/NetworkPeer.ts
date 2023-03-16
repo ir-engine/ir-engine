@@ -5,6 +5,8 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
+import { DataChannelType } from '../classes/Network'
+
 export interface NetworkPeer {
   userId: UserId
   userIndex: number
@@ -23,8 +25,9 @@ export interface NetworkPeer {
   instanceRecvTransport?: any
   channelSendTransport?: any
   channelRecvTransport?: any
-  dataConsumers?: Map<string, any> // Key => id of data producer
-  dataProducers?: Map<string, any> // Key => label of data channel}
+  outgoingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer
+  incomingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer
+  dataProducers?: Map<string, any> // Keyof internal producer id => label of data channel
 }
 
 export interface UserClient {

@@ -1,3 +1,4 @@
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -18,9 +19,11 @@ export interface TransportInterface {
   get peers(): PeerID[]
   messageToPeer: (peerId: PeerID, data: any) => void
   messageToAll: (data: any) => void
-  bufferToPeer: (peerId: PeerID, data: any) => void
-  bufferToAll: (data: any) => void
+  bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => void
+  bufferToAll: (dataChannelType: DataChannelType, ata: any) => void
 }
+
+export type DataChannelType = OpaqueType<'DataChannelType'> & string
 
 /** Interface for the Transport. */
 export const createNetwork = (hostId: UserId, topic: Topic) => {
@@ -80,6 +83,7 @@ export const createNetwork = (hostId: UserId, topic: Topic) => {
     /**
      * The UserId of the host
      * - will either be a user's UserId, or an instance server's InstanceId
+     * @todo rename to hostUserID to differentiate better from hostPeerID
      */
     hostId,
 
@@ -104,8 +108,8 @@ export const createNetwork = (hostId: UserId, topic: Topic) => {
       },
       messageToPeer: (peerId: PeerID, data: any) => {},
       messageToAll: (data: any) => {},
-      bufferToPeer: (peerId: PeerID, data: any) => {},
-      bufferToAll: (data: any) => {}
+      bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => {},
+      bufferToAll: (dataChannelType: DataChannelType, data: any) => {}
     } as TransportInterface,
 
     /**
