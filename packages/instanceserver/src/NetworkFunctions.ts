@@ -259,8 +259,8 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
   worldState.userAvatarDetails[userId].set({
-    avatarURL: avatarDetail.modelResource?.url || '',
-    thumbnailURL: avatarDetail.thumbnailResource?.url || ''
+    avatarURL: avatarDetail.modelResource?.LOD0_url || '',
+    thumbnailURL: avatarDetail.thumbnailResource?.LOD0_url || ''
   })
 
   network.userIDToUserIndex.set(userId, userIndex)

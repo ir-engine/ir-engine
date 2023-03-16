@@ -1,11 +1,18 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { StaticResourceService } from '@etherealengine/client-core/src/media/services/StaticResourceService'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import {
+  AudioFileTypes,
+  VideoFileTypes,
+  VolumetricFileTypes
+} from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
+import { addError } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
@@ -46,6 +53,27 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
     media.paused.set(!media.paused.value)
   }
 
+  const updateResources = async (e) => {
+    const resources = await Promise.all(
+      e.map(async (path, index) => {
+        const extension = `.${path.split('.').pop()}`
+        let existingMedia
+        try {
+          if (AudioFileTypes.indexOf(extension) > -1) existingMedia = await StaticResourceService.uploadAudio(path)
+          else if (VideoFileTypes.indexOf(extension) > -1) existingMedia = await StaticResourceService.uploadVideo(path)
+          else if (VolumetricFileTypes.indexOf(extension) > -1)
+            existingMedia = await StaticResourceService.uploadVolumetric(path)
+          return existingMedia
+        } catch (err) {
+          addError(props.entity, MediaComponent, 'INVALID_URL', path)
+          return {}
+        }
+      })
+    )
+
+    updateProperty(MediaComponent, 'resources')(resources)
+  }
+
   return (
     <NodeEditor
       {...props}
@@ -54,7 +82,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
     >
       {errors ? (
         Object.entries(errors).map(([err, message]) => {
-          return <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + message}</div>
+          return <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + err + '--' + message}</div>
         })
       ) : (
         <></>
@@ -89,8 +117,19 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
-        values={media.paths.value}
-        onChange={updateProperty(MediaComponent, 'paths')}
+        values={media.resources.value.map(
+          (resource) =>
+            resource?.mp3StaticResource?.LOD0_url ||
+            resource?.mpegStaticResource?.LOD0_url ||
+            resource?.oggStaticResource?.LOD0_url ||
+            resource?.mp4StaticResource?.LOD0_url ||
+            resource?.manifest?.staticResource?.LOD0_url ||
+            resource?.uvolStaticResource?.LOD0_url ||
+            resource?.drcsStaticResource?.LOD0_url ||
+            resource?.path ||
+            ''
+        )}
+        onChange={updateResources}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}
         itemType={SupportedFileTypes}
@@ -102,7 +141,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           value={media.playMode.value}
           onChange={updateProperty(MediaComponent, 'playMode')}
         />
-        {media.paths && media.paths.length > 0 && media.paths[0] && (
+        {media.resources && media.resources.length > 0 && media.resources[0] && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
             {media.paused ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
           </Button>

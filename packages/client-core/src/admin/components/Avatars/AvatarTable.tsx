@@ -89,7 +89,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
       id: el.id,
       name: el.name as string,
       thumbnail: (
-        <img style={{ maxHeight: '50px' }} src={el.thumbnailResource?.url + '?' + new Date().getTime()} alt="" />
+        <img style={{ maxHeight: '50px' }} src={el.thumbnailResource?.LOD0_url + '?' + new Date().getTime()} alt="" />
       ),
       action: (
         <>

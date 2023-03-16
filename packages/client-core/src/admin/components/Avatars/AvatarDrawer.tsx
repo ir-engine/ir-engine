@@ -108,7 +108,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     }
 
     initSelected()
-  }, [selectedAvatar, thumbnail?.url])
+  }, [selectedAvatar, thumbnail?.LOD0_url])
 
   useEffect(() => {
     updateAvatar()
@@ -120,8 +120,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         ...defaultState,
         name: selectedAvatar.name || '',
         source: 'url',
-        avatarUrl: selectedAvatar.modelResource?.url || '',
-        thumbnailUrl: selectedAvatar.thumbnailResource?.url || '',
+        avatarUrl: selectedAvatar.modelResource?.LOD0_url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.LOD0_url || '',
         avatarFile: undefined,
         thumbnailFile: undefined
       })

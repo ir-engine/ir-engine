@@ -30,5 +30,5 @@ export const AllFileTypes = [
   ...CustomScriptFileTypes
 ]
 
-//creatig comma saperated string contains all file types
+//creating comma separated string contains all file types
 export const AcceptsAllFileTypes = AllFileTypes.join(',')
