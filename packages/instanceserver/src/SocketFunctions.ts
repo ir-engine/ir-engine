@@ -2,6 +2,7 @@ import { AuthError } from '@etherealengine/common/src/enums/AuthError'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
@@ -17,6 +18,7 @@ import {
   handleJoinWorld,
   handleLeaveWorld
 } from './NetworkFunctions'
+import { getServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   handleWebRtcCloseConsumer,
   handleWebRtcCloseProducer,
@@ -48,6 +50,9 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
    **/
   if (!getEngineState().joinedWorld.value)
     await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
+
+  const network = getServerNetwork(app)
+
   spark.on('data', async (message) => {
     if (message.type === MessageTypes.Authorization.toString()) {
       const data = message.data
@@ -113,7 +118,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
          * @todo Check if the user is banned
          */
 
-        await handleConnectingPeer(app.network, spark, user)
+        await handleConnectingPeer(network, spark, user)
       } catch (e) {
         console.error(e)
         authTask.status = 'fail'
@@ -124,68 +129,68 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
 
       spark.on('end', () => {
         console.log('got disconnection')
-        handleDisconnect(app.network, spark)
+        handleDisconnect(network, spark)
       })
 
       spark.on('data', async (message) => {
         const { type, data, id } = message
         switch (type) {
           case MessageTypes.JoinWorld.toString():
-            handleJoinWorld(app.network, spark, data, id, userId, user)
+            handleJoinWorld(network, spark, data, id, userId, user)
             break
           case MessageTypes.Heartbeat.toString():
-            handleHeartbeat(app.network, spark)
+            handleHeartbeat(network, spark)
             break
           case MessageTypes.ActionData.toString():
-            handleIncomingActions(app.network, spark, data)
+            handleIncomingActions(network, spark, data)
             break
           case MessageTypes.LeaveWorld.toString():
-            handleLeaveWorld(app.network, spark, data, id)
+            handleLeaveWorld(network, spark, data, id)
             break
           case MessageTypes.WebRTCTransportCreate.toString():
-            handleWebRtcTransportCreate(app.network, spark, data, id)
+            handleWebRtcTransportCreate(network, spark, data, id)
             break
           case MessageTypes.WebRTCProduceData.toString():
-            handleWebRtcProduceData(app.network, spark, data, id)
+            handleWebRtcProduceData(network, spark, data, id)
             break
           case MessageTypes.WebRTCTransportConnect.toString():
-            handleWebRtcTransportConnect(app.network, spark, data, id)
+            handleWebRtcTransportConnect(network, spark, data, id)
             break
           case MessageTypes.WebRTCTransportClose.toString():
-            handleWebRtcTransportClose(app.network, spark, data, id)
+            handleWebRtcTransportClose(network, spark, data, id)
             break
           case MessageTypes.WebRTCCloseProducer.toString():
-            handleWebRtcCloseProducer(app.network, spark, data, id)
+            handleWebRtcCloseProducer(network, spark, data, id)
             break
           case MessageTypes.WebRTCSendTrack.toString():
-            handleWebRtcSendTrack(app.network, spark, data, id)
+            handleWebRtcSendTrack(network, spark, data, id)
             break
           case MessageTypes.WebRTCReceiveTrack.toString():
-            handleWebRtcReceiveTrack(app.network, spark, data, id)
+            handleWebRtcReceiveTrack(network, spark, data, id)
             break
           case MessageTypes.WebRTCPauseConsumer.toString():
-            handleWebRtcPauseConsumer(app.network, spark, data, id)
+            handleWebRtcPauseConsumer(network, spark, data, id)
             break
           case MessageTypes.WebRTCResumeConsumer.toString():
-            handleWebRtcResumeConsumer(app.network, spark, data, id)
+            handleWebRtcResumeConsumer(network, spark, data, id)
             break
           case MessageTypes.WebRTCCloseConsumer.toString():
-            handleWebRtcCloseConsumer(app.network, spark, data, id)
+            handleWebRtcCloseConsumer(network, spark, data, id)
             break
           case MessageTypes.WebRTCConsumerSetLayers.toString():
-            handleWebRtcConsumerSetLayers(app.network, spark, data, id)
+            handleWebRtcConsumerSetLayers(network, spark, data, id)
             break
           case MessageTypes.WebRTCResumeProducer.toString():
-            handleWebRtcResumeProducer(app.network, spark, data, id)
+            handleWebRtcResumeProducer(network, spark, data, id)
             break
           case MessageTypes.WebRTCPauseProducer.toString():
-            handleWebRtcPauseProducer(app.network, spark, data, id)
+            handleWebRtcPauseProducer(network, spark, data, id)
             break
           case MessageTypes.WebRTCRequestCurrentProducers.toString():
-            handleWebRtcRequestCurrentProducers(app.network, spark, data, id)
+            handleWebRtcRequestCurrentProducers(network, spark, data, id)
             break
           case MessageTypes.InitializeRouter.toString():
-            handleWebRtcInitializeRouter(app.network, spark, data, id)
+            handleWebRtcInitializeRouter(network, spark, data, id)
             break
         }
       })

@@ -9,7 +9,7 @@ import {
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 

@@ -30,8 +30,9 @@ import { getProjectsList } from '@etherealengine/server-core/src/projects/projec
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { authorizeUserToJoinServer } from './NetworkFunctions'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
+import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
+import { WorldHostModule } from './WorldHostModule'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -229,11 +230,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.userId = hostId
   const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
-  const network = new SocketWebRTCServerNetwork(hostId, topic, app)
-  app.network = network
-  const initPromise = network.initialize()
-
-  addNetwork(network)
+  await setupSubdomain()
+  const networkPromise = initializeNetwork(app, hostId, topic)
   const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
@@ -253,7 +251,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
       ...TransformModule(),
       ...SceneCommonModule(),
       ...AvatarCommonModule(),
-      ...RealtimeNetworkingModule(false, true)
+      ...RealtimeNetworkingModule(false, true),
+      ...WorldHostModule()
     ])
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
@@ -267,7 +266,11 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     logger.info('Scene loaded!')
   }
-  await initPromise
+
+  const network = await networkPromise
+
+  addNetwork(network)
+
   network.ready = true
 
   NetworkPeerFunctions.createPeer(
@@ -408,7 +411,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
-  const activeClients = app.network.peers
+  const activeClients = getServerNetwork(app).peers
   const activeUsers = [...activeClients].filter(
     ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
   )
@@ -489,9 +492,11 @@ const handleUserDisconnect = async (
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
+  const network = getServerNetwork(app)
+
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (app.network.peers.size <= 1) {
+  if (network.peers.size <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }
