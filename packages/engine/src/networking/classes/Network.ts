@@ -26,7 +26,7 @@ export interface TransportInterface {
 export type DataChannelType = OpaqueType<'DataChannelType'> & string
 
 /** Interface for the Transport. */
-export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext) => {
+export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext = {} as Ext) => {
   addOutgoingTopicIfNecessary(topic)
   const network = {
     /** Consumers and producers have separate types on client and server */
