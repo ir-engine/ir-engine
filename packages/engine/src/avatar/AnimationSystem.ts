@@ -7,6 +7,7 @@ import { defineQuery, getComponent, removeQuery } from '../ecs/functions/Compone
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { AnimationComponent } from './components/AnimationComponent'
@@ -42,14 +43,14 @@ export default async function AnimationSystem() {
 
     for (const entity of tweenQuery()) {
       const tween = getComponent(entity, TweenComponent)
-      tween.tween.update()
+      tween.update()
     }
 
     for (const entity of animationQuery()) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
-      Engine.instance.dirtyTransforms[entity] = true
+      TransformComponent.dirtyTransforms[entity] = true
     }
   }
 

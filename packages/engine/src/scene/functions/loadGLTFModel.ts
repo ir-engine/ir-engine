@@ -95,7 +95,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
-    setComponent(entity, GLTFLoadedComponent, [])
+    setComponent(entity, GLTFLoadedComponent)
     scene.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }

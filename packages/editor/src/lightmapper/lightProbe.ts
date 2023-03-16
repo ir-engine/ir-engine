@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { BufferAttribute, InterleavedBufferAttribute } from 'three'
 
 const tmpOrigin = new THREE.Vector3()
 const tmpU = new THREE.Vector3()
@@ -280,8 +281,8 @@ export async function withLightProbe(
 
         // read vertex position for this face and interpolate along U and V axes
         const origIndexArray = originalBuffer.index.array
-        const origPosArray = originalBuffer.attributes.position.array
-        const origNormalArray = originalBuffer.attributes.normal.array
+        const origPosArray = (originalBuffer.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
+        const origNormalArray = (originalBuffer.attributes.normal as BufferAttribute | InterleavedBufferAttribute).array
 
         // get face vertex positions
         const faceVertexBase = faceIndex * 3

@@ -41,8 +41,6 @@ export const SpawnPointComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, SpawnPointComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const spawnPoint = useComponent(root.entity, SpawnPointComponent)
 

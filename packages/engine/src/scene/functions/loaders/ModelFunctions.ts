@@ -14,7 +14,7 @@ import {
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { ComponentType, getComponent, getComponentState, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { ComponentType, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ModelComponent } from '../../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
 import iterateObject3D from '../../util/iterateObject3D'

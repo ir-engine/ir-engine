@@ -24,6 +24,7 @@ import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
+import { ServerState } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
@@ -131,9 +132,9 @@ export const createFeathersExpressApp = (
     createIPFSStorageProvider()
   }
 
+  createEngine()
+  getMutableState(EngineState).publicPath.set(config.client.dist)
   if (!appConfig.db.forceRefresh) {
-    createEngine()
-    getMutableState(EngineState).publicPath.set(config.client.dist)
     setupEngineActionSystems()
     initializeNode()
   }
@@ -199,6 +200,8 @@ export const createFeathersExpressApp = (
   })
 
   app.use(errorHandler({ logger }))
+
+  getMutableState(ServerState).merge({ app })
 
   return app
 }

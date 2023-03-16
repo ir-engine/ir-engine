@@ -1,5 +1,7 @@
 import assert from 'assert'
 
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 import { copyDefaultProject, uploadLocalProjectToProvider } from '../../projects/project/project.class'
@@ -22,5 +24,9 @@ describe('avatar-helper', () => {
     copyDefaultProject()
     await app.service('project')._seedProject('default-project')
     await uploadLocalProjectToProvider('default-project')
+  })
+
+  after(() => {
+    return destroyEngine()
   })
 })

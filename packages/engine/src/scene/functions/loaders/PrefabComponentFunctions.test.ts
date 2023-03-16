@@ -2,9 +2,10 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import Sinon from 'sinon'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+// import Sinon from 'sinon'
+
+import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
@@ -37,7 +38,6 @@ import { SceneCommonModule } from '../../SceneCommonModule'
 
 describe('PrefabComponentFunctions', async () => {
   let entity: Entity
-  let sandbox: Sinon.SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
@@ -45,7 +45,6 @@ describe('PrefabComponentFunctions', async () => {
   }
   const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {
-    sandbox = Sinon.createSandbox()
     createEngine()
     setupEngineActionSystems()
     initEntity()
@@ -79,7 +78,7 @@ describe('PrefabComponentFunctions', async () => {
   })
 
   afterEach(() => {
-    sandbox.restore()
+    return destroyEngine()
   })
 
   function dupeLoader(): any {

@@ -5,7 +5,6 @@ import { isClient } from '../../common/functions/isClient'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  createMappedComponent,
   defineComponent,
   getComponent,
   hasComponent,
@@ -27,9 +26,8 @@ export const AvatarHeadDecapComponent = defineComponent({
 
     useEffect(() => {
       if (rig?.value) {
-        if (headDecap?.value) {
-          rig.value.rig.Head?.scale.setScalar(EPSILON)
-        } else {
+        if (headDecap?.value) rig.value.rig.Head?.scale.setScalar(EPSILON)
+        return () => {
           rig.value.rig.Head?.scale.setScalar(1)
         }
       }
@@ -52,10 +50,24 @@ const XRHeadIKSchema = {
   target: PoseSchema
 }
 
-export const AvatarHeadIKComponent = createMappedComponent<AvatarHeadIKComponentType, typeof XRHeadIKSchema>(
-  'AvatarHeadIKComponent',
-  XRHeadIKSchema
-)
+export const AvatarHeadIKComponent = defineComponent({
+  name: 'AvatarHeadIKComponent',
+  schema: XRHeadIKSchema,
+
+  onInit(entity) {
+    return {
+      target: new Object3D(),
+      rotationClamp: 0
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.target) component.target.set(json.target as Object3D)
+    if (json.rotationClamp) component.rotationClamp.set(json.rotationClamp)
+  }
+})
 
 /**
  * Avatar Hands IK Solver Component.
@@ -173,7 +185,24 @@ export type AvatarIKTargetsType = {
   rightHand: boolean
 }
 
-export const AvatarIKTargetsComponent = createMappedComponent<AvatarIKTargetsType>('AvatarIKTargetsComponent')
+export const AvatarIKTargetsComponent = defineComponent({
+  name: 'AvatarIKTargetsComponent',
+
+  onInit(entity) {
+    return {
+      head: false,
+      leftHand: false,
+      rightHand: false
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+    if (typeof json.head === 'boolean') component.head.set(json.head)
+    if (typeof json.leftHand === 'boolean') component.leftHand.set(json.leftHand)
+    if (typeof json.rightHand === 'boolean') component.rightHand.set(json.rightHand)
+  }
+})
 
 /**
  * Gets the hand position in world space

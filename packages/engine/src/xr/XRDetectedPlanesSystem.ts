@@ -18,7 +18,7 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
@@ -67,11 +67,12 @@ let planeId = 0
 export const updatePlaneGeometry = (entity: Entity, plane: XRPlane) => {
   planesLastChangedTimes.set(plane, plane.lastChangedTime)
   const geometry = createGeometryFromPolygon(plane)
-  getComponentState(entity, XRPlaneComponent).geometry.set(geometry)
+  getMutableComponent(entity, XRPlaneComponent).geometry.set(geometry)
 }
 
 export const updatePlanePose = (entity: Entity, plane: XRPlane) => {
   const planePose = Engine.instance.xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
+  if (!planePose) return
   LocalTransformComponent.position.x[entity] = planePose.transform.position.x
   LocalTransformComponent.position.y[entity] = planePose.transform.position.y
   LocalTransformComponent.position.z[entity] = planePose.transform.position.z

@@ -18,7 +18,6 @@ import { matches } from '../../common/functions/MatchesUtils'
 import {
   addComponent,
   ComponentType,
-  createMappedComponent,
   defineComponent,
   hasComponent,
   useComponent
@@ -117,8 +116,6 @@ export const PortalComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, PortalComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const portalComponent = useComponent(root.entity, PortalComponent)
 

@@ -56,16 +56,8 @@ import {
 } from '../components/ShadowComponent'
 import { SCENE_COMPONENT_SKYBOX, SkyboxComponent } from '../components/SkyboxComponent'
 import { SCENE_COMPONENT_SPAWN_POINT, SpawnPointComponent } from '../components/SpawnPointComponent'
-import {
-  SCENE_COMPONENT_SPLINE,
-  SCENE_COMPONENT_SPLINE_DEFAULT_VALUES,
-  SplineComponent
-} from '../components/SplineComponent'
-import {
-  SCENE_COMPONENT_SYSTEM,
-  SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES,
-  SystemComponent
-} from '../components/SystemComponent'
+import { SCENE_COMPONENT_SPLINE, SplineComponent } from '../components/SplineComponent'
+import { SCENE_COMPONENT_SYSTEM, SystemComponent } from '../components/SystemComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
@@ -78,7 +70,6 @@ import { deserializeOcean, serializeOcean, updateOcean } from '../functions/load
 import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
 import { updateSkybox } from '../functions/loaders/SkyboxFunctions'
 import { deserializeSpline, serializeSpline } from '../functions/loaders/SplineFunctions'
-import { deserializeWater } from '../functions/loaders/WaterFunctions'
 
 export const defaultSpatialComponents: ComponentJson[] = [
   { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -139,13 +130,11 @@ export default async function SceneObjectUpdateSystem() {
   Engine.instance.sceneComponentRegistry.set(ScenePreviewCameraComponent.name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {})
 
-  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.system, [
-    { name: SCENE_COMPONENT_SYSTEM, props: SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES }
-  ])
+  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.system, [{ name: SCENE_COMPONENT_SYSTEM, props: {} }])
 
   Engine.instance.sceneComponentRegistry.set(SystemComponent.name, SCENE_COMPONENT_SYSTEM)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SYSTEM, {
-    defaultData: SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES
+    defaultData: {}
   })
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.spawnPoint, [
@@ -310,7 +299,7 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneComponentRegistry.set(WaterComponent.name, SCENE_COMPONENT_WATER)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_WATER, {
-    deserialize: deserializeWater
+    defaultData: {}
   })
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.interior, [
@@ -327,12 +316,12 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.spline, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_SPLINE, props: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_SPLINE, props: {} }
   ])
 
   Engine.instance.sceneComponentRegistry.set(SplineComponent.name, SCENE_COMPONENT_SPLINE)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPLINE, {
-    defaultData: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES,
+    defaultData: {},
     deserialize: deserializeSpline,
     serialize: serializeSpline
   })
@@ -519,6 +508,7 @@ export default async function SceneObjectUpdateSystem() {
     removeQuery(oceanQuery)
     removeQuery(interiorQuery)
     removeQuery(scenePreviewCameraQuery)
+    removeQuery(spawnPointComponent)
 
     removeActionQueue(modifyPropertyActionQueue)
   }

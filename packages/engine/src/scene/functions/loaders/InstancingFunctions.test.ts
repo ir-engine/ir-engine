@@ -5,7 +5,7 @@ import { Color } from 'three'
 
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { Scene } from '../../../ecs/classes/Scene'
@@ -64,6 +64,7 @@ describe('InstancingFunctions', async () => {
   })
   afterEach(async () => {
     sandbox.restore()
+    return destroyEngine()
   })
 
   const scatterProps: ScatterProperties = {

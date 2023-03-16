@@ -30,7 +30,6 @@ import {
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
@@ -51,7 +50,7 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { createActionQueue, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
+import { EditorCameraState } from '../classes/EditorCameraState'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
@@ -70,12 +69,10 @@ const SELECT_SENSITIVITY = 0.001
 
 export const createTransformGizmo = () => {
   const gizmoEntity = createEntity()
-  addComponent(gizmoEntity, NameComponent, 'Transform Gizmo')
-  const gizmo = new TransformGizmo()
-  gizmo.load()
-  addComponent(gizmoEntity, TransformGizmoComponent, { gizmo })
-  setTransformComponent(gizmoEntity)
-  addObjectToGroup(gizmoEntity, gizmo)
+  setComponent(gizmoEntity, NameComponent, 'Transform Gizmo')
+  setComponent(gizmoEntity, TransformGizmoComponent)
+  setComponent(gizmoEntity, TransformComponent)
+  addObjectToGroup(gizmoEntity, getComponent(gizmoEntity, TransformGizmoComponent))
   setTransformMode(TransformMode.Translate)
   return gizmoEntity
 }
@@ -117,7 +114,6 @@ export default async function EditorControlSystem() {
   let lastZoom = 0
   let prevRotationAngle = 0
 
-  let cameraComponent: EditorCameraComponentType
   let selectedEntities: (Entity | string)[]
   let selectedParentEntities: (Entity | string)[]
   let selectionCounter: number = 0
@@ -168,8 +164,8 @@ export default async function EditorControlSystem() {
   }
 
   const onKeyF = () => {
-    cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
-    cameraComponent.refocus = true
+    editorCameraState.focusedObjects.set(getEntityNodeArrayFromEntities(selectedEntities))
+    editorCameraState.refocus.set(true)
   }
 
   const onKeyT = () => {
@@ -270,12 +266,14 @@ export default async function EditorControlSystem() {
   const doZoom = (zoom) => {
     const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
     lastZoom = zoom
-    if (cameraComponent) cameraComponent.zoomDelta = zoomDelta
+    editorCameraState.zoomDelta.set(zoomDelta)
   }
+
+  const editorCameraState = getMutableState(EditorCameraState)
 
   const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
-  const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent).gizmo
+  const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
   const changedTransformMode = createActionQueue(EditorHelperAction.changedTransformMode.matches)
 
   const execute = () => {
@@ -550,7 +548,6 @@ export default async function EditorControlSystem() {
     }
 
     selectionCounter = selectionState.selectionCounter.value
-    cameraComponent = getComponent(Engine.instance.cameraEntity, EditorCameraComponent)
     const shift = inputState.ShiftLeft?.pressed
 
     if (isPrimaryClickUp) {
@@ -605,18 +602,18 @@ export default async function EditorControlSystem() {
     const panning = inputState.AuxiliaryClick?.pressed
 
     if (selecting) {
-      cameraComponent.isOrbiting = true
+      editorCameraState.isOrbiting.set(true)
       const mouseMovement = Engine.instance.pointerState.movement
       if (mouseMovement) {
-        cameraComponent.cursorDeltaX = mouseMovement.x
-        cameraComponent.cursorDeltaY = mouseMovement.y
+        editorCameraState.cursorDeltaX.set(mouseMovement.x)
+        editorCameraState.cursorDeltaY.set(mouseMovement.y)
       }
     } else if (panning) {
-      cameraComponent.isPanning = true
+      editorCameraState.isPanning.set(true)
       const mouseMovement = Engine.instance.pointerState.movement
       if (mouseMovement) {
-        cameraComponent.cursorDeltaX = mouseMovement.x
-        cameraComponent.cursorDeltaY = mouseMovement.y
+        editorCameraState.cursorDeltaX.set(mouseMovement.x)
+        editorCameraState.cursorDeltaY.set(mouseMovement.y)
       }
     } else if (zoom) {
       throttleZoom(zoom)

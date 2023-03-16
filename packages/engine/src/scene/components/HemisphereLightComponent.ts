@@ -41,8 +41,6 @@ export const HemisphereLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, HemisphereLightComponent)) throw root.stop()
-
     const light = useComponent(root.entity, HemisphereLightComponent)
 
     useEffect(() => {

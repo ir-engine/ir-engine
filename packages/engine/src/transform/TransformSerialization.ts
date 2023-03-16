@@ -15,7 +15,7 @@ export const readTransform = (v: ViewCursor, entity: Entity) => {
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
-  Engine.instance.dirtyTransforms[entity] = true
+  TransformComponent.dirtyTransforms[entity] = true
 }
 
 export const writePosition = writeVector3(TransformComponent.position)

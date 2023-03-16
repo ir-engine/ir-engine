@@ -11,7 +11,7 @@ import {
   addComponent,
   Component,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -461,6 +461,11 @@ const scaleObject = (
         ? obj3dFromUuid(node)
         : getComponent(node, LocalTransformComponent) ?? getComponent(node, TransformComponent)
 
+    const componentType =
+      typeof node != 'string' && getComponent(node, LocalTransformComponent)
+        ? LocalTransformComponent
+        : TransformComponent
+
     if (overrideScale) {
       transformComponent.scale.copy(scale)
     } else {
@@ -473,7 +478,7 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent(node as Entity, LocalTransformComponent, { scale: transformComponent.scale })
+    updateComponent(node as Entity, componentType, { scale: transformComponent.scale })
   }
 }
 

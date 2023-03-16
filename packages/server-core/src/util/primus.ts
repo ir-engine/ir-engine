@@ -3,6 +3,8 @@ import http from 'http'
 import Primus from 'primus'
 import Emitter from 'primus-emitter'
 
+import { PrimusType } from '../../declarations'
+
 function configurePrimus(config?: any, configurer?: any) {
   return function (app) {
     // Returns the connection object
@@ -36,7 +38,7 @@ function configurePrimus(config?: any, configurer?: any) {
 
         async setup(this: any, server = http.createServer(), ...rest: any[]) {
           if (!this.primus) {
-            const primus = (this.primus = new Primus(server, config))
+            const primus = (this.primus = new Primus(server, config)) as PrimusType
 
             primus.plugin('emitter', Emitter)
 

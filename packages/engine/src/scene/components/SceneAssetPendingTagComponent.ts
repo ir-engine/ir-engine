@@ -1,3 +1,3 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const SceneAssetPendingTagComponent = createMappedComponent<true>('SceneAssetPendingTagComponent')
+export const SceneAssetPendingTagComponent = defineComponent({ name: 'SceneAssetPendingTagComponent' })

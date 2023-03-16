@@ -16,7 +16,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Scene } from '../../ecs/classes/Scene'
-import { defineQuery, getComponent, getComponentState, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
@@ -39,6 +39,13 @@ import {
 export class AudioEffectPlayer {
   static instance = new AudioEffectPlayer()
 
+  constructor() {
+    // only init when running in client
+    if (isClient) {
+      this.#init()
+    }
+  }
+
   static SOUNDS = {
     notification: '/sfx/notification.mp3',
     message: '/sfx/message.mp3',
@@ -56,7 +63,7 @@ export class AudioEffectPlayer {
   // pool of elements
   #els: HTMLAudioElement[] = []
 
-  _init() {
+  #init() {
     if (this.#els.length) return
     for (let i = 0; i < 20; i++) {
       const audioElement = document.createElement('audio')
@@ -117,7 +124,6 @@ export default async function MediaSystem() {
 
   const enableAudioContext = () => {
     if (audioContext.state === 'suspended') audioContext.resume()
-    AudioEffectPlayer.instance._init()
   }
 
   if (isClient && !getMutableState(EngineState).isEditor.value) {
@@ -126,13 +132,10 @@ export default async function MediaSystem() {
     const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
     function handleAutoplay() {
       enableAudioContext()
-
       for (const entity of mediaQuery()) {
-        const media = getComponentState(entity, MediaComponent)
-        if (media.playing.value) return
-        if (media.paused.value && media.autoplay.value) media.paused.set(false)
-        // safari requires play() to be called in the DOM handle function
-        getComponent(entity, MediaElementComponent)?.element.play()
+        const mediaElement = getComponent(entity, MediaElementComponent)
+        const media = getComponent(entity, MediaComponent)
+        if (!media.paused && mediaElement?.element.paused) mediaElement.element.play()
       }
     }
     // TODO: add destroy callbacks
@@ -230,8 +233,6 @@ export default async function MediaSystem() {
   addActionReceptor(AudioSettingReceptor)
   addActionReceptor(MediaSettingReceptor)
 
-  const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
-
   const mediaQuery = defineQuery([MediaComponent])
   const videoQuery = defineQuery([VideoComponent])
   const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
@@ -241,7 +242,7 @@ export default async function MediaSystem() {
 
   const execute = () => {
     for (const entity of mediaQuery.enter()) {
-      const media = getComponentState(entity, MediaComponent)
+      const media = getMutableComponent(entity, MediaComponent)
       setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
       setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }
@@ -272,8 +273,6 @@ export default async function MediaSystem() {
     audioState.gainNodeMixBuses.music.set(null!)
     audioState.gainNodeMixBuses.soundEffects.value.disconnect()
     audioState.gainNodeMixBuses.soundEffects.set(null!)
-
-    removeActionQueue(userInteractActionQueue)
 
     removeQuery(mediaQuery)
     removeQuery(videoQuery)
