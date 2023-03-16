@@ -4,11 +4,7 @@ import { Color } from 'three'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
-import {
-  LoopAnimationComponent,
-  SCENE_COMPONENT_LOOP_ANIMATION,
-  SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
-} from '../../avatar/components/LoopAnimationComponent'
+import { LoopAnimationComponent, SCENE_COMPONENT_LOOP_ANIMATION } from '../../avatar/components/LoopAnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
@@ -210,7 +206,7 @@ export default async function SceneObjectUpdateSystem() {
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: {} },
     { name: SCENE_COMPONENT_ENVMAP, props: {} },
-    { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
+    { name: SCENE_COMPONENT_LOOP_ANIMATION, props: {} }
   ])
 
   Engine.instance.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
@@ -266,7 +262,7 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneComponentRegistry.set(LoopAnimationComponent.name, SCENE_COMPONENT_LOOP_ANIMATION)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {
-    defaultData: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE,
+    defaultData: {},
     serialize: serializeLoopAnimation
   })
 
