@@ -54,8 +54,6 @@ const Mediapipe = ({}: {}) => {
 
   const imageWidth = useHookstate(1)
   const imageHeight = useHookstate(1)
-  const canvasWidth = useHookstate(1)
-  const canvasHeight = useHookstate(1)
 
   const onResults: ResultsListener = useCallback(
     (results) => {
@@ -97,8 +95,6 @@ const Mediapipe = ({}: {}) => {
     if (canvasRef.current !== null) {
       const canvasElement = canvasRef.current
       canvasCtxRef.current = canvasElement.getContext('2d') //canvas context
-      canvasWidth.set(canvasElement.offsetWidth)
-      canvasHeight.set(canvasElement.offsetHeight)
     }
   }, [canvasRef])
 
@@ -121,6 +117,8 @@ const Mediapipe = ({}: {}) => {
     if (webcamRef.current !== null) {
       const camera = new cam.Camera(webcamRef.current.video, {
         onFrame: async () => {
+          imageWidth.set(webcamRef.current.video.offsetWidth)
+          imageHeight.set(webcamRef.current.video.offsetHeight)
           // Todo: hook to media service
           await pose.send({ image: webcamRef.current.video })
         }
@@ -131,20 +129,19 @@ const Mediapipe = ({}: {}) => {
 
   // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
   return (
-    <div style={{ width: 'fit-content', height: 'fit-content' }}>
+    <div style={{ width: 'fit-content', height: 'fit-content', position: 'relative' }}>
       <Webcam ref={webcamRef} style={{ width: '100%' }} width="100%" height="100%" />
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          aspectRatio: imageWidth.value / imageHeight.value
-        }}
-        width={canvasWidth.value}
-        height={canvasHeight.value}
-      />
+      <div style={{ objectFit: 'contain', position: 'absolute', top: 0 }}>
+        <canvas
+          ref={canvasRef}
+          style={{
+            width: imageWidth.value,
+            height: imageHeight.value
+          }}
+          width={imageWidth.value}
+          height={imageHeight.value}
+        />
+      </div>
     </div>
   )
 }

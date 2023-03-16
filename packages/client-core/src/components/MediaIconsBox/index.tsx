@@ -104,7 +104,7 @@ export const MediaIconsBox = () => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <Icon type={isMotionCaptureEnabled.value ? 'Accessibility' : 'AccessibilityOff'} />
+            <Icon type={'SelfImprovement'} />
           </button>
           <button
             type="button"
