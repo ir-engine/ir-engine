@@ -144,8 +144,6 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <CrisisAlert {...props} />
     case 'AccessibilityNew':
       return <AccessibilityNew {...props} />
-    case 'SelfImprovement':
-      return <SelfImprovement {...props} />
     case 'default':
       return <ThumbUp {...props} />
     case 'Save':
