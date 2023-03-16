@@ -68,7 +68,9 @@ export const renameScene = async (projectName: string, newSceneName: string, old
 /**
  * saveScene used to save changes in existing project.
  *
+ * @param {string} projectName
  * @param  {any}  sceneName
+ * @param {Blob | null} thumbnailBlob
  * @param  {any}  signal
  * @return {Promise}
  */
