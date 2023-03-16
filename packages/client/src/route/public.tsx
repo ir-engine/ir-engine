@@ -39,6 +39,7 @@ const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoute
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
 const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
+const $recorder = lazy(() => import('@etherealengine/client/src/pages/recorder/recorder'))
 const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
 
 function RouterComp() {
@@ -140,7 +141,7 @@ function RouterComp() {
           <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
           {/* default to allowing admin access regardless */}
           <Route key={'default-studio'} path={'/studio/*'} element={<$studio />} />
-          {/* <Route key={'default-recorder'} path={'/recorder/*'} element={<$recorder />} /> */}
+          <Route key={'default-recorder'} path={'/recorder/*'} element={<$recorder />} />
           <Route key={'default-admin'} path={'/admin/*'} element={<$admin />} />
           <Route key={'default-auth'} path={'/auth/*'} element={<$auth />} />
           <Route key={'default-index'} path={'/'} element={<$index />} />

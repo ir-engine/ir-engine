@@ -4,16 +4,7 @@ import { Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
 import React, { useCallback, useEffect, useRef } from 'react'
 import Webcam from 'react-webcam'
 
-import {
-  MotionCaptureService,
-  MotionCaptureState
-} from '@etherealengine/client-core/src/mocap/services/MotionCaptureService'
-import { MotionCaptureAction } from '@etherealengine/engine/src/mocap/functions/MotionCaptureAction'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
-
 const Mediapipe = ({}: {}) => {
-  const motionCaptureState = useHookstate(getState(MotionCaptureState))
-
   const canvasRef = useRef(null as any)
   const webcamRef = useRef(null as any)
   const canvasCtxRef = useRef(null as any)
@@ -22,29 +13,25 @@ const Mediapipe = ({}: {}) => {
     (results) => {
       if (canvasCtxRef.current !== null && canvasRef.current !== null) {
         const { poseLandmarks } = results
-        dispatchAction(MotionCaptureAction.setData({ data: poseLandmarks }))
+        if (canvasCtxRef.current !== null && poseLandmarks !== null) {
+          //draw!!!
+          canvasCtxRef.current.save()
+          canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+          canvasCtxRef.current.globalCompositeOperation = 'source-over'
+          drawConnectors(canvasCtxRef.current, [...poseLandmarks], POSE_CONNECTIONS, {
+            color: '#fff' /*'#00FF00'*/,
+            lineWidth: 4
+          })
+          drawLandmarks(canvasCtxRef.current, [...poseLandmarks], {
+            color: '#fff' /*'#FF0000'*/,
+            lineWidth: 2
+          })
+          canvasCtxRef.current.restore()
+        }
       }
     },
     [canvasCtxRef]
   )
-
-  useEffect(() => {
-    if (canvasCtxRef.current !== null && motionCaptureState.value?.data !== null) {
-      //draw!!!
-      canvasCtxRef.current.save()
-      canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-      canvasCtxRef.current.globalCompositeOperation = 'source-over'
-      drawConnectors(canvasCtxRef.current, [...motionCaptureState.value?.data], POSE_CONNECTIONS, {
-        color: '#fff' /*'#00FF00'*/,
-        lineWidth: 4
-      })
-      drawLandmarks(canvasCtxRef.current, [...motionCaptureState.value?.data], {
-        color: '#fff' /*'#FF0000'*/,
-        lineWidth: 2
-      })
-      canvasCtxRef.current.restore()
-    }
-  }, [canvasCtxRef, motionCaptureState.data])
 
   // useEffect(() => {
   //   if (canvasRef.current !== null && webcamRef.current !== null) {

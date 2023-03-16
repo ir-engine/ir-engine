@@ -28,8 +28,8 @@ const config: ProjectConfigInterface = {
     '/room': {
       component: () => import('@etherealengine/client/src/pages/room')
     },
-    '/record': {
-      component: () => import('@etherealengine/ui/src/Mediapipe')
+    '/recorder': {
+      component: () => import('@etherealengine/client/src/pages/recorder/recorder')
     }
   },
   services: undefined,
