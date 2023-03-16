@@ -38,7 +38,7 @@ export const MediaIconsBox = () => {
     ? currentLocation?.locationSetting?.audioEnabled?.value
     : false
 
-  const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
+  const isMotionCaptureEnabled = mediastream.isMotionCaptureEnabled
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
   const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
@@ -99,12 +99,12 @@ export const MediaIconsBox = () => {
           <button
             type="button"
             id="UserFaceTracking"
-            className={styles.iconContainer + ' ' + (isFaceTrackingEnabled.value ? styles.on : '')}
+            className={styles.iconContainer + ' ' + (isMotionCaptureEnabled.value ? styles.on : '')}
             onClick={toggleFaceTracking}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <Icon type="Face" />
+            <Icon type={isMotionCaptureEnabled.value ? 'Accessibility' : 'AccessibilityOff'} />
           </button>
           <button
             type="button"

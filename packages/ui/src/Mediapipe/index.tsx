@@ -1,7 +1,8 @@
+import { useHookstate } from '@hookstate/core'
 import * as cam from '@mediapipe/camera_utils'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import Webcam from 'react-webcam'
 
 import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -51,8 +52,16 @@ const Mediapipe = ({}: {}) => {
   const webcamRef = useRef(null as any)
   const canvasCtxRef = useRef(null as any)
 
+  const imageWidth = useHookstate(1)
+  const imageHeight = useHookstate(1)
+  const canvasWidth = useHookstate(1)
+  const canvasHeight = useHookstate(1)
+
   const onResults: ResultsListener = useCallback(
     (results) => {
+      imageWidth.set(results.image.width)
+      imageHeight.set(results.image.height)
+
       if (canvasCtxRef.current !== null && canvasRef.current !== null) {
         const { poseLandmarks } = results
         if (canvasCtxRef.current !== null && poseLandmarks !== null) {
@@ -84,10 +93,12 @@ const Mediapipe = ({}: {}) => {
   //   }
   // }, [webcamRef])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (canvasRef.current !== null) {
       const canvasElement = canvasRef.current
       canvasCtxRef.current = canvasElement.getContext('2d') //canvas context
+      canvasWidth.set(canvasElement.offsetWidth)
+      canvasHeight.set(canvasElement.offsetHeight)
     }
   }, [canvasRef])
 
@@ -112,9 +123,7 @@ const Mediapipe = ({}: {}) => {
         onFrame: async () => {
           // Todo: hook to media service
           await pose.send({ image: webcamRef.current.video })
-        },
-        width: 640,
-        height: 480
+        }
       })
       camera.start()
     }
@@ -122,9 +131,20 @@ const Mediapipe = ({}: {}) => {
 
   // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <Webcam ref={webcamRef} style={{ position: 'absolute', top: 0, left: 0 }} width="640px" height="480px" />
-      <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0 }} width="640px" height="480px" />
+    <div style={{ width: 'fit-content', height: 'fit-content' }}>
+      <Webcam ref={webcamRef} style={{ width: '100%' }} width="100%" height="100%" />
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          aspectRatio: imageWidth.value / imageHeight.value
+        }}
+        width={canvasWidth.value}
+        height={canvasHeight.value}
+      />
     </div>
   )
 }

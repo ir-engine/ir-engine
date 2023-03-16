@@ -1292,7 +1292,7 @@ const checkEndVideoChat = async () => {
 export const toggleFaceTracking = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaState = getMutableState(MediaState)
-  if (mediaState.isFaceTrackingEnabled.value) {
+  if (mediaState.isMotionCaptureEnabled.value) {
     mediaStreamState.faceTracking.set(false)
     stopFaceTracking()
     stopLipsyncTracking()

@@ -52,8 +52,8 @@ export const Recorder = (): any => {
   }, [])
 
   return (
-    <div>
-      <div>{<Mediapipe />}</div>
+    <div style={{ backgroundColor: 'black', display: 'flex', height: '100%' }}>
+      <Mediapipe />
       <NetworkInstanceProvisioning />
       <LocationIcons />
       <LoadLocationScene />

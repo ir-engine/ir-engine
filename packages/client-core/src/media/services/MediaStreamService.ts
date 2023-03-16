@@ -18,7 +18,7 @@ export const MediaState = defineState({
     isCamAudioEnabled: false,
     isScreenVideoEnabled: false,
     isScreenAudioEnabled: false,
-    isFaceTrackingEnabled: false,
+    isMotionCaptureEnabled: false,
     enableBydefault: true,
     nearbyLayerUsers: [] as UserId[],
     consumers: [] as ConsumerExtension[]
@@ -41,7 +41,7 @@ export const MediaServiceReceptor = (action) => {
       return s.isScreenAudioEnabled.set(action.isEnable)
     })
     .when(MediaStreamAction.setFaceTrackingStateAction.matches, (action) => {
-      return s.isFaceTrackingEnabled.set(action.isEnable)
+      return s.isMotionCaptureEnabled.set(action.isEnable)
     })
     .when(MediaStreamAction.setMediaEnabledByDefaultAction.matches, (action) => {
       return s.enableBydefault.set(action.isEnable)
