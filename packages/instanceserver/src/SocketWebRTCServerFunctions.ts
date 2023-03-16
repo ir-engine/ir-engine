@@ -1,10 +1,19 @@
-import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
+import {
+  Consumer,
+  DataProducer,
+  DirectTransport,
+  Producer,
+  Router,
+  TransportInternal,
+  WebRtcTransport,
+  Worker
+} from 'mediasoup/node/lib/types'
 
 import { MediaStreamAppData } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { createNetwork, DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
+import { createNetwork, DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -55,8 +64,7 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     }
   }
 
-  const network = {
-    ...createNetwork(hostId, topic),
+  const network = createNetwork(hostId, topic, {
     workers,
     routers,
     transport,
@@ -66,7 +74,7 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     transportsConnectPending: [] as Promise<void>[],
     producers: [] as ProducerExtension[],
     consumers: [] as ConsumerExtension[]
-  }
+  })
 
   return network
 }

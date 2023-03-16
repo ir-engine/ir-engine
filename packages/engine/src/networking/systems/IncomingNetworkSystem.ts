@@ -40,7 +40,7 @@ export default async function IncomingNetworkSystem() {
   const networkState = getMutableState(NetworkState)
 
   networkState.dataChannelRegistry.merge({
-    [poseDataChannelType]: (network: Network, fromPeerID: PeerID, message: any) => {
+    [poseDataChannelType]: (network: Network, fromPeerID: PeerID, message: ArrayBufferLike) => {
       if (network.isHosting) {
         network.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
         network.incomingMessageQueueUnreliableIDs.add(fromPeerID)

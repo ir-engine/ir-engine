@@ -62,7 +62,7 @@ const Mediapipe = ({}: {}) => {
 
       if (canvasCtxRef.current !== null && canvasRef.current !== null) {
         const { poseLandmarks } = results
-        if (canvasCtxRef.current !== null && poseLandmarks !== null) {
+        if (canvasCtxRef.current && poseLandmarks?.length) {
           //draw!!!
           canvasCtxRef.current.save()
           canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)

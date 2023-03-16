@@ -48,12 +48,13 @@ export default async function MotionCaptureSystem() {
   networkState.dataChannelRegistry.merge({
     [mocapDataChannelType]: (network: Network, fromPeerID: PeerID, message: ArrayBufferLike) => {
       if (network.isHosting) {
-        if (!timeSeriesMocapData.has(fromPeerID)) {
-          timeSeriesMocapData.set(fromPeerID, [])
-        }
-        const data = MotionCaptureFunctions.receiveResults(message)
-        timeSeriesMocapData.get(fromPeerID)!.push(data)
+        network.transport.bufferToAll(mocapDataChannelType, message)
       }
+      if (!timeSeriesMocapData.has(fromPeerID)) {
+        timeSeriesMocapData.set(fromPeerID, [])
+      }
+      const data = MotionCaptureFunctions.receiveResults(message)
+      timeSeriesMocapData.get(fromPeerID)!.push(data)
     }
   })
 
@@ -61,14 +62,17 @@ export default async function MotionCaptureSystem() {
 
   const execute = () => {
     const network = Engine.instance.worldNetwork
-    if (!network?.isHosting) return
+    if (!network) return
 
     for (const [peerID, mocapData] of timeSeriesMocapData) {
       if (!network.peers.has(peerID)) {
         timeSeriesMocapData.delete(peerID)
         continue
       }
+      // console.log(timeSeriesMocapData)
       // todo - use the data
+      // put on IK targets
+      // dispatch ik targets action with if data has changed
     }
   }
 

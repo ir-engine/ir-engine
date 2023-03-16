@@ -1,7 +1,9 @@
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
+  ConsumerOptions,
   DataConsumer,
+  DataConsumerOptions,
   DataProducer,
   DtlsParameters,
   MediaKind,
@@ -25,6 +27,7 @@ import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearc
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import {
   createNetwork,
   DataChannelType,
@@ -196,8 +199,7 @@ export const initializeNetwork = (hostId: UserId, topic: Topic) => {
     }
   } as TransportInterface
 
-  const network = {
-    ...createNetwork(hostId, topic),
+  const network = createNetwork(hostId, topic, {
     mediasoupDevice,
     transport,
     reconnecting: false,
@@ -213,7 +215,7 @@ export const initializeNetwork = (hostId: UserId, topic: Topic) => {
 
     producers: [] as ProducerExtension[],
     consumers: [] as ConsumerExtension[]
-  }
+  })
 
   return network
 }
@@ -463,16 +465,17 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 }
 
 export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
-  async function consumeDataHandler(options) {
+  async function consumeDataHandler(options: DataConsumerOptions) {
     console.log('consumerDataHandler', options)
     const dataConsumer = await network.recvTransport.consumeData({
       ...options,
+      // this is unused, but for whatever reason mediasoup will throw an error if it's not defined
       dataProducerId: ''
     })
 
     // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
     dataConsumer.binaryType = 'arraybuffer'
-    network.dataConsumers.set(options.dataProducerId, dataConsumer)
+    network.dataConsumers.set(options.id as DataChannelType, dataConsumer)
     dataConsumer.on('message', (message: any) => {
       const networkState = getState(NetworkState)
       const dataChannelFunction = networkState.dataChannelRegistry[dataConsumer.label]
@@ -480,7 +483,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     }) // Handle message received
     dataConsumer.on('close', () => {
       dataConsumer.close()
-      network.dataConsumers.delete(options.dataProducerId)
+      network.dataConsumers.delete(options.id as DataChannelType)
     })
   }
 
@@ -515,10 +518,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   // Get information for how to consume data from server and init a data consumer
 
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
-  await Promise.all([
-    createDataProducer(network, poseDataChannelType),
-    createDataConsumer(network, poseDataChannelType)
-  ])
 
   dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
 
@@ -689,6 +688,8 @@ export async function createDataProducer(
   type = 'raw',
   customInitInfo: any = {}
 ): Promise<void> {
+  console.log('createDataProducer', dataChannelType, network.sendTransport)
+  if (network.dataProducers.has(dataChannelType)) return
   const sendTransport = network.sendTransport
   const dataProducer = await sendTransport.produceData({
     appData: { data: customInitInfo },
@@ -721,6 +722,7 @@ export async function createDataConsumer(
   dataChannelType: DataChannelType
 ): Promise<void> {
   console.log('createDataConsumer', dataChannelType)
+  if (network.dataConsumers.has(dataChannelType)) return console.log('aready has consumer')
   const response = await promisedRequest(network, MessageTypes.WebRTCConsumeData.toString(), {
     label: dataChannelType
   })
