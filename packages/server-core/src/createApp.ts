@@ -203,5 +203,9 @@ export const createFeathersExpressApp = (
 
   getMutableState(ServerState).merge({ app })
 
+  if (appConfig.testEnabled) {
+    app.set('testModeForceRefresh', true)
+  }
+
   return app
 }

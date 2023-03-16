@@ -13,7 +13,6 @@ describe('user service', () => {
   let app: Application
   before(async () => {
     app = createFeathersExpressApp()
-    app.set('testModeForceRefresh', true)
     await app.setup()
   })
   after(() => {
