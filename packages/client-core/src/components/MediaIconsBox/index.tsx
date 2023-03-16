@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import { useMediaInstanceConnectionState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useMediaStreamState } from '@etherealengine/client-core/src/media/services/MediaStreamService'
@@ -22,6 +23,7 @@ import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
+  const navigate = useNavigate()
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
   const { topShelfStyle } = useShelfStyles()
@@ -98,13 +100,13 @@ export const MediaIconsBox = () => {
           </button>
           <button
             type="button"
-            id="UserFaceTracking"
+            id="UserPoseTracking"
             className={styles.iconContainer + ' ' + (isMotionCaptureEnabled.value ? styles.on : '')}
-            onClick={toggleFaceTracking}
+            onClick={() => window.open('/recorder', '_blank')}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <Icon type={'SelfImprovement'} />
+            <Icon type={'Accessibility'} />
           </button>
           <button
             type="button"
