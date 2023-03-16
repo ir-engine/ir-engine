@@ -5,13 +5,13 @@ import {
   Format,
   Buffer as glBuffer,
   Material,
+  Mesh,
   Node,
   Primitive,
-  Property,
   Texture
 } from '@gltf-transform/core'
-import { MeshGPUInstancing, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
-import { dedup, draco, partition, prune, quantize, reorder, weld } from '@gltf-transform/functions'
+import { MeshGPUInstancing, TextureBasisu } from '@gltf-transform/extensions'
+import { dedup, draco, partition, prune, reorder, weld } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { execFileSync } from 'child_process'
 import fs from 'fs'
@@ -20,10 +20,15 @@ import path from 'path'
 import sharp from 'sharp'
 import { MathUtils } from 'three'
 
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import {
+  ExtractedImageTransformParameters,
+  extractParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
 
 import { getContentType } from '../../util/fileUtils'
 import { EEMaterial } from '../extensions/EE_MaterialTransformer'
+import { EEResourceID } from '../extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from '../ModelTransformLoader'
 
 const createBatch = (doc, batchExtension, mesh, count) => {
@@ -276,7 +281,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const projectRoot = path.join(appRootPath.path, 'packages/projects')
 
   const toValidFilename = (name: string) => {
-    let result = name.replace(/[\s]/, '-')
+    const result = name.replace(/[\s]/, '-')
     return result
   }
   let pathIndex = 0
@@ -353,27 +358,6 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   /* /PROCESS MESHES */
 
   /* PROCESS TEXTURES */
-  //resize textures
-  const handleImage = async (inPath, outPath, dstImgFormat) => {
-    try {
-      if (path.extname(inPath) === '.ktx2') {
-        console.warn('cannot resize ktx2 compressed image at ' + inPath)
-        return
-      }
-      const img = await sharp(inPath)
-      const metadata = await img.metadata()
-      await img
-        .resize(Math.min(parms.maxTextureSize, metadata.width), Math.min(parms.maxTextureSize, metadata.height), {
-          fit: 'contain'
-        })
-        .toFormat(dstImgFormat)
-        .toFile(outPath.replace(/\.[\w\d]+$/, `.${dstImgFormat}`))
-      console.log('handled image file ' + inPath)
-    } catch (e) {
-      console.error('error while handling image ' + inPath)
-      console.error(e)
-    }
-  }
   if (parms.textureFormat !== 'default') {
     const textures = root
       .listTextures()
@@ -384,9 +368,17 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       )
     for (const texture of textures) {
       const oldImg = texture.getImage()
+      const resourceId = texture.getExtension<EEResourceID>('EEResourceID')?.resourceId
+      const resourceParms = parms.resources.images.find(
+        (resource) => resource.enabled && resource.resourceId === resourceId
+      )
+      const mergedParms = {
+        ...parms,
+        ...(resourceParms ? extractParameters(resourceParms) : {})
+      } as ExtractedImageTransformParameters
       const fileName = toPath(texture)
       const oldPath = toTmp(fileName)
-      const resizeExtension = parms.textureFormat === 'ktx2' ? 'png' : parms.textureFormat
+      const resizeExtension = mergedParms.textureFormat === 'ktx2' ? 'png' : mergedParms.textureFormat
       const resizedPath = oldPath.replace(
         new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
         `-resized.${resizeExtension}`
@@ -397,21 +389,44 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       fs.writeFileSync(oldPath, oldImg!)
       const xResizedName = fileName.replace(
         new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-        `-resized.${parms.textureFormat}`
+        `-resized.${mergedParms.textureFormat}`
       )
       const nuFileName = fileName.replace(
         new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-        `-transformed.${parms.textureFormat}`
+        `-transformed.${mergedParms.textureFormat}`
       )
       const nuPath = `${tmpDir}/${nuFileName}`
-      await handleImage(oldPath, resizedPath, resizeExtension)
-      if (parms.textureFormat === 'ktx2') {
+
+      try {
+        if (path.extname(oldPath) === '.ktx2') {
+          console.warn('cannot resize ktx2 compressed image at ' + oldPath)
+          continue
+        }
+        const img = await sharp(oldPath)
+        const metadata = await img.metadata()
+        await img
+          .resize(
+            Math.min(mergedParms.maxTextureSize, metadata.width),
+            Math.min(mergedParms.maxTextureSize, metadata.height),
+            {
+              fit: 'contain'
+            }
+          )
+          .toFormat(resizeExtension)
+          .toFile(resizedPath.replace(/\.[\w\d]+$/, `.${resizeExtension}`))
+        console.log('handled image file ' + oldPath)
+      } catch (e) {
+        console.error('error while handling image ' + oldPath)
+        console.error(e)
+      }
+
+      if (mergedParms.textureFormat === 'ktx2') {
         //KTX2 Basisu Compression
         document.createExtension(TextureBasisu).setRequired(true)
         execFileSync(
           BASIS_U,
-          `-ktx2 ${resizedPath} -q ${parms.textureCompressionQuality} ${
-            parms.textureCompressionType === 'uastc' ? '-uastc' : ''
+          `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${
+            mergedParms.textureCompressionType === 'uastc' ? '-uastc' : ''
           } -linear -y_flip`.split(/\s+/)
         )
         execFileSync('mv', [`${serverDir}/${xResizedName}`, nuPath])
@@ -421,7 +436,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         execFileSync('mv', [resizedPath, nuPath])
       }
       texture.setImage(fs.readFileSync(nuPath))
-      texture.setMimeType(fileTypeToMime(parms.textureFormat)!)
+      texture.setMimeType(fileTypeToMime(mergedParms.textureFormat) ?? texture.getMimeType())
     }
   }
   let result
@@ -435,22 +450,18 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         body: data,
         contentType: getContentType(args.dst)
       })
-
       console.log('Handled glb file')
       break
     case 'gltf':
-      const idResources = (elements) =>
-        elements.filter((mesh) => !mesh.getName()).map((mesh) => mesh.setName(MathUtils.generateUUID()))
-      idResources(root.listBuffers())
-      idResources(root.listMeshes())
-      idResources(root.listTextures())
+      ;[root.listBuffers(), root.listMeshes(), root.listTextures()].forEach((elements) =>
+        elements.map((mesh: Texture | Mesh | glBuffer) => !mesh.getName() && mesh.setName(MathUtils.generateUUID()))
+      )
       document.transform(
         partition({
           animations: true,
           meshes: root.listMeshes().map((mesh) => mesh.getName())
         })
       )
-
       const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
       await initializeResourceDir()
       json.images?.map((image) => {

@@ -31,6 +31,7 @@ import { accessSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
+import NumericInput from '../inputs/NumericInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
@@ -201,6 +202,15 @@ export default function ModelTransformProperties({
       }
     },
     [transformParms]
+  )
+
+  const onChangeResourceOverrideParm = useCallback(
+    (state: State<any>, k: keyof typeof state.value) => {
+      return (val) => {
+        state[k].parameters.set(val)
+      }
+    },
+    [transformParms.resources]
   )
 
   const onTransformModel = useCallback(
@@ -407,31 +417,93 @@ export default function ModelTransformProperties({
                       </div>
                       {image.enabled.value && (
                         <div style={{ width: '100%' }}>
-                          {image.parameters.keys
-                            .map((key) => [key, image.parameters[key]])
-                            .map(([key, value], i) => {
-                              return (
-                                <>
-                                  <InputGroup name={key} label={key}>
-                                    <BooleanInput
-                                      value={value.enabled.value}
-                                      onChange={onChangeTransformParm(value, 'enabled')}
-                                    />
-                                  </InputGroup>
-                                  {value.enabled.value && (
-                                    <ParameterInput
-                                      entity={`${modelState.src.value}-resource-${key}`}
-                                      values={
-                                        typeof value.parameters.value === 'object'
-                                          ? value.parameters.value
-                                          : { override: value.parameters.value }
-                                      }
-                                      onChange={onChangeTransformParm.bind({}, value.parameters)}
-                                    />
-                                  )}
-                                </>
-                              )
-                            })}
+                          <BooleanInput
+                            value={image.parameters.textureFormat.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.textureFormat, 'enabled')}
+                          />
+                          <InputGroup
+                            name="Texture Format"
+                            label={t('editor:properties.model.transform.textureFormat')}
+                          >
+                            {image.parameters.textureFormat.enabled.value && (
+                              <SelectInput
+                                value={image.parameters.textureFormat.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'textureFormat')}
+                                options={[
+                                  { label: 'Default', value: 'default' },
+                                  { label: 'JPG', value: 'jpg' },
+                                  { label: 'KTX2', value: 'ktx2' },
+                                  { label: 'PNG', value: 'png' },
+                                  { label: 'WebP', value: 'webp' }
+                                ]}
+                              />
+                            )}
+                          </InputGroup>
+                          <BooleanInput
+                            value={image.parameters.maxTextureSize.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.maxTextureSize, 'enabled')}
+                          />
+                          <InputGroup
+                            name="Max Texture Size"
+                            label={t('editor:properties.model.transform.maxTextureSize')}
+                          >
+                            {image.parameters.maxTextureSize.enabled.value && (
+                              <NumericInput
+                                value={image.parameters.maxTextureSize.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'maxTextureSize')}
+                                max={4096}
+                                min={64}
+                              />
+                            )}
+                          </InputGroup>
+                          <BooleanInput
+                            value={image.parameters.textureCompressionType.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.textureCompressionType, 'enabled')}
+                          />
+                          <InputGroup
+                            name="Texture Compression Type"
+                            label={t('editor:properties.model.transform.textureCompressionType')}
+                          >
+                            {image.parameters.textureCompressionType.enabled.value && (
+                              <SelectInput
+                                value={image.parameters.textureCompressionType.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'textureCompressionType')}
+                                options={[
+                                  { label: 'UASTC', value: 'uastc' },
+                                  { label: 'ETC1', value: 'etc1' }
+                                ]}
+                              />
+                            )}
+                          </InputGroup>
+                          <BooleanInput
+                            value={image.parameters.textureCompressionQuality.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.textureCompressionQuality, 'enabled')}
+                          />
+                          <InputGroup name="KTX2 Quality" label={t('editor:properties.model.transform.ktx2Quality')}>
+                            {image.parameters.textureCompressionQuality.enabled.value && (
+                              <NumericInput
+                                value={image.parameters.textureCompressionQuality.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'textureCompressionQuality')}
+                                max={255}
+                                min={1}
+                                smallStep={1}
+                                mediumStep={1}
+                                largeStep={2}
+                              />
+                            )}
+                          </InputGroup>
+                          <BooleanInput
+                            value={image.parameters.flipY.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.flipY, 'enabled')}
+                          />
+                          <InputGroup name="Flip Y" label={t('editor:properties.model.transform.flipY')}>
+                            {image.parameters.flipY.enabled.value && (
+                              <BooleanInput
+                                value={image.parameters.flipY.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'flipY')}
+                              />
+                            )}
+                          </InputGroup>
                         </div>
                       )}
                     </>

@@ -13,9 +13,32 @@ export type GLTFPackOptions = {
 
 export type ResourceID = OpaqueType<'ResourceID'> & string
 
-export type ParameterOverride<T> = {
+export type ParameterOverride<T> = OpaqueType<'ParameterOverride'> & {
   enabled: boolean
   parameters: T
+}
+
+export function extractParameters<T>(parameters: ParameterOverride<T>) {
+  if (!parameters.enabled) return {}
+  if (typeof parameters.parameters === 'object' && !Array.isArray(parameters.parameters)) {
+    return Object.fromEntries(
+      Object.entries(parameters.parameters as object).map(([key, value]: [string, ParameterOverride<any>]) => {
+        if (value.__opaqueType === 'ParameterOverride') {
+          if (value.enabled) return [key, extractParameters(value)]
+          else return []
+        } else return [key, value]
+      })
+    )
+  } else if (Array.isArray(parameters.parameters)) {
+    return [
+      ...parameters.parameters.map((value) => {
+        if (value.__opaqueType === 'ParameterOverride') {
+          if (value.enabled) return [extractParameters(value)]
+          else return []
+        } else return [value]
+      })
+    ]
+  } else return parameters.parameters
 }
 
 export type ResourceParameters<T> = ParameterOverride<T> & {
@@ -30,6 +53,14 @@ export type ImageTransformParameters = ResourceParameters<{
   textureCompressionQuality: ParameterOverride<number>
 }>
 
+export type ExtractedImageTransformParameters = {
+  flipY: boolean
+  maxTextureSize: number
+  textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
+  textureCompressionType: 'etc1' | 'uastc'
+  textureCompressionQuality: number
+}
+
 export type GeometryTransformParameters = ResourceParameters<{
   weld: ParameterOverride<number>
   dracoCompression: ParameterOverride<DracoOptions>
@@ -40,7 +71,7 @@ export type ResourceTransforms = {
   images: ImageTransformParameters[]
 }
 
-export type ModelTransformParameters = {
+export type ModelTransformParameters = ExtractedImageTransformParameters & {
   dedup: boolean
   prune: boolean
   reorder: boolean
@@ -53,12 +84,6 @@ export type ModelTransformParameters = {
     enabled: boolean
     options: DracoOptions
   }
-
-  textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
-  textureCompressionType: 'etc1' | 'uastc'
-  flipY: boolean
-  textureCompressionQuality: number
-  maxTextureSize: number
   modelFormat: 'glb' | 'gltf'
 
   resources: ResourceTransforms
