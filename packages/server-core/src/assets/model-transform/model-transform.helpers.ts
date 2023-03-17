@@ -1,5 +1,6 @@
 import { Application } from '@feathersjs/express/lib'
 import {
+  Accessor,
   BufferUtils,
   Document,
   Format,
@@ -158,6 +159,17 @@ const myInstance = async (document: Document, args: any | null = null) => {
       })
       console.log('modified nodes: ', modifiedNodes)
       pruneUnusedNodes([...modifiedNodes], document.getLogger())
+    })
+}
+
+function unInstanceSingletons(document: Document) {
+  const root = document.getRoot()
+  root
+    .listNodes()
+    .filter((node) => (node.getExtension('EXT_mesh_gpu_instancing') as any)?.listAttributes()?.[0].getCount() === 1)
+    .map((node) => {
+      console.log('removed instanced singleton', node.getName())
+      node.setExtension('EXT_mesh_gpu_instancing', null) //delete instancing
     })
 }
 
@@ -324,6 +336,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const root = document.getRoot()
 
   /* ID unnamed resources */
+  unInstanceSingletons(document)
   await split(document)
   await combineMaterials(document)
   await myInstance(document)
@@ -336,6 +349,16 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     await document.transform(prune())
   }
 
+  /* Separate Instanced Geometry */
+  const instancedNodes = root
+    .listNodes()
+    .filter((node) => !!node.getMesh()?.getExtension('EXT_mesh_gpu_instancing'))
+    .map((node) => [node, node.getParent()])
+  instancedNodes.map(([node, parent]) => {
+    node instanceof Node && parent?.removeChild(node)
+  })
+
+  /* PROCESS MESHES */
   if (args.parms.weld.enabled) {
     await document.transform(weld({ tolerance: args.parms.weld.tolerance }))
   }
@@ -349,13 +372,16 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     )
   }
 
-  /* PROCESS MESHES */
-
   if (args.parms.dracoCompression.enabled) {
     await document.transform(draco(args.parms.dracoCompression.options))
   }
 
   /* /PROCESS MESHES */
+
+  /* Return Instanced Geometry to Scene Graph */
+  instancedNodes.map(([node, parent]) => {
+    node instanceof Node && parent?.addChild(node)
+  })
 
   /* PROCESS TEXTURES */
   if (parms.textureFormat !== 'default') {
