@@ -21,11 +21,17 @@ export default (app: Application) => {
         defaultValue: (): string => generateShortId(8),
         allowNull: false
       },
+      hash: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       url: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      key: DataTypes.STRING,
+      key: {
+        type: DataTypes.STRING
+      },
       mimeType: {
         type: DataTypes.STRING,
         allowNull: true
@@ -37,6 +43,126 @@ export default (app: Application) => {
       project: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      driver: {
+        type: DataTypes.STRING
+      },
+      licensing: {
+        type: DataTypes.STRING
+      },
+      attribution: {
+        type: DataTypes.STRING
+      },
+      tags: {
+        type: DataTypes.JSON
+      },
+      LOD0_url: {
+        type: DataTypes.STRING
+      },
+      LOD0_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD1_url: {
+        type: DataTypes.STRING
+      },
+      LOD1_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD2_url: {
+        type: DataTypes.STRING
+      },
+      LOD2_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD3_url: {
+        type: DataTypes.STRING
+      },
+      LOD3_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD4_url: {
+        type: DataTypes.STRING
+      },
+      LOD4_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD5_url: {
+        type: DataTypes.STRING
+      },
+      LOD5_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD6_url: {
+        type: DataTypes.STRING
+      },
+      LOD6_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD7_url: {
+        type: DataTypes.STRING
+      },
+      LOD7_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD8_url: {
+        type: DataTypes.STRING
+      },
+      LOD8_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD9_url: {
+        type: DataTypes.STRING
+      },
+      LOD9_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD10_url: {
+        type: DataTypes.STRING
+      },
+      LOD10_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD11_url: {
+        type: DataTypes.STRING
+      },
+      LOD11_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD12_url: {
+        type: DataTypes.STRING
+      },
+      LOD12_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD13_url: {
+        type: DataTypes.STRING
+      },
+      LOD13_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD14_url: {
+        type: DataTypes.STRING
+      },
+      LOD14_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD15_url: {
+        type: DataTypes.STRING
+      },
+      LOD15_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD16_url: {
+        type: DataTypes.STRING
+      },
+      LOD16_metadata: {
+        type: DataTypes.JSON
+      },
+      LOD17_url: {
+        type: DataTypes.STRING
+      },
+      LOD17_metadata: {
+        type: DataTypes.JSON
       }
     },
     {

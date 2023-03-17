@@ -29,6 +29,7 @@ import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
+import { convertStaticResource } from '../scene/scene-helper'
 import {
   checkAppOrgStatus,
   checkUserOrgWriteStatus,
@@ -117,11 +118,17 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string, s
 
 /**
  * Updates the local storage provider with the project's current files
+ * @param app Application object
  * @param projectName
  * @param storageProviderName
  * @param remove
  */
-export const uploadLocalProjectToProvider = async (projectName, remove = true, storageProviderName?: string) => {
+export const uploadLocalProjectToProvider = async (
+  app: Application,
+  projectName,
+  remove = true,
+  storageProviderName?: string
+) => {
   const storageProvider = getStorageProvider(storageProviderName)
   const cacheDomain = getCacheDomain(storageProvider, true)
 
@@ -141,6 +148,10 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true, s
         return new Promise(async (resolve) => {
           try {
             const fileResult = fs.readFileSync(file)
+            if (/.scene.json$/.test(file)) {
+              const sceneParsed = JSON.parse(fileResult.toString())
+              const converted = convertStaticResource(app, sceneParsed)
+            }
             const filePathRelative = processFileName(file.slice(projectPath.length))
             await storageProvider.putObject(
               {
@@ -267,7 +278,7 @@ export class Project extends Service {
         }
       )
 
-      promises.push(uploadLocalProjectToProvider(projectName))
+      promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
     await Promise.all(promises)
@@ -309,7 +320,7 @@ export class Project extends Service {
     packageData.etherealEngine.version = getEnginePackageJson().version
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
-    await uploadLocalProjectToProvider(projectName, false)
+    await uploadLocalProjectToProvider(this.app, projectName, false)
 
     return super.create(
       {
@@ -349,7 +360,7 @@ export class Project extends Service {
   ) {
     if (data.sourceURL === 'default-project') {
       copyDefaultProject()
-      await uploadLocalProjectToProvider('default-project')
+      await uploadLocalProjectToProvider(this.app, 'default-project')
       return
     }
 
@@ -405,7 +416,7 @@ export class Project extends Service {
       throw err
     }
 
-    await uploadLocalProjectToProvider(projectName)
+    await uploadLocalProjectToProvider(this.app, projectName)
 
     const projectConfig = (await getProjectConfig(projectName)) ?? {}
 
