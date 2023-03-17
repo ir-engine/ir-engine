@@ -1,15 +1,18 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
 
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
 
-let providers: any = []
+let userId: string
 
 describe('identity-provider service', () => {
   let app: Application
+  let providers: IdentityProviderInterface[] = []
+
   before(async () => {
     app = createFeathersExpressApp()
     await app.setup()
@@ -35,7 +38,10 @@ describe('identity-provider service', () => {
       },
       {}
     )
+
     providers.push(item)
+
+    userId = item.userId
 
     assert.equal(item.type, type)
     assert.equal(item.token, token)
@@ -49,10 +55,12 @@ describe('identity-provider service', () => {
     const item = await app.service('identity-provider').create(
       {
         type,
-        token
+        token,
+        userId
       },
       {}
     )
+
     providers.push(item)
 
     assert.equal(item.type, type)
@@ -69,10 +77,12 @@ describe('identity-provider service', () => {
       {
         type,
         token,
-        password
+        password,
+        userId
       },
       {}
     )
+
     providers.push(item)
 
     assert.equal(item.type, type)
@@ -81,25 +91,60 @@ describe('identity-provider service', () => {
   })
 
   it('should find identity providers', async () => {
-    for (const provider of providers) {
-      const item = await app.service('identity-provider').find({
-        query: {
-          userId: provider.userId
-        }
-      })
+    const item = await app.service('identity-provider').find({
+      query: {
+        userId
+      }
+    })
 
-      assert.ok(item, 'Identity provider item is found')
-    }
+    assert.ok(item, 'Identity provider item is found')
+    assert.equal((item as any).total, providers.length)
   })
 
-  it('should remove identity providers', async () => {
-    for (const provider of providers) {
-      const item = await app.service('identity-provider').remove(null, {
-        query: {
-          userId: provider.userId
-        }
-      })
-      assert.ok(item, 'Identity provider item is removed')
-    }
+  it('should remove an identity provider by id', async () => {
+    await app.service('identity-provider').remove(providers[0].id)
+
+    const item = await app.service('identity-provider').find({
+      query: {
+        id: providers[0].id
+      }
+    })
+
+    assert.equal((item as any).total, 0)
+  })
+
+  it('should remove identity providers by user id', async () => {
+    await app.service('identity-provider').remove(null, {
+      query: {
+        userId
+      }
+    })
+
+    const item = await app.service('identity-provider').find({
+      query: {
+        userId
+      }
+    })
+
+    assert.equal((item as any).total, 0)
+  })
+
+  it('should not be able to remove the only identity provider', async () => {
+    const type = 'guest'
+    const token = v1()
+
+    const item = await app.service('identity-provider').create(
+      {
+        type,
+        token
+      },
+      {}
+    )
+
+    assert.rejects(() => app.service('identity-provider').remove(item.id), {
+      name: 'MethodNotAllowed'
+    })
+
+    assert.ok(true)
   })
 })
