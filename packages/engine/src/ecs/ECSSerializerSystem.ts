@@ -174,35 +174,6 @@ export const ECSSerialization = {
 }
 
 export default async function ECSSerializerSystem() {
-  // for testing
-  document.addEventListener('keydown', (e) => {
-    if (e.code === 'KeyM') {
-      const schema = [
-        {
-          read: readRigidBody,
-          write: writeRigidBody
-        }
-      ]
-      const chunks = [] as SerializedChunk[]
-      const serializer = ECSSerialization.createSerializer({
-        query: defineQuery([AvatarControllerComponent]),
-        schema,
-        chunkLength: 10000,
-        onCommitChunk: (chunk) => {
-          chunks.push(chunk)
-        }
-      })
-
-      setTimeout(() => {
-        serializer.end()
-        console.log('chunks', chunks)
-        setTimeout(() => {
-          const deserializer = ECSSerialization.createDeserializer(chunks, schema)
-        }, 2000)
-      }, 5000)
-    }
-  })
-
   const execute = () => {
     for (const serializer of ActiveSerializers) {
       serializer.write()
