@@ -76,7 +76,6 @@ export default async function MotionCaptureSystem() {
     }
   })
 
-  console.log({ POSE_LANDMARKS })
   const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmark[]>>()
 
   const xrState = getState(XRState)
@@ -118,7 +117,9 @@ export default async function MotionCaptureSystem() {
 
         const leftHips = data[POSE_LANDMARKS.LEFT_HIP]
         const rightHips = data[POSE_LANDMARKS.RIGHT_HIP]
-        const head = data[POSE_LANDMARKS.NOSE]
+        const nose = data[POSE_LANDMARKS.NOSE]
+        const leftEar = data[POSE_LANDMARKS.LEFT_EAR]
+        const rightEar = data[POSE_LANDMARKS.RIGHT_EAR]
         const leftShoulder = data[POSE_LANDMARKS.LEFT_SHOULDER]
         const rightShoulder = data[POSE_LANDMARKS.RIGHT_SHOULDER]
         const leftElbow = data[POSE_LANDMARKS.LEFT_ELBOW]
@@ -128,14 +129,15 @@ export default async function MotionCaptureSystem() {
 
         const ikTargets = getComponent(entity, AvatarIKTargetsComponent)
         const changed =
-          ikTargets.head !== !!head || ikTargets.leftHand !== !!leftHand || ikTargets.rightHand !== !!rightHand
+          ikTargets.head !== !!nose || ikTargets.leftHand !== !!leftHand || ikTargets.rightHand !== !!rightHand
 
         if (changed)
           dispatchAction(
-            WorldNetworkAction.avatarIKTargets({ head: !!head, leftHand: !!leftHand, rightHand: !!rightHand })
+            WorldNetworkAction.avatarIKTargets({ head: !!nose, leftHand: !!leftHand, rightHand: !!rightHand })
           )
 
         const avatarRig = getComponent(entity, AvatarRigComponent)
+        const avatarTransform = getComponent(entity, TransformComponent)
         if (!avatarRig) continue
 
         const avatarHips = avatarRig.rig.Hips
@@ -150,10 +152,12 @@ export default async function MotionCaptureSystem() {
           }
 
         if (hasComponent(entity, AvatarHeadIKComponent)) {
-          if (!head.visibility || head.visibility < 0.5) continue
-          if (!head.x || !head.y || !head.z) continue
+          if (!nose.visibility || nose.visibility < 0.5) continue
+          if (!nose.x || !nose.y || !nose.z) continue
           const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
-          headPos.set(head.x, -head.y, head.z)
+          headPos
+            .set((leftEar.x + rightEar.x) / 2, -(leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
+            .applyQuaternion(avatarTransform.rotation)
           ik.target.position.addVectors(hipsPos, headPos)
           // ik.target.quaternion.copy()
         }
