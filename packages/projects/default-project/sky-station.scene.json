@@ -55,7 +55,8 @@
           }
         }
       ],
-      "name": "sky-station"
+      "name": "sky-station",
+      "type": "envmap"
     },
     "1e8b1451-a87f-4cd4-8556-d0732f328a3c": {
       "components": [
@@ -87,7 +88,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 0,
-      "name": "scene preview camera"
+      "name": "scene preview camera",
+      "type": "camera"
     },
     "35621369-7e83-4878-953c-f30bf81dc775": {
       "components": [
@@ -137,7 +139,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 1,
-      "name": "skybox"
+      "name": "skybox",
+      "type": "camera"
     },
     "2b68a123-8a48-4258-a985-69a36679b4ef": {
       "components": [
@@ -171,7 +174,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 2,
-      "name": "spawn point"
+      "name": "spawn point",
+      "type": "spawn_point"
     },
     "bd83d58b-80e4-40a2-9a1d-d45aaee0c76a": {
       "components": [
@@ -235,7 +239,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 3,
-      "name": "Model"
+      "name": "Model",
+      "type": "model"
     },
     "e29dce88-8f22-4f8d-ae5d-e7dd0d55c41a": {
       "components": [
@@ -274,7 +279,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 4,
-      "name": "Ambient Light"
+      "name": "Ambient Light",
+      "type": "light"
     },
     "5867cc3f-4c7d-47e6-9a7b-db77cdcf4e7c": {
       "components": [
@@ -337,7 +343,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 5,
-      "name": "Video"
+      "name": "Video",
+      "type": "video"
     },
     "03162202-1925-44e8-9d64-d8f5aba3a476": {
       "components": [
@@ -474,7 +481,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 7,
-      "name": "Equippable"
+      "name": "Equippable",
+      "type": "equippable"
     },
     "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae": {
       "components": [
@@ -548,7 +556,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 8,
-      "name": "Portal - to Apartment"
+      "name": "Portal - to Apartment",
+      "type": "portal"
     },
     "87df7b80-3c4f-4272-8e44-bc28315a99ad": {
       "components": [
@@ -604,7 +613,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 9,
-      "name": "Audio"
+      "name": "Audio",
+      "type": "audio"
     },
     "dd1eafe4-dc87-4353-b3ae-567d4f81c032": {
       "components": [
@@ -678,7 +688,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 10,
-      "name": "Portal - Sky Station Interior"
+      "name": "Portal - Sky Station Interior",
+      "type": "portal"
     },
     "2d7f9f97-20a0-40e8-a504-682f650af501": {
       "components": [
@@ -752,7 +763,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 11,
-      "name": "Portal - Sky Station Exterior"
+      "name": "Portal - Sky Station Exterior",
+      "type": "portal"
     },
     "355eab21-0ac3-4c7e-841b-8eff4e02842c": {
       "components": [
@@ -808,7 +820,8 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 12,
-      "name": "Audio - Ambience"
+      "name": "Audio - Ambience",
+      "type": "audio"
     }
   },
   "root": "1b731841-172a-4141-89cb-d1cceeec748f"

@@ -31,7 +31,10 @@ describe('scene.test', () => {
     app = createFeathersExpressApp()
     await app.setup()
     const storageProvider = getStorageProvider()
-    parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
+    parsedData = Object.assign(
+      {},
+      parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
+    )
   })
   after(() => {
     return destroyEngine()
@@ -118,10 +121,12 @@ describe('scene.test', () => {
         await app.service('scene').update(
           newProjectName,
           {
-            sceneName: newSceneName
+            sceneName: newSceneName,
+            sceneData: parsedData
           },
           params
         )
+
         const { data } = await app.service('scene').get(
           {
             projectName: newProjectName,
@@ -130,6 +135,15 @@ describe('scene.test', () => {
           },
           params
         )
+
+        // For some reason, parsedData was reverting to un-replaced URLs.
+        // This just
+        const storageProvider = getStorageProvider()
+        parsedData = Object.assign(
+          {},
+          parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
+        )
+
         assert.strictEqual(data.name, newSceneName)
         assert.deepStrictEqual(data.scene, parsedData)
       })

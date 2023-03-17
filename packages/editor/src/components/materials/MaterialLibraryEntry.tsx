@@ -1,6 +1,5 @@
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
-import { Material } from 'three'
 
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'

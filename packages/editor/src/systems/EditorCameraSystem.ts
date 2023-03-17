@@ -31,7 +31,7 @@ export default async function EditorCameraSystem() {
   const execute = () => {
     if (Engine.instance.localClientEntity) return
     const editorCameraState = getMutableState(EditorCameraState)
-    const editorCamera = getState(EditorCameraState)
+    const editorCamera = editorCameraState.value
     const entity = Engine.instance.cameraEntity
     const transform = getComponent(entity, TransformComponent)
     const camera = getComponent(entity, CameraComponent)
