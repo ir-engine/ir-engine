@@ -93,8 +93,8 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
       setState({
         ...defaultState,
         name: selectedAvatar.name || '',
-        avatarUrl: selectedAvatar.modelResource?.LOD0_url || '',
-        thumbnailUrl: selectedAvatar.thumbnailResource?.LOD0_url || '',
+        avatarUrl: selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || '',
         avatarFile: undefined,
         thumbnailFile: undefined
       })

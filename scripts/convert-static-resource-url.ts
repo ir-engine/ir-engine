@@ -21,7 +21,8 @@ const db = {
   database: process.env.MYSQL_DATABASE ?? 'xrengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql'
+  dialect: 'mysql',
+  url: ''
 }
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
@@ -31,15 +32,7 @@ cli.enable('status')
 cli.main(async () => {
   try {
     const app = createFeathersExpressApp(ServerMode.API)
-    const sequelizeClient = new Sequelize({
-      ...db,
-      logging: console.log,
-      define: {
-        freezeTableName: true
-      }
-    })
-
-    await sequelizeClient.sync()
+    await app.setup()
 
     const staticResources = await app.service('static-resource').Model.findAll({
       paginate: false,

@@ -72,7 +72,7 @@ export const volumetricUpload = async (app: Application, data) => {
     const videoUrl = `${root}.mp4`
     const drcsUrl = `${root}.drcs`
     const manifestUrl = `${root}.manifest`
-    console.log('urls', videoUrl, drcsUrl, manifestUrl)
+    // console.log('urls', videoUrl, drcsUrl, manifestUrl)
     let volumetricEntry, video, manifest
 
     let drcsFileHead, contentLength

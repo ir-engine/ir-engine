@@ -538,55 +538,53 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                 </div>
 
                 {!selfUser?.isGuest.value && removeSocial && (
-                  <Text align="center" variant="body2" mb={1} mt={2}>
-                    {t('user:usermenu.profile.removeSocial')}
-                  </Text>
-                )}
+                  <>
+                    <Text align="center" variant="body2" mb={1} mt={2}>
+                      {t('user:usermenu.profile.removeSocial')}
+                    </Text>
 
-                <div className={styles.socialContainer}>
-                  {authState?.value?.discord && oauthConnectedState.discord.value && (
-                    <IconButton
-                      id="discord"
-                      icon={<DiscordIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.value?.google && oauthConnectedState.google.value && (
-                    <IconButton
-                      id="google"
-                      icon={<GoogleIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.value?.facebook && oauthConnectedState.facebook.value && (
-                    <IconButton
-                      id="facebook"
-                      icon={<FacebookIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.value?.linkedin && oauthConnectedState.linkedin.value && (
-                    <IconButton
-                      id="linkedin"
-                      icon={<LinkedInIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.value?.twitter && oauthConnectedState.twitter.value && (
-                    <IconButton
-                      id="twitter"
-                      icon={<TwitterIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.value?.github && oauthConnectedState.github.value && (
-                    <IconButton
-                      id="github"
-                      icon={<Icon type="GitHub" viewBox="0 0 24 24" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                </div>
+                    <div className={styles.socialContainer}>
+                      {authState?.discord.value && oauthConnectedState.discord.value && (
+                        <IconButton
+                          id="discord"
+                          icon={<DiscordIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.google.value && oauthConnectedState.google.value && (
+                        <IconButton
+                          id="google"
+                          icon={<GoogleIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.facebook.value && oauthConnectedState.facebook.value && (
+                        <IconButton
+                          id="facebook"
+                          icon={<Icon type="Facebook" viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.linkedin.value && oauthConnectedState.linkedin.value && (
+                        <IconButton
+                          id="linkedin"
+                          icon={<LinkedInIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.twitter.value && oauthConnectedState.twitter.value && (
+                        <IconButton
+                          id="twitter"
+                          icon={<Icon type="Twitter" viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.github.value && oauthConnectedState.github.value && (
+                        <IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleRemoveOAuthServiceClick} />
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
 
