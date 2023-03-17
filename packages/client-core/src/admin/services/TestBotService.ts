@@ -49,9 +49,9 @@ export const AdminTestBotReceptors = {
   spawnBotsReceptor,
   spawnedBotsReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessTestBotState = () => getMutableState(AdminTestBotState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useTestBotState = () => useState(accessTestBotState())
 
 //Service

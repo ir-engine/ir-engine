@@ -1,17 +1,30 @@
 import { AnimationAction } from 'three'
 
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type LoopAnimationComponentType = {
-  activeClipIndex: number
-  hasAvatarAnimations: boolean
-  action?: AnimationAction
-}
+export const LoopAnimationComponent = defineComponent({
+  name: 'LoopAnimationComponent',
+  onInit: (entity) => {
+    return {
+      activeClipIndex: -1,
+      hasAvatarAnimations: false,
+      action: null as AnimationAction | null
+    }
+  },
+  onSet: (entity, component, json) => {
+    if (!json) return
 
-export const LoopAnimationComponent = createMappedComponent<LoopAnimationComponentType>('LoopAnimationComponent')
+    if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
+    if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
+    if (typeof json.action !== 'undefined') component.action.set(json.action as AnimationAction)
+  },
+  toJSON: (entity, component) => {
+    return {
+      activeClipIndex: component.activeClipIndex.value,
+      hasAvatarAnimations: component.hasAvatarAnimations.value,
+      action: component.action.value
+    }
+  }
+})
 
 export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
-export const SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE = {
-  activeClipIndex: -1,
-  hasAvatarAnimations: false
-}

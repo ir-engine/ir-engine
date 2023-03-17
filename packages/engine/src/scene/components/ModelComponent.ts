@@ -8,7 +8,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import {
   defineComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   useComponent,
@@ -71,8 +71,6 @@ export const ModelComponent = defineComponent({
 
 function ModelReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, ModelComponent)) throw root.stop()
-
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
@@ -158,7 +156,7 @@ function ModelReactor({ root }: EntityReactorProps) {
       // trigger group state invalidation when bvh is done
       Promise.all(bvhDone).then(() => {
         if (!active) return
-        const group = getComponentState(entity, GroupComponent)
+        const group = getMutableComponent(entity, GroupComponent)
         if (group) group.set([...group.value])
       })
     }

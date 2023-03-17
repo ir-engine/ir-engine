@@ -16,7 +16,7 @@ import {
   ComponentType,
   defineComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -105,7 +105,16 @@ export const MediaComponent = defineComponent({
     return {
       controls: false,
       synchronize: true,
-      autoplay: true,
+      paths: [] as string[],
+      paused: true,
+      volume: 1,
+      playMode: PlayMode.loop as PlayMode,
+      isMusic: false,
+      // runtime props
+      waiting: false,
+      track: 0,
+      trackDurations: [] as number[],
+      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
        * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -113,17 +122,7 @@ export const MediaComponent = defineComponent({
        * If this value is non-negative and in the past, playback as soon as possible.
        * If this value is in the future, begin playback at the appointed time.
        */
-      // autoStartTime: -1,
-      paths: [] as string[],
-      playMode: PlayMode.loop as PlayMode,
-      isMusic: false,
-      volume: 1,
-      // runtime props
-      paused: true,
-      playing: false,
-      track: 0,
-      trackDurations: [] as number[],
-      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
+      // autoStartTime: -1
     }
   },
 
@@ -134,7 +133,7 @@ export const MediaComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       controls: component.controls.value,
-      autoplay: component.autoplay.value,
+      paused: component.paused.value,
       paths: component.paths.value,
       volume: component.volume.value,
       synchronize: component.synchronize.value,
@@ -154,9 +153,6 @@ export const MediaComponent = defineComponent({
 
       if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
         component.controls.set(json.controls)
-
-      if (typeof json.autoplay === 'boolean' && json.autoplay !== component.autoplay.value)
-        component.autoplay.set(json.autoplay)
 
       // backwars-compat: convert from number enums to strings
       if (
@@ -185,6 +181,9 @@ export const MediaComponent = defineComponent({
 
       if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
         component.isMusic.set(json.isMusic)
+
+      // @ts-ignore deprecated autoplay field
+      if (json.autoplay) component.paused.set(false)
     })
 
     return component
@@ -197,11 +196,8 @@ export const MediaComponent = defineComponent({
 
 export function MediaReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, MediaComponent)) throw root.stop()
-
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-  const userHasInteracted = useHookstate(getMutableState(EngineState).userHasInteracted)
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
 
@@ -243,9 +239,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
         tempElement.src = path
       }
 
-      // handle autoplay
-      if (media.autoplay.value && userHasInteracted.value) media.paused.set(false)
-
       return () => {
         for (const { tempElement, listener } of metadataListeners) {
           tempElement.removeEventListener('loadedmetadata', listener)
@@ -255,13 +248,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
       }
     },
     [media.paths]
-  )
-
-  useEffect(
-    function updatePausedUponInteract() {
-      if (userHasInteracted.value && media.autoplay.value) media.paused.set(false)
-    },
-    [userHasInteracted]
   )
 
   useEffect(
@@ -288,7 +274,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         setComponent(entity, MediaElementComponent, {
           element: document.createElement(assetClass) as HTMLMediaElement
         })
-        const mediaElementState = getComponentState(entity, MediaElementComponent)
+        const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
         const element = mediaElementState.element.value
 
@@ -302,16 +288,18 @@ export function MediaReactor({ root }: EntityReactorProps) {
         element.addEventListener(
           'playing',
           () => {
-            media.playing.set(true), clearErrors(entity, MediaElementComponent)
+            media.waiting.set(false)
+            clearErrors(entity, MediaElementComponent)
           },
           { signal }
         )
-        element.addEventListener('waiting', () => media.playing.set(false), { signal })
+        element.addEventListener('waiting', () => media.waiting.set(true), { signal })
         element.addEventListener(
           'error',
           (err) => {
             addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            if (media.playing.value) media.track.set(getNextTrack(media.value))
+            if (!media.paused.value) media.track.set(getNextTrack(media.value))
+            media.waiting.set(false)
           },
           { signal }
         )
@@ -321,6 +309,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
           () => {
             if (media.playMode.value === PlayMode.single) return
             media.track.set(getNextTrack(media.value))
+            media.waiting.set(false)
           },
           { signal }
         )
@@ -335,7 +324,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
       }
 
       setComponent(entity, MediaElementComponent)
-      const mediaElementState = getComponentState(entity, MediaElementComponent)
+      const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)

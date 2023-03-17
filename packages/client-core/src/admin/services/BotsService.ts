@@ -59,9 +59,9 @@ export const AdminBotServiceReceptors = {
   botPatchedReceptor,
   botRemovedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminBotState = () => getMutableState(AdminBotState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminBotState = () => useState(accessAdminBotState())
 
 //Service

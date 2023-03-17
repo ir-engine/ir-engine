@@ -1,12 +1,12 @@
 import * as bitecs from 'bitecs'
 
 import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createHyperStore, getMutableState, getState, hookstate, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getMutableState, getState, hookstate, ReactorRoot, State } from '@etherealengine/hyperflux'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createScene, destroyScene, Scene } from '../classes/Scene'
+import { createScene, Scene } from '../classes/Scene'
 
 import '../utils/threejsPatches'
 
@@ -33,6 +33,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { Timer } from '../../common/functions/Timer'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { ButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -56,6 +57,7 @@ import {
   hasComponent,
   Query,
   QueryComponents,
+  removeQuery,
   setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
@@ -117,6 +119,8 @@ export class Engine {
     defaultDispatchDelay: 1 / this.tickRate
   }) as HyperStore
 
+  activeReactors: Set<ReactorRoot> = new Set()
+
   /**
    * Current frame timestamp, relative to performance.timeOrigin
    */
@@ -124,7 +128,7 @@ export class Engine {
     return getMutableState(EngineState).frameTime.value
   }
 
-  engineTimer: { start: Function; stop: Function; clear: Function } = null!
+  engineTimer = null! as ReturnType<typeof Timer>
 
   /**
    * The current world
@@ -247,8 +251,6 @@ export class Engine {
     return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
   }
 
-  readonly dirtyTransforms = {} as Record<Entity, boolean>
-
   inputSources: Readonly<XRInputSourceArray> = []
 
   pointerState = {
@@ -361,11 +363,28 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function destroyEngine() {
-  if (Engine.instance?.currentScene) {
-    destroyScene(Engine.instance.currentScene)
+export async function destroyEngine() {
+  Engine.instance.engineTimer.clear()
+
+  /** Remove all entities */
+  const entities = Engine.instance.entityQuery()
+  for (const entity of entities) if (entity) removeEntity(entity, true)
+
+  for (const query of Engine.instance.reactiveQueryStates) {
+    removeQuery(query.query)
   }
-  unloadAllSystems()
+
+  /** Unload and clean up all systems */
+  await unloadAllSystems()
+
+  const activeReactors = [] as Promise<void>[]
+
+  for (const reactor of Engine.instance.activeReactors) {
+    activeReactors.push(reactor.stop())
+  }
+  await Promise.all(activeReactors)
+
   /** @todo include in next bitecs update */
   // bitecs.deleteWorld(Engine.instance)
+  Engine.instance = null!
 }

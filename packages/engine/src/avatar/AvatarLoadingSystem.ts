@@ -149,8 +149,10 @@ export default async function AvatarLoadingSystem() {
       pt.rotation.x = -0.5 * Math.PI
       group.add(pt)
 
-      setComponent(entity, TweenComponent, {
-        tween: new Tween<any>(effectComponent)
+      setComponent(
+        entity,
+        TweenComponent,
+        new Tween<any>(effectComponent)
           .to(
             {
               opacityMultiplier: 1
@@ -175,11 +177,11 @@ export default async function AvatarLoadingSystem() {
               effect: new DissolveEffect(avatarObjects[0], bbox.min.y / scale, bbox.max.y / scale)
             })
           })
-      })
+      )
     }
 
     for (const entity of growQuery()) {
-      Engine.instance.dirtyTransforms[entity] = true
+      TransformComponent.dirtyTransforms[entity] = true
     }
 
     for (const entity of commonQuery()) {
@@ -238,8 +240,10 @@ export default async function AvatarLoadingSystem() {
             }
           })
 
-        setComponent(entity, TweenComponent, {
-          tween: new Tween<any>(effectComponent)
+        setComponent(
+          entity,
+          TweenComponent,
+          new Tween<any>(effectComponent)
             .to(
               {
                 opacityMultiplier: 0
@@ -278,7 +282,7 @@ export default async function AvatarLoadingSystem() {
 
               removeEntity(entity)
             })
-        })
+        )
       }
     }
   }

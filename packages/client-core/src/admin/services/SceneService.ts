@@ -48,9 +48,9 @@ export const AdminSceneReceptors = {
   scenesFetchedReceptor,
   sceneFetchedReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessAdminSceneState = () => getMutableState(AdminSceneState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAdminSceneState = () => useState(accessAdminSceneState())
 
 export const AdminSceneService = {

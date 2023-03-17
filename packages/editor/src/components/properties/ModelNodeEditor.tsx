@@ -9,7 +9,7 @@ import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineSta
 import {
   addComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,

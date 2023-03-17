@@ -94,9 +94,9 @@ export default function EditorSelectionReceptor(): SystemDefintion {
 
   return { execute, cleanup }
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessSelectionState = () => getMutableState(SelectionState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useSelectionState = () => useState(accessSelectionState())
 
 //Service

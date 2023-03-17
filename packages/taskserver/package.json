@@ -40,14 +40,14 @@
   },
   "dependencies": {
     "@etherealengine/server-core": "^1.2.0-rc6",
-    "@feathersjs/express": "5.0.0-pre.29",
-    "@feathersjs/feathers": "5.0.0-pre.29",
+    "@feathersjs/express": "5.0.0",
+    "@feathersjs/feathers": "5.0.0",
     "@feathersjs/primus": "4.5.15",
     "@swc/core": "^1.2.210",
     "compression": "1.7.4",
     "cors": "2.8.5",
     "cross-env": "7.0.3",
-    "feathers-sync": "3.0.1",
+    "feathers-sync": "3.0.2",
     "helmet": "5.0.2",
     "typescript": "4.9.5"
   },

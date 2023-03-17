@@ -5,7 +5,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentType,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -34,7 +34,7 @@ export const unloadPrefab = (entity: Entity) => {
       }
     })
     if (hasComponent(entity, PrefabComponent)) {
-      const prefab = getComponentState(entity, PrefabComponent)
+      const prefab = getMutableComponent(entity, PrefabComponent)
       prefab.loaded.set(LoadState.UNLOADED)
       prefab.roots.set([])
     }
@@ -43,7 +43,7 @@ export const unloadPrefab = (entity: Entity) => {
 
 export const loadPrefab = async (entity: Entity, loader = AssetLoader) => {
   const prefab = getComponent(entity, PrefabComponent)
-  const prefabState = getComponentState(entity, PrefabComponent)
+  const prefabState = getMutableComponent(entity, PrefabComponent)
   //check if asset is already loading or loaded
   if (prefab.loaded !== LoadState.UNLOADED) {
     console.warn('Asset', prefab, 'is not unloaded')
@@ -71,7 +71,7 @@ export const deserializePrefab: ComponentDeserializeFunction = async (
 ) => {
   setComponent(entity, PrefabComponent, data)
   if (data.loaded === LoadState.LOADED) {
-    getComponentState(entity, PrefabComponent).loaded.set(LoadState.UNLOADED)
+    getMutableComponent(entity, PrefabComponent).loaded.set(LoadState.UNLOADED)
     await loadPrefab(entity)
   }
 }

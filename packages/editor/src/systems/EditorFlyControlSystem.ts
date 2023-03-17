@@ -8,14 +8,16 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { EditorCameraComponent } from '../classes/EditorCameraComponent'
+import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorHelperAction } from '../services/EditorHelperState'
 
 export default async function FlyControlSystem() {
   const tempVec3 = new Vector3()
   const normalMatrix = new Matrix3()
+
+  const editorCameraState = getMutableState(EditorCameraState)
 
   const onSecondaryClick = () => {
     if (!hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) {
@@ -32,9 +34,8 @@ export default async function FlyControlSystem() {
   const onSecondaryReleased = () => {
     const camera = Engine.instance.camera
     if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) {
-      const cameraComponent = getComponent(Engine.instance.cameraEntity, EditorCameraComponent)
-      const distance = camera.position.distanceTo(cameraComponent.center)
-      cameraComponent.center.addVectors(
+      const distance = camera.position.distanceTo(editorCameraState.center.value)
+      editorCameraState.center.value.addVectors(
         camera.position,
         tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
       )

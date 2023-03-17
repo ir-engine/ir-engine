@@ -1,5 +1,3 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type SelectTagComponentType = {}
-
-export const SelectTagComponent = createMappedComponent<SelectTagComponentType>('SelectTagComponent')
+export const SelectTagComponent = defineComponent({ name: 'SelectTagComponent' })

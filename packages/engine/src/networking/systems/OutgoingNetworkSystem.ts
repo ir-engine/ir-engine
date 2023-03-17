@@ -26,15 +26,16 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
     : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId
-    const peerID = Engine.instance.worldNetwork.peerID
-    const data = serialize(Engine.instance.worldNetwork as Network, userID, peerID, ents)
+    const network = Engine.instance.worldNetwork as Network
+    const peerID = network.peerID
+    const data = serialize(network, userID, peerID, ents)
 
     // todo: insert historian logic here
 
     if (data.byteLength > 0) {
       // side effect - network IO
       // delay until end of frame
-      Promise.resolve().then(() => Engine.instance.worldNetwork.sendData(data))
+      Promise.resolve().then(() => network.transport.bufferToPeer(network.hostPeerID, data))
     }
   }
 }

@@ -14,7 +14,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent
@@ -125,8 +125,6 @@ export const updateVolumetric = async (entity: Entity) => {
       } else {
         volumetric.loadingEffectActive = false
         endLoadingEffect(volumetric.entity, player.mesh)
-        const media = getComponentState(entity, MediaComponent)
-        if (media.autoplay.value && getMutableState(EngineState).userHasInteracted.value) media.paused.set(false)
       }
     }
   }

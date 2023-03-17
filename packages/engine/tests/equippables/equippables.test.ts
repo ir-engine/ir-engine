@@ -7,7 +7,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { applyIncomingActions, clearOutgoingActions } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../src/ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../src/initializeEngine'
@@ -28,6 +28,9 @@ describe.skip('Equippables Integration Tests', () => {
     createMockNetwork()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
+  })
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('Can equip and unequip', async () => {

@@ -6,6 +6,7 @@ import {
   Color,
   DoubleSide,
   Group,
+  InterleavedBufferAttribute,
   LineBasicMaterial,
   LineSegments,
   Mesh,
@@ -71,7 +72,9 @@ class CSMHelper extends Group {
     const lights = csm.lights
 
     const frustumLines = this.frustumLines
-    const frustumLinePositions = frustumLines.geometry.getAttribute('position')
+    const frustumLinePositions = frustumLines.geometry.getAttribute('position') as
+      | BufferAttribute
+      | InterleavedBufferAttribute
     const cascadeLines = this.cascadeLines
     const cascadePlanes = this.cascadePlanes
     const shadowLines = this.shadowLines

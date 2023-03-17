@@ -142,7 +142,7 @@ export default async function InteractiveSystem() {
         for (const interactiveEntity of interactables) {
           if (interactiveEntity === closestInteractable) {
             if (!hasComponent(interactiveEntity, HighlightComponent)) {
-              addComponent(interactiveEntity, HighlightComponent, {})
+              addComponent(interactiveEntity, HighlightComponent)
             }
           } else {
             if (hasComponent(interactiveEntity, HighlightComponent)) {

@@ -2,15 +2,19 @@ import assert from 'assert'
 import { Matrix4, Vector3 } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from '../src/common/proxies/createThreejsProxy'
+import { destroyEngine } from '../src/ecs/classes/Engine'
 import { addComponent, getComponent } from '../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../src/initializeEngine'
 import { setTransformComponent, TransformComponent } from '../src/transform/components/TransformComponent'
 
 describe('Structure of Array Synchronization', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
   it('should synchronize values between transform objects and SoA data', () => {
     /* mock */
-    createEngine()
 
     const entity = createEntity()
     setTransformComponent(
@@ -29,5 +33,9 @@ describe('Structure of Array Synchronization', () => {
     assert.strictEqual(transform.rotation.y, TransformComponent.rotation.y[entity])
     assert.strictEqual(transform.rotation.z, TransformComponent.rotation.z[entity])
     assert.strictEqual(transform.rotation.w, TransformComponent.rotation.w[entity])
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 })

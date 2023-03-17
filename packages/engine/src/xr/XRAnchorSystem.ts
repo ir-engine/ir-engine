@@ -32,7 +32,7 @@ import {
   ComponentType,
   defineQuery,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   removeComponent,
   removeQuery,
@@ -58,7 +58,7 @@ import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
   const xrFrame = Engine.instance.xrFrame!
-  const hitTest = getComponentState(entity, XRHitTestComponent)
+  const hitTest = getMutableComponent(entity, XRHitTestComponent)
   const localTransform = getComponent(entity, LocalTransformComponent)
   const hitTestResults = (hitTest.source.value && xrFrame.getHitTestResults(hitTest.source.value!)) ?? []
   hitTest.results.set(hitTestResults)
@@ -343,7 +343,7 @@ export default async function XRAnchorSystem() {
   const cleanup = async () => {
     removeQuery(xrHitTestQuery)
     removeActionQueue(xrSessionChangedQueue)
-    scenePlacementReactor.stop()
+    await scenePlacementReactor.stop()
   }
 
   const execute = () => {

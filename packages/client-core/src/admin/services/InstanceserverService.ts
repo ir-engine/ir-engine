@@ -40,9 +40,9 @@ export const InstanceServerSettingReceptors = {
   patchInstanceserverReceptor,
   patchedInstanceserverReceptor
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessInstanceserverState = () => getMutableState(AdminInstanceServerState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useInstanceserverState = () => useState(accessInstanceserverState())
 
 //Service

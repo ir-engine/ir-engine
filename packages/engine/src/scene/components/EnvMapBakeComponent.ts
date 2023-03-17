@@ -4,12 +4,7 @@ import { BoxGeometry, BoxHelper, Mesh, MeshPhysicalMaterial, Object3D, SphereGeo
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import {
-  createMappedComponent,
-  defineComponent,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -66,8 +61,6 @@ export const EnvMapBakeComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, EnvMapBakeComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const bake = useComponent(root.entity, EnvMapBakeComponent)
 

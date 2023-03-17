@@ -7,7 +7,7 @@ import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
 //State
@@ -50,8 +50,9 @@ export const MediaServiceReceptor = (action) => {
       return s.consumers.set(action.consumers)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessMediaStreamState = () => getMutableState(MediaState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMediaStreamState = () => useState(accessMediaStreamState())
 
 let updateConsumerTimeout

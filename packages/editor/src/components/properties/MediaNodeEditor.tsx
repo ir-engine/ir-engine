@@ -74,10 +74,10 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup
         name="Auto Play"
-        label={t('editor:properties.media.lbl-autoplay')}
-        info={t('editor:properties.media.info-autoplay')}
+        label={t('editor:properties.media.lbl-paused')}
+        info={t('editor:properties.media.info-paused')}
       >
-        <BooleanInput value={media.autoplay.value} onChange={updateProperty(MediaComponent, 'autoplay')} />
+        <BooleanInput value={media.paused.value} onChange={updateProperty(MediaComponent, 'paused')} />
       </InputGroup>
       <InputGroup
         name="Synchronize"

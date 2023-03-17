@@ -1,3 +1,3 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const HyperspaceTagComponent = createMappedComponent<true>('HyperspaceTagComponent')
+export const HyperspaceTagComponent = defineComponent({ name: 'HyperspaceTagComponent' })

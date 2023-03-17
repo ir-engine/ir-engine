@@ -46,7 +46,7 @@ export default async function DebugRendererSystem() {
   const debugEnable = getMutableState(RendererState).debugEnable
   const visualizers = [] as MeshBVHVisualizer[]
 
-  startGroupQueryReactor(function DebugReactor(props) {
+  const reactor = startGroupQueryReactor(function DebugReactor(props) {
     const entity = props.entity
     const group = useOptionalComponent(entity, GroupComponent)
     const debug = useHookstate(debugEnable)
@@ -140,6 +140,7 @@ export default async function DebugRendererSystem() {
     removeActionQueue(sceneLoadQueue)
     Engine.instance.scene.remove(InfiniteGridHelper.instance)
     InfiniteGridHelper.instance = null!
+    await reactor.stop()
   }
 
   return { execute, cleanup }

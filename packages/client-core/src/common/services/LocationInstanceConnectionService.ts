@@ -1,6 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none, State } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import { none } from '@hookstate/core'
+import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -25,8 +25,12 @@ import {
 
 import { API } from '../../API'
 import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
-import { accessAuthState } from '../../user/services/AuthService'
+import {
+  connectToNetwork,
+  initializeNetwork,
+  SocketWebRTCClientNetwork
+} from '../../transports/SocketWebRTCClientFunctions'
+import { AuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
 
 type InstanceState = {
@@ -50,13 +54,9 @@ export const LocationInstanceState = defineState({
 })
 
 export function useWorldInstance() {
-  const [state, setState] = React.useState(null as null | State<InstanceState>)
   const worldInstanceState = useState(getMutableState(LocationInstanceState).instances)
   const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
-  useEffect(() => {
-    setState(worldHostId.value ? worldInstanceState[worldHostId.value] : null)
-  }, [worldInstanceState, worldHostId])
-  return state
+  return worldHostId.value ? worldInstanceState[worldHostId.value] : null
 }
 
 export const LocationInstanceConnectionServiceReceptor = (action) => {
@@ -64,7 +64,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
       getMutableState(NetworkState).hostIds.world.set(action.instanceId)
-      addNetwork(new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world))
+      addNetwork(initializeNetwork(action.instanceId, NetworkTopics.world))
       return s.instances.merge({
         [action.instanceId]: {
           ipAddress: action.ipAddress,
@@ -102,9 +102,9 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       s.instances[action.currentInstanceId].set(none)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessLocationInstanceConnectionState = () => getMutableState(LocationInstanceState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLocationInstanceConnectionState = () => useState(accessLocationInstanceConnectionState())
 
 //Service
@@ -117,7 +117,7 @@ export const LocationInstanceConnectionService = {
     createPrivateRoom?: boolean
   ) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
-    const token = accessAuthState().authUser.accessToken.value
+    const token = getState(AuthState).authUser.accessToken
     if (instanceId != null) {
       const instance = (await API.instance.client.service('instance').find({
         query: {
@@ -156,7 +156,7 @@ export const LocationInstanceConnectionService = {
   },
   provisionExistingServer: async (locationId: string, instanceId: string, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
-    const token = accessAuthState().authUser.accessToken.value
+    const token = getState(AuthState).authUser.accessToken
     const instance = (await API.instance.client.service('instance').find({
       query: {
         id: instanceId,
@@ -198,7 +198,7 @@ export const LocationInstanceConnectionService = {
   },
   provisionExistingServerByRoomCode: async (locationId: string, roomCode: string, sceneId: string) => {
     logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
-    const token = accessAuthState().authUser.accessToken.value
+    const token = getState(AuthState).authUser.accessToken
     const instance = (await API.instance.client.service('instance').find({
       query: {
         roomCode,
@@ -246,9 +246,8 @@ export const LocationInstanceConnectionService = {
     if (network.primus) {
       leaveNetwork(network, false)
     }
-    const { ipAddress, port, locationId, roomCode } =
-      accessLocationInstanceConnectionState().instances.value[instanceId]
-    await network.initialize({ port, ipAddress, locationId, roomCode })
+    const { ipAddress, port, locationId, roomCode } = getState(LocationInstanceState).instances[instanceId]
+    await connectToNetwork(network, { port, ipAddress, locationId, roomCode })
   },
   useAPIListeners: () => {
     useEffect(() => {

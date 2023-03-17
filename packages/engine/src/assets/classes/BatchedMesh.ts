@@ -3,6 +3,7 @@ import {
   BufferGeometry,
   DataTexture,
   FloatType,
+  InterleavedBufferAttribute,
   Material,
   MathUtils,
   Matrix4,
@@ -243,8 +244,8 @@ class BatchedMesh extends Mesh {
     // @TODO: Error handling if exceeding maxVertexCount or maxIndexCount
 
     for (const attributeName in geometry.attributes) {
-      const srcAttribute = geometry.getAttribute(attributeName)
-      const dstAttribute = this.geometry.getAttribute(attributeName)
+      const srcAttribute = geometry.getAttribute(attributeName) as BufferAttribute | InterleavedBufferAttribute
+      const dstAttribute = this.geometry.getAttribute(attributeName) as BufferAttribute | InterleavedBufferAttribute
       ;(dstAttribute.array as Float32Array).set(srcAttribute.array, this._vertexCount * dstAttribute.itemSize)
       dstAttribute.needsUpdate = true
     }
@@ -261,7 +262,7 @@ class BatchedMesh extends Mesh {
     const geometryId = this._geometryCount
     this._geometryCount++
 
-    const idAttribute = this.geometry.getAttribute('id')
+    const idAttribute = this.geometry.getAttribute('id') as BufferAttribute | InterleavedBufferAttribute
 
     for (let i = 0; i < srcPositionAttribute.count; i++) {
       idAttribute.setX(this._vertexCount + i, geometryId)

@@ -1,5 +1,5 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const EquippableComponent = createMappedComponent<true>('EquippableComponent')
+export const EquippableComponent = defineComponent({ name: 'EquippableComponent', toJSON: () => true })
 
 export const SCENE_COMPONENT_EQUIPPABLE = 'equippable'

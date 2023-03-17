@@ -2,14 +2,10 @@ import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { Object3D } from 'three'
 
-import {
-  LoopAnimationComponent,
-  LoopAnimationComponentType,
-  SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
-} from '../../../avatar/components/LoopAnimationComponent'
-import { Engine } from '../../../ecs/classes/Engine'
+import { LoopAnimationComponent } from '../../../avatar/components/LoopAnimationComponent'
+import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentType, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 
@@ -86,18 +82,22 @@ describe('LoopAnimationFunctions', () => {
     entity = createEntity()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   const sceneComponentData = {
     activeClipIndex: -1,
     hasAvatarAnimations: false
   }
 
   describe('updateLoopAnimation()', () => {
-    let loopAnimation: LoopAnimationComponentType
+    let loopAnimation: ComponentType<typeof LoopAnimationComponent>
     let obj3d: Object3D
 
     beforeEach(() => {
       addComponent(entity, LoopAnimationComponent, sceneComponentData)
-      loopAnimation = getComponent(entity, LoopAnimationComponent) as LoopAnimationComponentType
+      loopAnimation = getComponent(entity, LoopAnimationComponent)
       obj3d = new Object3D()
       obj3d.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any
     })
@@ -129,13 +129,13 @@ describe('LoopAnimationFunctions', () => {
   })
 
   describe('Object 3d animation functions', () => {
-    let loopAnimation: LoopAnimationComponentType
+    let loopAnimation: ComponentType<typeof LoopAnimationComponent>
     let obj3d: Object3D
 
     beforeEach(() => {
       const scene = new Object3D()
       addComponent(entity, LoopAnimationComponent, sceneComponentData)
-      loopAnimation = getComponent(entity, LoopAnimationComponent) as LoopAnimationComponentType
+      loopAnimation = getComponent(entity, LoopAnimationComponent)
       scene.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any
       loopAnimation.activeClipIndex = Math.floor(Math.random() * 100) % 3
       loopAnimationFunctions.updateLoopAnimation(entity)

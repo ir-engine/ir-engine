@@ -19,10 +19,14 @@ import {
 
 import { API } from '../../API'
 import { accessChatState } from '../../social/services/ChatService'
-import { accessLocationState } from '../../social/services/LocationService'
+import { accessLocationState, LocationState } from '../../social/services/LocationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
-import { accessAuthState } from '../../user/services/AuthService'
+import {
+  connectToNetwork,
+  initializeNetwork,
+  SocketWebRTCClientNetwork
+} from '../../transports/SocketWebRTCClientFunctions'
+import { AuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
 
 const logger = multiLogger.child({ component: 'client-core:service:media-instance' })
@@ -50,13 +54,9 @@ export const MediaInstanceState = defineState({
 })
 
 export function useMediaInstance() {
-  const [state, setState] = React.useState(null as null | State<InstanceState>)
   const mediaInstanceState = useState(getMutableState(MediaInstanceState).instances)
   const mediaHostId = useState(getMutableState(NetworkState).hostIds.media)
-  useEffect(() => {
-    setState(mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null)
-  }, [mediaInstanceState, mediaHostId])
-  return state
+  return mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null
 }
 
 export const MediaInstanceConnectionServiceReceptor = (action) => {
@@ -64,7 +64,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
   matches(action)
     .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
       getMutableState(NetworkState).hostIds.media.set(action.instanceId)
-      addNetwork(new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media))
+      addNetwork(initializeNetwork(action.instanceId, NetworkTopics.media))
       return s.instances[action.instanceId].set({
         ipAddress: action.ipAddress,
         port: action.port,
@@ -110,16 +110,16 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       s.instances[action.currentInstanceId].set(none)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessMediaInstanceConnectionState = () => getMutableState(MediaInstanceState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMediaInstanceConnectionState = () => useState(accessMediaInstanceConnectionState())
 
 //Service
 export const MediaInstanceConnectionService = {
   provisionServer: async (channelId?: string, createPrivateRoom = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
-    const token = accessAuthState().authUser.accessToken.value
+    const token = getState(AuthState).authUser.accessToken
     const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
         channelId,
@@ -146,9 +146,9 @@ export const MediaInstanceConnectionService = {
   },
   connectToServer: async (instanceId: string, channelId: string) => {
     dispatchAction(MediaInstanceConnectionAction.serverConnecting({ instanceId }))
-    const authState = accessAuthState()
-    const user = authState.user.value
-    const { ipAddress, port } = accessMediaInstanceConnectionState().instances.value[instanceId]
+    const authState = getState(AuthState)
+    const user = authState.user
+    const { ipAddress, port } = getState(MediaInstanceState).instances[instanceId]
 
     const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, network }, 'Connect To Media Server.')
@@ -157,23 +157,22 @@ export const MediaInstanceConnectionService = {
       leaveNetwork(network, false)
     }
 
-    const locationState = accessLocationState()
+    const locationState = getState(LocationState)
     const currentLocation = locationState.currentLocation.location
 
     dispatchAction(
       MediaInstanceConnectionAction.enableVideo({
         instanceId,
         enableVideo:
-          currentLocation?.locationSetting?.videoEnabled?.value === true ||
+          currentLocation?.locationSetting?.videoEnabled === true ||
           !(
-            currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
-            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
-              null
+            currentLocation?.locationSetting?.locationType === 'showroom' &&
+            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id) == null
           )
       })
     )
 
-    await network.initialize({ port, ipAddress, channelId })
+    await connectToNetwork(network, { port, ipAddress, channelId })
   },
   resetServer: (instanceId: string) => {
     dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))

@@ -110,7 +110,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   TransformComponent.rotation.z[entity] = rotationZ * alpha + previousRotationZ * (1 - alpha)
   TransformComponent.rotation.w[entity] = rotationW * alpha + previousRotationW * (1 - alpha)
 
-  Engine.instance.dirtyTransforms[entity] = true
+  TransformComponent.dirtyTransforms[entity] = true
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
@@ -235,9 +235,9 @@ export default async function TransformSystem() {
     for (const obj of group) box.expandByObject(obj)
   }
 
-  const isDirty = (entity: Entity) => Engine.instance.dirtyTransforms[entity]
+  const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
   const isDirtyNonKinematic = (entity: Entity) =>
-    Engine.instance.dirtyTransforms[entity] &&
+    TransformComponent.dirtyTransforms[entity] &&
     !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
     !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
@@ -313,13 +313,13 @@ export default async function TransformSystem() {
     // entities with dirty parent or reference entities, or computed transforms, should also be dirty
     for (const entity of transformQuery()) {
       const makeDirty =
-        Engine.instance.dirtyTransforms[entity] ||
-        Engine.instance.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
-        Engine.instance.dirtyTransforms[
+        TransformComponent.dirtyTransforms[entity] ||
+        TransformComponent.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
+        TransformComponent.dirtyTransforms[
           getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0
         ] ||
         hasComponent(entity, ComputedTransformComponent)
-      Engine.instance.dirtyTransforms[entity] = makeDirty
+      TransformComponent.dirtyTransforms[entity] = makeDirty
     }
 
     const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
@@ -342,7 +342,7 @@ export default async function TransformSystem() {
       viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
     }
 
-    for (const entity in Engine.instance.dirtyTransforms) Engine.instance.dirtyTransforms[entity] = false
+    for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
 
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
@@ -410,10 +410,18 @@ export default async function TransformSystem() {
     removeActionQueue(modifyPropertyActionQueue)
 
     removeQuery(transformQuery)
+    removeQuery(nonDynamicLocalTransformQuery)
+    removeQuery(rigidbodyTransformQuery)
+    removeQuery(fixedRigidBodyQuery)
+    removeQuery(groupQuery)
+
     removeQuery(staticBoundingBoxQuery)
     removeQuery(dynamicBoundingBoxQuery)
+
     removeQuery(distanceFromLocalClientQuery)
     removeQuery(distanceFromCameraQuery)
+    removeQuery(frustumCulledQuery)
+
     Skeleton.prototype.update = skeletonUpdate
 
     networkState.networkSchema['ee.core.transform'].set(none)

@@ -2,6 +2,7 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -13,6 +14,9 @@ describe('user service', () => {
   before(async () => {
     app = createFeathersExpressApp()
     await app.setup()
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   it('registered the service', async () => {

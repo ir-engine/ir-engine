@@ -15,28 +15,30 @@ import { MessageTypes } from '@etherealengine/engine/src/networking/enums/Messag
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
-export const setupSubdomain = async (network: SocketWebRTCServerNetwork) => {
-  const app = network.app
+export const setupSubdomain = async () => {
+  const app = getState(ServerState).app as Application
   let stringSubdomainNumber: string
 
   if (config.kubernetes.enabled) {
-    await cleanupOldInstanceservers(network)
+    await cleanupOldInstanceservers(app)
     app.instanceServer = await app.agonesSDK.getGameServer()
 
     // We used to provision subdomains for instanceservers, e.g. 00001.instanceserver.domain.com
@@ -44,7 +46,7 @@ export const setupSubdomain = async (network: SocketWebRTCServerNetwork) => {
     // UDP, so the following was commented out.
     // const name = app.instanceServer.objectMeta.name
     // const isIdentifier = isNameRegex.exec(name)!
-    // stringSubdomainNumber = await getFreeSubdomain(transport, isIdentifier[1], 0)
+    // stringSubdomainNumber = await getFreeSubdomain(isIdentifier[1], 0)
     // app.isSubdomainNumber = stringSubdomainNumber
     //
     // const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
@@ -79,19 +81,17 @@ export const setupSubdomain = async (network: SocketWebRTCServerNetwork) => {
   ]
 }
 
-export async function getFreeSubdomain(
-  network: SocketWebRTCServerNetwork,
-  isIdentifier: string,
-  subdomainNumber: number
-): Promise<string> {
+export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: number): Promise<string> {
+  const app = getState(ServerState).app
+
   const stringSubdomainNumber = subdomainNumber.toString().padStart(config.instanceserver.identifierDigits, '0')
-  const subdomainResult = await network.app.service('instanceserver-subdomain-provision').find({
+  const subdomainResult = await app.service('instanceserver-subdomain-provision').find({
     query: {
       is_number: stringSubdomainNumber
     }
   })
   if ((subdomainResult as any).total === 0) {
-    await network.app.service('instanceserver-subdomain-provision').create({
+    await app.service('instanceserver-subdomain-provision').create({
       allocated: true,
       is_number: stringSubdomainNumber,
       is_id: isIdentifier
@@ -103,19 +103,19 @@ export async function getFreeSubdomain(
       }, 500)
     )
 
-    const newSubdomainResult = (await network.app.service('instanceserver-subdomain-provision').find({
+    const newSubdomainResult = (await app.service('instanceserver-subdomain-provision').find({
       query: {
         is_number: stringSubdomainNumber
       }
     })) as any
     if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
-    else return getFreeSubdomain(network, isIdentifier, subdomainNumber + 1)
+    else return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
   } else {
     const subdomain = (subdomainResult as any).data[0]
     if (subdomain.allocated === true || subdomain.allocated === 1) {
-      return getFreeSubdomain(network, isIdentifier, subdomainNumber + 1)
+      return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
     }
-    await network.app.service('instanceserver-subdomain-provision').patch(subdomain.id, {
+    await app.service('instanceserver-subdomain-provision').patch(subdomain.id, {
       allocated: true,
       is_id: isIdentifier
     })
@@ -126,25 +126,25 @@ export async function getFreeSubdomain(
       }, 500)
     )
 
-    const newSubdomainResult = (await network.app.service('instanceserver-subdomain-provision').find({
+    const newSubdomainResult = (await app.service('instanceserver-subdomain-provision').find({
       query: {
         is_number: stringSubdomainNumber
       }
     })) as any
     if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
-    else return getFreeSubdomain(network, isIdentifier, subdomainNumber + 1)
+    else return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
   }
 }
 
-export async function cleanupOldInstanceservers(network: SocketWebRTCServerNetwork): Promise<void> {
-  const instances = await network.app.service('instance').Model.findAndCountAll({
+export async function cleanupOldInstanceservers(app: Application): Promise<void> {
+  const instances = await app.service('instance').Model.findAndCountAll({
     offset: 0,
     limit: 1000,
     where: {
       ended: false
     }
   })
-  const instanceservers = await network.app.k8AgonesClient.listNamespacedCustomObject(
+  const instanceservers = await app.k8AgonesClient.listNamespacedCustomObject(
     'agones.dev',
     'v1',
     'default',
@@ -161,7 +161,7 @@ export async function cleanupOldInstanceservers(network: SocketWebRTCServerNetwo
         return is.status.address === ip && inputPort.port.toString() === port
       })
       return match == null
-        ? network.app.service('instance').patch(instance.id, {
+        ? app.service('instance').patch(instance.id, {
             ended: true
           })
         : Promise.resolve()
@@ -172,7 +172,7 @@ export async function cleanupOldInstanceservers(network: SocketWebRTCServerNetwo
     isNameRegex.exec(is.metadata.name) != null ? isNameRegex.exec(is.metadata.name)![1] : null
   )
 
-  await network.app.service('instanceserver-subdomain-provision').patch(
+  await app.service('instanceserver-subdomain-provision').patch(
     null,
     {
       allocated: false
@@ -224,7 +224,7 @@ export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, sparkID:
   return client?.userId
 }
 
-export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, spark: any, user: UserInterface) => {
+export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, spark: Spark, user: UserInterface) => {
   const userId = user.id
   const avatarDetail = user.avatar
   const peerID = spark.id as PeerID
@@ -250,6 +250,12 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
 
+  if (!network.users.has(userId)) {
+    network.users.set(userId, [peerID])
+  } else {
+    network.users.get(userId)!.push(peerID)
+  }
+
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
   worldState.userAvatarDetails[userId].set({
@@ -262,9 +268,11 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
   const spectating = network.peers.get(peerID)!.spectating
 
-  network.app.service('message').create(
+  const app = getState(ServerState).app
+
+  app.service('message').create(
     {
-      targetObjectId: network.app.instance.id,
+      targetObjectId: app.instance.id,
       targetObjectType: 'instance',
       text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
       isNotification: true
@@ -279,7 +287,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
 export async function handleJoinWorld(
   network: SocketWebRTCServerNetwork,
-  spark: any,
+  spark: Spark,
   data: JoinWorldRequestData,
   messageId: string,
   userId: UserId,
@@ -291,7 +299,7 @@ export async function handleJoinWorld(
 
   const peerID = spark.id as PeerID
 
-  network.updatePeers()
+  updatePeers(network)
 
   spark.write({
     type: MessageTypes.JoinWorld.toString(),
@@ -306,7 +314,9 @@ export async function handleJoinWorld(
     id: messageId
   })
 
-  if (data.inviteCode && !network.app.isChannelInstance) await getUserSpawnFromInvite(network, user, data.inviteCode!)
+  const app = getState(ServerState).app
+
+  if (data.inviteCode && !app.isChannelInstance) await getUserSpawnFromInvite(network, user, data.inviteCode!)
 }
 
 const getUserSpawnFromInvite = async (
@@ -316,7 +326,8 @@ const getUserSpawnFromInvite = async (
   iteration = 0
 ) => {
   if (inviteCode) {
-    const result = (await network.app.service('user').find({
+    const app = getState(ServerState).app
+    const result = (await app.service('user').find({
       query: {
         action: 'invite-code-lookup',
         inviteCode: inviteCode
@@ -391,20 +402,21 @@ export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark:
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark): Promise<any> {
-  const userId = getUserIdFromPeerID(network, spark.id) as UserId
   const peerID = spark.id as PeerID
+  const userId = getUserIdFromPeerID(network, peerID) as UserId
   const disconnectedClient = network.peers.get(peerID)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not foudn`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
-  if (spark.id === disconnectedClient?.peerID) {
+  if (peerID === disconnectedClient?.peerID) {
     const state = getMutableState(WorldState)
     const userName = state.userNames[userId].value
 
-    network.app.service('message').create(
+    const app = getState(ServerState).app
+    app.service('message').create(
       {
-        targetObjectId: network.app.instance.id,
+        targetObjectId: app.instance.id,
         targetObjectType: 'instance',
         text: `${userName} left`,
         isNotification: true
@@ -417,7 +429,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
     )
 
     NetworkPeerFunctions.destroyPeer(network, peerID)
-    network.updatePeers()
+    updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -439,7 +451,7 @@ export async function handleLeaveWorld(
     if (transport.appData.peerID === peerID) closeTransport(network, transport)
   if (network.peers.has(peerID)) {
     NetworkPeerFunctions.destroyPeer(network, peerID)
-    network.updatePeers()
+    updatePeers(network)
   }
   spark.write({ type: MessageTypes.LeaveWorld.toString(), id: messageId })
 }

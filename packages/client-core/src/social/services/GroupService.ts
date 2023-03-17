@@ -147,9 +147,9 @@ export const GroupServiceReceptor = (action) => {
       return s.closeDetails.set('')
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessGroupState = () => getMutableState(GroupState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useGroupState = () => useState(accessGroupState())
 
 //Service

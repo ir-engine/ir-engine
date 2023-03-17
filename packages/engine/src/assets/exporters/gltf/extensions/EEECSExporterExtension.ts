@@ -5,7 +5,7 @@ import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterf
 import {
   ComponentMap,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent
 } from '../../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../../scene/components/ColliderComponent'
@@ -33,7 +33,7 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
           break
         default:
           const component = ComponentMap.get(field)!
-          const compData = component.toJSON(entity, getComponentState(entity, component))
+          const compData = component.toJSON(entity, getMutableComponent(entity, component))
           for (const [field, value] of Object.entries(compData)) {
             data.push([`xrengine.${component.name}.${field}`, value])
           }

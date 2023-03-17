@@ -314,7 +314,7 @@
           "name": "media",
           "props": {
             "controls": true,
-            "autoplay": true,
+            "paused": false,
             "paths": [
               "__$project$__/default-project/assets/SampleVideo.mp4"
             ],
@@ -581,7 +581,7 @@
           "name": "media",
           "props": {
             "controls": true,
-            "autoplay": false,
+            "paused": true,
             "paths": [
               "__$project$__/default-project/assets/SampleAudio.mp3"
             ],
@@ -785,7 +785,7 @@
           "name": "media",
           "props": {
             "controls": false,
-            "autoplay": true,
+            "paused": false,
             "paths": [
               "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
             ],
