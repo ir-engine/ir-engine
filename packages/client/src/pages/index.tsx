@@ -1,8 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
-import { useClientSettingState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -10,6 +10,7 @@ import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMen
 import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import { Views } from '@etherealengine/client-core/src/user/components/UserMenu/util'
 import config from '@etherealengine/common/src/config'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Box, Button } from '@mui/material'
 
@@ -17,9 +18,9 @@ const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
   const { t } = useTranslation()
-  const clientSettingState = useClientSettingState()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
-  const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
+  const selectedMenu = useHookstate(Views.Profile)
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
@@ -90,11 +91,11 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            {selectedMenu === Views.Profile && (
-              <ProfileMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+            {selectedMenu.value === Views.Profile && (
+              <ProfileMenu isPopover changeActiveMenu={(type) => selectedMenu.set(type ? type : Views.Profile)} />
             )}
-            {selectedMenu === Views.Settings && (
-              <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+            {selectedMenu.value === Views.Settings && (
+              <SettingMenu isPopover changeActiveMenu={(type) => selectedMenu.set(type ? type : Views.Profile)} />
             )}
           </Box>
         </div>

@@ -97,10 +97,10 @@ export const NetworkInstanceProvisioning = () => {
     if (
       engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
-      currentLocationInstanceConnection.provisioned.value === true &&
-      currentLocationInstanceConnection.readyToConnect.value === true &&
-      currentLocationInstanceConnection.connecting.value === false &&
-      currentLocationInstanceConnection.connected.value === false
+      currentLocationInstanceConnection.provisioned.value &&
+      currentLocationInstanceConnection.readyToConnect.value &&
+      !currentLocationInstanceConnection.connecting.value &&
+      !currentLocationInstanceConnection.connected.value
     )
       LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
   }, [

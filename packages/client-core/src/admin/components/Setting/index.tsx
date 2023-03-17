@@ -1,7 +1,8 @@
 import { Icon as Iconify } from '@iconify/react'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/Avatar'
 import Button from '@etherealengine/ui/src/Button'
 import Divider from '@etherealengine/ui/src/Divider'
@@ -132,20 +133,20 @@ const Sidebar = ({ selected, onChange }: SidebarProps) => {
 
 const Setting = () => {
   const rootRef = useRef<any>()
-  const [selectedItem, setSelectedItem] = useState('project')
-  const [menuVisible, setMenuVisible] = useState(false)
+  const selectedItem = useHookstate('project')
+  const menuVisible = useHookstate(false)
   const { t } = useTranslation()
 
-  const settingItem = settingItems.find((item) => item.name === selectedItem)
+  const settingItem = settingItems.find((item) => item.name === selectedItem.value)
 
   useEffect(() => {
     rootRef?.current?.scrollIntoView()
-  }, [menuVisible])
+  }, [menuVisible.value])
 
   return (
     <div ref={rootRef}>
       <div className={styles.invisible}>
-        <Button size="small" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
+        <Button size="small" onClick={() => menuVisible.set(!menuVisible.value)} className={styles.menuBtn}>
           <Icon type="Menu" />
         </Button>
         {menuVisible && (
@@ -155,7 +156,7 @@ const Setting = () => {
                 {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
-                onClick={() => setMenuVisible(!menuVisible)}
+                onClick={() => menuVisible.set(!menuVisible.value)}
                 style={{
                   color: 'orange',
                   fontSize: '3rem',
@@ -167,9 +168,9 @@ const Setting = () => {
               />
             </Grid>
             <Sidebar
-              selected={selectedItem}
+              selected={selectedItem.value}
               onChange={(name) => {
-                setSelectedItem(name)
+                selectedItem.set(name)
               }}
             />
           </div>
@@ -181,9 +182,9 @@ const Setting = () => {
             {t('admin:components.setting.settings')}
           </Typography>
           <Sidebar
-            selected={selectedItem}
+            selected={selectedItem.value}
             onChange={(name) => {
-              setSelectedItem(name)
+              selectedItem.set(name)
             }}
           />
         </Grid>

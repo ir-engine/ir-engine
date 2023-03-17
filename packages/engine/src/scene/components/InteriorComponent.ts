@@ -21,9 +21,9 @@ export const InteriorComponent = defineComponent({
   },
   toJSON(entity, component) {
     return {
-      cubeMap: component.cubeMap,
-      tiling: component.tiling,
-      size: component.size
+      cubeMap: component.cubeMap.value,
+      tiling: component.tiling.value,
+      size: component.size.value
     }
   },
   errors: ['LOADING_ERROR']

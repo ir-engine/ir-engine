@@ -28,7 +28,7 @@ export const AppThemeServiceReceptor = (action) => {
 
 export class AppThemeActions {
   static setCustomTheme = defineAction({
-    type: 'xre.client.AppTheme.setCustomTheme' as const,
+    type: 'ee.client.AppTheme.setCustomTheme' as const,
     theme: matches.object.optional() as Validator<unknown, ThemeOptions>,
     themeName: matches.string.optional()
   })

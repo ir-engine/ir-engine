@@ -1,56 +1,55 @@
 import { Icon } from '@iconify/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Grid from '@etherealengine/ui/src/Grid'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { useAuthState } from '../../../user/services/AuthService'
-import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminEmailSettingsState, EmailSettingService } from '../../services/Setting/EmailSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Email = () => {
   const { t } = useTranslation()
-  const emailSettingState = useEmailSettingState()
-  const [emailSetting] = emailSettingState?.email?.value || []
+  const emailSettingState = useHookstate(getMutableState(AdminEmailSettingsState))
+  const [emailSetting] = emailSettingState?.email?.get({ noproxy: true }) || []
   const id = emailSetting?.id
+  const showPassword = useHookstate(false)
+  const smsNameCharacterLimit = useHookstate(emailSetting?.smsNameCharacterLimit)
+  const smtp = useHookstate(emailSetting?.smtp)
+  const auth = useHookstate(emailSetting?.smtp?.auth)
+  const from = useHookstate(emailSetting?.from)
+  const subject = useHookstate(emailSetting?.subject)
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [smsNameCharacterLimit, setSmsNameCharacterLimit] = useState(emailSetting?.smsNameCharacterLimit)
-  const [smtp, setSmtp] = useState(emailSetting?.smtp)
-  const [auth, setAuth] = useState(emailSetting?.smtp?.auth)
-  const [from, setFrom] = useState(emailSetting?.from)
-  const [subject, setSubject] = useState(emailSetting?.subject)
-
-  const authState = useAuthState()
-  const user = authState.user
+  const user = useHookstate(getMutableState(AuthState).user)
 
   const handleSmtpSecure = (event) => {
-    setSmtp({ ...smtp, secure: event.target.checked })
+    smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: event.target.checked })
   }
 
   const handleUpdateSmtp = (event, type) => {
-    setSmtp({
-      ...smtp,
+    smtp.set({
+      ...JSON.parse(JSON.stringify(smtp.value)),
       [type]: event.target.value
     })
   }
 
   const handleUpdateAuth = (event, type) => {
-    setAuth({
-      ...auth,
+    auth.set({
+      ...JSON.parse(JSON.stringify(auth.value)),
       [type]: event.target.value
     })
   }
 
   const handleUpdateSubject = (event, type) => {
-    setSubject({
-      ...subject,
+    subject.set({
+      ...JSON.parse(JSON.stringify(subject.value)),
       [type]: event.target.value
     })
   }
@@ -59,7 +58,7 @@ const Email = () => {
     if (user?.id?.value != null && emailSettingState?.updateNeeded?.value === true) {
       EmailSettingService.fetchedEmailSettings()
     }
-  }, [authState?.user?.id?.value, emailSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, emailSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     if (emailSetting) {
@@ -67,10 +66,10 @@ const Email = () => {
       let tempAuth = JSON.parse(JSON.stringify(emailSetting?.smtp?.auth))
       let tempSubject = JSON.parse(JSON.stringify(emailSetting?.subject))
 
-      setSmtp(tempSmtp)
-      setAuth(tempAuth)
-      setSubject(tempSubject)
-      setFrom(emailSetting?.from)
+      smtp.set(tempSmtp)
+      auth.set(tempAuth)
+      subject.set(tempSubject)
+      from.set(emailSetting?.from)
     }
   }, [emailSettingState?.updateNeeded?.value])
 
@@ -79,9 +78,9 @@ const Email = () => {
 
     EmailSettingService.patchEmailSetting(
       {
-        smtp: JSON.stringify({ ...smtp, auth: JSON.stringify(auth) }),
-        from: from,
-        subject: JSON.stringify(subject)
+        smtp: JSON.stringify({ ...smtp.value, auth: JSON.stringify(auth.value) }),
+        from: from.value,
+        subject: JSON.stringify(subject.value)
       },
       id
     )
@@ -92,11 +91,11 @@ const Email = () => {
     let tempAuth = JSON.parse(JSON.stringify(emailSetting?.smtp?.auth))
     let tempSubject = JSON.parse(JSON.stringify(emailSetting?.subject))
 
-    setSmtp(tempSmtp)
-    setAuth(tempAuth)
-    setSubject(tempSubject)
-    setFrom(emailSetting?.from)
-    setSmsNameCharacterLimit(emailSetting?.smsNameCharacterLimit)
+    smtp.set(tempSmtp)
+    auth.set(tempAuth)
+    subject.set(tempSubject)
+    from.set(emailSetting?.from)
+    smsNameCharacterLimit.set(emailSetting?.smsNameCharacterLimit)
   }
 
   return (
@@ -111,21 +110,21 @@ const Email = () => {
           <InputText
             name="host"
             label={t('admin:components.setting.host')}
-            value={smtp?.host || ''}
+            value={smtp?.value?.host || ''}
             onChange={(e) => handleUpdateSmtp(e, 'host')}
           />
 
           <InputText
             name="port"
             label={t('admin:components.setting.port')}
-            value={smtp?.port || ''}
+            value={smtp?.value?.port || ''}
             onChange={(e) => handleUpdateSmtp(e, 'port')}
           />
 
           <InputSwitch
             name="email"
             label={t('admin:components.setting.secure')}
-            checked={smtp?.secure || false}
+            checked={smtp?.value?.secure || false}
             onChange={handleSmtpSecure}
           />
 
@@ -134,18 +133,18 @@ const Email = () => {
           <InputText
             name="user"
             label={t('admin:components.setting.userName')}
-            value={auth?.user || ''}
+            value={auth?.value?.user || ''}
             onChange={(e) => handleUpdateAuth(e, 'user')}
           />
 
           <InputText
             name="pass"
             label={t('admin:components.setting.password')}
-            value={auth?.pass || ''}
+            value={auth?.value?.pass || ''}
             type={showPassword ? 'text' : 'password'}
             endAdornment={
               <IconButton
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => showPassword.set(!showPassword)}
                 icon={
                   <Icon icon={showPassword ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'} color="orange" />
                 }
@@ -160,8 +159,8 @@ const Email = () => {
           <InputText
             name="from"
             label={t('admin:components.setting.from')}
-            value={from || ''}
-            onChange={(e) => setFrom(e.target.value)}
+            value={from?.value || ''}
+            onChange={(e) => from.set(e.target.value)}
           />
 
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.subject')}</Typography>
@@ -169,35 +168,35 @@ const Email = () => {
           <InputText
             name="login"
             label={t('admin:components.setting.login')}
-            value={subject?.login || ''}
+            value={subject?.value?.login || ''}
             onChange={(e) => handleUpdateSubject(e, 'login')}
           />
 
           <InputText
             name="friend"
             label={t('admin:components.setting.friend')}
-            value={subject?.friend || ''}
+            value={subject?.value?.friend || ''}
             onChange={(e) => handleUpdateSubject(e, 'friend')}
           />
 
           <InputText
             name="group"
             label={t('admin:components.setting.group')}
-            value={subject?.group || ''}
+            value={subject?.value?.group || ''}
             onChange={(e) => handleUpdateSubject(e, 'group')}
           />
 
           <InputText
             name="party"
             label={t('admin:components.setting.party')}
-            value={subject?.party || ''}
+            value={subject?.value?.party || ''}
             onChange={(e) => handleUpdateSubject(e, 'party')}
           />
 
           <InputText
             name="smsNameCharacterLimit"
             label={t('admin:components.setting.smsNameCharLimit')}
-            value={smsNameCharacterLimit}
+            value={smsNameCharacterLimit?.value}
             disabled
           />
         </Grid>

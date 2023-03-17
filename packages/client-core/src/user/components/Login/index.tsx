@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import CardMedia from '@etherealengine/ui/src/CardMedia'
 import Icon from '@etherealengine/ui/src/Icon'
@@ -9,7 +10,7 @@ import Typography from '@etherealengine/ui/src/Typography'
 
 import Fab from '@mui/material/Fab'
 
-import { AuthSettingsService, useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
@@ -28,18 +29,18 @@ interface Props {
 }
 
 const FlatSignIn = (props: Props) => {
-  const [view, setView] = useState('login')
+  const view = useHookstate('login')
 
   const { t } = useTranslation()
   const location = useLocation()
 
-  const authSettingState = useAuthSettingState()
+  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [authState, setAuthState] = useState(initialAuthState)
+  const authState = useHookstate(initialAuthState)
 
-  const enableUserPassword = authState?.local
-  const enableGoogleSocial = authState?.google
-  const enableFacebookSocial = authState?.facebook
+  const enableUserPassword = authState?.value?.local
+  const enableGoogleSocial = authState?.value?.google
+  const enableFacebookSocial = authState?.value?.facebook
 
   const socials = [enableGoogleSocial, enableFacebookSocial]
 
@@ -55,7 +56,7 @@ const FlatSignIn = (props: Props) => {
           temp[strategyName] = strategy
         })
       })
-      setAuthState(temp)
+      authState.set(temp)
     }
   }, [authSettingState?.updateNeeded?.value])
 
@@ -76,7 +77,7 @@ const FlatSignIn = (props: Props) => {
   let component: JSX.Element
   let footer: JSX.Element
 
-  switch (view) {
+  switch (view.value) {
     case 'sign-up':
       component = <RegisterApp />
       footer = (
@@ -84,7 +85,7 @@ const FlatSignIn = (props: Props) => {
           {!props.isAddConnection && (
             <p>
               {t('social:login.account')}
-              <span onClick={() => setView('login')}>{t('social:login.login')}</span>
+              <span onClick={() => view.set('login')}>{t('social:login.login')}</span>
             </p>
           )}{' '}
         </>
@@ -94,7 +95,7 @@ const FlatSignIn = (props: Props) => {
       component = (
         <>
           <ForgotPassword />
-          <span onClick={() => setView('reset-password')}>{t('social:login.resetPassword')}</span>
+          <span onClick={() => view.set('reset-password')}>{t('social:login.resetPassword')}</span>
         </>
       )
       footer = (
@@ -102,13 +103,13 @@ const FlatSignIn = (props: Props) => {
           {!props.isAddConnection && (
             <p>
               {t('social:login.notHavingAccount')}
-              <span onClick={() => setView('sign-up')}>{t('social:login.signUp')}</span>
+              <span onClick={() => view.set('sign-up')}>{t('social:login.signUp')}</span>
             </p>
           )}
         </>
       )
       break
-    // completeAction={()=>setView('login')} removed from ResetPassword since it failed lintsub
+    // completeAction={()=>view.set('login')} removed from ResetPassword since it failed lintsub
     case 'reset-password':
       component = (
         <>
@@ -124,7 +125,7 @@ const FlatSignIn = (props: Props) => {
       component = (
         <>
           {userTabPanel}
-          <Typography variant="h3" align="right" onClick={() => setView('forget-password')}>
+          <Typography variant="h3" align="right" onClick={() => view.set('forget-password')}>
             {t('social:login.forgotPassword')}
           </Typography>
         </>
@@ -134,7 +135,7 @@ const FlatSignIn = (props: Props) => {
           {!props.isAddConnection && (
             <p>
               {t('social:login.notHavingAccount')}
-              <span onClick={() => setView('sign-up')}>{t('social:login.signUp')}</span>
+              <span onClick={() => view.set('sign-up')}>{t('social:login.signUp')}</span>
             </p>
           )}
         </>
@@ -144,8 +145,8 @@ const FlatSignIn = (props: Props) => {
 
   return (
     <section className={styles.loginPage}>
-      {view !== 'login' && (
-        <Button variant="text" className={styles.backButton} onClick={() => setView('login')}>
+      {view.value !== 'login' && (
+        <Button variant="text" className={styles.backButton} onClick={() => view.set('login')}>
           <Icon type="ArrowBackIos" />
           {t('social:login.back')}
         </Button>

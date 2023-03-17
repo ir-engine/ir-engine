@@ -11,6 +11,8 @@ export interface ClientSettingInterface {
   favicon16px: string
   icon192px: string
   icon512px: string
+  webmanifestLink: string
+  swScriptLink: string
   appBackground: string
   appTitle: string
   appSubtitle: string

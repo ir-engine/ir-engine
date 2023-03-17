@@ -31,14 +31,14 @@ export const CloudComponent = defineComponent({
   },
   toJSON(entity, component) {
     return {
-      texture: component.texture,
-      worldScale: component.worldScale,
-      dimensions: component.dimensions,
-      noiseZoom: component.noiseZoom,
-      noiseOffset: component.noiseOffset,
-      spriteScaleRange: component.spriteScaleRange,
-      fogColor: component.fogColor,
-      fogRange: component.fogRange
+      texture: component.texture.value,
+      worldScale: component.worldScale.value,
+      dimensions: component.dimensions.value,
+      noiseZoom: component.noiseZoom.value,
+      noiseOffset: component.noiseOffset.value,
+      spriteScaleRange: component.spriteScaleRange.value,
+      fogColor: component.fogColor.value,
+      fogRange: component.fogRange.value
     }
   },
   errors: ['TEXTURE_LOADING_ERROR']

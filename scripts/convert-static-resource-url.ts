@@ -12,16 +12,17 @@ import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovi
 import { addGenericAssetToS3AndStaticResources } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 
 dotenv.config({
-    path: appRootPath.path,
-    silent: true
+  path: appRootPath.path,
+  silent: true
 })
 const db = {
-    username: process.env.MYSQL_USER ?? 'server',
-    password: process.env.MYSQL_PASSWORD ?? 'password',
-    database: process.env.MYSQL_DATABASE ?? 'xrengine',
-    host: process.env.MYSQL_HOST ?? '127.0.0.1',
-    port: process.env.MYSQL_PORT ?? 3306,
-    dialect: 'mysql'
+  username: process.env.MYSQL_USER ?? 'server',
+  password: process.env.MYSQL_PASSWORD ?? 'password',
+  database: process.env.MYSQL_DATABASE ?? 'xrengine',
+  host: process.env.MYSQL_HOST ?? '127.0.0.1',
+  port: process.env.MYSQL_PORT ?? 3306,
+  dialect: 'mysql',
+  url: ''
 }
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
@@ -29,35 +30,37 @@ db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.ho
 cli.enable('status')
 
 cli.main(async () => {
-    try {
-        const app = createFeathersExpressApp(ServerMode.API)
-        await app.setup()
+  try {
+    const app = createFeathersExpressApp(ServerMode.API)
+    await app.setup()
 
-        const staticResources = await app.service('static-resource').Model.findAll({
-            paginate: false,
+    const staticResources = await app.service('static-resource').Model.findAll({
+      paginate: false,
+      where: {
+        LOD0_url: null
+      }
+    })
+
+    console.log('static resources', staticResources)
+
+    for (const resource of staticResources) {
+      if (resource.url && resource.LOD0_url == null)
+        await app.service('static-resource').Model.update(
+          {
+            LOD0_url: resource.url
+          },
+          {
             where: {
-                LOD0_url: null
+              id: resource.id
             }
-        })
-
-        console.log('static resources', staticResources)
-
-        for (const resource of staticResources) {
-            if (resource.url && resource.LOD0_url == null)
-                await app.service('static-resource').Model.update({
-                    LOD0_url: resource.url
-                },
-                {
-                    where: {
-                        id: resource.id
-                    }
-                })
-        }
-        cli.ok(`All static resources updated`)
-
-        process.exit(0)
-    } catch (err) {
-        console.log(err)
-        cli.fatal(err)
+          }
+        )
     }
+    cli.ok(`All static resources updated`)
+
+    process.exit(0)
+  } catch (err) {
+    console.log(err)
+    cli.fatal(err)
+  }
 })

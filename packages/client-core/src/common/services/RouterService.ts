@@ -23,7 +23,7 @@ export const useRouter = () => {
 
 export class RouterAction {
   static route = defineAction({
-    type: 'xre.client.Router.ROUTE' as const,
+    type: 'ee.client.Router.ROUTE' as const,
     pathname: matches.string
   })
 }

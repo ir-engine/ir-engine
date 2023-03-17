@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AdminBot, BotCommands, CreateBotCammand } from '@etherealengine/common/src/interfaces/AdminBot'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/Accordion'
 import AccordionDetails from '@etherealengine/ui/src/AccordionDetails'
 import AccordionSummary from '@etherealengine/ui/src/AccordionSummary'
@@ -12,36 +13,36 @@ import IconButton from '@etherealengine/ui/src/IconButton'
 import Typography from '@etherealengine/ui/src/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import { AdminBotCommandService, useAdminBotCommandState } from '../../services/BotsCommand'
-import { AdminBotService, useAdminBotState } from '../../services/BotsService'
+import { AdminBotCommandService, AdminBotsCommandState } from '../../services/BotsCommand'
+import { AdminBotService, AdminBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
 import UpdateBot from './UpdateBot'
 
 const DisplayBots = () => {
-  const [expanded, setExpanded] = useState<string | false>('panel0')
-  const [command, setCommand] = useState<BotCommands>({
+  const expanded = useHookstate<string | false>('panel0')
+  const command = useHookstate<BotCommands>({
     name: '',
     description: ''
   })
-  const [openUpdateBot, setOpenUpdateBot] = useState(false)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [bot, setBot] = useState<AdminBot>()
-  const [botName, setBotName] = useState('')
-  const [botId, setBotId] = useState('')
+  const openUpdateBot = useHookstate(false)
+  const openConfirm = useHookstate(false)
+  const bot = useHookstate<AdminBot | undefined>(undefined)
+  const botName = useHookstate('')
+  const botId = useHookstate('')
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
-    setCommand({ ...command, [name]: value })
+    command.merge({ [name]: value })
   }
 
   const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
-    setExpanded(isExpanded ? panel : false)
+    expanded.set(isExpanded ? panel : false)
   }
-  const botAdmin = useAdminBotState()
-  const botCommand = useAdminBotCommandState()
-  const user = useAuthState().user
+  const botAdmin = useHookstate(getMutableState(AdminBotState))
+  const botCommand = useHookstate(getMutableState(AdminBotsCommandState))
+  const user = useHookstate(getMutableState(AuthState).user)
   const botAdminData = botAdmin.bots
   const { t } = useTranslation()
 
@@ -51,27 +52,27 @@ const DisplayBots = () => {
     }
   }, [botAdmin.updateNeeded.value, user?.id?.value])
 
-  const handleOpenUpdateBot = (bot) => {
-    setBot(bot)
-    setOpenUpdateBot(true)
+  const handleOpenUpdateBot = (inputBot) => {
+    bot.set(inputBot)
+    openUpdateBot.set(true)
   }
 
   const submitCommandBot = (id: string) => {
     const data: CreateBotCammand = {
-      name: command.name,
-      description: command.description,
+      name: command.name.value,
+      description: command.description.value,
       botId: id
     }
     AdminBotCommandService.createBotCammand(data)
-    setCommand({
+    command.set({
       name: '',
       description: ''
     })
   }
 
   const submitRemoveBot = async () => {
-    await AdminBotService.removeBots(botId)
-    setOpenConfirm(false)
+    await AdminBotService.removeBots(botId.value)
+    openConfirm.set(false)
   }
 
   const botRefresh = async () => {
@@ -84,7 +85,7 @@ const DisplayBots = () => {
   }
 
   const addCommand = (id) => {
-    if (command.name) {
+    if (command.name.value) {
       submitCommandBot(id)
       botRefresh()
     } else {
@@ -94,9 +95,13 @@ const DisplayBots = () => {
 
   return (
     <div className={styles.botRootRight}>
-      {botAdminData.value.map((bot, index) => {
+      {botAdminData.get({ noproxy: true }).map((bot, index) => {
         return (
-          <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)} key={bot.id}>
+          <Accordion
+            expanded={expanded.value === `panel${index}`}
+            onChange={handleChange(`panel${index}`)}
+            key={bot.id}
+          >
             <AccordionSummary
               expandIcon={<Icon type="ExpandMore" />}
               aria-controls={`panel${index}bh-content`}
@@ -138,9 +143,9 @@ const DisplayBots = () => {
                       />
                       <IconButton
                         onClick={() => {
-                          setBotId(bot.id)
-                          setBotName(bot.name)
-                          setOpenConfirm(true)
+                          botId.set(bot.id)
+                          botName.set(bot.name)
+                          openConfirm.set(true)
                         }}
                         size="large"
                         icon={<Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />}
@@ -158,7 +163,7 @@ const DisplayBots = () => {
                 </Typography>
 
                 <AddCommand
-                  command={command}
+                  command={command.value}
                   handleChangeCommand={handleChangeCommand}
                   addCommandData={() => addCommand(bot.id)}
                   commandData={bot.botCommands ?? []}
@@ -170,12 +175,12 @@ const DisplayBots = () => {
         )
       })}
 
-      <UpdateBot open={openUpdateBot} onClose={() => setOpenUpdateBot(false)} bot={bot} />
+      <UpdateBot open={openUpdateBot.value} onClose={() => openUpdateBot.set(false)} bot={bot.value} />
 
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.bot.confirmBotDelete')} '${botName}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.bot.confirmBotDelete')} '${botName.value}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={submitRemoveBot}
       />
     </div>

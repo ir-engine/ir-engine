@@ -5,11 +5,11 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import {
   AuthSettingsService,
   AuthSettingsServiceReceptor,
-  useAuthSettingState
+  AuthSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import {
-  ClientSettingsServiceReceptor,
-  useClientSettingState
+  AdminClientSettingsState,
+  ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { AppLoadingServiceReceptor } from '@etherealengine/client-core/src/common/services/AppLoadingService'
@@ -28,7 +28,13 @@ import { InviteService, InviteServiceReceptor } from '@etherealengine/client-cor
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import {
+  addActionReceptor,
+  getMutableState,
+  getState,
+  removeActionReceptor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
@@ -38,8 +44,8 @@ const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRou
 
 function AdminRouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
-  const clientSettingsState = useClientSettingState()
-  const authSettingsState = useAuthSettingState()
+  const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
+  const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
   const location = useLocation()
   const navigate = useNavigate()
   const [routesReady, setRoutesReady] = useState(false)

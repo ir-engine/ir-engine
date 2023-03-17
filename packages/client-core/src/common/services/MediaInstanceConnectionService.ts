@@ -204,7 +204,7 @@ export const MediaInstanceConnectionService = {
 //Action
 export class MediaInstanceConnectionAction {
   static serverProvisioned = defineAction({
-    type: 'xre.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_PROVISIONED' as const,
+    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_PROVISIONED' as const,
     instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
@@ -214,32 +214,32 @@ export class MediaInstanceConnectionAction {
   })
 
   static serverConnecting = defineAction({
-    type: 'xre.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CONNECTING' as const,
+    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CONNECTING' as const,
     instanceId: matches.string
   })
 
   static enableVideo = defineAction({
-    type: 'xre.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_VIDEO_ENABLED' as const,
+    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_VIDEO_ENABLED' as const,
     instanceId: matches.string,
     enableVideo: matches.boolean
   })
 
   static serverConnected = defineAction({
-    type: 'xre.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CONNECTED' as const,
+    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CONNECTED' as const,
     instanceId: matches.string
   })
 
   static disconnect = defineAction({
-    type: 'xre.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_DISCONNECT' as const,
+    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_DISCONNECT' as const,
     instanceId: matches.string
   })
 
   static joiningNonInstanceMediaChannel = defineAction({
-    type: 'xre.client.MediaInstanceConnection.JOINING_NON_INSTANCE_MEDIA_CHANNEL' as const
+    type: 'ee.client.MediaInstanceConnection.JOINING_NON_INSTANCE_MEDIA_CHANNEL' as const
   })
 
   static changeActiveConnectionHostId = defineAction({
-    type: 'xre.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CHANGE_HOST_ID' as const,
+    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CHANGE_HOST_ID' as const,
     currentInstanceId: matchesUserId,
     newInstanceId: matchesUserId
   })
