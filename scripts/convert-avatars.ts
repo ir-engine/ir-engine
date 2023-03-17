@@ -31,6 +31,7 @@ cli.enable('status')
 cli.main(async () => {
   try {
     const app = createFeathersExpressApp(ServerMode.API)
+    await app.setup()
     const sequelizeClient = new Sequelize({
       ...db,
       logging: console.log,

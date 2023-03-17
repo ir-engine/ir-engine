@@ -31,15 +31,7 @@ cli.enable('status')
 cli.main(async () => {
     try {
         const app = createFeathersExpressApp(ServerMode.API)
-        const sequelizeClient = new Sequelize({
-            ...db,
-            logging: console.log,
-            define: {
-                freezeTableName: true
-            }
-        })
-
-        await sequelizeClient.sync()
+        await app.setup()
 
         const staticResources = await app.service('static-resource').Model.findAll({
             paginate: false,
