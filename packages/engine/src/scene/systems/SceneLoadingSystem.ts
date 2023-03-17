@@ -56,7 +56,11 @@ export const createNewEditorNode = (entityNode: Entity, prefabType: string): voi
   const world = Engine.instance.currentScene
   addEntityNodeChild(entityNode, world.sceneEntity)
   // Clone the defualt values so that it will not be bound to newly created node
-  deserializeSceneEntity(entityNode, { name, components: cloneDeep(components) })
+  deserializeSceneEntity(entityNode, {
+    name,
+    type: prefabType.toLowerCase().replace(/\s/, '_'),
+    components: cloneDeep(components)
+  })
 }
 
 export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
@@ -193,7 +197,6 @@ export const updateSceneEntitiesFromJSON = (parent: string, world = Engine.insta
 
 /**
  * Updates the scene based on serialized json data
- * @param oldSceneData
  * @param sceneData
  */
 export const updateSceneFromJSON = async (sceneData: SceneData) => {
@@ -292,6 +295,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson, worl
  * Loads all the components from scene json for an entity
  * @param {Entity} entityNode
  * @param {EntityJson} sceneEntity
+ * @param {World} world
  */
 export const deserializeSceneEntity = (
   entity: Entity,
