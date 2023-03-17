@@ -142,32 +142,46 @@ export default async function MotionCaptureSystem() {
 
         const avatarHips = avatarRig.rig.Hips
         avatarHips.getWorldPosition(hipsPos)
-        // console.log(hipsPos)
 
         if (debug)
           for (let i = 0; i < 33; i++) {
-            objs[i].position.set(data[i].x, -data[i].y, data[i].z).add(hipsPos)
+            objs[i].position
+              .set(data[i].x, data[i].y, data[i].z)
+              .multiplyScalar(-1)
+              .applyQuaternion(avatarTransform.rotation)
+              .add(hipsPos)
             objs[i].visible = !!data[i].visibility && data[i].visibility! > 0.5
             objs[i].updateMatrixWorld(true)
           }
+
+        hipsPos.applyQuaternion(avatarTransform.rotation)
 
         if (hasComponent(entity, AvatarHeadIKComponent)) {
           if (!nose.visibility || nose.visibility < 0.5) continue
           if (!nose.x || !nose.y || !nose.z) continue
           const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
           headPos
-            .set((leftEar.x + rightEar.x) / 2, -(leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
+            .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
+            .multiplyScalar(-1)
             .applyQuaternion(avatarTransform.rotation)
-          ik.target.position.addVectors(hipsPos, headPos)
-          // ik.target.quaternion.copy()
+            .add(hipsPos)
+          ik.target.position.copy(headPos)
+          // ik.target.quaternion.setFromUnitVectors(
+          //   new Vector3(0, 1, 0),
+          //   new Vector3(nose.x, -nose.y, nose.z).sub(headPos).normalize()
+          // ).multiply(avatarTransform.rotation)
         }
 
         if (hasComponent(entity, AvatarLeftArmIKComponent)) {
           if (!leftHand.visibility || leftHand.visibility < 0.5) continue
           if (!leftHand.x || !leftHand.y || !leftHand.z) continue
           const ik = getComponent(localClientEntity, AvatarLeftArmIKComponent)
-          leftHandPos.set(leftHand.x, -leftHand.y, leftHand.z)
-          ik.target.position.addVectors(hipsPos, leftHandPos)
+          leftHandPos
+            .set(leftHand.x, leftHand.y, leftHand.z)
+            .multiplyScalar(-1)
+            .applyQuaternion(avatarTransform.rotation)
+            .add(hipsPos)
+          ik.target.position.copy(leftHandPos)
           // ik.target.quaternion.copy()
         }
 
@@ -175,8 +189,12 @@ export default async function MotionCaptureSystem() {
           if (!rightHand.visibility || rightHand.visibility < 0.5) continue
           if (!rightHand.x || !rightHand.y || !rightHand.z) continue
           const ik = getComponent(localClientEntity, AvatarRightArmIKComponent)
-          rightHandPos.set(rightHand.x, -rightHand.y, rightHand.z)
-          ik.target.position.addVectors(hipsPos, rightHandPos)
+          rightHandPos
+            .set(rightHand.x, rightHand.y, rightHand.z)
+            .multiplyScalar(-1)
+            .applyQuaternion(avatarTransform.rotation)
+            .add(hipsPos)
+          ik.target.position.copy(rightHandPos)
           // ik.target.quaternion.copy()
         }
       }
