@@ -23,7 +23,7 @@ describe('avatar-helper', () => {
     // reset default project in case another test has tampered with it
     copyDefaultProject()
     await app.service('project')._seedProject('default-project')
-    await uploadLocalProjectToProvider('default-project')
+    await uploadLocalProjectToProvider(app, 'default-project')
   })
 
   after(() => {

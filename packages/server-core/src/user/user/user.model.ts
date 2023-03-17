@@ -62,7 +62,7 @@ export default (app: Application) => {
     ;(User as any).belongsToMany(models.group, { through: 'group_user' }) // user can join multiple orgs
     ;(User as any).hasMany(models.group_user, { unique: false, onDelete: 'cascade' })
     ;(User as any).hasMany(models.identity_provider, { onDelete: 'cascade' })
-    ;(User as any).hasMany(models.static_resource)
+    // ;(User as any).hasMany(models.static_resource)
     // (User as any).hasMany(models.subscription);
     ;(User as any).hasMany(models.channel, { foreignKey: 'userId1', onDelete: 'cascade' })
     ;(User as any).hasMany(models.channel, { foreignKey: 'userId2', onDelete: 'cascade' })

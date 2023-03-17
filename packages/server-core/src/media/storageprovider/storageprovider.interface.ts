@@ -130,21 +130,21 @@ export interface StorageProviderInterface {
   cacheDomain: string
 
   /**
-   * Invalidate items in the storage.
+   * Invalidate items in the storage provider.
    * @param invalidationItems List of keys.
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
 
   /**
-   * Delete resources in the storage.
+   * Delete resources in the storage provider.
    * @param keys List of keys.
    */
   deleteResources(keys: string[]): Promise<any>
 
   /**
-   * Check if an object exists in the storage.
-   * @param fileName Name of file in the storage.
-   * @param directoryPath Directory of file in the storage.
+   * Check if an object exists in the storage provider.
+   * @param fileName Name of file in the storage provider.
+   * @param directoryPath Directory of file in the storage provider.
    * @returns {Promise<boolean>}
    */
   doesExist(fileName: string, directoryPath: string): Promise<boolean>

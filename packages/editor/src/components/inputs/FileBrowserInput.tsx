@@ -13,6 +13,8 @@ export type FileBrowserInputProps = StringInputProps & { acceptFileTypes: string
  * Function component used for rendering FileBrowserInput.
  *
  * @param {function} onChange
+ * @param {string} acceptFileTypes
+ * @param {object} acceptDropItems
  * @param {any} rest
  * @returns
  */

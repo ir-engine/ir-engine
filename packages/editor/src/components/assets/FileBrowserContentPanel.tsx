@@ -2,7 +2,6 @@ import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { API } from '@etherealengine/client-core/src/API'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
@@ -38,10 +37,6 @@ import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
-import BooleanInput from '../inputs/BooleanInput'
-import { Button } from '../inputs/Button'
-import Scrubber from '../inputs/Scrubber'
-import SelectInput from '../inputs/SelectInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import CompressionPanel from './CompressionPanel'

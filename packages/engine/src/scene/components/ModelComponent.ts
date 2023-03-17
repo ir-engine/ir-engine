@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
-import { Mesh, Object3D, Scene } from 'three'
+import { Mesh, Scene } from 'three'
+
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../assets/classes/DependencyTree'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { Engine } from '../../ecs/classes/Engine'
 import {
   defineComponent,
   getComponent,
@@ -25,9 +26,17 @@ import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
-import { MediaComponent } from './MediaComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
+
+export type ModelResource = {
+  src?: string
+  gltfStaticResource?: StaticResourceInterface
+  glbStaticResource?: StaticResourceInterface
+  fbxStaticResource?: StaticResourceInterface
+  usdzStaticResource?: StaticResourceInterface
+  id?: EntityUUID
+}
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
@@ -35,6 +44,7 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
+      resource: null as unknown as ModelResource,
       generateBVH: true,
       avoidCameraOcclusion: false,
       scene: undefined as undefined | Scene
@@ -44,6 +54,7 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
+      resource: component.resource.value,
       generateBVH: component.generateBVH.value,
       avoidCameraOcclusion: component.avoidCameraOcclusion.value
     }
@@ -52,6 +63,10 @@ export const ModelComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
+    if (typeof json.resource === 'object') {
+      const resource = json.resource ? (json.resource as ModelResource) : ({ src: json.src } as ModelResource)
+      component.resource.set(resource)
+    }
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
   },
@@ -64,7 +79,7 @@ export const ModelComponent = defineComponent({
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
-  errors: ['LOADING_ERROR'],
+  errors: ['LOADING_ERROR', 'INVALID_URL'],
 
   reactor: ModelReactor
 })
@@ -74,9 +89,15 @@ function ModelReactor({ root }: EntityReactorProps) {
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
+  const source =
+    model.resource?.gltfStaticResource?.LOD0_url ||
+    model.resource?.glbStaticResource?.LOD0_url ||
+    model.resource?.fbxStaticResource?.LOD0_url ||
+    model.resource?.usdzStaticResource?.LOD0_url ||
+    model.src
   // update src
   useEffect(() => {
-    if (model.src === model.scene?.userData?.src) return
+    if (source === model.scene?.userData?.src) return
 
     try {
       if (model.scene && model.scene.userData.src && model.scene.userData.src !== model.src) {
