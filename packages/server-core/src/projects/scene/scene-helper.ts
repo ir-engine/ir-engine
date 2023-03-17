@@ -82,7 +82,7 @@ export const convertStaticResource = async (app: Application, sceneData: SceneJs
             delete component.props.paths
             mediaType = AssetLoader.getAssetClass(urls[0])
           } else {
-            for (const resource of resources) {
+            for (const resource of resources ?? []) {
               if (resource.mp3StaticResource || resource.oggStaticResource || resource.mpegStaticResource) {
                 mediaType = AssetClass.Audio
                 urls.push(
@@ -128,7 +128,7 @@ export const convertStaticResource = async (app: Application, sceneData: SceneJs
           for (let index in urls)
             if (symbolRe.test(urls[index]))
               urls[index] = urls[index].replace(pathSymbol, path.join(appRootPath.path, '/packages/projects/projects'))
-          console.log('urls', urls)
+          // console.log('urls', urls)
           if (mediaType === AssetClass.Audio)
             component.props.resources = JSON.parse(
               JSON.stringify(await Promise.all(urls.map((url) => audioUpload(app, { url: url }))))
