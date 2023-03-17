@@ -1,6 +1,7 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
 
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
@@ -10,6 +11,8 @@ let userId: string
 
 describe('identity-provider service', () => {
   let app: Application
+  let providers: IdentityProviderInterface[] = []
+
   before(async () => {
     app = createFeathersExpressApp()
     await app.setup()
@@ -36,6 +39,8 @@ describe('identity-provider service', () => {
       {}
     )
 
+    providers.push(item)
+
     userId = item.userId
 
     assert.equal(item.type, type)
@@ -55,6 +60,8 @@ describe('identity-provider service', () => {
       },
       {}
     )
+
+    providers.push(item)
 
     assert.equal(item.type, type)
     assert.equal(item.token, token)
@@ -76,6 +83,8 @@ describe('identity-provider service', () => {
       {}
     )
 
+    providers.push(item)
+
     assert.equal(item.type, type)
     assert.equal(item.token, token)
     assert.ok(item.userId)
@@ -89,16 +98,35 @@ describe('identity-provider service', () => {
     })
 
     assert.ok(item, 'Identity provider item is found')
+    assert.equal((item as any).total, providers.length)
   })
 
-  it('should remove identity providers', async () => {
-    const item = await app.service('identity-provider').remove(null, {
+  it('should remove an identity provider by id', async () => {
+    await app.service('identity-provider').remove(providers[0].id)
+
+    const item = await app.service('identity-provider').find({
+      query: {
+        id: providers[0].id
+      }
+    })
+
+    assert.equal((item as any).total, 0)
+  })
+
+  it('should remove identity providers by user id', async () => {
+    await app.service('identity-provider').remove(null, {
       query: {
         userId
       }
     })
 
-    assert.ok(item, 'Identity provider item is removed')
+    const item = await app.service('identity-provider').find({
+      query: {
+        userId
+      }
+    })
+
+    assert.equal((item as any).total, 0)
   })
 
   it('should not be able to remove the only identity provider', async () => {
@@ -113,18 +141,10 @@ describe('identity-provider service', () => {
       {}
     )
 
-    userId = item.userId
+    assert.rejects(() => app.service('identity-provider').remove(item.id), {
+      name: 'MethodNotAllowed'
+    })
 
-    assert.rejects(
-      () =>
-        app.service('identity-provider').remove(null, {
-          query: {
-            userId
-          }
-        }),
-      {
-        name: 'MethodNotAllowed'
-      }
-    )
+    assert.ok(true)
   })
 })
