@@ -1,6 +1,6 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import {
@@ -11,7 +11,6 @@ import { initGA, logPageView } from '@etherealengine/client-core/src/common/anal
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { theme } from '@etherealengine/client-core/src/theme'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
@@ -21,7 +20,7 @@ import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjectio
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
-import RouterComp from '../route/public'
+import RecorderComp from '../route/recorder'
 
 import './styles.scss'
 
@@ -30,7 +29,6 @@ import {
   useCoilSettingState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
-import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
   AppThemeState,
@@ -47,9 +45,7 @@ import {
   OEmbedServiceReceptor,
   useOEmbedState
 } from '@etherealengine/client-core/src/common/services/OEmbedService'
-import Debug from '@etherealengine/client-core/src/components/Debug'
 import config from '@etherealengine/common/src/config'
-import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
@@ -245,12 +241,12 @@ const AppPage = (): any => {
             action={defaultAction}
           >
             <GlobalStyle />
-            <div style={{ pointerEvents: 'auto' }}>
-              <InviteToast />
-              <UIDialog />
-              <Debug />
+            <div className="fixed w-full h-full bg-black flex justify-center">
+              <RecorderComp />
             </div>
-            <RouterComp />
+            {projectComponents.map((Component, i) => (
+              <Component key={i} />
+            ))}
             {projectComponents.map((Component, i) => (
               <Component key={i} />
             ))}

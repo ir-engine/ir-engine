@@ -47,19 +47,19 @@ const sendResults = (results: NormalizedLandmarkList) => {
   }
 }
 
-const Mediapipe = ({}: {}) => {
+const Mediapipe = () => {
   const canvasRef = useRef(null as any)
   const webcamRef = useRef(null as any)
   const canvasCtxRef = useRef(null as any)
 
-  const imageWidth = useHookstate(1)
-  const imageHeight = useHookstate(1)
+  const videoConstraints = {
+    width: 1280,
+    height: 720,
+    facingMode: 'user'
+  }
 
   const onResults: ResultsListener = useCallback(
     (results) => {
-      imageWidth.set(results.image.width)
-      imageHeight.set(results.image.height)
-
       if (canvasCtxRef.current !== null && canvasRef.current !== null) {
         const { poseWorldLandmarks, poseLandmarks } = results
         if (canvasCtxRef.current && poseLandmarks?.length) {
@@ -84,19 +84,19 @@ const Mediapipe = ({}: {}) => {
     [canvasCtxRef]
   )
 
-  // useEffect(() => {
-  //   if (canvasRef.current !== null && webcamRef.current !== null) {
-  //     canvasRef.current.width = webcamRef?.current?.video?.width
-  //     canvasRef.current.height = webcamRef?.current?.video?.height
-  //   }
-  // }, [webcamRef])
+  useEffect(() => {
+    if (canvasRef.current !== null && webcamRef.current !== null) {
+      canvasRef.current.width = webcamRef?.current?.video?.offsetWidth
+      canvasRef.current.height = webcamRef?.current?.video?.offsetHeight
+    }
+  }, [webcamRef])
 
   useLayoutEffect(() => {
     if (canvasRef.current !== null) {
       const canvasElement = canvasRef.current
       canvasCtxRef.current = canvasElement.getContext('2d') //canvas context
     }
-  }, [canvasRef])
+  }, [canvasRef, webcamRef])
 
   useEffect(() => {
     const pose = new Pose({
@@ -117,8 +117,6 @@ const Mediapipe = ({}: {}) => {
     if (webcamRef.current !== null) {
       const camera = new cam.Camera(webcamRef.current.video, {
         onFrame: async () => {
-          imageWidth.set(webcamRef.current.video.offsetWidth)
-          imageHeight.set(webcamRef.current.video.offsetHeight)
           // Todo: hook to media service
           await pose.send({ image: webcamRef.current.video })
         }
@@ -129,19 +127,15 @@ const Mediapipe = ({}: {}) => {
 
   // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
   return (
-    <div style={{ width: 'fit-content', height: 'fit-content', position: 'relative' }}>
-      <Webcam ref={webcamRef} style={{ width: '100%' }} width="100%" height="100%" />
-      <div style={{ objectFit: 'contain', position: 'absolute', top: 0 }}>
-        <canvas
-          ref={canvasRef}
-          style={{
-            width: imageWidth.value,
-            height: imageHeight.value
-          }}
-          width={imageWidth.value}
-          height={imageHeight.value}
-        />
-      </div>
+    <div className="w-full h-full flex justify-center">
+      <Webcam
+        ref={webcamRef}
+        className="w-full h-full -z-1"
+        height={videoConstraints.height}
+        width={videoConstraints.width}
+        videoConstraints={videoConstraints}
+      />
+      <canvas className="absolute border-red-500 border-2 z-1" ref={canvasRef} width="100px" height="100px" />
     </div>
   )
 }

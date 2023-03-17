@@ -52,15 +52,7 @@ export const Recorder = (): any => {
   }, [])
 
   return (
-    <div
-      style={{
-        backgroundColor: 'black',
-        display: 'flex',
-        height: '100%',
-        flexDirection: 'column',
-        justifyContent: 'center'
-      }}
-    >
+    <div className="container w-full h-full">
       <Mediapipe />
       <NetworkInstanceProvisioning />
       <LocationIcons />
