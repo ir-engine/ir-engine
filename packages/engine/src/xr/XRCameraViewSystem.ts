@@ -26,20 +26,24 @@ declare global {
 export default async function XRCameraViewSystem() {
   const xrRendererState = getState(XRRendererState)
 
-  const execute = () => {
-    if (Engine.instance.xrFrame && ReferenceSpace.localFloor) {
-      const viewer = Engine.instance.xrFrame.getViewerPose(ReferenceSpace.localFloor)
-      if (viewer) {
-        for (const view of viewer.views) {
-          console.log('XRCamera supported:', view.camera !== null && xrRendererState.glBinding !== null)
-          if (view.camera && xrRendererState.glBinding) {
-            const cameraImage = xrRendererState.glBinding?.getCameraImage(view.camera)
-            console.log('WebGLTexture:', cameraImage)
-          }
-        }
-      }
-    }
-  }
+  /** @todo - do something with camera API */
+
+  // const execute = () => {
+  //   if (Engine.instance.xrFrame && ReferenceSpace.localFloor) {
+  //     const viewer = Engine.instance.xrFrame.getViewerPose(ReferenceSpace.localFloor)
+  //     if (viewer) {
+  //       for (const view of viewer.views) {
+  //         // console.log('XRCamera supported:', view.camera !== null && xrRendererState.glBinding !== null)
+  //         if (view.camera && xrRendererState.glBinding) {
+  //           const cameraImage = xrRendererState.glBinding?.getCameraImage(view.camera)
+  //           // console.log('WebGLTexture:', cameraImage)
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
+  const execute = () => {}
 
   const cleanup = async () => {}
 
