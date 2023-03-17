@@ -81,7 +81,7 @@ export default async function MotionCaptureSystem() {
   const xrState = getState(XRState)
 
   const objs = [] as Mesh[]
-  const debug = false
+  const debug = true
 
   if (debug)
     for (let i = 0; i < 33; i++) {
@@ -124,17 +124,16 @@ export default async function MotionCaptureSystem() {
         const rightShoulder = data[POSE_LANDMARKS.RIGHT_SHOULDER]
         const leftElbow = data[POSE_LANDMARKS.LEFT_ELBOW]
         const rightElbow = data[POSE_LANDMARKS.RIGHT_ELBOW]
-        const rightHand = data[POSE_LANDMARKS.LEFT_WRIST]
-        const leftHand = data[POSE_LANDMARKS.RIGHT_WRIST]
+        const rightWrist = data[POSE_LANDMARKS.LEFT_WRIST]
+        const leftWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
 
         const ikTargets = getComponent(entity, AvatarIKTargetsComponent)
-        const changed =
-          ikTargets.head !== !!nose || ikTargets.leftHand !== !!leftHand || ikTargets.rightHand !== !!rightHand
+        const head = !!nose.visibility && nose.visibility > 0.5
+        const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.5
+        const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.5
+        const changed = ikTargets.head !== head || ikTargets.leftHand !== leftHand || ikTargets.rightHand !== rightHand
 
-        if (changed)
-          dispatchAction(
-            WorldNetworkAction.avatarIKTargets({ head: !!nose, leftHand: !!leftHand, rightHand: !!rightHand })
-          )
+        if (changed) dispatchAction(WorldNetworkAction.avatarIKTargets({ head, leftHand, rightHand }))
 
         const avatarRig = getComponent(entity, AvatarRigComponent)
         const avatarTransform = getComponent(entity, TransformComponent)
@@ -154,8 +153,6 @@ export default async function MotionCaptureSystem() {
             objs[i].updateMatrixWorld(true)
           }
 
-        hipsPos.applyQuaternion(avatarTransform.rotation)
-
         if (hasComponent(entity, AvatarHeadIKComponent)) {
           if (!nose.visibility || nose.visibility < 0.5) continue
           if (!nose.x || !nose.y || !nose.z) continue
@@ -173,11 +170,11 @@ export default async function MotionCaptureSystem() {
         }
 
         if (hasComponent(entity, AvatarLeftArmIKComponent)) {
-          if (!leftHand.visibility || leftHand.visibility < 0.5) continue
-          if (!leftHand.x || !leftHand.y || !leftHand.z) continue
+          if (!leftWrist.visibility || leftWrist.visibility < 0.5) continue
+          if (!leftWrist.x || !leftWrist.y || !leftWrist.z) continue
           const ik = getComponent(localClientEntity, AvatarLeftArmIKComponent)
           leftHandPos
-            .set(leftHand.x, leftHand.y, leftHand.z)
+            .set(leftWrist.x, leftWrist.y, leftWrist.z)
             .multiplyScalar(-1)
             .applyQuaternion(avatarTransform.rotation)
             .add(hipsPos)
@@ -186,11 +183,11 @@ export default async function MotionCaptureSystem() {
         }
 
         if (hasComponent(entity, AvatarRightArmIKComponent)) {
-          if (!rightHand.visibility || rightHand.visibility < 0.5) continue
-          if (!rightHand.x || !rightHand.y || !rightHand.z) continue
+          if (!rightWrist.visibility || rightWrist.visibility < 0.5) continue
+          if (!rightWrist.x || !rightWrist.y || !rightWrist.z) continue
           const ik = getComponent(localClientEntity, AvatarRightArmIKComponent)
           rightHandPos
-            .set(rightHand.x, rightHand.y, rightHand.z)
+            .set(rightWrist.x, rightWrist.y, rightWrist.z)
             .multiplyScalar(-1)
             .applyQuaternion(avatarTransform.rotation)
             .add(hipsPos)
