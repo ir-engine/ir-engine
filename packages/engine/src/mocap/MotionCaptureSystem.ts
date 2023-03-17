@@ -81,7 +81,7 @@ export default async function MotionCaptureSystem() {
   const xrState = getState(XRState)
 
   const objs = [] as Mesh[]
-  const debug = true
+  const debug = false
 
   if (debug)
     for (let i = 0; i < 33; i++) {
