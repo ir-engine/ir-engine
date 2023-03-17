@@ -2,15 +2,19 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
+import { DataInterface } from '@etherealengine/common/src/interfaces/DataInterface'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { VideoInterface } from '@etherealengine/common/src/interfaces/VideoInterface'
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetClass } from '../../assets/enum/AssetClass'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
-import { deepEqual } from '../../common/functions/deepEqual'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -37,6 +41,23 @@ const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
 export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
 
+export type MediaResource = {
+  path?: string
+  mp3StaticResource?: StaticResourceInterface
+  mpegStaticResource?: StaticResourceInterface
+  oggStaticResource?: StaticResourceInterface
+  mp4StaticResource?: StaticResourceInterface
+  m3u8StaticResource?: StaticResourceInterface
+  drcsStaticResource?: StaticResourceInterface
+  uvolStaticResource?: StaticResourceInterface
+  videoStaticResource?: StaticResourceInterface
+  dataStaticResource?: StaticResourceInterface
+  manifest?: DataInterface
+  video?: VideoInterface
+  mediaType: 'audio' | 'video' | 'volumetric'
+  id?: EntityUUID
+}
+
 export type AudioNodeGroup = {
   source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
   gain: GainNode
@@ -57,6 +78,20 @@ export const createAudioNodeGroup = (
   const group = { source, gain, mixbus, panner } as AudioNodeGroup
   AudioNodeGroups.set(el, group)
   return group
+}
+
+export const getResourceURL = (resource: MediaResource) => {
+  return (
+    resource.mp3StaticResource?.LOD0_url ||
+    resource.mpegStaticResource?.LOD0_url ||
+    resource.oggStaticResource?.LOD0_url ||
+    resource.mp4StaticResource?.LOD0_url ||
+    resource.m3u8StaticResource?.LOD0_url ||
+    resource.video?.mp4StaticResource?.LOD0_url ||
+    resource.video?.m3u8StaticResource?.LOD0_url ||
+    resource.path ||
+    ''
+  )
 }
 
 export const MediaElementComponent = defineComponent({
@@ -99,7 +134,7 @@ export const MediaElementComponent = defineComponent({
 })
 
 export const MediaComponent = defineComponent({
-  name: 'XRE_media',
+  name: 'EE_media',
 
   onInit: (entity) => {
     return {
@@ -108,6 +143,7 @@ export const MediaComponent = defineComponent({
       paths: [] as string[],
       paused: true,
       volume: 1,
+      resources: [] as MediaResource[],
       playMode: PlayMode.loop as PlayMode,
       isMusic: false,
       // runtime props
@@ -135,6 +171,7 @@ export const MediaComponent = defineComponent({
       controls: component.controls.value,
       paused: component.paused.value,
       paths: component.paths.value,
+      resources: component.resources.value,
       volume: component.volume.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
@@ -148,7 +185,19 @@ export const MediaComponent = defineComponent({
       if (typeof json.paths === 'object') {
         // backwards-compat: update uvol paths to point to the video files
         const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
-        if (!deepEqual(component.paths.value, json.paths)) component.paths.set(paths)
+        component.resources.set(
+          paths.map((path) => {
+            const mediaType = AssetLoader.getAssetClass(path)
+            return {
+              path,
+              mediaType:
+                mediaType === AssetClass.Volumetric ? 'volumetric' : mediaType === AssetClass.Audio ? 'audio' : 'video'
+            }
+          })
+        )
+      }
+      if (typeof json.resources === 'object' && json.resources !== component.resources.value) {
+        component.resources.set(json.resources as MediaResource[])
       }
 
       if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
@@ -191,7 +240,7 @@ export const MediaComponent = defineComponent({
 
   reactor: MediaReactor,
 
-  errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS']
+  errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS', 'INVALID_URL']
 })
 
 export function MediaReactor({ root }: EntityReactorProps) {
@@ -217,7 +266,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
     function updateTrackMetadata() {
       clearErrors(entity, MediaComponent)
 
-      const paths = media.paths.value
+      const paths = media.resources.value.map((resource) => getResourceURL(resource))
 
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
@@ -247,7 +296,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         }
       }
     },
-    [media.paths]
+    [media.resources]
   )
 
   useEffect(
@@ -255,7 +304,8 @@ export function MediaReactor({ root }: EntityReactorProps) {
       if (!isClient) return
 
       const track = media.track.value
-      const path = media.paths[track].value
+      const resource = media.resources[track].value
+      const path = getResourceURL(resource)
       if (!path) {
         if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
         return
@@ -336,7 +386,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         mediaElementState.element.src.set(path)
       }
     },
-    [media.paths, media.track]
+    [media.resources, media.track]
   )
 
   useEffect(
@@ -428,7 +478,7 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
 
 export function getNextTrack(media: ComponentType<typeof MediaComponent>) {
   const currentTrack = media.track
-  const numTracks = media.paths.length
+  const numTracks = media.resources.length
   let nextTrack = 0
 
   if (media.playMode == PlayMode.random) {

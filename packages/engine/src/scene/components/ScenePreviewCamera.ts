@@ -12,7 +12,7 @@ import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const ScenePreviewCameraComponent = defineComponent({
-  name: 'XRE_scenePreviewCamera',
+  name: 'EE_scenePreviewCamera',
 
   onInit: (entity) => {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)

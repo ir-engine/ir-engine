@@ -8,7 +8,7 @@ import {
 import { MediaInstanceConnectionService } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChatService, useChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'

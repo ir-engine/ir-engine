@@ -3,7 +3,7 @@ import { AvatarClientModule } from '@etherealengine/engine/src/avatar/AvatarClie
 import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
 import { CameraModule } from '@etherealengine/engine/src/camera/CameraModule'
 import { DebugModule } from '@etherealengine/engine/src/debug/DebugModule'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { ECSSerializationModule } from '@etherealengine/engine/src/ecs/ECSSerializationModule'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputModule } from '@etherealengine/engine/src/input/InputModule'
 import { InteractionModule } from '@etherealengine/engine/src/interaction/InteractionModule'
@@ -19,6 +19,7 @@ export function ClientModules() {
   return initSystems([
     ...XRModule(),
     ...TransformModule(),
+    ...ECSSerializationModule(),
     ...RendererModule(),
     ...MediaModule(),
     ...InputModule(),

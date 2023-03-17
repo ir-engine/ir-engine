@@ -247,7 +247,9 @@ export default async function MediaSystem() {
       setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     }
 
-    for (const entity of volumetricQuery.enter()) enterVolumetric(entity)
+    for (const entity of volumetricQuery.enter()) {
+      enterVolumetric(entity)
+    }
     for (const entity of volumetricQuery()) updateVolumetric(entity)
     for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
   }

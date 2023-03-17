@@ -17,7 +17,7 @@ import {
   ConsumerExtension,
   ProducerExtension,
   SocketWebRTCClientNetwork
-} from '../transports/SocketWebRTCClientNetwork'
+} from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
 import { NetworkUserState } from '../user/services/NetworkUserService'
 import { MediaState } from './services/MediaStreamService'
