@@ -7,6 +7,7 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   startReactor,
   useHookstate
 } from '@etherealengine/hyperflux'
@@ -37,7 +38,7 @@ import {
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
-import { getCameraMode, ReferenceSpace, useIsHeadset } from '../xr/XRState'
+import { getCameraMode, ReferenceSpace, useIsHeadset, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -74,6 +75,8 @@ const _vec = new Vector3()
 export function setupHeadIK(entity: Entity) {
   const target = new Object3D()
   target.name = `ik-head-target-${entity}`
+
+  target.position.y += 1.8
 
   setComponent(entity, AvatarHeadIKComponent, {
     target,
@@ -159,10 +162,12 @@ export default async function AvatarAnimationSystem() {
 
   let sortedTransformEntities = [] as Entity[]
 
+  const xrState = getState(XRState)
+
   const execute = () => {
     const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
 
-    if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
+    if (xrState.sessionActive && localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
       const sources = Array.from(inputSources.values())
       const head = getCameraMode() === 'attached'

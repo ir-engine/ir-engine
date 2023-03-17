@@ -61,7 +61,7 @@ const Mediapipe = ({}: {}) => {
       imageHeight.set(results.image.height)
 
       if (canvasCtxRef.current !== null && canvasRef.current !== null) {
-        const { poseLandmarks } = results
+        const { poseWorldLandmarks, poseLandmarks } = results
         if (canvasCtxRef.current && poseLandmarks?.length) {
           //draw!!!
           canvasCtxRef.current.save()
@@ -77,7 +77,7 @@ const Mediapipe = ({}: {}) => {
           })
           canvasCtxRef.current.restore()
 
-          sendResults(poseLandmarks)
+          sendResults(poseWorldLandmarks)
         }
       }
     },
