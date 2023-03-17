@@ -222,7 +222,7 @@ export default function ModelTransformProperties({
         transformParameters: transformParms.value
       })
       transformHistory.set([modelSrc, ...transformHistory.value])
-      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_\.]*)$/.exec(nuPath)!
+      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
       await FileBrowserService.fetchFiles(directoryToRefresh)
       onChangeModel(nuPath)
       transforming.set(false)

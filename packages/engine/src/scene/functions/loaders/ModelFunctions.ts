@@ -59,7 +59,7 @@ export function getModelResources(model: ComponentType<typeof ModelComponent>): 
             parameters: dracoParms
           }
         }
-      }
+      } as GeometryTransformParameters
     })
     .filter((x, i, arr) => arr.indexOf(x) === i) // remove duplicates
 
@@ -105,7 +105,7 @@ export function getModelResources(model: ComponentType<typeof ModelComponent>): 
             parameters: 128
           }
         }
-      }
+      } as ImageTransformParameters
     })
     return result
   })
