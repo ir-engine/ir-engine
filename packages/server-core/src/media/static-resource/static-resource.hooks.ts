@@ -4,6 +4,7 @@ import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-anal
 import replaceThumbnailLink from '@etherealengine/server-core/src/hooks/replace-thumbnail-link'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
+import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 

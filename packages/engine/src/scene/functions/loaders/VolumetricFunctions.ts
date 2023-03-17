@@ -49,17 +49,17 @@ export const enterVolumetric = async (entity: Entity) => {
   const VolumetricPlayer = await VolumetricPlayerPromise
   if (!entityExists(entity)) return
 
+  const media = getComponent(entity, MediaComponent)
   const mediaElement = getOptionalComponent(entity, MediaElementComponent)
   const volumetricComponent = getOptionalComponent(entity, VolumetricComponent)
   if (!mediaElement) return
   if (!volumetricComponent) return
 
-  if (mediaElement.element instanceof HTMLVideoElement == false) {
+  if (!(mediaElement.element instanceof HTMLVideoElement)) {
     throw new Error('expected video media')
   }
 
   const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
-
   const player = new VolumetricPlayer({
     renderer: EngineRenderer.instance.renderer,
     video: mediaElement.element as HTMLVideoElement,

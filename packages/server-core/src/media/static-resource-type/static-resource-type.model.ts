@@ -30,7 +30,7 @@ export default (app: Application) => {
   )
 
   ;(staticResourceType as any).associate = (models: any): void => {
-    ;(staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'staticResourceType' })
+    // ;(staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'staticResourceType' })
   }
 
   return staticResourceType

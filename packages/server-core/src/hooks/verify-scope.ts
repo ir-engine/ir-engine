@@ -9,7 +9,7 @@ export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
     const loggedInUser = context.params.user as UserInterface
-    if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
+    if (!loggedInUser || !loggedInUser.id) throw new UnauthenticatedException('No logged in user')
     const scopes = await context.app.service('scope').Model.findAll({
       where: {
         userId: loggedInUser.id
