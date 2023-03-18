@@ -59,6 +59,14 @@ export default (app: Application) => {
         type: DataTypes.STRING,
         allowNull: true
       },
+      webmanifestLink: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      swScriptLink: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       appBackground: {
         type: DataTypes.STRING,
         allowNull: true

@@ -1,13 +1,13 @@
 import { SceneData, SceneMetadata } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
 //State
 export const SCENE_PAGE_LIMIT = 100
 
-const AdminSceneState = defineState({
+export const AdminSceneState = defineState({
   name: 'AdminSceneState',
   initial: () => ({
     scenes: [] as Array<SceneMetadata>,
@@ -48,10 +48,6 @@ export const AdminSceneReceptors = {
   scenesFetchedReceptor,
   sceneFetchedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessAdminSceneState = () => getMutableState(AdminSceneState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAdminSceneState = () => useState(accessAdminSceneState())
 
 export const AdminSceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
@@ -67,12 +63,12 @@ export const AdminSceneService = {
 //Action
 export class AdminSceneActions {
   static scenesFetched = defineAction({
-    type: 'xre.client.AdminScene.ADMIN_SCENES_RETRIEVED' as const,
+    type: 'ee.client.AdminScene.ADMIN_SCENES_RETRIEVED' as const,
     sceneData: matches.array as Validator<unknown, SceneMetadata[]>
   })
 
   static sceneFetched = defineAction({
-    type: 'xre.client.AdminScene.ADMIN_SCENE_RETRIEVED' as const,
+    type: 'ee.client.AdminScene.ADMIN_SCENE_RETRIEVED' as const,
     sceneData: matches.object as Validator<unknown, SceneData>
   })
 }

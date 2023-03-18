@@ -68,11 +68,11 @@ export const SceneService = {
 
 export class SceneActions {
   static currentSceneChanged = defineAction({
-    type: 'xre.client.Scene.CURRENT_SCENE_CHANGED',
+    type: 'ee.client.Scene.CURRENT_SCENE_CHANGED',
     sceneData: matches.object as Validator<unknown, SceneData>
   })
 
   static unloadCurrentScene = defineAction({
-    type: 'xre.client.Scene.UNLOAD_CURRENT_SCENE'
+    type: 'ee.client.Scene.UNLOAD_CURRENT_SCENE'
   })
 }

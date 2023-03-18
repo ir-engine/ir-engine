@@ -18,7 +18,7 @@ export type Invite = {
   deleteOnUse: boolean
   spawnType?: string
   spawnDetails?: { inviteCode?: string; spawnPoint?: string; spectate?: string } | string | null
-  timed?: boolean
+  timed?: boolean | number
   startTime?: Date | null
   endTime?: Date | null
 }
@@ -59,7 +59,7 @@ export interface InviteInterface {
   createdAt: string
   updatedAt: string
   userId: string
-  timed?: boolean
+  timed?: boolean | number
   startTime?: Date | null
   endTime?: Date | null
 }

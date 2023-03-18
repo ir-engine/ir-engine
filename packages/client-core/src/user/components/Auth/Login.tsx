@@ -1,11 +1,12 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 import Tab from '@etherealengine/ui/src/Tab'
 import Tabs from '@etherealengine/ui/src/Tabs'
 
-import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
 import MagicLinkEmail from './MagicLinkEmail'
 import PasswordLogin from './PasswordLogin'
@@ -26,9 +27,9 @@ const TabPanel = ({ children, value, index }: Props): JSX.Element => {
  * @constructor
  */
 const SignIn = (): JSX.Element => {
-  const authSettingState = useAuthSettingState()
+  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [state, setState] = useState(initialAuthState)
+  const state = useHookstate(initialAuthState)
 
   useEffect(() => {
     if (authSetting) {
@@ -38,7 +39,7 @@ const SignIn = (): JSX.Element => {
           temp[strategyName] = strategy
         })
       })
-      setState(temp)
+      state.set(temp)
     }
   }, [authSettingState?.updateNeeded?.value])
 
@@ -53,24 +54,24 @@ const SignIn = (): JSX.Element => {
   let enableTwitterSocial = false
   let enableDidWallet = false
 
-  const [tabIndex, setTabIndex] = useState(0)
+  const tabIndex = useHookstate(0)
   const { t } = useTranslation()
 
   const handleChange = (event: any, newValue: number): void => {
     event.preventDefault()
-    setTabIndex(newValue)
+    tabIndex.set(newValue)
   }
 
-  enableSmsMagicLink = state.smsMagicLink
-  enableEmailMagicLink = state.emailMagicLink
-  enableUserPassword = state.local
-  enableDiscordSocial = state.discord
-  enableGithubSocial = state.github
-  enableGoogleSocial = state.google
-  enableFacebookSocial = state.facebook
-  enableLinkedInSocial = state.linkedin
-  enableTwitterSocial = state.twitter
-  enableDidWallet = state.didWallet
+  enableSmsMagicLink = state.smsMagicLink.value
+  enableEmailMagicLink = state.emailMagicLink.value
+  enableUserPassword = state.local.value
+  enableDiscordSocial = state.discord.value
+  enableGithubSocial = state.github.value
+  enableGoogleSocial = state.google.value
+  enableFacebookSocial = state.facebook.value
+  enableLinkedInSocial = state.linkedin.value
+  enableTwitterSocial = state.twitter.value
+  enableDidWallet = state.didWallet.value
 
   const socials = [
     enableDiscordSocial,
@@ -113,7 +114,7 @@ const SignIn = (): JSX.Element => {
       <Tab icon={<Icon type="Email" />} label={t('user:auth.login.email')} />
     )
     const emailTabPanel = (enableEmailMagicLink || enableSmsMagicLink) && (
-      <TabPanel value={tabIndex} index={index}>
+      <TabPanel value={tabIndex.value} index={index}>
         <MagicLinkEmail />
       </TabPanel>
     )
@@ -121,7 +122,7 @@ const SignIn = (): JSX.Element => {
 
     const userTab = enableUserPassword && <Tab icon={<Icon type="User" />} label={t('user:auth.login.username')} />
     const userTabPanel = enableUserPassword && (
-      <TabPanel value={tabIndex} index={index}>
+      <TabPanel value={tabIndex.value} index={index}>
         <PasswordLogin />
       </TabPanel>
     )
@@ -129,7 +130,7 @@ const SignIn = (): JSX.Element => {
 
     const socialTab = socialCount > 0 && <Tab icon={<Icon type="Social" />} label={t('user:auth.login.social')} />
     const socialTabPanel = socialCount > 0 && (
-      <TabPanel value={tabIndex} index={index}>
+      <TabPanel value={tabIndex.value} index={index}>
         <SocialLogin
           enableDiscordSocial={enableDiscordSocial}
           enableFacebookSocial={enableFacebookSocial}
@@ -146,7 +147,7 @@ const SignIn = (): JSX.Element => {
       <Fragment>
         {(enableUserPassword || socialCount > 0) && (
           <Tabs
-            value={tabIndex}
+            value={tabIndex.value}
             onChange={handleChange}
             variant="fullWidth"
             indicatorColor="secondary"

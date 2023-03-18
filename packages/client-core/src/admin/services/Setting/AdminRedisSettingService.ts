@@ -2,12 +2,12 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { AdminRedisSetting } from '@etherealengine/common/src/interfaces/AdminRedisSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminRedisSettingsState = defineState({
+export const AdminRedisSettingsState = defineState({
   name: 'AdminRedisSettingsState',
   initial: () => ({
     redisSettings: [] as Array<AdminRedisSetting>,
@@ -26,10 +26,6 @@ const redisSettingRetrievedReceptor = (action: typeof AdminRedisSettingActions.r
 export const RedisSettingReceptors = {
   redisSettingRetrievedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessAdminRedisSettingState = () => getMutableState(AdminRedisSettingsState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAdminRedisSettingState = () => useState(accessAdminRedisSettingState())
 
 export const AdminRedisSettingService = {
   fetchRedisSetting: async () => {
@@ -44,7 +40,7 @@ export const AdminRedisSettingService = {
 
 export class AdminRedisSettingActions {
   static redisSettingRetrieved = defineAction({
-    type: 'xre.client.AdminRedisSetting.ADMIN_REDIS_SETTING_FETCHED' as const,
+    type: 'ee.client.AdminRedisSetting.ADMIN_REDIS_SETTING_FETCHED' as const,
     adminRedisSetting: matches.object as Validator<unknown, Paginated<AdminRedisSetting>>
   })
 }

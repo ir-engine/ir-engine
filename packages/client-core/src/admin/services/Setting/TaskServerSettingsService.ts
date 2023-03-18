@@ -2,12 +2,12 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { TaskServerSetting } from '@etherealengine/common/src/interfaces/TaskServerSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminTaskServerSettingsState = defineState({
+export const AdminTaskServerSettingsState = defineState({
   name: 'AdminTaskServerSettingsState',
   initial: () => ({
     taskservers: [] as Array<TaskServerSetting>,
@@ -23,10 +23,6 @@ const fetchedTaskServersReceptor = (action: typeof AdminTaskServerSettingActions
 export const TaskServerSettingReceptors = {
   fetchedTaskServersReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessSettingTaskServerState = () => getMutableState(AdminTaskServerSettingsState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useSettingTaskServerState = () => useState(accessSettingTaskServerState())
 
 export const AdminSettingTaskServerService = {
   fetchSettingsTaskServer: async (inDec?: 'increment' | 'decrement') => {
@@ -43,7 +39,7 @@ export const AdminSettingTaskServerService = {
 
 export class AdminTaskServerSettingActions {
   static fetchedTaskServers = defineAction({
-    type: 'xre.client.AdminTaskServerSetting.SETTING_ANALYIS_DISPLAY' as const,
+    type: 'ee.client.AdminTaskServerSetting.SETTING_ANALYIS_DISPLAY' as const,
     taskServerSettings: matches.object as Validator<unknown, Paginated<TaskServerSetting>>
   })
 }

@@ -2,23 +2,23 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState, useAuthState } from '../../../user/services/AuthService'
 import {
   AdminSettingTaskServerService,
-  useSettingTaskServerState
+  AdminTaskServerSettingsState
 } from '../../services/Setting/TaskServerSettingsService'
 import styles from '../../styles/settings.module.scss'
 
 const TaskServer = () => {
   const { t } = useTranslation()
-  const settingTaskServerState = useSettingTaskServerState()
+  const settingTaskServerState = useHookstate(getMutableState(AdminTaskServerSettingsState))
   const settingTaskServer = settingTaskServerState.taskservers
-  const authState = useAuthState()
-  const user = authState.user
+  const user = useHookstate(getMutableState(AuthState).user)
   const isMounted = useRef(false)
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const TaskServer = () => {
     if (user?.id?.value != null && settingTaskServerState?.updateNeeded?.value === true) {
       AdminSettingTaskServerService.fetchSettingsTaskServer()
     }
-  }, [authState?.user?.id?.value, settingTaskServerState?.updateNeeded?.value])
+  }, [user?.id?.value, settingTaskServerState?.updateNeeded?.value])
 
   return (
     <Box>

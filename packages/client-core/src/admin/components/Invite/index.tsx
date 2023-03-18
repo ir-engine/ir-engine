@@ -3,16 +3,17 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Grid from '@etherealengine/ui/src/Grid'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
-import { AdminInviteService, useAdminInviteState } from '../../services/InviteService'
-import { AdminUserService, useUserState } from '../../services/UserService'
+import { AdminInviteService } from '../../services/InviteService'
+import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import AdminInvites from './AdminInvites'
 import CreateInviteModal from './CreateInviteModal'
@@ -57,8 +58,9 @@ const InvitesConsole = () => {
   const handeCloseInviteModal = () => setCreateInviteModalOpen(false)
   const handleCloseDeleteMultiInviteModal = () => setDeleteMultiInviteModalOpen(false)
 
-  const adminUserState = useUserState()
-  const user = useAuthState().user
+  const adminUserState = useHookstate(getMutableState(AdminUserState))
+  const authState = useHookstate(getMutableState(AuthState))
+  const user = authState.user
   const { t } = useTranslation()
 
   const confirmMultiInviteDelete = () => {
@@ -86,7 +88,7 @@ const InvitesConsole = () => {
       AdminUserService.fetchUsersAsAdmin()
     }
     setRefetch(false)
-  }, [useAuthState(), adminUserState.updateNeeded.value, refetch])
+  }, [authState.value, adminUserState.updateNeeded.value, refetch])
 
   const handleSearchChange = (e: any) => {
     setSearch(e.target.value)

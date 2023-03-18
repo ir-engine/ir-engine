@@ -29,12 +29,12 @@ export const useDialogState = () => useState(dialogState())
 //Action
 export class DialogAction {
   static dialogShow = defineAction({
-    type: 'xre.client.Dialog.SHOW_DIALOG' as const,
+    type: 'ee.client.Dialog.SHOW_DIALOG' as const,
     content: matches.object
   })
 
   static dialogClose = defineAction({
-    type: 'xre.client.Dialog.CLOSE_DIALOG' as const,
+    type: 'ee.client.Dialog.CLOSE_DIALOG' as const,
     content: matches.any
   })
 }

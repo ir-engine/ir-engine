@@ -278,7 +278,7 @@ export const LocationInstanceConnectionService = {
 
 export class LocationInstanceConnectionAction {
   static serverProvisioned = defineAction({
-    type: 'xre.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_PROVISIONED' as const,
+    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_PROVISIONED' as const,
     instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
@@ -288,22 +288,22 @@ export class LocationInstanceConnectionAction {
   })
 
   static connecting = defineAction({
-    type: 'xre.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTING' as const,
+    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTING' as const,
     instanceId: matches.string
   })
 
   static instanceServerConnected = defineAction({
-    type: 'xre.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTED' as const,
+    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTED' as const,
     instanceId: matches.string
   })
 
   static disconnect = defineAction({
-    type: 'xre.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_DISCONNECT' as const,
+    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_DISCONNECT' as const,
     instanceId: matches.string
   })
 
   static changeActiveConnectionHostId = defineAction({
-    type: 'xre.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CHANGE_HOST_ID' as const,
+    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CHANGE_HOST_ID' as const,
     currentInstanceId: matchesUserId,
     newInstanceId: matchesUserId
   })
