@@ -7,6 +7,8 @@ import ErrorBoundary from '@etherealengine/client-core/src/common/components/Err
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 // @ts-ignore
 
+import ThemesProvider from './ThemesProvider/themesProvider'
+
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
 const Engine = lazy(() => import('./engine'))
@@ -48,4 +50,9 @@ const App = () => {
 
 const container = document.getElementById('root')
 const root = createRoot(container!)
-root.render(<App />)
+root.render(
+  // Wrap the App component with ThemesProvider
+  <ThemesProvider>
+    <App />
+  </ThemesProvider>
+)
