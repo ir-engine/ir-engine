@@ -5,11 +5,11 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import {
   AuthSettingsService,
   AuthSettingsServiceReceptor,
-  useAuthSettingState
+  AuthSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import {
-  ClientSettingsServiceReceptor,
-  useClientSettingState
+  AdminClientSettingsState,
+  ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { AppLoadingServiceReceptor } from '@etherealengine/client-core/src/common/services/AppLoadingService'
@@ -35,8 +35,8 @@ import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 function RecorderComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
-  const clientSettingsState = useClientSettingState()
-  const authSettingsState = useAuthSettingState()
+  const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
+  const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
   const location = useLocation()
   const navigate = useNavigate()
   const [routesReady, setRoutesReady] = useState(false)

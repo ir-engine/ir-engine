@@ -4,8 +4,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import {
-  ClientSettingService,
-  useClientSettingState
+  AdminClientSettingsState,
+  ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
@@ -26,7 +26,7 @@ import './styles.scss'
 
 import {
   AdminCoilSettingService,
-  useCoilSettingState
+  AdminCoilSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
 import {
@@ -63,8 +63,8 @@ const AppPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useAuthState()
   const selfUser = authState.user
-  const clientSettingState = useClientSettingState()
-  const coilSettingState = useCoilSettingState()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
   const appTheme = useHookstate(getMutableState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
