@@ -1,13 +1,20 @@
 import { useHookstate } from '@hookstate/core'
-import * as cam from '@mediapipe/camera_utils'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
+import { t } from 'i18next'
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
-import Webcam from 'react-webcam'
 
-import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
+import {
+  SocketWebRTCClientNetwork,
+  toggleWebcamPaused
+} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+
+import LoadingCircle from '../primitives/tailwind/LoadingCircle'
 
 let creatingProducer = false
 const startDataProducer = async () => {
@@ -49,14 +56,17 @@ const sendResults = (results: NormalizedLandmarkList) => {
 
 const Mediapipe = () => {
   const canvasRef = useRef(null as any)
-  const webcamRef = useRef(null as any)
   const canvasCtxRef = useRef(null as any)
+  const videoRef = useRef(null as HTMLVideoElement | null)
+  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+  const mediaConnection = useMediaInstance()
 
-  const videoConstraints = {
-    width: 1280,
-    height: 720,
-    facingMode: 'user'
-  }
+  const mediapipe = useHookstate(null as Pose | null)
+
+  const imageWidth = useHookstate(1)
+  const imageHeight = useHookstate(1)
+
+  const videoActive = useHookstate(false)
 
   const onResults: ResultsListener = useCallback(
     (results) => {
@@ -85,18 +95,56 @@ const Mediapipe = () => {
   )
 
   useEffect(() => {
-    if (canvasRef.current !== null && webcamRef.current !== null) {
-      canvasRef.current.width = webcamRef?.current?.video?.offsetWidth
-      canvasRef.current.height = webcamRef?.current?.video?.offsetHeight
+    const videoElement = videoRef.current
+    if (videoElement && videoStream.value) {
+      videoElement.srcObject = videoStream.value
+      videoElement.onloadedmetadata = function (e) {
+        if (videoElement.paused) videoElement.play()
+      }
+      videoElement.onplay = function (e) {
+        videoActive.set(true)
+        let processingData = false
+        const onAnimationFrame = () => {
+          if (!videoActive.value) {
+            processingData = false
+            return
+          }
+          canvasRef.current.width = videoElement.clientWidth
+          canvasRef.current.height = videoElement.clientHeight
+          if (!mediapipe.value || processingData) {
+            videoElement.requestVideoFrameCallback(onAnimationFrame)
+          } else {
+            processingData = true
+            // we have to wait for the current frame to be processed before we can send the next one
+            mediapipe.value?.send({ image: videoElement }).then(() => {
+              processingData = false
+              videoElement.requestVideoFrameCallback(onAnimationFrame)
+            })
+          }
+        }
+        videoElement.requestVideoFrameCallback(onAnimationFrame)
+      }
+      videoElement.onpause = function (e) {
+        videoActive.set(false)
+      }
     }
-  }, [webcamRef])
+  }, [videoRef, videoStream])
+
+  useEffect(() => {}, [imageWidth])
+
+  useEffect(() => {}, [imageHeight])
 
   useLayoutEffect(() => {
     if (canvasRef.current !== null) {
       const canvasElement = canvasRef.current
       canvasCtxRef.current = canvasElement.getContext('2d') //canvas context
     }
-  }, [canvasRef, webcamRef])
+  }, [canvasRef])
+
+  // Enable video via the media server
+  useEffect(() => {
+    if (mediaConnection?.connected.value) toggleWebcamPaused()
+  }, [mediaConnection?.connected])
 
   useEffect(() => {
     const pose = new Pose({
@@ -113,29 +161,21 @@ const Mediapipe = () => {
       minTrackingConfidence: 0.5
     })
     pose.onResults(onResults)
-
-    if (webcamRef.current !== null) {
-      const camera = new cam.Camera(webcamRef.current.video, {
-        onFrame: async () => {
-          // Todo: hook to media service
-          await pose.send({ image: webcamRef.current.video })
-        }
-      })
-      camera.start()
-    }
+    mediapipe.set(pose)
   }, [])
 
   // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
   return (
-    <div className="w-full h-full flex justify-center">
-      <Webcam
-        ref={webcamRef}
-        className="w-full h-full -z-1"
-        height={videoConstraints.height}
-        width={videoConstraints.width}
-        videoConstraints={videoConstraints}
-      />
-      <canvas className="absolute border-red-500 border-2 z-1" ref={canvasRef} width="100px" height="100px" />
+    <div className="w-fit-content h-fit-content relative pointer-events-auto">
+      {!mediaConnection?.value && (
+        <div className="w-full h-full absolute z-10 flex justify-center items-center">
+          <LoadingCircle message={t('common:loader.connecting')} />
+        </div>
+      )}
+      <video className="w-full h-full -z-1 scale-x-[-1]" ref={videoRef} />
+      <div className="object-contain absolute top-0" style={{ objectFit: 'contain', top: '0px' }}>
+        <canvas ref={canvasRef} />
+      </div>
     </div>
   )
 }
