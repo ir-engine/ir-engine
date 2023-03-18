@@ -58,7 +58,7 @@ export class Archiver implements Partial<ServiceMethods<any>> {
 
     const generated = await zip.generateAsync({ type: 'blob', streamFiles: true })
 
-    const zipOutputDirectory = `${directory}${directory.substring(directory.lastIndexOf('/'))}.zip`
+    const zipOutputDirectory = `'temp'${directory.substring(directory.lastIndexOf('/'))}.zip`
 
     await storageProvider.putObject({
       Key: zipOutputDirectory,
