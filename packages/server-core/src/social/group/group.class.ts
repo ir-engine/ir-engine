@@ -1,7 +1,8 @@
-import { Paginated } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
+import { AdminScope } from '@etherealengine/common/src/interfaces/AdminScope'
 import { Group as GroupInterface } from '@etherealengine/common/src/interfaces/Group'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
@@ -21,7 +22,7 @@ export class Group<T = GroupDataType> extends Service<T> {
     this.app = app
   }
   /**
-   * A method which find group
+   * Return groups and their users
    *
    * @param params of query which contains group limit and number skip
    * @returns {@Object} of group
@@ -88,7 +89,7 @@ export class Group<T = GroupDataType> extends Service<T> {
       groupResult.rows.map((group) => {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
         return new Promise(async (resolve) => {
-          const groupUsers = await (this.app.service('group-user') as any).Model.findAll({
+          group.dataValues.groupUsers = await (this.app.service('group-user') as any).Model.findAll({
             where: {
               groupId: group.id
             },
@@ -98,8 +99,6 @@ export class Group<T = GroupDataType> extends Service<T> {
               }
             ]
           })
-
-          group.dataValues.groupUsers = groupUsers
           resolve(true)
         })
       })

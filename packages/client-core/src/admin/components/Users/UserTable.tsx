@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Icon from '@etherealengine/ui/src/Icon'
 import Tooltip from '@etherealengine/ui/src/Tooltip'
@@ -13,54 +14,54 @@ import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { userColumns, UserData, UserProps } from '../../common/variables/user'
-import { AdminUserService, USER_PAGE_LIMIT, useUserState } from '../../services/UserService'
+import { AdminUserService, AdminUserState, USER_PAGE_LIMIT } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import UserDrawer, { UserDrawerMode } from './UserDrawer'
 
 const UserTable = ({ className, search }: UserProps) => {
   const { t } = useTranslation()
 
-  const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [userId, setUserId] = useState('')
-  const [userName, setUserName] = useState('')
-  const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('name')
-  const [openUserDrawer, setOpenUserDrawer] = useState(false)
-  const [userAdmin, setUserAdmin] = useState<UserInterface | null>(null)
-  const authState = useAuthState()
+  const rowsPerPage = useHookstate(USER_PAGE_LIMIT)
+  const openConfirm = useHookstate(false)
+  const userId = useHookstate('')
+  const userName = useHookstate('')
+  const fieldOrder = useHookstate('asc')
+  const sortField = useHookstate('name')
+  const openUserDrawer = useHookstate(false)
+  const userAdmin = useHookstate<UserInterface | null>(null)
+  const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
-  const adminUserState = useUserState()
+  const adminUserState = useHookstate(getMutableState(AdminUserState))
   const skip = adminUserState.skip.value
-  const adminUsers = adminUserState.users.value
+  const adminUsers = adminUserState.users.get({ noproxy: true })
   const adminUserCount = adminUserState.total
 
   const page = skip / USER_PAGE_LIMIT
 
   useEffect(() => {
-    AdminUserService.fetchUsersAsAdmin(search, 0, sortField, fieldOrder)
+    AdminUserService.fetchUsersAsAdmin(search, 0, sortField.value, fieldOrder.value)
   }, [search, user?.id?.value, adminUserState.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    AdminUserService.fetchUsersAsAdmin(search, newPage, sortField, fieldOrder)
+    AdminUserService.fetchUsersAsAdmin(search, newPage, sortField.value, fieldOrder.value)
   }
 
   useEffect(() => {
     if (adminUserState.fetched.value) {
-      AdminUserService.fetchUsersAsAdmin(search, page, sortField, fieldOrder)
+      AdminUserService.fetchUsersAsAdmin(search, page, sortField.value, fieldOrder.value)
     }
-  }, [fieldOrder])
+  }, [fieldOrder.value])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
+    rowsPerPage.set(parseInt(event.target.value, 10))
   }
 
   const submitDeleteUser = async () => {
-    await AdminUserService.removeUserAdmin(userId)
-    setOpenConfirm(false)
+    await AdminUserService.removeUserAdmin(userId.value)
+    openConfirm.set(false)
   }
 
   const createData = (
@@ -102,12 +103,12 @@ const UserTable = ({ className, search }: UserProps) => {
           )}
           {facebookIp && (
             <Tooltip title={facebookIp.accountIdentifier!} arrow>
-              <Icon type="Facebook" width="20px" height="20px" viewBox="0 0 40 40" />
+              <FacebookIcon width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {twitterIp && (
             <Tooltip title={twitterIp.accountIdentifier!} arrow>
-              <Icon type="Twitter" width="20px" height="20px" viewBox="0 0 40 40" />
+              <TwitterIcon width="20px" height="20px" viewBox="0 0 40 40" />
             </Tooltip>
           )}
           {linkedinIp && (
@@ -142,8 +143,8 @@ const UserTable = ({ className, search }: UserProps) => {
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setUserAdmin(el)
-              setOpenUserDrawer(true)
+              userAdmin.set(el)
+              openUserDrawer.set(true)
             }}
           >
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
@@ -153,9 +154,9 @@ const UserTable = ({ className, search }: UserProps) => {
               href="#"
               className={styles.actionStyle}
               onClick={() => {
-                setUserId(id)
-                setUserName(name)
-                setOpenConfirm(true)
+                userId.set(id)
+                userName.set(name)
+                openConfirm.set(true)
               }}
             >
               <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
@@ -188,29 +189,29 @@ const UserTable = ({ className, search }: UserProps) => {
     <Box className={className}>
       <TableComponent
         allowSort={false}
-        fieldOrder={fieldOrder}
-        setSortField={setSortField}
-        setFieldOrder={setFieldOrder}
+        fieldOrder={fieldOrder.value}
+        setSortField={sortField.set}
+        setFieldOrder={fieldOrder.set}
         rows={rows}
         column={userColumns}
         page={page}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={rowsPerPage.value}
         count={adminUserCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.user.confirmUserDelete')} '${userName}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.user.confirmUserDelete')} '${userName.value}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={submitDeleteUser}
       />
-      {userAdmin && openUserDrawer && (
+      {userAdmin.value && openUserDrawer.value && (
         <UserDrawer
           open
           mode={UserDrawerMode.ViewEdit}
-          selectedUser={userAdmin}
-          onClose={() => setOpenUserDrawer(false)}
+          selectedUser={userAdmin.value}
+          onClose={() => openUserDrawer.set(false)}
         />
       )}
     </Box>

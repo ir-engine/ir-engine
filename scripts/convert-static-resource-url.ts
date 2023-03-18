@@ -21,7 +21,8 @@ const db = {
   database: process.env.MYSQL_DATABASE ?? 'xrengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql'
+  dialect: 'mysql',
+  url: ''
 }
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`

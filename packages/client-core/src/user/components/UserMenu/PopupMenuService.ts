@@ -36,13 +36,13 @@ export const PopupMenuServiceReceptor = (action) => {
 
 export class PopupMenuActions {
   static showPopupMenu = defineAction({
-    type: 'xre.client.PopupMenu.showPopupMenu',
+    type: 'ee.client.PopupMenu.showPopupMenu',
     id: matches.string,
     params: matches.any.optional()
   })
 
   static registerPopupMenu = defineAction({
-    type: 'xre.client.PopupMenu.registerPopupMenu',
+    type: 'ee.client.PopupMenu.registerPopupMenu',
     id: matches.string,
     menu: matches.any.optional() as Validator<unknown, UserMenuPanelType>,
     icon: matches.any.optional(),

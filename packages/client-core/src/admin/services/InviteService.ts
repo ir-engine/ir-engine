@@ -4,18 +4,17 @@ import { Invite as InviteInterface } from '@etherealengine/common/src/interfaces
 import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessInviteState, InviteAction } from '../../social/services/InviteService'
 
 const logger = multiLogger.child({ component: 'client-core:InviteService' })
 
 //State
 export const INVITE_PAGE_LIMIT = 100
 
-const AdminInviteState = defineState({
+export const AdminInviteState = defineState({
   name: 'AdminInviteState',
   initial: () => ({
     invites: [] as Array<InviteInterface>,
@@ -59,16 +58,17 @@ export const inviteRemovedReceptor = (action: typeof AdminInviteActions.inviteRe
   return state.merge({ updateNeeded: true })
 }
 
+export const fetchingInvitesReceptor = (action: typeof AdminInviteActions.fetchingInvites.matches._TYPE) => {
+  const state = getMutableState(AdminInviteState)
+  return state.merge({ retrieving: true, fetched: false })
+}
+
 export const AdminInviteReceptors = {
   invitesRetrievedReceptor,
   inviteCreatedReceptor,
   invitePatchedReceptor,
   inviteRemovedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessAdminInviteState = () => getMutableState(AdminInviteState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAdminInviteState = () => useState(accessAdminInviteState())
 
 //Service
 export const AdminInviteService = {
@@ -100,10 +100,10 @@ export const AdminInviteService = {
     value: string | null = null
   ) => {
     try {
-      dispatchAction(InviteAction.fetchingReceivedInvites({}))
-      const inviteState = accessInviteState().value
-      const skip = inviteState.receivedInvites.skip
-      const limit = inviteState.receivedInvites.limit
+      dispatchAction(AdminInviteActions.fetchingInvites({}))
+      const adminInviteState = getMutableState(AdminInviteState).value
+      const skip = adminInviteState.skip
+      const limit = adminInviteState.limit
       let sortData = {}
       if (sortField.length > 0) {
         if (sortField === 'type') {
@@ -138,8 +138,8 @@ export const AdminInviteService = {
           $sort: {
             name: orderBy === 'desc' ? 0 : 1
           },
-          $skip: accessAdminInviteState().skip.value,
-          $limit: accessAdminInviteState().limit.value
+          $skip: getMutableState(AdminInviteState).skip.value,
+          $limit: getMutableState(AdminInviteState).limit.value
         }
       })) as Paginated<InviteInterface>
     } catch (error) {
@@ -151,22 +151,26 @@ export const AdminInviteService = {
 //Action
 export class AdminInviteActions {
   static invitesRetrieved = defineAction({
-    type: 'xre.client.AdminInvite.ADMIN_INVITES_RETRIEVED' as const,
+    type: 'ee.client.AdminInvite.ADMIN_INVITES_RETRIEVED' as const,
     invites: matches.object as Validator<unknown, Paginated<InviteInterface>>
   })
 
   static inviteCreated = defineAction({
-    type: 'xre.client.AdminInvite.ADMIN_INVITE_CREATED' as const,
+    type: 'ee.client.AdminInvite.ADMIN_INVITE_CREATED' as const,
     invite: matches.object as Validator<unknown, InviteInterface>
   })
 
   static invitePatched = defineAction({
-    type: 'xre.client.AdminInvite.ADMIN_INVITE_PATCHED' as const,
+    type: 'ee.client.AdminInvite.ADMIN_INVITE_PATCHED' as const,
     invite: matches.object as Validator<unknown, InviteInterface>
   })
 
   static inviteRemoved = defineAction({
-    type: 'xre.client.AdminInvite.ADMIN_INVITE_REMOVED' as const,
+    type: 'ee.client.AdminInvite.ADMIN_INVITE_REMOVED' as const,
     invite: matches.object as Validator<unknown, InviteInterface>
+  })
+
+  static fetchingInvites = defineAction({
+    type: 'ee.client.AdminInvite.FETCHING_ADMIN_INVITES' as const
   })
 }

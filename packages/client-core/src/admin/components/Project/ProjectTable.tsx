@@ -83,13 +83,13 @@ const ProjectTable = ({ className }: Props) => {
   ProjectService.useAPIListeners()
 
   useEffect(() => {
-    if (project) setProject(adminProjects.value.find((proj) => proj.name === project.name)!)
+    if (project) setProject(adminProjects.get({ noproxy: true }).find((proj) => proj.name === project.name)!)
   }, [adminProjects])
 
   const handleRemoveProject = async () => {
     try {
       if (projectRef.current) {
-        const projectToRemove = adminProjects.value.find((p) => p.name === projectRef.current?.name)!
+        const projectToRemove = adminProjects.get({ noproxy: true }).find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()

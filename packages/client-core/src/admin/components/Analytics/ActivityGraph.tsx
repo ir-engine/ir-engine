@@ -3,10 +3,12 @@ import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 import { useTranslation } from 'react-i18next'
 
-import { useAdminAnalyticsState } from '../../services/AnalyticsService'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
+import { AdminAnalyticsState } from '../../services/AnalyticsService'
 
 const ActivityGraph = ({ startDate, endDate }) => {
-  const analyticsState = useAdminAnalyticsState()
+  const analyticsState = useHookstate(getMutableState(AdminAnalyticsState))
   const { t } = useTranslation()
 
   let maxY = 0

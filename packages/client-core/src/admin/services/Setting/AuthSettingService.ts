@@ -2,13 +2,13 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { AdminAuthSetting, PatchAuthSetting } from '@etherealengine/common/src/interfaces/AdminAuthSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
-const AuthSettingsState = defineState({
+export const AuthSettingsState = defineState({
   name: 'AuthSettingsState',
   initial: () => ({
     authSettings: [] as Array<AdminAuthSetting>,
@@ -58,10 +58,6 @@ export const AuthSettingsServiceReceptor = (action) => {
 //   authSettingRetrievedReceptor,
 //   authSettingPatchedReceptor
 // }
-/**@deprecated use getMutableState directly instead */
-export const accessAuthSettingState = () => getMutableState(AuthSettingsState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAuthSettingState = () => useState(accessAuthSettingState())
 
 export const AuthSettingsService = {
   fetchAuthSetting: async () => {
@@ -87,10 +83,10 @@ export const AuthSettingsService = {
 
 export class AuthSettingsActions {
   static authSettingRetrieved = defineAction({
-    type: 'xre.client.AuthSettings.AUTH_SETTINGS_FETCHED' as const,
+    type: 'ee.client.AuthSettings.AUTH_SETTINGS_FETCHED' as const,
     authSetting: matches.object as Validator<unknown, Paginated<AdminAuthSetting>>
   })
   static authSettingPatched = defineAction({
-    type: 'xre.client.AuthSettings.AUTH_SETTINGS_PATCHED' as const
+    type: 'ee.client.AuthSettings.AUTH_SETTINGS_PATCHED' as const
   })
 }

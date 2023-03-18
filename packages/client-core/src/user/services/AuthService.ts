@@ -138,118 +138,118 @@ export const AuthServiceReceptor = (action) => {
 
 export class AuthAction {
   static actionProcessing = defineAction({
-    type: 'xre.client.Auth.ACTION_PROCESSING' as const,
+    type: 'ee.client.Auth.ACTION_PROCESSING' as const,
     processing: matches.boolean
   })
 
   static loginUserSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_SUCCESS' as const,
     authUser: matches.object as Validator<unknown, AuthUser>,
     message: matches.string
   })
 
   static loginUserErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_ERROR' as const,
     message: matches.string
   })
 
   static loginUserByGithubSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_GITHUB_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_GITHUB_SUCCESS' as const,
     message: matches.string
   })
 
   static loginUserByGithubErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_GITHUB_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_GITHUB_ERROR' as const,
     message: matches.string
   })
 
   static loginUserByLinkedinSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
     message: matches.string
   })
 
   static loginUserByLinkedinErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_LINKEDIN_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_LINKEDIN_ERROR' as const,
     message: matches.string
   })
 
   static didLogoutAction = defineAction({
-    type: 'xre.client.Auth.LOGOUT_USER' as const
+    type: 'ee.client.Auth.LOGOUT_USER' as const
   })
 
   static registerUserByEmailSuccessAction = defineAction({
-    type: 'xre.client.Auth.REGISTER_USER_BY_EMAIL_SUCCESS' as const,
+    type: 'ee.client.Auth.REGISTER_USER_BY_EMAIL_SUCCESS' as const,
     identityProvider: matches.object as Validator<unknown, IdentityProvider>,
     message: matches.string
   })
 
   static registerUserByEmailErrorAction = defineAction({
-    type: 'xre.client.Auth.REGISTER_USER_BY_EMAIL_ERROR' as const,
+    type: 'ee.client.Auth.REGISTER_USER_BY_EMAIL_ERROR' as const,
     message: matches.string
   })
 
   static didVerifyEmailAction = defineAction({
-    type: 'xre.client.Auth.DID_VERIFY_EMAIL' as const,
+    type: 'ee.client.Auth.DID_VERIFY_EMAIL' as const,
     result: matches.boolean
   })
 
   static didResendVerificationEmailAction = defineAction({
-    type: 'xre.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
+    type: 'ee.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
     result: matches.boolean
   })
 
   static didForgotPasswordAction = defineAction({
-    type: 'xre.client.Auth.DID_FORGOT_PASSWORD' as const,
+    type: 'ee.client.Auth.DID_FORGOT_PASSWORD' as const,
     result: matches.boolean
   })
 
   static didResetPasswordAction = defineAction({
-    type: 'xre.client.Auth.DID_RESET_PASSWORD' as const,
+    type: 'ee.client.Auth.DID_RESET_PASSWORD' as const,
     result: matches.boolean
   })
 
   static didCreateMagicLinkAction = defineAction({
-    type: 'xre.client.Auth.DID_CREATE_MAGICLINK' as const,
+    type: 'ee.client.Auth.DID_CREATE_MAGICLINK' as const,
     result: matches.boolean
   })
 
   static loadedUserDataAction = defineAction({
-    type: 'xre.client.Auth.LOADED_USER_DATA' as const,
+    type: 'ee.client.Auth.LOADED_USER_DATA' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updatedUserSettingsAction = defineAction({
-    type: 'xre.client.Auth.UPDATE_USER_SETTINGS' as const,
+    type: 'ee.client.Auth.UPDATE_USER_SETTINGS' as const,
     data: matches.object as Validator<unknown, UserSetting>
   })
 
   static avatarUpdatedAction = defineAction({
-    type: 'xre.client.Auth.AVATAR_UPDATED' as const,
+    type: 'ee.client.Auth.AVATAR_UPDATED' as const,
     url: matches.any
   })
 
   static usernameUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USERNAME_UPDATED' as const,
+    type: 'ee.client.Auth.USERNAME_UPDATED' as const,
     name: matches.string
   })
 
   static userAvatarIdUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USERAVATARID_UPDATED' as const,
+    type: 'ee.client.Auth.USERAVATARID_UPDATED' as const,
     avatarId: matches.string
   })
 
   static userPatchedAction = defineAction({
-    type: 'xre.client.Auth.USER_PATCHED' as const,
+    type: 'ee.client.Auth.USER_PATCHED' as const,
     params: matches.any
   })
 
   static userUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USER_UPDATED' as const,
+    type: 'ee.client.Auth.USER_UPDATED' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static apiKeyUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USER_API_KEY_UPDATED' as const,
+    type: 'ee.client.Auth.USER_API_KEY_UPDATED' as const,
     apiKey: matches.object as Validator<unknown, UserApiKey>
   })
 }

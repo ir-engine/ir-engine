@@ -15,17 +15,17 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Container from '@etherealengine/ui/src/Container'
 import DialogTitle from '@etherealengine/ui/src/DialogTitle'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
-import TextField from '@etherealengine/ui/src/TextField'
 import Tooltip from '@etherealengine/ui/src/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
+import { AuthState } from '../../../user/services/AuthService'
+import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -56,9 +56,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     ProjectUpdateService.initializeProjectUpdate(project)
   }, [])
 
-  const projectUpdateStatus = useProjectUpdateState()[project.name]
+  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name])
 
-  const selfUser = useAuthState().user
+  const selfUser = useHookstate(getMutableState(AuthState).user)
 
   const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
     (commit: ProjectCommitInterface) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
@@ -106,8 +106,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   }
 
   const copyDestination = async () => {
-    handleChangeSource({ target: { value: projectUpdateStatus.destinationURL.value } })
-    handleChangeSourceRepo({ target: { value: projectUpdateStatus.destinationURL.value } })
+    handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
+    handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
   }
 
   const handleChangeDestinationRepo = async (e) => {
