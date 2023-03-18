@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
@@ -7,6 +7,7 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import Container from '@etherealengine/ui/src/Container'
 import DialogActions from '@etherealengine/ui/src/DialogActions'
@@ -14,7 +15,7 @@ import DialogActions from '@etherealengine/ui/src/DialogActions'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
-import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
+import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 import ProjectFields from './ProjectFields'
 
@@ -28,7 +29,7 @@ interface Props {
 
 const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, changeDestination = false }: Props) => {
   const { t } = useTranslation()
-  const [processing, setProcessing] = useState(false)
+  const processing = useHookstate(false)
 
   const project =
     existingProject && inputProject
@@ -45,7 +46,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           commitDate: new Date()
         }
 
-  const projectUpdateStatus = useProjectUpdateState()[project.name].value
+  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
 
   const handleSubmit = async () => {
     try {
@@ -53,7 +54,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
         if (inputProject) await ProjectService.setRepositoryPath(inputProject.id, projectUpdateStatus.destinationURL)
         handleClose()
       } else if (projectUpdateStatus.sourceURL) {
-        setProcessing(true)
+        processing.set(true)
         await ProjectService.uploadProject(
           projectUpdateStatus.sourceURL,
           projectUpdateStatus.destinationURL,
@@ -64,11 +65,11 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           projectUpdateStatus.updateType,
           projectUpdateStatus.updateSchedule
         )
-        setProcessing(false)
+        processing.set(false)
         handleClose()
       }
     } catch (err) {
-      setProcessing(false)
+      processing.set(false)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
@@ -90,7 +91,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
         inputProject={inputProject}
         existingProject={existingProject}
         changeDestination={changeDestination}
-        processing={processing}
+        processing={processing.value}
       />
 
       <Container maxWidth="sm" className={styles.mt10}>
@@ -99,7 +100,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
             <Button className={styles.outlinedButton} onClick={handleClose}>
               {t('admin:components.common.cancel')}
             </Button>
-            {!processing && (
+            {!processing.value && (
               <Button
                 className={styles.gradientButton}
                 disabled={projectUpdateStatus ? projectUpdateStatus.submitDisabled : true}
@@ -109,7 +110,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
               </Button>
             )}
 
-            {processing && (
+            {processing.value && (
               <LoadingView title={t('admin:components.project.processing')} variant="body1" fullHeight={false} />
             )}
           </>

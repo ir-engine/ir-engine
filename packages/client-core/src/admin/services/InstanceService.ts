@@ -1,5 +1,4 @@
 import { Paginated } from '@feathersjs/feathers'
-import { useState } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
@@ -8,7 +7,7 @@ import { defineAction, defineState, dispatchAction, getMutableState } from '@eth
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 
 export const INSTANCE_PAGE_LIMIT = 100
 
@@ -49,15 +48,11 @@ export const AdminInstanceReceptors = {
   instancesRetrievedReceptor,
   instanceRemovedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessAdminInstanceState = () => getMutableState(AdminInstanceState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAdminInstanceState = () => useState(accessAdminInstanceState())
 
 //Service
 export const AdminInstanceService = {
   fetchAdminInstances: async (value: string | null = null, skip = 0, sortField = 'createdAt', orderBy = 'asc') => {
-    const user = accessAuthState().user
+    const user = getMutableState(AuthState).user
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         let sortData = {}
@@ -100,12 +95,12 @@ export const AdminInstanceService = {
 
 export class AdminInstanceActions {
   static instancesRetrieved = defineAction({
-    type: 'xre.client.AdminInstance.INSTANCES_RETRIEVED',
+    type: 'ee.client.AdminInstance.INSTANCES_RETRIEVED',
     instanceResult: matches.object as Validator<unknown, Paginated<Instance>>
   })
 
   static instanceRemoved = defineAction({
-    type: 'xre.client.AdminInstance.INSTANCE_REMOVED_ROW',
+    type: 'ee.client.AdminInstance.INSTANCE_REMOVED_ROW',
     instance: matches.object as Validator<unknown, Instance>
   })
 }

@@ -40,6 +40,22 @@
     <script>
       var global = globalThis
       var exports = { __esModule: true }
+      if ("serviceWorker" in navigator) {
+        console.log('sw in nav', navigator.serviceWorker.controller)
+        if (navigator.serviceWorker.controller) {
+          console.log("[PWA Builder] active service worker found, no need to register");
+        } else {
+          console.log('registering sw <%- swScriptLink %>')
+          // Register the service worker
+          navigator.serviceWorker
+            .register("<%- swScriptLink %>", {
+              scope: "./"
+            })
+            .then(function (reg) {
+              console.log("[PWA Builder] Service worker has been registered for scope: " + reg.scope);
+            });
+        }
+      }
     </script>
   </head>
 

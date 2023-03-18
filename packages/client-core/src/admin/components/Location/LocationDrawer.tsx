@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { LocationFetched } from '@etherealengine/common/src/interfaces/Location'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import Container from '@etherealengine/ui/src/Container'
 import DialogActions from '@etherealengine/ui/src/DialogActions'
@@ -12,11 +13,11 @@ import DialogTitle from '@etherealengine/ui/src/DialogTitle'
 import Grid from '@etherealengine/ui/src/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
-import { AdminSceneService, useAdminSceneState } from '../../services/SceneService'
+import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
+import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 export enum LocationDrawerMode {
@@ -52,24 +53,24 @@ const defaultState = {
 
 const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   const { t } = useTranslation()
-  const [editMode, setEditMode] = useState(false)
-  const [state, setState] = useState({ ...defaultState })
+  const editMode = useHookstate(false)
+  const state = useHookstate({ ...defaultState })
 
-  const { scenes } = useAdminSceneState().value
-  const { locationTypes } = useAdminLocationState().value
-  const { user } = useAuthState().value // user initialized by getting value from authState object.
+  const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
+  const locationTypes = useHookstate(getMutableState(AdminLocationState).locationTypes)
+  const user = useHookstate(getMutableState(AuthState).user)
 
-  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'location:write')
-  const viewMode = mode === LocationDrawerMode.ViewEdit && editMode === false
+  const hasWriteAccess = user.scopes.get({ noproxy: true })?.find((item) => item?.type === 'location:write')
+  const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
-  const sceneMenu: InputMenuItem[] = scenes.map((el) => {
+  const sceneMenu: InputMenuItem[] = scenes.get({ noproxy: true }).map((el) => {
     return {
       value: `${el.project}/${el.name}`,
       label: `${el.name} (${el.project})`
     }
   })
 
-  const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
+  const locationTypesMenu: InputMenuItem[] = locationTypes.get({ noproxy: true }).map((el) => {
     return {
       value: el.type,
       label: el.type
@@ -87,7 +88,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
   const loadSelectedLocation = () => {
     if (selectedLocation) {
-      setState({
+      state.set({
         ...defaultState,
         name: selectedLocation.name,
         maxUsers: selectedLocation.maxUsersPerInstance,
@@ -104,74 +105,69 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   }
 
   const handleCancel = () => {
-    if (editMode) {
+    if (editMode.value) {
       loadSelectedLocation()
-      setEditMode(false)
+      editMode.set(false)
     } else handleClose()
   }
 
   const handleClose = () => {
     onClose()
-    setState({ ...defaultState })
+    state.set({ ...defaultState })
   }
 
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    let tempErrors = { ...state.formErrors }
-
     switch (name) {
       case 'name':
-        tempErrors.name = value.length < 2 ? t('admin:components.location.nameRequired') : ''
+        state.formErrors.merge({ name: value.length < 2 ? t('admin:components.location.nameRequired') : '' })
         break
       case 'maxUsers':
-        tempErrors.maxUsers = value.length < 1 ? t('admin:components.location.maxUsersRequired') : ''
+        state.formErrors.merge({ maxUsers: value.length < 1 ? t('admin:components.location.maxUsersRequired') : '' })
         break
       case 'scene':
-        tempErrors.scene = value.length < 2 ? t('admin:components.location.sceneRequired') : ''
+        state.formErrors.merge({ scene: value.length < 2 ? t('admin:components.location.sceneRequired') : '' })
         break
       case 'type':
-        tempErrors.type = value.length < 2 ? t('admin:components.location.typeRequired') : ''
+        state.formErrors.merge({ type: value.length < 2 ? t('admin:components.location.typeRequired') : '' })
         break
       default:
         break
     }
 
-    setState({ ...state, [name]: value, formErrors: tempErrors })
+    state.merge({ [name]: value })
   }
 
   const handleSubmit = () => {
     const data = {
-      name: state.name,
-      sceneId: state.scene,
-      maxUsersPerInstance: state.maxUsers,
+      name: state.name.value,
+      sceneId: state.scene.value,
+      maxUsersPerInstance: state.maxUsers.value,
       location_settings: {
-        locationType: state.type,
-        audioEnabled: state.audioEnabled,
-        screenSharingEnabled: state.screenSharingEnabled,
-        faceStreamingEnabled: state.faceStreamingEnabled,
-        videoEnabled: state.videoEnabled
+        locationType: state.type.value,
+        audioEnabled: state.audioEnabled.value,
+        screenSharingEnabled: state.screenSharingEnabled.value,
+        faceStreamingEnabled: state.faceStreamingEnabled.value,
+        videoEnabled: state.videoEnabled.value
       },
-      isLobby: state.isLobby,
-      isFeatured: state.isFeatured
+      isLobby: state.isLobby.value,
+      isFeatured: state.isFeatured.value
     }
 
-    let tempErrors = {
-      ...state.formErrors,
-      name: state.name ? '' : t('admin:components.location.nameCantEmpty'),
-      maxUsers: state.maxUsers ? '' : t('admin:components.location.maxUserCantEmpty'),
-      scene: state.scene ? '' : t('admin:components.location.sceneCantEmpty'),
-      type: state.type ? '' : t('admin:components.location.typeCantEmpty')
-    }
+    state.formErrors.merge({
+      name: state.name.value ? '' : t('admin:components.location.nameCantEmpty'),
+      maxUsers: state.maxUsers.value ? '' : t('admin:components.location.maxUserCantEmpty'),
+      scene: state.scene.value ? '' : t('admin:components.location.sceneCantEmpty'),
+      type: state.type.value ? '' : t('admin:components.location.typeCantEmpty')
+    })
 
-    setState({ ...state, formErrors: tempErrors })
-
-    if (validateForm(state, tempErrors)) {
+    if (validateForm(state.value, state.formErrors.value)) {
       if (mode === LocationDrawerMode.Create) {
         AdminLocationService.createLocation(data)
       } else if (selectedLocation) {
         AdminLocationService.patchLocation(selectedLocation.id, data)
-        setEditMode(false)
+        editMode.set(false)
       }
 
       handleClose()
@@ -186,16 +182,16 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         <DialogTitle className={styles.textAlign}>
           {mode === LocationDrawerMode.Create && t('admin:components.location.createLocation')}
           {mode === LocationDrawerMode.ViewEdit &&
-            editMode &&
+            editMode.value &&
             `${t('admin:components.common.update')} ${selectedLocation?.name}`}
-          {mode === LocationDrawerMode.ViewEdit && !editMode && selectedLocation?.name}
+          {mode === LocationDrawerMode.ViewEdit && !editMode.value && selectedLocation?.name}
         </DialogTitle>
 
         <InputText
           name="name"
           label={t('admin:components.location.lbl-name')}
-          value={state?.name || ''}
-          error={state?.formErrors?.name}
+          value={state?.value?.name || ''}
+          error={state?.value?.formErrors?.name}
           disabled={viewMode}
           onChange={handleChange}
         />
@@ -203,8 +199,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         <InputText
           name="maxUsers"
           label={t('admin:components.location.lbl-maxuser')}
-          value={state?.maxUsers}
-          error={state?.formErrors?.maxUsers}
+          value={state?.value?.maxUsers}
+          error={state?.value?.formErrors?.maxUsers}
           type="number"
           disabled={viewMode}
           onChange={handleChange}
@@ -213,8 +209,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         <InputSelect
           name="scene"
           label={t('admin:components.location.lbl-scene')}
-          value={state?.scene}
-          error={state?.formErrors?.scene}
+          value={state?.value?.scene}
+          error={state?.value?.formErrors?.scene}
           menu={sceneMenu}
           disabled={viewMode}
           onChange={handleChange}
@@ -223,7 +219,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         <InputSelect
           name="type"
           label={t('admin:components.location.type')}
-          value={state?.type}
+          value={state?.value?.type}
           menu={locationTypesMenu}
           disabled={viewMode}
           onChange={handleChange}
@@ -234,25 +230,25 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
             <InputSwitch
               name="videoEnabled"
               label={t('admin:components.location.lbl-ve')}
-              checked={state?.videoEnabled}
+              checked={state?.value?.videoEnabled}
               disabled={viewMode}
-              onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+              onChange={(e) => state.merge({ videoEnabled: e.target.checked })}
             />
 
             <InputSwitch
               name="audioEnabled"
               label={t('admin:components.location.lbl-ae')}
-              checked={state?.audioEnabled}
+              checked={state?.value?.audioEnabled}
               disabled={viewMode}
-              onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
+              onChange={(e) => state.merge({ audioEnabled: e.target.checked })}
             />
 
             <InputSwitch
               name="screenSharingEnabled"
               label={t('admin:components.location.lbl-se')}
-              checked={state?.screenSharingEnabled}
+              checked={state?.value?.screenSharingEnabled}
               disabled={viewMode}
-              onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
+              onChange={(e) => state.merge({ screenSharingEnabled: e.target.checked })}
             />
           </Grid>
           <Grid item xs={6} style={{ display: 'flex' }}>
@@ -260,25 +256,25 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
               <InputSwitch
                 name="faceStreamingEnabled"
                 label={t('admin:components.location.lbl-fe')}
-                checked={state?.faceStreamingEnabled}
+                checked={state?.value?.faceStreamingEnabled}
                 disabled={viewMode}
-                onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
+                onChange={(e) => state.merge({ faceStreamingEnabled: e.target.checked })}
               />
 
               <InputSwitch
                 name="isLobby"
                 label={t('admin:components.location.lbl-lobby')}
-                checked={state?.isLobby}
+                checked={state?.value?.isLobby}
                 disabled={viewMode}
-                onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
+                onChange={(e) => state.merge({ isLobby: e.target.checked })}
               />
 
               <InputSwitch
                 name="isFeatured"
                 label={t('admin:components.location.lbl-featured')}
-                checked={state?.isFeatured}
+                checked={state?.value?.isFeatured}
                 disabled={viewMode}
-                onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
+                onChange={(e) => state.merge({ isFeatured: e.target.checked })}
               />
             </div>
           </Grid>
@@ -287,13 +283,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
           <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
-          {(mode === LocationDrawerMode.Create || editMode) && (
+          {(mode === LocationDrawerMode.Create || editMode.value) && (
             <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
-          {mode === LocationDrawerMode.ViewEdit && !editMode && (
-            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
+          {mode === LocationDrawerMode.ViewEdit && !editMode.value && (
+            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => editMode.set(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}

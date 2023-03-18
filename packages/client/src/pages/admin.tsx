@@ -1,19 +1,19 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { lazy, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import {
-  ClientSettingService,
-  useClientSettingState
+  AdminClientSettingsState,
+  ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
-import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { theme } from '@etherealengine/client-core/src/theme'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -27,10 +27,9 @@ import './styles.scss'
 
 import {
   AdminCoilSettingService,
-  useCoilSettingState
+  AdminCoilSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
-import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
@@ -46,11 +45,10 @@ import {
 import {
   OEmbedService,
   OEmbedServiceReceptor,
-  useOEmbedState
+  OEmbedState
 } from '@etherealengine/client-core/src/common/services/OEmbedService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import config from '@etherealengine/common/src/config'
-import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
@@ -66,22 +64,22 @@ declare module '@mui/styles/defaultTheme' {
 
 const AdminPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
-  const clientSettingState = useClientSettingState()
-  const coilSettingState = useCoilSettingState()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
   const appTheme = useHookstate(getMutableState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
-  const [clientSetting] = clientSettingState?.client?.value || []
-  const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
-  const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
-  const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
-  const [description, setDescription] = useState(clientSetting?.siteDescription)
-  const [clientThemeSettings, setClientThemeSettings] = useState(clientSetting?.themeSettings)
-  const [projectComponents, setProjectComponents] = useState<Array<any>>([])
-  const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useProjectState()
-  const oEmbedState = useOEmbedState()
+  const [clientSetting] = clientSettingState?.client?.get({ noproxy: true }) || []
+  const ctitle = useHookstate<string>(clientSetting?.title || '')
+  const favicon16 = useHookstate(clientSetting?.favicon16px)
+  const favicon32 = useHookstate(clientSetting?.favicon32px)
+  const description = useHookstate(clientSetting?.siteDescription)
+  const clientThemeSettings = useHookstate(clientSetting?.themeSettings)
+  const projectComponents = useHookstate<Array<any>>([])
+  const fetchedProjectComponents = useHookstate(false)
+  const projectState = useHookstate(getMutableState(ProjectState))
+  const oEmbedState = useHookstate(getMutableState(OEmbedState))
   const pathname = oEmbedState.pathname.value
   const oEmbed = oEmbedState.oEmbed
 
@@ -132,14 +130,14 @@ const AdminPage = (): any => {
   useEffect(() => {
     if (selfUser?.id.value && projectState.updateNeeded.value) {
       ProjectService.fetchProjects()
-      if (!fetchedProjectComponents) {
-        setFetchedProjectComponents(true)
+      if (!fetchedProjectComponents.value) {
+        fetchedProjectComponents.set(true)
         API.instance.client
           .service('projects')
           .find()
           .then((projects) => {
             loadWebappInjection(projects).then((result) => {
-              setProjectComponents(result)
+              projectComponents.set(result)
             })
           })
       }
@@ -156,18 +154,18 @@ const AdminPage = (): any => {
 
   useEffect(() => {
     if (clientSetting) {
-      setTitle(clientSetting?.title)
-      setFavicon16(clientSetting?.favicon16px)
-      setFavicon32(clientSetting?.favicon32px)
-      setDescription(clientSetting?.siteDescription)
-      setClientThemeSettings(clientSetting?.themeSettings)
+      ctitle.set(clientSetting?.title)
+      favicon16.set(clientSetting?.favicon16px)
+      favicon32.set(clientSetting?.favicon32px)
+      description.set(clientSetting?.siteDescription)
+      clientThemeSettings.set(clientSetting?.themeSettings)
     }
     if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
   }, [clientSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     updateTheme()
-  }, [clientThemeSettings, appTheme.customTheme])
+  }, [clientThemeSettings.value, appTheme.value?.customTheme])
 
   const location = useLocation()
   const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
@@ -223,8 +221,8 @@ const AdminPage = (): any => {
           </>
         ) : (
           <>
-            <title>{ctitle}</title>
-            {description && <meta name="description" content={description} data-rh="true" />}
+            <title>{ctitle.value}</title>
+            {description.value && <meta name="description" content={description.value} data-rh="true" />}
           </>
         )}
 
@@ -233,9 +231,12 @@ const AdminPage = (): any => {
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
-        <meta name="theme-color" content={clientThemeSettings?.[currentThemeName]?.mainBackground || '#FFFFFF'} />
-        {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
-        {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
+        <meta
+          name="theme-color"
+          content={clientThemeSettings?.value?.[currentThemeName]?.mainBackground || '#FFFFFF'}
+        />
+        {favicon16.value && <link rel="icon" type="image/png" sizes="16x16" href={favicon16.value} />}
+        {favicon32.value && <link rel="icon" type="image/png" sizes="32x32" href={favicon32.value} />}
       </MetaTags>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
@@ -252,7 +253,7 @@ const AdminPage = (): any => {
               <Debug />
             </div>
             <AdminRouterComp />
-            {projectComponents.map((Component, i) => (
+            {projectComponents.get({ noproxy: true }).map((Component, i) => (
               <Component key={i} />
             ))}
           </SnackbarProvider>

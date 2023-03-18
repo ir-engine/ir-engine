@@ -1,17 +1,18 @@
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/Avatar'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Chip from '@etherealengine/ui/src/Chip'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
-import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
+import { AdminLocationService, AdminLocationState, LOCATION_PAGE_LIMIT } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import LocationDrawer, { LocationDrawerMode } from './LocationDrawer'
 
@@ -21,18 +22,17 @@ interface Props {
 }
 
 const LocationTable = ({ className, search }: Props) => {
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [locationId, setLocationId] = useState('')
-  const [locationName, setLocationName] = useState('')
-  const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('name')
-  const [openLocationDrawer, setOpenLocationDrawer] = useState(false)
-  const [locationAdmin, setLocationAdmin] = useState<Location>()
-  const authState = useAuthState()
-  const user = authState.user
-  const adminLocationState = useAdminLocationState()
+  const page = useHookstate(0)
+  const rowsPerPage = useHookstate(LOCATION_PAGE_LIMIT)
+  const openConfirm = useHookstate(false)
+  const locationId = useHookstate('')
+  const locationName = useHookstate('')
+  const fieldOrder = useHookstate('asc')
+  const sortField = useHookstate('name')
+  const openLocationDrawer = useHookstate(false)
+  const locationAdmin = useHookstate<Location | undefined>(undefined)
+  const user = useHookstate(getMutableState(AuthState).user)
+  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
   const adminLocations = adminLocationState.locations
   const adminLocationCount = adminLocationState.total
 
@@ -40,29 +40,29 @@ const LocationTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    AdminLocationService.fetchAdminLocations(search, 0, sortField, fieldOrder)
+    AdminLocationService.fetchAdminLocations(search, 0, sortField.value, fieldOrder.value)
   }, [search, user?.id?.value, adminLocationState.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    AdminLocationService.fetchAdminLocations(search, newPage, sortField, fieldOrder)
-    setPage(newPage)
+    AdminLocationService.fetchAdminLocations(search, newPage, sortField.value, fieldOrder.value)
+    page.set(newPage)
   }
 
   useEffect(() => {
     if (adminLocationState.fetched.value) {
-      AdminLocationService.fetchAdminLocations(search, page, sortField, fieldOrder)
+      AdminLocationService.fetchAdminLocations(search, page.value, sortField.value, fieldOrder.value)
     }
-  }, [fieldOrder])
+  }, [fieldOrder.value])
 
   const submitRemoveLocation = async () => {
-    await AdminLocationService.removeLocation(locationId)
-    setOpenConfirm(false)
+    await AdminLocationService.removeLocation(locationId.value)
+    openConfirm.set(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    rowsPerPage.set(+event.target.value)
+    page.set(0)
   }
 
   const handleOpenLocationDrawer =
@@ -74,8 +74,8 @@ const LocationTable = ({ className, search }: Props) => {
       ) {
         return
       }
-      setLocationAdmin(location)
-      setOpenLocationDrawer(open)
+      locationAdmin.set(location)
+      openLocationDrawer.set(open)
     }
 
   const createData = (
@@ -107,9 +107,9 @@ const LocationTable = ({ className, search }: Props) => {
           <Button
             className={styles.actionStyle}
             onClick={() => {
-              setLocationId(id)
-              setLocationName(name)
-              setOpenConfirm(true)
+              locationId.set(id)
+              locationName.set(name)
+              openConfirm.set(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
@@ -119,7 +119,7 @@ const LocationTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = adminLocations.value.map((el) => {
+  const rows = adminLocations.get({ noproxy: true }).map((el) => {
     return createData(
       el,
       el.id,
@@ -157,28 +157,28 @@ const LocationTable = ({ className, search }: Props) => {
     <Box className={className}>
       <TableComponent
         allowSort={false}
-        fieldOrder={fieldOrder}
-        setSortField={setSortField}
-        setFieldOrder={setFieldOrder}
+        fieldOrder={fieldOrder.value}
+        setSortField={sortField.set}
+        setFieldOrder={fieldOrder.set}
         rows={rows}
         column={locationColumns}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        page={page.value}
+        rowsPerPage={rowsPerPage.value}
         count={adminLocationCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.location.confirmLocationDelete')} '${locationName}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.location.confirmLocationDelete')} '${locationName.value}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={submitRemoveLocation}
       />
       <LocationDrawer
-        open={openLocationDrawer}
+        open={openLocationDrawer.value}
         mode={LocationDrawerMode.ViewEdit}
-        selectedLocation={locationAdmin}
-        onClose={() => setOpenLocationDrawer(false)}
+        selectedLocation={locationAdmin.value}
+        onClose={() => openLocationDrawer.set(false)}
       />
     </Box>
   )

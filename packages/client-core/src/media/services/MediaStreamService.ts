@@ -124,37 +124,37 @@ export const MediaStreamService = {
 export type BooleanAction = { [key: string]: boolean }
 export class MediaStreamAction {
   static setCamVideoStateAction = defineAction({
-    type: 'xre.client.MediaStream.CAM_VIDEO_CHANGED' as const,
+    type: 'ee.client.MediaStream.CAM_VIDEO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setCamAudioStateAction = defineAction({
-    type: 'xre.client.MediaStream.CAM_AUDIO_CHANGED' as const,
+    type: 'ee.client.MediaStream.CAM_AUDIO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setScreenVideoStateAction = defineAction({
-    type: 'xre.client.MediaStream.SCREEN_VIDEO_CHANGED' as const,
+    type: 'ee.client.MediaStream.SCREEN_VIDEO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setScreenAudioStateAction = defineAction({
-    type: 'xre.client.MediaStream.SCREEN_AUDIO_CHANGED' as const,
+    type: 'ee.client.MediaStream.SCREEN_AUDIO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setFaceTrackingStateAction = defineAction({
-    type: 'xre.client.MediaStream.FACE_TRACKING_CHANGED' as const,
+    type: 'ee.client.MediaStream.FACE_TRACKING_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setMediaEnabledByDefaultAction = defineAction({
-    type: 'xre.client.MediaStream.MEDIA_ENABLE_BY_DEFAULT' as const,
+    type: 'ee.client.MediaStream.MEDIA_ENABLE_BY_DEFAULT' as const,
     isEnable: matches.boolean
   })
 
   static setConsumersAction = defineAction({
-    type: 'xre.client.MediaStream.CONSUMERS_CHANGED' as const,
+    type: 'ee.client.MediaStream.CONSUMERS_CHANGED' as const,
     consumers: matches.any
   })
 }

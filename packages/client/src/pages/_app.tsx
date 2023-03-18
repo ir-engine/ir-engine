@@ -4,16 +4,16 @@ import React, { createRef, useCallback, useEffect, useRef, useState } from 'reac
 import { useLocation } from 'react-router-dom'
 
 import {
-  ClientSettingService,
-  useClientSettingState
+  AdminClientSettingsState,
+  ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
-import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { theme } from '@etherealengine/client-core/src/theme'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -27,7 +27,7 @@ import './styles.scss'
 
 import {
   AdminCoilSettingService,
-  useCoilSettingState
+  AdminCoilSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
 import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
@@ -45,7 +45,7 @@ import {
 import {
   OEmbedService,
   OEmbedServiceReceptor,
-  useOEmbedState
+  OEmbedState
 } from '@etherealengine/client-core/src/common/services/OEmbedService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import config from '@etherealengine/common/src/config'
@@ -65,22 +65,22 @@ declare module '@mui/styles/defaultTheme' {
 
 const AppPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
-  const clientSettingState = useClientSettingState()
-  const coilSettingState = useCoilSettingState()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
   const appTheme = useHookstate(getMutableState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
-  const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
-  const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
+  const ctitle = useHookstate<string>(clientSetting?.title || '')
+  const favicon16 = useHookstate(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [clientThemeSettings, setClientThemeSettings] = useState(clientSetting?.themeSettings)
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useProjectState()
-  const oEmbedState = useOEmbedState()
+  const projectState = useHookstate(getMutableState(ProjectState))
+  const oEmbedState = useHookstate(getMutableState(OEmbedState))
   const pathname = oEmbedState.pathname.value
   const oEmbed = oEmbedState.oEmbed
 
@@ -155,8 +155,8 @@ const AppPage = (): any => {
 
   useEffect(() => {
     if (clientSetting) {
-      setTitle(clientSetting?.title)
-      setFavicon16(clientSetting?.favicon16px)
+      ctitle.set(clientSetting?.title)
+      favicon16.set(clientSetting?.favicon16px)
       setFavicon32(clientSetting?.favicon32px)
       setDescription(clientSetting?.siteDescription)
       setClientThemeSettings(clientSetting?.themeSettings)
@@ -222,7 +222,7 @@ const AppPage = (): any => {
           </>
         ) : (
           <>
-            <title>{ctitle}</title>
+            <title>{ctitle.value}</title>
             {description && <meta name="description" content={description} data-rh="true" />}
           </>
         )}
@@ -233,7 +233,7 @@ const AppPage = (): any => {
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
         <meta name="theme-color" content={clientThemeSettings?.[currentThemeName]?.mainBackground || '#FFFFFF'} />
-        {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
+        {favicon16.value && <link rel="icon" type="image/png" sizes="16x16" href={favicon16.value} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
       </MetaTags>
       <StyledEngineProvider injectFirst>

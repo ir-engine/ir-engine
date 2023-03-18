@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/common/components/AutoComplete'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { CreateGroup, Group, GroupScope } from '@etherealengine/common/src/interfaces/Group'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/Avatar'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
@@ -15,11 +16,11 @@ import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminGroupService } from '../../services/GroupService'
-import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { AdminScopeTypeService, AdminScopeTypeState } from '../../services/ScopeTypeService'
 import styles from '../../styles/admin.module.scss'
 
 export enum GroupDrawerMode {
@@ -47,14 +48,14 @@ const defaultState = {
 
 const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
   const { t } = useTranslation()
-  const [editMode, setEditMode] = useState(false)
-  const [state, setState] = useState({ ...defaultState })
+  const editMode = useHookstate(false)
+  const state = useHookstate(defaultState)
 
-  const { user } = useAuthState().value
-  const { scopeTypes } = useScopeTypeState().value
+  const user = useHookstate(getMutableState(AuthState).user).value
+  const scopeTypes = useHookstate(getMutableState(AdminScopeTypeState).scopeTypes).get({ noproxy: true })
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'groups:write')
-  const viewMode = mode === GroupDrawerMode.ViewEdit && editMode === false
+  const viewMode = mode === GroupDrawerMode.ViewEdit && !editMode.value
 
   const scopeMenu: AutoCompleteData[] = scopeTypes.map((el) => {
     return {
@@ -83,7 +84,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
 
   const loadSelectedGroup = () => {
     if (selectedGroup) {
-      setState({
+      state.set({
         ...defaultState,
         name: selectedGroup.name || '',
         description: selectedGroup.description || '',
@@ -93,24 +94,23 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
   }
 
   const handleCancel = () => {
-    if (editMode) {
+    if (editMode.value) {
       loadSelectedGroup()
-      setEditMode(false)
+      editMode.set(false)
     } else handleClose()
   }
 
   const handleClose = () => {
     onClose()
-    setState({ ...defaultState })
+    state.set(defaultState)
   }
 
   const handleChangeScopeType = (scope) => {
-    let tempErrors = {
-      ...state.formErrors,
+    state.formErrors.merge({
       scopeTypes: scope.length < 1 ? t('admin:components.group.scopeTypeRequired') : ''
-    }
+    })
 
-    setState({ ...state, scopeTypes: scope, formErrors: tempErrors })
+    state.merge({ scopeTypes: scope })
   }
 
   const handleSelectAllScopes = () =>
@@ -125,44 +125,40 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    let tempErrors = { ...state.formErrors }
-
     switch (name) {
       case 'name':
-        tempErrors.name = value.length < 2 ? t('admin:components.group.nameRequired') : ''
+        state.formErrors.merge({ name: value.length < 2 ? t('admin:components.group.nameRequired') : '' })
         break
       case 'description':
-        tempErrors.description = value.length < 2 ? t('admin:components.group.descriptionRequired') : ''
+        state.formErrors.merge({ description: value.length < 2 ? t('admin:components.group.descriptionRequired') : '' })
         break
       default:
         break
     }
 
-    setState({ ...state, [name]: value, formErrors: tempErrors })
+    state.merge({ [name]: value })
   }
 
   const handleSubmit = async () => {
     const data: CreateGroup = {
-      name: state.name,
-      description: state.description,
-      scopes: state.scopeTypes
+      name: state.name.value,
+      description: state.description.value,
+      scopes: state.scopeTypes.get({ noproxy: true })
     }
 
-    let tempErrors = {
-      ...state.formErrors,
-      name: state.name ? '' : t('admin:components.group.nameCantEmpty'),
-      description: state.description ? '' : t('admin:components.group.descriptionCantEmpty'),
-      scopeTypes: state.scopeTypes.length > 0 ? '' : t('admin:components.group.scopeTypeCantEmpty')
-    }
+    state.formErrors.merge({
+      name: state.name.value ? '' : t('admin:components.group.nameCantEmpty'),
+      description: state.description.value ? '' : t('admin:components.group.descriptionCantEmpty'),
+      scopeTypes:
+        state.scopeTypes.get({ noproxy: true }).length > 0 ? '' : t('admin:components.group.scopeTypeCantEmpty')
+    })
 
-    setState({ ...state, formErrors: tempErrors })
-
-    if (validateForm(state, tempErrors)) {
+    if (validateForm(state.get({ noproxy: true }), state.formErrors.value)) {
       if (mode === GroupDrawerMode.Create) {
         await AdminGroupService.createGroupByAdmin(data)
       } else if (selectedGroup) {
         AdminGroupService.patchGroupByAdmin(selectedGroup.id, data)
-        setEditMode(false)
+        editMode.set(false)
       }
 
       handleClose()
@@ -177,16 +173,16 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
         <DialogTitle className={styles.textAlign}>
           {mode === GroupDrawerMode.Create && t('admin:components.group.createGroup')}
           {mode === GroupDrawerMode.ViewEdit &&
-            editMode &&
+            editMode.value &&
             `${t('admin:components.common.update')} ${selectedGroup?.name}`}
-          {mode === GroupDrawerMode.ViewEdit && !editMode && selectedGroup?.name}
+          {mode === GroupDrawerMode.ViewEdit && !editMode.value && selectedGroup?.name}
         </DialogTitle>
 
         <InputText
           name="name"
           label={t('admin:components.group.name')}
-          value={state.name}
-          error={state.formErrors.name}
+          value={state.name.value}
+          error={state.formErrors.name.value}
           disabled={viewMode}
           onChange={handleChange}
         />
@@ -194,8 +190,8 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
         <InputText
           name="description"
           label={t('admin:components.group.description')}
-          value={state.description}
-          error={state.formErrors.description}
+          value={state.description.value}
+          error={state.formErrors.description.value}
           disabled={viewMode}
           onChange={handleChange}
         />
@@ -204,7 +200,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
           <AutoComplete
             data={scopeMenu}
             label={t('admin:components.group.grantScope')}
-            value={state.scopeTypes}
+            value={state.scopeTypes.get({ noproxy: true })}
             disabled
           />
         )}
@@ -214,7 +210,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
             <AutoComplete
               data={scopeMenu}
               label={t('admin:components.group.grantScope')}
-              value={state.scopeTypes}
+              value={state.scopeTypes.get({ noproxy: true })}
               onChange={handleChangeScopeType}
             />
             <div className={styles.scopeButtons}>
@@ -264,13 +260,13 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
           <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
-          {(mode === GroupDrawerMode.Create || editMode) && (
+          {(mode === GroupDrawerMode.Create || editMode.value) && (
             <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
-          {mode === GroupDrawerMode.ViewEdit && !editMode && (
-            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
+          {mode === GroupDrawerMode.ViewEdit && !editMode.value && (
+            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => editMode.set(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}

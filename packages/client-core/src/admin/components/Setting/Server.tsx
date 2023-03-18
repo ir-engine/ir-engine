@@ -1,33 +1,32 @@
 import { Icon } from '@iconify/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { useAuthState } from '../../../user/services/AuthService'
-import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminServerSettingsState, ServerSettingService } from '../../services/Setting/ServerSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Server = () => {
   const { t } = useTranslation()
 
-  const authState = useAuthState()
-  const user = authState.user
-  const serverSettingState = useServerSettingState()
-  const [serverSetting] = serverSettingState?.server?.value || []
+  const user = useHookstate(getMutableState(AuthState).user)
+  const serverSettingState = useHookstate(getMutableState(AdminServerSettingsState))
+  const [serverSetting] = serverSettingState?.server?.get({ noproxy: true }) || []
   const id = serverSetting?.id
 
   const gaTrackingId = useHookstate(serverSetting?.gaTrackingId)
   const githubWebhookSecret = useHookstate(serverSetting?.githubWebhookSecret)
   const instanceserverUnreachableTimeoutSeconds = useHookstate(serverSetting?.instanceserverUnreachableTimeoutSeconds)
-  const [dryRun, setDryRun] = useState(true)
-  const [local, setLocal] = useState(true)
+  const dryRun = useHookstate(true)
+  const local = useHookstate(true)
 
   useEffect(() => {
     if (serverSetting) {
@@ -57,7 +56,7 @@ const Server = () => {
     if (user?.id?.value != null && serverSettingState?.updateNeeded?.value === true) {
       ServerSettingService.fetchServerSettings()
     }
-  }, [authState?.user?.id?.value, serverSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, serverSettingState?.updateNeeded?.value])
 
   return (
     <Box>
@@ -125,9 +124,9 @@ const Server = () => {
           <InputSwitch
             name="performDryRun"
             label={t('admin:components.setting.performDryRun')}
-            checked={dryRun}
+            checked={dryRun.value}
             disabled
-            onChange={(event) => setDryRun(event.target.checked)}
+            onChange={(event) => dryRun.set(event.target.checked)}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -202,9 +201,9 @@ const Server = () => {
           <InputSwitch
             name="local"
             label={t('admin:components.setting.local')}
-            checked={local}
+            checked={local.value}
             disabled
-            onChange={(event) => setLocal(event.target.checked)}
+            onChange={(event) => local.set(event.target.checked)}
           />
         </Grid>
       </Grid>

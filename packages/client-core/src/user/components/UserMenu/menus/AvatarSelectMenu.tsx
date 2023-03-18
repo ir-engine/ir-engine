@@ -55,8 +55,8 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
     if (selectedAvatarId && selectedAvatar && userAvatarId !== selectedAvatarId) {
       setAvatar(
         selectedAvatarId,
-        selectedAvatar.modelResource?.LOD0_url || '',
-        selectedAvatar.thumbnailResource?.LOD0_url || ''
+        selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
+        selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || ''
       )
       changeActiveMenu(Views.Closed)
     }

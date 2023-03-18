@@ -1,31 +1,30 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { useAuthState } from '../../../user/services/AuthService'
-import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
-import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminRedisSettingService, AdminRedisSettingsState } from '../../services/Setting/AdminRedisSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Redis = () => {
   const { t } = useTranslation()
-  const redisSettingState = useAdminRedisSettingState()
-  const [redisSetting] = redisSettingState?.redisSettings?.value || []
-  const authState = useAuthState()
-  const user = authState.user
+  const redisSettingState = useHookstate(getMutableState(AdminRedisSettingsState))
+  const [redisSetting] = redisSettingState?.redisSettings?.get({ noproxy: true }) || []
+  const user = useHookstate(getMutableState(AuthState).user)
 
-  const [enabled, setEnabled] = useState(true)
+  const enabled = useHookstate(true)
 
   useEffect(() => {
     if (user?.id?.value != null && redisSettingState?.updateNeeded?.value) {
       AdminRedisSettingService.fetchRedisSetting()
     }
-  }, [authState?.user?.id?.value, redisSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, redisSettingState?.updateNeeded?.value])
 
   return (
     <Box>
@@ -36,9 +35,9 @@ const Redis = () => {
         name="enabled"
         sx={{ mb: 2 }}
         label={t('admin:components.setting.enabled')}
-        checked={enabled}
+        checked={enabled.value}
         disabled
-        onChange={(event) => setEnabled(event.target.checked)}
+        onChange={(event) => enabled.set(event.target.checked)}
       />
       <Grid container spacing={3}>
         <Grid item xs={6} sm={6}>

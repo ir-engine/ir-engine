@@ -6,7 +6,7 @@ import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createScene, Scene } from '../classes/Scene'
+import { createScene, Scene } from './Scene'
 
 import '../utils/threejsPatches'
 
@@ -26,7 +26,6 @@ import {
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@etherealengine/common/src/logger'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'

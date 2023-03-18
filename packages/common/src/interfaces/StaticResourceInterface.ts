@@ -12,6 +12,7 @@ export interface StaticResourceInterface {
   attribution?: string
   licensing?: string
   tags?: string[]
+  url: string
   LOD0_url: string
   LOD0_metadata: object
   LOD1_url?: string

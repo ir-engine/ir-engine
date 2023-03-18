@@ -25,6 +25,7 @@
     "types": ["vite/client", "mocha"]
   },
   "exclude": [
+    "../projects/template-project/**",
     "../projects/projects/**",
     "**/node_modules/**"
   ],
