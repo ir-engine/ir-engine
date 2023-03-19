@@ -1,7 +1,9 @@
+import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
+import { MotionCaptureCallbacks } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { readRigidBody, writeRigidBody } from '@etherealengine/engine/src/physics/PhysicsSerialization'
 import { createActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -18,14 +20,12 @@ export const getRecordingByID = (recordingID: string) => {
 interface ActiveRecording {
   userID: UserId
   serializer?: ECSSerializer
-  mocapRecorder?: (buffer: ArrayBufferLike) => void
   mediaRecorder?: any // todo
 }
 
 interface ActivePlayback {
   userID: UserId
   deserializer?: ECSDeserializer
-  mocapPlayback?: any // todo
   mediaPlayback?: any // todo
 }
 
@@ -40,7 +40,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const hasScopes = await checkScope(user, app, 'record', 'write')
   if (!hasScopes) throw new Error('User does not have record:write scope')
 
-  const recording = await app.service('recording').create({ userID: action.userID })
+  const recording = (await app.service('recording').create({ userId: action.userID })) as RecordingResult
 
   const activeRecording = {
     userID: action.userID
@@ -66,9 +66,9 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     }
 
     if (action.mocap) {
-      activeRecording.mocapRecorder = (buffer: ArrayBufferLike) => {
+      MotionCaptureCallbacks.set(action.userID, (buffer: ArrayBufferLike) => {
         // upload mocap frame
-      }
+      })
     }
   }
 
@@ -104,9 +104,9 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
   const app = getMutableState(ServerState).app.value
 
-  const recording = await app.service('recording').get(action.recordingID)
+  const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
 
-  const user = await app.service('user').get(recording.userID)
+  const user = await app.service('user').get(recording.userId)
 
   const hasScopes = await checkScope(user, app, 'record', 'read')
   if (!hasScopes) throw new Error('User does not have record:read scope')
@@ -122,9 +122,9 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActions.stopPlayback>) => {
   const app = getMutableState(ServerState).app.value
 
-  const recording = await app.service('recording').get(action.recordingID)
+  const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
 
-  const user = await app.service('user').get(recording.userID)
+  const user = await app.service('user').get(recording.userId)
 
   const hasScopes = await checkScope(user, app, 'record', 'read')
   if (!hasScopes) throw new Error('User does not have record:read scope')
@@ -136,8 +136,8 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
     activePlayback.deserializer.end()
   }
 
-  if (activePlayback.mocapPlayback) {
-    // stop mocap playback
+  if (MotionCaptureCallbacks.has(activePlayback.userID)) {
+    MotionCaptureCallbacks.delete(activePlayback.userID)
   }
 
   if (activePlayback.mediaPlayback) {
@@ -150,25 +150,12 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
 export default async function ServerRecordingSystem() {
   const startRecordingActionQueue = createActionQueue(ECSRecordingActions.startRecording.matches)
   const stopRecordingActionQueue = createActionQueue(ECSRecordingActions.stopRecording.matches)
-  const bufferReceivedActionQueue = createActionQueue(ECSRecordingActions.bufferReceived.matches)
   const startPlaybackActionQueue = createActionQueue(ECSRecordingActions.startPlayback.matches)
   const stopPlaybackActionQueue = createActionQueue(ECSRecordingActions.stopPlayback.matches)
 
   const execute = () => {
     for (const action of startRecordingActionQueue()) onStartRecording(action)
     for (const action of stopRecordingActionQueue()) onStopRecording(action)
-
-    if (Engine.instance.worldNetwork) {
-      const bufferReceived = bufferReceivedActionQueue()
-
-      for (const recorder of activeRecordings.values()) {
-        if (recorder.mocapRecorder) {
-          for (const action of bufferReceived.filter((a) => a.userID === recorder.userID)) {
-            recorder.mocapRecorder(action.buffer)
-          }
-        }
-      }
-    }
 
     for (const action of startPlaybackActionQueue()) onStartPlayback(action)
     for (const action of stopPlaybackActionQueue()) onStopPlayback(action)

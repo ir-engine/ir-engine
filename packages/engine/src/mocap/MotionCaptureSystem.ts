@@ -2,6 +2,7 @@ import { POSE_LANDMARKS } from '@mediapipe/pose'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { defineAction, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -60,6 +61,8 @@ export const MotionCaptureFunctions = {
 
 export const mocapDataChannelType = 'mocap' as DataChannelType
 
+export const MotionCaptureCallbacks = new Map<UserId, (buffer: ArrayBufferLike) => void>()
+
 export default async function MotionCaptureSystem() {
   const networkState = getMutableState(NetworkState)
 
@@ -68,13 +71,11 @@ export default async function MotionCaptureSystem() {
       if (network.isHosting) {
         network.transport.bufferToAll(mocapDataChannelType, message)
 
-        // dispatch an action locally with the buffer such that the server can access it
-        dispatchAction({
-          ...ECSRecordingActions.bufferReceived({
-            userID: network.peers.get(fromPeerID)!.userId,
-            buffer: message
-          })
-        })
+        const userID = network.peers.get(fromPeerID)?.userId
+        const onMessage = userID && MotionCaptureCallbacks.get(userID)
+        if (onMessage) {
+          onMessage(message)
+        }
       }
       const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message)
       if (!peerID) return

@@ -54,12 +54,6 @@ export class ECSRecordingActions {
     recordingID: matches.string
   })
 
-  static bufferReceived = defineAction({
-    type: 'ee.core.motioncapture.BUFFER_RECEIVED' as const,
-    userID: matchesUserId,
-    buffer: matches.any as Validator<unknown, ArrayBufferLike>
-  })
-
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
     recordingID: matches.string,
