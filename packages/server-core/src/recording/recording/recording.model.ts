@@ -12,11 +12,21 @@ export default (app: Application) => {
       defaultValue: DataTypes.UUIDV1,
       allowNull: false,
       primaryKey: true
+    },
+    ended: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   })
 
   ;(Recording as any).associate = (models: any): void => {
-    ;(Recording as any).belongsTo(models.user, { foreignKey: 'userId', allowNull: false, onDelete: 'cascade' })
+    ;(Recording as any).belongsTo(models.user, {
+      foreignKey: 'userId',
+      as: 'user',
+      allowNull: false,
+      onDelete: 'cascade'
+    })
   }
   return Recording
 }

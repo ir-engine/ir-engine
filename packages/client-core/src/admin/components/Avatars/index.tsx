@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AvatarClientModule } from '@etherealengine/engine/src/avatar/AvatarClientModule'
 import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
-import { initSystems, unloadSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { RendererModule } from '@etherealengine/engine/src/renderer/RendererModule'
 import { SceneClientModule } from '@etherealengine/engine/src/scene/SceneClientModule'
 import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
@@ -28,20 +28,14 @@ const Avatar = () => {
   const [openDeleteAvatarModal, setOpenDeleteAvatarModal] = React.useState(false)
   const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
 
-  useEffect(() => {
-    const systems = [
-      ...TransformModule(),
-      ...RendererModule(),
-      ...SceneCommonModule(),
-      ...SceneClientModule(),
-      ...AvatarCommonModule(),
-      ...AvatarClientModule()
-    ]
-    initSystems(systems)
-    return () => {
-      unloadSystems(systems.map((s) => s.uuid))
-    }
-  }, [])
+  useSystems([
+    ...TransformModule(),
+    ...RendererModule(),
+    ...SceneCommonModule(),
+    ...SceneClientModule(),
+    ...AvatarCommonModule(),
+    ...AvatarClientModule()
+  ])
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

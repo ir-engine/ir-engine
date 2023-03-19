@@ -5,6 +5,11 @@ import { t } from 'i18next'
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import {
+  RecordingFunctions,
+  RecordingState,
+  RecordingStateReceptorSystem
+} from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
@@ -12,6 +17,7 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState } from '@etherealengine/hyperflux'
 
@@ -55,31 +61,41 @@ const sendResults = (results: NormalizedLandmarkList) => {
   }
 }
 
+const MotionCaptureReceptorSystemInjection = {
+  uuid: 'ee.client.MotionCaptureReceptorSystem',
+  type: 'POST_RENDER',
+  systemLoader: () => Promise.resolve({ default: RecordingStateReceptorSystem })
+} as const
+
 const Mediapipe = () => {
   const canvasRef = useRef(null as any)
   const canvasCtxRef = useRef(null as any)
   const videoRef = useRef(null as HTMLVideoElement | null)
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
   const mediaConnection = useMediaInstance()
-  const recordingActive = useHookstate(false) //useHookstate(null as string | null)
+  const recordingActive = useHookstate(getMutableState(RecordingState))
 
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {
-    if (recordingActive.value) {
-      // ECSRecordingFunctions.stopRecording(recordingActive.value)
-      // recordingActive.set(null)
-    } else {
-      ECSRecordingFunctions.startRecording({
-        userID: Engine.instance.userId,
-        mocap: true,
-        video: true,
-        avatarPose: true
+    if (recordingActive.recordingID.value) {
+      ECSRecordingFunctions.stopRecording({
+        recordingID: recordingActive.recordingID.value,
+        video: true
       })
-      // todo: get recordingID from the
-      // recordingActive.set(recordingID)
-      recordingActive.set(true)
+    } else if (!recordingActive.started.value) {
+      RecordingFunctions.startRecording().then((recordingID) => {
+        if (recordingID)
+          ECSRecordingFunctions.startRecording({
+            recordingID,
+            mocap: true,
+            video: true,
+            avatarPose: true
+          })
+      })
     }
   }
+
+  useSystems([MotionCaptureReceptorSystemInjection])
 
   const mediapipe = useHookstate(null as Pose | null)
 
@@ -189,9 +205,15 @@ const Mediapipe = () => {
       <div className="object-contain absolute top-0" style={{ objectFit: 'contain', top: '0px' }}>
         <canvas ref={canvasRef} />
       </div>
-      <button className="absolute bottom-0 right-0" onClick={onToggleRecording}>
-        {recordingActive.value ? 'Stop' : 'Start'}
-      </button>
+      {mediaConnection?.value && (
+        <button
+          className="absolute bottom-0 right-0  bg-grey pointer-events-auto"
+          style={{ pointerEvents: 'all' }}
+          onClick={onToggleRecording}
+        >
+          {recordingActive.started.value ? (recordingActive.recordingID.value ? 'Stop' : 'Starting...') : 'Start'}
+        </button>
+      )}
     </div>
   )
 }
