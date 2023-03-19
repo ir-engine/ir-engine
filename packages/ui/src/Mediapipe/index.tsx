@@ -11,8 +11,9 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import LoadingCircle from '../primitives/tailwind/LoadingCircle'
 
@@ -60,11 +61,27 @@ const Mediapipe = () => {
   const videoRef = useRef(null as HTMLVideoElement | null)
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
   const mediaConnection = useMediaInstance()
+  const recordingActive = useHookstate(false) //useHookstate(null as string | null)
+
+  // todo include a mechanism to confirm that the recording has started/stopped
+  const onToggleRecording = () => {
+    if (recordingActive.value) {
+      // ECSRecordingFunctions.stopRecording(recordingActive.value)
+      // recordingActive.set(null)
+    } else {
+      ECSRecordingFunctions.startRecording({
+        userID: Engine.instance.userId,
+        mocap: true,
+        video: true,
+        avatarPose: true
+      })
+      // todo: get recordingID from the
+      // recordingActive.set(recordingID)
+      recordingActive.set(true)
+    }
+  }
 
   const mediapipe = useHookstate(null as Pose | null)
-
-  const imageWidth = useHookstate(1)
-  const imageHeight = useHookstate(1)
 
   const videoActive = useHookstate(false)
 
@@ -130,10 +147,6 @@ const Mediapipe = () => {
     }
   }, [videoRef, videoStream])
 
-  useEffect(() => {}, [imageWidth])
-
-  useEffect(() => {}, [imageHeight])
-
   useLayoutEffect(() => {
     if (canvasRef.current !== null) {
       const canvasElement = canvasRef.current
@@ -176,6 +189,9 @@ const Mediapipe = () => {
       <div className="object-contain absolute top-0" style={{ objectFit: 'contain', top: '0px' }}>
         <canvas ref={canvasRef} />
       </div>
+      <button className="absolute bottom-0 right-0" onClick={onToggleRecording}>
+        {recordingActive.value ? 'Stop' : 'Start'}
+      </button>
     </div>
   )
 }

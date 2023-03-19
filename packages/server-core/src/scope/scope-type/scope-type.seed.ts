@@ -93,6 +93,12 @@ export const scopeTypeSeed = {
     },
     {
       type: 'server:write'
+    },
+    {
+      type: 'recording:read'
+    },
+    {
+      type: 'recording:write'
     }
   ]
 }

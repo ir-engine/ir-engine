@@ -2,7 +2,8 @@ import { POSE_LANDMARKS } from '@mediapipe/pose'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { defineAction, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import {
@@ -14,7 +15,7 @@ import {
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { DataChannelType, Network } from '../networking/classes/Network'
+import { DataChannelType, Network, NetworkTopics } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { NetworkState } from '../networking/NetworkState'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -66,6 +67,14 @@ export default async function MotionCaptureSystem() {
     [mocapDataChannelType]: (network: Network, fromPeerID: PeerID, message: ArrayBufferLike) => {
       if (network.isHosting) {
         network.transport.bufferToAll(mocapDataChannelType, message)
+
+        // dispatch an action locally with the buffer such that the server can access it
+        dispatchAction({
+          ...ECSRecordingActions.bufferReceived({
+            userID: network.peers.get(fromPeerID)!.userId,
+            buffer: message
+          })
+        })
       }
       const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message)
       if (!peerID) return
