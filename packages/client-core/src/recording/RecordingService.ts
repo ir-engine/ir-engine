@@ -40,7 +40,7 @@ export const RecordingFunctions = {
         schema.push(webcamVideoDataChannelType)
       }
       const recording = (await API.instance.client.service('recording').create({
-        schema
+        schema: JSON.stringify(schema)
       })) as RecordingResult
       return recording.id
     } catch (err) {

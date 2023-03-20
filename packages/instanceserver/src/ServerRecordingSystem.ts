@@ -73,13 +73,15 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     // todo - record data
   }
 
+  const schema = JSON.parse(recording.schema) as string[]
+
   const activeRecording = {
     userID,
     dataRecorder
   } as ActiveRecording
 
   if (Engine.instance.worldNetwork) {
-    const serializationSchema = recording.schema
+    const serializationSchema = schema
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
       .filter(Boolean)
 
@@ -96,7 +98,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       })
     }
 
-    const dataChannelSchema = recording.schema
+    const dataChannelSchema = schema
       .filter((component: DataChannelType) => !getState(NetworkState).dataChannelRegistry[component])
       .filter(Boolean) as DataChannelType[]
 
@@ -106,7 +108,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   }
 
   if (Engine.instance.mediaNetwork) {
-    const dataChannelSchema = recording.schema
+    const dataChannelSchema = schema
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
 
@@ -139,12 +141,14 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 
   const recording = await app.service('recording').get(action.recordingID)
 
+  const schema = JSON.parse(recording.schema) as string[]
+
   if (activeRecording.serializer) {
     activeRecording.serializer.end()
   }
 
   if (activeRecording.mediaRecorder) {
-    const dataChannelSchema = recording.schema
+    const dataChannelSchema = schema
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
 
@@ -152,7 +156,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   }
 
   if (activeRecording.dataRecorder) {
-    const dataChannelSchema = recording.schema
+    const dataChannelSchema = schema
       .filter((component: DataChannelType) => !getState(NetworkState).dataChannelRegistry[component])
       .filter(Boolean) as DataChannelType[]
 
@@ -173,6 +177,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) return dispatchError('User does not have record:read scope', user.id)
 
+  const schema = JSON.parse(recording.schema) as string[]
+
   const activePlayback = {
     userID: action.targetUser
     // todo - playback
@@ -182,9 +188,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   activePlayback.deserializer = ECSSerialization.createDeserializer(
     chunks,
-    recording.schema
-      .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
-      .filter(Boolean)
+    schema.map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema).filter(Boolean)
   )
 
   activePlaybacks.set(action.recordingID, activePlayback)

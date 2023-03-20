@@ -19,7 +19,7 @@ export default (app: Application) => {
       defaultValue: false
     },
     schema: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.STRING,
       allowNull: false
     }
   })
