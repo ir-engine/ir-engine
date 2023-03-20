@@ -5,7 +5,7 @@ import { defineState, getMutableState, getState, none } from '@etherealengine/hy
 import { DataChannelType, Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 
-type RegistryFunction = (network: Network, fromPeerID: PeerID, message: any) => void
+type RegistryFunction = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => void
 
 export const NetworkState = defineState({
   name: 'NetworkState',

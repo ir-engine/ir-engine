@@ -374,7 +374,7 @@ export async function createInternalDataConsumer(
     consumer.on('message', (message) => {
       const dataChannelFunctions = dataChannelRegistry.get(dataProducer.label as DataChannelType)
       if (dataChannelFunctions) {
-        for (const func of dataChannelFunctions) func(network, peerID, message)
+        for (const func of dataChannelFunctions) func(network, dataProducer.label as DataChannelType, peerID, message)
       }
     })
     return consumer

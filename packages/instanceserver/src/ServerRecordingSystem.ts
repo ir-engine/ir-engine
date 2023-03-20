@@ -1,3 +1,5 @@
+import { decode, encode } from 'msgpackr'
+
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -86,16 +88,14 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     return dispatchError('Could not create recording folder' + error.message, userID)
   }
 
+  /** @todo - support multiple data channels for each user or peer */
   let rawDataChunks = [] as any[]
   let rawDataChunksCount = 0
 
   const chunkLength = Engine.instance.tickRate * 60 // 1 minute
 
-  const dataChannelRecorder = (network: Network, fromPeerID: PeerID, message: any) => {
-    /** @todo currently, mocap data arrives as plain stringified JSON
-     *  - refactor this to be raw buffers only
-     */
-    rawDataChunks.push(JSON.parse(message))
+  const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
+    rawDataChunks.push(message)
   }
 
   const schema = JSON.parse(recording.schema) as string[]
@@ -138,11 +138,12 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
           if (rawDataChunks.length) {
             // todo - support more than one data channel
             // upload chunk to storage provider
+            let count = rawDataChunksCount
             storageProvider
               .putObject(
                 {
                   Key: 'recordings/' + recording.id + '/raw-' + rawDataChunksCount + '.json',
-                  Body: Buffer.from(rawDataChunks),
+                  Body: Buffer.concat(rawDataChunks),
                   ContentType: 'application/json'
                 },
                 {
@@ -150,7 +151,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
                 }
               )
               .then(() => {
-                logger.info('Uploaded raw chunk', rawDataChunksCount)
+                logger.info('Uploaded raw chunk', count)
               })
 
             rawDataChunks = []

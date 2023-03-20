@@ -29,22 +29,47 @@ export interface NormalizedLandmark {
   visibility?: number
 }
 
-export const sendResults = (landmarks: NormalizedLandmark[]) => {
-  return encode({
-    timestamp: Date.now(),
-    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!,
-    landmarks
-  })
+// export const sendResults = (landmarks: NormalizedLandmark[]) => {
+//   return encode({
+//     timestamp: Date.now(),
+//     peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!,
+//     landmarks
+//   })
+// }
+
+// export const receiveResults = (results: ArrayBuffer) => {
+//   const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
+//     timestamp: number
+//     peerIndex: number
+//     landmarks: NormalizedLandmark[]
+//   }
+//   const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
+//   return { timestamp, peerID, landmarks }
+// }
+
+export const sendResults = (results: NormalizedLandmark[]) => {
+  const peerIndex = Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!
+  const resultsData = results.map((val) => [val.x, val.y, val.z, val.visibility ?? 0]).flat()
+  const dataBuffer = Float64Array.from([Date.now(), peerIndex, ...resultsData]).buffer
+  return dataBuffer
 }
 
-export const receiveResults = (results: ArrayBuffer) => {
-  const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
-    timestamp: number
-    peerIndex: number
-    landmarks: NormalizedLandmark[]
+export const receiveResults = (results: ArrayBufferLike) => {
+  const data = new Float64Array(results)
+  // todo - use timestamp
+  const timestamp = data[0]
+  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(data[1])
+  const resultsData = data.slice(2)
+  const landmarks = [] as NormalizedLandmark[]
+  for (let i = 0; i < resultsData.length; i += 4) {
+    landmarks.push({
+      x: resultsData[i],
+      y: resultsData[i + 1],
+      z: resultsData[i + 2],
+      visibility: resultsData[i + 3]
+    })
   }
-  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
-  return { timestamp, peerID, landmarks }
+  return { peerID, landmarks }
 }
 
 export const MotionCaptureFunctions = {
@@ -55,7 +80,12 @@ export const MotionCaptureFunctions = {
 export const mocapDataChannelType = 'ee.core.mocap.dataChannel' as DataChannelType
 
 export default async function MotionCaptureSystem() {
-  const handleMocapData = (network: Network, fromPeerID: PeerID, message: ArrayBufferLike) => {
+  const handleMocapData = (
+    network: Network,
+    dataChannel: DataChannelType,
+    fromPeerID: PeerID,
+    message: ArrayBufferLike
+  ) => {
     if (network.isHosting) {
       network.transport.bufferToAll(mocapDataChannelType, message)
     }
