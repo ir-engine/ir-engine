@@ -249,7 +249,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
     try {
       // @ts-ignore
-      let { location_settings, ...locationData } = data
+      let { location_settings = {}, ...locationData } = data
       const loggedInUser = params!.user as UserInterface
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
@@ -294,7 +294,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     } catch (err) {
       logger.error(err)
       await t.rollback()
-      if (err.errors[0].message === 'slugifiedName must be unique') {
+      if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('Name is in use.')
       }
       throw err
