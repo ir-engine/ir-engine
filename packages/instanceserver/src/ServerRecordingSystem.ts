@@ -122,9 +122,9 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
             storageProvider
               .putObject(
                 {
-                  Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.json',
+                  Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.bin',
                   Body: chunk,
-                  ContentType: 'application/json'
+                  ContentType: 'application/octet-stream'
                 },
                 {
                   isDirectory: false
@@ -142,9 +142,9 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
             storageProvider
               .putObject(
                 {
-                  Key: 'recordings/' + recording.id + '/raw-' + rawDataChunksCount + '.json',
+                  Key: 'recordings/' + recording.id + '/raw-' + rawDataChunksCount + '.bin',
                   Body: Buffer.concat(rawDataChunks),
-                  ContentType: 'application/json'
+                  ContentType: 'application/octet-stream'
                 },
                 {
                   isDirectory: false
