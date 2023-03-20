@@ -18,7 +18,8 @@ export const RecordingState = defineState({
       mocap: true,
       video: true,
       pose: true
-    }
+    },
+    recordings: [] as RecordingResult[]
   }
 })
 
@@ -46,6 +47,11 @@ export const RecordingFunctions = {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
+  },
+  getRecordings: async () => {
+    const recordings = (await API.instance.client.service('recording').find()).data as RecordingResult[]
+    const recordingState = getMutableState(RecordingState)
+    recordingState.recordings.set(recordings)
   }
 }
 

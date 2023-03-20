@@ -188,6 +188,8 @@ const Mediapipe = () => {
     })
     pose.onResults(onResults)
     mediapipe.set(pose)
+
+    RecordingFunctions.getRecordings()
   }, [])
 
   // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
@@ -203,13 +205,20 @@ const Mediapipe = () => {
         <canvas ref={canvasRef} />
       </div>
       {ready && (
-        <button
-          className="absolute bottom-0 right-0  bg-grey pointer-events-auto"
-          style={{ pointerEvents: 'all' }}
-          onClick={onToggleRecording}
-        >
-          {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Start'}
-        </button>
+        <>
+          <button
+            className="absolute bottom-0 right-0  bg-grey pointer-events-auto"
+            style={{ pointerEvents: 'all' }}
+            onClick={onToggleRecording}
+          >
+            {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Start'}
+          </button>
+          {recordingState.recordings.value.map((recording) => (
+            <div key={recording.id} className="absolute bottom-0 left-0 bg-grey pointer-events-auto">
+              {recording.id}
+            </div>
+          ))}
+        </>
       )}
     </div>
   )
