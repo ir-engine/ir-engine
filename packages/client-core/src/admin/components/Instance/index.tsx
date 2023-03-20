@@ -1,32 +1,32 @@
 import React, { useEffect } from 'react'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import Grid from '@etherealengine/ui/src/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import Search from '../../common/Search'
-import { useInstanceserverState } from '../../services/InstanceserverService'
+import { AdminInstanceServerState } from '../../services/InstanceserverService'
 import { AdminInstanceService } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 import InstanceTable from './InstanceTable'
 import PatchInstanceserver from './PatchInstanceserver'
 
 const Instance = () => {
-  const [search, setSearch] = React.useState('')
-  const [patchInstanceserverOpen, setPatchInstanceserverOpen] = React.useState(false)
-  const instanceserverState = useInstanceserverState()
-  const { patch } = instanceserverState.value
+  const search = useHookstate('')
+  const patchInstanceserverOpen = useHookstate(false)
+  const patch = useHookstate(getMutableState(AdminInstanceServerState).patch)
 
   AdminInstanceService.useAPIListeners()
 
   useEffect(() => {
-    if (patch) {
-      NotificationService.dispatchNotify(patch.message, { variant: patch.status ? 'success' : 'error' })
+    if (patch.value) {
+      NotificationService.dispatchNotify(patch.value.message, { variant: patch.value.status ? 'success' : 'error' })
     }
-  }, [instanceserverState.patch])
+  }, [patch.value])
 
   const handleChange = (e: any) => {
-    setSearch(e.target.value)
+    search.set(e.target.value)
   }
 
   return (
@@ -40,14 +40,14 @@ const Instance = () => {
             className={styles.openModalBtn}
             type="submit"
             variant="contained"
-            onClick={() => setPatchInstanceserverOpen(true)}
+            onClick={() => patchInstanceserverOpen.set(true)}
           >
             Patch Instanceserver
           </Button>
         </Grid>
       </Grid>
-      <InstanceTable className={styles.rootTableWithSearch} search={search} />
-      {patchInstanceserverOpen && <PatchInstanceserver open onClose={() => setPatchInstanceserverOpen(false)} />}
+      <InstanceTable className={styles.rootTableWithSearch} search={search.value} />
+      {patchInstanceserverOpen.value && <PatchInstanceserver open onClose={() => patchInstanceserverOpen.set(false)} />}
     </div>
   )
 }

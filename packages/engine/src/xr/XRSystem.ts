@@ -4,6 +4,7 @@ import XR8 from './8thwall/XR8'
 import { VPSSystem } from './VPSSystem'
 import XRAnchorSystem from './XRAnchorSystem'
 import XRCameraSystem from './XRCameraSystem'
+import XRCameraViewSystem from './XRCameraViewSystem'
 import XRDetectedPlanesSystem from './XRDetectedPlanesSystem'
 import XRHapticsSystem from './XRHapticsSystem'
 import XRInputSourceSystem from './XRInputSourceSystem'
@@ -58,6 +59,7 @@ export default async function XRSystem() {
       () => Promise.resolve({ default: XR8 }),
       () => Promise.resolve({ default: VPSSystem }),
       () => Promise.resolve({ default: XRCameraSystem }),
+      () => Promise.resolve({ default: XRCameraViewSystem }),
       () => Promise.resolve({ default: XRInputSourceSystem }),
       () => Promise.resolve({ default: XRHapticsSystem }),
       // () => Promise.resolve({ default: XRLightProbeSystem }),

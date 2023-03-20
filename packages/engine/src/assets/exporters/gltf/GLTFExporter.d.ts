@@ -48,6 +48,8 @@ export interface GLTFExporterOptions {
     includeCustomExtensions?: boolean;
 
     path?: string;
+
+    flipY?: boolean;
 }
 
 export class GLTFExporter {
@@ -101,6 +103,7 @@ export class GLTFWriter {
         trs?: boolean,
         binary?: boolean,
         embedImages?: boolean,
+        flipY?: boolean,
         path?: string,
         onlyVisible?: boolean,
         animations?: AnimationClip[],
@@ -169,7 +172,7 @@ export class GLTFWriter {
 }
 
 export interface GLTFExporterPlugin {
-    writeImage?: (image: Image, imageDef: { [key: string]: any }) => void;
+    writeImage?: (image: HTMLImageElement, imageDef: { [key: string]: any }) => void;
     writeTexture?: (map: Texture, textureDef: { [key: string]: any }) => void;
     writeMaterial?: (material: Material, materialDef: { [key: string]: any }) => void;
     writeMesh?: (mesh: Mesh, meshDef: { [key: string]: any }) => void;

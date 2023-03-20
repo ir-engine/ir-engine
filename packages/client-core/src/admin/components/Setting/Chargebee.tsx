@@ -2,27 +2,27 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { useAuthState } from '../../../user/services/AuthService'
-import { ChargebeeSettingService, useAdminChargebeeSettingState } from '../../services/Setting/ChargebeeSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminChargebeeSettingsState, ChargebeeSettingService } from '../../services/Setting/ChargebeeSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const ChargeBee = () => {
   const { t } = useTranslation()
-  const chargeBeeSettingState = useAdminChargebeeSettingState()
-  const [chargebee] = chargeBeeSettingState?.chargebee.value || []
-  const authState = useAuthState()
-  const user = authState.user
+  const chargeBeeSettingState = useHookstate(getMutableState(AdminChargebeeSettingsState))
+  const [chargebee] = chargeBeeSettingState?.chargebee.get({ noproxy: true }) || []
+  const user = useHookstate(getMutableState(AuthState).user)
 
   useEffect(() => {
     if (user?.id?.value != null && chargeBeeSettingState?.updateNeeded?.value) {
       ChargebeeSettingService.fetchChargeBee()
     }
-  }, [authState?.user?.id?.value, chargeBeeSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, chargeBeeSettingState?.updateNeeded?.value])
 
   return (
     <Box>

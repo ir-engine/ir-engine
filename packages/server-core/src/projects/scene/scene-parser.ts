@@ -14,7 +14,9 @@ export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
     }
     if (typeof val === 'string') {
       if (val.includes(sceneRelativePathIdentifier)) {
+        console.log('swapping in cache domain')
         sceneData[key] = getCachedURL(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain)
+        console.log('swapped', sceneData[key])
       } else if (val.startsWith(sceneCorsPathIdentifier)) {
         sceneData[key] = val.replace(sceneCorsPathIdentifier, config.client.cors.proxyUrl)
       }

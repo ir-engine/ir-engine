@@ -1,7 +1,7 @@
 import { AdminAnalytics, AdminAnalyticsResult } from '@etherealengine/common/src/interfaces/AdminAnalyticsData'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -10,7 +10,7 @@ const logger = multiLogger.child({ component: 'client-core:AnalyticsService' })
 //State
 export const ANALYTICS_PAGE_LIMIT = 100
 
-const AdminAnalyticsState = defineState({
+export const AdminAnalyticsState = defineState({
   name: 'AdminAnalyticsState',
   initial: () => ({
     activeInstances: [] as Array<AdminAnalytics>,
@@ -90,10 +90,6 @@ export const AdminAnalyticsReceptors = {
   dailyNewUsersFetchedReceptor,
   dailyUsersFetchedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessAdminAnalyticsState = () => getMutableState(AdminAnalyticsState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAdminAnalyticsState = () => useState(accessAdminAnalyticsState())
 
 //Service
 export const AdminAnalyticsService = {
@@ -302,35 +298,35 @@ export const AdminAnalyticsService = {
 //Action
 export class AdminAnalyticsActions {
   static activePartiesFetched = defineAction({
-    type: 'xre.client.AdminAnalytics.ACTIVE_PARTIES_FETCHED' as const,
+    type: 'ee.client.AdminAnalytics.ACTIVE_PARTIES_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static activeInstancesFetched = defineAction({
-    type: 'xre.client.AdminAnalytics.ACTIVE_INSTANCES_FETCHED' as const,
+    type: 'ee.client.AdminAnalytics.ACTIVE_INSTANCES_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static channelUsersFetched = defineAction({
-    type: 'xre.client.AdminAnalytics.CHANNEL_USERS_FETCHED' as const,
+    type: 'ee.client.AdminAnalytics.CHANNEL_USERS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static instanceUsersFetched = defineAction({
-    type: 'xre.client.AdminAnalytics.INSTANCE_USERS_FETCHED' as const,
+    type: 'ee.client.AdminAnalytics.INSTANCE_USERS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static activeLocationsFetched = defineAction({
-    type: 'xre.client.AdminAnalytics.ACTIVE_LOCATIONS_FETCHED' as const,
+    type: 'ee.client.AdminAnalytics.ACTIVE_LOCATIONS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static activeScenesFetched = defineAction({
-    type: 'xre.client.AdminAnalytics.ACTIVE_SCENES_FETCHED' as const,
+    type: 'ee.client.AdminAnalytics.ACTIVE_SCENES_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static dailyUsersFetched = defineAction({
-    type: 'xre.client.AdminAnalytics.DAILY_USERS_FETCHED' as const,
+    type: 'ee.client.AdminAnalytics.DAILY_USERS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
   static dailyNewUsersFetched = defineAction({
-    type: 'xre.client.AdminAnalytics.DAILY_NEW_USERS_FETCHED' as const,
+    type: 'ee.client.AdminAnalytics.DAILY_NEW_USERS_FETCHED' as const,
     analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
   })
 }

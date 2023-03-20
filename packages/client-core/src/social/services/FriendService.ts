@@ -177,11 +177,11 @@ async function removeRelation(userId: string, relatedUserId: string) {
 //Action
 export class FriendAction {
   static fetchingFriendsAction = defineAction({
-    type: 'xre.client.Friend.FETCHING_FRIENDS' as const
+    type: 'ee.client.Friend.FETCHING_FRIENDS' as const
   })
 
   static loadedFriendsAction = defineAction({
-    type: 'xre.client.Friend.LOADED_FRIENDS' as const,
+    type: 'ee.client.Friend.LOADED_FRIENDS' as const,
     relationships: matches.object as Validator<unknown, Relationship>
   })
 }

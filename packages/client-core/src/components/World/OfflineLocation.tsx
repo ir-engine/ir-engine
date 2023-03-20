@@ -4,7 +4,7 @@ import { useAuthState } from '@etherealengine/client-core/src/user/services/Auth
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { receiveJoinWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
@@ -26,7 +26,7 @@ export const OfflineLocation = () => {
 
       const networkState = getMutableState(NetworkState)
       networkState.hostIds.world.set(userId)
-      addNetwork(new Network(userId, NetworkTopics.world))
+      addNetwork(createNetwork(userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(

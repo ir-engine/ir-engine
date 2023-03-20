@@ -1,13 +1,13 @@
 import { SpawnTestBot, TestBot } from '@etherealengine/common/src/interfaces/TestBot'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
 const logger = multiLogger.child({ component: 'client-core:TestBotService' })
 
-const AdminTestBotState = defineState({
+export const AdminTestBotState = defineState({
   name: 'AdminTestBotState',
   initial: () => ({
     bots: [] as Array<TestBot>,
@@ -49,10 +49,6 @@ export const AdminTestBotReceptors = {
   spawnBotsReceptor,
   spawnedBotsReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessTestBotState = () => getMutableState(AdminTestBotState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useTestBotState = () => useState(accessTestBotState())
 
 //Service
 export const TestBotService = {
@@ -78,16 +74,16 @@ export const TestBotService = {
 //Action
 export class AdminTestBotActions {
   static fetchedBots = defineAction({
-    type: 'xre.client.AdminTestBot.TEST_BOT_FETCHED' as const,
+    type: 'ee.client.AdminTestBot.TEST_BOT_FETCHED' as const,
     bots: matches.array as Validator<unknown, TestBot[]>
   })
 
   static spawnBots = defineAction({
-    type: 'xre.client.AdminTestBot.TEST_BOT_SPAWN' as const
+    type: 'ee.client.AdminTestBot.TEST_BOT_SPAWN' as const
   })
 
   static spawnedBots = defineAction({
-    type: 'xre.client.AdminTestBot.TEST_BOT_SPAWNED' as const,
+    type: 'ee.client.AdminTestBot.TEST_BOT_SPAWNED' as const,
     spawn: matches.object as Validator<unknown, SpawnTestBot>
   })
 }

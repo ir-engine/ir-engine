@@ -21,7 +21,7 @@ export const userPatched = (params) => {
 
   const selfUser = accessAuthState().user
   const userState = accessNetworkUserState()
-  const patchedUser = resolveUser(params.userRelationship)
+  const patchedUser = resolveUser(params.userRelationship || selfUser)
   const worldHostID = getState(NetworkState).hostIds.world
 
   logger.info('Resolved patched user %o', patchedUser)
@@ -49,7 +49,7 @@ export const userPatched = (params) => {
       }
     }
   } else {
-    const isLayerUser = userState.layerUsers.value.find((item) => item.id === patchedUser.id)
+    const isLayerUser = userState.layerUsers.get({ noproxy: true }).find((item) => item.id === patchedUser.id)
 
     if (patchedUser.channelInstanceId != null && patchedUser.channelInstanceId === selfUser.channelInstanceId.value)
       dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: patchedUser }))

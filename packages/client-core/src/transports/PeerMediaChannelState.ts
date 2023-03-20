@@ -1,7 +1,7 @@
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
-import { ConsumerExtension, ProducerExtension } from './SocketWebRTCClientNetwork'
+import { ConsumerExtension, ProducerExtension } from './SocketWebRTCClientFunctions'
 
 export interface PeerMediaStreamInterface {
   videoStream: ProducerExtension | ConsumerExtension | null
@@ -61,4 +61,9 @@ export const removePeerMediaChannels = (peerID: PeerID) => {
   console.log('removePeerMediaChannels', peerID)
   const state = getMutableState(PeerMediaChannelState)
   state[peerID].set(none)
+}
+
+export const clearPeerMediaChannels = () => {
+  console.log('clearPeerMediaChannels')
+  getMutableState(PeerMediaChannelState).set({})
 }

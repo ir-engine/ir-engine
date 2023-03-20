@@ -8,5 +8,6 @@ export enum AssetClass {
   Document = 'Document',
   Text = 'Text',
   Script = 'Script',
-  Unknown = 'unknown'
+  Unknown = 'unknown',
+  Volumetric = 'Volumetric'
 }

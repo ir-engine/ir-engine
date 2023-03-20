@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
@@ -6,6 +6,7 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import { CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import Dialog from '@etherealengine/ui/src/Dialog'
 import DialogActions from '@etherealengine/ui/src/DialogActions'
@@ -15,11 +16,11 @@ import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminBotService } from '../../services/BotsService'
-import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
+import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -29,29 +30,27 @@ interface Props {
 }
 
 const UpdateBot = ({ open, bot, onClose }: Props) => {
-  const adminInstanceState = useAdminInstanceState()
-  const [state, setState] = useState({
+  const state = useHookstate({
     name: '',
     description: '',
     instance: '',
     location: ''
   })
-  const [formErrors, setFormErrors] = useState({
+  const formErrors = useHookstate({
     name: '',
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
-  const adminLocation = useAdminLocationState()
-  const locationData = adminLocation.locations
-  const adminInstances = adminInstanceState
-  const instanceData = adminInstances.instances
-  const user = useAuthState().user
+  const currentInstance = useHookstate<Instance[]>([])
+  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
+  const locationData = useHookstate(getMutableState(AdminLocationState).locations)
+  const instanceData = adminInstanceState.instances
+  const user = useHookstate(getMutableState(AuthState).user)
   const { t } = useTranslation()
 
   useEffect(() => {
     if (bot) {
-      setState({
+      state.set({
         name: bot?.name,
         description: bot?.description,
         instance: bot?.instance?.id || '',
@@ -60,14 +59,14 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     }
   }, [bot])
 
-  const locationsMenu: InputMenuItem[] = locationData.value.map((el) => {
+  const locationsMenu: InputMenuItem[] = locationData.get({ noproxy: true }).map((el) => {
     return {
       label: el.name,
       value: el.id
     }
   })
 
-  const instancesMenu: InputMenuItem[] = currentInstance.map((el) => {
+  const instancesMenu: InputMenuItem[] = currentInstance.get({ noproxy: true }).map((el) => {
     return {
       label: el.ipAddress,
       value: el.id
@@ -77,62 +76,56 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target
 
-    let temp = { ...formErrors }
-
     switch (name) {
       case 'name':
-        temp.name = value.length < 2 ? t('admin:components.bot.nameCantEmpty') : ''
+        formErrors.merge({ name: value.length < 2 ? t('admin:components.bot.nameCantEmpty') : '' })
         break
       case 'description':
-        temp.description = value.length < 2 ? t('admin:components.bot.descriptionCantEmpty') : ''
+        formErrors.merge({ description: value.length < 2 ? t('admin:components.bot.descriptionCantEmpty') : '' })
         break
       case 'location':
-        temp.location = value.length < 2 ? t('admin:components.bot.locationCantEmpty') : ''
+        formErrors.merge({ location: value.length < 2 ? t('admin:components.bot.locationCantEmpty') : '' })
         break
       default:
         break
     }
-    setFormErrors(temp)
-    setState({ ...state, [name]: value })
+    state.merge({ [name]: value })
   }
 
-  const data: Instance[] = instanceData.value.map((element) => {
+  const data: Instance[] = instanceData.get({ noproxy: true }).map((element) => {
     return element
   })
 
   useEffect(() => {
-    const instanceFilter = data.filter((el) => el.locationId === state.location)
+    const instanceFilter = data.filter((el) => el.locationId === state.location.value)
     if (instanceFilter.length > 0) {
-      setState({ ...state, instance: state.instance || '' })
-      setCurrentIntance(instanceFilter)
+      state.merge({ instance: state.instance.value || '' })
+      currentInstance.set(instanceFilter)
     } else {
-      setCurrentIntance([])
-      setState({ ...state, instance: '' })
+      currentInstance.set([])
+      state.merge({ instance: '' })
     }
-  }, [state.location, adminInstanceState.instances.value.length])
+  }, [state.location.value, adminInstanceState.instances.value.length])
 
   const handleUpdate = () => {
     const data: CreateBotAsAdmin = {
-      name: state.name,
-      instanceId: state.instance || null,
+      name: state.name.value,
+      instanceId: state.instance.value || null,
       userId: user.id.value,
-      description: state.description,
-      locationId: state.location
+      description: state.description.value,
+      locationId: state.location.value
     }
 
-    let tempErrors = {
-      ...formErrors,
-      name: state.name ? '' : t('admin:components.bot.nameCantEmpty'),
-      description: state.description ? '' : t('admin:components.bot.descriptionCantEmpty'),
-      location: state.location ? '' : t('admin:components.bot.locationCantEmpty')
-    }
+    formErrors.merge({
+      name: state.name.value ? '' : t('admin:components.bot.nameCantEmpty'),
+      description: state.description.value ? '' : t('admin:components.bot.descriptionCantEmpty'),
+      location: state.location.value ? '' : t('admin:components.bot.locationCantEmpty')
+    })
 
-    setFormErrors(tempErrors)
-
-    if (validateForm(state, tempErrors) && bot) {
+    if (validateForm(state.value, formErrors.value) && bot) {
       AdminBotService.updateBotAsAdmin(bot.id, data)
-      setState({ name: '', description: '', instance: '', location: '' })
-      setCurrentIntance([])
+      state.set({ name: '', description: '', instance: '', location: '' })
+      currentInstance.set([])
       onClose()
     } else {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
@@ -160,24 +153,24 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
           <InputText
             name="name"
             label={t('admin:components.bot.name')}
-            value={state.name}
-            error={formErrors.name}
+            value={state.name.value}
+            error={formErrors.name.value}
             onChange={handleInputChange}
           />
 
           <InputText
             name="description"
             label={t('admin:components.bot.description')}
-            value={state.description}
-            error={formErrors.description}
+            value={state.description.value}
+            error={formErrors.description.value}
             onChange={handleInputChange}
           />
 
           <InputSelect
             name="location"
             label={t('admin:components.bot.location')}
-            value={state.location}
-            error={formErrors.location}
+            value={state.location.value}
+            error={formErrors.location.value}
             menu={locationsMenu}
             onChange={handleInputChange}
             endControl={
@@ -191,7 +184,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
           <InputSelect
             name="instance"
             label={t('admin:components.bot.instance')}
-            value={state.instance}
+            value={state.instance.value}
             menu={instancesMenu}
             onChange={handleInputChange}
             endControl={
@@ -208,8 +201,8 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             disableElevation
             type="submit"
             onClick={() => {
-              setState({ name: '', description: '', instance: '', location: '' })
-              setFormErrors({ name: '', description: '', location: '' })
+              state.set({ name: '', description: '', instance: '', location: '' })
+              formErrors.set({ name: '', description: '', location: '' })
               onClose()
             }}
             className={styles.outlinedButton}

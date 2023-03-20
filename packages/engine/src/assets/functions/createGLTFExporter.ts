@@ -5,6 +5,7 @@ import EEMaterialExporterExtension from '../exporters/gltf/extensions/EEMaterial
 import { ExporterExtension } from '../exporters/gltf/extensions/ExporterExtension'
 import GPUInstancingExporterExtension from '../exporters/gltf/extensions/GPUInstancingExporterExtension'
 import { LightmapExporterExtension } from '../exporters/gltf/extensions/LightmapExporterExtension'
+import ResourceIDExtension from '../exporters/gltf/extensions/ResourceIDExtension'
 import URLResolutionExtension from '../exporters/gltf/extensions/URLResolutionExtension'
 import { GLTFExporter } from '../exporters/gltf/GLTFExporter'
 
@@ -18,7 +19,8 @@ export default function createGLTFExporter() {
     EEMaterialExporterExtension,
     BufferHandlerExtension,
     URLResolutionExtension,
-    EEECSExporterExtension
+    EEECSExporterExtension,
+    ResourceIDExtension
   ]
 
   extensions.forEach((extension) => exporter.register((writer) => new extension(writer)))

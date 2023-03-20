@@ -21,7 +21,8 @@ const db = {
   database: process.env.MYSQL_DATABASE ?? 'etherealengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql'
+  dialect: 'mysql',
+  url: ''
 }
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
@@ -31,6 +32,7 @@ cli.enable('status')
 cli.main(async () => {
   try {
     const app = createFeathersExpressApp(ServerMode.API)
+    await app.setup()
     const sequelizeClient = new Sequelize({
       ...db,
       logging: console.log,

@@ -2,10 +2,7 @@ import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { Object3D } from 'three'
 
-import {
-  LoopAnimationComponent,
-  SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
-} from '../../../avatar/components/LoopAnimationComponent'
+import { LoopAnimationComponent } from '../../../avatar/components/LoopAnimationComponent'
 import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'

@@ -1,11 +1,11 @@
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 //State
-const AdminServerLogsState = defineState({
+export const AdminServerLogsState = defineState({
   name: 'AdminServerLogsState',
   initial: () => ({
     logs: '',
@@ -58,10 +58,6 @@ export const AdminServerLogsReceptors = {
   fetchServerLogsRequestedReceptor,
   fetchServerLogsRetrievedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessServerLogsState = () => getMutableState(AdminServerLogsState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useServerLogsState = () => useState(accessServerLogsState())
 
 //Service
 export const ServerLogsService = {
@@ -82,12 +78,12 @@ export const ServerLogsService = {
 //Action
 export class AdminServerLogsActions {
   static fetchServerLogsRequested = defineAction({
-    type: 'xre.client.AdminServerLogs.FETCH_SERVER_LOGS_REQUESTED' as const,
+    type: 'ee.client.AdminServerLogs.FETCH_SERVER_LOGS_REQUESTED' as const,
     podName: matches.string,
     containerName: matches.string
   })
   static fetchServerLogsRetrieved = defineAction({
-    type: 'xre.client.AdminServerLogs.FETCH_SERVER_LOGS_RETRIEVED' as const,
+    type: 'ee.client.AdminServerLogs.FETCH_SERVER_LOGS_RETRIEVED' as const,
     logs: matches.string
   })
 }

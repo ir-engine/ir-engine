@@ -69,14 +69,13 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
 
   let hasPendingChanges = state.name && avatarSrc && thumbnailSrc ? true : false
   if (selectedAvatar) {
-    hasPendingChanges =
+    hasPendingChanges = !!(
       selectedAvatar.name !== state.name ||
       state.avatarFile ||
       state.thumbnailFile ||
-      selectedAvatar.modelResource?.url !== state.avatarUrl ||
-      selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl
-        ? true
-        : false
+      selectedAvatar.modelResource?.LOD0_url !== state.avatarUrl ||
+      selectedAvatar.thumbnailResource?.LOD0_url !== state.thumbnailUrl
+    )
   }
 
   useEffect(() => {
@@ -94,8 +93,8 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
       setState({
         ...defaultState,
         name: selectedAvatar.name || '',
-        avatarUrl: selectedAvatar.modelResource?.url || '',
-        thumbnailUrl: selectedAvatar.thumbnailResource?.url || '',
+        avatarUrl: selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || '',
         avatarFile: undefined,
         thumbnailFile: undefined
       })
@@ -261,8 +260,8 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
         await AvatarService.patchAvatar(
           selectedAvatar,
           state.name,
-          selectedAvatar.modelResource?.url !== state.avatarUrl ||
-            selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
+          selectedAvatar.modelResource?.LOD0_url !== state.avatarUrl ||
+            selectedAvatar.thumbnailResource?.LOD0_url !== state.thumbnailUrl,
           avatarBlob,
           thumbnailBlob
         )

@@ -68,8 +68,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         newAvatar.id,
-        uploadResponse[0]?.url || '',
-        uploadResponse[1]?.url || ''
+        uploadResponse[0]?.LOD0_url || '',
+        uploadResponse[1]?.LOD0_url || ''
       )
     }
   },
@@ -135,8 +135,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         avatar.id,
-        avatar.modelResource?.url || '',
-        avatar.thumbnailResource?.url || ''
+        avatar.modelResource?.LOD0_url || '',
+        avatar.thumbnailResource?.LOD0_url || ''
       )
     }
   },
@@ -194,14 +194,14 @@ export const AvatarService = {
 
 export class AvatarActions {
   static updateAvatarListAction = defineAction({
-    type: 'xre.client.avatar.AVATAR_FETCHED' as const,
+    type: 'ee.client.avatar.AVATAR_FETCHED' as const,
     avatarList: matches.array as Validator<unknown, AvatarInterface[]>,
     search: matches.string.optional(),
     skip: matches.number,
     total: matches.number
   })
   static updateAvatarAction = defineAction({
-    type: 'xre.client.avatar.AVATAR_UPDATED' as const,
+    type: 'ee.client.avatar.AVATAR_UPDATED' as const,
     avatar: matches.object as Validator<unknown, AvatarInterface>
   })
 }
