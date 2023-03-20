@@ -76,7 +76,7 @@ describe('DataReader', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
-    getMutableState(NetworkState).networkSchema['ee.core.transform'].set({
+    getMutableState(NetworkState).networkSchema[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
     })

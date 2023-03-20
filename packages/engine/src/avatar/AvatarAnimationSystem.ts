@@ -7,6 +7,7 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   startReactor,
   useHookstate
 } from '@etherealengine/hyperflux'
@@ -37,7 +38,7 @@ import {
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
-import { getCameraMode, ReferenceSpace, useIsHeadset } from '../xr/XRState'
+import { getCameraMode, ReferenceSpace, useIsHeadset, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -66,32 +67,12 @@ export const AvatarAnimationState = defineState({
 const _vector3 = new Vector3()
 const _vec = new Vector3()
 
-/**
- * Setup head-ik for entity
- * @param entity
- * @returns
- */
-export function setupHeadIK(entity: Entity) {
-  const target = new Object3D()
-  target.name = `ik-head-target-${entity}`
-
-  setComponent(entity, AvatarHeadIKComponent, {
-    target,
-    rotationClamp: 0.785398
-  })
-
-  proxifyVector3(AvatarHeadIKComponent.target.position, entity, target.position)
-  proxifyQuaternion(AvatarHeadIKComponent.target.rotation, entity, target.quaternion)
-}
-
 // setComponent(entity, AvatarArmsTwistCorrectionComponent, {
 //   LeftHandBindRotationInv: new Quaternion(),
 //   LeftArmTwistAmount: 0.6,
 //   RightHandBindRotationInv: new Quaternion(),
 //   RightArmTwistAmount: 0.6
 // })
-
-export function setupRightHandIK(entity: Entity) {}
 
 export default async function AvatarAnimationSystem() {
   await AnimationManager.instance.loadDefaultAnimations()
@@ -115,9 +96,6 @@ export default async function AvatarAnimationSystem() {
     AvatarRigComponent
   ])
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
-  const avatarIKTargetsQuery = defineQuery([AvatarIKTargetsComponent, AvatarRigComponent])
-
-  const avatarIKTargetsActionQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
 
   const reactor = startReactor(function AvatarAnimationReactor() {
     const state = useHookstate(getMutableState(AvatarAnimationState))
@@ -159,10 +137,12 @@ export default async function AvatarAnimationSystem() {
 
   let sortedTransformEntities = [] as Entity[]
 
+  const xrState = getState(XRState)
+
   const execute = () => {
     const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
 
-    if (localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
+    if (xrState.sessionActive && localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
       const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
       const sources = Array.from(inputSources.values())
       const head = getCameraMode() === 'attached'
@@ -172,33 +152,6 @@ export default async function AvatarAnimationSystem() {
       const changed = ikTargets.head !== head || ikTargets.leftHand !== leftHand || ikTargets.rightHand !== rightHand
 
       if (changed) dispatchAction(WorldNetworkAction.avatarIKTargets({ head, leftHand, rightHand }))
-    }
-
-    for (const action of avatarIKTargetsActionQueue()) {
-      const entity = Engine.instance.getUserAvatarEntity(action.$from)
-      const targets = getComponent(entity, AvatarIKTargetsComponent)
-
-      targets.head = action.head
-      targets.leftHand = action.leftHand
-      targets.rightHand = action.rightHand
-    }
-
-    /** Add & remove IK Targets based on active target data */
-    for (const entity of avatarIKTargetsQuery()) {
-      const targets = getComponent(entity, AvatarIKTargetsComponent)
-
-      if (targets.head && !hasComponent(entity, AvatarHeadIKComponent)) setupHeadIK(entity)
-      if (!targets.head && hasComponent(entity, AvatarHeadIKComponent)) removeComponent(entity, AvatarHeadIKComponent)
-
-      if (targets.leftHand && !hasComponent(entity, AvatarLeftArmIKComponent))
-        setComponent(entity, AvatarLeftArmIKComponent)
-      if (!targets.leftHand && hasComponent(entity, AvatarLeftArmIKComponent))
-        removeComponent(entity, AvatarLeftArmIKComponent)
-
-      if (targets.rightHand && !hasComponent(entity, AvatarRightArmIKComponent))
-        setComponent(entity, AvatarRightArmIKComponent)
-      if (!targets.rightHand && hasComponent(entity, AvatarRightArmIKComponent))
-        removeComponent(entity, AvatarRightArmIKComponent)
     }
 
     if (!isClient) return

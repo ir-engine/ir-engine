@@ -91,6 +91,9 @@ export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
 }
 
 export const IKSerialization = {
+  headID: 'ee.core.xrhead' as const,
+  leftHandID: 'ee.core.xrLeftHand' as const,
+  rightHandID: 'ee.core.xrRightHand' as const,
   writeXRHead,
   writeXRLeftHand,
   writeXRRightHand,

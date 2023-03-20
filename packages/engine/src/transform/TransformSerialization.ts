@@ -1,4 +1,3 @@
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { hasComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag, readCompressedRotation, readVector3 } from '../networking/serialization/DataReader'
@@ -36,6 +35,7 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
 }
 
 export const TransformSerialization = {
+  ID: 'ee.core.transform' as const,
   readTransform,
   writeTransform
 }

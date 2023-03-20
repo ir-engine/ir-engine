@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react'
 
 import {
   Accessibility,
+  AccessibilityNew,
   AccountCircle,
   Add,
   AdminPanelSettings,
@@ -102,6 +103,7 @@ import {
   ScreenshotMonitor,
   Search,
   SelectAll,
+  SelfImprovement,
   Send,
   Settings,
   Shuffle,
@@ -140,6 +142,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
     default:
       console.log(`----------------Icon type not found: ${type}`)
       return <CrisisAlert {...props} />
+    case 'AccessibilityNew':
+      return <AccessibilityNew {...props} />
     case 'default':
       return <ThumbUp {...props} />
     case 'Save':

@@ -55,9 +55,17 @@ export const AvatarHeadIKComponent = defineComponent({
   schema: XRHeadIKSchema,
 
   onInit(entity) {
+    const target = new Object3D()
+    target.name = `ik-head-target-${entity}`
+
+    proxifyVector3(AvatarHeadIKComponent.target.position, entity, target.position)
+    proxifyQuaternion(AvatarHeadIKComponent.target.rotation, entity, target.quaternion)
+
+    target.position.y += 1.8
+
     return {
-      target: new Object3D(),
-      rotationClamp: 0
+      target,
+      rotationClamp: 0.785398
     }
   },
 
