@@ -22,7 +22,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeer } from '@etherealengine/engine/src/networking/interfaces/NetworkPeer'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { dataChannelRegistry, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
@@ -372,8 +372,7 @@ export async function createInternalDataConsumer(
       ordered: false
     })
     consumer.on('message', (message) => {
-      const networkState = getState(NetworkState)
-      const dataChannelFunctions = networkState.dataChannelRegistry[dataProducer.label]
+      const dataChannelFunctions = dataChannelRegistry.get(dataProducer.label as DataChannelType)
       if (dataChannelFunctions) {
         for (const func of dataChannelFunctions) func(network, peerID, message)
       }
@@ -505,10 +504,7 @@ export async function handleWebRtcProduceData(
       logger.info('userId could not be found for sparkID ' + peerID)
       return
     }
-    if (
-      typeof data.label !== 'string' ||
-      !Object.keys(getState(NetworkState).dataChannelRegistry).includes(data.label)
-    ) {
+    if (typeof data.label !== 'string' || !dataChannelRegistry.has(data.label)) {
       const errorMessage = 'Invalid data producer label (i.e. channel name) provided:' + data.label
       logger.error(errorMessage)
       return spark.write({

@@ -13,6 +13,7 @@ import {
 import { DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
 import {
   addDataChannelHandler,
+  dataChannelRegistry,
   NetworkState,
   removeDataChannelHandler,
   screenshareAudioDataChannelType,
@@ -88,7 +89,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   let rawDataChunks = [] as any[]
   let rawDataChunksCount = 0
 
-  const chunkLength = Engine.instance.tickRate * 1 // 1 minute
+  const chunkLength = Engine.instance.tickRate * 60 // 1 minute
 
   const dataChannelRecorder = (network: Network, fromPeerID: PeerID, message: any) => {
     /** @todo currently, mocap data arrives as plain stringified JSON
@@ -160,7 +161,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     }
 
     const dataChannelSchema = schema
-      .filter((component: DataChannelType) => getState(NetworkState).dataChannelRegistry[component])
+      .filter((component: DataChannelType) => dataChannelRegistry.has(component))
       .filter(Boolean) as DataChannelType[]
 
     for (const dataChannel of dataChannelSchema) {
@@ -218,7 +219,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 
   if (activeRecording.dataChannelRecorder) {
     const dataChannelSchema = schema
-      .filter((component: DataChannelType) => getState(NetworkState).dataChannelRegistry[component])
+      .filter((component: DataChannelType) => dataChannelRegistry.has(component))
       .filter(Boolean) as DataChannelType[]
 
     for (const dataChannel of dataChannelSchema) {

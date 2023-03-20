@@ -46,7 +46,7 @@ import {
   JoinWorldRequestData,
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { NetworkState, removeNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { dataChannelRegistry, NetworkState, removeNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { ecsDataChannelType } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
 import {
   addActionReceptor,
@@ -478,8 +478,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     network.dataConsumers.set(options.id as DataChannelType, dataConsumer)
     dataConsumer.on('message', (message: any) => {
       try {
-        const networkState = getState(NetworkState)
-        const dataChannelFunctions = networkState.dataChannelRegistry[dataConsumer.label]
+        const dataChannelFunctions = dataChannelRegistry.get(dataConsumer.label as DataChannelType)
         if (dataChannelFunctions) {
           for (const func of dataChannelFunctions) func(network, network.hostPeerID, message) // assmume for now data is coming from the host
         }

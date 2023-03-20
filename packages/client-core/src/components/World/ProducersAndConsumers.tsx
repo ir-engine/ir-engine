@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { dataChannelRegistry, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { useWorldInstance } from '../../common/services/LocationInstanceConnectionService'
@@ -19,7 +19,6 @@ export const DataChannel = ({ dataChannelType }: { dataChannelType: DataChannelT
   const connectedToWorld = useHookstate(getMutableState(EngineState).connectedWorld)
 
   useEffect(() => {
-    console.log('connected', connectedToWorld.value)
     if (!currentLocationInstanceConnection?.connected?.value || !connectedToWorld.value) return
 
     const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
@@ -38,7 +37,7 @@ export const DataChannels = () => {
   useHookstate(getMutableState(NetworkState))
   return (
     <>
-      {Object.entries(getState(NetworkState).dataChannelRegistry).map(([dataChannelType]) => (
+      {Array.from(dataChannelRegistry.keys()).map((dataChannelType) => (
         <DataChannel key={dataChannelType} dataChannelType={dataChannelType as DataChannelType} />
       ))}
     </>
