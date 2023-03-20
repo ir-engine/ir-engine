@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { ServerInfoInterface } from '@etherealengine/common/src/interfaces/ServerInfo'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Card from '@etherealengine/ui/src/Card'
 import CardActionArea from '@etherealengine/ui/src/CardActionArea'
@@ -11,20 +12,20 @@ import CardContent from '@etherealengine/ui/src/CardContent'
 import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
+import { AdminServerInfoState, ServerInfoService } from '../../services/ServerInfoService'
 import styles from '../../styles/admin.module.scss'
 import ServerTable from './ServerTable'
 
 import 'react-reflex/styles.css'
 
-import { useServerLogsState } from '../../services/ServerLogsService'
+import { AdminServerLogsState } from '../../services/ServerLogsService'
 import ServerLogs from './ServerLogs'
 
 const Server = () => {
   const { t } = useTranslation()
-  const [selectedCard, setSelectedCard] = useState('all')
-  const serverInfo = useServerInfoState()
-  const serverLogs = useServerLogsState()
+  const selectedCard = useHookstate('all')
+  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
+  const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
 
   let displayLogs = serverLogs.podName.value ? true : false
 
@@ -41,22 +42,22 @@ const Server = () => {
   return (
     <Box sx={{ height: 'calc(100% - 106px)' }}>
       <Grid container spacing={1} className={styles.mb10px}>
-        {serverInfo.value.servers.map((item, index) => (
+        {serverInfo.servers.get({ noproxy: true }).map((item, index) => (
           <Grid item key={item.id} xs={12} sm={6} md={2}>
             <ServerItemCard
               key={index}
               data={item}
-              isSelected={selectedCard === item.id}
-              onCardClick={setSelectedCard}
+              isSelected={selectedCard.value === item.id}
+              onCardClick={selectedCard.set}
             />
           </Grid>
         ))}
       </Grid>
-      {displayLogs === false && <ServerTable selectedCard={selectedCard} />}
+      {!displayLogs && <ServerTable selectedCard={selectedCard.value} />}
       {displayLogs && (
         <ReflexContainer orientation="horizontal">
           <ReflexElement flex={0.45} style={{ display: 'flex', flexDirection: 'column' }}>
-            <ServerTable selectedCard={selectedCard} />
+            <ServerTable selectedCard={selectedCard.value} />
           </ReflexElement>
 
           <ReflexSplitter />

@@ -310,9 +310,8 @@ describe('file browser service', () => {
 
       await app.service('static-resource').create(
         {
-          name: 'Hello world',
           mimeType: 'txt',
-          url: fileStoragePath,
+          hash: 'abcd',
           key: filePath
         },
         {

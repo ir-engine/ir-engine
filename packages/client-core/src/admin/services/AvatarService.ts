@@ -5,7 +5,7 @@ import { AvatarResult } from '@etherealengine/common/src/interfaces/AvatarResult
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -14,7 +14,7 @@ const logger = multiLogger.child({ component: 'client-core:AvatarService' })
 //State
 export const AVATAR_PAGE_LIMIT = 100
 
-const AdminAvatarState = defineState({
+export const AdminAvatarState = defineState({
   name: 'AdminAvatarState',
   initial: () => ({
     avatars: [] as Array<AvatarInterface>,
@@ -64,10 +64,6 @@ export const AdminAvatarReceptors = {
   avatarRemovedReceptor,
   avatarUpdatedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessAdminAvatarState = () => getMutableState(AdminAvatarState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAdminAvatarState = () => useState(accessAdminAvatarState())
 
 //Service
 export const AdminAvatarService = {
@@ -76,7 +72,7 @@ export const AdminAvatarService = {
     if (sortField.length > 0) {
       sortData[sortField] = orderBy === 'desc' ? 0 : 1
     }
-    const adminAvatarState = accessAdminAvatarState()
+    const adminAvatarState = getMutableState(AdminAvatarState)
     const limit = adminAvatarState.limit.value
     const avatars = (await API.instance.client.service('avatar').find({
       query: {
@@ -103,19 +99,19 @@ export const AdminAvatarService = {
 //Action
 export class AdminAvatarActions {
   static avatarsFetched = defineAction({
-    type: 'xre.client.AdminAvatar.AVATARS_RETRIEVED' as const,
+    type: 'ee.client.AdminAvatar.AVATARS_RETRIEVED' as const,
     avatars: matches.object as Validator<unknown, AvatarResult>
   })
 
   static avatarCreated = defineAction({
-    type: 'xre.client.AdminAvatar.AVATAR_CREATED' as const
+    type: 'ee.client.AdminAvatar.AVATAR_CREATED' as const
   })
 
   static avatarRemoved = defineAction({
-    type: 'xre.client.AdminAvatar.AVATAR_REMOVED' as const
+    type: 'ee.client.AdminAvatar.AVATAR_REMOVED' as const
   })
 
   static avatarUpdated = defineAction({
-    type: 'xre.client.AdminAvatar.AVATAR_UPDATED' as const
+    type: 'ee.client.AdminAvatar.AVATAR_UPDATED' as const
   })
 }

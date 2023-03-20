@@ -49,11 +49,16 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
 
   async create(data): Promise<T | T[]> {
     const isArray = Array.isArray(data)
+    const whereParams = isArray
+      ? data[0].groupId
+        ? { groupId: data[0].groupId }
+        : { userId: data[0].userId }
+      : data.groupId
+      ? { groupId: data.groupId }
+      : { userId: data.userId }
 
     const oldScopes = await super.Model.findAll({
-      where: {
-        userId: isArray ? data[0].userId : data.userId
-      }
+      where: whereParams
     })
 
     if (isArray) {

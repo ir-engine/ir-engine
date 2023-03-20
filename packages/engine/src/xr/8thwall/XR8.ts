@@ -133,7 +133,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null)
     if (enableVps) permissions.push(requiredPermissions.DEVICE_GPS)
 
     XR8.addCameraPipelineModule({
-      name: 'XRE_camera_persmissions',
+      name: 'EE_camera_persmissions',
       onCameraStatusChange: (args) => {
         const { status, reason } = args
         console.log(`[XR8] Camera Status Change: ${status}`)

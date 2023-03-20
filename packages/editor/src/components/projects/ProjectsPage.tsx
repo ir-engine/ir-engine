@@ -275,7 +275,7 @@ const ProjectsPage = () => {
     updatingProject.set(true)
     if (activeProject.value) {
       try {
-        const proj = installedProjects.value.find((proj) => proj.id === activeProject.value?.id)!
+        const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()
       } catch (err) {

@@ -1,14 +1,15 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect } from 'react'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Checkbox from '@etherealengine/ui/src/Checkbox'
 import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { routeColumns } from '../../common/variables/route'
-import { AdminActiveRouteService, useAdminActiveRouteState } from '../../services/ActiveRouteService'
-import { RouteService, useRouteState } from '../../services/RouteService'
+import { AdminActiveRouteService, AdminActiveRouteState } from '../../services/ActiveRouteService'
+import { AdminRouteState, RouteService } from '../../services/RouteService'
 import styles from '../../styles/admin.module.scss'
 
 /**
@@ -27,28 +28,27 @@ interface Props {
  */
 
 const RouteTable = ({ className }: Props) => {
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(ROUTE_PAGE_LIMIT)
+  const page = useHookstate(0)
+  const rowsPerPage = useHookstate(ROUTE_PAGE_LIMIT)
 
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
-  const adminRouteState = useRouteState()
-  const adminActiveRouteState = useAdminActiveRouteState()
-  const adminRoute = adminRouteState
+  const adminRouteState = useHookstate(getMutableState(AdminRouteState))
+  const adminActiveRouteState = useHookstate(getMutableState(AdminActiveRouteState))
   const activeRouteData = adminActiveRouteState.activeRoutes
-  const installedRouteData = adminRoute.routes
+  const installedRouteData = adminRouteState.routes
   const adminRouteCount = adminActiveRouteState.total
-  const [processing, setProcessing] = useState(false)
+  const processing = useHookstate(false)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
+    const incDec = page.value < newPage ? 'increment' : 'decrement'
     AdminActiveRouteService.fetchActiveRoutes(incDec)
     RouteService.fetchInstalledRoutes(incDec)
-    setPage(newPage)
+    page.set(newPage)
   }
 
   useEffect(() => {
-    if (user?.id?.value && adminRoute.updateNeeded.value === true) {
+    if (user?.id?.value && adminRouteState.updateNeeded.value === true) {
       AdminActiveRouteService.fetchActiveRoutes()
       RouteService.fetchInstalledRoutes()
     }
@@ -65,8 +65,8 @@ const RouteTable = ({ className }: Props) => {
   }, [activeRouteData.value])
 
   const handleRowsPerPageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    rowsPerPage.set(+event.target.value)
+    page.set(0)
   }
 
   const isRouteActive = (project: string, route: string) =>
@@ -108,13 +108,13 @@ const RouteTable = ({ className }: Props) => {
         allowSort={true}
         rows={installedRoutes}
         column={routeColumns}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        page={page.value}
+        rowsPerPage={rowsPerPage.value}
         count={adminRouteCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      {processing && (
+      {processing.value && (
         <div className={styles.progressBackground}>
           <CircularProgress className={styles.progress} />
         </div>

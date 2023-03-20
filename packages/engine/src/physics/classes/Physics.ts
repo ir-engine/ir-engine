@@ -265,7 +265,7 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
       // backwards support for deprecated `type` property
       if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
 
-      // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
+      // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['EE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
       const colliderDesc = createColliderDesc(mesh, args, obj === mesh)
 

@@ -3,7 +3,7 @@ import { StateMethodsDestroy } from '@etherealengine/hyperflux/functions/StateFu
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const VolumetricComponent = defineComponent({
-  name: 'XRE_volumetric',
+  name: 'EE_volumetric',
 
   onInit: (entity) => {
     return {
@@ -27,5 +27,5 @@ export const VolumetricComponent = defineComponent({
   }
 })
 
-export const VolumetricsExtensions = ['drcs', 'uvol']
+export const VolumetricsExtensions = ['drcs', 'uvol', 'manifest']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'

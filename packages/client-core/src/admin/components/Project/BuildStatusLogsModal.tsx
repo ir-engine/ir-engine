@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import Fade from '@etherealengine/ui/src/Fade'

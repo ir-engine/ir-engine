@@ -2,26 +2,27 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { useAuthState } from '../../../user/services/AuthService'
-import { AdminCoilSettingService, useCoilSettingState } from '../../services/Setting/CoilSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminCoilSettingService, AdminCoilSettingsState } from '../../services/Setting/CoilSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Coil = () => {
   const { t } = useTranslation()
-  const coilSettingState = useCoilSettingState()
-  const [coil] = coilSettingState?.coil.value || []
-  const authState = useAuthState()
-  const user = authState.user
+  const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
+  const [coil] = coilSettingState?.coil?.get({ noproxy: true }) || []
+
+  const user = useHookstate(getMutableState(AuthState).user)
 
   useEffect(() => {
     if (user?.id?.value && coilSettingState?.updateNeeded?.value) {
       AdminCoilSettingService.fetchCoil()
     }
-  }, [authState?.user?.id?.value, coilSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, coilSettingState?.updateNeeded?.value])
 
   return (
     <Box>

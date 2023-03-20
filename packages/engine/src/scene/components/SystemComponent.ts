@@ -22,6 +22,16 @@ export const SystemComponent = defineComponent({
     if (typeof json.enableClient === 'boolean') component.enableClient.set(json.enableClient)
     if (typeof json.enableServer === 'boolean') component.enableServer.set(json.enableServer)
     if (typeof json.args === 'object') component.args.set(json.args)
+  },
+
+  toJSON(entity, component) {
+    return {
+      filePath: component.filePath.value,
+      systemUpdateType: component.systemUpdateType.value,
+      enableClient: component.enableClient.value,
+      enableServer: component.enableServer.value,
+      args: component.args.value
+    }
   }
 })
 

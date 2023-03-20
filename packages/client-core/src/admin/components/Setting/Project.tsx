@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
+import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { AuthState, useAuthState } from '../../../user/services/AuthService'
+import { AdminProjectSettingsState, ProjectSettingService } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
 
 interface ProjectSetting {
@@ -21,15 +22,16 @@ interface ProjectSetting {
 
 const Project = () => {
   const { t } = useTranslation()
-  const authState = useAuthState()
-  const user = authState.user
-  const projectState = useProjectState()
+  const user = useHookstate(getMutableState(AuthState).user)
+  const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
-  const projectSettingState = useProjectSettingState()
+  const projectSettingState = useHookstate(getMutableState(AdminProjectSettingsState))
   const projectSetting = projectSettingState.projectSetting
 
-  const [settings, setSettings] = useState<Array<ProjectSetting> | []>([])
-  const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : '')
+  const settings = useHookstate<Array<ProjectSetting> | []>([])
+  const selectedProject = useHookstate(
+    projects.get({ noproxy: true }).length > 0 ? projects.get({ noproxy: true })[0].id : ''
+  )
 
   ProjectService.useAPIListeners()
 
@@ -38,14 +40,14 @@ const Project = () => {
   }, [])
 
   useEffect(() => {
-    if (selectedProject) {
+    if (selectedProject.value) {
       resetSettingsFromSchema()
     }
-  }, [selectedProject])
+  }, [selectedProject.value])
 
   useEffect(() => {
     if (projectSetting.value && projectSetting.value?.length > 0) {
-      let tempSettings = JSON.parse(JSON.stringify(settings))
+      let tempSettings = JSON.parse(JSON.stringify(settings.value))
 
       for (let [index, setting] of tempSettings.entries()) {
         const savedSetting = projectSetting.value.filter((item) => item.key === setting.key)
@@ -54,12 +56,12 @@ const Project = () => {
         }
       }
 
-      setSettings(tempSettings)
+      settings.set(tempSettings)
     }
   }, [projectSetting])
 
   const resetSettingsFromSchema = async () => {
-    const projectName = projects.value.filter((proj) => proj.id === selectedProject)
+    const projectName = projects.value.filter((proj) => proj.id === selectedProject.value)
     const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
 
     if (projectConfig && projectConfig?.settings) {
@@ -69,28 +71,28 @@ const Project = () => {
         tempSetting.push({ key: setting.key, value: '' })
       }
 
-      setSettings(tempSetting)
-      ProjectSettingService.fetchProjectSetting(selectedProject)
+      settings.set(tempSetting)
+      ProjectSettingService.fetchProjectSetting(selectedProject.value)
     } else {
-      setSettings([])
+      settings.set([])
     }
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && selectedProject) {
+    if (user?.id?.value != null && selectedProject.value) {
     }
-  }, [authState?.user?.id?.value, selectedProject])
+  }, [user?.id?.value, selectedProject.value])
 
   const handleProjectChange = (e) => {
     const { value } = e.target
-    setSelectedProject(value)
+    selectedProject.set(value)
   }
 
   const handleValueChange = (index, e) => {
-    const tempSetting = JSON.parse(JSON.stringify(settings))
+    const tempSetting = JSON.parse(JSON.stringify(settings.value))
 
     tempSetting[index].value = e.target.value
-    setSettings(tempSetting)
+    settings.set(tempSetting)
   }
 
   const handleCancel = () => {
@@ -98,7 +100,7 @@ const Project = () => {
   }
 
   const handleSubmit = () => {
-    ProjectSettingService.updateProjectSetting(selectedProject, settings)
+    ProjectSettingService.updateProjectSetting(selectedProject.value, settings.value)
   }
 
   const projectsMenu: InputMenuItem[] = projects.value.map((el) => {
@@ -119,7 +121,7 @@ const Project = () => {
             <InputSelect
               name="selectProject"
               label={t('admin:components.setting.project')}
-              value={selectedProject}
+              value={selectedProject.value}
               menu={projectsMenu}
               onChange={handleProjectChange}
             />
@@ -127,7 +129,7 @@ const Project = () => {
 
           <Grid item container xs={12}>
             {settings?.length > 0 ? (
-              settings.map((setting, index) => (
+              settings.value.map((setting, index) => (
                 <Grid item container key={index} spacing={1} xs={12}>
                   <Grid item xs={6}>
                     <InputText name="key" label="Key Name" value={setting.key || ''} disabled />
@@ -149,7 +151,7 @@ const Project = () => {
             )}
           </Grid>
         </Grid>
-        {settings?.length > 0 && (
+        {settings?.value?.length > 0 && (
           <Grid item container xs={12}>
             <Button sx={{ maxWidth: '100%' }} variant="outlined" onClick={handleCancel}>
               {t('admin:components.common.cancel')}

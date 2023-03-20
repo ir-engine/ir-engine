@@ -117,32 +117,32 @@ export const EditorHistoryService = {}
 
 export class EditorHistoryAction {
   static undo = defineAction({
-    type: 'xre.editor.EditorHistory.UNDO' as const,
+    type: 'ee.editor.EditorHistory.UNDO' as const,
     count: matches.number
     // $topic: EditorTopic,
     // $cache: true
   })
 
   static redo = defineAction({
-    type: 'xre.editor.EditorHistory.REDO' as const,
+    type: 'ee.editor.EditorHistory.REDO' as const,
     count: matches.number
     // $topic: EditorTopic,
     // $cache: true
   })
 
   static clearHistory = defineAction({
-    type: 'xre.editor.EditorHistory.CLEAR_HISTORY' as const
+    type: 'ee.editor.EditorHistory.CLEAR_HISTORY' as const
   })
 
   static appendSnapshot = defineAction({
-    type: 'xre.editor.EditorHistory.APPEND_SNAPSHOT' as const,
+    type: 'ee.editor.EditorHistory.APPEND_SNAPSHOT' as const,
     json: matches.object as Validator<unknown, SceneJson>
     // $topic: EditorTopic,
     // $cache: true
   })
 
   static createSnapshot = defineAction({
-    type: 'xre.editor.EditorHistory.CREATE_SNAPSHOT' as const,
+    type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
     selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>,
     modify: matches.boolean.optional()
   })

@@ -46,10 +46,10 @@ export const MediaStreamState = defineState({
 
 export class MediaStreamActions {
   static triggerUpdateConsumers = defineAction({
-    type: 'xre.client.MediaStreams.NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS' as const
+    type: 'ee.client.MediaStreams.NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS' as const
   })
   static closeConsumer = defineAction({
-    type: 'xre.client.MediaStreams.NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER' as const,
+    type: 'ee.client.MediaStreams.NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER' as const,
     consumer: matches.any
   })
 }

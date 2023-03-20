@@ -57,42 +57,42 @@ export const EditorService = {}
 //Action
 export class EditorAction {
   static projectChanged = defineAction({
-    type: 'xre.editor.Editor.EDITOR_PROJECT_CHANGED' as const,
+    type: 'ee.editor.Editor.EDITOR_PROJECT_CHANGED' as const,
     projectName: matches.any as Validator<unknown, string | null>
   })
 
   static sceneChanged = defineAction({
-    type: 'xre.editor.Editor.EDITOR_SCENE_CHANGED' as const,
+    type: 'ee.editor.Editor.EDITOR_SCENE_CHANGED' as const,
     sceneName: matches.any as Validator<unknown, string | null>
   })
 
   static sceneModified = defineAction({
-    type: 'xre.editor.Editor.EDITOR_SCENE_MODIFIED' as const,
+    type: 'ee.editor.Editor.EDITOR_SCENE_MODIFIED' as const,
     modified: matches.boolean
   })
 
   static projectLoaded = defineAction({
-    type: 'xre.editor.Editor.EDITOR_PROJECT_LOADED' as const,
+    type: 'ee.editor.Editor.EDITOR_PROJECT_LOADED' as const,
     loaded: matches.boolean
   })
 
   static rendererInitialized = defineAction({
-    type: 'xre.editor.Editor.EDITOR_RENDERER_INITIALIZED' as const,
+    type: 'ee.editor.Editor.EDITOR_RENDERER_INITIALIZED' as const,
     initialized: matches.boolean
   })
 
   static showObject3DInHierarchy = defineAction({
-    type: 'xre.editor.Editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
+    type: 'ee.editor.Editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
     showObject3DInHierarchy: matches.boolean
   })
 
   static setAdvancedMode = defineAction({
-    type: 'xre.editor.Editor.SET_ADVANCED_MODE' as const,
+    type: 'ee.editor.Editor.SET_ADVANCED_MODE' as const,
     advanced: matches.boolean
   })
 
   static lockPropertiesPanel = defineAction({
-    type: 'xre.editor.Editor.LOCK_PROPERTIES_PANEL' as const,
+    type: 'ee.editor.Editor.LOCK_PROPERTIES_PANEL' as const,
     lockPropertiesPanel: matches.string as Validator<unknown, EntityUUID>
   })
 }

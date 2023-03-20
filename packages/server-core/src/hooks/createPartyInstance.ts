@@ -55,7 +55,7 @@ export default () => {
     //   context.app.instance.id = instance.id
     // }
 
-    await context.app.service('instance-provision').emit('created', {
+    context.app.service('instance-provision').emit('created', {
       userId: partyOwner.userId,
       ipAddress: emittedIp.ipAddress,
       port: emittedIp.port,
