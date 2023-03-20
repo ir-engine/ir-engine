@@ -28,6 +28,7 @@ import { State } from '@etherealengine/hyperflux'
 
 import { ScatterPlotOutlined } from '@mui/icons-material'
 
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
@@ -235,6 +236,9 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
             { label: 'No Blending', value: NoBlending }
           ]}
         />
+      </InputGroup>
+      <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>
+        <BooleanInput value={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
       <h4>Behaviors</h4>
       <Button onClick={onAddBehavior()}>Add Behavior</Button>

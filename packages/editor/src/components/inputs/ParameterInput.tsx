@@ -17,8 +17,8 @@ export default function ParameterInput({
   thumbnails
 }: {
   entity: string
-  values: Object
-  defaults?: Object
+  values: object
+  defaults?: object
   thumbnails?: Record<string, string>
   onChange: (k: string) => (v) => void
 }) {
