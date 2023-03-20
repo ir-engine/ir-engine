@@ -1,3 +1,5 @@
+import { decode, encode } from 'msgpackr'
+
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
@@ -29,7 +31,7 @@ export type SerializerArgs = {
   schema: SerializationSchema[]
   /** The length of the chunk in frames */
   chunkLength: number
-  onCommitChunk: (chunk: SerializedChunk, chunkIndex: number) => void
+  onCommitChunk: (chunk: Buffer, chunkIndex: number) => void
 }
 
 const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: SerializerArgs) => {
@@ -77,8 +79,10 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
 
   const commitChunk = () => {
     frame = 0
-    // todo - data should be a buffer
-    onCommitChunk(data, chunk++)
+
+    const dataBuffer = encode(data)
+    onCommitChunk(dataBuffer, chunk++)
+
     data = {
       startTimecode: Date.now(),
       entities: [],
@@ -130,12 +134,12 @@ export const readEntities = (
   }
 }
 
-export const createDeserializer = (chunks: SerializedChunk[], schema: SerializationSchema[]) => {
+export const createDeserializer = (chunks: Buffer[], schema: SerializationSchema[]) => {
   let chunk = 0
   let frame = 0
 
   const read = () => {
-    const data = chunks[chunk]
+    const data = decode(new Uint8Array(chunks[chunk]))
     const frameData = data.changes[frame]
 
     const view = createViewCursor(frameData)

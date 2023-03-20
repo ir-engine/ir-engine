@@ -1,4 +1,5 @@
 import { POSE_LANDMARKS } from '@mediapipe/pose'
+import { decode, encode } from 'msgpackr'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -28,29 +29,22 @@ export interface NormalizedLandmark {
   visibility?: number
 }
 
-export const sendResults = (results: NormalizedLandmark[]) => {
-  const peerIndex = Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!
-  const resultsData = results.map((val) => [val.x, val.y, val.z, val.visibility ?? 0]).flat()
-  const dataBuffer = Float64Array.from([Date.now(), peerIndex, ...resultsData]).buffer
-  return dataBuffer
+export const sendResults = (landmarks: NormalizedLandmark[]) => {
+  return encode({
+    timestamp: Date.now(),
+    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!,
+    landmarks
+  })
 }
 
-export const receiveResults = (results: ArrayBufferLike) => {
-  const data = new Float64Array(results)
-  // todo - use timestamp
-  const timestamp = data[0]
-  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(data[1])
-  const resultsData = data.slice(2)
-  const landmarks = [] as NormalizedLandmark[]
-  for (let i = 0; i < resultsData.length; i += 4) {
-    landmarks.push({
-      x: resultsData[i],
-      y: resultsData[i + 1],
-      z: resultsData[i + 2],
-      visibility: resultsData[i + 3]
-    })
+export const receiveResults = (results: ArrayBuffer) => {
+  const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
+    timestamp: number
+    peerIndex: number
+    landmarks: NormalizedLandmark[]
   }
-  return { peerID, landmarks }
+  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
+  return { timestamp, peerID, landmarks }
 }
 
 export const MotionCaptureFunctions = {
@@ -65,7 +59,7 @@ export default async function MotionCaptureSystem() {
     if (network.isHosting) {
       network.transport.bufferToAll(mocapDataChannelType, message)
     }
-    const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message)
+    const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
     if (!peerID) return
     if (!timeSeriesMocapData.has(peerID)) {
       timeSeriesMocapData.set(peerID, new RingBuffer(100))
@@ -131,7 +125,6 @@ export default async function MotionCaptureSystem() {
         const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.5
         const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.5
         const changed = ikTargets.head !== head || ikTargets.leftHand !== leftHand || ikTargets.rightHand !== rightHand
-
         if (changed) dispatchAction(WorldNetworkAction.avatarIKTargets({ head, leftHand, rightHand }))
 
         const avatarRig = getComponent(entity, AvatarRigComponent)
@@ -155,7 +148,7 @@ export default async function MotionCaptureSystem() {
         if (hasComponent(entity, AvatarHeadIKComponent)) {
           if (!nose.visibility || nose.visibility < 0.5) continue
           if (!nose.x || !nose.y || !nose.z) continue
-          const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
+          const ik = getComponent(entity, AvatarHeadIKComponent)
           headPos
             .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
             .multiplyScalar(-1)
@@ -171,7 +164,7 @@ export default async function MotionCaptureSystem() {
         if (hasComponent(entity, AvatarLeftArmIKComponent)) {
           if (!leftWrist.visibility || leftWrist.visibility < 0.5) continue
           if (!leftWrist.x || !leftWrist.y || !leftWrist.z) continue
-          const ik = getComponent(localClientEntity, AvatarLeftArmIKComponent)
+          const ik = getComponent(entity, AvatarLeftArmIKComponent)
           leftHandPos
             .set(leftWrist.x, leftWrist.y, leftWrist.z)
             .multiplyScalar(-1)
@@ -184,7 +177,7 @@ export default async function MotionCaptureSystem() {
         if (hasComponent(entity, AvatarRightArmIKComponent)) {
           if (!rightWrist.visibility || rightWrist.visibility < 0.5) continue
           if (!rightWrist.x || !rightWrist.y || !rightWrist.z) continue
-          const ik = getComponent(localClientEntity, AvatarRightArmIKComponent)
+          const ik = getComponent(entity, AvatarRightArmIKComponent)
           rightHandPos
             .set(rightWrist.x, rightWrist.y, rightWrist.z)
             .multiplyScalar(-1)

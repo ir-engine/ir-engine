@@ -477,10 +477,14 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     dataConsumer.binaryType = 'arraybuffer'
     network.dataConsumers.set(options.id as DataChannelType, dataConsumer)
     dataConsumer.on('message', (message: any) => {
-      const networkState = getState(NetworkState)
-      const dataChannelFunctions = networkState.dataChannelRegistry[dataConsumer.label]
-      if (dataChannelFunctions) {
-        for (const func of dataChannelFunctions) func(network, network.hostPeerID, message) // assmume for now data is coming from the host
+      try {
+        const networkState = getState(NetworkState)
+        const dataChannelFunctions = networkState.dataChannelRegistry[dataConsumer.label]
+        if (dataChannelFunctions) {
+          for (const func of dataChannelFunctions) func(network, network.hostPeerID, message) // assmume for now data is coming from the host
+        }
+      } catch (e) {
+        console.error(e)
       }
     }) // Handle message received
     dataConsumer.on('close', () => {

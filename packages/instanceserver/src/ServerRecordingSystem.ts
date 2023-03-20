@@ -116,15 +116,13 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
         },
         schema: serializationSchema,
         chunkLength,
-        onCommitChunk(chunk: SerializedChunk, chunkIndex: number) {
-          console.log(chunk)
-
-          if (chunk.changes.length) {
+        onCommitChunk(chunk, chunkIndex) {
+          if (chunk.length) {
             storageProvider
               .putObject(
                 {
                   Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.json',
-                  Body: Buffer.from(JSON.stringify(chunk)), // todo - make chunk actually a buffer
+                  Body: chunk,
                   ContentType: 'application/json'
                 },
                 {
@@ -143,7 +141,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
               .putObject(
                 {
                   Key: 'recordings/' + recording.id + '/raw-' + rawDataChunksCount + '.json',
-                  Body: Buffer.from(JSON.stringify(rawDataChunks)),
+                  Body: Buffer.from(rawDataChunks),
                   ContentType: 'application/json'
                 },
                 {
@@ -247,7 +245,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     // todo - playback
   } as ActivePlayback
 
-  const chunks = [] as SerializedChunk[] // todo
+  const chunks = [] as Buffer[] // todo populate data
 
   activePlayback.deserializer = ECSSerialization.createDeserializer(
     chunks,
