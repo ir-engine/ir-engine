@@ -1,4 +1,4 @@
-import { Downgraded, useState } from '@hookstate/core'
+import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -20,7 +20,7 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import { useState as useHFState } from '@etherealengine/hyperflux'
+import { useState } from '@etherealengine/hyperflux'
 import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
