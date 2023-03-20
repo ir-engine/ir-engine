@@ -373,8 +373,10 @@ export async function createInternalDataConsumer(
     })
     consumer.on('message', (message) => {
       const networkState = getState(NetworkState)
-      const dataChannelFunction = networkState.dataChannelRegistry[dataProducer.label]
-      if (typeof dataChannelFunction == 'function') dataChannelFunction(network, peerID, message)
+      const dataChannelFunctions = networkState.dataChannelRegistry[dataProducer.label]
+      if (dataChannelFunctions) {
+        for (const func of dataChannelFunctions) func(network, peerID, message)
+      }
     })
     return consumer
   } catch (err) {

@@ -260,7 +260,7 @@ export default async function TransformSystem() {
 
   const networkState = getMutableState(NetworkState)
 
-  networkState.networkSchema['ee.core.transform'].set({
+  networkState.networkSchema[TransformSerialization.ID].set({
     read: TransformSerialization.readTransform,
     write: TransformSerialization.writeTransform
   })
@@ -424,7 +424,7 @@ export default async function TransformSystem() {
 
     Skeleton.prototype.update = skeletonUpdate
 
-    networkState.networkSchema['ee.core.transform'].set(none)
+    networkState.networkSchema[TransformSerialization.ID].set(none)
   }
 
   return { execute, cleanup }

@@ -17,6 +17,10 @@ export default (app: Application) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    schema: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false
     }
   })
 

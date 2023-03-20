@@ -1,27 +1,36 @@
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
-import { MotionCaptureCallbacks } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { readRigidBody, writeRigidBody } from '@etherealengine/engine/src/physics/PhysicsSerialization'
-import { createActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  ECSDeserializer,
+  ECSSerialization,
+  ECSSerializer,
+  SerializedChunk
+} from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
+import { DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
+import {
+  addDataChannelHandler,
+  NetworkState,
+  removeDataChannelHandler,
+  screenshareAudioDataChannelType,
+  screenshareVideoDataChannelType,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@etherealengine/engine/src/networking/NetworkState'
+import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
+import { createActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 
-export const getRecordingByID = (recordingID: string) => {
-  /** @todo get recording metadata */
-  return {} as any as {
-    userID: UserId
-  }
-}
-
 interface ActiveRecording {
   userID: UserId
   serializer?: ECSSerializer
+  dataRecorder?: any // todo
   mediaRecorder?: any // todo
 }
 
@@ -39,6 +48,13 @@ export const dispatchError = (error: string, targetUser: UserId) => {
   dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
 }
 
+const mediaDataChannels = [
+  webcamVideoDataChannelType,
+  webcamAudioDataChannelType,
+  screenshareVideoDataChannelType,
+  screenshareAudioDataChannelType
+]
+
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
   const app = getState(ServerState).app as Application as Application
 
@@ -53,38 +69,50 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const hasScopes = await checkScope(user, app, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', userID)
 
+  const dataRecorder = (network: Network, fromPeerID: PeerID, message: any) => {
+    // todo - record data
+  }
+
   const activeRecording = {
-    userID
+    userID,
+    dataRecorder
   } as ActiveRecording
 
   if (Engine.instance.worldNetwork) {
-    if (action.avatarPose) {
+    const serializationSchema = recording.schema
+      .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
+      .filter(Boolean)
+
+    if (serializationSchema.length) {
       activeRecording.serializer = ECSSerialization.createSerializer({
         entities: () => {
           return [Engine.instance.getUserAvatarEntity(userID)]
         },
-        schema: [
-          {
-            read: readRigidBody,
-            write: writeRigidBody
-          }
-        ],
+        schema: serializationSchema,
         chunkLength: Engine.instance.tickRate * 60, // one minute
-        onCommitChunk(chunk) {
+        onCommitChunk(chunk: SerializedChunk) {
           // upload chunk
         }
       })
     }
 
-    if (action.mocap) {
-      MotionCaptureCallbacks.set(userID, (buffer: ArrayBufferLike) => {
-        // upload mocap frame
-      })
+    const dataChannelSchema = recording.schema
+      .filter((component: DataChannelType) => !getState(NetworkState).dataChannelRegistry[component])
+      .filter(Boolean) as DataChannelType[]
+
+    for (const dataChannel of dataChannelSchema) {
+      addDataChannelHandler(dataChannel, dataRecorder)
     }
   }
 
-  if (Engine.instance.mediaNetwork && action.video) {
-    // start recording media
+  if (Engine.instance.mediaNetwork) {
+    const dataChannelSchema = recording.schema
+      .filter((component: DataChannelType) => mediaDataChannels.includes(component))
+      .filter(Boolean)
+
+    for (const dataChannel of dataChannelSchema) {
+      // start recording data channel
+    }
   }
 
   activeRecordings.set(recording.id, activeRecording)
@@ -114,8 +142,23 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   if (activeRecording.serializer) {
     activeRecording.serializer.end()
   }
+
   if (activeRecording.mediaRecorder) {
-    // stop recording media
+    const dataChannelSchema = recording.schema
+      .filter((component: DataChannelType) => mediaDataChannels.includes(component))
+      .filter(Boolean)
+
+    // stop recording data channel
+  }
+
+  if (activeRecording.dataRecorder) {
+    const dataChannelSchema = recording.schema
+      .filter((component: DataChannelType) => !getState(NetworkState).dataChannelRegistry[component])
+      .filter(Boolean) as DataChannelType[]
+
+    for (const dataChannel of dataChannelSchema) {
+      removeDataChannelHandler(dataChannel, activeRecording.dataRecorder)
+    }
   }
   activeRecordings.delete(action.recordingID)
 }
@@ -133,7 +176,16 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const activePlayback = {
     userID: action.targetUser
     // todo - playback
-  } as ActiveRecording
+  } as ActivePlayback
+
+  const chunks = [] as SerializedChunk[] // todo
+
+  activePlayback.deserializer = ECSSerialization.createDeserializer(
+    chunks,
+    recording.schema
+      .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
+      .filter(Boolean)
+  )
 
   activePlaybacks.set(action.recordingID, activePlayback)
 }
@@ -153,10 +205,6 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
 
   if (activePlayback.deserializer) {
     activePlayback.deserializer.end()
-  }
-
-  if (MotionCaptureCallbacks.has(activePlayback.userID)) {
-    MotionCaptureCallbacks.delete(activePlayback.userID)
   }
 
   if (activePlayback.mediaPlayback) {

@@ -73,24 +73,17 @@ const Mediapipe = () => {
   const videoRef = useRef(null as HTMLVideoElement | null)
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
   const mediaConnection = useMediaInstance()
-  const recordingActive = useHookstate(getMutableState(RecordingState))
+  const recordingState = useHookstate(getMutableState(RecordingState))
 
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {
-    if (recordingActive.recordingID.value) {
+    if (recordingState.recordingID.value) {
       ECSRecordingFunctions.stopRecording({
-        recordingID: recordingActive.recordingID.value,
-        video: true
+        recordingID: recordingState.recordingID.value
       })
-    } else if (!recordingActive.started.value) {
+    } else if (!recordingState.started.value) {
       RecordingFunctions.startRecording().then((recordingID) => {
-        if (recordingID)
-          ECSRecordingFunctions.startRecording({
-            recordingID,
-            mocap: true,
-            video: true,
-            avatarPose: true
-          })
+        if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
       })
     }
   }
@@ -211,7 +204,7 @@ const Mediapipe = () => {
           style={{ pointerEvents: 'all' }}
           onClick={onToggleRecording}
         >
-          {recordingActive.started.value ? (recordingActive.recordingID.value ? 'Stop' : 'Starting...') : 'Start'}
+          {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Start'}
         </button>
       )}
     </div>

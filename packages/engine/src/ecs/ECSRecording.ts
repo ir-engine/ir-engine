@@ -4,13 +4,10 @@ import { matches, matchesUserId } from '../common/functions/MatchesUtils'
 import { NetworkTopics } from '../networking/classes/Network'
 import { Engine } from './classes/Engine'
 
-export const startRecording = (args: { recordingID: string; mocap: boolean; video: boolean; avatarPose: boolean }) => {
-  const { recordingID, mocap, video, avatarPose } = args
+export const startRecording = (args: { recordingID: string }) => {
+  const { recordingID } = args
   const action = ECSRecordingActions.startRecording({
-    recordingID,
-    mocap,
-    video,
-    avatarPose
+    recordingID
   })
 
   dispatchAction({
@@ -19,16 +16,14 @@ export const startRecording = (args: { recordingID: string; mocap: boolean; vide
     $to: Engine.instance.worldNetwork.hostId
   })
 
-  if (video) {
-    dispatchAction({
-      ...action,
-      $topic: NetworkTopics.media,
-      $to: Engine.instance.mediaNetwork.hostId
-    })
-  }
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.media,
+    $to: Engine.instance.mediaNetwork.hostId
+  })
 }
 
-export const stopRecording = (args: { recordingID: string; video: boolean }) => {
+export const stopRecording = (args: { recordingID: string }) => {
   const recording = ECSRecordingActions.stopRecording({
     recordingID: args.recordingID
   })
@@ -37,13 +32,12 @@ export const stopRecording = (args: { recordingID: string; video: boolean }) => 
     $topic: NetworkTopics.world,
     $to: Engine.instance.worldNetwork.hostId
   })
-  if (args.video) {
-    dispatchAction({
-      ...recording,
-      $topic: NetworkTopics.media,
-      $to: Engine.instance.mediaNetwork.hostId
-    })
-  }
+  // todo - check that video actually needs to be stopped
+  dispatchAction({
+    ...recording,
+    $topic: NetworkTopics.media,
+    $to: Engine.instance.mediaNetwork.hostId
+  })
 }
 
 export const ECSRecordingFunctions = {
@@ -54,10 +48,7 @@ export const ECSRecordingFunctions = {
 export class ECSRecordingActions {
   static startRecording = defineAction({
     type: 'ee.core.motioncapture.START_RECORDING' as const,
-    recordingID: matches.string,
-    mocap: matches.boolean,
-    video: matches.boolean,
-    avatarPose: matches.boolean
+    recordingID: matches.string
   })
 
   static recordingStarted = defineAction({

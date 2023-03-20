@@ -78,17 +78,17 @@ export default async function AvatarSpawnSystem() {
 
   const networkState = getMutableState(NetworkState)
 
-  networkState.networkSchema['ee.core.xrhead'].set({
+  networkState.networkSchema[IKSerialization.headID].set({
     read: IKSerialization.readXRHead,
     write: IKSerialization.writeXRHead
   })
 
-  networkState.networkSchema['ee.core.xrLeftHand'].set({
+  networkState.networkSchema[IKSerialization.leftHandID].set({
     read: IKSerialization.readXRLeftHand,
     write: IKSerialization.writeXRLeftHand
   })
 
-  networkState.networkSchema['ee.core.xrRightHand'].set({
+  networkState.networkSchema[IKSerialization.rightHandID].set({
     read: IKSerialization.readXRRightHand,
     write: IKSerialization.writeXRRightHand
   })
@@ -111,9 +111,9 @@ export default async function AvatarSpawnSystem() {
     removeActionQueue(avatarSpawnQueue)
     removeActionQueue(avatarDetailsQueue)
 
-    networkState.networkSchema['ee.core.xrHead'].set(none)
-    networkState.networkSchema['ee.core.xrLeftHand'].set(none)
-    networkState.networkSchema['ee.core.xrRightHand'].set(none)
+    networkState.networkSchema[IKSerialization.headID].set(none)
+    networkState.networkSchema[IKSerialization.leftHandID].set(none)
+    networkState.networkSchema[IKSerialization.rightHandID].set(none)
   }
 
   return { execute, cleanup }

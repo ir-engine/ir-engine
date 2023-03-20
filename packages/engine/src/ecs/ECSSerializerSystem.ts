@@ -128,7 +128,6 @@ export const readEntities = (
   }
 }
 
-// TODO: embed schema in the chunk
 export const createDeserializer = (chunks: SerializedChunk[], schema: SerializationSchema[]) => {
   let chunk = 0
   let frame = 0

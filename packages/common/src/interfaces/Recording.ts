@@ -4,4 +4,5 @@ export interface RecordingResult {
   id: string
   userId: UserId
   ended: boolean
+  schema: Array<string>
 }

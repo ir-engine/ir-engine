@@ -3,8 +3,7 @@ import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import { defineAction, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import {
@@ -16,9 +15,9 @@ import {
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { DataChannelType, Network, NetworkTopics } from '../networking/classes/Network'
+import { DataChannelType, Network } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { NetworkState } from '../networking/NetworkState'
+import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../networking/NetworkState'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from '../xr/XRState'
 
@@ -59,32 +58,22 @@ export const MotionCaptureFunctions = {
   receiveResults
 }
 
-export const mocapDataChannelType = 'mocap' as DataChannelType
-
-export const MotionCaptureCallbacks = new Map<UserId, (buffer: ArrayBufferLike) => void>()
+export const mocapDataChannelType = 'ee.core.mocap.dataChannel' as DataChannelType
 
 export default async function MotionCaptureSystem() {
-  const networkState = getMutableState(NetworkState)
-
-  networkState.dataChannelRegistry.merge({
-    [mocapDataChannelType]: (network: Network, fromPeerID: PeerID, message: ArrayBufferLike) => {
-      if (network.isHosting) {
-        network.transport.bufferToAll(mocapDataChannelType, message)
-
-        const userID = network.peers.get(fromPeerID)?.userId
-        const onMessage = userID && MotionCaptureCallbacks.get(userID)
-        if (onMessage) {
-          onMessage(message)
-        }
-      }
-      const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message)
-      if (!peerID) return
-      if (!timeSeriesMocapData.has(peerID)) {
-        timeSeriesMocapData.set(peerID, new RingBuffer(100))
-      }
-      timeSeriesMocapData.get(peerID)!.add(landmarks)
+  const handleMocapData = (network: Network, fromPeerID: PeerID, message: ArrayBufferLike) => {
+    if (network.isHosting) {
+      network.transport.bufferToAll(mocapDataChannelType, message)
     }
-  })
+    const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message)
+    if (!peerID) return
+    if (!timeSeriesMocapData.has(peerID)) {
+      timeSeriesMocapData.set(peerID, new RingBuffer(100))
+    }
+    timeSeriesMocapData.get(peerID)!.add(landmarks)
+  }
+
+  addDataChannelHandler(mocapDataChannelType, handleMocapData)
 
   const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmark[]>>()
 
@@ -208,7 +197,9 @@ export default async function MotionCaptureSystem() {
     }
   }
 
-  const cleanup = async () => {}
+  const cleanup = async () => {
+    removeDataChannelHandler(mocapDataChannelType, handleMocapData)
+  }
 
   return { execute, cleanup }
 }
