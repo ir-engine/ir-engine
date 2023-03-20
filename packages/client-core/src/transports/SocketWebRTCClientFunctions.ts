@@ -47,7 +47,7 @@ import {
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { NetworkState, removeNetwork } from '@etherealengine/engine/src/networking/NetworkState'
-import { poseDataChannelType } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
+import { ecsDataChannelType } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
 import {
   addActionReceptor,
   dispatchAction,

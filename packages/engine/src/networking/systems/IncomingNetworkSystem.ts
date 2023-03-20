@@ -31,7 +31,7 @@ const toArrayBuffer = (buf) => {
   return ab
 }
 
-export const poseDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
+export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
 
 export default async function IncomingNetworkSystem() {
   const deserialize = createDataReader()
@@ -43,14 +43,14 @@ export default async function IncomingNetworkSystem() {
       network.incomingMessageQueueUnreliableIDs.add(fromPeerID)
       // forward data to clients in world immediately
       // TODO: need to include the userId (or index), so consumers can validate
-      network.transport.bufferToAll(poseDataChannelType, message)
+      network.transport.bufferToAll(ecsDataChannelType, message)
     } else {
       network.incomingMessageQueueUnreliable.add(message)
       network.incomingMessageQueueUnreliableIDs.add(fromPeerID) // todo, assume it
     }
   }
 
-  addDataChannelHandler(poseDataChannelType, handleNetworkdata)
+  addDataChannelHandler(ecsDataChannelType, handleNetworkdata)
 
   const engineState = getEngineState()
 
@@ -60,7 +60,7 @@ export default async function IncomingNetworkSystem() {
   }
 
   const cleanup = async () => {
-    removeDataChannelHandler(poseDataChannelType, handleNetworkdata)
+    removeDataChannelHandler(ecsDataChannelType, handleNetworkdata)
   }
 
   return { execute, cleanup }

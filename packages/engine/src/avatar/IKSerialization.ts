@@ -42,6 +42,11 @@ export const writeXRLeftHand = (v: ViewCursor, entity: Entity) => {
 
   changeMask |= writeXRControllerLeftPosition(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRControllerLeftRotation(v, entity) ? 1 << b++ : b++ && 0
+  console.log(
+    AvatarHeadIKComponent.target.position.x[entity],
+    AvatarHeadIKComponent.target.position.y[entity],
+    AvatarHeadIKComponent.target.position.z[entity]
+  )
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }

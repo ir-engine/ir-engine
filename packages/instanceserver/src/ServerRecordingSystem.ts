@@ -1,6 +1,7 @@
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import {
@@ -20,18 +21,22 @@ import {
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
-import { createActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 
+const logger = multiLogger.child({ component: 'instanceserver:recording' })
+
 interface ActiveRecording {
   userID: UserId
   serializer?: ECSSerializer
-  dataRecorder?: any // todo
-  mediaRecorder?: any // todo
+  dataChannelRecorder?: any // todo
+  mediaChannelRecorder?: any // todo
 }
 
 interface ActivePlayback {
@@ -69,15 +74,34 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const hasScopes = await checkScope(user, app, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', userID)
 
-  const dataRecorder = (network: Network, fromPeerID: PeerID, message: any) => {
-    // todo - record data
+  const storageProvider = getStorageProvider()
+
+  /** create folder in storage provider */
+  try {
+    await storageProvider.putObject({ Key: 'recordings/' + recording.id } as StorageObjectInterface, {
+      isDirectory: true
+    })
+  } catch (error) {
+    return dispatchError('Could not create recording folder' + error.message, userID)
+  }
+
+  let rawDataChunks = [] as any[]
+  let rawDataChunksCount = 0
+
+  const chunkLength = Engine.instance.tickRate * 1 // 1 minute
+
+  const dataChannelRecorder = (network: Network, fromPeerID: PeerID, message: any) => {
+    /** @todo currently, mocap data arrives as plain stringified JSON
+     *  - refactor this to be raw buffers only
+     */
+    rawDataChunks.push(JSON.parse(message))
   }
 
   const schema = JSON.parse(recording.schema) as string[]
 
   const activeRecording = {
     userID,
-    dataRecorder
+    dataChannelRecorder
   } as ActiveRecording
 
   if (Engine.instance.worldNetwork) {
@@ -91,19 +115,58 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
           return [Engine.instance.getUserAvatarEntity(userID)]
         },
         schema: serializationSchema,
-        chunkLength: Engine.instance.tickRate * 60, // one minute
-        onCommitChunk(chunk: SerializedChunk) {
-          // upload chunk
+        chunkLength,
+        onCommitChunk(chunk: SerializedChunk, chunkIndex: number) {
+          console.log(chunk)
+
+          if (chunk.changes.length) {
+            storageProvider
+              .putObject(
+                {
+                  Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.json',
+                  Body: Buffer.from(JSON.stringify(chunk)), // todo - make chunk actually a buffer
+                  ContentType: 'application/json'
+                },
+                {
+                  isDirectory: false
+                }
+              )
+              .then(() => {
+                logger.info('Uploaded entities chunk', chunkIndex)
+              })
+          }
+
+          if (rawDataChunks.length) {
+            // todo - support more than one data channel
+            // upload chunk to storage provider
+            storageProvider
+              .putObject(
+                {
+                  Key: 'recordings/' + recording.id + '/raw-' + rawDataChunksCount + '.json',
+                  Body: Buffer.from(JSON.stringify(rawDataChunks)),
+                  ContentType: 'application/json'
+                },
+                {
+                  isDirectory: false
+                }
+              )
+              .then(() => {
+                logger.info('Uploaded raw chunk', rawDataChunksCount)
+              })
+
+            rawDataChunks = []
+            rawDataChunksCount++
+          }
         }
       })
     }
 
     const dataChannelSchema = schema
-      .filter((component: DataChannelType) => !getState(NetworkState).dataChannelRegistry[component])
+      .filter((component: DataChannelType) => getState(NetworkState).dataChannelRegistry[component])
       .filter(Boolean) as DataChannelType[]
 
     for (const dataChannel of dataChannelSchema) {
-      addDataChannelHandler(dataChannel, dataRecorder)
+      addDataChannelHandler(dataChannel, dataChannelRecorder)
     }
   }
 
@@ -147,7 +210,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
     activeRecording.serializer.end()
   }
 
-  if (activeRecording.mediaRecorder) {
+  if (activeRecording.mediaChannelRecorder) {
     const dataChannelSchema = schema
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
@@ -155,13 +218,13 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
     // stop recording data channel
   }
 
-  if (activeRecording.dataRecorder) {
+  if (activeRecording.dataChannelRecorder) {
     const dataChannelSchema = schema
-      .filter((component: DataChannelType) => !getState(NetworkState).dataChannelRegistry[component])
+      .filter((component: DataChannelType) => getState(NetworkState).dataChannelRegistry[component])
       .filter(Boolean) as DataChannelType[]
 
     for (const dataChannel of dataChannelSchema) {
-      removeDataChannelHandler(dataChannel, activeRecording.dataRecorder)
+      removeDataChannelHandler(dataChannel, activeRecording.dataChannelRecorder)
     }
   }
   activeRecordings.delete(action.recordingID)
@@ -234,7 +297,12 @@ export default async function ServerRecordingSystem() {
     for (const action of stopPlaybackActionQueue()) onStopPlayback(action)
   }
 
-  const cleanup = async () => {}
+  const cleanup = async () => {
+    removeActionQueue(startRecordingActionQueue)
+    removeActionQueue(stopRecordingActionQueue)
+    removeActionQueue(startPlaybackActionQueue)
+    removeActionQueue(stopPlaybackActionQueue)
+  }
 
   return { execute, cleanup }
 }

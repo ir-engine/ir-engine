@@ -29,7 +29,7 @@ export type SerializerArgs = {
   schema: SerializationSchema[]
   /** The length of the chunk in frames */
   chunkLength: number
-  onCommitChunk: (chunk: SerializedChunk) => void
+  onCommitChunk: (chunk: SerializedChunk, chunkIndex: number) => void
 }
 
 const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: SerializerArgs) => {
@@ -42,6 +42,7 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
   const view = createViewCursor(new ArrayBuffer(10000))
 
   let frame = 0
+  let chunk = 0
 
   const write = () => {
     const writeCount = spaceUint32(view)
@@ -76,7 +77,8 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
 
   const commitChunk = () => {
     frame = 0
-    onCommitChunk(data)
+    // todo - data should be a buffer
+    onCommitChunk(data, chunk++)
     data = {
       startTimecode: Date.now(),
       entities: [],

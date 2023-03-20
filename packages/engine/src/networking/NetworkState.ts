@@ -14,7 +14,7 @@ export const NetworkState = defineState({
       media: null as UserId | null,
       world: null as UserId | null
     },
-    // todo - move to SerializationState.schemas
+    // todo - move to Network.schemas
     networkSchema: {} as { [key: string]: SerializationSchema },
     networks: {} as { [key: UserId]: Network },
     dataChannelRegistry: {} as {
