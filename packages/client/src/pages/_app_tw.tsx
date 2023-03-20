@@ -22,6 +22,8 @@ import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles
 
 import RecorderComp from '../route/recorder'
 
+import 'tailwindcss/tailwind.css'
+import '../index.css'
 import './styles.scss'
 
 import {
