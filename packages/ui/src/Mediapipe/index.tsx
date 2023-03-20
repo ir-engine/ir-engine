@@ -74,6 +74,9 @@ const Mediapipe = () => {
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
   const mediaConnection = useMediaInstance()
   const recordingState = useHookstate(getMutableState(RecordingState))
+  const modelLoaded = useHookstate(false)
+
+  const ready = !!modelLoaded.value && !!mediaConnection?.value
 
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {
@@ -99,6 +102,7 @@ const Mediapipe = () => {
       if (canvasCtxRef.current !== null && canvasRef.current !== null) {
         const { poseWorldLandmarks, poseLandmarks } = results
         if (canvasCtxRef.current && poseLandmarks?.length) {
+          if (!modelLoaded.value) modelLoaded.set(true)
           //draw!!!
           canvasCtxRef.current.save()
           canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
@@ -189,7 +193,7 @@ const Mediapipe = () => {
   // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
   return (
     <div className="w-fit-content h-fit-content relative pointer-events-auto">
-      {!mediaConnection?.value && (
+      {!ready && (
         <div className="w-full h-full absolute z-10 flex justify-center items-center">
           <LoadingCircle message={t('common:loader.connecting')} />
         </div>
@@ -198,7 +202,7 @@ const Mediapipe = () => {
       <div className="object-contain absolute top-0" style={{ objectFit: 'contain', top: '0px' }}>
         <canvas ref={canvasRef} />
       </div>
-      {mediaConnection?.value && (
+      {ready && (
         <button
           className="absolute bottom-0 right-0  bg-grey pointer-events-auto"
           style={{ pointerEvents: 'all' }}
