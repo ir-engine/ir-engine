@@ -7,7 +7,7 @@ import { DataChannelType, Network } from '../classes/Network'
 import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../NetworkState'
 import { createDataReader } from '../serialization/DataReader'
 
-export const applyUnreliableQueueFast = (deserialize: Function) => () => {
+export const applyUnreliableQueueFast = (deserialize: any) => () => {
   const network = Engine.instance.worldNetwork
   if (!network) return
 
@@ -23,9 +23,9 @@ export const applyUnreliableQueueFast = (deserialize: Function) => () => {
 }
 
 const toArrayBuffer = (buf) => {
-  var ab = new ArrayBuffer(buf.length)
-  var view = new Uint8Array(ab)
-  for (var i = 0; i < buf.length; ++i) {
+  const ab = new ArrayBuffer(buf.length)
+  const view = new Uint8Array(ab)
+  for (let i = 0; i < buf.length; ++i) {
     view[i] = buf[i]
   }
   return ab
@@ -37,7 +37,12 @@ export default async function IncomingNetworkSystem() {
   const deserialize = createDataReader()
   const applyIncomingNetworkState = applyUnreliableQueueFast(deserialize)
 
-  const handleNetworkdata = (network: Network, fromPeerID: PeerID, message: ArrayBufferLike) => {
+  const handleNetworkdata = (
+    network: Network,
+    dataChannel: DataChannelType,
+    fromPeerID: PeerID,
+    message: ArrayBufferLike
+  ) => {
     if (network.isHosting) {
       network.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
       network.incomingMessageQueueUnreliableIDs.add(fromPeerID)
