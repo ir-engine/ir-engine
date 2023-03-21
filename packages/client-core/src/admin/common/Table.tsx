@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 
 import Box from '@etherealengine/ui/src/Box'
 import Table from '@etherealengine/ui/src/Table'
@@ -14,36 +14,33 @@ import { visuallyHidden } from '@mui/utils'
 
 import styles from '../styles/table.module.scss'
 
-interface Props {
-  rows: any
-  column: any
+interface TableData {
+  [key: string]: ReactElement
+}
+
+interface Props<Data extends TableData> {
+  rows: Data[]
+  column: Column<Data>[]
   page: number
   rowsPerPage: number
   count: number
-  fieldOrder?: string
-  fieldOrderBy?: string
+  fieldOrder?: Order
+  fieldOrderBy?: keyof Data
   allowSort?: boolean
-  setSortField?: (fueld: string) => void
-  setFieldOrder?: (order: string) => void
+  setSortField?: (field: keyof Data) => void
+  setFieldOrder?: (order: Order) => void
   handlePageChange: (e: unknown, newPage: number) => void
   handleRowsPerPageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
-type Order = 'asc' | 'desc'
 
-interface Data {
-  calories: number
-  carbs: number
-  fat: number
-  name: string
-  protein: number
-}
+export type Order = 'asc' | 'desc'
 
-interface HeadCell {
-  disablePadding: boolean
+interface Column<Data> {
   id: keyof Data
   label: string
-  align?: 'right'
-  minWidth: any
+  align?: 'inherit' | 'left' | 'center' | 'right' | 'justify'
+  minWidth?: number | string
+  disablePadding?: boolean
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -56,10 +53,7 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   return 0
 }
 
-function getComparator<Key extends keyof any>(
-  order: Order,
-  orderBy: Key
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
+function getComparator<Data>(order: Order, orderBy: keyof Data): (a: Data, b: Data) => number {
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy)
@@ -77,15 +71,15 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
   return stabilizedThis.map((el) => el[0])
 }
 
-interface EnhancedTableProps {
+interface EnhancedTableProps<Data> {
   onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void
   order: Order
-  orderBy: string
+  orderBy: keyof Data
   rowCount: number
-  columns: HeadCell[]
+  columns: Column<Data>[]
 }
 
-const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedTableProps) => {
+const EnhancedTableHead = function <Data>({ order, orderBy, onRequestSort, columns }: EnhancedTableProps<Data>) {
   const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
     onRequestSort(event, property)
   }
@@ -95,14 +89,14 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedT
       <TableRow>
         {columns.map((headCell) => (
           <TableCell
-            key={headCell.id}
+            key={String(headCell.id)}
             align={headCell.align}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
             className={styles.tableCellHeader}
             style={{ minWidth: headCell.minWidth }}
           >
-            {(headCell.id as any) === 'action' || (headCell.id as any) === 'select' ? (
+            {headCell.id === 'action' || headCell.id === 'select' ? (
               <span>{headCell.label} </span>
             ) : (
               <TableSortLabel
@@ -126,7 +120,7 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedT
   )
 }
 
-const TableComponent = ({
+const TableComponent = function <Data extends TableData>({
   rows,
   column,
   page,
@@ -139,7 +133,7 @@ const TableComponent = ({
   setFieldOrder,
   handlePageChange,
   handleRowsPerPageChange
-}: Props) => {
+}: Props<Data>) {
   const [order, setOrder] = React.useState<Order>(fieldOrder === 'desc' ? 'desc' : 'asc')
   const [orderBy, setOrderBy] = React.useState<keyof Data>(fieldOrderBy ? fieldOrderBy : column[0].id)
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
@@ -164,7 +158,7 @@ const TableComponent = ({
           <TableBody>
             {(allowSort ? stableSort(rows, getComparator(order, orderBy)) : rows).map((row, index) => {
               return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={`${index}${row.name}`}>
+                <TableRow hover role="checkbox" tabIndex={-1} key={`${index}`}>
                   {column.map((column, index) => {
                     const value = row[column.id]
                     return (

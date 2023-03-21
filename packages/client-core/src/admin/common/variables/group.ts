@@ -1,3 +1,5 @@
+import { ReactElement } from 'react'
+
 export interface Column {
   id: 'name' | 'description' | 'action'
   label: string
@@ -20,5 +22,5 @@ export interface Data {
   id: string
   name: string
   description: string
-  action: any
+  action: ReactElement
 }

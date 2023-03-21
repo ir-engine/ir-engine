@@ -44,7 +44,7 @@ export const AdminBuildStatusReceptors = {
 //Service
 export const BuildStatusService = {
   fetchBuildStatus: async (skip = 0) => {
-    let buildStatusResult = (await API.instance.client.service('build-status').find({
+    const buildStatusResult = (await API.instance.client.service('build-status').find({
       query: {
         $limit: 10,
         $skip: skip,

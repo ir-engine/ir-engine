@@ -9,7 +9,7 @@ import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
 import DrawerView from '../../common/DrawerView'
-import TableComponent from '../../common/Table'
+import TableComponent, { Order } from '../../common/Table'
 import { buildStatusColumns } from '../../common/variables/buildStatus'
 import { AdminBuildStatusState, BuildStatusService } from '../../services/BuildStatusService'
 import styles from '../../styles/admin.module.scss'
@@ -35,8 +35,8 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const selectedStatus = useHookstate(defaultBuildStatus)
   const logsModalOpen = useHookstate(false)
 
-  const fieldOrder = useHookstate('desc')
-  const sortField = useHookstate('id')
+  const fieldOrder = useHookstate('desc' as Order)
+  const sortField = useHookstate('id' as keyof BuildStatus)
 
   const buildStatusState = useHookstate(getMutableState(AdminBuildStatusState))
   const buildStatuses = buildStatusState.buildStatuses.value
@@ -56,7 +56,6 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   }
   const createData = (el: BuildStatus) => {
     return {
-      el,
       id: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <span>{el.id}</span>

@@ -7,7 +7,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 
 import { AuthState } from '../../../user/services/AuthService'
-import TableComponent from '../../common/Table'
+import TableComponent, { Order } from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { AdminGroupService, AdminGroupState, GROUP_PAGE_LIMIT } from '../../services/GroupService'
 import styles from '../../styles/admin.module.scss'
@@ -26,8 +26,8 @@ const GroupTable = ({ className, search }: Props) => {
   const rowsPerPage = useHookstate(GROUP_PAGE_LIMIT)
   const groupId = useHookstate('')
   const groupName = useHookstate('')
-  const orderBy = useHookstate('asc')
-  const sortField = useHookstate('name')
+  const orderBy = useHookstate('asc' as Order)
+  const sortField = useHookstate('name' as keyof Group)
   const openConfirm = useHookstate(false)
   const adminGroupState = useHookstate(getMutableState(AdminGroupState))
   const adminGroups = adminGroupState.group
