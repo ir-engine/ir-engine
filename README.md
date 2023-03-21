@@ -143,5 +143,4 @@ you find who you need to talk to.
 ## License
 [MIT](LICENSE) - Copyright (c) 2020-2022 Ethereal Engine team, formerly known as XREngine by XR Foundation
 
-
 [Release History and Author Archive](/HISTORY.md)
