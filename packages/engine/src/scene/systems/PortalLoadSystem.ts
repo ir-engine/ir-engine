@@ -1,16 +1,15 @@
 import { Euler, Texture } from 'three'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
-
-import { API } from '../API'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { entityExists } from '../../ecs/functions/EntityFunctions'
+import { PortalComponent } from '../components/PortalComponent'
 
 export const enterPortal = async (entity: Entity) => {
   const portalComponent = getComponent(entity, PortalComponent)
-  const portalDetails = (await API.instance.client.service('portal').get(portalComponent.linkedPortalId)).data!
+  const portalDetails = (await Engine.instance.api.service('portal').get(portalComponent.linkedPortalId)).data!
   if (portalDetails) {
     portalComponent.remoteSpawnPosition.copy(portalDetails.spawnPosition)
     portalComponent.remoteSpawnRotation.setFromEuler(
@@ -33,7 +32,6 @@ export const enterPortal = async (entity: Entity) => {
 
 /**
  * Loads portal metadata once the models have been loaded. Depends on API calls.
- * @param world
  */
 export default async function PortalLoadSystem() {
   const portalQuery = defineQuery([PortalComponent])

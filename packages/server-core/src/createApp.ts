@@ -24,7 +24,6 @@ import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
-import { ServerState } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
@@ -140,6 +139,9 @@ export const createFeathersExpressApp = (
   }
 
   const app = express(feathers()) as Application
+
+  Engine.instance.api = app
+
   app.serverMode = serverMode
   app.set('nextReadyEmitter', new EventEmitter())
 
@@ -200,8 +202,6 @@ export const createFeathersExpressApp = (
   })
 
   app.use(errorHandler({ logger }))
-
-  getMutableState(ServerState).merge({ app })
 
   return app
 }

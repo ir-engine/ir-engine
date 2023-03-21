@@ -3,11 +3,8 @@ import { useParams } from 'react-router-dom'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import PortalLoadSystem from '@etherealengine/client-core/src/systems/PortalLoadSystem'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientModules } from '@etherealengine/client-core/src/world/ClientModules'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
@@ -65,12 +62,6 @@ export const EditorPage = () => {
       uuid: 'core.editor.GizmoSystem',
       systemLoader: () => Promise.resolve({ default: GizmoSystem }),
       type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      uuid: 'core.editor.PortalLoadSystem',
-      systemLoader: () => Promise.resolve({ default: PortalLoadSystem }),
-      type: SystemUpdateType.FIXED,
       args: { enabled: true }
     },
     {
