@@ -40,6 +40,7 @@
     "@etherealengine/hyperflux": "^1.2.0-rc6",
     "@etherealengine/matchmaking": "^1.2.0-rc6",
     "@etherealengine/projects": "^1.2.0-rc6",
+    "@etherealengine/ui": "^1.2.0-rc6",
     "@hookstate/core": "4.0.0-rc21",
     "@mui/icons-material": "5.11.0",
     "@mui/material": "5.11.0",
@@ -71,18 +72,18 @@
     "vite": "4.1.1",
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-html": "3.2.0",
-    "vite-plugin-package-config": "0.1.1"
+    "vite-plugin-package-config": "0.1.1",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21"
   },
   "devDependencies": {
     "@types/node": "18.11.18",
     "@types/react": "18.0.19",
     "@types/react-dom": "18.0.0",
     "app-root-path": "3.0.0",
-    "autoprefixer": "^10.4.14",
     "cli": "1.0.1",
     "config": "3.3.7",
     "node-fetch": "2.6.7",
-    "postcss": "^8.4.21",
     "trace-unhandled": "2.0.1"
   },
   "license": "ISC"
