@@ -2,6 +2,7 @@ import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/
 
 export const clientSeed = {
   path: 'client-setting',
+  insertSingle: true,
   templates: [
     {
       logo: process.env.APP_LOGO,
