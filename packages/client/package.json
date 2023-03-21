@@ -66,6 +66,7 @@
     "react-router-dom": "6.8.1",
     "sass": "1.50.0",
     "sequelize": "6.21.6",
+    "tailwindcss": "^3.2.7",
     "ts-node": "10.8.2",
     "vite": "4.1.1",
     "vite-plugin-compression": "0.5.1",
@@ -77,9 +78,11 @@
     "@types/react": "18.0.19",
     "@types/react-dom": "18.0.0",
     "app-root-path": "3.0.0",
+    "autoprefixer": "^10.4.14",
     "cli": "1.0.1",
     "config": "3.3.7",
     "node-fetch": "2.6.7",
+    "postcss": "^8.4.21",
     "trace-unhandled": "2.0.1"
   },
   "license": "ISC"

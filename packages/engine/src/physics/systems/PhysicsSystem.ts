@@ -152,7 +152,7 @@ export default async function PhysicsSystem() {
 
   const networkState = getMutableState(NetworkState)
 
-  networkState.networkSchema['ee.core.physics'].set({
+  networkState.networkSchema[PhysicsSerialization.ID].set({
     read: PhysicsSerialization.readRigidBody,
     write: PhysicsSerialization.writeRigidBody
   })
@@ -263,7 +263,7 @@ export default async function PhysicsSystem() {
 
     Engine.instance.physicsWorld.free()
 
-    networkState.networkSchema['ee.core.physics'].set(none)
+    networkState.networkSchema[PhysicsSerialization.ID].set(none)
   }
 
   return { execute, cleanup }

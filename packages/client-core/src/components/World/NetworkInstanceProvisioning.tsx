@@ -32,6 +32,7 @@ import { PartyService, usePartyState } from '../../social/services/PartyService'
 import { MediaStreamActions } from '../../transports/MediaStreams'
 import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
 import InstanceServerWarnings from './InstanceServerWarnings'
+import { DataChannels } from './ProducersAndConsumers'
 
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
@@ -193,6 +194,7 @@ export const NetworkInstanceProvisioning = () => {
 
   return (
     <>
+      <DataChannels />
       <PeerMedia />
       <InstanceServerWarnings />
     </>

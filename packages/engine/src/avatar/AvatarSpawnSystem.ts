@@ -5,13 +5,27 @@ import { createActionQueue, getMutableState, getState, none, removeActionQueue }
 
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
-import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  removeQuery,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
 import { NetworkState } from '../networking/NetworkState'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { AvatarRigComponent } from './components/AvatarAnimationComponent'
+import {
+  AvatarHeadIKComponent,
+  AvatarIKTargetsComponent,
+  AvatarLeftArmIKComponent,
+  AvatarRightArmIKComponent
+} from './components/AvatarIKComponents'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 import { spawnAvatarReceptor } from './functions/spawnAvatarReceptor'
 import { IKSerialization } from './IKSerialization'
@@ -78,22 +92,53 @@ export default async function AvatarSpawnSystem() {
 
   const networkState = getMutableState(NetworkState)
 
-  networkState.networkSchema['ee.core.xrhead'].set({
+  networkState.networkSchema[IKSerialization.headID].set({
     read: IKSerialization.readXRHead,
     write: IKSerialization.writeXRHead
   })
 
-  networkState.networkSchema['ee.core.xrLeftHand'].set({
+  networkState.networkSchema[IKSerialization.leftHandID].set({
     read: IKSerialization.readXRLeftHand,
     write: IKSerialization.writeXRLeftHand
   })
 
-  networkState.networkSchema['ee.core.xrRightHand'].set({
+  networkState.networkSchema[IKSerialization.rightHandID].set({
     read: IKSerialization.readXRRightHand,
     write: IKSerialization.writeXRRightHand
   })
 
+  const avatarIKTargetsQuery = defineQuery([AvatarIKTargetsComponent, AvatarRigComponent])
+
+  const avatarIKTargetsActionQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
+
   const execute = () => {
+    for (const action of avatarIKTargetsActionQueue()) {
+      const entity = Engine.instance.getUserAvatarEntity(action.$from)
+      const targets = getComponent(entity, AvatarIKTargetsComponent)
+
+      targets.head = action.head
+      targets.leftHand = action.leftHand
+      targets.rightHand = action.rightHand
+    }
+
+    /** Add & remove IK Targets based on active target data */
+    for (const entity of avatarIKTargetsQuery()) {
+      const targets = getComponent(entity, AvatarIKTargetsComponent)
+
+      if (targets.head && !hasComponent(entity, AvatarHeadIKComponent)) setComponent(entity, AvatarHeadIKComponent)
+      if (!targets.head && hasComponent(entity, AvatarHeadIKComponent)) removeComponent(entity, AvatarHeadIKComponent)
+
+      if (targets.leftHand && !hasComponent(entity, AvatarLeftArmIKComponent))
+        setComponent(entity, AvatarLeftArmIKComponent)
+      if (!targets.leftHand && hasComponent(entity, AvatarLeftArmIKComponent))
+        removeComponent(entity, AvatarLeftArmIKComponent)
+
+      if (targets.rightHand && !hasComponent(entity, AvatarRightArmIKComponent))
+        setComponent(entity, AvatarRightArmIKComponent)
+      if (!targets.rightHand && hasComponent(entity, AvatarRightArmIKComponent))
+        removeComponent(entity, AvatarRightArmIKComponent)
+    }
+
     for (const action of avatarSpawnQueue()) spawnAvatarReceptor(action)
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
 
@@ -111,9 +156,9 @@ export default async function AvatarSpawnSystem() {
     removeActionQueue(avatarSpawnQueue)
     removeActionQueue(avatarDetailsQueue)
 
-    networkState.networkSchema['ee.core.xrHead'].set(none)
-    networkState.networkSchema['ee.core.xrLeftHand'].set(none)
-    networkState.networkSchema['ee.core.xrRightHand'].set(none)
+    networkState.networkSchema[IKSerialization.headID].set(none)
+    networkState.networkSchema[IKSerialization.leftHandID].set(none)
+    networkState.networkSchema[IKSerialization.rightHandID].set(none)
   }
 
   return { execute, cleanup }
