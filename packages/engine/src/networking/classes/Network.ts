@@ -1,3 +1,4 @@
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -18,14 +19,16 @@ export interface TransportInterface {
   get peers(): PeerID[]
   messageToPeer: (peerId: PeerID, data: any) => void
   messageToAll: (data: any) => void
-  bufferToPeer: (peerId: PeerID, data: any) => void
-  bufferToAll: (data: any) => void
+  bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => void
+  bufferToAll: (dataChannelType: DataChannelType, ata: any) => void
 }
 
+export type DataChannelType = OpaqueType<'DataChannelType'> & string
+
 /** Interface for the Transport. */
-export const createNetwork = (hostId: UserId, topic: Topic) => {
+export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext = {} as Ext) => {
   addOutgoingTopicIfNecessary(topic)
-  return {
+  const network = {
     /** Consumers and producers have separate types on client and server */
     producers: [] as any[],
     consumers: [] as any[],
@@ -68,7 +71,9 @@ export const createNetwork = (hostId: UserId, topic: Topic) => {
 
     /** Gets the host peer */
     get hostPeerID() {
-      return this.users.get(this.hostId)?.[0]
+      const hostPeers = network.users.get(network.hostId)
+      if (!hostPeers) return undefined!
+      return hostPeers[0]
     },
 
     /**
@@ -80,6 +85,7 @@ export const createNetwork = (hostId: UserId, topic: Topic) => {
     /**
      * The UserId of the host
      * - will either be a user's UserId, or an instance server's InstanceId
+     * @todo rename to hostUserID to differentiate better from hostPeerID
      */
     hostId,
 
@@ -104,19 +110,21 @@ export const createNetwork = (hostId: UserId, topic: Topic) => {
       },
       messageToPeer: (peerId: PeerID, data: any) => {},
       messageToAll: (data: any) => {},
-      bufferToPeer: (peerId: PeerID, data: any) => {},
-      bufferToAll: (data: any) => {}
+      bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => {},
+      bufferToAll: (dataChannelType: DataChannelType, data: any) => {}
     } as TransportInterface,
 
     /**
      * Check if this user is hosting the world.
      */
     get isHosting() {
-      return Engine.instance.userId === this.hostId
+      return Engine.instance.userId === network.hostId
     },
 
     topic
   }
+  Object.assign(network, extension)
+  return network as typeof network & Ext
 }
 
 export type Network = ReturnType<typeof createNetwork>

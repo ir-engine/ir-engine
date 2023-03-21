@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+
 // @ts-ignore
 
 import ThemesProvider from './ThemesProvider/themesProvider'
@@ -14,6 +15,7 @@ import ThemesProvider from './ThemesProvider/themesProvider'
 const Engine = lazy(() => import('./engine'))
 const AppPage = lazy(() => import('./pages/_app'))
 const AdminPage = lazy(() => import('./pages/admin'))
+const TailwindPage = lazy(() => import('./pages/_app_tw'))
 
 const App = () => {
   return (
@@ -38,6 +40,17 @@ const App = () => {
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
                   <AdminPage />
+                </Engine>
+              </Suspense>
+            }
+          />
+          <Route
+            key={'recorder'}
+            path={'/recorder/*'}
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <Engine>
+                  <TailwindPage />
                 </Engine>
               </Suspense>
             }

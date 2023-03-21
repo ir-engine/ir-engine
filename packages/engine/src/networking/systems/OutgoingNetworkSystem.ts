@@ -8,6 +8,7 @@ import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { createDataWriter } from '../serialization/DataWriter'
+import { ecsDataChannelType } from './IncomingNetworkSystem'
 
 /***********
  * QUERIES *
@@ -35,7 +36,7 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
     if (data.byteLength > 0) {
       // side effect - network IO
       // delay until end of frame
-      Promise.resolve().then(() => network.transport.bufferToPeer(network.hostPeerID, data))
+      Promise.resolve().then(() => network.transport.bufferToPeer(ecsDataChannelType, network.hostPeerID, data))
     }
   }
 }

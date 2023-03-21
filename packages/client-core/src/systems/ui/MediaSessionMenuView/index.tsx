@@ -29,7 +29,7 @@ const MediaSessionMenuView = () => {
   const { t } = useTranslation()
   const mediastream = useMediaStreamState()
 
-  const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
+  const isFaceTrackingEnabled = mediastream.isMotionCaptureEnabled
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
   const isScreenVideoEnabled = mediastream.isScreenVideoEnabled

@@ -1,6 +1,9 @@
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
+  ConsumerOptions,
+  DataConsumer,
+  DataConsumerOptions,
   DataProducer,
   DtlsParameters,
   MediaKind,
@@ -24,7 +27,13 @@ import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearc
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createNetwork, NetworkTopics, TransportInterface } from '@etherealengine/engine/src/networking/classes/Network'
+import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import {
+  createNetwork,
+  DataChannelType,
+  NetworkTopics,
+  TransportInterface
+} from '@etherealengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
   CAM_VIDEO_SIMULCAST_ENCODINGS,
@@ -37,7 +46,8 @@ import {
   JoinWorldRequestData,
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { NetworkState, removeNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { dataChannelRegistry, NetworkState, removeNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { ecsDataChannelType } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
 import {
   addActionReceptor,
   dispatchAction,
@@ -178,31 +188,34 @@ export const initializeNetwork = (hostId: UserId, topic: Topic) => {
       network.primus?.write(data)
     },
 
-    bufferToPeer: (peerID: PeerID, data: any) => {
-      transport.bufferToAll(data)
+    bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
+      transport.bufferToAll(dataChannelType, data)
     },
 
-    bufferToAll: (data: any) => {
-      if (network.dataProducer && !network.dataProducer.closed && network.dataProducer.readyState === 'open')
-        network.dataProducer.send(data)
+    bufferToAll: (dataChannelType: DataChannelType, data: any) => {
+      const dataProducer = network.dataProducers.get(dataChannelType)
+      if (!dataProducer) return
+      if (!dataProducer.closed && dataProducer.readyState === 'open') dataProducer.send(data)
     }
   } as TransportInterface
 
-  const network = {
-    ...createNetwork(hostId, topic),
+  const network = createNetwork(hostId, topic, {
     mediasoupDevice,
     transport,
     reconnecting: false,
     recvTransport: null! as MediaSoupTransport,
     sendTransport: null! as MediaSoupTransport,
     primus: null! as Primus,
+    /** List of data producer nodes. */
+    dataProducers: new Map<DataChannelType, DataProducer>(),
 
-    dataProducer: null! as DataProducer,
+    /** List of data consumer nodes. */
+    dataConsumers: new Map<DataChannelType, DataConsumer>(),
     heartbeat: null! as NodeJS.Timer, // is there an equivalent browser type for this?
 
     producers: [] as ProducerExtension[],
     consumers: [] as ConsumerExtension[]
-  }
+  })
 
   return network
 }
@@ -452,24 +465,31 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 }
 
 export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
-  async function consumeDataHandler(options) {
-    const dataConsumer = await network.recvTransport.consumeData(options)
+  async function consumeDataHandler(options: DataConsumerOptions) {
+    console.log('consumerDataHandler', options)
+    const dataConsumer = await network.recvTransport.consumeData({
+      ...options,
+      // this is unused, but for whatever reason mediasoup will throw an error if it's not defined
+      dataProducerId: ''
+    })
 
     // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
     dataConsumer.binaryType = 'arraybuffer'
-    network.dataConsumers.set(options.dataProducerId, dataConsumer)
-
+    network.dataConsumers.set(options.id as DataChannelType, dataConsumer)
     dataConsumer.on('message', (message: any) => {
       try {
-        network.incomingMessageQueueUnreliable.add(message)
-        network.incomingMessageQueueUnreliableIDs.add(options.dataProducerId)
-      } catch (error) {
-        logger.error(error, 'Error handling data from consumer')
+        const dataChannelFunctions = dataChannelRegistry.get(dataConsumer.label as DataChannelType)
+        if (dataChannelFunctions) {
+          for (const func of dataChannelFunctions)
+            func(network, dataConsumer.label as DataChannelType, network.hostPeerID, message) // assmume for now data is coming from the host
+        }
+      } catch (e) {
+        console.error(e)
       }
     }) // Handle message received
     dataConsumer.on('close', () => {
       dataConsumer.close()
-      network.dataConsumers.delete(options.dataProducerId)
+      network.dataConsumers.delete(options.id as DataChannelType)
     })
   }
 
@@ -490,7 +510,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   async function disconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
-    removeActionReceptor(consumeDataHandler)
     network.primus.removeListener('data', consumeDataAndKickHandler)
   }
 
@@ -505,7 +524,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   // Get information for how to consume data from server and init a data consumer
 
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
-  await createDataProducer(network, 'instance')
 
   dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
 
@@ -663,17 +681,26 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
 }
 
+/**
+ *
+ * @param network
+ * @param dataChannelType
+ * @param type
+ * @param customInitInfo
+ */
 export async function createDataProducer(
   network: SocketWebRTCClientNetwork,
-  channelType: ChannelType,
+  dataChannelType: DataChannelType,
   type = 'raw',
   customInitInfo: any = {}
 ): Promise<void> {
+  console.log('createDataProducer', dataChannelType, network.sendTransport)
+  if (network.dataProducers.has(dataChannelType)) return
   const sendTransport = network.sendTransport
   const dataProducer = await sendTransport.produceData({
     appData: { data: customInitInfo },
     ordered: false,
-    label: channelType,
+    label: dataChannelType,
     maxPacketLifeTime: 3000,
     // maxRetransmits: 3,
     protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
@@ -682,12 +709,31 @@ export async function createDataProducer(
   //     network.dataProducer.send(JSON.stringify({ info: 'init' }));
   // });
   dataProducer.on('transportclose', () => {
-    network.dataProducer?.close()
+    dataProducer?.close()
   })
-  network.dataProducer = dataProducer
+  network.dataProducers.set(dataChannelType, dataProducer)
 }
 // utility function to create a transport and hook up signaling logic
 // appropriate to the transport's direction
+
+/**
+ *
+ * @param network
+ * @param dataChannelType
+ * @param type
+ * @param customInitInfo
+ */
+export async function createDataConsumer(
+  network: SocketWebRTCClientNetwork,
+  dataChannelType: DataChannelType
+): Promise<void> {
+  console.log('createDataConsumer', dataChannelType)
+  if (network.dataConsumers.has(dataChannelType)) return console.log('aready has consumer')
+  const response = await promisedRequest(network, MessageTypes.WebRTCConsumeData.toString(), {
+    label: dataChannelType
+  })
+  console.log({ response })
+}
 
 export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {
   const { channelId, channelType } = getChannelTypeIdFromTransport(network)
@@ -1254,7 +1300,7 @@ const checkEndVideoChat = async () => {
 export const toggleFaceTracking = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaState = getMutableState(MediaState)
-  if (mediaState.isFaceTrackingEnabled.value) {
+  if (mediaState.isMotionCaptureEnabled.value) {
     mediaStreamState.faceTracking.set(false)
     stopFaceTracking()
     stopLipsyncTracking()

@@ -7,6 +7,7 @@ import { ECSSerializationModule } from '@etherealengine/engine/src/ecs/ECSSerial
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputModule } from '@etherealengine/engine/src/input/InputModule'
 import { InteractionModule } from '@etherealengine/engine/src/interaction/InteractionModule'
+import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
 import { RendererModule } from '@etherealengine/engine/src/renderer/RendererModule'
 import { SceneClientModule } from '@etherealengine/engine/src/scene/SceneClientModule'
@@ -19,6 +20,7 @@ export function ClientModules() {
   return initSystems([
     ...XRModule(),
     ...TransformModule(),
+    ...MotionCaptureModule(),
     ...ECSSerializationModule(),
     ...RendererModule(),
     ...MediaModule(),

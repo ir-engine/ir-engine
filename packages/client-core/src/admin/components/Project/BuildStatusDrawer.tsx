@@ -32,7 +32,7 @@ const defaultBuildStatus = {
 const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(10)
-  const selectedStatus = useHookstate(defaultBuildStatus)
+  const selectedStatusId = useHookstate(0)
   const logsModalOpen = useHookstate(false)
 
   const fieldOrder = useHookstate('desc')
@@ -42,7 +42,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const buildStatuses = buildStatusState.buildStatuses.value
 
   const handleOpenLogsModal = (buildStatus: BuildStatus) => {
-    selectedStatus.set(buildStatus)
+    selectedStatusId.set(buildStatus.id)
     logsModalOpen.set(true)
   }
 
@@ -52,7 +52,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
 
   const handleCloseLogsModal = () => {
     logsModalOpen.set(false)
-    selectedStatus.set(defaultBuildStatus)
+    selectedStatusId.set(0)
   }
   const createData = (el: BuildStatus) => {
     return {
@@ -118,6 +118,8 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
     return createData(el)
   })
 
+  const selectedStatus = buildStatuses.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
+
   const handlePageChange = (event: unknown, newPage: number) => {
     BuildStatusService.fetchBuildStatus(newPage * 10)
     page.set(newPage)
@@ -149,11 +151,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
           handlePageChange={handlePageChange}
           handleRowsPerPageChange={handleRowsPerPageChange}
         />
-        <BuildStatusLogsModal
-          open={logsModalOpen.value}
-          onClose={handleCloseLogsModal}
-          buildStatus={selectedStatus.value}
-        />
+        <BuildStatusLogsModal open={logsModalOpen.value} onClose={handleCloseLogsModal} buildStatus={selectedStatus} />
       </Container>
     </DrawerView>
   )

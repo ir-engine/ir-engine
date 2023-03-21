@@ -7,6 +7,7 @@ import Image from './image/image.service'
 import Material from './material/material.service'
 import Model from './model/model.service'
 import OEmbed from './oembed/oembed.service'
+import Archiver from './recursive-archiver/archiver.service'
 import Rig from './rig/rig.service'
 import Script from './script/script.service'
 import SerializedEntity from './serialized-entity/serialized-entity.service'
@@ -33,5 +34,6 @@ export default [
   SerializedEntity,
   Upload,
   Video,
-  Volumetric
+  Volumetric,
+  Archiver
 ]

@@ -11,17 +11,8 @@ import { withRouter } from 'storybook-addon-react-router-v6'
 import results from '../tests/jest-test-results.json'
 import { withThemesProvider } from './decorators'
 
-// const providerFn = ({ theme, children }) => {
-//   const compliledTheme = useTheme(theme)
-//   return (
-//     <StyledEngineProvider injectFirst>
-//       <ThemeProvider theme={theme}>
-//         <GlobalStyle />
-//         {children}
-//       </ThemeProvider>
-//     </StyledEngineProvider>
-//   )
-// }
+import 'tailwindcss/tailwind.css';
+import '@etherealengine/client/src/index.css';
 
 export const decorators = [withRouter, withTests({ results }), withThemesProvider]
 
