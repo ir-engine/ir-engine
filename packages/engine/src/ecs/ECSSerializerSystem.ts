@@ -34,6 +34,13 @@ export type SerializerArgs = {
   onCommitChunk: (chunk: Buffer, chunkIndex: number) => void
 }
 
+export type DeserializerArgs = {
+  chunks: Buffer[]
+  schema: SerializationSchema[]
+  onChunkStarted: (chunk: number) => void
+  onEnd: () => void
+}
+
 const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: SerializerArgs) => {
   let data = {
     startTimecode: Date.now(),
@@ -143,9 +150,11 @@ const toArrayBuffer = (buf) => {
   return ab
 }
 
-export const createDeserializer = (chunks: Buffer[], schema: SerializationSchema[]) => {
+export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
   let chunk = 0
   let frame = 0
+
+  onChunkStarted(chunk)
 
   const read = () => {
     const data = decode(chunks[chunk]) as SerializedChunk
@@ -159,9 +168,11 @@ export const createDeserializer = (chunks: Buffer[], schema: SerializationSchema
     frame++
 
     if (frame >= data.changes.length) {
+      onChunkStarted(chunk)
       chunk++
       if (chunk >= chunks.length) {
         end()
+        onEnd()
       }
     }
   }

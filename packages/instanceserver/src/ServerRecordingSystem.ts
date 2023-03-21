@@ -48,6 +48,11 @@ interface ActivePlayback {
   mediaPlayback?: any // todo
 }
 
+interface DataChannelFrame {
+  data: Buffer[]
+  timecode: number
+}
+
 export const activeRecordings = new Map<string, ActiveRecording>()
 export const activePlaybacks = new Map<string, ActivePlayback>()
 
@@ -74,6 +79,8 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   const userID = user.id
 
+  if (activeRecordings.has(userID)) return dispatchError('User is already recording', userID)
+
   const hasScopes = await checkScope(user, app, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', userID)
 
@@ -89,15 +96,19 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   }
 
   /** @todo - support multiple data channels for each user or peer */
-  let rawDataChunks = [] as any[]
-  let rawDataChunksCount = 0
+  const dataChannelsRecording = new Map<DataChannelType, DataChannelFrame[]>()
+
+  const startTime = Date.now()
 
   const chunkLength = Engine.instance.tickRate * 60 // 1 minute
 
   const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
     try {
       const data = decode(new Uint8Array(message))
-      rawDataChunks.push(data)
+      if (!dataChannelsRecording.has(dataChannel)) {
+        dataChannelsRecording.set(dataChannel, [])
+      }
+      dataChannelsRecording.get(dataChannel)!.push({ data, timecode: Date.now() - startTime })
     } catch (error) {
       logger.error('Could not decode data channel message', error)
     }
@@ -140,27 +151,25 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
               })
           }
 
-          if (rawDataChunks.length) {
-            // todo - support more than one data channel
-            // upload chunk to storage provider
-            let count = rawDataChunksCount
-            storageProvider
-              .putObject(
-                {
-                  Key: 'recordings/' + recording.id + '/raw-' + rawDataChunksCount + '.bin',
-                  Body: encode(rawDataChunks),
-                  ContentType: 'application/octet-stream'
-                },
-                {
-                  isDirectory: false
-                }
-              )
-              .then(() => {
-                logger.info('Uploaded raw chunk', count)
-              })
-
-            rawDataChunks = []
-            rawDataChunksCount++
+          for (const [dataChannel, data] of dataChannelsRecording.entries()) {
+            if (data.length) {
+              let count = chunkIndex
+              storageProvider
+                .putObject(
+                  {
+                    Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.bin',
+                    Body: encode(data),
+                    ContentType: 'application/octet-stream'
+                  },
+                  {
+                    isDirectory: false
+                  }
+                )
+                .then(() => {
+                  logger.info('Uploaded raw chunk', count)
+                })
+            }
+            dataChannelsRecording.set(dataChannel, [])
           }
         }
       })
@@ -241,6 +250,11 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
 
   const user = await app.service('user').get(recording.userId)
+  if (!user) return dispatchError('User not found', recording.userId)
+
+  if (activePlaybacks.has(action.targetUser)) {
+    return dispatchError('User already has an active playback', action.targetUser)
+  }
 
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) return dispatchError('User does not have record:read scope', user.id)
@@ -255,37 +269,43 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const storageProvider = getStorageProvider()
 
   const files = await storageProvider.listObjects('recordings/' + action.recordingID + '/', true)
-  console.log(files)
 
   const entityFiles = files.Contents.filter((file) => file.Key.includes('entities-'))
-  console.log(entityFiles)
 
-  const entityChunks = [] as Buffer[]
-  for (const entityFile of entityFiles) {
-    const chunk = await storageProvider.getObject(entityFile.Key)
-    entityChunks.push(chunk.Body as Buffer)
-  }
-  console.log(entityChunks)
+  const rawFiles = files.Contents.filter((file) => !file.Key.includes('entities-'))
 
-  // const rawFiles = await storageProvider.listObjects(
-  //   'recordings/' + action.recordingID + '/raw-',
-  //   true
-  // )
-  // console.log(rawFiles)
-
-  // const rawChunks = [] as Buffer[]
-  // for (const rawFile of rawFiles.Contents) {
-  //   const rawChunk = await storageProvider.getObject(
-  //     rawFile.Key
-  //   )
-  //   rawChunks.push(rawChunk.Body as Buffer)
-  // }
-  // console.log(rawChunks)
-
-  activePlayback.deserializer = ECSSerialization.createDeserializer(
-    entityChunks,
-    schema.map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema).filter(Boolean)
+  const entityChunks = (await Promise.all(entityFiles.map((file) => storageProvider.getObject(file.Key)))).map(
+    (data) => data.Body
   )
+
+  const dataChannelChunks = new Map<DataChannelType, DataChannelFrame[][]>()
+
+  await Promise.all(
+    rawFiles.map(async (file) => {
+      const dataChannel = file.Key.split('/')[2].split('-')[0] as DataChannelType
+      if (!dataChannelChunks.has(dataChannel)) dataChannelChunks.set(dataChannel, [])
+      const data = await storageProvider.getObject(file.Key)
+      dataChannelChunks.get(dataChannel)!.push(decode(data.Body))
+    })
+  )
+
+  console.log(dataChannelChunks)
+
+  activePlayback.deserializer = ECSSerialization.createDeserializer({
+    chunks: entityChunks,
+    schema: schema
+      .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
+      .filter(Boolean),
+    onChunkStarted: (chunkIndex) => {
+      for (const [dataChannel, chunks] of dataChannelChunks) {
+        const chunk = chunks[chunkIndex]
+        setDataChannelChunkToReplay(user.id, dataChannel, chunk)
+      }
+    },
+    onEnd: () => {
+      removeDataChannelToReplay(user.id)
+    }
+  })
 
   activePlaybacks.set(action.recordingID, activePlayback)
 }
@@ -311,9 +331,37 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
     // stop recording media
   }
 
+  removeDataChannelToReplay(user.id)
+
   activePlaybacks.delete(action.recordingID)
 
   await app.service('recording').patch(action.recordingID, { ended: true })
+}
+
+export const dataChannelToReplay = new Map<
+  UserId,
+  Map<DataChannelType, { startTime: number; frames: DataChannelFrame[] }>
+>()
+
+export const setDataChannelChunkToReplay = (
+  userId: UserId,
+  dataChannel: DataChannelType,
+  frames: DataChannelFrame[]
+) => {
+  if (!dataChannelToReplay.has(userId)) {
+    dataChannelToReplay.set(userId, new Map())
+  }
+
+  const userMap = dataChannelToReplay.get(userId)!
+  userMap.set(dataChannel, { startTime: Date.now(), frames })
+}
+
+export const removeDataChannelToReplay = (userId: UserId) => {
+  if (!dataChannelToReplay.has(userId)) {
+    return
+  }
+
+  dataChannelToReplay.delete(userId)
 }
 
 export default async function ServerRecordingSystem() {
@@ -322,12 +370,30 @@ export default async function ServerRecordingSystem() {
   const startPlaybackActionQueue = createActionQueue(ECSRecordingActions.startPlayback.matches)
   const stopPlaybackActionQueue = createActionQueue(ECSRecordingActions.stopPlayback.matches)
 
+  const app = getState(ServerState).app as Application
+
   const execute = () => {
     for (const action of startRecordingActionQueue()) onStartRecording(action)
     for (const action of stopRecordingActionQueue()) onStopRecording(action)
 
     for (const action of startPlaybackActionQueue()) onStartPlayback(action)
     for (const action of stopPlaybackActionQueue()) onStopPlayback(action)
+
+    const network = getServerNetwork(app)
+
+    for (const [userId, userMap] of dataChannelToReplay) {
+      if (network.users.has(userId))
+        for (const [dataChannel, chunk] of userMap) {
+          for (const frame of chunk.frames) {
+            if (frame.timecode > Date.now() - chunk.startTime) {
+              for (const peerID of network.users.get(userId)!) {
+                network.transport.bufferToPeer(dataChannel, peerID, frame)
+              }
+              break
+            }
+          }
+        }
+    }
   }
 
   const cleanup = async () => {
