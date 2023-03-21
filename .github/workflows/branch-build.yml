@@ -1,5 +1,7 @@
 name: branch-build
 on:
+  pull_request:
+    branches: [dev]
   push:
     branches-ignore:
       - dev
