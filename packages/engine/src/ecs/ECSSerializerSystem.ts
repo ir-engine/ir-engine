@@ -134,17 +134,27 @@ export const readEntities = (
   }
 }
 
+const toArrayBuffer = (buf) => {
+  const ab = new ArrayBuffer(buf.length)
+  const view = new Uint8Array(ab)
+  for (let i = 0; i < buf.length; ++i) {
+    view[i] = buf[i]
+  }
+  return ab
+}
+
 export const createDeserializer = (chunks: Buffer[], schema: SerializationSchema[]) => {
   let chunk = 0
   let frame = 0
 
   const read = () => {
-    const data = decode(new Uint8Array(chunks[chunk]))
-    const frameData = data.changes[frame]
+    const data = decode(chunks[chunk]) as SerializedChunk
+    const frameData = toArrayBuffer(data.changes[frame])
 
-    const view = createViewCursor(frameData)
-
-    readEntities(view, frameData.byteLength, data.entities, schema)
+    if (frameData) {
+      const view = createViewCursor(frameData)
+      readEntities(view, frameData.byteLength, data.entities, schema)
+    }
 
     frame++
 

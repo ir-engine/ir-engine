@@ -95,7 +95,12 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const chunkLength = Engine.instance.tickRate * 60 // 1 minute
 
   const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
-    rawDataChunks.push(message)
+    try {
+      const data = decode(new Uint8Array(message))
+      rawDataChunks.push(data)
+    } catch (error) {
+      logger.error('Could not decode data channel message', error)
+    }
   }
 
   const schema = JSON.parse(recording.schema) as string[]
@@ -143,7 +148,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
               .putObject(
                 {
                   Key: 'recordings/' + recording.id + '/raw-' + rawDataChunksCount + '.bin',
-                  Body: Buffer.concat(rawDataChunks),
+                  Body: encode(rawDataChunks),
                   ContentType: 'application/octet-stream'
                 },
                 {
@@ -247,10 +252,38 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     // todo - playback
   } as ActivePlayback
 
-  const chunks = [] as Buffer[] // todo populate data
+  const storageProvider = getStorageProvider()
+
+  const files = await storageProvider.listObjects('recordings/' + action.recordingID + '/', true)
+  console.log(files)
+
+  const entityFiles = files.Contents.filter((file) => file.Key.includes('entities-'))
+  console.log(entityFiles)
+
+  const entityChunks = [] as Buffer[]
+  for (const entityFile of entityFiles) {
+    const chunk = await storageProvider.getObject(entityFile.Key)
+    entityChunks.push(chunk.Body as Buffer)
+  }
+  console.log(entityChunks)
+
+  // const rawFiles = await storageProvider.listObjects(
+  //   'recordings/' + action.recordingID + '/raw-',
+  //   true
+  // )
+  // console.log(rawFiles)
+
+  // const rawChunks = [] as Buffer[]
+  // for (const rawFile of rawFiles.Contents) {
+  //   const rawChunk = await storageProvider.getObject(
+  //     rawFile.Key
+  //   )
+  //   rawChunks.push(rawChunk.Body as Buffer)
+  // }
+  // console.log(rawChunks)
 
   activePlayback.deserializer = ECSSerialization.createDeserializer(
-    chunks,
+    entityChunks,
     schema.map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema).filter(Boolean)
   )
 

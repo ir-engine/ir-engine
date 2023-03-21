@@ -1,3 +1,4 @@
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import { matches, matchesUserId } from '../common/functions/MatchesUtils'
@@ -40,9 +41,51 @@ export const stopRecording = (args: { recordingID: string }) => {
   })
 }
 
+export const startPlayback = (args: { recordingID: string; targetUser: UserId }) => {
+  const { recordingID, targetUser } = args
+  const action = ECSRecordingActions.startPlayback({
+    recordingID,
+    targetUser
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.world,
+    $to: Engine.instance.worldNetwork.hostId
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.media,
+    $to: Engine.instance.mediaNetwork.hostId
+  })
+}
+
+export const stopPlayback = (args: { recordingID: string; targetUser: UserId }) => {
+  const { recordingID, targetUser } = args
+  const action = ECSRecordingActions.stopPlayback({
+    recordingID,
+    targetUser
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.world,
+    $to: Engine.instance.worldNetwork.hostId
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.media,
+    $to: Engine.instance.mediaNetwork.hostId
+  })
+}
+
 export const ECSRecordingFunctions = {
   startRecording,
-  stopRecording
+  stopRecording,
+  startPlayback,
+  stopPlayback
 }
 
 export class ECSRecordingActions {

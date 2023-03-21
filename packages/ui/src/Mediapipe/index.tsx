@@ -84,6 +84,7 @@ const Mediapipe = () => {
       ECSRecordingFunctions.stopRecording({
         recordingID: recordingState.recordingID.value
       })
+      RecordingFunctions.getRecordings()
     } else if (!recordingState.started.value) {
       RecordingFunctions.startRecording().then((recordingID) => {
         if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
@@ -205,20 +206,33 @@ const Mediapipe = () => {
         <canvas ref={canvasRef} />
       </div>
       {ready && (
-        <>
+        <div className="relative">
           <button
-            className="absolute bottom-0 right-0  bg-grey pointer-events-auto"
+            className="bottom-0 right-0  bg-grey pointer-events-auto"
             style={{ pointerEvents: 'all' }}
             onClick={onToggleRecording}
           >
             {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Start'}
           </button>
-          {recordingState.recordings.value.map((recording) => (
-            <div key={recording.id} className="absolute bottom-0 left-0 bg-grey pointer-events-auto">
-              {recording.id}
-            </div>
-          ))}
-        </>
+          <div>
+            {recordingState.recordings.value.map((recording) => (
+              <div key={recording.id} className="bg-grey pointer-events-auto">
+                {/* a button to play back the recording */}
+                <button
+                  style={{ pointerEvents: 'all' }}
+                  onClick={() => {
+                    ECSRecordingFunctions.startPlayback({
+                      recordingID: recording.id,
+                      targetUser: Engine.instance.userId
+                    })
+                  }}
+                >
+                  Play - {recording.id}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )
