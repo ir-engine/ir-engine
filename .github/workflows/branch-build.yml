@@ -18,9 +18,6 @@ jobs:
             echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   compile-codebase:
-    needs:
-      - secrets-gate
-    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
