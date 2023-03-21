@@ -47,8 +47,8 @@ const checkIdentityProvider = (): any => {
 const checkOnlyIdentityProvider = () => {
   return async (context: HookContext): Promise<HookContext> => {
     if (!context.id) {
-      // If trying to delete multiple providers, do not check if only 1 identity provider exists
-      return context
+      // do not allow to remove identity providers in bulk
+      throw new MethodNotAllowed('Cannot remove multiple providers together')
     }
 
     const thisIdentityProvider = await (context.app.service('identity-provider') as any).Model.findByPk(context.id)
