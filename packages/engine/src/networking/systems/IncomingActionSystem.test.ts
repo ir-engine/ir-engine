@@ -48,7 +48,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
@@ -78,7 +78,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
@@ -104,7 +104,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */

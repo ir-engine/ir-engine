@@ -7,7 +7,7 @@ export const AppLoadingStates = {
   SUCCESS: 'SUCCESS' as const
 }
 
-type AppLoadingStatesType = typeof AppLoadingStates[keyof typeof AppLoadingStates]
+type AppLoadingStatesType = (typeof AppLoadingStates)[keyof typeof AppLoadingStates]
 
 //State
 export const AppLoadingState = defineState({
