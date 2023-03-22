@@ -5,8 +5,7 @@ import { createHyperStore, getMutableState, getState, hookstate, ReactorRoot, St
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
-import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createScene, Scene } from './Scene'
+import { NetworkTopics } from '../../networking/classes/Network'
 
 import '../utils/threejsPatches'
 
@@ -62,7 +61,7 @@ import {
   setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
-import { EntityTreeComponent } from '../functions/EntityTree'
+import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
 import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { EngineState } from './EngineState'
@@ -99,7 +98,7 @@ export class Engine {
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
 
-    this.currentScene = createScene()
+    initializeSceneEntity()
   }
 
   api: FeathersApplication<ServiceTypes>
@@ -132,11 +131,6 @@ export class Engine {
   }
 
   engineTimer = null! as ReturnType<typeof Timer>
-
-  /**
-   * The current world
-   */
-  currentScene: Scene = null!
 
   /**
    * get the default world network

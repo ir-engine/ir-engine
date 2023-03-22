@@ -19,7 +19,6 @@ import EditorControlSystem, { createTransformGizmo } from '../systems/EditorCont
 import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
 import GizmoSystem from '../systems/GizmoSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
-import RenderSystem from '../systems/RenderSystem'
 
 export const EditorPage = () => {
   const params = useParams()
@@ -34,12 +33,6 @@ export const EditorPage = () => {
   const [engineReady, setEngineReady] = useState(true)
 
   const systems = [
-    {
-      uuid: 'core.editor.RenderSystem',
-      systemLoader: () => Promise.resolve({ default: RenderSystem }),
-      type: SystemUpdateType.POST_RENDER,
-      args: { enabled: true }
-    },
     {
       uuid: 'core.editor.EditorFlyControlSystem',
       systemLoader: () => Promise.resolve({ default: EditorFlyControlSystem }),

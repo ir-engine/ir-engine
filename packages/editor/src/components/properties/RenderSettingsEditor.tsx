@@ -84,7 +84,7 @@ const ShadowTypeOptions = [
 
 export const RenderSettingsEditor = () => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene))
+  const rendererState = useHookstate(getRendererSceneMetadataState())
   const renderer = rendererState.get({ noproxy: true })
 
   return (

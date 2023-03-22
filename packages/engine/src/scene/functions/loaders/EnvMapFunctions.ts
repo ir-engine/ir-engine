@@ -14,11 +14,14 @@ import {
   Vector3
 } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
+import { SceneState } from '../../../ecs/classes/Scene'
 import { getComponent, getOptionalComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { isHeadset } from '../../../xr/XRState'
 import { EnvMapBakeComponent } from '../../components/EnvMapBakeComponent'
@@ -37,7 +40,7 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
   data: ReturnType<typeof EnvmapComponent.toJSON>
 ) => {
   if (!isClient) return
-  if (entity === Engine.instance.currentScene.sceneEntity) return
+  if (entity === getState(SceneState).sceneEntity) return
   setComponent(entity, EnvmapComponent, data)
 }
 
