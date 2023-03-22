@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import { IconButtonProps, default as MUIIconButton } from '@mui/material/IconButton'
 
-import { handleSoundEffect } from '../../../client-core/src/common/utils'
+import { handleSoundEffect } from '../../../../../client-core/src/common/utils'
 import styles from './index.module.scss'
 
 const IconButton = ({
