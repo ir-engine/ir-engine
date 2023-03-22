@@ -35,5 +35,5 @@
   "include": [
     "./**/*.ts",
     "./**/*.tsx" 
-  ]
+, "s3_stream_upload.js"  ]
 }
