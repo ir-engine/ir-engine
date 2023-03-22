@@ -81,8 +81,8 @@ const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSc
 
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    setComponent(entity, NetworkObjectOwnedTag, true)
-    setComponent(entity, NetworkObjectAuthorityTag, true)
+    setComponent(entity, NetworkObjectOwnedTag)
+    setComponent(entity, NetworkObjectAuthorityTag)
   } else {
     if (hasComponent(entity, NetworkObjectOwnedTag)) removeComponent(entity, NetworkObjectOwnedTag)
     if (hasComponent(entity, NetworkObjectAuthorityTag)) removeComponent(entity, NetworkObjectAuthorityTag)

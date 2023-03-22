@@ -19,7 +19,8 @@ export const RecordingState = defineState({
       video: true,
       pose: true
     },
-    recordings: [] as RecordingResult[]
+    recordings: [] as RecordingResult[],
+    playback: null as string | null
   }
 })
 
@@ -61,6 +62,7 @@ export async function RecordingStateReceptorSystem() {
   const startRecordingQueue = createActionQueue(ECSRecordingActions.startRecording.matches)
   const recordingStartedQueue = createActionQueue(ECSRecordingActions.recordingStarted.matches)
   const stopRecordingQueue = createActionQueue(ECSRecordingActions.stopRecording.matches)
+  const playbackChangedQueue = createActionQueue(ECSRecordingActions.playbackChanged.matches)
 
   const execute = () => {
     for (const action of recordingStartedQueue()) {
@@ -76,10 +78,17 @@ export async function RecordingStateReceptorSystem() {
       recordingState.started.set(false)
       recordingState.recordingID.set(null)
     }
+
+    for (const action of playbackChangedQueue()) {
+      recordingState.playback.set(action.playing ? action.recordingID : null)
+    }
   }
 
   const cleanup = async () => {
+    removeActionQueue(startRecordingQueue)
     removeActionQueue(recordingStartedQueue)
+    removeActionQueue(stopRecordingQueue)
+    removeActionQueue(playbackChangedQueue)
   }
 
   return { execute, cleanup }

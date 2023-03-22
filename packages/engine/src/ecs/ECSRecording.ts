@@ -110,6 +110,13 @@ export class ECSRecordingActions {
     targetUser: matchesUserId
   })
 
+  static playbackChanged = defineAction({
+    type: 'ee.core.motioncapture.PLAYBACK_CHANGED' as const,
+    recordingID: matches.string,
+    targetUser: matchesUserId,
+    playing: matches.boolean
+  })
+
   static stopPlayback = defineAction({
     type: 'ee.core.motioncapture.STOP_PLAYBACK' as const,
     recordingID: matches.string,

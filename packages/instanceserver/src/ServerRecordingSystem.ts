@@ -6,13 +6,10 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import {
-  ECSDeserializer,
-  ECSSerialization,
-  ECSSerializer,
-  SerializedChunk
-} from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
+import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import {
   addDataChannelHandler,
   dataChannelRegistry,
@@ -31,7 +28,8 @@ import { getStorageProvider } from '@etherealengine/server-core/src/media/storag
 import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 
-import { getServerNetwork } from './SocketWebRTCServerFunctions'
+import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
+import { createOutgoingDataProducer } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:recording' })
 
@@ -48,8 +46,8 @@ interface ActivePlayback {
   mediaPlayback?: any // todo
 }
 
-interface DataChannelFrame {
-  data: Buffer[]
+interface DataChannelFrame<T> {
+  data: T[]
   timecode: number
 }
 
@@ -95,8 +93,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     return dispatchError('Could not create recording folder' + error.message, userID)
   }
 
-  /** @todo - support multiple data channels for each user or peer */
-  const dataChannelsRecording = new Map<DataChannelType, DataChannelFrame[]>()
+  const dataChannelsRecording = new Map<DataChannelType, DataChannelFrame<any>[]>()
 
   const startTime = Date.now()
 
@@ -126,20 +123,36 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
       .filter(Boolean)
 
-    if (serializationSchema.length) {
-      activeRecording.serializer = ECSSerialization.createSerializer({
-        entities: () => {
-          return [Engine.instance.getUserAvatarEntity(userID)]
-        },
-        schema: serializationSchema,
-        chunkLength,
-        onCommitChunk(chunk, chunkIndex) {
-          if (chunk.length) {
+    activeRecording.serializer = ECSSerialization.createSerializer({
+      entities: () => {
+        return [Engine.instance.getUserAvatarEntity(userID)]
+      },
+      schema: serializationSchema,
+      chunkLength,
+      onCommitChunk(chunk, chunkIndex) {
+        storageProvider
+          .putObject(
+            {
+              Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.bin',
+              Body: chunk,
+              ContentType: 'application/octet-stream'
+            },
+            {
+              isDirectory: false
+            }
+          )
+          .then(() => {
+            logger.info('Uploaded entities chunk', chunkIndex)
+          })
+
+        for (const [dataChannel, data] of dataChannelsRecording.entries()) {
+          if (data.length) {
+            let count = chunkIndex
             storageProvider
               .putObject(
                 {
-                  Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.bin',
-                  Body: chunk,
+                  Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.bin',
+                  Body: encode(data),
                   ContentType: 'application/octet-stream'
                 },
                 {
@@ -147,33 +160,13 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
                 }
               )
               .then(() => {
-                logger.info('Uploaded entities chunk', chunkIndex)
+                logger.info('Uploaded raw chunk', count)
               })
           }
-
-          for (const [dataChannel, data] of dataChannelsRecording.entries()) {
-            if (data.length) {
-              let count = chunkIndex
-              storageProvider
-                .putObject(
-                  {
-                    Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.bin',
-                    Body: encode(data),
-                    ContentType: 'application/octet-stream'
-                  },
-                  {
-                    isDirectory: false
-                  }
-                )
-                .then(() => {
-                  logger.info('Uploaded raw chunk', count)
-                })
-            }
-            dataChannelsRecording.set(dataChannel, [])
-          }
+          dataChannelsRecording.set(dataChannel, [])
         }
-      })
-    }
+      }
+    })
 
     const dataChannelSchema = schema
       .filter((component: DataChannelType) => dataChannelRegistry.has(component))
@@ -190,7 +183,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       .filter(Boolean)
 
     for (const dataChannel of dataChannelSchema) {
-      // start recording data channel
+      /** @todo */
     }
   }
 
@@ -263,7 +256,6 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const activePlayback = {
     userID: action.targetUser
-    // todo - playback
   } as ActivePlayback
 
   const storageProvider = getStorageProvider()
@@ -278,7 +270,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     (data) => data.Body
   )
 
-  const dataChannelChunks = new Map<DataChannelType, DataChannelFrame[][]>()
+  const dataChannelChunks = new Map<DataChannelType, DataChannelFrame<any>[][]>()
 
   await Promise.all(
     rawFiles.map(async (file) => {
@@ -289,7 +281,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     })
   )
 
-  console.log(dataChannelChunks)
+  const network = getServerNetwork(app) as SocketWebRTCServerNetwork
 
   activePlayback.deserializer = ECSSerialization.createDeserializer({
     chunks: entityChunks,
@@ -300,14 +292,43 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
       for (const [dataChannel, chunks] of dataChannelChunks) {
         const chunk = chunks[chunkIndex]
         setDataChannelChunkToReplay(user.id, dataChannel, chunk)
+        createOutgoingDataProducer(network, dataChannel)
       }
     },
     onEnd: () => {
-      removeDataChannelToReplay(user.id)
+      playbackStopped(user.id, recording.id)
     }
   })
 
   activePlaybacks.set(action.recordingID, activePlayback)
+
+  /** We only need to dispatch once, so do it on the world server */
+  if (Engine.instance.worldNetwork) {
+    dispatchAction(
+      ECSRecordingActions.playbackChanged({
+        recordingID: action.recordingID,
+        targetUser: action.targetUser,
+        playing: true,
+        $topic: network.topic
+      })
+    )
+
+    /** Take control of avatar while avatar is live */
+    /** @todo, how do we  */
+
+    // const targetEntity = Engine.instance.getUserAvatarEntity(user.id)
+    // if (!targetEntity) return
+
+    // const networkObject = getComponent(targetEntity, NetworkObjectComponent)
+    // dispatchAction(
+    //   WorldNetworkAction.transferAuthorityOfObject({
+    //     ownerId: networkObject.ownerId,
+    //     networkId: networkObject.networkId,
+    //     newAuthority: Engine.instance.worldNetwork?.peerID
+    //   })
+    // )
+    // setComponent(controlledEntity, NetworkObjectAuthorityTag)
+  }
 }
 
 export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActions.stopPlayback>) => {
@@ -328,25 +349,43 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
   }
 
   if (activePlayback.mediaPlayback) {
-    // stop recording media
+    /** @todo */
   }
 
-  removeDataChannelToReplay(user.id)
+  playbackStopped(user.id, recording.id)
+}
 
-  activePlaybacks.delete(action.recordingID)
+const playbackStopped = (userId: UserId, recordingID: string) => {
+  const app = getState(ServerState).app as Application
 
-  await app.service('recording').patch(action.recordingID, { ended: true })
+  removeDataChannelToReplay(userId)
+
+  activePlaybacks.delete(recordingID)
+
+  /** We only need to dispatch once, so do it on the world server */
+  if (Engine.instance.worldNetwork) {
+    app.service('recording').patch(recordingID, { ended: true }, { isInternal: true })
+
+    dispatchAction(
+      ECSRecordingActions.playbackChanged({
+        recordingID,
+        targetUser: userId,
+        playing: false,
+        $topic: getServerNetwork(app).topic
+      })
+    )
+  }
 }
 
 export const dataChannelToReplay = new Map<
   UserId,
-  Map<DataChannelType, { startTime: number; frames: DataChannelFrame[] }>
+  Map<DataChannelType, { startTime: number; frames: DataChannelFrame<any>[] }>
 >()
 
 export const setDataChannelChunkToReplay = (
   userId: UserId,
   dataChannel: DataChannelType,
-  frames: DataChannelFrame[]
+  frames: DataChannelFrame<any>[]
 ) => {
   if (!dataChannelToReplay.has(userId)) {
     dataChannelToReplay.set(userId, new Map())
@@ -386,9 +425,10 @@ export default async function ServerRecordingSystem() {
         for (const [dataChannel, chunk] of userMap) {
           for (const frame of chunk.frames) {
             if (frame.timecode > Date.now() - chunk.startTime) {
-              for (const peerID of network.users.get(userId)!) {
-                network.transport.bufferToPeer(dataChannel, peerID, frame)
-              }
+              network.transport.bufferToAll(dataChannel, encode(frame.data))
+              // for (const peerID of network.users.get(userId)!) {
+              //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
+              // }
               break
             }
           }

@@ -54,9 +54,9 @@ export const CaptureLocation = () => {
 
   return (
     <>
-      <CaptureUI>
-        <Mediapipe />
-      </CaptureUI>
+      {/* <CaptureUI> */}
+      <Mediapipe />
+      {/* </CaptureUI> */}
       <NetworkInstanceProvisioning />
       <LocationIcons />
       <LoadLocationScene />

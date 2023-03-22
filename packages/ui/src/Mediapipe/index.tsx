@@ -12,6 +12,7 @@ import {
 } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
+  closeDataProducer,
   SocketWebRTCClientNetwork,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -19,7 +20,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import LoadingCircle from '../primitives/tailwind/LoadingCircle'
 
@@ -37,16 +38,26 @@ const startDataProducer = async () => {
     protocol: 'raw'
   })
   dataProducer.on('transportclose', () => {
-    console.log('transportclose')
+    network.dataProducers.delete(mocapDataChannelType)
   })
   network.dataProducers.set(mocapDataChannelType, dataProducer)
 }
 
 /**
- * Our results schema is the following:
- *   [length, x0, y0, z0, visible, x1, y1, z1, visible, ...]
- * @param results
+ * Start playback of a recording
+ * - If we are streaming data, close the data producer
  */
+const startPlayback = async (recordingID) => {
+  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
+    await closeDataProducer(network, mocapDataChannelType)
+  }
+  ECSRecordingFunctions.startPlayback({
+    recordingID,
+    targetUser: Engine.instance.userId
+  })
+}
+
 const sendResults = (results: NormalizedLandmarkList) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.sendTransport) return
@@ -100,6 +111,8 @@ const Mediapipe = () => {
 
   const onResults: ResultsListener = useCallback(
     (results) => {
+      // todo, when playing back, we should be displaying the playback data instead of live data
+      if (recordingState.playback.value) return
       if (canvasCtxRef.current !== null && canvasRef.current !== null) {
         const { poseWorldLandmarks, poseLandmarks } = results
         if (canvasCtxRef.current && poseLandmarks?.length) {
@@ -212,23 +225,29 @@ const Mediapipe = () => {
             style={{ pointerEvents: 'all' }}
             onClick={onToggleRecording}
           >
-            {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Start'}
+            {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Record'}
           </button>
           <div>
             {recordingState.recordings.value.map((recording) => (
               <div key={recording.id} className="bg-grey pointer-events-auto">
                 {/* a button to play back the recording */}
-                <button
-                  style={{ pointerEvents: 'all' }}
-                  onClick={() => {
-                    ECSRecordingFunctions.startPlayback({
-                      recordingID: recording.id,
-                      targetUser: Engine.instance.userId
-                    })
-                  }}
-                >
-                  Play - {recording.id}
-                </button>
+                {recordingState.playback.value === recording.id ? (
+                  <button
+                    style={{ pointerEvents: 'all' }}
+                    onClick={() => {
+                      ECSRecordingFunctions.stopPlayback({
+                        recordingID: recording.id,
+                        targetUser: Engine.instance.userId
+                      })
+                    }}
+                  >
+                    Stop - {recording.id}
+                  </button>
+                ) : (
+                  <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id)}>
+                    Play - {recording.id}
+                  </button>
+                )}
               </div>
             ))}
           </div>

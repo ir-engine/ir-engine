@@ -72,9 +72,24 @@ export async function startWebRTC() {
   return { routers, workers }
 }
 
-export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetwork, options: DataProducerOptions) => {
-  logger.info('createOutgoingDataProducer %o', options)
-  const outgoingDataProducer = await network.outgoingDataTransport.produceData(options)
+/**
+ * Creates a new WebRTC transport for the given data channel.
+ */
+export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetwork, dataChannel: DataChannelType) => {
+  if (network.outgoingDataProducers[dataChannel]) return
+
+  logger.info('createOutgoingDataProducer %o', dataChannel)
+
+  const outgoingDataProducer = await network.outgoingDataTransport.produceData({
+    label: dataChannel,
+    protocol: 'raw',
+    // sctpStreamParameters: {
+    //   ordered: sctpStreamParameters.ordered
+    // },
+    appData: {
+      peerID: 'outgoingProducer'
+    }
+  })
 
   const currentRouter = network.routers.instance[0]
 
@@ -86,7 +101,7 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
     })
   )
 
-  return outgoingDataProducer
+  network.outgoingDataProducers[dataChannel] = outgoingDataProducer
 }
 
 export const sendNewProducer =
@@ -175,19 +190,7 @@ export const handleWebRtcConsumeData = async (
   }
 
   const { label } = data
-  if (!network.outgoingDataProducers[label]) {
-    const outgoingDataProducer = await createOutgoingDataProducer(network, {
-      label,
-      protocol: 'raw',
-      // sctpStreamParameters: {
-      //   ordered: sctpStreamParameters.ordered
-      // },
-      appData: {
-        peerID: 'outgoingProducer'
-      }
-    })
-    network.outgoingDataProducers[label] = outgoingDataProducer
-  }
+  await createOutgoingDataProducer(network, label)
 
   const userId = getUserIdFromPeerID(network, peerID)!
   logger.info('Data Consumer being created on server by client: ' + userId)
@@ -664,12 +667,19 @@ export async function handleWebRtcCloseProducer(network: SocketWebRTCServerNetwo
   const { producerId } = data
   const producer = network.producers.find((p) => p.id === producerId)!
   try {
-    const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-      return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
+    const hostClient = Array.from(network.peers.values()).find((peer) => {
+      return peer.media && peer.media![producer.appData.mediaTag]?.producerId === producerId
     })!
-    if (hostClient && hostClient[1])
-      hostClient[1].spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
-    await closeProducerAndAllPipeProducers(network, producer)
+    if (hostClient) {
+      await closeProducerAndAllPipeProducers(network, producer)
+      spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
+      return
+    }
+    if (producer) {
+      await closeProducer(network, producer)
+      spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
+      return
+    }
   } catch (err) {
     logger.error(err, 'Error closing WebRTC producer.')
   }
