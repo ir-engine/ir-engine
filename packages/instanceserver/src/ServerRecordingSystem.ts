@@ -355,7 +355,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
 }
 
 const playbackStopped = (userId: UserId, recordingID: string) => {
-  const app = getState(ServerState).app as Application
+  const app = Engine.instance.api as Application
 
   removeDataChannelToReplay(userId)
 
@@ -408,7 +408,7 @@ export default async function ServerRecordingSystem() {
   const startPlaybackActionQueue = createActionQueue(ECSRecordingActions.startPlayback.matches)
   const stopPlaybackActionQueue = createActionQueue(ECSRecordingActions.stopPlayback.matches)
 
-  const app = getState(ServerState).app as Application
+  const app = Engine.instance.api as Application
 
   const execute = () => {
     for (const action of startRecordingActionQueue()) onStartRecording(action)
