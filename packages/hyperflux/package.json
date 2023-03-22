@@ -16,7 +16,7 @@
     "url": "https://github.com/etherealengine/etherealengine/issues"
   },
   "dependencies": {
-    "@hookstate/core": "4.0.0",
+    "@hookstate/core": "4.0.0-rc21",
     "react-reconciler": "^0.29.0"
   },
   "devDependencies": {

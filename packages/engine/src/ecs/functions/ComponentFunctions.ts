@@ -1,6 +1,6 @@
 import { subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
-import React, { experimental_use, startTransition, useEffect, useLayoutEffect } from 'react'
+import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
 import type from 'react/experimental'
 
 import config from '@etherealengine/common/src/config'
@@ -389,7 +389,7 @@ export function useQuery(components: QueryComponents) {
   return result.value
 }
 
-// experimental_use seems to be unavailable in the server environment
+// use seems to be unavailable in the server environment
 function _use(promise) {
   if (promise.status === 'fulfilled') {
     return promise.value
@@ -420,7 +420,7 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (!hasComponent)
-    (experimental_use ?? _use)(
+    (use ?? _use)(
       new Promise<void>((resolve) => {
         const unsubscribe = Component.existenceMap[entity].subscribe((value) => {
           if (value) {

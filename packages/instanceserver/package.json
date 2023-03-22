@@ -59,7 +59,7 @@
     "feathers-sync": "3.0.2",
     "helmet": "6.0.1",
     "mediasoup": "3.11.14",
-    "ps-list": "8.1.1",
+    "ps-list": "7.2.0",
     "serve-favicon": "2.5.0",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.9.1",

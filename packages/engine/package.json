@@ -35,6 +35,7 @@
     "@etherealengine/hyperflux": "^1.2.0-rc6",
     "@etherealengine/volumetric": "^1.1.1",
     "@etherealengine/xrui": "^1.2.0-rc6",
+    "@hookstate/core": "4.0.0-rc21",
     "@mediapipe/pose": "^0.5.1675469404",
     "@pixiv/three-vrm": "^1.0.9",
     "@tweenjs/tween.js": "^18.6.4",
