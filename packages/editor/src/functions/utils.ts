@@ -50,7 +50,7 @@ export const isApple = () => {
   return iOS_1to12 || iOS13_iPad || iOS1to12quirk()
 }
 
-export const cmdOrCtrlString = isApple() ? '⌘' : 'ctrl'
+export const cmdOrCtrlString = isApple() ? 'meta' : 'ctrl'
 
 export function getStepSize(event, smallStep, mediumStep, largeStep) {
   if (event.altKey) {
