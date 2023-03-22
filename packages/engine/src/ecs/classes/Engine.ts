@@ -11,6 +11,7 @@ import { createScene, Scene } from './Scene'
 import '../utils/threejsPatches'
 
 import { EventQueue } from '@dimforge/rapier3d-compat'
+import type { FeathersApplication } from '@feathersjs/feathers'
 import { Not } from 'bitecs'
 import {
   BoxGeometry,
@@ -24,6 +25,7 @@ import {
   Vector2
 } from 'three'
 
+import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
@@ -99,6 +101,8 @@ export class Engine {
 
     this.currentScene = createScene()
   }
+
+  api: FeathersApplication<ServiceTypes>
 
   tickRate = 60
 

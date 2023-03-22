@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -30,6 +31,7 @@ const defaultBuildStatus = {
 }
 
 const BuildStatusDrawer = ({ open, onClose }: Props) => {
+  const { t } = useTranslation()
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(10)
   const selectedStatusId = useHookstate(0)
@@ -137,7 +139,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
-        <DialogTitle className={styles.textAlign}></DialogTitle>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.project.buildStatus')}</DialogTitle>
         <TableComponent
           allowSort={false}
           fieldOrder={fieldOrder.value}

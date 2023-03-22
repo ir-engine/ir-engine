@@ -25,7 +25,6 @@ import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -35,7 +34,7 @@ const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
 export const setupSubdomain = async () => {
-  const app = getState(ServerState).app as Application
+  const app = Engine.instance.api as Application
   let stringSubdomainNumber: string
 
   if (config.kubernetes.enabled) {
@@ -83,7 +82,7 @@ export const setupSubdomain = async () => {
 }
 
 export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: number): Promise<string> {
-  const app = getState(ServerState).app
+  const app = Engine.instance.api as Application
 
   const stringSubdomainNumber = subdomainNumber.toString().padStart(config.instanceserver.identifierDigits, '0')
   const subdomainResult = await app.service('instanceserver-subdomain-provision').find({
@@ -270,7 +269,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
   const spectating = network.peers.get(peerID)!.spectating
 
-  const app = getState(ServerState).app
+  const app = Engine.instance.api as Application
 
   app.service('message').create(
     {
@@ -316,7 +315,7 @@ export async function handleJoinWorld(
     id: messageId
   })
 
-  const app = getState(ServerState).app
+  const app = Engine.instance.api as Application
 
   if (data.inviteCode && !app.isChannelInstance) await getUserSpawnFromInvite(network, user, data.inviteCode!)
 }
@@ -328,7 +327,7 @@ const getUserSpawnFromInvite = async (
   iteration = 0
 ) => {
   if (inviteCode) {
-    const app = getState(ServerState).app
+    const app = Engine.instance.api as Application
     const result = (await app.service('user').find({
       query: {
         action: 'invite-code-lookup',
@@ -415,7 +414,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
     const state = getMutableState(WorldState)
     const userName = state.userNames[userId].value
 
-    const app = getState(ServerState).app
+    const app = Engine.instance.api as Application
     app.service('message').create(
       {
         targetObjectId: app.instance.id,
