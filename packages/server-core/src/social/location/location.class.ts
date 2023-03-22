@@ -327,17 +327,19 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       await this.Model.update(locationData, { where: { id }, transaction: t }) // super.patch(id, locationData, params);
 
-      await this.app.service('location-settings').Model.update(
-        {
-          videoEnabled: !!location_settings.videoEnabled,
-          audioEnabled: !!location_settings.audioEnabled,
-          faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
-          screenSharingEnabled: !!location_settings.screenSharingEnabled,
-          maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
-          locationType: location_settings.locationType || 'private'
-        },
-        { where: { id: oldSettings.id }, transaction: t }
-      )
+      if (location_settings) {
+        await this.app.service('location-settings').Model.update(
+          {
+            videoEnabled: !!location_settings.videoEnabled,
+            audioEnabled: !!location_settings.audioEnabled,
+            faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
+            screenSharingEnabled: !!location_settings.screenSharingEnabled,
+            maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
+            locationType: location_settings.locationType || 'private'
+          },
+          { where: { id: oldSettings.id }, transaction: t }
+        )
+      }
 
       await t.commit()
       const location = await this.Model.findOne({
@@ -349,7 +351,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     } catch (err) {
       logger.error(err)
       await t.rollback()
-      if (err.errors[0].message === 'slugifiedName must be unique') {
+      if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use')
       }
       throw err
