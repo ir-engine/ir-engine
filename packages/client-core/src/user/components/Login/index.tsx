@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/Button'
-import CardMedia from '@etherealengine/ui/src/CardMedia'
-import Icon from '@etherealengine/ui/src/Icon'
-import Typography from '@etherealengine/ui/src/Typography'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import CardMedia from '@etherealengine/ui/src/primitives/mui/CardMedia'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import Fab from '@mui/material/Fab'
 

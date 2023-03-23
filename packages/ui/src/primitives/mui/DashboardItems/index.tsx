@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 export const SidebarItems = (allowedRoutes) => [
   allowedRoutes.analytics && {

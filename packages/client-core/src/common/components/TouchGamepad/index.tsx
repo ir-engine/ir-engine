@@ -7,7 +7,7 @@ import { ButtonTypes } from '@etherealengine/engine/src/input/InputState'
 import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { useIsHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'

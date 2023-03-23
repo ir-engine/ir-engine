@@ -2,7 +2,7 @@ import React from 'react'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppAction, AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'

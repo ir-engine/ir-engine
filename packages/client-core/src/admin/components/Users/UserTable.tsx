@@ -5,9 +5,9 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Icon from '@etherealengine/ui/src/Icon'
-import Tooltip from '@etherealengine/ui/src/Tooltip'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'

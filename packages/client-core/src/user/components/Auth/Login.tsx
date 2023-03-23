@@ -2,9 +2,9 @@ import React, { Fragment, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
-import Tab from '@etherealengine/ui/src/Tab'
-import Tabs from '@etherealengine/ui/src/Tabs'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
+import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 
 import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'

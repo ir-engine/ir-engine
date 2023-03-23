@@ -5,7 +5,7 @@ import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/Medi
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppAction } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'

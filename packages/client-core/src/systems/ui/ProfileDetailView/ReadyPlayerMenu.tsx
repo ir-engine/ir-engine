@@ -15,8 +15,8 @@ import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loa
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
-import CircularProgress from '@etherealengine/ui/src/CircularProgress'
-import Icon from '@etherealengine/ui/src/Icon'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { loadAvatarForPreview, resetAnimationLogic, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'

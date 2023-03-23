@@ -16,7 +16,7 @@ import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunc
 import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { addActionReceptor, dispatchAction, getMutableState, removeActionReceptor } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import Mediapipe from '@etherealengine/ui/src/Mediapipe'
+import Mediapipe from '@etherealengine/ui/src/primitives/mui/Mediapipe'
 
 const systems = [...MediaModule(), ...MotionCaptureModule()]
 

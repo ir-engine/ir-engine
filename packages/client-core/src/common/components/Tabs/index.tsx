@@ -1,7 +1,7 @@
 import React from 'react'
 
-import Tab from '@etherealengine/ui/src/Tab'
-import { default as MUITabs } from '@etherealengine/ui/src/Tabs'
+import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
+import { default as MUITabs } from '@etherealengine/ui/src/primitives/mui/Tabs'
 
 import { SxProps, Theme } from '@mui/material/styles'
 
