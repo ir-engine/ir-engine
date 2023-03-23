@@ -29,7 +29,6 @@ import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
 
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 
@@ -52,7 +51,7 @@ export const activeRecordings = new Map<string, ActiveRecording>()
 export const activePlaybacks = new Map<string, ActivePlayback>()
 
 export const dispatchError = (error: string, targetUser: UserId) => {
-  const app = getState(ServerState).app as Application as Application
+  const app = Engine.instance.api as Application as Application
   dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
 }
 
@@ -64,7 +63,7 @@ const mediaDataChannels = [
 ]
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
-  const app = getState(ServerState).app as Application as Application
+  const app = Engine.instance.api as Application as Application
 
   const recording = await app.service('recording').get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$from)
@@ -192,7 +191,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 }
 
 export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActions.stopRecording>) => {
-  const app = getState(ServerState).app as Application
+  const app = Engine.instance.api as Application
 
   const activeRecording = activeRecordings.get(action.recordingID)
   if (!activeRecording) return dispatchError('Recording not found', action.$from)
@@ -231,7 +230,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 }
 
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
-  const app = getState(ServerState).app as Application
+  const app = Engine.instance.api as Application
 
   const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
 
@@ -258,7 +257,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 }
 
 export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActions.stopPlayback>) => {
-  const app = getState(ServerState).app as Application
+  const app = Engine.instance.api as Application
 
   const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
 

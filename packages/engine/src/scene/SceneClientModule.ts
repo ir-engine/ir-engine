@@ -4,6 +4,7 @@ import HyperspacePortalSystem from './systems/HyperspacePortalSystem'
 import InstancingSystem from './systems/InstancingSystem'
 import LightSystem from './systems/LightSystem'
 import ParticleSystem from './systems/ParticleSystemSystem'
+import PortalLoadSystem from './systems/PortalLoadSystem'
 import PortalSystem from './systems/PortalSystem'
 import SceneObjectDynamicLoadSystem from './systems/SceneObjectDynamicLoadSystem'
 
@@ -33,6 +34,11 @@ export function SceneClientModule() {
       uuid: 'xre.engine.InstancingSystem',
       type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: InstancingSystem })
+    },
+    {
+      uuid: 'ee.client.core.PortalLoadSystem',
+      type: SystemUpdateType.POST_RENDER,
+      systemLoader: () => Promise.resolve({ default: PortalLoadSystem })
     },
     {
       uuid: 'xre.engine.SceneObjectDynamicLoadSystem',

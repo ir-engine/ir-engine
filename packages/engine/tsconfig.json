@@ -33,6 +33,7 @@
     "**/node_modules/**"
   ],
   "include": [
+    "../server-core/src/",
     "./**/*.ts",
     "./**/*.tsx"
   ]
