@@ -23,3 +23,13 @@ const Template: ComponentStory<typeof Button> = (args) => <Button {...args} />
 
 export const Default = Template.bind({})
 Default.args = Button.defaultProps
+
+// import React from "react";
+// import {Meta, Story} from '@storybook/react';
+// import { Button, Props } from '/home/arnav/etherealengine/packages/ui/src/Button/index';
+// const meta: Meta ={
+//   title: 'Button',
+//   component:Button
+// }
+// export default meta;
+// export const Default = ()=><Button variant = "primary">Click Me</Button>
