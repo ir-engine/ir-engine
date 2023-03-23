@@ -3,6 +3,7 @@ import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   getComponent,
@@ -11,7 +12,6 @@ import {
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
@@ -29,22 +29,11 @@ export const DefaultExportOptions: DefaultExportOptionsType = {
   shouldRemoveUnusedObjects: true
 }
 
-type SceneStateType = {
-  isInitialized: boolean
-  onUpdateStats?: (info: WebGLInfo) => void
-}
-
-export const SceneState: SceneStateType = {
-  isInitialized: false
-}
-
 export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
-  SceneState.isInitialized = false
-
   if (!Engine.instance.scene) Engine.instance.scene = new Scene()
 
   // getting scene data
-  await updateSceneFromJSON(sceneData)
+  getMutableState(SceneState).sceneData.set(sceneData)
   await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
 
   dispatchAction(EditorHistoryAction.clearHistory({}))
@@ -77,8 +66,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
     InfiniteGridHelper.instance = new InfiniteGridHelper()
     Engine.instance.scene.add(InfiniteGridHelper.instance)
   }
-
-  SceneState.isInitialized = true
 
   return []
 }
@@ -150,7 +137,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
   if ((Engine.instance.scene as any).entity == undefined) {
-    ;(Engine.instance.scene as any).entity = Engine.instance.currentScene.sceneEntity
+    ;(Engine.instance.scene as any).entity = getState(SceneState).sceneEntity
   }
 
   const clonedScene = serializeForGLTFExport(Engine.instance.scene)

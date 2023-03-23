@@ -1,6 +1,7 @@
 import { PerspectiveCamera } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { addComponent, defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -16,6 +17,7 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getState } from '@etherealengine/hyperflux'
 
 import { getCanvasBlob } from './thumbnails'
 
@@ -51,7 +53,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
     setTransformComponent(entity, position, rotation)
     addObjectToGroup(entity, scenePreviewCamera)
-    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
+    addEntityNodeChild(entity, getState(SceneState).sceneEntity)
     scenePreviewCamera.updateMatrixWorld(true)
   }
 
@@ -64,7 +66,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   // Rendering the scene to the new canvas with given size
-  if (getPostProcessingSceneMetadataState(Engine.instance.currentScene).enabled.value) {
+  if (getPostProcessingSceneMetadataState().enabled.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.render()
     configureEffectComposer(false, Engine.instance.camera)

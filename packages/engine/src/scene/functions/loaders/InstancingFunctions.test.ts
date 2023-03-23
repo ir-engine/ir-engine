@@ -1,4 +1,3 @@
-import assert from 'assert'
 import { afterEach, beforeEach, describe } from 'mocha'
 import { createSandbox, SinonSandbox } from 'sinon'
 import { Color } from 'three'
@@ -8,15 +7,12 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { Scene } from '../../../ecs/classes/Scene'
-import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { createEngine, setupEngineActionSystems } from '../../../initializeEngine'
 import {
   GrassProperties,
-  InstancingComponent,
   SampleMode,
   ScatterMode,
   ScatterProperties,
