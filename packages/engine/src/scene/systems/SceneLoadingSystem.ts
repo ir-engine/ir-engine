@@ -211,7 +211,6 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
  */
 export const updateSceneFromJSON = async () => {
   const sceneState = getMutableState(SceneState)
-  if (!sceneState.sceneData.value) return
 
   if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
     dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
@@ -376,10 +375,11 @@ export default async function SceneLoadingSystem() {
 
   const sceneDataReactor = startReactor(() => {
     const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+    const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
 
     useEffect(() => {
-      updateSceneFromJSON()
-    }, [sceneData])
+      if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
+    }, [sceneData, isEngineInitialized])
 
     return null
   })

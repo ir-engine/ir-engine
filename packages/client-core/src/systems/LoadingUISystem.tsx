@@ -151,7 +151,6 @@ export default async function LoadingUISystem() {
   }
 
   const cleanup = async () => {
-    removeActionQueue(reactor.stop())
     removeActionQueue(avatarModelChangedQueue)
     removeActionQueue(spectateUserQueue)
     removeEntity(ui.entity)
