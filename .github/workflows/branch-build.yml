@@ -2,11 +2,6 @@ name: branch-build
 on:
   pull_request:
     branches: [dev]
-  push:
-    branches-ignore:
-      - dev
-      - master
-      - 'version-increment-*'
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest
