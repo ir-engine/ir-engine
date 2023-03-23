@@ -8,7 +8,7 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { FaceRetouchingNatural, Groups, Person } from '@mui/icons-material'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
