@@ -55,7 +55,7 @@ export default async function DebugRendererSystem() {
     useEffect(() => {
       const groupVisualizers = [] as MeshBVHVisualizer[]
 
-      function addMeshVVHVisualizer(obj: Mesh) {
+      function addMeshBVHVisualizer(obj: Mesh) {
         const mesh = obj as any as Mesh
         if (mesh.isMesh && mesh.geometry?.boundsTree) {
           const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
@@ -70,7 +70,7 @@ export default async function DebugRendererSystem() {
       }
 
       if (debug.value && group) {
-        for (const obj of group.value) obj.traverse(addMeshVVHVisualizer)
+        for (const obj of group.value) obj.traverse(addMeshBVHVisualizer)
         return () => {
           for (const visualizer of groupVisualizers) {
             visualizer.removeFromParent()
