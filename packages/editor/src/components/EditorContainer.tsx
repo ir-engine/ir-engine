@@ -12,8 +12,9 @@ import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getEngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
@@ -285,7 +286,7 @@ const EditorContainer = () => {
           )
         })) as any
         if (result && projectName.value) {
-          await uploadBPCEMBakeToServer(Engine.instance.currentScene.sceneEntity)
+          await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatchAction(EditorAction.sceneModified({ modified: false }))
         }
@@ -417,7 +418,7 @@ const EditorContainer = () => {
         if (result.generateThumbnails) {
           const blob = await takeScreenshot(512, 320)
 
-          await uploadBPCEMBakeToServer(Engine.instance.currentScene.sceneEntity)
+          await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
           await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
         } else {
           await saveScene(projectName.value, sceneName.value, null, abortController.signal)

@@ -3,10 +3,7 @@ on:
   pull_request:
     branches: [dev]
   push:
-    branches-ignore:
-      - dev
-      - master
-      - 'version-increment-*'
+    branches: [dev]
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest

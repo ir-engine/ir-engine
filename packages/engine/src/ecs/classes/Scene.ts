@@ -1,39 +1,20 @@
-import { State } from '@hookstate/core'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { defineState } from '@etherealengine/hyperflux'
 
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { UndefinedEntity } from './Entity'
 
-import { initializeSceneEntity } from '../functions/EntityTree'
-import { unloadAllSystems } from '../functions/SystemFunctions'
-import { Entity, UndefinedEntity } from './Entity'
+/** @todo support multiple scenes */
 
-export const CreateScene = Symbol('CreateScene')
-
-/** @todo rename Scene */
-export class Scene {
-  private constructor() {
-    // @todo do this as the scene loads instead of world creation
-    initializeSceneEntity(this)
-  }
-
-  static [CreateScene] = () => new Scene()
-
-  /**
-   * The scene entity
-   *  @todo support multiple scenes
-   */
-  sceneEntity: Entity = UndefinedEntity
-
-  sceneJson = null! as SceneJson
-
-  sceneMetadataRegistry = {} as Record<
-    string,
-    {
-      state: State<any>
-      default: any
-    }
-  >
+export type SceneMetadata<T> = {
+  data: T
+  default: any
 }
 
-export function createScene() {
-  return Scene[CreateScene]()
-}
+export const SceneState = defineState({
+  name: 'SceneState',
+  initial: () => ({
+    sceneData: null as SceneData | null,
+    sceneEntity: UndefinedEntity,
+    sceneMetadataRegistry: {} as Record<string, SceneMetadata<any>>
+  })
+})

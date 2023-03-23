@@ -2,6 +2,8 @@ import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+
 import authenticate from '../../hooks/authenticate'
 import accountService from '../auth-management/auth-management.notifier'
 
@@ -51,7 +53,13 @@ const checkOnlyIdentityProvider = () => {
       throw new MethodNotAllowed('Cannot remove multiple providers together')
     }
 
-    const thisIdentityProvider = await (context.app.service('identity-provider') as any).Model.findByPk(context.id)
+    const thisIdentityProvider = (await (context.app.service('identity-provider') as any).Model.findByPk(
+      context.id
+    )) as IdentityProviderInterface
+
+    // we only want to disallow removing the last identity provider if it is not a guest
+    // since the guest user will be destroyed once they log in
+    if (thisIdentityProvider.type === 'guest') return context
 
     const providers = await context.app
       .service('identity-provider')
