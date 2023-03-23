@@ -15,7 +15,6 @@ import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
 import { accessSelectionState } from '../services/SelectionServices'
-import { SceneState } from './sceneRenderFunctions'
 
 export const setTransformMode = (mode: TransformModeType): void => {
   if (mode === TransformMode.Placement || mode === TransformMode.Grab) {

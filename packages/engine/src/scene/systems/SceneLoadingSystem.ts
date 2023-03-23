@@ -211,6 +211,7 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
  */
 export const updateSceneFromJSON = async () => {
   const sceneState = getMutableState(SceneState)
+  if (!sceneState.sceneData.value) return
 
   if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
     dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))

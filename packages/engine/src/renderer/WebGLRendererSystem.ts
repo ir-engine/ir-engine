@@ -166,6 +166,7 @@ export class EngineRenderer {
     // @ts-ignore
     this.renderer.useLegacyLights = false //true
     this.renderer.outputEncoding = sRGBEncoding
+    this.renderer.info.autoReset = false
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
     this.renderer.debug.checkShaderErrors = false //isDev

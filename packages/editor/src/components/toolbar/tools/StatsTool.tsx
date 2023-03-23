@@ -35,7 +35,6 @@ async function RenderInfoSystem() {
   const execute = () => {
     if (state.visible.value) {
       const info = EngineRenderer.instance.renderer.info
-      info.reset()
 
       const fps = 1 / Engine.instance.deltaSeconds
       const frameTime = Engine.instance.deltaSeconds * 1000
@@ -50,6 +49,8 @@ async function RenderInfoSystem() {
         points: info.render.points,
         lines: info.render.lines
       })
+
+      info.reset()
     }
   }
 
