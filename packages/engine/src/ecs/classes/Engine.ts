@@ -12,17 +12,7 @@ import '../utils/threejsPatches'
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import type { FeathersApplication } from '@feathersjs/feathers'
 import { Not } from 'bitecs'
-import {
-  BoxGeometry,
-  Group,
-  Mesh,
-  MeshNormalMaterial,
-  Object3D,
-  Raycaster,
-  Shader,
-  Scene as THREEScene,
-  Vector2
-} from 'three'
+import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Object3D, Raycaster, Scene, Vector2 } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
@@ -206,7 +196,7 @@ export class Engine {
   /**
    * Reference to the three.js scene object.
    */
-  scene = new THREEScene()
+  scene = new Scene()
 
   /**
    * Map of object lists by layer
