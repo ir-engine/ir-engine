@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/Button'
-import Grid from '@etherealengine/ui/src/Grid'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import Search from '../../common/Search'
