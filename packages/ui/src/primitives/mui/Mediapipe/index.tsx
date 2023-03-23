@@ -21,7 +21,7 @@ import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import LoadingCircle from '../primitives/tailwind/LoadingCircle'
+import LoadingCircle from '../../tailwind/LoadingCircle'
 
 let creatingProducer = false
 const startDataProducer = async () => {
