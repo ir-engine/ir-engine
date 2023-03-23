@@ -220,7 +220,7 @@ export const applyGamepadInput = (entity: Entity) => {
   const verticalMovement = controller.verticalVelocity * deltaSeconds
   _additionalMovement.set(
     controller.gamepadWorldMovement.x,
-    (controller.isInAir || verticalMovement) > 0 ? verticalMovement : 0,
+    controller.isInAir || verticalMovement > 0 ? verticalMovement : 0,
     controller.gamepadWorldMovement.z
   )
 
