@@ -1,24 +1,20 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { StaticResourceService } from '@etherealengine/client-core/src/media/services/StaticResourceService'
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
-  getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { LODComponent } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 import { useState } from '@etherealengine/hyperflux'
 
@@ -31,6 +27,7 @@ import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import Well from '../layout/Well'
+import { LODProperties } from './LODProperties'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -53,19 +50,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
-  const obj3d = modelComponent.value.scene
 
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
-
-  const textureOverrideEntities = useState([] as { label: string; value: string }[])
-  useEffect(() => {
-    textureOverrideEntities.set(
-      iterateEntityNode(Engine.instance.currentScene.sceneEntity, (entity) => ({
-        label: getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent),
-        value: getComponent(entity, UUIDComponent)
-      }))
-    )
-  }, [])
 
   const onChangeEquippable = useCallback(() => {
     if (isEquippable.value) {
@@ -75,14 +61,15 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       addComponent(props.entity, EquippableComponent, true)
       isEquippable.set(true)
     }
-  }, [])
+  }, [entity])
 
-  const animations = loopAnimationComponent?.hasAvatarAnimations
-    ? AnimationManager.instance._animations
-    : obj3d?.animations ?? []
-
-  const animationOptions = [{ label: 'None', value: -1 }]
-  if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
+  const animationOptions = useState(() => {
+    const obj3d = modelComponent.value.scene
+    const animations = loopAnimationComponent?.hasAvatarAnimations
+      ? AnimationManager.instance._animations
+      : obj3d?.animations ?? []
+    return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
+  })
 
   const onExportModel = useCallback(() => {
     if (exporting.value) {
@@ -145,7 +132,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           key={props.entity}
-          options={animationOptions}
+          options={animationOptions.value}
           value={loopAnimationComponent?.activeClipIndex}
           onChange={updateProperty(LoopAnimationComponent, 'activeClipIndex')}
         />
@@ -158,6 +145,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
       <ShadowProperties entity={props.entity} />
+      {LODComponent.lodsByEntity[props.entity].value && <LODProperties entity={entity} />}
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting && modelComponent.src.value && (
         <Well>

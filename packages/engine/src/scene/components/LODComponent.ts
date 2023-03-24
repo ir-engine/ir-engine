@@ -13,11 +13,6 @@ export type LODLevel = {
   model: Mesh | InstancedMesh | null
 }
 
-export type InstancedLODDataType = {
-  positions: InstancedBufferAttribute
-  levels: InstancedBufferAttribute
-}
-
 export type LODComponentType = {
   instanced: boolean
   levels: LODLevel[]
