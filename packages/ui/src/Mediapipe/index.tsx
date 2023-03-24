@@ -47,16 +47,15 @@ const startDataProducer = async () => {
  * Start playback of a recording
  * - If we are streaming data, close the data producer
  */
-const startPlayback = async (recordingID) => {
+const startPlayback = async (recordingID: string, twin: boolean) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
     await closeDataProducer(network, mocapDataChannelType)
   }
   //*** TEMP VARIABLE - PUT IN UI */
-  let isUsingClone = true
   ECSRecordingFunctions.startPlayback({
     recordingID,
-    targetUser: isUsingClone ? undefined : Engine.instance.userId
+    targetUser: twin ? undefined : Engine.instance.userId
   })
 }
 
@@ -88,6 +87,7 @@ const Mediapipe = () => {
   const mediaConnection = useMediaInstance()
   const recordingState = useHookstate(getMutableState(RecordingState))
   const modelLoaded = useHookstate(false)
+  const isTwin = useHookstate(false)
 
   const ready = !!modelLoaded.value && !!mediaConnection?.value
 
@@ -246,9 +246,27 @@ const Mediapipe = () => {
               Stop - {recording.id}
             </button>
           ) : (
-            <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id)}>
-              Play - {recording.id}
-            </button>
+            <>
+              <p>{recording.id}</p>
+              <p>
+                <button
+                  style={{ pointerEvents: 'all', padding: '10px' }}
+                  onClick={() => startPlayback(recording.id, isTwin.value)}
+                >
+                  Play
+                </button>
+                <span style={{ pointerEvents: 'all', padding: '10px' }}>
+                  Create Twin -
+                  <input
+                    type="checkbox"
+                    id="isClone"
+                    name="isClone"
+                    value="Twin"
+                    onChange={(e) => isTwin.set(e.target.checked)}
+                  />
+                </span>
+              </p>
+            </>
           )}
         </div>
       ))}
