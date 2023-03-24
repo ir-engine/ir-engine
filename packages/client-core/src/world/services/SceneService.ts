@@ -1,43 +1,15 @@
 import { useEffect } from 'react'
 
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { accessLocationState } from '../../social/services/LocationService'
-
-export const SceneState = defineState({
-  name: 'SceneState',
-  initial: () => ({
-    currentScene: null as SceneData | null
-  })
-})
-
-export const SceneServiceReceptor = (action) => {
-  const s = getMutableState(SceneState)
-  matches(action)
-    .when(SceneActions.currentSceneChanged.matches, (action) => {
-      return s.merge({
-        currentScene: action.sceneData
-      })
-    })
-    .when(SceneActions.unloadCurrentScene.matches, (action) => {
-      return s.merge({
-        currentScene: null
-      })
-    })
-}
-/**@deprecated use getMutableState directly instead */
-export const accessSceneState = () => getMutableState(SceneState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useSceneState = () => useState(accessSceneState())
 
 export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
-    dispatchAction(SceneActions.currentSceneChanged({ sceneData: sceneData.data }))
+    const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
+    getMutableState(SceneState).sceneData.set(sceneData.data)
     return sceneData
   },
 
@@ -46,33 +18,21 @@ export const SceneService = {
       const sceneUpdatedListener = async () => {
         const locationState = accessLocationState()
         const [projectName, sceneName] = locationState.currentLocation.location.sceneId.value.split('/')
-        const sceneData = await API.instance.client
+        const sceneData = await Engine.instance.api
           .service('scene')
           .get({ projectName, sceneName, metadataOnly: null }, {})
-        updateSceneFromJSON(sceneData.data)
-        ;(getMutableState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
+        getMutableState(SceneState).sceneData.set(sceneData.data)
       }
       // for testing
       // window.addEventListener('keydown', (ev) => {
       //   if (ev.code === 'KeyN') sceneUpdatedListener()
       // })
 
-      API.instance.client.service('scene').on('updated', sceneUpdatedListener)
+      Engine.instance.api.service('scene').on('updated', sceneUpdatedListener)
 
       return () => {
-        API.instance.client.service('scene').off('updated', sceneUpdatedListener)
+        Engine.instance.api.service('scene').off('updated', sceneUpdatedListener)
       }
     }, [])
   }
-}
-
-export class SceneActions {
-  static currentSceneChanged = defineAction({
-    type: 'ee.client.Scene.CURRENT_SCENE_CHANGED',
-    sceneData: matches.object as Validator<unknown, SceneData>
-  })
-
-  static unloadCurrentScene = defineAction({
-    type: 'ee.client.Scene.UNLOAD_CURRENT_SCENE'
-  })
 }

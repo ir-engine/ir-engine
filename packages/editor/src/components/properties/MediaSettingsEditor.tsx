@@ -15,7 +15,7 @@ import PropertyGroup from './PropertyGroup'
 
 export const MediaSettingsEditor = () => {
   const { t } = useTranslation()
-  const mediaState = useHookstate(getMediaSceneMetadataState(Engine.instance.currentScene))
+  const mediaState = useHookstate(getMediaSceneMetadataState())
   const media = mediaState.get({ noproxy: true })
 
   return (

@@ -47,7 +47,7 @@ import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
-import { Scene } from '../ecs/classes/Scene'
+import { SceneMetadata, SceneState } from '../ecs/classes/Scene'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
@@ -309,40 +309,45 @@ export const DefaultRenderSettingsState = {
   shadowMapType: PCFSoftShadowMap as ShadowMapType
 }
 
-export type RenderSettingsState = State<typeof DefaultRenderSettingsState>
-
 export const DefaultPostProcessingState = {
   enabled: false,
   effects: defaultPostProcessingSchema
 }
 
-export type PostProcessingState = State<typeof DefaultPostProcessingState>
-
 export const RendererSceneMetadataLabel = 'renderSettings'
 export const PostProcessingSceneMetadataLabel = 'postprocessing'
 
-export const getRendererSceneMetadataState = (scene: Scene) =>
-  scene.sceneMetadataRegistry[RendererSceneMetadataLabel].state as RenderSettingsState
-export const getPostProcessingSceneMetadataState = (scene: Scene) =>
-  scene.sceneMetadataRegistry[PostProcessingSceneMetadataLabel].state as PostProcessingState
+export const getRendererSceneMetadataState = () =>
+  (
+    getMutableState(SceneState).sceneMetadataRegistry[RendererSceneMetadataLabel] as State<
+      SceneMetadata<typeof DefaultRenderSettingsState>
+    >
+  ).data
+export const getPostProcessingSceneMetadataState = () =>
+  (
+    getMutableState(SceneState).sceneMetadataRegistry[PostProcessingSceneMetadataLabel] as State<
+      SceneMetadata<typeof DefaultPostProcessingState>
+    >
+  ).data
 
 export default async function WebGLRendererSystem() {
-  Engine.instance.currentScene.sceneMetadataRegistry[RendererSceneMetadataLabel] = {
-    state: hookstate(_.cloneDeep(DefaultRenderSettingsState)),
-    default: DefaultRenderSettingsState
-  }
-
-  Engine.instance.currentScene.sceneMetadataRegistry[PostProcessingSceneMetadataLabel] = {
-    state: hookstate(_.cloneDeep(DefaultPostProcessingState)),
-    default: DefaultPostProcessingState
-  }
+  getMutableState(SceneState).sceneMetadataRegistry.merge({
+    [RendererSceneMetadataLabel]: {
+      data: _.cloneDeep(DefaultRenderSettingsState),
+      default: DefaultRenderSettingsState
+    },
+    [PostProcessingSceneMetadataLabel]: {
+      data: _.cloneDeep(DefaultPostProcessingState),
+      default: DefaultPostProcessingState
+    }
+  })
 
   const rendererState = getMutableState(RendererState)
 
   const reactor = startReactor(function RendererReactor() {
-    const renderSettings = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene))
+    const renderSettings = useHookstate(getRendererSceneMetadataState())
     const engineRendererSettings = useHookstate(rendererState)
-    const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentScene))
+    const postprocessing = useHookstate(getPostProcessingSceneMetadataState())
     const xrState = useHookstate(getMutableState(XRState))
 
     useEffect(() => {
