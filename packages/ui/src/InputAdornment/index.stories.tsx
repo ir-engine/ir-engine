@@ -9,7 +9,7 @@ import InputAdornment from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/InputAdornment',
+  title: 'Primitives/MUI/InputAdornment',
   component: InputAdornment,
   parameters: {
     componentSubtitle: 'InputAdornment',

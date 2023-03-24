@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/material/utils/useEnhancedEffect.js"],
+  "sourcesContent": ["import { unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/utils';\nexport default useEnhancedEffect;"],
+  "mappings": ";;;;;;;;;AAAA,IACOA;AADP;AAAA;AAAA;AACA,IAAOA,6BAAQ;AAAA;AAAA;",
+  "names": ["useEnhancedEffect_default"]
+}

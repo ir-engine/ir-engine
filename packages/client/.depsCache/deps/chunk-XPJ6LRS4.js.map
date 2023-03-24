@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/material/styles/getOverlayAlpha.js"],
+  "sourcesContent": ["// Inspired by https://github.com/material-components/material-components-ios/blob/bca36107405594d5b7b16265a5b0ed698f85a5ee/components/Elevation/src/UIColor%2BMaterialElevation.m#L61\nconst getOverlayAlpha = elevation => {\n  let alphaValue;\n  if (elevation < 1) {\n    alphaValue = 5.11916 * elevation ** 2;\n  } else {\n    alphaValue = 4.5 * Math.log(elevation + 1) + 2;\n  }\n  return (alphaValue / 100).toFixed(2);\n};\nexport default getOverlayAlpha;"],
+  "mappings": ";AACA,IAAM,kBAAkB,eAAa;AACnC,MAAI;AACJ,MAAI,YAAY,GAAG;AACjB,iBAAa,UAAU,aAAa;AAAA,EACtC,OAAO;AACL,iBAAa,MAAM,KAAK,IAAI,YAAY,CAAC,IAAI;AAAA,EAC/C;AACA,UAAQ,aAAa,KAAK,QAAQ,CAAC;AACrC;AACA,IAAO,0BAAQ;",
+  "names": []
+}

@@ -29,7 +29,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Chrome",
-            "url": "https://localhost:3000/admin",
+            "url": "https://localhost:3000/capture/default",
             "runtimeArgs": [
                 "--ignore-certificate-errors",
                 "--unsafely-treat-insecure-origin-as-secure=https://localhost:3000"

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/material/utils/capitalize.js"],
+  "sourcesContent": ["import { unstable_capitalize as capitalize } from '@mui/utils';\nexport default capitalize;"],
+  "mappings": ";;;;;;;;;AAAA,IACO;AADP;AAAA;AAAA;AACA,IAAO,qBAAQ;AAAA;AAAA;",
+  "names": []
+}

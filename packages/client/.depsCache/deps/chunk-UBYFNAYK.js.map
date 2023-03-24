@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/material/utils/isMuiElement.js"],
+  "sourcesContent": ["import { unstable_isMuiElement as isMuiElement } from '@mui/utils';\nexport default isMuiElement;"],
+  "mappings": ";;;;;;;;;AAAA,IACO;AADP;AAAA;AAAA;AACA,IAAO,uBAAQ;AAAA;AAAA;",
+  "names": []
+}

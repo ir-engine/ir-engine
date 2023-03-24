@@ -53,7 +53,7 @@ const startPlayback = async (recordingID) => {
     await closeDataProducer(network, mocapDataChannelType)
   }
   //*** TEMP VARIABLE - PUT IN UI */
-  let isUsingClone = true
+  const isUsingClone = true
   ECSRecordingFunctions.startPlayback({
     recordingID,
     targetUser: isUsingClone ? undefined : Engine.instance.userId

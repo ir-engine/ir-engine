@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/material/utils/debounce.js", "../../../../node_modules/@mui/material/utils/ownerDocument.js", "../../../../node_modules/@mui/material/utils/ownerWindow.js"],
+  "sourcesContent": ["import { unstable_debounce as debounce } from '@mui/utils';\nexport default debounce;", "import { unstable_ownerDocument as ownerDocument } from '@mui/utils';\nexport default ownerDocument;", "import { unstable_ownerWindow as ownerWindow } from '@mui/utils';\nexport default ownerWindow;"],
+  "mappings": ";;;;;;;;;;;AAAA,IACO;AADP;AAAA;AAAA;AACA,IAAO,mBAAQ;AAAA;AAAA;;;ACDf,IACO;AADP;AAAA;AAAA;AACA,IAAO,wBAAQ;AAAA;AAAA;;;ACDf,IACO;AADP;AAAA;AAAA;AACA,IAAO,sBAAQ;AAAA;AAAA;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/icons-material/CameraAlt.js"],
+  "sourcesContent": ["\"use strict\";\n\nvar _interopRequireDefault = require(\"@babel/runtime/helpers/interopRequireDefault\");\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.default = void 0;\nvar _createSvgIcon = _interopRequireDefault(require(\"./utils/createSvgIcon\"));\nvar _jsxRuntime = require(\"react/jsx-runtime\");\nvar _default = (0, _createSvgIcon.default)([/*#__PURE__*/(0, _jsxRuntime.jsx)(\"circle\", {\n  cx: \"12\",\n  cy: \"12\",\n  r: \"3.2\"\n}, \"0\"), /*#__PURE__*/(0, _jsxRuntime.jsx)(\"path\", {\n  d: \"M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z\"\n}, \"1\")], 'CameraAlt');\nexports.default = _default;"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAEA,QAAI,yBAAyB;AAC7B,WAAO,eAAe,SAAS,cAAc;AAAA,MAC3C,OAAO;AAAA,IACT,CAAC;AACD,YAAQ,UAAU;AAClB,QAAI,iBAAiB,uBAAuB,uBAAgC;AAC5E,QAAI,cAAc;AAClB,QAAI,YAAY,GAAG,eAAe,SAAS,EAAe,GAAG,YAAY,KAAK,UAAU;AAAA,MACtF,IAAI;AAAA,MACJ,IAAI;AAAA,MACJ,GAAG;AAAA,IACL,GAAG,GAAG,IAAiB,GAAG,YAAY,KAAK,QAAQ;AAAA,MACjD,GAAG;AAAA,IACL,GAAG,GAAG,CAAC,GAAG,WAAW;AACrB,YAAQ,UAAU;AAAA;AAAA;",
+  "names": []
+}

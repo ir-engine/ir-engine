@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/material/List/ListContext.js"],
+  "sourcesContent": ["import * as React from 'react';\n\n/**\n * @ignore - internal component.\n */\nconst ListContext = /*#__PURE__*/React.createContext({});\nif (process.env.NODE_ENV !== 'production') {\n  ListContext.displayName = 'ListContext';\n}\nexport default ListContext;"],
+  "mappings": ";;;;;;;;AAAA,YAAuB;AAKvB,IAAM,cAAiC,oBAAc,CAAC,CAAC;AACvD,IAAI,MAAuC;AACzC,cAAY,cAAc;AAC5B;AACA,IAAO,sBAAQ;",
+  "names": []
+}

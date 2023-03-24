@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/material/transitions/utils.js"],
+  "sourcesContent": ["export const reflow = node => node.scrollTop;\nexport function getTransitionProps(props, options) {\n  var _style$transitionDura, _style$transitionTimi;\n  const {\n    timeout,\n    easing,\n    style = {}\n  } = props;\n  return {\n    duration: (_style$transitionDura = style.transitionDuration) != null ? _style$transitionDura : typeof timeout === 'number' ? timeout : timeout[options.mode] || 0,\n    easing: (_style$transitionTimi = style.transitionTimingFunction) != null ? _style$transitionTimi : typeof easing === 'object' ? easing[options.mode] : easing,\n    delay: style.transitionDelay\n  };\n}"],
+  "mappings": ";AAAO,IAAM,SAAS,UAAQ,KAAK;AAC5B,SAAS,mBAAmB,OAAO,SAAS;AACjD,MAAI,uBAAuB;AAC3B,QAAM;AAAA,IACJ;AAAA,IACA;AAAA,IACA,QAAQ,CAAC;AAAA,EACX,IAAI;AACJ,SAAO;AAAA,IACL,WAAW,wBAAwB,MAAM,uBAAuB,OAAO,wBAAwB,OAAO,YAAY,WAAW,UAAU,QAAQ,QAAQ,IAAI,KAAK;AAAA,IAChK,SAAS,wBAAwB,MAAM,6BAA6B,OAAO,wBAAwB,OAAO,WAAW,WAAW,OAAO,QAAQ,IAAI,IAAI;AAAA,IACvJ,OAAO,MAAM;AAAA,EACf;AACF;",
+  "names": []
+}

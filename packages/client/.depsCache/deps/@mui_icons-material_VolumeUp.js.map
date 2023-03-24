@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/icons-material/VolumeUp.js"],
+  "sourcesContent": ["\"use strict\";\n\nvar _interopRequireDefault = require(\"@babel/runtime/helpers/interopRequireDefault\");\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.default = void 0;\nvar _createSvgIcon = _interopRequireDefault(require(\"./utils/createSvgIcon\"));\nvar _jsxRuntime = require(\"react/jsx-runtime\");\nvar _default = (0, _createSvgIcon.default)( /*#__PURE__*/(0, _jsxRuntime.jsx)(\"path\", {\n  d: \"M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z\"\n}), 'VolumeUp');\nexports.default = _default;"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAEA,QAAI,yBAAyB;AAC7B,WAAO,eAAe,SAAS,cAAc;AAAA,MAC3C,OAAO;AAAA,IACT,CAAC;AACD,YAAQ,UAAU;AAClB,QAAI,iBAAiB,uBAAuB,uBAAgC;AAC5E,QAAI,cAAc;AAClB,QAAI,YAAY,GAAG,eAAe,UAAwB,GAAG,YAAY,KAAK,QAAQ;AAAA,MACpF,GAAG;AAAA,IACL,CAAC,GAAG,UAAU;AACd,YAAQ,UAAU;AAAA;AAAA;",
+  "names": []
+}

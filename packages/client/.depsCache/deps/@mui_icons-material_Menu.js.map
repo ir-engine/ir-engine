@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/icons-material/Menu.js"],
+  "sourcesContent": ["\"use strict\";\n\nvar _interopRequireDefault = require(\"@babel/runtime/helpers/interopRequireDefault\");\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.default = void 0;\nvar _createSvgIcon = _interopRequireDefault(require(\"./utils/createSvgIcon\"));\nvar _jsxRuntime = require(\"react/jsx-runtime\");\nvar _default = (0, _createSvgIcon.default)( /*#__PURE__*/(0, _jsxRuntime.jsx)(\"path\", {\n  d: \"M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z\"\n}), 'Menu');\nexports.default = _default;"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAEA,QAAI,yBAAyB;AAC7B,WAAO,eAAe,SAAS,cAAc;AAAA,MAC3C,OAAO;AAAA,IACT,CAAC;AACD,YAAQ,UAAU;AAClB,QAAI,iBAAiB,uBAAuB,uBAAgC;AAC5E,QAAI,cAAc;AAClB,QAAI,YAAY,GAAG,eAAe,UAAwB,GAAG,YAAY,KAAK,QAAQ;AAAA,MACpF,GAAG;AAAA,IACL,CAAC,GAAG,MAAM;AACV,YAAQ,UAAU;AAAA;AAAA;",
+  "names": []
+}

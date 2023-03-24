@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../node_modules/@mui/material/utils/requirePropFactory.js"],
+  "sourcesContent": ["import { unstable_requirePropFactory as requirePropFactory } from '@mui/utils';\nexport default requirePropFactory;"],
+  "mappings": ";;;;;;;;;AAAA,IACO;AADP;AAAA;AAAA;AACA,IAAO,6BAAQ;AAAA;AAAA;",
+  "names": []
+}

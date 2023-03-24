@@ -7,7 +7,7 @@ import Popover from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Popover',
+  title: 'Primitives/MUI/Popover',
   component: Popover,
   parameters: {
     componentSubtitle: 'Popover',

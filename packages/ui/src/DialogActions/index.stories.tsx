@@ -6,7 +6,7 @@ import DialogActions from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/DialogActions',
+  title: 'Primitives/MUI/DialogActions',
   component: DialogActions,
   parameters: {
     componentSubtitle: 'DialogActions',
