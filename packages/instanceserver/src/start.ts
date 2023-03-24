@@ -59,7 +59,14 @@ export const start = async (): Promise<Application> => {
     )
   })
   app.agonesSDK = agonesSDK
-  setInterval(() => agonesSDK.health(), 1000)
+  setInterval(
+    () =>
+      agonesSDK.health((err) => {
+        logger.error('Agones health check error:')
+        logger.error(err)
+      }),
+    1000
+  )
 
   app.configure(channels)
 
