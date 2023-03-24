@@ -5,7 +5,7 @@
   ],
   "version": "6.5.1",
   "npmClient": "npm",
-  "useNx": false,
+  "useNx": true,
   "useWorkspaces": true,
   "hoist": true
 }
