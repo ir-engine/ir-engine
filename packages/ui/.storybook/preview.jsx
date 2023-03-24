@@ -13,6 +13,8 @@ import React from 'react'
 import { withRouter } from 'storybook-addon-react-router-v6'
 
 import { withTests } from '@storybook/addon-jest'
+
+//commented test file to see the preview as tests are not created.
 //import results from '../tests/jest-test-results.json'
 
 import { withThemes } from '@react-theming/storybook-addon'
@@ -36,6 +38,7 @@ import { theme as defaultTheme, useTheme } from '@etherealengine/client-core/src
 
 export const decorators = [
   withRouter,
+  
   // withTests({ results }),
   // withThemes(null, [defaultTheme], { providerFn })
 ]
