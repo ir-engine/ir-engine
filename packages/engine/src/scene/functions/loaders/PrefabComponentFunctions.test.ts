@@ -26,11 +26,12 @@ import '@etherealengine/engine/src/patchEngineNode'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
 import { EngineState } from '../../../ecs/classes/EngineState'
+import { SceneState } from '../../../ecs/classes/Scene'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
 import { TransformModule } from '../../../transform/TransformModule'
 import { SceneClientModule } from '../../SceneClientModule'
@@ -41,7 +42,7 @@ describe('PrefabComponentFunctions', async () => {
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
+    addEntityNodeChild(entity, getState(SceneState).sceneEntity)
   }
   const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {

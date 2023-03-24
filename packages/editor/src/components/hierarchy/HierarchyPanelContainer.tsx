@@ -9,6 +9,7 @@ import { Object3D } from 'three'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   getComponent,
   getOptionalComponent,
@@ -22,7 +23,7 @@ import {
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
@@ -163,18 +164,17 @@ export default function HierarchyPanel({
     })
   }
 
-  const updateNodeHierarchy = useCallback(
-    (world = Engine.instance.currentScene) => {
-      setNodes(
-        getModelNodesFromTreeWalker(
-          Array.from(heirarchyTreeWalker(world.sceneEntity, selectionState.selectedEntities.value, collapsedNodes)),
-          collapsedNodes,
-          showObject3DInHierarchy.value
-        )
+  const updateNodeHierarchy = useCallback(() => {
+    setNodes(
+      getModelNodesFromTreeWalker(
+        Array.from(
+          heirarchyTreeWalker(getState(SceneState).sceneEntity, selectionState.selectedEntities.value, collapsedNodes)
+        ),
+        collapsedNodes,
+        showObject3DInHierarchy.value
       )
-    },
-    [collapsedNodes]
-  )
+    )
+  }, [collapsedNodes])
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
   useEffect(updateNodeHierarchy, [
@@ -447,10 +447,10 @@ export default function HierarchyPanel({
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = Engine.instance.currentScene
+        const sceneEntity = getState(SceneState).sceneEntity
         return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, world.sceneEntity))
-          : isAncestor(item.value, world.sceneEntity))
+          ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
+          : isAncestor(item.value, sceneEntity))
       }
 
       return true
