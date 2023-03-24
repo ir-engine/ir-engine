@@ -15,7 +15,7 @@ import {
 } from '../avatar/components/AvatarIKComponents'
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
-import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { DataChannelType, Network } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../networking/NetworkState'
@@ -79,7 +79,7 @@ export default async function MotionCaptureSystem() {
   const xrState = getState(XRState)
 
   const objs = [] as Mesh[]
-  const debug = false
+  const debug = true
 
   if (debug)
     for (let i = 0; i < 33; i++) {
@@ -129,8 +129,17 @@ export default async function MotionCaptureSystem() {
         const head = !!nose.visibility && nose.visibility > 0.5
         const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.5
         const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.5
-        const changed = ikTargets.head !== head || ikTargets.leftHand !== leftHand || ikTargets.rightHand !== rightHand
-        if (changed) dispatchAction(WorldNetworkAction.avatarIKTargets({ head, leftHand, rightHand }))
+
+        if (!head && ikTargets.head) removeComponent(localClientEntity, AvatarHeadIKComponent)
+        if (!leftHand && ikTargets.leftHand) removeComponent(localClientEntity, AvatarLeftArmIKComponent)
+        if (!rightHand && ikTargets.rightHand) removeComponent(localClientEntity, AvatarRightArmIKComponent)
+
+        if (head && !ikTargets.head) setComponent(localClientEntity, AvatarHeadIKComponent)
+        if (leftHand && !ikTargets.leftHand) setComponent(localClientEntity, AvatarLeftArmIKComponent)
+        if (rightHand && !ikTargets.rightHand) setComponent(localClientEntity, AvatarRightArmIKComponent)
+        ikTargets.head = head
+        ikTargets.leftHand = leftHand
+        ikTargets.rightHand = rightHand
 
         const avatarRig = getComponent(entity, AvatarRigComponent)
         const avatarTransform = getComponent(entity, TransformComponent)
@@ -153,6 +162,7 @@ export default async function MotionCaptureSystem() {
         if (hasComponent(entity, AvatarHeadIKComponent)) {
           if (!nose.visibility || nose.visibility < 0.5) continue
           if (!nose.x || !nose.y || !nose.z) continue
+          console.log('nose', nose)
           const ik = getComponent(entity, AvatarHeadIKComponent)
           headPos
             .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)

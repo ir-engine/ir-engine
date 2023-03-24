@@ -17,15 +17,6 @@ import { NetworkTopics } from '../classes/Network'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
-  static avatarIKTargets = defineAction({
-    type: 'xre.world.SET_XR_MODE',
-    head: matches.boolean,
-    leftHand: matches.boolean,
-    rightHand: matches.boolean,
-    $cache: { removePrevious: true },
-    $topic: NetworkTopics.world
-  })
-
   static xrHandsConnected = defineAction({
     type: 'xre.world.XR_HANDS_CONNECTED',
     $cache: true,

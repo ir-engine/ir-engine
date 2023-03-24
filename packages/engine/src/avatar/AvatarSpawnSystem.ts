@@ -109,18 +109,7 @@ export default async function AvatarSpawnSystem() {
 
   const avatarIKTargetsQuery = defineQuery([AvatarIKTargetsComponent, AvatarRigComponent])
 
-  const avatarIKTargetsActionQueue = createActionQueue(WorldNetworkAction.avatarIKTargets.matches)
-
   const execute = () => {
-    for (const action of avatarIKTargetsActionQueue()) {
-      const entity = Engine.instance.getUserAvatarEntity(action.$from)
-      const targets = getComponent(entity, AvatarIKTargetsComponent)
-
-      targets.head = action.head
-      targets.leftHand = action.leftHand
-      targets.rightHand = action.rightHand
-    }
-
     /** Add & remove IK Targets based on active target data */
     for (const entity of avatarIKTargetsQuery()) {
       const targets = getComponent(entity, AvatarIKTargetsComponent)
