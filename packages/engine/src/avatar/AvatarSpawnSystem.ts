@@ -77,9 +77,9 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { posit
 
 export function avatarDetailsReceptor(action: ReturnType<typeof WorldNetworkAction.avatarDetails>) {
   const userAvatarDetails = getMutableState(WorldState).userAvatarDetails
-  userAvatarDetails[action.$from].set(action.avatarDetail)
+  userAvatarDetails[action.uuid].set(action.avatarDetail)
   if (isClient && action.avatarDetail.avatarURL) {
-    const entity = Engine.instance.getUserAvatarEntity(action.$from)
+    const entity = UUIDComponent.entitiesByUUID.value[action.uuid]
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
   }
 }

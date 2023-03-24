@@ -1,7 +1,8 @@
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
-import { matches, matchesUserId } from '../common/functions/MatchesUtils'
+import { matches, matchesPeerID, matchesUserId } from '../common/functions/MatchesUtils'
 import { NetworkTopics } from '../networking/classes/Network'
 import { Engine } from './classes/Engine'
 
@@ -41,7 +42,7 @@ export const stopRecording = (args: { recordingID: string }) => {
   })
 }
 
-export const startPlayback = (args: { recordingID: string; targetUser: UserId }) => {
+export const startPlayback = (args: { recordingID: string; targetUser?: UserId }) => {
   const { recordingID, targetUser } = args
   const action = ECSRecordingActions.startPlayback({
     recordingID,
@@ -61,11 +62,10 @@ export const startPlayback = (args: { recordingID: string; targetUser: UserId })
   })
 }
 
-export const stopPlayback = (args: { recordingID: string; targetUser: UserId }) => {
-  const { recordingID, targetUser } = args
+export const stopPlayback = (args: { recordingID: string }) => {
+  const { recordingID } = args
   const action = ECSRecordingActions.stopPlayback({
-    recordingID,
-    targetUser
+    recordingID
   })
 
   dispatchAction({
@@ -107,20 +107,18 @@ export class ECSRecordingActions {
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
     recordingID: matches.string,
-    targetUser: matchesUserId
+    targetUser: matchesUserId.optional()
   })
 
   static playbackChanged = defineAction({
     type: 'ee.core.motioncapture.PLAYBACK_CHANGED' as const,
     recordingID: matches.string,
-    targetUser: matchesUserId,
     playing: matches.boolean
   })
 
   static stopPlayback = defineAction({
     type: 'ee.core.motioncapture.STOP_PLAYBACK' as const,
-    recordingID: matches.string,
-    targetUser: matchesUserId
+    recordingID: matches.string
   })
 
   static error = defineAction({

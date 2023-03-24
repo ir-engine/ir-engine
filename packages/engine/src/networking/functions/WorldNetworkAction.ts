@@ -3,6 +3,7 @@ import { defineAction } from '@etherealengine/hyperflux'
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
   matches,
+  matchesEntityUUID,
   matchesNetworkId,
   matchesPeerID,
   matchesQuaternion,
@@ -51,6 +52,7 @@ export class WorldNetworkAction {
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
+    uuid: matchesEntityUUID,
     $cache: true,
     $topic: NetworkTopics.world
   })
@@ -58,6 +60,7 @@ export class WorldNetworkAction {
   static spawnAvatar = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'avatar',
+    uuid: matchesUserId,
     $topic: NetworkTopics.world
   })
 
@@ -105,6 +108,7 @@ export class WorldNetworkAction {
   static avatarDetails = defineAction({
     type: 'xre.world.AVATAR_DETAILS',
     avatarDetail: matchesAvatarProps,
+    uuid: matchesUserId,
     $cache: {
       removePrevious: true
     },

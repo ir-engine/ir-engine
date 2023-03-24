@@ -253,9 +253,9 @@ const loadEngine = async (app: Application, sceneId: string) => {
       ...TransformModule(),
       ...MotionCaptureModule(),
       ...ECSSerializationModule(),
+      ...RealtimeNetworkingModule(false, true),
       ...SceneCommonModule(),
       ...AvatarCommonModule(),
-      ...RealtimeNetworkingModule(false, true),
       ...WorldHostModule()
     ])
     await loadEngineInjection(projects)

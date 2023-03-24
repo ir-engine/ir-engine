@@ -52,9 +52,11 @@ const startPlayback = async (recordingID) => {
   if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
     await closeDataProducer(network, mocapDataChannelType)
   }
+  //*** TEMP VARIABLE - PUT IN UI */
+  let isUsingClone = true
   ECSRecordingFunctions.startPlayback({
     recordingID,
-    targetUser: Engine.instance.userId
+    targetUser: isUsingClone ? undefined : Engine.instance.userId
   })
 }
 
@@ -236,8 +238,7 @@ const Mediapipe = () => {
                     style={{ pointerEvents: 'all' }}
                     onClick={() => {
                       ECSRecordingFunctions.stopPlayback({
-                        recordingID: recording.id,
-                        targetUser: Engine.instance.userId
+                        recordingID: recording.id
                       })
                     }}
                   >
