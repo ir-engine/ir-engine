@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { StaticResourceService } from '@etherealengine/client-core/src/media/services/StaticResourceService'
@@ -13,13 +13,14 @@ import {
   removeComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { iterateEntityNode, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
+import { useState } from '@etherealengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -43,12 +44,12 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [isEquippable, setEquippable] = useState(hasComponent(props.entity, EquippableComponent))
+  const isEquippable = useState(hasComponent(props.entity, EquippableComponent))
 
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
-  const [exporting, setExporting] = useState(false)
-  const [exportPath, setExportPath] = useState(modelComponent?.src.value)
+  const exporting = useState(false)
+  const exportPath = useState(modelComponent?.src.value)
 
   if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
@@ -56,23 +57,23 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
-  const textureOverrideEntities = [] as { label: string; value: string }[]
-  traverseEntityNode(Engine.instance.currentScene.sceneEntity, (node) => {
-    if (entity === entity) return
-
-    textureOverrideEntities.push({
-      label: getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent),
-      value: getComponent(entity, UUIDComponent)
-    })
-  })
+  const textureOverrideEntities = useState([] as { label: string; value: string }[])
+  useEffect(() => {
+    textureOverrideEntities.set(
+      iterateEntityNode(Engine.instance.currentScene.sceneEntity, (entity) => ({
+        label: getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent),
+        value: getComponent(entity, UUIDComponent)
+      }))
+    )
+  }, [])
 
   const onChangeEquippable = useCallback(() => {
-    if (isEquippable) {
+    if (isEquippable.value) {
       removeComponent(props.entity, EquippableComponent)
-      setEquippable(false)
+      isEquippable.set(false)
     } else {
       addComponent(props.entity, EquippableComponent, true)
-      setEquippable(true)
+      isEquippable.set(true)
     }
   }, [])
 
@@ -84,12 +85,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
 
   const onExportModel = useCallback(() => {
-    if (exporting) {
+    if (exporting.value) {
       console.warn('already exporting')
       return
     }
-    setExporting(true)
-    exportGLTF(entity, exportPath).then(setExporting.bind({}, false))
+    exporting.set(true)
+    exportGLTF(entity, exportPath.value).then(() => exporting.set(false))
   }, [])
 
   const updateResources = useCallback((path: string) => {
@@ -139,7 +140,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Is Equippable" label={t('editor:properties.model.lbl-isEquippable')}>
-        <BooleanInput value={isEquippable} onChange={onChangeEquippable} />
+        <BooleanInput value={isEquippable.value} onChange={onChangeEquippable} />
       </InputGroup>
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
@@ -160,7 +161,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting && modelComponent.src.value && (
         <Well>
-          <ModelInput value={exportPath} onChange={setExportPath} />
+          <ModelInput value={exportPath.value} onChange={exportPath.set} />
           <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
         </Well>
       )}
