@@ -15,7 +15,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { entityExists, EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -23,9 +23,11 @@ import { removeMaterialSource } from '../../renderer/materials/functions/Materia
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
+import { createLODsFromModel } from '../functions/loaders/LODFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { LODComponent } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -44,10 +46,10 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      resource: null as unknown as ModelResource,
+      resource: null as ModelResource | null,
       generateBVH: true,
       avoidCameraOcclusion: false,
-      scene: undefined as undefined | Scene
+      scene: null as Scene | null
     }
   },
 
@@ -74,7 +76,7 @@ export const ModelComponent = defineComponent({
   onRemove: (entity, component) => {
     if (component.scene.value) {
       removeObjectFromGroup(entity, component.scene.value)
-      component.scene.set(undefined)
+      component.scene.set(null)
     }
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
@@ -162,6 +164,8 @@ function ModelReactor({ root }: EntityReactorProps) {
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
     setBoundingBoxComponent(entity)
+    LODComponent.lodsByEntity[entity].value?.map((entity) => removeEntity(entity))
+    LODComponent.lodsByEntity[entity].set(createLODsFromModel(entity))
     removeComponent(entity, SceneAssetPendingTagComponent)
 
     let active = true

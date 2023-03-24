@@ -1,6 +1,4 @@
-import { InstancedMesh, Scene } from 'three'
-
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { Scene, Vector3 } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
@@ -35,17 +33,15 @@ export default async function LODSystem() {
       const referencedLods = new Set<number>()
       if (lodComponent.instanced.value) {
         const instancePositions = lodComponent.instancePositions.value
+        const position = new Vector3()
         for (let i = 0; i < instancePositions.count; i++) {
-          const position = instancePositions[i]
+          position.set(instancePositions.getX(i), instancePositions.getY(i), instancePositions.getZ(i))
           const distance = cameraPosition.distanceTo(position)
           const currentLevel = lodComponent.instanceLevels[i].value
           let newLevel = currentLevel
           for (let j = 0; j < lodDistances.length; j++) {
             if (distance < lodDistances[j] || j === lodDistances.length - 1) {
-              if (currentLevel !== j) {
-                newLevel = j
-                lodComponent.instanceLevels[i].set(j)
-              }
+              ;(currentLevel !== j && (newLevel = j)) || lodComponent.instanceLevels[i].set(j)
               break
             }
           }
@@ -53,7 +49,7 @@ export default async function LODSystem() {
         }
       } else {
         //if not instanced, just use the first model position
-        const position = lodComponent.levels[0].model.value?.position
+        const position = lodComponent.levels[0]?.model.value?.position
         if (position) {
           const distance = cameraPosition.distanceTo(position)
           for (let j = 0; j < lodDistances.length; j++) {
@@ -68,16 +64,18 @@ export default async function LODSystem() {
       //iterate through all LOD levels and load/unload models based on referencedLods
       for (let i = 0; i < lodComponent.levels.length; i++) {
         const level = lodComponent.levels[i]
+        //if the level is referenced, load it if it's not already loaded
         if (referencedLods.has(i)) {
-          if (!level.loaded.value) {
+          !level.loaded.value &&
+            level.src.value &&
             AssetLoader.load(level.src.value, {}, (loadedScene: Scene) => {
               const mesh = getFirstMesh(loadedScene)
               level.model.set(mesh ?? null)
               processLoadedLODLevel(entity, i)
               level.loaded.set(true)
             })
-          }
         } else {
+          //if the level is not referenced, unload it if it's loaded
           if (level.loaded.value) {
             const mesh = level.model.value
             level.model.set(null)

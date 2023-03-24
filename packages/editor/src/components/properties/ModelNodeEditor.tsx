@@ -1,21 +1,13 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Object3D } from 'three'
 
 import { StaticResourceService } from '@etherealengine/client-core/src/media/services/StaticResourceService'
-import {
-  AudioFileTypes,
-  VideoFileTypes,
-  VolumetricFileTypes
-} from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -23,9 +15,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
-import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
-import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -76,7 +66,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     })
   })
 
-  const onChangeEquippable = () => {
+  const onChangeEquippable = useCallback(() => {
     if (isEquippable) {
       removeComponent(props.entity, EquippableComponent)
       setEquippable(false)
@@ -84,7 +74,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       addComponent(props.entity, EquippableComponent, true)
       setEquippable(true)
     }
-  }
+  }, [])
 
   const animations = loopAnimationComponent?.hasAvatarAnimations
     ? AnimationManager.instance._animations
@@ -93,28 +83,27 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const animationOptions = [{ label: 'None', value: -1 }]
   if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
 
-  const onExportModel = async () => {
+  const onExportModel = useCallback(() => {
     if (exporting) {
       console.warn('already exporting')
       return
     }
     setExporting(true)
-    await exportGLTF(entity, exportPath)
-    setExporting(false)
-  }
+    exportGLTF(entity, exportPath).then(setExporting.bind({}, false))
+  }, [])
 
-  const updateResources = async (path: string) => {
-    let model
+  const updateResources = useCallback((path: string) => {
     clearErrors(entity, ModelComponent)
     try {
-      model = await StaticResourceService.uploadModel(path)
+      StaticResourceService.uploadModel(path).then((model) => {
+        updateProperty(ModelComponent, 'resource')(model)
+      })
     } catch (err) {
       console.log('Error getting path', path)
       addError(entity, ModelComponent, 'INVALID_URL', path)
       return {}
     }
-    updateProperty(ModelComponent, 'resource')(model)
-  }
+  }, [])
 
   return (
     <NodeEditor

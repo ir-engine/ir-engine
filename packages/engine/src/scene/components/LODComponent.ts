@@ -1,13 +1,10 @@
-import { useEffect } from 'react'
-import { BufferAttribute, DynamicDrawUsage, InstancedBufferAttribute, InstancedMesh, Mesh, Vector3 } from 'three'
+import { InstancedBufferAttribute, InstancedMesh, Mesh } from 'three'
 import matches from 'ts-matches'
 
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { createState } from '@etherealengine/hyperflux'
 
-import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { insertAfterString, insertBeforeString } from '../../common/functions/string'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type LODLevel = {
   distance: number
@@ -72,11 +69,6 @@ export const LODComponent = defineComponent({
       component.instanceLevels.set(json.instanceLevels)
     }
   },
-  reactor: function ({ root }: EntityReactorProps) {
-    const entity = root.entity
-    const componentState = useComponent(entity, LODComponent)
-    const component = componentState.value
 
-    return null
-  }
+  lodsByEntity: createState({} as Record<Entity, Entity[]>)
 })
