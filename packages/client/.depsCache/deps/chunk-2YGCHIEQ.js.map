@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@babel/runtime/helpers/esm/iterableToArray.js"],
-  "sourcesContent": ["export default function _iterableToArray(iter) {\n  if (typeof Symbol !== \"undefined\" && iter[Symbol.iterator] != null || iter[\"@@iterator\"] != null) return Array.from(iter);\n}"],
-  "mappings": ";AAAe,SAAR,iBAAkC,MAAM;AAC7C,MAAI,OAAO,WAAW,eAAe,KAAK,OAAO,QAAQ,KAAK,QAAQ,KAAK,YAAY,KAAK;AAAM,WAAO,MAAM,KAAK,IAAI;AAC1H;",
-  "names": []
-}

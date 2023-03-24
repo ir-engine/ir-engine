@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/styles/createStyles/createStyles.js"],
-  "sourcesContent": ["export default function createStyles(styles) {\n  return styles;\n}"],
-  "mappings": ";;;AAAe,SAAR,aAA8B,QAAQ;AAC3C,SAAO;AACT;",
-  "names": []
-}

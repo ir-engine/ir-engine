@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/material/utils/createSvgIcon.js"],
-  "sourcesContent": ["import _extends from \"@babel/runtime/helpers/esm/extends\";\nimport * as React from 'react';\nimport SvgIcon from '../SvgIcon';\n\n/**\n * Private module reserved for @mui packages.\n */\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nexport default function createSvgIcon(path, displayName) {\n  function Component(props, ref) {\n    return /*#__PURE__*/_jsx(SvgIcon, _extends({\n      \"data-testid\": `${displayName}Icon`,\n      ref: ref\n    }, props, {\n      children: path\n    }));\n  }\n  if (process.env.NODE_ENV !== 'production') {\n    // Need to set `displayName` on the inner component for React.memo.\n    // React prior to 16.14 ignores `displayName` on the wrapper.\n    Component.displayName = `${displayName}Icon`;\n  }\n  Component.muiName = SvgIcon.muiName;\n  return /*#__PURE__*/React.memo( /*#__PURE__*/React.forwardRef(Component));\n}"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAQe,SAAR,cAA+B,MAAM,aAAa;AACvD,WAAS,UAAU,OAAO,KAAK;AAC7B,eAAoB,mBAAAA,KAAK,iBAAS,SAAS;AAAA,MACzC,eAAe,GAAG;AAAA,MAClB;AAAA,IACF,GAAG,OAAO;AAAA,MACR,UAAU;AAAA,IACZ,CAAC,CAAC;AAAA,EACJ;AACA,MAAI,MAAuC;AAGzC,cAAU,cAAc,GAAG;AAAA,EAC7B;AACA,YAAU,UAAU,gBAAQ;AAC5B,SAA0B,WAAyB,iBAAW,SAAS,CAAC;AAC1E;AAxBA,IACA,OAMA;AAPA;AAAA;AAAA;AACA,YAAuB;AACvB;AAKA,yBAA4B;AAAA;AAAA;",
-  "names": ["_jsx"]
-}

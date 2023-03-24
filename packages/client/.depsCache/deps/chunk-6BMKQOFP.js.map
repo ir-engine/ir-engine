@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/material/Dialog/DialogContext.js"],
-  "sourcesContent": ["import { createContext } from 'react';\nconst DialogContext = /*#__PURE__*/createContext({});\nif (process.env.NODE_ENV !== 'production') {\n  DialogContext.displayName = 'DialogContext';\n}\nexport default DialogContext;"],
-  "mappings": ";;;;;;;;AAAA,mBAA8B;AAC9B,IAAM,oBAA6B,4BAAc,CAAC,CAAC;AACnD,IAAI,MAAuC;AACzC,gBAAc,cAAc;AAC9B;AACA,IAAO,wBAAQ;",
-  "names": []
-}

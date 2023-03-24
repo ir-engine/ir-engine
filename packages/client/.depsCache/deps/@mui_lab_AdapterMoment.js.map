@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/lab/AdapterMoment/AdapterMoment.js"],
-  "sourcesContent": ["let warnedOnce = false;\n\nconst warn = () => {\n  if (!warnedOnce) {\n    console.warn(['MUI: The AdapterMoment class was moved from `@mui/lab` to `@mui/x-date-pickers`', '', \"You should use `import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'`\", '', 'More information about this migration on our blog: https://mui.com/blog/lab-date-pickers-to-mui-x/.'].join('\\n'));\n    warnedOnce = true;\n  }\n}; // tslint:disable-next-line:no-unnecessary-class\n\n\nexport default class AdapterMoment {\n  constructor() {\n    warn();\n  }\n\n}"],
-  "mappings": ";;;AAAA,IAAI,aAAa;AAEjB,IAAM,OAAO,MAAM;AACjB,MAAI,CAAC,YAAY;AACf,YAAQ,KAAK,CAAC,mFAAmF,IAAI,sFAAsF,IAAI,qGAAqG,EAAE,KAAK,IAAI,CAAC;AAChT,iBAAa;AAAA,EACf;AACF;AAGA,IAAqB,gBAArB,MAAmC;AAAA,EACjC,cAAc;AACZ,SAAK;AAAA,EACP;AAEF;",
-  "names": []
-}

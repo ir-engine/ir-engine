@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/material/utils/unsupportedProp.js"],
-  "sourcesContent": ["import { unstable_unsupportedProp as unsupportedProp } from '@mui/utils';\nexport default unsupportedProp;"],
-  "mappings": ";;;;;;;;;AAAA,IACO;AADP;AAAA;AAAA;AACA,IAAO,0BAAQ;AAAA;AAAA;",
-  "names": []
-}

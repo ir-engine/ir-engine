@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@babel/runtime/helpers/esm/classCallCheck.js"],
-  "sourcesContent": ["export default function _classCallCheck(instance, Constructor) {\n  if (!(instance instanceof Constructor)) {\n    throw new TypeError(\"Cannot call a class as a function\");\n  }\n}"],
-  "mappings": ";AAAe,SAAR,gBAAiC,UAAU,aAAa;AAC7D,MAAI,EAAE,oBAAoB,cAAc;AACtC,UAAM,IAAI,UAAU,mCAAmC;AAAA,EACzD;AACF;",
-  "names": []
-}

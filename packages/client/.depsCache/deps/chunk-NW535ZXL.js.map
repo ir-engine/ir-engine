@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@babel/runtime/helpers/esm/defineProperty.js"],
-  "sourcesContent": ["import toPropertyKey from \"./toPropertyKey.js\";\nexport default function _defineProperty(obj, key, value) {\n  key = toPropertyKey(key);\n  if (key in obj) {\n    Object.defineProperty(obj, key, {\n      value: value,\n      enumerable: true,\n      configurable: true,\n      writable: true\n    });\n  } else {\n    obj[key] = value;\n  }\n  return obj;\n}"],
-  "mappings": ";;;;;AACe,SAAR,gBAAiC,KAAK,KAAK,OAAO;AACvD,QAAM,eAAc,GAAG;AACvB,MAAI,OAAO,KAAK;AACd,WAAO,eAAe,KAAK,KAAK;AAAA,MAC9B;AAAA,MACA,YAAY;AAAA,MACZ,cAAc;AAAA,MACd,UAAU;AAAA,IACZ,CAAC;AAAA,EACH,OAAO;AACL,QAAI,GAAG,IAAI;AAAA,EACb;AACA,SAAO;AACT;",
-  "names": []
-}

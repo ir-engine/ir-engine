@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/material/FormControl/useFormControl.js", "../../../../node_modules/@mui/material/FormControl/FormControlContext.js"],
-  "sourcesContent": ["import * as React from 'react';\nimport FormControlContext from './FormControlContext';\nexport default function useFormControl() {\n  return React.useContext(FormControlContext);\n}", "import * as React from 'react';\n/**\n * @ignore - internal component.\n */\nconst FormControlContext = /*#__PURE__*/React.createContext(undefined);\nif (process.env.NODE_ENV !== 'production') {\n  FormControlContext.displayName = 'FormControlContext';\n}\nexport default FormControlContext;"],
-  "mappings": ";;;;;;;;AAAA,IAAAA,SAAuB;;;ACAvB,YAAuB;AAIvB,IAAM,qBAAwC,oBAAc,MAAS;AACrE,IAAI,MAAuC;AACzC,qBAAmB,cAAc;AACnC;AACA,IAAO,6BAAQ;;;ADNA,SAAR,iBAAkC;AACvC,SAAa,kBAAW,0BAAkB;AAC5C;",
-  "names": ["React"]
-}

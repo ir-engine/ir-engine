@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/material/styles/useThemeProps.js", "../../../../node_modules/@mui/material/styles/styled.js"],
-  "sourcesContent": ["import { useThemeProps as systemUseThemeProps } from '@mui/system';\nimport defaultTheme from './defaultTheme';\nexport default function useThemeProps({\n  props,\n  name\n}) {\n  return systemUseThemeProps({\n    props,\n    name,\n    defaultTheme\n  });\n}", "import { createStyled, shouldForwardProp } from '@mui/system';\nimport defaultTheme from './defaultTheme';\nexport const rootShouldForwardProp = prop => shouldForwardProp(prop) && prop !== 'classes';\nexport const slotShouldForwardProp = shouldForwardProp;\nconst styled = createStyled({\n  defaultTheme,\n  rootShouldForwardProp\n});\nexport default styled;"],
-  "mappings": ";;;;;;;;;;;;;AAEe,SAARA,eAA+B;AAAA,EACpC;AAAA,EACA;AACF,GAAG;AACD,SAAO,cAAoB;AAAA,IACzB;AAAA,IACA;AAAA,IACA;AAAA,EACF,CAAC;AACH;AAXA;AAAA;AAAA;AACA;AAAA;AAAA;;;ACDA,IAEa,uBACA,uBACP,QAIC;AARP;AAAA;AAAA;AACA;AACO,IAAM,wBAAwB,UAAQ,kBAAkB,IAAI,KAAK,SAAS;AAC1E,IAAM,wBAAwB;AACrC,IAAM,SAAS,aAAa;AAAA,MAC1B;AAAA,MACA;AAAA,IACF,CAAC;AACD,IAAO,iBAAQ;AAAA;AAAA;",
-  "names": ["useThemeProps"]
-}

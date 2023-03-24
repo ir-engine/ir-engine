@@ -116,7 +116,6 @@ export default defineConfig(async () => {
   const clientSetting = await getClientSetting()
 
   const returned = {
-    cacheDir: '.depsCache',
     optimizeDeps: {
       exclude: ['@etherealengine/volumetric'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],

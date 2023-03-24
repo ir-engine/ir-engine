@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/material/ClickAwayListener/index.js"],
-  "sourcesContent": ["export { default } from '@mui/base/ClickAwayListener';\nexport * from '@mui/base/ClickAwayListener';"],
-  "mappings": ";;;;;AAAA;AACA;",
-  "names": []
-}

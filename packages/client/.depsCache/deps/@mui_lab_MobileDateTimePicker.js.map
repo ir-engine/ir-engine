@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../node_modules/@mui/lab/MobileDateTimePicker/MobileDateTimePicker.js"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/no-unused-vars */\nimport * as React from 'react';\nlet warnedOnce = false;\n\nconst warn = () => {\n  if (!warnedOnce) {\n    console.warn(['MUI: The MobileDateTimePicker component was moved from `@mui/lab` to `@mui/x-date-pickers`.', '', \"You should use `import { MobileDateTimePicker } from '@mui/x-date-pickers'`\", \"or `import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker'`\", '', 'More information about this migration on our blog: https://mui.com/blog/lab-date-pickers-to-mui-x/.'].join('\\n'));\n    warnedOnce = true;\n  }\n};\n\n/**\n * @ignore - do not document.\n */\nconst MobileDateTimePicker = /*#__PURE__*/React.forwardRef(function DeprecatedMobileDateTimePicker() {\n  warn();\n  return null;\n});\nexport default MobileDateTimePicker;"],
-  "mappings": ";;;;;;;;AACA,YAAuB;AACvB,IAAI,aAAa;AAEjB,IAAM,OAAO,MAAM;AACjB,MAAI,CAAC,YAAY;AACf,YAAQ,KAAK,CAAC,+FAA+F,IAAI,+EAA+E,wFAAwF,IAAI,qGAAqG,EAAE,KAAK,IAAI,CAAC;AAC7Y,iBAAa;AAAA,EACf;AACF;AAKA,IAAM,uBAA0C,iBAAW,SAAS,iCAAiC;AACnG,OAAK;AACL,SAAO;AACT,CAAC;AACD,IAAO,+BAAQ;",
-  "names": []
-}
