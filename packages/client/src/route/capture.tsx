@@ -114,15 +114,20 @@ function CaptureComp() {
   }
 
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
-        <Routes>
-          <Route path=":locationName" element={<Capture />} />
-          <Route path="/" element={<Navigate to="/capture/default" />} />
-        </Routes>
-      </Suspense>
-    </ErrorBoundary>
+    <Routes>
+      <Route path=":locationName" element={<Capture />} />
+    </Routes>
   )
+  // return (
+  //   <ErrorBoundary>
+  //     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+  //       <Routes>
+  //         <Route path=":locationName" element={<Capture />} />
+  //         <Route path="/" element={<Navigate to="/capture/default" />} />
+  //       </Routes>
+  //     </Suspense>
+  //   </ErrorBoundary>
+  // )
 }
 
 export default CaptureComp
