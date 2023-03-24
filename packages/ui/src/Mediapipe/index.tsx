@@ -212,7 +212,7 @@ const Mediapipe = () => {
   return (
     <div className="w-fit-content h-fit-content relative pointer-events-auto">
       {!ready && (
-        <div className="w-full h-full absolute z-10 flex justify-center items-center">
+        <div className="w-full absolute z-10 flex justify-center items-center">
           <LoadingCircle message={t('common:loader.connecting')} />
         </div>
       )}
@@ -229,31 +229,29 @@ const Mediapipe = () => {
           >
             {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Record'}
           </button>
-          <div>
-            {recordingState.recordings.value.map((recording) => (
-              <div key={recording.id} className="bg-grey pointer-events-auto">
-                {/* a button to play back the recording */}
-                {recordingState.playback.value === recording.id ? (
-                  <button
-                    style={{ pointerEvents: 'all' }}
-                    onClick={() => {
-                      ECSRecordingFunctions.stopPlayback({
-                        recordingID: recording.id
-                      })
-                    }}
-                  >
-                    Stop - {recording.id}
-                  </button>
-                ) : (
-                  <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id)}>
-                    Play - {recording.id}
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+          <div></div>
         </div>
       )}
+      {recordingState.recordings.value.map((recording) => (
+        <div key={recording.id} className="bg-grey pointer-events-auto" style={{ pointerEvents: 'all' }}>
+          {recordingState.playback.value === recording.id ? (
+            <button
+              style={{ pointerEvents: 'all' }}
+              onClick={() => {
+                ECSRecordingFunctions.stopPlayback({
+                  recordingID: recording.id
+                })
+              }}
+            >
+              Stop - {recording.id}
+            </button>
+          ) : (
+            <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id)}>
+              Play - {recording.id}
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   )
 }

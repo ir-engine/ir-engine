@@ -7,12 +7,7 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import {
-  ECSDeserializer,
-  ECSSerialization,
-  ECSSerializer,
-  SerializedChunk
-} from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
+import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
@@ -303,7 +298,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
       .filter(Boolean),
     onChunkStarted: (chunkIndex) => {
       if (isClone) {
-        if (Engine.instance.worldNetwork)
+        if (entityChunks[chunkIndex] && Engine.instance.worldNetwork)
           for (let i = 0; i < entityChunks[chunkIndex].entities.length; i++) {
             const uuid = entityChunks[chunkIndex].entities[i]
             // override entity ID such that it is actually unique, by appendig the recording id
@@ -391,15 +386,23 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
     /** @todo */
   }
 
-  for (const entityID of activePlayback.entitiesSpawned) {
-    removeEntity(UUIDComponent.entitiesByUUID.value[entityID])
-  }
-
   playbackStopped(user.id, recording.id)
 }
 
 const playbackStopped = (userId: UserId, recordingID: string) => {
   const app = Engine.instance.api as Application
+
+  const activePlayback = activePlaybacks.get(recordingID)!
+
+  for (const entityUUID of activePlayback.entitiesSpawned) {
+    const entity = UUIDComponent.entitiesByUUID.value[entityUUID]
+    const networkObject = getComponent(entity, NetworkObjectComponent)
+    dispatchAction(
+      WorldNetworkAction.destroyObject({
+        networkId: networkObject.networkId
+      })
+    )
+  }
 
   removeDataChannelToReplay(userId)
 

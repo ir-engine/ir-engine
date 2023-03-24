@@ -822,7 +822,7 @@ export async function handleWebRtcReceiveTrack(
     (router) => router.id === transport?.internal.routerId
   )
   if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
-    const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer}`
+    const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer.id}`
     logger.error(`recv-track: ${peerID} ${msg}`)
     return spark.write({ type: MessageTypes.WebRTCReceiveTrack.toString(), data: { error: msg }, id: messageId })
   }

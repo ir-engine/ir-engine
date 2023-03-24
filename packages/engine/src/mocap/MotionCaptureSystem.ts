@@ -79,7 +79,7 @@ export default async function MotionCaptureSystem() {
   const xrState = getState(XRState)
 
   const objs = [] as Mesh[]
-  const debug = true
+  const debug = false
 
   if (debug)
     for (let i = 0; i < 33; i++) {
@@ -162,7 +162,6 @@ export default async function MotionCaptureSystem() {
         if (hasComponent(entity, AvatarHeadIKComponent)) {
           if (!nose.visibility || nose.visibility < 0.5) continue
           if (!nose.x || !nose.y || !nose.z) continue
-          console.log('nose', nose)
           const ik = getComponent(entity, AvatarHeadIKComponent)
           headPos
             .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
