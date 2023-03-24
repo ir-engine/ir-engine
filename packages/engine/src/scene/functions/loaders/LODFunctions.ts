@@ -114,7 +114,7 @@ export function createLODsFromModel(entity: Entity): Entity[] {
       (mesh: Mesh) => {
         if (!mesh?.isMesh) return
         const lodEntity = createEntity()
-        addComponent(entity, LODComponent, {
+        addComponent(lodEntity, LODComponent, {
           levels: [
             {
               model: mesh,
