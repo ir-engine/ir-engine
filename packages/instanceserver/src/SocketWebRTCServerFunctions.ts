@@ -50,7 +50,8 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
-      /** noop */
+      /** @todo - for now just send to everyone */
+      network.transport.bufferToAll(dataChannelType, data)
     },
 
     /**

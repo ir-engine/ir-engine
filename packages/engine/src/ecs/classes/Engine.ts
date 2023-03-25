@@ -321,7 +321,9 @@ export class Engine {
    * @returns
    */
   getUserAvatarEntity(userId: UserId) {
-    return this.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+    return this.getOwnedNetworkObjectsWithComponent(userId, AvatarComponent).find((eid) => {
+      return getComponent(eid, AvatarComponent).primary
+    })!
   }
 
   /**
@@ -336,6 +338,18 @@ export class Engine {
         return hasComponent(eid, component)
       }) || UndefinedEntity
     )
+  }
+
+  /**
+   * Get the user entity that has a specific component
+   * @param userId
+   * @param component
+   * @returns
+   */
+  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+    return this.getOwnedNetworkObjects(userId).filter((eid) => {
+      return hasComponent(eid, component)
+    })
   }
 
   /** ID of last network created. */

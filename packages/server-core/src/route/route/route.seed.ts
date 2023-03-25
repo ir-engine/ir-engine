@@ -27,7 +27,7 @@ export const routeSeedData = {
     },
     {
       project: 'default-project',
-      route: '/recorder'
+      route: '/capture'
     }
   ]
 }

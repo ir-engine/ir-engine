@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
@@ -30,10 +30,10 @@ import { AppLoadingServiceReceptor } from '@etherealengine/engine/src/common/App
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import Recorder from '../pages/recorder/[locationName]'
+import Capture from '../pages/capture/[locationName]'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
-function RecorderComp() {
+function CaptureComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
   const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
   const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
@@ -117,12 +117,12 @@ function RecorderComp() {
     <ErrorBoundary>
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
         <Routes>
-          <Route path=":locationName" element={<Recorder />} />
-          <Route path="/" element={<Navigate to="/recorder/default" />} />
+          <Route path=":locationName" element={<Capture />} />
+          <Route path="/" element={<Navigate to="/capture/default" />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>
   )
 }
 
-export default RecorderComp
+export default CaptureComp
