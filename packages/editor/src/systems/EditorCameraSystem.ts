@@ -31,7 +31,7 @@ export default async function EditorCameraSystem() {
   const execute = () => {
     if (Engine.instance.localClientEntity) return
     const editorCameraState = getMutableState(EditorCameraState)
-    const editorCamera = getState(EditorCameraState)
+    const editorCamera = editorCameraState.value
     const entity = Engine.instance.cameraEntity
     const transform = getComponent(entity, TransformComponent)
     const camera = getComponent(entity, CameraComponent)
@@ -107,14 +107,14 @@ export default async function EditorCameraSystem() {
       spherical.makeSafe()
       delta.setFromSpherical(spherical)
 
-      transform.position.copy(editorCamera.center).add(delta)
+      camera.position.copy(editorCamera.center).add(delta)
+      camera.updateMatrix()
       camera.lookAt(editorCamera.center)
+      transform.position.copy(camera.position)
+      transform.rotation.copy(camera.quaternion)
 
       editorCameraState.isOrbiting.set(false)
     }
-    transform.position.copy(camera.position)
-    transform.rotation.copy(camera.quaternion)
-    TransformComponent.dirtyTransforms[entity] = true
   }
 
   const cleanup = async () => {}

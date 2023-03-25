@@ -1,10 +1,13 @@
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { getMutableState, none } from '@etherealengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
-import { Network } from '../classes/Network'
-import { validateNetworkObjects } from '../functions/validateNetworkObjects'
+import { DataChannelType, Network } from '../classes/Network'
+import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../NetworkState'
 import { createDataReader } from '../serialization/DataReader'
 
-export const applyUnreliableQueueFast = (deserialize: Function) => () => {
+export const applyUnreliableQueueFast = (deserialize: any) => () => {
   const network = Engine.instance.worldNetwork
   if (!network) return
 
@@ -19,22 +22,51 @@ export const applyUnreliableQueueFast = (deserialize: Function) => () => {
   }
 }
 
+const toArrayBuffer = (buf) => {
+  const ab = new ArrayBuffer(buf.length)
+  const view = new Uint8Array(ab)
+  for (let i = 0; i < buf.length; ++i) {
+    view[i] = buf[i]
+  }
+  return ab
+}
+
+export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
+
 export default async function IncomingNetworkSystem() {
   const deserialize = createDataReader()
   const applyIncomingNetworkState = applyUnreliableQueueFast(deserialize)
 
-  const VALIDATE_NETWORK_INTERVAL = Engine.instance.tickRate * 5
+  const handleNetworkdata = (
+    network: Network,
+    dataChannel: DataChannelType,
+    fromPeerID: PeerID,
+    message: ArrayBufferLike
+  ) => {
+    if (network.isHosting) {
+      network.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
+      network.incomingMessageQueueUnreliableIDs.add(fromPeerID)
+      // forward data to clients in world immediately
+      // TODO: need to include the userId (or index), so consumers can validate
+      network.transport.bufferToAll(ecsDataChannelType, message)
+    } else {
+      network.incomingMessageQueueUnreliable.add(message)
+      network.incomingMessageQueueUnreliableIDs.add(fromPeerID) // todo, assume it
+    }
+  }
+
+  addDataChannelHandler(ecsDataChannelType, handleNetworkdata)
 
   const engineState = getEngineState()
 
   const execute = () => {
     if (!engineState.isEngineInitialized.value) return
     applyIncomingNetworkState()
-    if (Engine.instance.worldNetwork?.isHosting && Engine.instance.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
-      validateNetworkObjects(Engine.instance.worldNetwork as Network)
   }
 
-  const cleanup = async () => {}
+  const cleanup = async () => {
+    removeDataChannelHandler(ecsDataChannelType, handleNetworkdata)
+  }
 
   return { execute, cleanup }
 }

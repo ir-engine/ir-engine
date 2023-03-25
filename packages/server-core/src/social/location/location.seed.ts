@@ -4,6 +4,7 @@ import { locationSettingsSeed } from '../location-settings/location-settings.see
 
 export const locationSeed = {
   path: 'location',
+  insertSingle: true,
   templates: [
     {
       id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',

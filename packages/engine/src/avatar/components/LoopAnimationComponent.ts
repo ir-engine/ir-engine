@@ -17,11 +17,14 @@ export const LoopAnimationComponent = defineComponent({
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
     if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
     if (typeof json.action !== 'undefined') component.action.set(json.action as AnimationAction)
+  },
+  toJSON: (entity, component) => {
+    return {
+      activeClipIndex: component.activeClipIndex.value,
+      hasAvatarAnimations: component.hasAvatarAnimations.value,
+      action: component.action.value
+    }
   }
 })
 
 export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
-export const SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE = {
-  activeClipIndex: -1,
-  hasAvatarAnimations: false
-}

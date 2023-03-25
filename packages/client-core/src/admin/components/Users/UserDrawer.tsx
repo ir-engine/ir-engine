@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/common/components/AutoComplete'
@@ -6,6 +6,7 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
 import { CreateEditUser, UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import Checkbox from '@etherealengine/ui/src/Checkbox'
 import Container from '@etherealengine/ui/src/Container'
@@ -23,11 +24,11 @@ import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminAvatarService, useAdminAvatarState } from '../../services/AvatarService'
-import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { AdminAvatarService, AdminAvatarState } from '../../services/AvatarService'
+import { AdminScopeTypeService, AdminScopeTypeState } from '../../services/ScopeTypeService'
 import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
@@ -58,23 +59,23 @@ const defaultState = {
 
 const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const { t } = useTranslation()
-  const [editMode, setEditMode] = useState(false)
-  const [state, setState] = useState({ ...defaultState })
+  const editMode = useHookstate(false)
+  const state = useHookstate({ ...defaultState })
 
-  const { user } = useAuthState().value
-  const { avatars } = useAdminAvatarState().value
-  const { scopeTypes } = useScopeTypeState().value
+  const user = useHookstate(getMutableState(AuthState).user)
+  const avatars = useHookstate(getMutableState(AdminAvatarState).avatars)
+  const scopeTypes = useHookstate(getMutableState(AdminScopeTypeState).scopeTypes)
 
-  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'user:write')
-  const viewMode = mode === UserDrawerMode.ViewEdit && !editMode
+  const hasWriteAccess = user.scopes.get({ noproxy: true })?.find((item) => item.type === 'user:write')
+  const viewMode = mode === UserDrawerMode.ViewEdit && !editMode.value
 
-  const scopeMenu: AutoCompleteData[] = scopeTypes.map((el) => {
+  const scopeMenu: AutoCompleteData[] = scopeTypes.value.map((el) => {
     return {
       type: el.type
     }
   })
 
-  const avatarMenu: InputMenuItem[] = avatars.map((el) => {
+  const avatarMenu: InputMenuItem[] = avatars.get({ noproxy: true }).map((el) => {
     return {
       label: el.name,
       value: el.id
@@ -101,7 +102,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       }
     }
 
-    const avatarExists = avatars.find((item) => item.id === selectedUser.avatarId)
+    const avatarExists = avatars.get({ noproxy: true }).find((item) => item.id === selectedUser.avatarId)
     if (!avatarExists) {
       avatarMenu.push({
         value: selectedUser.avatarId!,
@@ -121,7 +122,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
   const loadSelectedUser = () => {
     if (selectedUser) {
-      setState({
+      state.set({
         ...defaultState,
         id: selectedUser.id,
         name: selectedUser.name || '',
@@ -133,28 +134,24 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }
 
   const handleCancel = () => {
-    if (editMode) {
+    if (editMode.value) {
       loadSelectedUser()
-      setEditMode(false)
+      editMode.set(false)
     } else handleClose()
   }
 
   const handleClose = () => {
     onClose()
-    setState({ ...defaultState })
+    state.set({ ...defaultState })
   }
 
   const handleChangeScopeType = (scope) => {
-    let tempErrors = {
-      ...state.formErrors
-    }
-
-    setState({ ...state, scopes: scope, formErrors: tempErrors })
+    state.merge({ scopes: scope })
   }
 
   const handleSelectAllScopes = () =>
     handleChangeScopeType(
-      scopeTypes.map((el) => {
+      scopeTypes.value.map((el) => {
         return { type: el.type }
       })
     )
@@ -164,44 +161,33 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    let tempErrors = { ...state.formErrors }
+    state.merge({ [name]: value })
 
-    switch (name) {
-      case 'name':
-        tempErrors.name = value.length < 2 ? t('admin:components.user.nameRequired') : ''
-        break
-      case 'avatar':
-        tempErrors.avatar = value.length < 2 ? t('admin:components.user.avatarRequired') : ''
-        break
-      default:
-        break
-    }
-
-    setState({ ...state, [name]: value, formErrors: tempErrors })
+    if (name === 'name')
+      state.formErrors.merge({ name: value.length < 2 ? t('admin:components.user.nameRequired') : '' })
+    if (name === 'avatar')
+      state.formErrors.merge({ name: value.length < 2 ? t('admin:components.user.avatarRequired') : '' })
   }
 
   const handleSubmit = async () => {
     const data: CreateEditUser = {
-      name: state.name,
-      avatarId: state.avatar,
-      isGuest: state.isGuest,
-      scopes: state.scopes as any
+      name: state.name.value,
+      avatarId: state.avatar.value,
+      isGuest: state.isGuest.value,
+      scopes: state.scopes.get({ noproxy: true })
     }
 
-    let tempErrors = {
-      ...state.formErrors,
-      name: state.name ? '' : t('admin:components.user.nameCantEmpty'),
-      avatar: state.avatar ? '' : t('admin:components.user.avatarCantEmpty')
-    }
+    state.formErrors.merge({
+      name: state.name.value ? '' : t('admin:components.user.nameCantEmpty'),
+      avatar: state.avatar.value ? '' : t('admin:components.user.avatarCantEmpty')
+    })
 
-    setState({ ...state, formErrors: tempErrors })
-
-    if (validateForm(state, tempErrors)) {
+    if (validateForm(state.value, state.formErrors.value)) {
       if (mode === UserDrawerMode.Create) {
         await AdminUserService.createUser(data)
       } else if (selectedUser) {
         AdminUserService.patchUser(selectedUser.id, data)
-        setEditMode(false)
+        editMode.set(false)
       }
 
       handleClose()
@@ -216,18 +202,18 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         <DialogTitle className={styles.textAlign}>
           {mode === UserDrawerMode.Create && t('admin:components.user.createUser')}
           {mode === UserDrawerMode.ViewEdit &&
-            editMode &&
+            editMode.value &&
             `${t('admin:components.common.update')} ${selectedUser?.name}`}
-          {mode === UserDrawerMode.ViewEdit && !editMode && selectedUser?.name}
+          {mode === UserDrawerMode.ViewEdit && !editMode.value && selectedUser?.name}
         </DialogTitle>
 
-        <InputText name="id" label={t('admin:components.user.id')} value={state.id} disabled />
+        <InputText name="id" label={t('admin:components.user.id')} value={state.id.value} disabled />
 
         <InputText
           name="name"
           label={t('admin:components.user.name')}
-          value={state.name}
-          error={state.formErrors.name}
+          value={state.name.value}
+          error={state.formErrors.name.value}
           disabled={viewMode}
           onChange={handleChange}
         />
@@ -235,8 +221,8 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         <InputSelect
           name="avatar"
           label={t('admin:components.user.avatar')}
-          value={state.avatar}
-          error={state.formErrors.avatar}
+          value={state.avatar.value}
+          error={state.formErrors.avatar.value}
           menu={avatarMenu}
           disabled={viewMode}
           onChange={handleChange}
@@ -349,7 +335,12 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         )}
 
         {viewMode && (
-          <AutoComplete data={scopeMenu} label={t('admin:components.user.grantScope')} value={state.scopes} disabled />
+          <AutoComplete
+            data={scopeMenu}
+            label={t('admin:components.user.grantScope')}
+            value={state.scopes.get({ noproxy: true })}
+            disabled
+          />
         )}
 
         {!viewMode && (
@@ -357,7 +348,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             <AutoComplete
               data={scopeMenu}
               label={t('admin:components.user.grantScope')}
-              value={state.scopes}
+              value={state.scopes.get({ noproxy: true })}
               onChange={handleChangeScopeType}
             />
             <div className={styles.scopeButtons}>
@@ -375,13 +366,13 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
-          {(mode === UserDrawerMode.Create || editMode) && (
+          {(mode === UserDrawerMode.Create || editMode.value) && (
             <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
-          {mode === UserDrawerMode.ViewEdit && !editMode && (
-            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
+          {mode === UserDrawerMode.ViewEdit && !editMode.value && (
+            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => editMode.set(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}

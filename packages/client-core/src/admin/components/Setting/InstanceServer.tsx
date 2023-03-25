@@ -1,31 +1,34 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { useAuthState } from '../../../user/services/AuthService'
-import { InstanceServerSettingService } from '../../services/Setting/InstanceServerSettingService'
-import { useInstanceServerSettingState } from '../../services/Setting/InstanceServerSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import {
+  AdminInstanceServerSettingsState,
+  InstanceServerSettingService
+} from '../../services/Setting/InstanceServerSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const InstanceServer = () => {
   const { t } = useTranslation()
-  const instanceServerSettingState = useInstanceServerSettingState()
-  const instanceServerSettings = instanceServerSettingState?.instanceserver?.value || []
-  const authState = useAuthState()
-  const user = authState.user
+  const instanceServerSettingState = useHookstate(getMutableState(AdminInstanceServerSettingsState))
+  const instanceServerSettings = instanceServerSettingState?.instanceserver?.get({ noproxy: true }) || []
 
-  const [local, setLocal] = useState(true)
+  const user = useHookstate(getMutableState(AuthState).user)
+
+  const local = useHookstate(true)
 
   useEffect(() => {
     if (user?.id?.value != null && instanceServerSettingState?.updateNeeded?.value === true) {
       InstanceServerSettingService.fetchedInstanceServerSettings()
     }
-  }, [authState?.user?.id?.value, instanceServerSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, instanceServerSettingState?.updateNeeded?.value])
 
   return (
     <Box>
@@ -95,9 +98,9 @@ const InstanceServer = () => {
             <InputSwitch
               name="local"
               label={t('admin:components.setting.local')}
-              checked={local}
+              checked={local.value}
               disabled
-              onChange={(event) => setLocal(event.target.checked)}
+              onChange={(event) => local.set(event.target.checked)}
             />
           </Grid>
         </Grid>

@@ -32,6 +32,7 @@ import { PartyService, usePartyState } from '../../social/services/PartyService'
 import { MediaStreamActions } from '../../transports/MediaStreams'
 import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
 import InstanceServerWarnings from './InstanceServerWarnings'
+import { DataChannels } from './ProducersAndConsumers'
 
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
@@ -97,10 +98,10 @@ export const NetworkInstanceProvisioning = () => {
     if (
       engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
-      currentLocationInstanceConnection.provisioned.value === true &&
-      currentLocationInstanceConnection.readyToConnect.value === true &&
-      currentLocationInstanceConnection.connecting.value === false &&
-      currentLocationInstanceConnection.connected.value === false
+      currentLocationInstanceConnection.provisioned.value &&
+      currentLocationInstanceConnection.readyToConnect.value &&
+      !currentLocationInstanceConnection.connecting.value &&
+      !currentLocationInstanceConnection.connected.value
     )
       LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
   }, [
@@ -193,6 +194,7 @@ export const NetworkInstanceProvisioning = () => {
 
   return (
     <>
+      <DataChannels />
       <PeerMedia />
       <InstanceServerWarnings />
     </>

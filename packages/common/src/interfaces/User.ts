@@ -1,4 +1,5 @@
 import { InstanceInterface } from '../dbmodels/Instance'
+import { AdminScopeType } from './AdminScopeType'
 import { AvatarInterface } from './AvatarInterface'
 import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
@@ -17,7 +18,7 @@ export interface UserSetting {
 
 export interface UserScope {
   type: string
-  id: string
+  id?: string
 }
 
 export interface UserInterface {
@@ -80,7 +81,7 @@ export interface CreateEditUser {
   avatarId?: string
   inviteCode?: string
   isGuest?: boolean
-  scopes?: UserScope[]
+  scopes?: UserScope[] | AdminScopeType[]
 }
 
 export function resolveUser(user: any): UserInterface {

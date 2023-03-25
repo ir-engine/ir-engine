@@ -7,7 +7,7 @@ import {
 } from '@etherealengine/common/src/interfaces/StaticResourceResult'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -18,7 +18,7 @@ const logger = multiLogger.child({ component: 'client-core:ResourcesService' })
 export const RESOURCE_PAGE_LIMIT = 100
 
 //State
-const AdminResourceState = defineState({
+export const AdminResourceState = defineState({
   name: 'AdminResourceState',
   initial: () => ({
     resources: [] as Array<StaticResourceInterface>,
@@ -98,10 +98,6 @@ export const AdminResourceReceptors = {
   resourceNeedsUpdateReceptor,
   resourcesResetFilterReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessAdminResourceState = () => getMutableState(AdminResourceState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAdminResourceState = () => useState(accessAdminResourceState())
 
 export const ResourceService = {
   createOrUpdateResource: async (resource: any, resourceBlob: Blob) => {
@@ -132,7 +128,7 @@ export const ResourceService = {
     if (sortField.length > 0) {
       sortData[sortField] = orderBy === 'desc' ? 0 : 1
     }
-    const adminResourceState = accessAdminResourceState()
+    const adminResourceState = getMutableState(AdminResourceState)
     const limit = adminResourceState.limit.value
     const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
     const selectedResourceTypes = adminResourceState.selectedResourceTypes.value
@@ -169,30 +165,30 @@ export const ResourceService = {
 //Action
 export class AdminResourceActions {
   static resourceNeedsUpdated = defineAction({
-    type: 'xre.client.AdminResource.RESOURCE_NEEDS_UPDATE' as const
+    type: 'ee.client.AdminResource.RESOURCE_NEEDS_UPDATE' as const
   })
 
   static resourcesFetched = defineAction({
-    type: 'xre.client.AdminResource.RESOURCES_RETRIEVED' as const,
+    type: 'ee.client.AdminResource.RESOURCES_RETRIEVED' as const,
     resources: matches.object as Validator<unknown, StaticResourceResult>
   })
 
   static resourceFiltersFetched = defineAction({
-    type: 'xre.client.AdminResource.RESOURCE_FILTERS_RETRIEVED' as const,
+    type: 'ee.client.AdminResource.RESOURCE_FILTERS_RETRIEVED' as const,
     filters: matches.object as Validator<unknown, StaticResourceFilterResult>
   })
 
   static setSelectedMimeTypes = defineAction({
-    type: 'xre.client.AdminResource.RESOURCE_SET_MIME' as const,
+    type: 'ee.client.AdminResource.RESOURCE_SET_MIME' as const,
     types: matches.object as Validator<unknown, string[]>
   })
 
   static setSelectedResourceTypes = defineAction({
-    type: 'xre.client.AdminResource.RESOURCE_SET_TYPE' as const,
+    type: 'ee.client.AdminResource.RESOURCE_SET_TYPE' as const,
     types: matches.object as Validator<unknown, string[]>
   })
 
   static resourcesResetFilter = defineAction({
-    type: 'xre.client.AdminResource.RESOURCES_RESET_FILTER' as const
+    type: 'ee.client.AdminResource.RESOURCES_RESET_FILTER' as const
   })
 }

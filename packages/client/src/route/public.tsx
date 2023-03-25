@@ -5,14 +5,13 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import {
   AuthSettingsService,
   AuthSettingsServiceReceptor,
-  useAuthSettingState
+  AuthSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import {
-  ClientSettingsServiceReceptor,
-  useClientSettingState
+  AdminClientSettingsState,
+  ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { AppLoadingServiceReceptor } from '@etherealengine/client-core/src/common/services/AppLoadingService'
 import { AppServiceReceptor } from '@etherealengine/client-core/src/common/services/AppService'
 import { DialogServiceReceptor } from '@etherealengine/client-core/src/common/services/DialogService'
 import { MediaInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
@@ -28,6 +27,7 @@ import { InviteService, InviteServiceReceptor } from '@etherealengine/client-cor
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
+import { AppLoadingServiceReceptor } from '@etherealengine/engine/src/common/AppLoadingService'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
@@ -43,11 +43,11 @@ const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/edito
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
-  const clientSettingsState = useClientSettingState()
-  const authSettingsState = useAuthSettingState()
+  const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
+  const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
   const location = useLocation()
   const navigate = useNavigate()
-  const [routesReady, setRoutesReady] = useState(false)
+  const routesReady = useHookstate(false)
   const routerState = useHookstate(getMutableState(RouterState))
   const route = useRouter()
   const { t } = useTranslation()
@@ -119,12 +119,12 @@ function RouterComp() {
 
   useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes
-    if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
+    if (/auth\/oauth/.test(location.pathname) && customRoutes) return routesReady.set(true)
     if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
-      return setRoutesReady(true)
+      return routesReady.set(true)
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
-  if (!routesReady) {
+  if (!routesReady.value) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 

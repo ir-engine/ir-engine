@@ -1,4 +1,4 @@
-import { Group, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Group, MathUtils, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { V_001, V_100 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -85,18 +85,24 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
 
   /** calculate internal angle of head to hip using cosine rule */
   const hipToheadInternalAngle = Math.acos(
-    (rigComponent.torsoLength * rigComponent.torsoLength +
-      pivotToHeadLength * pivotToHeadLength -
-      pivotHalfLengthSquare) /
-      (2 * rigComponent.torsoLength * pivotToHeadLength)
+    Math.min(
+      1,
+      (rigComponent.torsoLength * rigComponent.torsoLength +
+        pivotToHeadLength * pivotToHeadLength -
+        pivotHalfLengthSquare) /
+        (2 * rigComponent.torsoLength * pivotToHeadLength)
+    )
   )
 
   /** calculate internal angle of feet to knee using cosine rule */
   const kneeToFootInternalAngle = Math.acos(
-    (rigComponent.lowerLegLength * rigComponent.lowerLegLength +
-      pivotToFootLength * pivotToFootLength -
-      pivotHalfLengthSquare) /
-      (2 * rigComponent.lowerLegLength * pivotToFootLength)
+    Math.min(
+      1,
+      (rigComponent.lowerLegLength * rigComponent.lowerLegLength +
+        pivotToFootLength * pivotToFootLength -
+        pivotHalfLengthSquare) /
+        (2 * rigComponent.lowerLegLength * pivotToFootLength)
+    )
   )
 
   const hipToHeadAngle = degtoRad90 - hipToheadInternalAngle

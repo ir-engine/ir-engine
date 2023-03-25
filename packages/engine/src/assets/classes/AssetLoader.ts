@@ -3,7 +3,6 @@ import {
   AudioLoader,
   BufferAttribute,
   BufferGeometry,
-  CompressedTextureLoader,
   FileLoader,
   Group,
   LOD,
@@ -33,6 +32,7 @@ import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTextur
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
@@ -141,7 +141,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState(Engine.instance.currentScene).LODs.value
+  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState().LODs.value
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {
@@ -240,6 +240,8 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     return AssetClass.Video
   } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
     return AssetClass.Audio
+  } else if (/\.drcs|uvol|manifest$/.test(assetFileName)) {
+    return AssetClass.Volumetric
   } else {
     return AssetClass.Unknown
   }
@@ -295,7 +297,7 @@ export const getLoader = (assetType: AssetType) => {
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
-      return Engine.instance.gltfLoader
+      return Engine.instance.gltfLoader || createGLTFLoader()
     case AssetType.USDZ:
       return usdzLoader()
     case AssetType.FBX:

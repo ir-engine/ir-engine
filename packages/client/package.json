@@ -40,6 +40,7 @@
     "@etherealengine/hyperflux": "^1.2.0-rc6",
     "@etherealengine/matchmaking": "^1.2.0-rc6",
     "@etherealengine/projects": "^1.2.0-rc6",
+    "@etherealengine/ui": "^1.2.0-rc6",
     "@hookstate/core": "4.0.0-rc21",
     "@mui/icons-material": "5.11.0",
     "@mui/material": "5.11.0",
@@ -66,11 +67,14 @@
     "react-router-dom": "6.8.1",
     "sass": "1.50.0",
     "sequelize": "6.21.6",
+    "tailwindcss": "^3.2.7",
     "ts-node": "10.8.2",
     "vite": "4.1.1",
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-html": "3.2.0",
-    "vite-plugin-package-config": "0.1.1"
+    "vite-plugin-package-config": "0.1.1",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21"
   },
   "devDependencies": {
     "@types/node": "18.11.18",

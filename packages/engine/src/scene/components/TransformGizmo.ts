@@ -5,6 +5,8 @@ export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
 
   onInit(entity) {
-    return new TransformGizmo()
+    const gizmo = new TransformGizmo()
+    gizmo.load()
+    return gizmo
   }
 })

@@ -3,44 +3,43 @@ import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
 import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 
 export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
-  const [fullScreenActive, setFullScreenActive] = useState(false)
+  const fullScreenActive = useHookstate(false)
   const handle = useFullScreenHandle()
 
   useEffect(() => {
     if (ref?.current) {
       const canvas = document.getElementById('engine-renderer-canvas')!
-      if (document.body.contains(canvas)) {
-        document.body.removeChild(canvas)
-        ref.current.appendChild(canvas)
-      }
+      canvas.parentElement?.removeChild(canvas)
+      ref.current.appendChild(canvas)
     }
   }, [ref])
 
   const reportChange = useCallback((state) => {
     if (state) {
-      setFullScreenActive(state)
+      fullScreenActive.set(state)
     } else {
-      setFullScreenActive(state)
+      fullScreenActive.set(state)
     }
   }, [])
 
   useEffect(() => {
-    if (fullScreenActive) handle.enter()
+    if (fullScreenActive.value) handle.enter()
     else handle.exit()
-  }, [fullScreenActive])
+  }, [fullScreenActive.value])
 
   return iOS ? (
     <div id={'engine-container'} ref={ref}>
       {props.children}
     </div>
   ) : (
-    <FullscreenContext.Provider value={[fullScreenActive, setFullScreenActive]}>
-      <FullScreen handle={handle} onChange={reportChange}>
-        <div id={'engine-container'} ref={ref}>
+    <FullscreenContext.Provider value={[fullScreenActive.value, fullScreenActive.set]}>
+      <FullScreen handle={handle} onChange={reportChange} className="h-full">
+        <div id={'engine-container'} ref={ref} className="h-full">
           {props.children}
         </div>
       </FullScreen>

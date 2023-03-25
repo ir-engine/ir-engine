@@ -3,6 +3,7 @@ import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
 import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   defineQuery,
@@ -18,6 +19,7 @@ import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getState } from '@etherealengine/hyperflux'
 
 import { accessEditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
@@ -52,8 +54,7 @@ const getScenePositionForBake = (entity: Entity | null) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const world = Engine.instance.currentScene
-  const isSceneEntity = entity === world.sceneEntity
+  const isSceneEntity = entity === getState(SceneState).sceneEntity
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {

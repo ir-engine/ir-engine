@@ -24,7 +24,7 @@ export const start = async (): Promise<void> => {
   app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)
 
-  if (!config.kubernetes.enabled && !config.db.forceRefresh) {
+  if (!config.kubernetes.enabled && !config.db.forceRefresh && !config.testEnabled) {
     app.isSetup.then(() => {
       app.service('project')._fetchDevLocalProjects()
     })

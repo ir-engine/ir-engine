@@ -2,12 +2,12 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { PatchServerSetting, ServerSetting } from '@etherealengine/common/src/interfaces/ServerSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminServerSettingsState = defineState({
+export const AdminServerSettingsState = defineState({
   name: 'AdminServerSettingsState',
   initial: () => ({
     server: [] as Array<ServerSetting>,
@@ -29,10 +29,6 @@ export const ServerSettingReceptors = {
   fetchedSeverInfoReceptor,
   serverSettingPatchedReceptor
 }
-/**@deprecated use getMutableState directly instead */
-export const accessServerSettingState = () => getMutableState(AdminServerSettingsState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useServerSettingState = () => useState(accessServerSettingState())
 
 export const ServerSettingService = {
   fetchServerSettings: async (inDec?: 'increment' | 'decrement') => {
@@ -55,10 +51,10 @@ export const ServerSettingService = {
 
 export class AdminServerSettingActions {
   static fetchedSeverInfo = defineAction({
-    type: 'xre.client.AdminServerSetting.SETTING_SERVER_DISPLAY' as const,
+    type: 'ee.client.AdminServerSetting.SETTING_SERVER_DISPLAY' as const,
     serverSettings: matches.object as Validator<unknown, Paginated<ServerSetting>>
   })
   static serverSettingPatched = defineAction({
-    type: 'xre.client.AdminServerSetting.SERVER_SETTING_PATCHED' as const
+    type: 'ee.client.AdminServerSetting.SERVER_SETTING_PATCHED' as const
   })
 }

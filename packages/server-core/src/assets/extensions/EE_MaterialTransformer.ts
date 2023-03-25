@@ -41,6 +41,7 @@ export class EEMaterialArgs extends Property<IEEMaterialArgs> {
       extras: {}
     }
   }
+
   public getProp(field: string) {
     return this.get(field)
   }

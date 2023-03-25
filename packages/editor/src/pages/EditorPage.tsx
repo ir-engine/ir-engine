@@ -3,11 +3,8 @@ import { useParams } from 'react-router-dom'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import PortalLoadSystem from '@etherealengine/client-core/src/systems/PortalLoadSystem'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientModules } from '@etherealengine/client-core/src/world/ClientModules'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
@@ -22,7 +19,6 @@ import EditorControlSystem, { createTransformGizmo } from '../systems/EditorCont
 import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
 import GizmoSystem from '../systems/GizmoSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
-import RenderSystem from '../systems/RenderSystem'
 
 export const EditorPage = () => {
   const params = useParams()
@@ -37,12 +33,6 @@ export const EditorPage = () => {
   const [engineReady, setEngineReady] = useState(true)
 
   const systems = [
-    {
-      uuid: 'core.editor.RenderSystem',
-      systemLoader: () => Promise.resolve({ default: RenderSystem }),
-      type: SystemUpdateType.POST_RENDER,
-      args: { enabled: true }
-    },
     {
       uuid: 'core.editor.EditorFlyControlSystem',
       systemLoader: () => Promise.resolve({ default: EditorFlyControlSystem }),
@@ -65,12 +55,6 @@ export const EditorPage = () => {
       uuid: 'core.editor.GizmoSystem',
       systemLoader: () => Promise.resolve({ default: GizmoSystem }),
       type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      uuid: 'core.editor.PortalLoadSystem',
-      systemLoader: () => Promise.resolve({ default: PortalLoadSystem }),
-      type: SystemUpdateType.FIXED,
       args: { enabled: true }
     },
     {

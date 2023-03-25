@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
@@ -10,6 +10,7 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import Checkbox from '@etherealengine/ui/src/Checkbox'
 import Container from '@etherealengine/ui/src/Container'
@@ -18,9 +19,9 @@ import DialogTitle from '@etherealengine/ui/src/DialogTitle'
 import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
 import Icon from '@etherealengine/ui/src/Icon'
 
-import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
+import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
-import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
+import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 import ProjectFields from './ProjectFields'
 
@@ -32,33 +33,34 @@ interface Props {
 
 const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const { t } = useTranslation()
-  const [error, setError] = useState('')
-  const [selectedTag, setSelectedTag] = useState('')
-  const [updateProjects, setUpdateProjects] = useState(false)
-  const [projectsToUpdate, setProjectsToUpdate] = useState(new Map())
-  const [submitDisabled, setSubmitDisabled] = useState(true)
-  const [processing, setProcessing] = useState(false)
+  const error = useHookstate('')
+  const selectedTag = useHookstate('')
+  const updateProjects = useHookstate(false)
+  const projectsToUpdate = useHookstate(new Map())
+  const submitDisabled = useHookstate(true)
+  const processing = useHookstate(false)
 
-  const adminProjectState = useProjectState()
+  const adminProjectState = useHookstate(getMutableState(ProjectState))
   const adminProjects = adminProjectState.projects
   const engineCommit = adminProjectState.builderInfo.engineCommit
 
-  const projectUpdateStatus = useProjectUpdateState()
+  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState))
 
   const handleClose = () => {
-    setError('')
-    setSelectedTag('')
-    setUpdateProjects(false)
-    adminProjects.value.forEach((adminProject) => {
-      if (projectsToUpdate.get(adminProject.name)) ProjectUpdateService.clearProjectUpdate(adminProject)
+    error.set('')
+    selectedTag.set('')
+    updateProjects.set(false)
+    adminProjects.get({ noproxy: true }).forEach((adminProject) => {
+      if (projectsToUpdate.get({ noproxy: true }).get(adminProject.name))
+        ProjectUpdateService.clearProjectUpdate(adminProject)
     })
-    setProjectsToUpdate(new Map())
-    setProcessing(false)
+    projectsToUpdate.set(new Map())
+    processing.set(false)
     onClose()
   }
 
   const handleTagChange = async (e) => {
-    setSelectedTag(e.target.value)
+    selectedTag.set(e.target.value)
   }
 
   const tagMenu: InputMenuItem[] = builderTags.map((el) => {
@@ -78,10 +80,10 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   })
 
   const handleSubmit = async () => {
-    setProcessing(true)
+    processing.set(true)
     await ProjectService.updateEngine(
-      selectedTag,
-      updateProjects,
+      selectedTag.value,
+      updateProjects.value,
       Object.keys(projectUpdateStatus.value).map((name) => {
         return {
           name: projectUpdateStatus[name].projectName.value,
@@ -95,13 +97,13 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
         }
       })
     )
-    setProcessing(false)
+    processing.set(false)
     handleClose()
   }
 
   const toggleProjectToUpdate = async (e: React.ChangeEvent<HTMLInputElement>, project: ProjectInterface) => {
     const thisProjectName = project.name
-    const newProjects = new Map(projectsToUpdate)
+    const newProjects = new Map(projectsToUpdate.get({ noproxy: true }))
     if (newProjects.get(thisProjectName)) {
       newProjects.delete(thisProjectName)
       ProjectUpdateService.clearProjectUpdate(project)
@@ -110,7 +112,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
       ProjectUpdateService.initializeProjectUpdate(project)
       ProjectUpdateService.setTriggerSetDestination(project, project.repositoryPath)
     }
-    setProjectsToUpdate(newProjects)
+    projectsToUpdate.set(newProjects)
   }
 
   useEffect(() => {
@@ -118,12 +120,12 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
       Object.keys(projectUpdateStatus.value)
         .map((projectName) => projectUpdateStatus[projectName]?.submitDisabled.value)
         .indexOf(true) > -1
-    setSubmitDisabled(selectedTag?.length === 0 || invalidProjects)
-  }, [selectedTag, projectUpdateStatus])
+    submitDisabled.set(selectedTag?.value?.length === 0 || invalidProjects)
+  }, [selectedTag?.value, projectUpdateStatus])
 
   useEffect(() => {
     const matchingTag = builderTags.find((tag) => tag.tag === engineCommit.value)
-    if (open && engineCommit.value && matchingTag && selectedTag.length === 0) setSelectedTag(engineCommit.value)
+    if (open && engineCommit.value && matchingTag && selectedTag.value.length === 0) selectedTag.set(engineCommit.value)
   }, [open, engineCommit.value, builderTags])
 
   return (
@@ -143,45 +145,48 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
           <InputSelect
             name="commitData"
             label={t('admin:components.project.commitData')}
-            value={selectedTag}
+            value={selectedTag.value}
             menu={tagMenu}
-            error={error}
+            error={error.value}
             onChange={handleTagChange}
           />
         }
 
         <FormControlLabel
-          control={<Checkbox checked={updateProjects} onChange={() => setUpdateProjects(!updateProjects)} />}
+          control={
+            <Checkbox checked={updateProjects.value} onChange={() => updateProjects.set(!updateProjects.value)} />
+          }
           label={t('admin:components.project.updateSelector')}
         />
 
-        {updateProjects && (
+        {updateProjects.value && (
           <>
             <div className={styles.projectUpdateWarning}>
               <Icon type="WarningAmber" />
               {t('admin:components.project.projectWarning')}
             </div>
             <div className={styles.projectSelector}>
-              {adminProjects.value
+              {adminProjects
+                .get({ noproxy: true })
                 ?.filter((project) => project.name !== 'default-project' && project.repositoryPath?.length > 0)
                 .map((project) => (
-                  <div className={styles.projectUpdateContainer}>
+                  <div key={project.id} className={styles.projectUpdateContainer}>
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={projectsToUpdate.get(project.name)}
+                          checked={projectsToUpdate.get({ noproxy: true }).get(project.name)}
                           onChange={(e) => toggleProjectToUpdate(e, project)}
                         />
                       }
                       label={project.name}
                     />
 
-                    {projectsToUpdate.get(project.name) && projectUpdateStatus[project.name] && (
+                    {projectsToUpdate.get({ noproxy: true }).get(project.name) && projectUpdateStatus[project.name] && (
                       <ProjectFields
                         inputProject={project}
                         existingProject={true}
                         changeDestination={false}
-                        processing={processing}
+                        processing={processing.value}
                       />
                     )}
                   </div>
@@ -195,12 +200,12 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
             <Button className={styles.outlinedButton} onClick={handleClose}>
               {t('admin:components.common.cancel')}
             </Button>
-            {!processing && (
-              <Button className={styles.gradientButton} disabled={submitDisabled} onClick={handleSubmit}>
+            {!processing.value && (
+              <Button className={styles.gradientButton} disabled={submitDisabled.value} onClick={handleSubmit}>
                 {t('admin:components.common.submit')}
               </Button>
             )}
-            {processing && (
+            {processing.value && (
               <LoadingView title={t('admin:components.project.processing')} variant="body1" fullHeight={false} />
             )}
           </>

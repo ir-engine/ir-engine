@@ -10,7 +10,7 @@ import {
 } from '@etherealengine/hyperflux'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
-import { Groups, Person } from '@mui/icons-material'
+import { FaceRetouchingNatural, Groups, Person } from '@mui/icons-material'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
@@ -68,7 +68,7 @@ export const UserMenu = (): any => {
       [Views.AvatarContext]: AvatarContextMenu
     })
     getMutableState(PopupMenuState).hotbar.merge({
-      [Views.Profile]: Person,
+      [Views.Profile]: FaceRetouchingNatural,
       [Views.Share]: Groups,
       [Views.Emote]: EmoteIcon
     })

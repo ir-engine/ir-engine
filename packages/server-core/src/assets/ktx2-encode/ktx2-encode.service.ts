@@ -1,9 +1,8 @@
 import appRootPath from 'app-root-path'
-import { exec } from 'child_process'
+import { execFileSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import { MathUtils } from 'three'
-import util from 'util'
 
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 
@@ -18,7 +17,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 async function createKtx2(data: KTX2EncodeArguments): Promise<string | string[]> {
-  const promiseExec = util.promisify(exec)
+  const serverDir = path.join(appRootPath.path, 'packages/server')
   const projectDir = path.join(appRootPath.path, 'packages/projects')
   const BASIS_U = path.join(appRootPath.path, 'packages/server/public/loader_decoders/basisu')
   const inURI = /.*(projects\/.*)$/.exec(data.src)![1]
@@ -27,20 +26,20 @@ async function createKtx2(data: KTX2EncodeArguments): Promise<string | string[]>
   const fileData = fs.statSync(inPath)
   const isDir = fileData.isDirectory()
   async function doEncode(inPath) {
-    const outPath = inPath.replace(/\.[^\.]+$/, `.${data.format}`)
-    const outURIDir = isDir ? inURI : path.dirname(inURI)
+    const outPath = inPath.replace(/\.[^\.]+$/, '.ktx2')
+    const outURIDir = path.dirname(inURI)
     const fileName = /[^\\/]*$/.exec(outPath)![0]
-    const command = `${BASIS_U} ${data.format === 'ktx2' ? ' -ktx2' : ''}${'UASTC' ? ' -uastc' : ''}${
-      data.mipmaps ? ' -mipmap' : ''
-    } -y_flip -linear -q ${data.quality} ${inPath}`
-    console.log(command)
-    console.log(await promiseExec(command))
-    console.log(await promiseExec(`mv ${fileName} ${outPath}`))
-    const result: string = await app.service('file-browser').patch(null, {
+    const args = `-ktx2${data.mode === 'UASTC' ? ' -uastc' : ''}${data.mipmaps ? ' -mipmap' : ''} -y_flip -linear -q ${
+      data.quality
+    } ${inPath}`
+    console.log(args)
+    console.log(execFileSync(BASIS_U, args.split(/\s+/)))
+    console.log(execFileSync('mv', [fileName, outPath]))
+    const result = await this.app.service('file-browser').patch(null, {
       fileName,
       path: outURIDir,
       body: fs.readFileSync(outPath),
-      contentType: `image/${data.format}`
+      contentType: 'image/ktx2'
     })
     return result
   }

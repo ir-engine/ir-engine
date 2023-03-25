@@ -1,55 +1,91 @@
+import { FeathersService } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
+import { isEqual } from 'lodash'
 import path from 'path'
+import { Model, ModelStatic, Op } from 'sequelize'
+
+import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 
 import { Application } from '../declarations'
 import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
 import seederConfig from './seeder-config'
 
-const settingsServiceNames = [
-  'authentication-setting',
-  'aws-setting',
-  'chargebee-setting',
-  'coil-setting',
-  'client-setting',
-  'email-setting',
-  'instance-server-setting',
-  'redis-setting',
-  'server-setting',
-  'task-server-setting'
-]
+async function insertOneByOne(app: Application, config: ServicesSeedConfig) {
+  const service = app.service(config.path as any) as FeathersService
+  const templates = config.templates as any[]
+
+  const Model = (service as any).Model as ModelStatic<Model>
+
+  const templateInsertionPromises = templates.map(
+    (template) =>
+      new Promise(async (resolve) => {
+        const searchTemplate = {}
+
+        const uniqueField = Object.values(Model.rawAttributes).find((value: any) => value.unique) as any
+
+        if (uniqueField) {
+          searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
+        } else {
+          for (const key of Object.keys(template)) {
+            if (typeof template[key] !== 'object' && template[key]) {
+              searchTemplate[key] = template[key]
+            }
+          }
+        }
+
+        const result = await service.find({
+          query: searchTemplate
+        })
+        const isSeeded = result.total > 0
+
+        let insertionResult: any
+        if (!isSeeded) insertionResult = await service.create(template)
+
+        resolve(insertionResult)
+      })
+  )
+
+  return Promise.all(templateInsertionPromises)
+}
 
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {
-  if (forceRefresh || prepareDb)
-    for (let config of seederConfig) {
-      if (config.path) {
-        const templates = config.templates
-        const service = app.service(config.path as any)
-        if (templates)
-          for (let template of templates) {
-            let isSeeded
-            if (settingsServiceNames.indexOf(config.path) > -1) {
-              const result = await service.find()
-              isSeeded = result.total > 0
-            } else {
-              const searchTemplate = {}
+  if (!forceRefresh && !prepareDb) return
 
-              const sequelizeModel = service.Model
-              const uniqueField = Object.values(sequelizeModel.rawAttributes).find((value: any) => value.unique) as any
-              if (uniqueField) searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
-              else
-                for (let key of Object.keys(template))
-                  if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
-              const result = await service.find({
-                query: searchTemplate
-              })
-              isSeeded = result.total > 0
-            }
-            if (!isSeeded) await service.create(template)
+  const insertionPromises = seederConfig
+    .filter((config) => config.path && config.templates)
+    .map(
+      (config) =>
+        new Promise(async (resolve) => {
+          if (config.insertSingle) {
+            resolve(await insertOneByOne(app, config))
+            return
           }
-      }
-    }
+
+          const templates = config.templates as any[]
+
+          const Model = app.service(config.path as any).Model as ModelStatic<Model>
+
+          const rows = await Model.findAll({
+            where: {
+              [Op.or]: templates
+            },
+            attributes: Object.keys(templates.at(0)),
+            raw: true
+          })
+
+          const templatesToBeInserted = templates.filter(
+            (template) => rows.findIndex((row) => isEqual(row, template)) === -1
+          )
+
+          const service = app.service(config.path as any) as FeathersService
+
+          resolve(await service.create(templatesToBeInserted))
+        })
+    )
+
+  await Promise.all(insertionPromises)
 
   if (forceRefresh) {
     // for local dev clear the storage provider
@@ -59,7 +95,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     }
     copyDefaultProject()
     await app.service('project')._seedProject('default-project')
-    await uploadLocalProjectToProvider('default-project')
-    if (!config.kubernetes.enabled) await app.service('project')._fetchDevLocalProjects()
+    await uploadLocalProjectToProvider(app, 'default-project')
+    if (!config.kubernetes.enabled && !config.testEnabled) await app.service('project')._fetchDevLocalProjects()
   }
 }

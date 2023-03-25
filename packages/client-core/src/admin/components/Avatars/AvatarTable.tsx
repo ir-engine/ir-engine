@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Checkbox from '@etherealengine/ui/src/Checkbox'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { AvatarColumn, avatarColumns, AvatarData } from '../../common/variables/avatar'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
-import { useAdminAvatarState } from '../../services/AvatarService'
+import { AdminAvatarState } from '../../services/AvatarService'
 import { AdminAvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 import AvatarDrawer, { AvatarDrawerMode } from './AvatarDrawer'
@@ -24,39 +25,39 @@ interface Props {
 
 const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarIds }: Props) => {
   const { t } = useTranslation()
-  const { user } = useAuthState().value
-  const adminAvatarState = useAdminAvatarState()
+  const user = useHookstate(getMutableState(AuthState).user).value
+  const adminAvatarState = useHookstate(getMutableState(AdminAvatarState))
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
 
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [avatarId, setAvatarId] = useState('')
-  const [avatarName, setAvatarName] = useState('')
-  const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('name')
-  const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
-  const [avatarData, setAvatarData] = useState<AvatarInterface | null>(null)
+  const page = useHookstate(0)
+  const rowsPerPage = useHookstate(AVATAR_PAGE_LIMIT)
+  const openConfirm = useHookstate(false)
+  const avatarId = useHookstate('')
+  const avatarName = useHookstate('')
+  const fieldOrder = useHookstate('asc')
+  const sortField = useHookstate('name')
+  const openAvatarDrawer = useHookstate(false)
+  const avatarData = useHookstate<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    AdminAvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
-    setPage(newPage)
+    AdminAvatarService.fetchAdminAvatars(newPage, search, sortField.value, fieldOrder.value)
+    page.set(newPage)
   }
 
   useEffect(() => {
     if (adminAvatarState.fetched.value) {
-      AdminAvatarService.fetchAdminAvatars(page, search, sortField, fieldOrder)
+      AdminAvatarService.fetchAdminAvatars(page.value, search, sortField.value, fieldOrder.value)
     }
-  }, [fieldOrder])
+  }, [fieldOrder.value])
 
   useEffect(() => {
-    AdminAvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
+    AdminAvatarService.fetchAdminAvatars(0, search, sortField.value, fieldOrder.value)
   }, [user?.id, search, adminAvatarState.updateNeeded.value])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
+    rowsPerPage.set(parseInt(event.target.value, 10))
+    page.set(0)
   }
 
   const toggleSelection = (id: string) => {
@@ -88,7 +89,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
       id: el.id,
       name: el.name as string,
       thumbnail: (
-        <img style={{ maxHeight: '50px' }} src={el.thumbnailResource?.url + '?' + new Date().getTime()} alt="" />
+        <img style={{ maxHeight: '50px' }} src={el.thumbnailResource?.LOD0_url + '?' + new Date().getTime()} alt="" />
       ),
       action: (
         <>
@@ -96,8 +97,8 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setAvatarData(el)
-              setOpenAvatarDrawer(true)
+              avatarData.set(el)
+              openAvatarDrawer.set(true)
             }}
           >
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
@@ -106,9 +107,9 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setAvatarId(el.id)
-              setAvatarName(el.name)
-              setOpenConfirm(true)
+              avatarId.set(el.id)
+              avatarName.set(el.name)
+              openConfirm.set(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
@@ -119,11 +120,11 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   }
 
   const submitRemoveAvatar = async () => {
-    await AdminAvatarService.removeAdminAvatar(avatarId)
-    setOpenConfirm(false)
+    await AdminAvatarService.removeAdminAvatar(avatarId.value)
+    openConfirm.set(false)
   }
 
-  const rows = adminAvatars.value.map((el) => {
+  const rows = adminAvatars.get({ noproxy: true }).map((el) => {
     return createData(el)
   })
 
@@ -162,32 +163,32 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
     <Box className={className}>
       <TableComponent
         allowSort={false}
-        fieldOrder={fieldOrder}
+        fieldOrder={fieldOrder.value}
         fieldOrderBy="id"
-        setSortField={setSortField}
-        setFieldOrder={setFieldOrder}
+        setSortField={sortField.set}
+        setFieldOrder={fieldOrder.set}
         rows={rows}
         column={columns}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        page={page.value}
+        rowsPerPage={rowsPerPage.value}
         count={adminAvatarCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
 
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.avatar.confirmAvatarDelete')} '${avatarName}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.avatar.confirmAvatarDelete')} '${avatarName.value}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={submitRemoveAvatar}
       />
 
-      {avatarData && openAvatarDrawer && (
+      {avatarData.value && openAvatarDrawer.value && (
         <AvatarDrawer
           open
-          selectedAvatar={avatarData}
+          selectedAvatar={avatarData.value}
           mode={AvatarDrawerMode.ViewEdit}
-          onClose={() => setOpenAvatarDrawer(false)}
+          onClose={() => openAvatarDrawer.set(false)}
         />
       )}
     </Box>

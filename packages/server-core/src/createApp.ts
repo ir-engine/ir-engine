@@ -132,14 +132,17 @@ export const createFeathersExpressApp = (
     createIPFSStorageProvider()
   }
 
+  createEngine()
+  getMutableState(EngineState).publicPath.set(config.client.dist)
   if (!appConfig.db.forceRefresh) {
-    createEngine()
-    getMutableState(EngineState).publicPath.set(config.client.dist)
     setupEngineActionSystems()
     initializeNode()
   }
 
   const app = express(feathers()) as Application
+
+  Engine.instance.api = app
+
   app.serverMode = serverMode
   app.set('nextReadyEmitter', new EventEmitter())
 

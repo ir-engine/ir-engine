@@ -1,9 +1,10 @@
 import { Icon } from '@iconify/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Grid from '@etherealengine/ui/src/Grid'
@@ -12,8 +13,8 @@ import Typography from '@etherealengine/ui/src/Typography'
 
 import { initialAuthState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { AuthSettingsService, useAuthSettingState } from '../../services/Setting/AuthSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AuthSettingsService, AuthSettingsState } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const OAUTH_TYPES = {
@@ -27,12 +28,13 @@ const OAUTH_TYPES = {
 
 const Account = () => {
   const { t } = useTranslation()
-  const authSettingState = useAuthSettingState()
-  const [authSetting] = authSettingState?.authSettings?.value || []
+
+  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
+  const [authSetting] = authSettingState?.authSettings?.get({ noproxy: true }) || []
   const id = authSetting?.id
-  const [state, setState] = useState(initialAuthState)
-  const [holdAuth, setHoldAuth] = useState(initialAuthState)
-  const [keySecret, setKeySecret] = useState({
+  const state = useHookstate(initialAuthState)
+  const holdAuth = useHookstate(initialAuthState)
+  const keySecret = useHookstate({
     discord: authSetting?.oauth.discord,
     github: authSetting?.oauth.github,
     google: authSetting?.oauth.google,
@@ -40,7 +42,7 @@ const Account = () => {
     linkedin: authSetting?.oauth.linkedin,
     facebook: authSetting?.oauth.facebook
   })
-  const [showPassword, setShowPassword] = useState({
+  const showPassword = useHookstate({
     discord: {
       key: false,
       secret: false
@@ -73,22 +75,22 @@ const Account = () => {
 
   const handleShowPassword = (key) => {
     const [social, value] = key.split('-')
-    setShowPassword({
-      ...showPassword,
+    showPassword.set({
+      ...JSON.parse(JSON.stringify(showPassword.value)),
       [social]: {
-        ...showPassword[social],
-        [value]: !showPassword[social][value]
+        ...JSON.parse(JSON.stringify(showPassword[social].value)),
+        [value]: !JSON.parse(JSON.stringify(showPassword[social][value].value))
       }
     })
   }
-  const authState = useAuthState()
-  const user = authState.user
+
+  const user = useHookstate(getMutableState(AuthState).user)
 
   useEffect(() => {
     if (user?.id?.value && authSettingState?.updateNeeded?.value) {
       AuthSettingsService.fetchAuthSetting()
     }
-  }, [authState?.user?.id?.value, authSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, authSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     if (authSetting) {
@@ -98,8 +100,8 @@ const Account = () => {
           temp[strategyName] = strategy
         })
       })
-      setState(temp)
-      setHoldAuth(temp)
+      state.set(temp)
+      holdAuth.set(temp)
 
       let tempKeySecret = JSON.parse(
         JSON.stringify({
@@ -111,17 +113,17 @@ const Account = () => {
           facebook: authSetting?.oauth.facebook
         })
       )
-      setKeySecret(tempKeySecret)
+      keySecret.set(tempKeySecret)
     }
   }, [authSettingState?.updateNeeded?.value])
 
   const handleSubmit = () => {
-    const auth = Object.keys(state)
-      .filter((item) => (state[item] ? item : null))
+    const auth = Object.keys(state.value)
+      .filter((item) => (state[item].value ? item : null))
       .filter(Boolean)
-      .map((prop) => ({ [prop]: state[prop] }))
+      .map((prop) => ({ [prop]: state[prop].value }))
 
-    const oauth = { ...authSetting.oauth, ...keySecret }
+    const oauth = { ...authSetting.oauth, ...keySecret.value }
 
     for (let key of Object.keys(oauth)) {
       oauth[key] = JSON.stringify(oauth[key])
@@ -151,42 +153,42 @@ const Account = () => {
         facebook: authSetting?.oauth.facebook
       })
     )
-    setKeySecret(tempKeySecret)
-    setState(temp)
+    keySecret.set(tempKeySecret)
+    state.set(temp)
   }
 
   const handleOnChangeAppId = (event, type) => {
-    setKeySecret({
-      ...keySecret,
+    keySecret.set({
+      ...JSON.parse(JSON.stringify(keySecret.value)),
       [type]: {
-        ...keySecret[type],
+        ...JSON.parse(JSON.stringify(keySecret[type].value)),
         appid: event.target.value
       }
     })
   }
 
   const handleOnChangeKey = (event, type) => {
-    setKeySecret({
-      ...keySecret,
+    keySecret.set({
+      ...JSON.parse(JSON.stringify(keySecret.value)),
       [type]: {
-        ...keySecret[type],
+        ...JSON.parse(JSON.stringify(keySecret[type].value)),
         key: event.target.value
       }
     })
   }
 
   const handleOnChangeSecret = (event, type) => {
-    setKeySecret({
-      ...keySecret,
+    keySecret.set({
+      ...JSON.parse(JSON.stringify(keySecret.value)),
       [type]: {
-        ...keySecret[type],
+        ...JSON.parse(JSON.stringify(keySecret[type].value)),
         secret: event.target.value
       }
     })
   }
 
   const onSwitchHandle = (event) => {
-    setState({ ...state, [event.target.name]: event.target.checked })
+    state.set({ ...JSON.parse(JSON.stringify(state.value)), [event.target.name]: event.target.checked })
   }
 
   return (
@@ -223,14 +225,14 @@ const Account = () => {
 
           <Grid container>
             <Grid item xs={12} sm={6} md={6}>
-              {Object.keys(state)
-                .splice(0, Math.ceil(Object.keys(state).length / 2))
+              {Object.keys(state.value)
+                .splice(0, Math.ceil(Object.keys(state.value).length / 2))
                 .map((strategyName, i) => (
                   <InputSwitch
                     key={i}
                     name={strategyName}
                     label={strategyName}
-                    checked={state[strategyName]}
+                    checked={state[strategyName].value}
                     disabled={strategyName === 'jwt'}
                     onChange={onSwitchHandle}
                   />
@@ -238,18 +240,18 @@ const Account = () => {
             </Grid>
 
             <Grid item xs={12} sm={6} md={6}>
-              {Object.keys(state)
+              {Object.keys(state.value)
                 .splice(
-                  Object.keys(state).length % 2 === 1
-                    ? -Math.ceil(Object.keys(state).length / 2) + 1
-                    : -Math.ceil(Object.keys(state).length / 2)
+                  Object.keys(state.value).length % 2 === 1
+                    ? -Math.ceil(Object.keys(state.value).length / 2) + 1
+                    : -Math.ceil(Object.keys(state.value).length / 2)
                 )
                 .map((strategyName, i) => (
                   <InputSwitch
                     key={i}
                     name={strategyName}
                     label={strategyName}
-                    checked={state[strategyName]}
+                    checked={state[strategyName].value}
                     disabled={strategyName === 'jwt'}
                     onChange={onSwitchHandle}
                   />
@@ -281,21 +283,21 @@ const Account = () => {
             disabled
           />
 
-          {holdAuth?.discord && (
+          {holdAuth?.discord?.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.discord')}</Typography>
 
               <InputText
                 name="key"
                 label={t('admin:components.setting.key')}
-                value={keySecret?.discord?.key || ''}
-                type={showPassword.discord.key ? 'text' : 'password'}
+                value={keySecret?.value?.discord?.key || ''}
+                type={showPassword.value.discord.key ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('discord-key')}
                     icon={
                       <Icon
-                        icon={showPassword.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={showPassword.value.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                         color="orange"
                       />
                     }
@@ -307,14 +309,16 @@ const Account = () => {
               <InputText
                 name="secret"
                 label={t('admin:components.setting.secret')}
-                value={keySecret?.discord?.secret || ''}
-                type={showPassword.discord.secret ? 'text' : 'password'}
+                value={keySecret?.value?.discord?.secret || ''}
+                type={showPassword.value.discord.secret ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('discord-secret')}
                     icon={
                       <Icon
-                        icon={showPassword.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={
+                          showPassword.value.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'
+                        }
                         color="orange"
                       />
                     }
@@ -331,21 +335,21 @@ const Account = () => {
               />
             </>
           )}
-          {holdAuth?.facebook && (
+          {holdAuth?.facebook?.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.facebook')}</Typography>
 
               <InputText
                 name="key"
                 label={t('admin:components.setting.key')}
-                value={keySecret?.facebook?.key || ''}
-                type={showPassword.facebook.key ? 'text' : 'password'}
+                value={keySecret?.value?.facebook?.key || ''}
+                type={showPassword.value.facebook.key ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('facebook-key')}
                     icon={
                       <Icon
-                        icon={showPassword.facebook.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={showPassword.value.facebook.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                         color="orange"
                       />
                     }
@@ -357,14 +361,16 @@ const Account = () => {
               <InputText
                 name="key"
                 label={t('admin:components.setting.secret')}
-                value={keySecret?.facebook?.secret || ''}
-                type={showPassword.facebook.secret ? 'text' : 'password'}
+                value={keySecret?.value?.facebook?.secret || ''}
+                type={showPassword.value.facebook.secret ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('facebook-secret')}
                     icon={
                       <Icon
-                        icon={showPassword.facebook.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={
+                          showPassword.value.facebook.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'
+                        }
                         color="orange"
                       />
                     }
@@ -381,21 +387,21 @@ const Account = () => {
               />
             </>
           )}
-          {holdAuth?.github && (
+          {holdAuth?.github?.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.github')}</Typography>
 
               <InputText
                 name="appid"
                 label={t('admin:components.setting.appId')}
-                value={keySecret?.github?.appid || ''}
-                type={showPassword.github.appid ? 'text' : 'password'}
+                value={keySecret?.value?.github?.appid || ''}
+                type={showPassword.value.github.appid ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('github-appid')}
                     icon={
                       <Icon
-                        icon={showPassword.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={showPassword.value.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                         color="orange"
                       />
                     }
@@ -407,14 +413,14 @@ const Account = () => {
               <InputText
                 name="key"
                 label={t('admin:components.setting.key')}
-                value={keySecret?.github?.key || ''}
-                type={showPassword.github.key ? 'text' : 'password'}
+                value={keySecret?.value?.github?.key || ''}
+                type={showPassword.value.github.key ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('github-key')}
                     icon={
                       <Icon
-                        icon={showPassword.github.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={showPassword.value.github.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                         color="orange"
                       />
                     }
@@ -426,14 +432,16 @@ const Account = () => {
               <InputText
                 name="secret"
                 label={t('admin:components.setting.secret')}
-                value={keySecret?.github?.secret || ''}
-                type={showPassword.github.secret ? 'text' : 'password'}
+                value={keySecret?.value?.github?.secret || ''}
+                type={showPassword.value.github.secret ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('github-secret')}
                     icon={
                       <Icon
-                        icon={showPassword.github.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={
+                          showPassword.value.github.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'
+                        }
                         color="orange"
                       />
                     }
@@ -466,35 +474,35 @@ const Account = () => {
             name="password"
             label={t('admin:components.setting.password')}
             value={authSetting?.local.passwordField || ''}
-            type={showPassword.password.secret ? 'text' : 'password'}
+            type={showPassword.value.password.secret ? 'text' : 'password'}
             disabled
             endAdornment={
               <IconButton
                 onClick={() => handleShowPassword('password-secret')}
                 icon={
                   <Icon
-                    icon={showPassword.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                    icon={showPassword.value.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                     color="orange"
                   />
                 }
               />
             }
           />
-          {holdAuth?.google && (
+          {holdAuth?.google.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.google')}</Typography>
 
               <InputText
                 name="key"
                 label={t('admin:components.setting.key')}
-                value={keySecret?.google?.key || ''}
-                type={showPassword.google.key ? 'text' : 'password'}
+                value={keySecret?.value?.google?.key || ''}
+                type={showPassword.value.google.key ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('google-key')}
                     icon={
                       <Icon
-                        icon={showPassword.google.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={showPassword.value.google.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                         color="orange"
                       />
                     }
@@ -506,14 +514,16 @@ const Account = () => {
               <InputText
                 name="secret"
                 label={t('admin:components.setting.secret')}
-                value={keySecret?.google?.secret || ''}
-                type={showPassword.google.secret ? 'text' : 'password'}
+                value={keySecret?.value?.google?.secret || ''}
+                type={showPassword.value.google.secret ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('google-secret')}
                     icon={
                       <Icon
-                        icon={showPassword.google.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={
+                          showPassword.value.google.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'
+                        }
                         color="orange"
                       />
                     }
@@ -530,21 +540,21 @@ const Account = () => {
               />
             </>
           )}
-          {holdAuth?.linkedin && (
+          {holdAuth?.linkedin?.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.linkedIn')}</Typography>
 
               <InputText
                 name="key"
                 label={t('admin:components.setting.key')}
-                value={keySecret?.linkedin?.key || ''}
-                type={showPassword.linkedin.key ? 'text' : 'password'}
+                value={keySecret?.value?.linkedin?.key || ''}
+                type={showPassword.value.linkedin.key ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('linkedin-key')}
                     icon={
                       <Icon
-                        icon={showPassword.linkedin.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={showPassword.value.linkedin.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                         color="orange"
                       />
                     }
@@ -556,14 +566,16 @@ const Account = () => {
               <InputText
                 name="secret"
                 label={t('admin:components.setting.secret')}
-                value={keySecret?.linkedin?.secret || ''}
-                type={showPassword.linkedin.secret ? 'text' : 'password'}
+                value={keySecret?.value?.linkedin?.secret || ''}
+                type={showPassword.value.linkedin.secret ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('linkedin-secret')}
                     icon={
                       <Icon
-                        icon={showPassword.linkedin.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={
+                          showPassword.value.linkedin.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'
+                        }
                         color="orange"
                       />
                     }
@@ -580,21 +592,21 @@ const Account = () => {
               />
             </>
           )}
-          {holdAuth?.twitter && (
+          {holdAuth?.twitter?.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.twitter')}</Typography>
 
               <InputText
                 name="key"
                 label={t('admin:components.setting.key')}
-                value={keySecret?.twitter?.key || ''}
-                type={showPassword.twitter.key ? 'text' : 'password'}
+                value={keySecret?.value?.twitter?.key || ''}
+                type={showPassword.value.twitter.key ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('twitter-key')}
                     icon={
                       <Icon
-                        icon={showPassword.twitter.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={showPassword.value.twitter.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                         color="orange"
                       />
                     }
@@ -606,14 +618,16 @@ const Account = () => {
               <InputText
                 name="secret"
                 label={t('admin:components.setting.secret')}
-                value={keySecret?.twitter?.secret || ''}
-                type={showPassword.twitter.secret ? 'text' : 'password'}
+                value={keySecret?.value?.twitter?.secret || ''}
+                type={showPassword.value.twitter.secret ? 'text' : 'password'}
                 endAdornment={
                   <IconButton
                     onClick={() => handleShowPassword('twitter-secret')}
                     icon={
                       <Icon
-                        icon={showPassword.twitter.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        icon={
+                          showPassword.value.twitter.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'
+                        }
                         color="orange"
                       />
                     }

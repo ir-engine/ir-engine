@@ -123,7 +123,7 @@ const EffectsOptions: EffectOptionsType = {
   BloomEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size' },
-    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1, step: 0.01 },
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1000, step: 0.01 },
     luminanceSmoothing: {
       propertyType: PropertyTypes.Number,
       name: 'Luminance Smoothing',
@@ -192,7 +192,7 @@ export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
   const [openSettings, setOpenSettings] = useState(false)
-  const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentScene))
+  const postprocessing = useHookstate(getPostProcessingSceneMetadataState())
   if (!postprocessing.value) return null
 
   const getPropertyValue = (keys: string[]): any => {
