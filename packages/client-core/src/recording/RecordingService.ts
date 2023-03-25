@@ -18,7 +18,9 @@ export const RecordingState = defineState({
       mocap: true,
       video: true,
       pose: true
-    }
+    },
+    recordings: [] as RecordingResult[],
+    playback: null as string | null
   }
 })
 
@@ -46,6 +48,11 @@ export const RecordingFunctions = {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
+  },
+  getRecordings: async () => {
+    const recordings = (await API.instance.client.service('recording').find()).data as RecordingResult[]
+    const recordingState = getMutableState(RecordingState)
+    recordingState.recordings.set(recordings)
   }
 }
 
@@ -55,6 +62,7 @@ export async function RecordingStateReceptorSystem() {
   const startRecordingQueue = createActionQueue(ECSRecordingActions.startRecording.matches)
   const recordingStartedQueue = createActionQueue(ECSRecordingActions.recordingStarted.matches)
   const stopRecordingQueue = createActionQueue(ECSRecordingActions.stopRecording.matches)
+  const playbackChangedQueue = createActionQueue(ECSRecordingActions.playbackChanged.matches)
 
   const execute = () => {
     for (const action of recordingStartedQueue()) {
@@ -70,10 +78,17 @@ export async function RecordingStateReceptorSystem() {
       recordingState.started.set(false)
       recordingState.recordingID.set(null)
     }
+
+    for (const action of playbackChangedQueue()) {
+      recordingState.playback.set(action.playing ? action.recordingID : null)
+    }
   }
 
   const cleanup = async () => {
+    removeActionQueue(startRecordingQueue)
     removeActionQueue(recordingStartedQueue)
+    removeActionQueue(stopRecordingQueue)
+    removeActionQueue(playbackChangedQueue)
   }
 
   return { execute, cleanup }

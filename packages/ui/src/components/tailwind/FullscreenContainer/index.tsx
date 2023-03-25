@@ -38,10 +38,8 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
     </div>
   ) : (
     <FullscreenContext.Provider value={[fullScreenActive.value, fullScreenActive.set]}>
-      <FullScreen handle={handle} onChange={reportChange}>
-        <div id={'engine-container'} ref={ref}>
-          {props.children}
-        </div>
+      <FullScreen handle={handle} onChange={reportChange} className="border-2 border-red-700">
+        {props.children}
       </FullScreen>
     </FullscreenContext.Provider>
   )
