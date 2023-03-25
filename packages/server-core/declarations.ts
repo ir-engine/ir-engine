@@ -13,7 +13,7 @@ export const ServerMode = {
   Task: 'Task' as const
 }
 
-export type ServerTypeMode = (typeof ServerMode)[keyof typeof ServerMode]
+export type ServerTypeMode = typeof ServerMode[keyof typeof ServerMode]
 
 export type PrimusType = Primus & {
   forEach(cb: (spark: Primus.Spark, id: string, connections: { [id: string]: Primus.Spark }) => boolean | void): Primus

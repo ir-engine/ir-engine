@@ -23,12 +23,12 @@ export const AvatarControllerType = {
 export const AvatarInputSettingsState = defineState({
   name: 'AvatarInputSettingsState',
   initial: () => ({
-    controlType: AvatarControllerType.None as (typeof AvatarControllerType)[keyof typeof AvatarControllerType],
+    controlType: AvatarControllerType.None as typeof AvatarControllerType[keyof typeof AvatarControllerType],
 
     leftAxesControlScheme:
-      AvatarAxesControlScheme.Move as (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme],
+      AvatarAxesControlScheme.Move as typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme],
     rightAxesControlScheme:
-      AvatarAxesControlScheme.Teleport as (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme],
+      AvatarAxesControlScheme.Teleport as typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme],
 
     preferredHand: 'right' as 'left' | 'right',
     invertRotationAndMoveSticks: true,
@@ -85,17 +85,17 @@ export function AvatarInputSettingsReceptor(action) {
 export class AvatarInputSettingsAction {
   static setControlType = defineAction({
     type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_CONTROL_TYPE' as const,
-    controlType: matches.string as Validator<unknown, (typeof AvatarControllerType)[keyof typeof AvatarControllerType]>
+    controlType: matches.string as Validator<unknown, typeof AvatarControllerType[keyof typeof AvatarControllerType]>
   })
 
   static setLeftAxesControlScheme = defineAction({
     type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_LEFT_CONTROL_SCHEME' as const,
-    scheme: matches.string as Validator<unknown, (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme]>
+    scheme: matches.string as Validator<unknown, typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme]>
   })
 
   static setRightAxesControlScheme = defineAction({
     type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_RIGHT_CONTROL_SCHEME' as const,
-    scheme: matches.string as Validator<unknown, (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme]>
+    scheme: matches.string as Validator<unknown, typeof AvatarAxesControlScheme[keyof typeof AvatarAxesControlScheme]>
   })
 
   static setPreferredHand = defineAction({

@@ -7,9 +7,8 @@ export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
   onInit: (entity) => {
     return {
-      type: EnvMapSourceType.None as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType],
-      envMapTextureType:
-        EnvMapTextureType.Equirectangular as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType],
+      type: EnvMapSourceType.None as typeof EnvMapSourceType[keyof typeof EnvMapSourceType],
+      envMapTextureType: EnvMapTextureType.Equirectangular as typeof EnvMapTextureType[keyof typeof EnvMapTextureType],
       envMapSourceColor: new Color(0xfff) as Color,
       envMapSourceURL: '',
       envMapIntensity: 1
