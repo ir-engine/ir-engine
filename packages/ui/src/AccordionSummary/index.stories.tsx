@@ -6,7 +6,7 @@ import AccordionSummary from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/AccordionSummary',
+  title: 'Primitives/MUI/AccordionSummary',
   component: AccordionSummary,
   parameters: {
     componentSubtitle: 'AccordionSummary',

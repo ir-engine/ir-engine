@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { API } from '@etherealengine/client-core/src/API'
+import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LocationInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import LoadLocationScene from '@etherealengine/client-core/src/components/World/LoadLocationScene'
@@ -55,7 +56,10 @@ export const CaptureLocation = () => {
   return (
     <>
       {/* <CaptureUI> */}
-      <Mediapipe />
+      {/* <Mediapipe /> */}
+      <ErrorBoundary>
+        <CaptureUI />
+      </ErrorBoundary>
       {/* </CaptureUI> */}
       <NetworkInstanceProvisioning />
       <LocationIcons />

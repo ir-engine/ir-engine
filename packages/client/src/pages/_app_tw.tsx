@@ -33,16 +33,11 @@ import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtil
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
-
-import CaptureComp from '../route/capture'
-
-import 'tailwindcss/tailwind.css'
-import '../index.css'
-
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
 import EngineTW from '../engine_tw'
-import { ThemeContextProvider } from './themes/themeContext'
+import CaptureComp from '../route/capture'
+import { ThemeContextProvider } from '../themes/themeContext'
 
 const AppPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
@@ -186,7 +181,7 @@ const AppPage = () => {
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
       </MetaTags>
-      <div className="w-full h-full border-2">
+      <div className="w-full h-full container mx-auto overflow-y-scroll">
         <CaptureComp />
       </div>
       {projectComponents.map((Component, i) => (
@@ -206,6 +201,15 @@ const TailwindPage = () => {
       </EngineTW>
     </Suspense>
   )
+  // return (
+  //   <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+  //     <EngineTW>
+  //       <ThemeContextProvider>
+  //         <AppPage />
+  //       </ThemeContextProvider>
+  //     </EngineTW>
+  //   </Suspense>
+  // )
 }
 
 export default TailwindPage

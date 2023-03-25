@@ -6,7 +6,7 @@ import FormControl from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/FormControl',
+  title: 'Primitives/MUI/FormControl',
   component: FormControl,
   parameters: {
     componentSubtitle: 'FormControl',

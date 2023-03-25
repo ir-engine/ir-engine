@@ -9,7 +9,7 @@ import TableCell from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/TableCell',
+  title: 'Primitives/MUI/TableCell',
   component: TableCell,
   parameters: {
     componentSubtitle: 'TableCell',

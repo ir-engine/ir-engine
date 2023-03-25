@@ -6,7 +6,7 @@ import OutlinedInput from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/OutlinedInput',
+  title: 'Primitives/MUI/OutlinedInput',
   component: OutlinedInput,
   parameters: {
     componentSubtitle: 'OutlinedInput',

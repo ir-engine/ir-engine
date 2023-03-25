@@ -7,7 +7,7 @@ import TableBody from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/TableBody',
+  title: 'Primitives/MUI/TableBody',
   component: TableBody,
   parameters: {
     componentSubtitle: 'TableBody',
