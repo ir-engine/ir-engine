@@ -10,6 +10,7 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../../components/GroupComponent'
 import { LODComponent, LODComponentType, LODLevel } from '../../components/LODComponent'
 import { ModelComponent } from '../../components/ModelComponent'
+import { NameComponent } from '../../components/NameComponent'
 import iterateObject3D from '../../util/iterateObject3D'
 
 /**
@@ -124,6 +125,7 @@ export function createLODsFromModel(entity: Entity): Entity[] {
           ],
           instanced: mesh instanceof InstancedMesh
         })
+        addComponent(lodEntity, NameComponent, mesh.name)
         processLoadedLODLevel(lodEntity, 0)
         lods.push(lodEntity)
       },
