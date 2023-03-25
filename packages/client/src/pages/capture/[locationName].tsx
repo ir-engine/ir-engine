@@ -16,6 +16,7 @@ import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunc
 import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { addActionReceptor, dispatchAction, getMutableState, removeActionReceptor } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import CaptureUI from '@etherealengine/ui/src/Capture'
 import Mediapipe from '@etherealengine/ui/src/Mediapipe'
 
 const systems = [...MediaModule(), ...MotionCaptureModule()]
@@ -32,13 +33,13 @@ export const initializeEngineForRecorder = async () => {
   dispatchAction(EngineActions.sceneLoaded({}))
 }
 
-export const Recorder = (): any => {
+export const CaptureLocation = () => {
   const params = useParams()
   AuthService.useAPIListeners()
   SceneService.useAPIListeners()
   FriendService.useAPIListeners()
 
-  const locationName = params.locationName!
+  const locationName = params?.locationName as string
 
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName }))
@@ -52,13 +53,15 @@ export const Recorder = (): any => {
   }, [])
 
   return (
-    <div className="container w-full h-full">
+    <>
+      {/* <CaptureUI> */}
       <Mediapipe />
+      {/* </CaptureUI> */}
       <NetworkInstanceProvisioning />
       <LocationIcons />
       <LoadLocationScene />
-    </div>
+    </>
   )
 }
 
-export default Recorder
+export default CaptureLocation

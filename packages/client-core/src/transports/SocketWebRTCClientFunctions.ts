@@ -549,6 +549,8 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   }
 
   async function webRTCCloseConsumerHandler(consumerId) {
+    const consumer = network.consumers.find((c) => c.id === consumerId) as ConsumerExtension
+    consumer.close()
     network.consumers = network.consumers.filter((c) => c.id !== consumerId)
     dispatchAction(MediaStreamActions.triggerUpdateConsumers({}))
   }
@@ -712,6 +714,21 @@ export async function createDataProducer(
     dataProducer?.close()
   })
   network.dataProducers.set(dataChannelType, dataProducer)
+}
+
+export async function closeDataProducer(network: SocketWebRTCClientNetwork, dataChannelType: DataChannelType) {
+  const producer = network.dataProducers.get(dataChannelType)
+
+  const { error } = await promisedRequest(network, MessageTypes.WebRTCCloseProducer.toString(), {
+    producerId: producer.id
+  })
+
+  if (error) {
+    logger.error(error)
+    return
+  }
+
+  await producer.close()
 }
 // utility function to create a transport and hook up signaling logic
 // appropriate to the transport's direction
