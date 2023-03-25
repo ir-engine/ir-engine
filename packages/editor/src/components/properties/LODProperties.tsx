@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { State } from '@etherealengine/hyperflux'
 
@@ -25,7 +25,7 @@ export function LODProperties({ entity }: { entity: Entity }) {
       <PaginatedList
         list={entities}
         element={(entity: Entity) => {
-          const lodComponent = useComponent(entity, LODComponent)
+          const lodComponent = getMutableComponent(entity, LODComponent)
           return (
             <div>
               <PaginatedList

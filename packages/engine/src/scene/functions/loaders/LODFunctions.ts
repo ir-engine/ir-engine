@@ -54,48 +54,47 @@ export function processLoadedLODLevel(entity: Entity, index: number) {
         model.instanceMatrix = component.instancePositions.value
         model.updateMatrixWorld(true)
       }
-      model.geometry.setAttribute('lodIndex', component.instanceLevels.value)
+      model.geometry.setAttribute('lodIndex', component.instanceLevels.get(NO_PROXY))
       const materials: Material[] = Array.isArray(model.material) ? model.material : [model.material]
       materials.forEach((material) => {
         //add a shader plugin to clip the model if it's not the current level
         addOBCPlugin(material, (shader, renderer) => {
-          shader.vertexShader = insertAfterString(
-            shader.vertexShader,
-            '#include <clipping_plane_pars_vertex>',
+          shader.vertexShader = shader.vertexShader.replace(
+            '#define STANDARD',
             `
+  #define STANDARD
   attribute float lodIndex;
-  varying float doClip;
+  varying float vDoClip;
 `
           )
-          shader.vertexShader = insertAfterString(
-            shader.vertexShader,
+          shader.vertexShader = shader.vertexShader.replace(
             '#include <fog_vertex>',
             `
-  doClip = lodIndex == ${index}.0 ? 0.0 : 1.0;
+  #include <fog_vertex>
+  vDoClip = float(lodIndex != ${index}.0);
 `
           )
-          shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'void main()', 'varying float doClip;\n')
-
-          shader.fragmentShader = insertAfterString(
-            shader.fragmentShader,
-            '#include <output_fragment>',
-            `
-  if (doClip > 0.0) discard;
-`
+          shader.fragmentShader = shader.fragmentShader.replace(
+            'void main() {\n',
+            'varying float vDoClip;\nvoid main() {\nif (vDoClip > 0.0) discard;\n'
           )
         })
       })
     }
-    addObjectToGroup(entity, model)
+    //addObjectToGroup(entity, model)
   } else {
     if (component.instanced.value) {
       //if the lodComponent has instanced positions defined, create an instanced version of this model with the same positions
       const instancedModel = new InstancedMesh(model.geometry, model.material, component.instancePositions.value.count)
       instancedModel.instanceMatrix = component.instancePositions.get(NO_PROXY)
+      model.parent && model.parent.add(instancedModel)
+      instancedModel.matrix.copy(model.matrix)
       instancedModel.updateMatrixWorld(true)
-      addObjectToGroup(entity, instancedModel)
+      model.removeFromParent()
+      level.model.set(instancedModel)
+      //addObjectToGroup(entity, instancedModel)
     } else {
-      addObjectToGroup(entity, model)
+      //addObjectToGroup(entity, model)
     }
   }
 }
@@ -128,7 +127,7 @@ export function createLODsFromModel(entity: Entity): Entity[] {
         processLoadedLODLevel(lodEntity, 0)
         lods.push(lodEntity)
       },
-      (mesh: Mesh) => mesh?.isMesh && mesh?.geometry?.attributes?.position?.count > 0
+      (mesh: Mesh) => mesh?.isMesh
     )
   return lods
 }

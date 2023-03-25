@@ -125,7 +125,7 @@ const onBeforeCompile = {
     }
   }
 }
-
+/*
 export function overrideOnBeforeCompile() {
   const Materials = [
     ShadowMaterial,
@@ -172,3 +172,4 @@ export function overrideOnBeforeCompile() {
     Object.defineProperty(Material.prototype, 'onBeforeCompile', onBeforeCompile)
   }
 }
+*/

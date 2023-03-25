@@ -50,7 +50,7 @@ export const LODComponent = defineComponent({
       component.levels.set(json.levels)
     }
     if (
-      json.instancePositions &&
+      typeof json.instancePositions === 'object' &&
       json.instancePositions instanceof InstancedBufferAttribute &&
       json.instancePositions.array instanceof Float32Array
     ) {
