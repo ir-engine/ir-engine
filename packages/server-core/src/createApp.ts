@@ -8,6 +8,7 @@ import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
+import { parse, stringify } from 'flatted'
 import helmet from 'helmet'
 import path from 'path'
 
@@ -91,11 +92,14 @@ export const configurePrimus =
 
 export const configureRedis = () => (app: Application) => {
   if (appConfig.redis.enabled) {
+    // https://github.com/feathersjs-ecosystem/feathers-sync/issues/140#issuecomment-810144263
     app.configure(
       sync({
         uri: appConfig.redis.password
           ? `redis://:${appConfig.redis.password}@${appConfig.redis.address}:${appConfig.redis.port}`
-          : `redis://${appConfig.redis.address}:${appConfig.redis.port}`
+          : `redis://${appConfig.redis.address}:${appConfig.redis.port}`,
+        serialize: stringify,
+        deserialize: parse
       })
     )
     app.sync.ready.then(() => {
