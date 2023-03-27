@@ -10,6 +10,7 @@ import Sequelize, { Op } from 'sequelize'
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import { ProjectInterface, ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
@@ -17,6 +18,7 @@ import config from '../../appconfig'
 import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import { getOctokitForChecking, getUserOrgs, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
@@ -71,12 +73,14 @@ export const updateBuilder = async (
     await Promise.all(data.projectsToUpdate.map((project) => app.service('project').update(project, null, params)))
   }
 
+  const k8AppsClient = getState(ServerState).k8AppsClient
+
   // trigger k8s to re-run the builder service
-  if (app.k8AppsClient) {
+  if (k8AppsClient) {
     try {
       logger.info('Attempting to update builder tag')
       const builderRepo = process.env.BUILDER_REPOSITORY
-      const updateBuilderTagResponse = await app.k8AppsClient.patchNamespacedDeployment(
+      const updateBuilderTagResponse = await k8AppsClient.patchNamespacedDeployment(
         `${config.server.releaseName}-builder-etherealengine-builder`,
         'default',
         {
@@ -119,16 +123,17 @@ export const updateBuilder = async (
 
 export const checkBuilderService = async (app: Application): Promise<boolean> => {
   let isRebuilding = true
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
 
   // check k8s to find the status of builder service
-  if (app.k8DefaultClient && config.server.releaseName !== 'local') {
+  if (k8DefaultClient && config.server.releaseName !== 'local') {
     try {
       logger.info('Attempting to check k8s rebuild status')
 
       const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
       const containerName = 'etherealengine-builder'
 
-      const builderPods = await app.k8DefaultClient.listNamespacedPod(
+      const builderPods = await k8DefaultClient.listNamespacedPod(
         'default',
         undefined,
         false,
@@ -141,7 +146,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
       if (runningBuilderPods.length > 0) {
         const podName = runningBuilderPods[0].metadata?.name
 
-        const builderLogs = await app.k8DefaultClient.readNamespacedPodLog(
+        const builderLogs = await k8DefaultClient.readNamespacedPodLog(
           podName!,
           'default',
           containerName,
@@ -855,9 +860,11 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
 
   const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
 
-  if (app.k8BatchClient) {
+  const k8BatchClient = getState(ServerState).k8BatchClient
+
+  if (k8BatchClient) {
     try {
-      await app.k8BatchClient.patchNamespacedCronJob(
+      await k8BatchClient.patchNamespacedCronJob(
         `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
         'default',
         getCronJobBody(project, image),
@@ -873,18 +880,16 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
       )
     } catch (err) {
       logger.error('Could not find cronjob %o', err)
-      await app.k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
+      await k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
     }
   }
 }
 
 export const removeProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
   try {
-    if (app.k8BatchClient)
-      await app.k8BatchClient.deleteNamespacedCronJob(
-        `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
-        'default'
-      )
+    const k8BatchClient = getState(ServerState).k8BatchClient
+    if (k8BatchClient)
+      await k8BatchClient.deleteNamespacedCronJob(`${process.env.RELEASE_NAME}-${projectName}-auto-update`, 'default')
   } catch (err) {
     logger.error('Failed to remove project update cronjob %o', err)
   }
