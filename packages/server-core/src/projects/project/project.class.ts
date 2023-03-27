@@ -584,12 +584,14 @@ export class Project extends Service {
       ]
     }
 
-    const routeItems = await (this.app.service('route') as any).Model.findAll({
-      where: whereClause
-    })
+    const routeItems = await this.app
+      .service('route')
+      .Model.table('route')
+      .where('project', name)
+      .whereNotNull('project')
     routeItems.length &&
       routeItems.forEach(async (route) => {
-        await this.app.service('route').remove(route.dataValues.id)
+        await this.app.service('route').remove(route.id)
       })
 
     const avatarItems = await (this.app.service('avatar') as any).Model.findAll({
