@@ -23,9 +23,13 @@ describe('location.test', () => {
 
   it('should create a new location', async () => {
     const name = `Test Location ${v1()}`
+
+    const location_settings = await app.service('location-settings').create({})
+
     const item = await app.service('location').create(
       {
-        name
+        name,
+        location_settings
       },
       params
     )

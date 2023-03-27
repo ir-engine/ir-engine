@@ -249,7 +249,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
     try {
       // @ts-ignore
-      let { location_settings = {}, ...locationData } = data
+      let { location_settings, ...locationData } = data
       const loggedInUser = params!.user as UserInterface
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
