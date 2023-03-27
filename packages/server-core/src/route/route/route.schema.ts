@@ -7,6 +7,8 @@ import { v4 } from 'uuid'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
 // Main data model schema
 export const routeSchema = Type.Object(
   {
@@ -16,7 +18,7 @@ export const routeSchema = Type.Object(
     route: Type.String(),
     project: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' })
   },
   { $id: 'Route', additionalProperties: false }
 )
@@ -37,9 +39,8 @@ export const routeDataResolver = resolve<RouteType, HookContext>({
   id: async () => {
     return v4()
   },
-  createdAt: async () => {
-    return (new Date()).getUTCDate().toString()
-  }
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
 })
 
 // Schema for updating existing entries
@@ -48,7 +49,9 @@ export const routePatchSchema = Type.Partial(routeSchema, {
 })
 export type RoutePatch = Static<typeof routePatchSchema>
 export const routePatchValidator = getValidator(routePatchSchema, dataValidator)
-export const routePatchResolver = resolve<RouteType, HookContext>({})
+export const routePatchResolver = resolve<RouteType, HookContext>({
+  updatedAt: getDateTimeSql
+})
 
 // Schema for allowed query properties
 export const routeQueryProperties = Type.Pick(routeSchema, ['id', 'route', 'project'])

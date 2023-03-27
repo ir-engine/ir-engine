@@ -62,16 +62,16 @@ export const getInstalledRoutes = (): any => {
 
 export const activateRoute = (routeService: RouteService): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
-    const activatedRoutes = (await routeService.find(null!) as any).data as RouteType[]
+    const activatedRoutes = ((await routeService.find(null!)) as any).data as RouteType[]
     const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
       if (routeToActivate) {
         // if any projects already have this route, deactivate them
         for (const route of activatedRoutes) {
-          if (route.route === data.route) await routeService._remove(route.id)
+          if (route.route === data.route) await routeService.remove(route.id)
         }
-        await routeService._create({
+        await routeService.create({
           route: data.route,
           project: data.project
         })
@@ -80,7 +80,7 @@ export const activateRoute = (routeService: RouteService): any => {
     } else {
       const routeToDeactivate = activatedRoutes.find((r) => r.project === data.project && r.route === data.route)
       if (routeToDeactivate) {
-        await routeService._remove(routeToDeactivate.id)
+        await routeService.remove(routeToDeactivate.id)
         return true
       }
     }
@@ -99,16 +99,16 @@ export default (app: Application): void => {
   const event = new RouteService(options, app)
   event.docs = routeDocs
   app.use('route', event)
+
+  const service = app.service('route')
+  service.hooks(hooks)
+
   // @ts-ignore
   app.use('routes-installed', {
     find: getInstalledRoutes()
   })
   // @ts-ignore
   app.use('route-activate', {
-    create: activateRoute(event)
+    create: activateRoute(service)
   })
-
-  const service = app.service('route')
-
-  service.hooks(hooks)
 }

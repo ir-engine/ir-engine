@@ -31,4 +31,12 @@ export class RouteService<T = RouteType, ServiceParams extends Params = RoutePar
       data: routes
     }
   }
+
+  async create(data: RouteData, params?: RouteParams) {
+    return super._create(data, params)
+  }
+
+  async remove(id: string, params?: RouteParams) {
+    return super._remove(id, params)
+  }
 }
