@@ -1,20 +1,16 @@
-import { createState, State, useHookstate } from '@hookstate/core'
+import { createState, useHookstate } from '@hookstate/core'
 import getImagePalette from 'image-palette-core'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
-import { createXRUI, XRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { AppLoadingStates, useLoadingState } from '../../../common/services/AppLoadingService'
-import { useSceneState } from '../../../world/services/SceneService'
-import { LoadingSystemState } from '../../state/LoadingState'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
@@ -40,7 +36,7 @@ function setDefaultPalette(colors) {
 
 const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
   const uiState = useXRUIState<LoadingUIState>()
-  const sceneState = useSceneState()
+  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const engineState = useEngineState()
   const { t } = useTranslation()
   const colors = useHookstate({
@@ -50,7 +46,7 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
   })
 
   useEffect(() => {
-    const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value
+    const thumbnailUrl = sceneData.ornull?.thumbnailUrl.value
     const img = new Image()
 
     if (thumbnailUrl) {
@@ -79,7 +75,7 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
     return () => {
       img.onload = null
     }
-  }, [sceneState.currentScene.ornull?.thumbnailUrl])
+  }, [sceneData.ornull?.thumbnailUrl])
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value

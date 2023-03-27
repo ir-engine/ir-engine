@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -30,9 +31,10 @@ const defaultBuildStatus = {
 }
 
 const BuildStatusDrawer = ({ open, onClose }: Props) => {
+  const { t } = useTranslation()
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(10)
-  const selectedStatus = useHookstate(defaultBuildStatus)
+  const selectedStatusId = useHookstate(0)
   const logsModalOpen = useHookstate(false)
 
   const fieldOrder = useHookstate('desc')
@@ -42,7 +44,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const buildStatuses = buildStatusState.buildStatuses.value
 
   const handleOpenLogsModal = (buildStatus: BuildStatus) => {
-    selectedStatus.set(buildStatus)
+    selectedStatusId.set(buildStatus.id)
     logsModalOpen.set(true)
   }
 
@@ -52,7 +54,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
 
   const handleCloseLogsModal = () => {
     logsModalOpen.set(false)
-    selectedStatus.set(defaultBuildStatus)
+    selectedStatusId.set(0)
   }
   const createData = (el: BuildStatus) => {
     return {
@@ -118,6 +120,8 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
     return createData(el)
   })
 
+  const selectedStatus = buildStatuses.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
+
   const handlePageChange = (event: unknown, newPage: number) => {
     BuildStatusService.fetchBuildStatus(newPage * 10)
     page.set(newPage)
@@ -135,7 +139,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
-        <DialogTitle className={styles.textAlign}></DialogTitle>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.project.buildStatus')}</DialogTitle>
         <TableComponent
           allowSort={false}
           fieldOrder={fieldOrder.value}
@@ -149,11 +153,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
           handlePageChange={handlePageChange}
           handleRowsPerPageChange={handleRowsPerPageChange}
         />
-        <BuildStatusLogsModal
-          open={logsModalOpen.value}
-          onClose={handleCloseLogsModal}
-          buildStatus={selectedStatus.value}
-        />
+        <BuildStatusLogsModal open={logsModalOpen.value} onClose={handleCloseLogsModal} buildStatus={selectedStatus} />
       </Container>
     </DrawerView>
   )

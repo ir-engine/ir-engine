@@ -141,7 +141,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState(Engine.instance.currentScene).LODs.value
+  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState().LODs.value
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {

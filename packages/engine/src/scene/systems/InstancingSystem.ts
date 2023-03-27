@@ -2,7 +2,6 @@ import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
-import { Scene } from '../../ecs/classes/Scene'
 import {
   defineQuery,
   getMutableComponent,

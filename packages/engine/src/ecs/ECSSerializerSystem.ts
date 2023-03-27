@@ -1,22 +1,21 @@
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
-import { AvatarControllerComponent } from '../avatar/components/AvatarControllerComponent'
-import { defineQuery, getComponent, Query } from '../ecs/functions/ComponentFunctions'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag } from '../networking/serialization/DataReader'
-import { writeEntity } from '../networking/serialization/DataWriter'
 import { SerializationSchema } from '../networking/serialization/Utils'
 import {
   createViewCursor,
   readUint8,
   readUint32,
+  rewindViewCursor,
   sliceViewCursor,
+  spaceUint8,
   spaceUint32,
   ViewCursor
 } from '../networking/serialization/ViewCursor'
-import { readRigidBody, writeRigidBody } from '../physics/PhysicsSerialization'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { UndefinedEntity } from './classes/Entity'
+import { Entity, UndefinedEntity } from './classes/Entity'
 import { entityExists } from './functions/EntityFunctions'
 
 export type SerializedChunk = {
@@ -26,15 +25,43 @@ export type SerializedChunk = {
 }
 
 export type SerializerArgs = {
-  query: Query
+  entities: () => Entity[]
   /** @todo embed schema in chunk in a way that can be migrated between versions */
   schema: SerializationSchema[]
   /** The length of the chunk in frames */
   chunkLength: number
-  onCommitChunk: (chunk: SerializedChunk) => void
+  onCommitChunk: (chunk: SerializedChunk, chunkIndex: number) => void
 }
 
-const createSerializer = ({ query, schema, chunkLength, onCommitChunk }: SerializerArgs) => {
+export type DeserializerArgs = {
+  chunks: SerializedChunk[]
+  schema: SerializationSchema[]
+  onChunkStarted: (chunk: number) => void
+  onEnd: () => void
+}
+
+const writeEntity = (v: ViewCursor, entityID: number, entity: Entity, serializationSchema: SerializationSchema[]) => {
+  const rewind = rewindViewCursor(v)
+
+  const writeEntityID = spaceUint32(v)
+
+  const writeChangeMask = spaceUint8(v)
+  let changeMask = 0
+  let b = 0
+
+  for (const component of serializationSchema) {
+    changeMask |= component.write(v, entity) ? 1 << b++ : b++ && 0
+  }
+
+  if (changeMask > 0) {
+    writeEntityID(entityID)
+    return writeChangeMask(changeMask)
+  }
+
+  return rewind()
+}
+
+const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: SerializerArgs) => {
   let data = {
     startTimecode: Date.now(),
     entities: [],
@@ -44,12 +71,13 @@ const createSerializer = ({ query, schema, chunkLength, onCommitChunk }: Seriali
   const view = createViewCursor(new ArrayBuffer(10000))
 
   let frame = 0
+  let chunk = 0
 
   const write = () => {
     const writeCount = spaceUint32(view)
 
     let count = 0
-    for (const entity of query()) {
+    for (const entity of entities()) {
       const uuid = getComponent(entity, UUIDComponent)
       if (!data.entities.includes(uuid)) {
         data.entities.push(uuid)
@@ -78,7 +106,9 @@ const createSerializer = ({ query, schema, chunkLength, onCommitChunk }: Seriali
 
   const commitChunk = () => {
     frame = 0
-    onCommitChunk(data)
+
+    onCommitChunk(data, chunk++)
+
     data = {
       startTimecode: Date.now(),
       entities: [],
@@ -91,7 +121,7 @@ const createSerializer = ({ query, schema, chunkLength, onCommitChunk }: Seriali
     commitChunk()
   }
 
-  const serializer = { write, commitChunk, end }
+  const serializer = { write, commitChunk, end, active: false }
 
   ActiveSerializers.add(serializer)
 
@@ -130,25 +160,38 @@ export const readEntities = (
   }
 }
 
-// TODO: embed schema in the chunk
-export const createDeserializer = (chunks: SerializedChunk[], schema: SerializationSchema[]) => {
+const toArrayBuffer = (buf) => {
+  const ab = new ArrayBuffer(buf.length)
+  const view = new Uint8Array(ab)
+  for (let i = 0; i < buf.length; ++i) {
+    view[i] = buf[i]
+  }
+  return ab
+}
+
+export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
   let chunk = 0
   let frame = 0
 
+  onChunkStarted(chunk)
+
   const read = () => {
-    const data = chunks[chunk]
-    const frameData = data.changes[frame]
+    const data = chunks[chunk] as SerializedChunk
+    const frameData = toArrayBuffer(data.changes[frame])
 
-    const view = createViewCursor(frameData)
-
-    readEntities(view, frameData.byteLength, data.entities, schema)
+    if (frameData) {
+      const view = createViewCursor(frameData)
+      readEntities(view, frameData.byteLength, data.entities, schema)
+    }
 
     frame++
 
     if (frame >= data.changes.length) {
+      onChunkStarted(chunk)
       chunk++
       if (chunk >= chunks.length) {
         end()
+        onEnd()
       }
     }
   }
@@ -157,7 +200,7 @@ export const createDeserializer = (chunks: SerializedChunk[], schema: Serializat
     ActiveDeserializers.delete(deserializer)
   }
 
-  const deserializer = { read, end }
+  const deserializer = { read, end, active: false }
 
   ActiveDeserializers.add(deserializer)
 
@@ -176,10 +219,12 @@ export const ECSSerialization = {
 export default async function ECSSerializerSystem() {
   const execute = () => {
     for (const serializer of ActiveSerializers) {
+      if (!serializer.active) continue
       serializer.write()
     }
 
     for (const deserializer of ActiveDeserializers) {
+      if (!deserializer.active) continue
       deserializer.read()
     }
   }

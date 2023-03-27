@@ -9,7 +9,6 @@ export const AppLoadingStates = {
 
 type AppLoadingStatesType = typeof AppLoadingStates[keyof typeof AppLoadingStates]
 
-//State
 export const AppLoadingState = defineState({
   name: 'AppLoadingState',
   initial: () => ({
@@ -32,10 +31,6 @@ export const AppLoadingServiceReceptor = (action) => {
       })
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const accessLoadingState = () => getMutableState(AppLoadingState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useLoadingState = () => useState(accessLoadingState())
 
 export class AppLoadingAction {
   static setLoadPercent = defineAction({

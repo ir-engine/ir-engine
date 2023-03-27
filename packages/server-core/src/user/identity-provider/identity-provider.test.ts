@@ -113,24 +113,37 @@ describe('identity-provider service', () => {
     assert.equal((item as any).total, 0)
   })
 
-  it('should remove identity providers by user id', async () => {
-    await app.service('identity-provider').remove(null, {
-      query: {
-        userId
+  it('should not be able to remove identity providers by user id', async () => {
+    assert.rejects(
+      () =>
+        app.service('identity-provider').remove(null, {
+          query: {
+            userId
+          }
+        }),
+      {
+        name: 'MethodNotAllowed'
       }
-    })
-
-    const item = await app.service('identity-provider').find({
-      query: {
-        userId
-      }
-    })
-
-    assert.equal((item as any).total, 0)
+    )
   })
 
-  it('should not be able to remove the only identity provider', async () => {
+  it('should be able to remove the only identity provider as a guest', async () => {
     const type = 'guest'
+    const token = v1()
+
+    const item = await app.service('identity-provider').create(
+      {
+        type,
+        token
+      },
+      {}
+    )
+
+    assert.ok(() => app.service('identity-provider').remove(item.id))
+  })
+
+  it('should not be able to remove the only identity provider as a user', async () => {
+    const type = 'user'
     const token = v1()
 
     const item = await app.service('identity-provider').create(
@@ -144,7 +157,5 @@ describe('identity-provider service', () => {
     assert.rejects(() => app.service('identity-provider').remove(item.id), {
       name: 'MethodNotAllowed'
     })
-
-    assert.ok(true)
   })
 })

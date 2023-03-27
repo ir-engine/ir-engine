@@ -27,6 +27,9 @@ const config: ProjectConfigInterface = {
     },
     '/room': {
       component: () => import('@etherealengine/client/src/pages/room')
+    },
+    '/capture': {
+      component: () => import('@etherealengine/client/src/route/capture')
     }
   },
   services: undefined,

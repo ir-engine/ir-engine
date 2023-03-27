@@ -13,14 +13,16 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { ECSSerializationModule } from '@etherealengine/engine/src/ecs/ECSSerializationModule'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
 import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
-import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { TransformModule } from '@etherealengine/engine/src/transform/TransformModule'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
@@ -249,9 +251,11 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     await initSystems([
       ...TransformModule(),
+      ...MotionCaptureModule(),
+      ...ECSSerializationModule(),
+      ...RealtimeNetworkingModule(false, true),
       ...SceneCommonModule(),
       ...AvatarCommonModule(),
-      ...RealtimeNetworkingModule(false, true),
       ...WorldHostModule()
     ])
     await loadEngineInjection(projects)
@@ -259,7 +263,9 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     const sceneUpdatedListener = async () => {
       const sceneData = (await sceneResultPromise).data
-      await updateSceneFromJSON(sceneData)
+      getMutableState(SceneState).sceneData.set(sceneData)
+      /** @todo - quick hack to wait until scene has loaded */
+      await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
     }
     app.service('scene').on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()

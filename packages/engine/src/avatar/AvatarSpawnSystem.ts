@@ -1,10 +1,9 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createActionQueue, getMutableState, getState, none, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
-import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
@@ -63,9 +62,9 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { posit
 
 export function avatarDetailsReceptor(action: ReturnType<typeof WorldNetworkAction.avatarDetails>) {
   const userAvatarDetails = getMutableState(WorldState).userAvatarDetails
-  userAvatarDetails[action.$from].set(action.avatarDetail)
+  userAvatarDetails[action.uuid].set(action.avatarDetail)
   if (isClient && action.avatarDetail.avatarURL) {
-    const entity = Engine.instance.getUserAvatarEntity(action.$from)
+    const entity = UUIDComponent.entitiesByUUID.value[action.uuid]
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
   }
 }
@@ -78,17 +77,17 @@ export default async function AvatarSpawnSystem() {
 
   const networkState = getMutableState(NetworkState)
 
-  networkState.networkSchema['ee.core.xrhead'].set({
+  networkState.networkSchema[IKSerialization.headID].set({
     read: IKSerialization.readXRHead,
     write: IKSerialization.writeXRHead
   })
 
-  networkState.networkSchema['ee.core.xrLeftHand'].set({
+  networkState.networkSchema[IKSerialization.leftHandID].set({
     read: IKSerialization.readXRLeftHand,
     write: IKSerialization.writeXRLeftHand
   })
 
-  networkState.networkSchema['ee.core.xrRightHand'].set({
+  networkState.networkSchema[IKSerialization.rightHandID].set({
     read: IKSerialization.readXRRightHand,
     write: IKSerialization.writeXRRightHand
   })
@@ -111,9 +110,9 @@ export default async function AvatarSpawnSystem() {
     removeActionQueue(avatarSpawnQueue)
     removeActionQueue(avatarDetailsQueue)
 
-    networkState.networkSchema['ee.core.xrHead'].set(none)
-    networkState.networkSchema['ee.core.xrLeftHand'].set(none)
-    networkState.networkSchema['ee.core.xrRightHand'].set(none)
+    networkState.networkSchema[IKSerialization.headID].set(none)
+    networkState.networkSchema[IKSerialization.leftHandID].set(none)
+    networkState.networkSchema[IKSerialization.rightHandID].set(none)
   }
 
   return { execute, cleanup }
