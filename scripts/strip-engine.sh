@@ -9,7 +9,7 @@ for d in packages/* ; do
   rm -rf "$d/LICENSE"
   rm -rf "$d/README.md"
   rm -rf "$d/CHANGELOG.md"
-  rm -rf "$d/typeoc.json"
+  rm -rf "$d/typedoc.json"
   rm -rf "$d/declarations.d.ts"
 done
 
