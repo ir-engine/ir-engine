@@ -10,7 +10,7 @@ export const clientSeed = {
       shortTitle: process.env.APP_TITLE,
       startPath: '/',
       releaseName: process.env.RELEASE_NAME || 'local',
-      siteDescription: process.env.SITE_DESC,
+      siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
       url:
         process.env.APP_URL ||
         (process.env.VITE_LOCAL_BUILD
