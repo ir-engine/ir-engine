@@ -191,9 +191,9 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {
+export const getProjectConfig = (projectName: string): ProjectConfigInterface => {
   try {
-    return (await import(`@etherealengine/projects/projects/${projectName}/xrengine.config.ts`)).default
+    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')).default
   } catch (e) {
     logger.error(
       e,
