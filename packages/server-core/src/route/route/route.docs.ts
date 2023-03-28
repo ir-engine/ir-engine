@@ -1,12 +1,11 @@
-export default {
-  definitions: {
-    project: {
-      type: 'string',
-      description: 'The project to add routes from'
-    },
-    route: {
-      type: 'string',
-      description: 'The route to enable for this project'
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import { routeDataSchema, routePatchSchema, routeQuerySchema, routeSchema } from './route.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: { routeDataSchema, routePatchSchema, routeQuerySchema, routeSchema },
+  docs: {
+    description: 'Route service description',
+    securities: ['all']
   }
-}
+})

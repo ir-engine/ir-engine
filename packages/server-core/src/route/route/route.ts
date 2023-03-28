@@ -14,7 +14,7 @@ import { RouteType } from './route.schema'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    route: RouteService
+    [routePath]: RouteService
   }
 
   interface ServiceTypes {
@@ -88,19 +88,27 @@ export const activateRoute = (routeService: RouteService): any => {
   }
 }
 
+export const routePath = 'route'
+
+export const routeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+
 export default (app: Application): void => {
   const options = {
-    name: 'route',
+    name: routePath,
     paginate: app.get('paginate'),
     Model: app.get('mysqlClient'),
     multi: true
   }
 
-  const event = new RouteService(options, app)
-  event.docs = routeDocs
-  app.use('route', event)
+  app.use(routePath, new RouteService(options), {
+    // A list of all methods this service exposes externally
+    methods: routeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: routeDocs
+  })
 
-  const service = app.service('route')
+  const service = app.service(routePath)
   service.hooks(hooks)
 
   // @ts-ignore

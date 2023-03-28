@@ -35,10 +35,11 @@ require('fix-esm').register()
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
-      docsPath: '/openapi',
-      docsJsonPath: '/openapi.json',
-      uiIndex: path.join(process.cwd() + '/openapi.html'),
-      // TODO: Relate to server config, don't hardcode this here
+      ui: swagger.swaggerUI({
+        docsPath: '/openapi'
+        // docsJsonPath: '/openapi.json',
+        // indexFile: path.join(process.cwd() + '/openapi.html')
+      }),
       specs: {
         info: {
           title: 'Ethereal Engine API Surface',
