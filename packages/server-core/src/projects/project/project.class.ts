@@ -14,6 +14,7 @@ import {
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
 import { Application } from '../../../declarations'
@@ -23,6 +24,7 @@ import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
@@ -499,9 +501,11 @@ export class Project extends Service {
       )
     }
 
-    if (this.app.k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
+    const k8BatchClient = getState(ServerState).k8BatchClient
+
+    if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
       await createOrUpdateProjectUpdateJob(this.app, projectName)
-    } else if (this.app.k8BatchClient && (data.updateType === 'none' || data.updateType == null))
+    } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
       await removeProjectUpdateJob(this.app, projectName)
 
     return returned

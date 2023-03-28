@@ -15,7 +15,7 @@ import Mediapipe from './index'
 const argTypes = {}
 
 export default {
-  title: 'Expermiental/Mediapipe',
+  title: 'Experimental/Mediapipe',
   component: Mediapipe,
   decorators: [
     (Story) => {

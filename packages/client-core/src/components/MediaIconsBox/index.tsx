@@ -102,7 +102,7 @@ export const MediaIconsBox = () => {
             type="button"
             id="UserPoseTracking"
             className={styles.iconContainer + ' ' + (isMotionCaptureEnabled.value ? styles.on : '')}
-            onClick={() => window.open('/recorder', '_blank')}
+            onClick={() => window.open('/capture', '_blank')}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >

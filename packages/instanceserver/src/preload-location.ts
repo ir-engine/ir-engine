@@ -58,7 +58,7 @@ export default async function (locationName, app: Application) {
     ipAddress: config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:3031`,
     locationId: location.id
   } as any
-  app.isChannelInstance = false
+  app.isMediaInstance = false
   const instanceResult = await app.service('instance').create(newInstance)
   app.instance = instanceResult
 

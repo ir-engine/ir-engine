@@ -12,6 +12,7 @@ import {
 } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
+  closeDataProducer,
   SocketWebRTCClientNetwork,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -19,7 +20,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import LoadingCircle from '../primitives/tailwind/LoadingCircle'
 
@@ -37,16 +38,27 @@ const startDataProducer = async () => {
     protocol: 'raw'
   })
   dataProducer.on('transportclose', () => {
-    console.log('transportclose')
+    network.dataProducers.delete(mocapDataChannelType)
   })
   network.dataProducers.set(mocapDataChannelType, dataProducer)
 }
 
 /**
- * Our results schema is the following:
- *   [length, x0, y0, z0, visible, x1, y1, z1, visible, ...]
- * @param results
+ * Start playback of a recording
+ * - If we are streaming data, close the data producer
  */
+const startPlayback = async (recordingID: string, twin: boolean) => {
+  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
+    await closeDataProducer(network, mocapDataChannelType)
+  }
+  //*** TEMP VARIABLE - PUT IN UI */
+  ECSRecordingFunctions.startPlayback({
+    recordingID,
+    targetUser: twin ? undefined : Engine.instance.userId
+  })
+}
+
 const sendResults = (results: NormalizedLandmarkList) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.sendTransport) return
@@ -75,6 +87,7 @@ const Mediapipe = () => {
   const mediaConnection = useMediaInstance()
   const recordingState = useHookstate(getMutableState(RecordingState))
   const modelLoaded = useHookstate(false)
+  const isTwin = useHookstate(false)
 
   const ready = !!modelLoaded.value && !!mediaConnection?.value
 
@@ -84,6 +97,7 @@ const Mediapipe = () => {
       ECSRecordingFunctions.stopRecording({
         recordingID: recordingState.recordingID.value
       })
+      RecordingFunctions.getRecordings()
     } else if (!recordingState.started.value) {
       RecordingFunctions.startRecording().then((recordingID) => {
         if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
@@ -99,6 +113,8 @@ const Mediapipe = () => {
 
   const onResults: ResultsListener = useCallback(
     (results) => {
+      // todo, when playing back, we should be displaying the playback data instead of live data
+      if (recordingState.playback.value) return
       if (canvasCtxRef.current !== null && canvasRef.current !== null) {
         const { poseWorldLandmarks, poseLandmarks } = results
         if (canvasCtxRef.current && poseLandmarks?.length) {
@@ -188,13 +204,15 @@ const Mediapipe = () => {
     })
     pose.onResults(onResults)
     mediapipe.set(pose)
+
+    RecordingFunctions.getRecordings()
   }, [])
 
   // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
   return (
     <div className="w-fit-content h-fit-content relative pointer-events-auto">
       {!ready && (
-        <div className="w-full h-full absolute z-10 flex justify-center items-center">
+        <div className="w-full absolute z-10 flex justify-center items-center">
           <LoadingCircle message={t('common:loader.connecting')} />
         </div>
       )}
@@ -203,14 +221,55 @@ const Mediapipe = () => {
         <canvas ref={canvasRef} />
       </div>
       {ready && (
-        <button
-          className="absolute bottom-0 right-0  bg-grey pointer-events-auto"
-          style={{ pointerEvents: 'all' }}
-          onClick={onToggleRecording}
-        >
-          {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Start'}
-        </button>
+        <div className="relative">
+          <button
+            className="bottom-0 right-0  bg-grey pointer-events-auto"
+            style={{ pointerEvents: 'all' }}
+            onClick={onToggleRecording}
+          >
+            {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Record'}
+          </button>
+          <div></div>
+        </div>
       )}
+      {recordingState.recordings.value.map((recording) => (
+        <div key={recording.id} className="bg-grey pointer-events-auto" style={{ pointerEvents: 'all' }}>
+          {recordingState.playback.value === recording.id ? (
+            <button
+              style={{ pointerEvents: 'all' }}
+              onClick={() => {
+                ECSRecordingFunctions.stopPlayback({
+                  recordingID: recording.id
+                })
+              }}
+            >
+              Stop - {recording.id}
+            </button>
+          ) : (
+            <>
+              <p>{recording.id}</p>
+              <p>
+                <button
+                  style={{ pointerEvents: 'all', padding: '10px' }}
+                  onClick={() => startPlayback(recording.id, isTwin.value)}
+                >
+                  Play
+                </button>
+                <span style={{ pointerEvents: 'all', padding: '10px' }}>
+                  Create Twin -
+                  <input
+                    type="checkbox"
+                    id="isClone"
+                    name="isClone"
+                    value="Twin"
+                    onChange={(e) => isTwin.set(e.target.checked)}
+                  />
+                </span>
+              </p>
+            </>
+          )}
+        </div>
+      ))}
     </div>
   )
 }

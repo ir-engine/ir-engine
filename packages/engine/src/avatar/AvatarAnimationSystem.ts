@@ -149,12 +149,18 @@ export default async function AvatarAnimationSystem() {
       const leftHand = !!sources.find((s) => s.handedness === 'left')
       const rightHand = !!sources.find((s) => s.handedness === 'right')
 
-      const changed = ikTargets.head !== head || ikTargets.leftHand !== leftHand || ikTargets.rightHand !== rightHand
+      if (!head && ikTargets.head) removeComponent(localClientEntity, AvatarHeadIKComponent)
+      if (!leftHand && ikTargets.leftHand) removeComponent(localClientEntity, AvatarLeftArmIKComponent)
+      if (!rightHand && ikTargets.rightHand) removeComponent(localClientEntity, AvatarRightArmIKComponent)
 
-      if (changed) dispatchAction(WorldNetworkAction.avatarIKTargets({ head, leftHand, rightHand }))
+      if (head && !ikTargets.head) setComponent(localClientEntity, AvatarHeadIKComponent)
+      if (leftHand && !ikTargets.leftHand) setComponent(localClientEntity, AvatarLeftArmIKComponent)
+      if (rightHand && !ikTargets.rightHand) setComponent(localClientEntity, AvatarRightArmIKComponent)
+
+      ikTargets.head = head
+      ikTargets.leftHand = leftHand
+      ikTargets.rightHand = rightHand
     }
-
-    if (!isClient) return
 
     /**
      * 1 - Sort & apply avatar priority queue
@@ -274,11 +280,13 @@ export default async function AvatarAnimationSystem() {
      */
     for (const entity of headIKEntities) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
-      ik.target.updateMatrixWorld(true)
-      const rig = getComponent(entity, AvatarRigComponent).rig
-      ik.target.getWorldDirection(_vec).multiplyScalar(-1)
-      solveHipHeight(entity, ik.target)
-      solveLookIK(rig.Head, _vec, ik.rotationClamp)
+      if (!ik.target.position.equals(V_000)) {
+        ik.target.updateMatrixWorld(true)
+        const rig = getComponent(entity, AvatarRigComponent).rig
+        ik.target.getWorldDirection(_vec).multiplyScalar(-1)
+        solveHipHeight(entity, ik.target)
+        solveLookIK(rig.Head, _vec, ik.rotationClamp)
+      }
     }
 
     /**
@@ -288,15 +296,10 @@ export default async function AvatarAnimationSystem() {
       const { rig } = getComponent(entity, AvatarRigComponent)
 
       const ik = getComponent(entity, AvatarLeftArmIKComponent)
-      ik.target.updateMatrixWorld(true)
 
-      // Arms should not be straight for the solver to work properly
-      // TODO: Make this configurable
-      // how do we report that tracking is lost or still pending?
-      // FOR NOW: we'll assume that we don't have tracking if the target is at exactly (0, 0, 0);
-      // we may want to add a flag for this in the future, or to generally allow animations to play even if tracking is available
-
+      // If data is zeroed out, assume there is no input and do not run IK
       if (!ik.target.position.equals(V_000)) {
+        ik.target.updateMatrixWorld(true)
         rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
         /** @todo see if this is still necessary */
         rig.LeftForeArm.updateWorldMatrix(false, true)
