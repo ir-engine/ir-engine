@@ -49,10 +49,12 @@ export const AdminActiveRouteService = {
     const user = getMutableState(AuthState).user
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-        const routes = await API.instance.client.service('route').find({ paginate: false })
-        dispatchAction(
-          AdminActiveRouteActions.activeRoutesRetrieved({ data: routes.data as Array<ActiveRoutesInterface> })
-        )
+        const routes = await API.instance.client.service('route').find({
+          query: {
+            $limit: ROUTE_PAGE_LIMIT
+          }
+        })
+        dispatchAction(AdminActiveRouteActions.activeRoutesRetrieved({ data: routes.data }))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

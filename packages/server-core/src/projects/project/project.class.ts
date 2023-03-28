@@ -22,6 +22,7 @@ import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { RouteType } from '../../route/route/route.schema'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
@@ -584,11 +585,13 @@ export class Project extends Service {
       ]
     }
 
-    const routeItems = await this.app
-      .service('route')
-      .Model.table('route')
-      .where('project', name)
-      .whereNotNull('project')
+    const routeItems = (await this.app.service('route').find({
+      query: {
+        $and: [{ project: { $ne: null } }, { project: name }]
+      },
+      paginate: false
+    })) as any as RouteType[]
+
     routeItems.length &&
       routeItems.forEach(async (route) => {
         await this.app.service('route').remove(route.id)

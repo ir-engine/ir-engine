@@ -10,7 +10,6 @@ import logger from '../../ServerLogger'
 import { RouteService } from './route.class'
 import routeDocs from './route.docs'
 import hooks from './route.hooks'
-import { RouteType } from './route.schema'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -62,7 +61,9 @@ export const getInstalledRoutes = (): any => {
 
 export const activateRoute = (routeService: RouteService): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
-    const activatedRoutes = ((await routeService.find(null!)) as any).data as RouteType[]
+    const activatedRoutes = await routeService.find({
+      paginate: false
+    })
     const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))

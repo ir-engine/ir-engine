@@ -1,6 +1,7 @@
 import i18n from 'i18next'
 import { lazy } from 'react'
 
+import { ROUTE_PAGE_LIMIT } from '@etherealengine/client-core/src/admin/services/RouteService'
 import { API } from '@etherealengine/client-core/src/API'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
 
@@ -16,14 +17,16 @@ export type CustomRoute = {
  * @return {Promise}
  */
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
-  const routes = await API.instance.client.service('route').find()
+  const routes = await API.instance.client.service('route').find({
+    query: {
+      $limit: ROUTE_PAGE_LIMIT
+    }
+  })
 
   const elements: CustomRoute[] = []
 
   if (!Array.isArray(routes.data) || routes.data == null) {
-    throw new Error(
-      i18n.t('editor:errors.fetchingRouteError', { error: routes.error || i18n.t('editor:errors.unknownError') })
-    )
+    throw new Error(i18n.t('editor:errors.fetchingRouteError', { error: i18n.t('editor:errors.unknownError') }))
   } else {
     for (const project of routes.data) {
       const routeLazyLoad = await loadRoute(project.project, project.route)

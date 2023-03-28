@@ -48,8 +48,8 @@ export default (app: Application): void => {
           query_url: queryURL
         } as OEmbed
 
-        const activeRoutes = await app.service('route').find()
-        const uniqueProjects = [...new Set<string>(activeRoutes.data.map((item) => item.project))]
+        const activeRoutes = await app.service('route').find({ paginate: false })
+        const uniqueProjects = [...new Set<string>(activeRoutes.map((item) => item.project))]
 
         for (const projectName of uniqueProjects) {
           const projectConfig = await getProjectConfig(projectName)
