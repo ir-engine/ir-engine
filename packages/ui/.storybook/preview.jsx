@@ -17,6 +17,8 @@ import results from '../tests/jest-test-results.json'
 import { ThemeContextProvider } from '@etherealengine/client/src/themes/themeContext'
 import { Suspense } from 'react'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+//import results from '../tests/jest-test-results.json'
+
 // import { withThemes } from '@react-theming/storybook-addon'
 
 // import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
@@ -25,10 +27,7 @@ import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCir
 
 export const decorators = [
   withRouter,
-  withTests({ results }),
-  (Story) => {
-    return <ThemeContextProvider><Suspense fallback={<LoadingCircle message={'Loading Story...'} />}><Story /></Suspense></ThemeContextProvider>
-  }
+  //withTests({ results }),
   // withThemes(null, [defaultTheme], { providerFn })
 ]
      
