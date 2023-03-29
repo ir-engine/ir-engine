@@ -8,6 +8,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { updateXRCamera } from '../../xr/XRCameraSystem'
+import { TransformComponent } from '../components/TransformComponent'
 import { computeTransformMatrix } from './TransformSystem'
 
 /**
@@ -57,6 +58,8 @@ export default async function ReferenceSpaceTransformSystem() {
      * For whatever reason, this must run at the start of the transform system, before the transform system.
      */
     applyInputSourcePoseToIKTargets()
+
+    delete TransformComponent.dirtyTransforms[Engine.instance.localClientEntity]
   }
 
   const cleanup = async () => {}
