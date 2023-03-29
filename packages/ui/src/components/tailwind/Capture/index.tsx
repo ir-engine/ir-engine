@@ -24,7 +24,7 @@ import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/en
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
-import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
+import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingsList'
 import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
