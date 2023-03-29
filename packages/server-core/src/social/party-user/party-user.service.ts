@@ -1,10 +1,9 @@
-import { getState } from '@etherealengine/hyperflux'
-
 import '@feathersjs/transport-commons'
 
-import { Application } from '../../../declarations'
+import Sequelize from 'sequelize'
+
+import { Application, ServerMode } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { ServerMode, ServerState } from '../../ServerState'
 import { PartyUser } from './party-user.class'
 import partyUserDocs from './party-user.docs'
 import hooks from './party-user.hooks'
@@ -32,7 +31,7 @@ export default (app: Application): void => {
 
   service.hooks(hooks)
 
-  if (getState(ServerState).serverMode !== ServerMode.API) return
+  if (app.serverMode !== ServerMode.API) return
 
   service.publish('created', async (data): Promise<any> => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner

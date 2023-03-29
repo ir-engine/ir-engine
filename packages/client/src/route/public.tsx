@@ -12,6 +12,7 @@ import {
   ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
+import { AppLoadingServiceReceptor } from '@etherealengine/client-core/src/common/services/AppLoadingService'
 import { AppServiceReceptor } from '@etherealengine/client-core/src/common/services/AppService'
 import { DialogServiceReceptor } from '@etherealengine/client-core/src/common/services/DialogService'
 import { MediaInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
@@ -27,7 +28,6 @@ import { InviteService, InviteServiceReceptor } from '@etherealengine/client-cor
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
-import { AppLoadingServiceReceptor } from '@etherealengine/engine/src/common/AppLoadingService'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'

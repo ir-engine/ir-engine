@@ -1,11 +1,8 @@
 import { BadRequest } from '@feathersjs/errors/lib'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { ServerState } from '../../ServerState'
 
 export const getServerLogs = async (podName: string, containerName: string, app: Application): Promise<string> => {
   let serverLogs = ''
@@ -18,9 +15,8 @@ export const getServerLogs = async (podName: string, containerName: string, app:
       new BadRequest('You can only request server logs for current deployment.')
     }
 
-    const k8DefaultClient = getState(ServerState).k8DefaultClient
-    if (k8DefaultClient) {
-      const podLogs = await k8DefaultClient.readNamespacedPodLog(
+    if (app.k8DefaultClient) {
+      const podLogs = await app.k8DefaultClient.readNamespacedPodLog(
         podName,
         'default',
         containerName,

@@ -22,15 +22,14 @@ import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
+import { applyIncomingActions } from '@etherealengine/hyperflux'
 
-import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 import '@etherealengine/engine/src/patchEngineNode'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { deserializeGroup } from '@etherealengine/engine/src/scene/functions/loaders/GroupFunctions'
 
 import { createTransformGizmo } from '../systems/EditorControlSystem'
@@ -87,7 +86,7 @@ describe('EditorControlFunctions', () => {
 
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = Engine.instance.currentScene.sceneEntity
       nodes = [createEntity(), createEntity()]
 
       for (let i = 0; i < 2; i++) {
@@ -121,7 +120,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      rootNode = getState(SceneState).sceneEntity
+      rootNode = Engine.instance.currentScene.sceneEntity
     })
 
     afterEach(() => {
@@ -137,7 +136,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const world = getState(SceneState)
+      const world = Engine.instance.currentScene
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -209,7 +208,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = Engine.instance.currentScene.sceneEntity
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       beforeNodes = [createEntity(), createEntity()]
@@ -230,7 +229,7 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.duplicateObject(nodes)
       applyIncomingActions()
 
-      const rootEntity = getState(SceneState).sceneEntity
+      const rootEntity = Engine.instance.currentScene.sceneEntity
       const rootNode = getComponent(rootEntity, EntityTreeComponent)
       rootNode.children.forEach((entity) => {
         assert(hasComponent(entity, EntityTreeComponent))
@@ -248,7 +247,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const world = getState(SceneState)
+      const world = Engine.instance.currentScene
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -300,7 +299,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = getState(SceneState).sceneEntity
+      const rootNode = Engine.instance.currentScene.sceneEntity
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       ;[...nodes, ...parentNodes].map((node) =>
@@ -326,7 +325,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('will not remove root node', () => {
-      EditorControlFunctions.removeObject([getState(SceneState).sceneEntity])
+      EditorControlFunctions.removeObject([Engine.instance.currentScene.sceneEntity])
 
       nodes.forEach((node: Entity) => {
         assert(hasComponent(node, EntityTreeComponent))

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useShareMenuHooks } from '../../../user/components/UserMenu/menus/ShareMenu'
 import XRCheckboxButton from '../../components/XRCheckboxButton'

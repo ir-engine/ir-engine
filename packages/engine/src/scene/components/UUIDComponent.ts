@@ -10,13 +10,6 @@ export const UUIDComponent = defineComponent({
   onInit: () => '' as EntityUUID,
 
   onSet: (entity, component, uuid: EntityUUID) => {
-    if (component.value === uuid) return
-
-    // throw error if uuid is already in use
-    if (UUIDComponent.entitiesByUUID[uuid].value !== undefined && UUIDComponent.entitiesByUUID[uuid].value !== entity) {
-      throw new Error(`UUID ${uuid} is already in use`)
-    }
-
     component.set(uuid)
     UUIDComponent.valueMap[entity] = uuid
     UUIDComponent.entitiesByUUID[uuid].set(entity)

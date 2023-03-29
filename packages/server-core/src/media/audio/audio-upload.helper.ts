@@ -10,7 +10,6 @@ import { Readable } from 'stream'
 import { AudioInterface } from '@etherealengine/common/src/dbmodels/Audio'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
 
@@ -97,7 +96,7 @@ export const audioUpload = async (app: Application, data) => {
       })
     }
 
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingAudio)) return existingAudio
+    if (existingResource && existingAudio) return existingAudio
     else {
       let file, body
       if (data.url) {

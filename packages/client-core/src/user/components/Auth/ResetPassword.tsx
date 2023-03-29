@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@etherealengine/ui/src/Button'
-import Container from '@etherealengine/ui/src/Container'
-import TextField from '@etherealengine/ui/src/TextField'
-import Typography from '@etherealengine/ui/src/Typography'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import EmptyLayout from '../../../common/components/EmptyLayout'
 import styles from './index.module.scss'

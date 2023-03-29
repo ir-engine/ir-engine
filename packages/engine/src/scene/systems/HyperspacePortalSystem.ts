@@ -1,10 +1,7 @@
 import { AmbientLight, Color } from 'three'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineQuery,
   getComponent,
@@ -78,7 +75,7 @@ export default async function HyperspacePortalSystem() {
           /**
            * hide scene, render just the hyperspace effect and avatar
            */
-          getMutableState(SceneState).background.set(new Color('black'))
+          Engine.instance.scene.background = new Color('black')
           Engine.instance.camera.layers.enable(ObjectLayers.Portal)
           Engine.instance.camera.layers.disable(ObjectLayers.Scene)
           sceneVisible = false

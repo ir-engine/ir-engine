@@ -37,7 +37,7 @@ export const DirectionalLightComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
-    if (matches.string.test(json.color) || matches.number.test(json.color)) component.color.value.set(json.color)
+    if (matches.string.test(json.color)) component.color.value.set(json.color)
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)

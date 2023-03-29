@@ -17,7 +17,7 @@ export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',
   onInit: (entity) => {
     /** @todo add a reactor to dynamically update to these values */
-    const cameraSettings = getCameraSceneMetadataState().value
+    const cameraSettings = getCameraSceneMetadataState(Engine.instance.currentScene).value
 
     // if (cameraSettings.projectionType === ProjectionType.Orthographic) {
     //   camera.camera = new OrthographicCamera(

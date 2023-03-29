@@ -25,7 +25,7 @@ import {
   EditorActiveInstanceServiceReceptor,
   useEditorActiveInstanceState
 } from './EditorActiveInstanceService'
-import { EditorNetworkInstanceProvisioning } from './EditorNetworkInstanceProvisioning'
+import { useEditorNetworkInstanceProvisioning } from './useEditorNetworkInstanceProvisioning'
 
 export const WorldInstanceConnection = () => {
   const { t } = useTranslation()
@@ -60,6 +60,8 @@ export const WorldInstanceConnection = () => {
     }
   }, [])
 
+  useEditorNetworkInstanceProvisioning()
+
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
       if (worldNetworkHostId) {
@@ -88,7 +90,6 @@ export const WorldInstanceConnection = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
-      <EditorNetworkInstanceProvisioning />
       <InfoTooltip title="Active Instances">{getIcon()}</InfoTooltip>
       <SelectInput
         className={styles.selectInput}

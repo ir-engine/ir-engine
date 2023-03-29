@@ -51,6 +51,7 @@ const client = {
   },
   rootRedirect: globalThis.process.env['VITE_ROOT_REDIRECT'],
   tosAddress: globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'],
+  lobbyLocationName: globalThis.process.env['VITE_LOBBY_LOCATION_NAME'],
   readyPlayerMeUrl: globalThis.process.env['VITE_READY_PLAYER_ME_URL'],
   key8thWall: globalThis.process.env['VITE_8TH_WALL']!,
   featherStoreKey: globalThis.process.env['VITE_FEATHERS_STORE_KEY'],

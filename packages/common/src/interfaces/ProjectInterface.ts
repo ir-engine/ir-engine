@@ -9,7 +9,7 @@ export const DefaultUpdateSchedule = '0 * * * *'
 export interface ProjectInterface {
   id: string
   name: string
-  thumbnail?: string
+  thumbnail: string
   repositoryPath: string
   version?: string
   engineVersion?: string

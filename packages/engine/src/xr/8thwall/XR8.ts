@@ -5,11 +5,17 @@ import { dispatchAction, getMutableState, startReactor } from '@etherealengine/h
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
+import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
-import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
+import {
+  endXRSession,
+  getReferenceSpaces,
+  requestXRSession,
+  setupARSession,
+  setupXRSession
+} from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
@@ -255,7 +261,7 @@ export default async function XR8System() {
       xrState.session.set(xrSession)
       xrState.sessionActive.set(true)
       xrState.sessionMode.set('immersive-ar')
-      getMutableState(SceneState).background.set(null)
+      Engine.instance.scene.background = null
 
       getReferenceSpaces(xrSession)
 
@@ -286,6 +292,8 @@ export default async function XR8System() {
       document.body.removeEventListener('touchmove', onTouchMove)
       document.body.removeEventListener('touchend', onTouchEnd)
 
+      const skybox = skyboxQuery()[0]
+      if (skybox) updateSkybox(skybox)
       dispatchAction(XRAction.sessionChanged({ active: false }))
     }
   }
@@ -324,8 +332,7 @@ export default async function XR8System() {
     return null
   })
 
-  const backgroundState = getMutableState(SceneState).background
-  let lastSeenBackground = backgroundState.value
+  let lastSeenBackground = Engine.instance.scene.background
 
   const execute = () => {
     if (!XR8) return
@@ -337,8 +344,8 @@ export default async function XR8System() {
     const sessionActive = xrState.sessionActive.value
     const xr8scene = XR8.Threejs.xrScene()
     if (sessionActive && xr8scene) {
-      if (backgroundState.value) lastSeenBackground = backgroundState.value
-      getMutableState(SceneState).background.set(null)
+      if (Engine.instance.scene.background) lastSeenBackground = Engine.instance.scene.background
+      Engine.instance.scene.background = null
       const { camera } = xr8scene
       /** update the camera in world space as updateXRInput will update it to local space */
       Engine.instance.camera.position.copy(camera.position)
@@ -346,7 +353,7 @@ export default async function XR8System() {
       /** 8thwall always expects the camera to be unscaled */
       Engine.instance.camera.scale.set(1, 1, 1)
     } else {
-      if (!backgroundState.value && lastSeenBackground) backgroundState.set(lastSeenBackground)
+      if (!Engine.instance.scene.background && lastSeenBackground) Engine.instance.scene.background = lastSeenBackground
       lastSeenBackground = null
       return
     }

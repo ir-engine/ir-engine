@@ -37,8 +37,8 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const worldState = getMutableState(WorldState)
   worldState.userNames[Engine.instance.userId].set(name)
   worldState.userAvatarDetails[Engine.instance.userId].set(avatarDetail)
-  dispatchAction(WorldNetworkAction.spawnAvatar({ ...avatarSpawnPose, uuid: Engine.instance.userId }))
-  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail, uuid: Engine.instance.userId }))
+  dispatchAction(WorldNetworkAction.spawnAvatar(avatarSpawnPose))
+  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }))
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {

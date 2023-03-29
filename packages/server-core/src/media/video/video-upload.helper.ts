@@ -7,7 +7,6 @@ import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
 
@@ -86,7 +85,7 @@ export const videoUpload = async (app: Application, data, parentId?: string, par
         include
       })
     }
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingVideo)) return existingVideo
+    if (existingResource && existingVideo) return existingVideo
     else {
       let file, body
       if (data.url) {

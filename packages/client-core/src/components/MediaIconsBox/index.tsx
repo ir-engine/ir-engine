@@ -16,7 +16,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -102,7 +102,7 @@ export const MediaIconsBox = () => {
             type="button"
             id="UserPoseTracking"
             className={styles.iconContainer + ' ' + (isMotionCaptureEnabled.value ? styles.on : '')}
-            onClick={() => window.open('/capture', '_blank')}
+            onClick={() => window.open('/recorder', '_blank')}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >

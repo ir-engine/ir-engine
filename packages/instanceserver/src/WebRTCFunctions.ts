@@ -29,10 +29,8 @@ import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
-import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
   ConsumerExtension,
@@ -75,24 +73,9 @@ export async function startWebRTC() {
   return { routers, workers }
 }
 
-/**
- * Creates a new WebRTC transport for the given data channel.
- */
-export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetwork, dataChannel: DataChannelType) => {
-  if (network.outgoingDataProducers[dataChannel]) return
-
-  logger.info('createOutgoingDataProducer %o', dataChannel)
-
-  const outgoingDataProducer = await network.outgoingDataTransport.produceData({
-    label: dataChannel,
-    protocol: 'raw',
-    // sctpStreamParameters: {
-    //   ordered: sctpStreamParameters.ordered
-    // },
-    appData: {
-      peerID: 'outgoingProducer'
-    }
-  })
+export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetwork, options: DataProducerOptions) => {
+  logger.info('createOutgoingDataProducer %o', options)
+  const outgoingDataProducer = await network.outgoingDataTransport.produceData(options)
 
   const currentRouter = network.routers.instance[0]
 
@@ -104,7 +87,7 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
     })
   )
 
-  network.outgoingDataProducers[dataChannel] = outgoingDataProducer
+  return outgoingDataProducer
 }
 
 export const sendNewProducer =
@@ -193,7 +176,19 @@ export const handleWebRtcConsumeData = async (
   }
 
   const { label } = data
-  await createOutgoingDataProducer(network, label)
+  if (!network.outgoingDataProducers[label]) {
+    const outgoingDataProducer = await createOutgoingDataProducer(network, {
+      label,
+      protocol: 'raw',
+      // sctpStreamParameters: {
+      //   ordered: sctpStreamParameters.ordered
+      // },
+      appData: {
+        peerID: 'outgoingProducer'
+      }
+    })
+    network.outgoingDataProducers[label] = outgoingDataProducer
+  }
 
   const userId = getUserIdFromPeerID(network, peerID)!
   logger.info('Data Consumer being created on server by client: ' + userId)
@@ -446,17 +441,15 @@ export async function handleWebRtcTransportCreate(
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
     if (config.kubernetes.enabled) {
-      const serverState = getState(ServerState)
-      const instanceServerState = getState(InstanceServerState)
-
-      const serverResult = await serverState.k8AgonesClient.listNamespacedCustomObject(
+      const app = Engine.instance.api as Application
+      const serverResult = await app.k8AgonesClient.listNamespacedCustomObject(
         'agones.dev',
         'v1',
         'default',
         'gameservers'
       )
       const thisGs = (serverResult?.body! as any).items.find(
-        (server) => server.metadata.name === instanceServerState.instanceServer.objectMeta.name
+        (server) => server.metadata.name === app.instanceServer.objectMeta.name
       )
 
       for (let [index, candidate] of iceCandidates.entries()) {
@@ -531,7 +524,7 @@ export async function handleWebRtcProduceData(
         id: messageId
       })
     }
-    logger.info(`peerID "${peerID}", Data channel "${data.label}" %o: `, data)
+    logger.info(`userId "${userId}", Data channel "${data.label}" %o: `, data)
     const transport = network.mediasoupTransports[data.transportId]
     if (transport) {
       try {
@@ -672,19 +665,12 @@ export async function handleWebRtcCloseProducer(network: SocketWebRTCServerNetwo
   const { producerId } = data
   const producer = network.producers.find((p) => p.id === producerId)!
   try {
-    const hostClient = Array.from(network.peers.values()).find((peer) => {
-      return peer.media && peer.media![producer.appData.mediaTag]?.producerId === producerId
+    const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
+      return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
     })!
-    if (hostClient) {
-      await closeProducerAndAllPipeProducers(network, producer)
-      spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
-      return
-    }
-    if (producer) {
-      await closeProducer(network, producer)
-      spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
-      return
-    }
+    if (hostClient && hostClient[1])
+      hostClient[1].spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
+    await closeProducerAndAllPipeProducers(network, producer)
   } catch (err) {
     logger.error(err, 'Error closing WebRTC producer.')
   }
@@ -826,7 +812,7 @@ export async function handleWebRtcReceiveTrack(
     (router) => router.id === transport?.internal.routerId
   )
   if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
-    const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.id}`
+    const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer}`
     logger.error(`recv-track: ${peerID} ${msg}`)
     return spark.write({ type: MessageTypes.WebRTCReceiveTrack.toString(), data: { error: msg }, id: messageId })
   }

@@ -142,6 +142,7 @@ export default async function PhysicsSystem() {
   ])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   await Physics.load()
   Engine.instance.physicsWorld = Physics.createWorld()
@@ -258,6 +259,7 @@ export default async function PhysicsSystem() {
     removeQuery(kinematicVelocityBodyQuery)
 
     removeActionQueue(teleportObjectQueue)
+    removeActionQueue(modifyPropertyActionQueue)
 
     Engine.instance.physicsWorld.free()
 

@@ -1,16 +1,17 @@
+import { decode, encode } from 'msgpackr'
+
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag } from '../networking/serialization/DataReader'
+import { writeEntity } from '../networking/serialization/DataWriter'
 import { SerializationSchema } from '../networking/serialization/Utils'
 import {
   createViewCursor,
   readUint8,
   readUint32,
-  rewindViewCursor,
   sliceViewCursor,
-  spaceUint8,
   spaceUint32,
   ViewCursor
 } from '../networking/serialization/ViewCursor'
@@ -30,35 +31,7 @@ export type SerializerArgs = {
   schema: SerializationSchema[]
   /** The length of the chunk in frames */
   chunkLength: number
-  onCommitChunk: (chunk: SerializedChunk, chunkIndex: number) => void
-}
-
-export type DeserializerArgs = {
-  chunks: SerializedChunk[]
-  schema: SerializationSchema[]
-  onChunkStarted: (chunk: number) => void
-  onEnd: () => void
-}
-
-const writeEntity = (v: ViewCursor, entityID: number, entity: Entity, serializationSchema: SerializationSchema[]) => {
-  const rewind = rewindViewCursor(v)
-
-  const writeEntityID = spaceUint32(v)
-
-  const writeChangeMask = spaceUint8(v)
-  let changeMask = 0
-  let b = 0
-
-  for (const component of serializationSchema) {
-    changeMask |= component.write(v, entity) ? 1 << b++ : b++ && 0
-  }
-
-  if (changeMask > 0) {
-    writeEntityID(entityID)
-    return writeChangeMask(changeMask)
-  }
-
-  return rewind()
+  onCommitChunk: (chunk: Buffer, chunkIndex: number) => void
 }
 
 const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: SerializerArgs) => {
@@ -107,7 +80,8 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
   const commitChunk = () => {
     frame = 0
 
-    onCommitChunk(data, chunk++)
+    const dataBuffer = encode(data)
+    onCommitChunk(dataBuffer, chunk++)
 
     data = {
       startTimecode: Date.now(),
@@ -121,7 +95,7 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
     commitChunk()
   }
 
-  const serializer = { write, commitChunk, end, active: false }
+  const serializer = { write, commitChunk, end }
 
   ActiveSerializers.add(serializer)
 
@@ -160,38 +134,24 @@ export const readEntities = (
   }
 }
 
-const toArrayBuffer = (buf) => {
-  const ab = new ArrayBuffer(buf.length)
-  const view = new Uint8Array(ab)
-  for (let i = 0; i < buf.length; ++i) {
-    view[i] = buf[i]
-  }
-  return ab
-}
-
-export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
+export const createDeserializer = (chunks: Buffer[], schema: SerializationSchema[]) => {
   let chunk = 0
   let frame = 0
 
-  onChunkStarted(chunk)
-
   const read = () => {
-    const data = chunks[chunk] as SerializedChunk
-    const frameData = toArrayBuffer(data.changes[frame])
+    const data = decode(new Uint8Array(chunks[chunk]))
+    const frameData = data.changes[frame]
 
-    if (frameData) {
-      const view = createViewCursor(frameData)
-      readEntities(view, frameData.byteLength, data.entities, schema)
-    }
+    const view = createViewCursor(frameData)
+
+    readEntities(view, frameData.byteLength, data.entities, schema)
 
     frame++
 
     if (frame >= data.changes.length) {
-      onChunkStarted(chunk)
       chunk++
       if (chunk >= chunks.length) {
         end()
-        onEnd()
       }
     }
   }
@@ -200,7 +160,7 @@ export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: De
     ActiveDeserializers.delete(deserializer)
   }
 
-  const deserializer = { read, end, active: false }
+  const deserializer = { read, end }
 
   ActiveDeserializers.add(deserializer)
 
@@ -219,12 +179,10 @@ export const ECSSerialization = {
 export default async function ECSSerializerSystem() {
   const execute = () => {
     for (const serializer of ActiveSerializers) {
-      if (!serializer.active) continue
       serializer.write()
     }
 
     for (const deserializer of ActiveDeserializers) {
-      if (!deserializer.active) continue
       deserializer.read()
     }
   }

@@ -18,6 +18,9 @@ export default (app: Application) => {
       name: {
         type: DataTypes.STRING
       },
+      thumbnail: {
+        type: DataTypes.STRING
+      },
       repositoryPath: {
         type: DataTypes.STRING
       },

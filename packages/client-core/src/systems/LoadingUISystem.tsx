@@ -1,10 +1,8 @@
 import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
-import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   getComponent,
@@ -33,6 +31,8 @@ import {
 } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
+import { SceneActions } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
 
@@ -57,24 +57,7 @@ export default async function LoadingUISystem() {
 
   setObjectLayers(mesh, ObjectLayers.UI)
 
-  const sceneDataReactor = startReactor(() => {
-    const sceneData = useHookstate(getMutableState(SceneState).sceneData)
-
-    useEffect(() => {
-      if (!sceneData.value) return
-      const thumbnailUrl = sceneData.value.thumbnailUrl.replace('thumbnail.jpeg', 'envmap.png')
-      if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
-        mesh.userData.url = thumbnailUrl
-        textureLoader.load(thumbnailUrl, (texture) => {
-          if (texture) mesh.material.map = texture!
-          mesh.visible = true
-        })
-      }
-    }, [sceneData])
-
-    return null
-  })
-
+  const currentSceneChangedQueue = createActionQueue(SceneActions.currentSceneChanged.matches)
   const avatarModelChangedQueue = createActionQueue(EngineActions.avatarModelChanged.matches)
   const spectateUserQueue = createActionQueue(EngineActions.spectateUser.matches)
 
@@ -94,6 +77,17 @@ export default async function LoadingUISystem() {
   })
 
   const execute = () => {
+    for (const action of currentSceneChangedQueue()) {
+      const thumbnailUrl = action.sceneData.thumbnailUrl.replace('thumbnail.jpeg', 'envmap.png')
+      if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
+        mesh.userData.url = thumbnailUrl
+        textureLoader.load(thumbnailUrl, (texture) => {
+          if (texture) mesh.material.map = texture!
+          mesh.visible = true
+        })
+      }
+    }
+
     for (const action of spectateUserQueue()) {
       if (appLoadingState.state.value === AppLoadingStates.SUCCESS && engineState.sceneLoaded.value)
         transition.setState('OUT')
@@ -151,6 +145,7 @@ export default async function LoadingUISystem() {
   }
 
   const cleanup = async () => {
+    removeActionQueue(currentSceneChangedQueue)
     removeActionQueue(avatarModelChangedQueue)
     removeActionQueue(spectateUserQueue)
     removeEntity(ui.entity)
