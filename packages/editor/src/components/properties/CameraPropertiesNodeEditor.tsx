@@ -55,7 +55,7 @@ const projectionTypeSelect = [
 ]
 
 export const CameraPropertiesNodeEditor = () => {
-  const cameraSettings = useHookstate(getCameraSceneMetadataState())
+  const cameraSettings = useHookstate(getCameraSceneMetadataState(Engine.instance.currentScene))
   if (!cameraSettings.value) return null
 
   return (

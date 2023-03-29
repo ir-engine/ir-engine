@@ -1,17 +1,14 @@
 import { SpawnTestBot, TestBot } from '@etherealengine/common/src/interfaces/TestBot'
-import { getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { Application } from '../../../declarations'
-import { ServerState } from '../../ServerState'
 
 export const getTestbotPod = async (app: Application) => {
-  const k8DefaultClient = getState(ServerState).k8DefaultClient
-  if (k8DefaultClient) {
+  if (app.k8DefaultClient) {
     try {
       const jobName = `${config.server.releaseName}-etherealengine-testbot`
-      const podsResult = await k8DefaultClient.listNamespacedPod('default')
+      const podsResult = await app.k8DefaultClient.listNamespacedPod('default')
       let pods: TestBot[] = []
       for (const pod of podsResult.body.items) {
         let labels = pod.metadata!.labels
@@ -38,11 +35,10 @@ export const getTestbotPod = async (app: Application) => {
  * @returns
  */
 export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => {
-  const k8BatchClient = getState(ServerState).k8BatchClient
-  if (k8BatchClient) {
+  if (app.k8BatchClient) {
     try {
       const jobName = `${config.server.releaseName}-etherealengine-testbot`
-      const oldJobResult = await k8BatchClient.readNamespacedJob(jobName, 'default')
+      const oldJobResult = await app.k8BatchClient.readNamespacedJob(jobName, 'default')
 
       if (oldJobResult && oldJobResult.body) {
         // Removed unused properties
@@ -53,7 +49,7 @@ export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => 
 
         oldJobResult.body.spec!.suspend = false
 
-        const deleteJobResult = await k8BatchClient.deleteNamespacedJob(
+        const deleteJobResult = await app.k8BatchClient.deleteNamespacedJob(
           jobName,
           'default',
           undefined,
@@ -64,7 +60,7 @@ export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => 
         )
 
         if (deleteJobResult.body.status === 'Success') {
-          await k8BatchClient.createNamespacedJob('default', oldJobResult.body)
+          await app.k8BatchClient.createNamespacedJob('default', oldJobResult.body)
 
           return { status: true, message: 'Bot spawned successfully' }
         }

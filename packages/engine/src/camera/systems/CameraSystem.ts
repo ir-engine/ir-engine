@@ -7,7 +7,6 @@ import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearc
 import {
   createActionQueue,
   dispatchAction,
-  getMutableState,
   hookstate,
   removeActionQueue,
   startReactor,
@@ -23,7 +22,7 @@ import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
+import { Scene } from '../../ecs/classes/Scene'
 import {
   defineQuery,
   getComponent,
@@ -261,22 +260,18 @@ export const DefaultCameraState = {
   startPhi: 10
 }
 
+export type CameraState = State<typeof DefaultCameraState>
+
 export const CameraSceneMetadataLabel = 'camera'
 
-export const getCameraSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[CameraSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultCameraState>
-    >
-  ).data
+export const getCameraSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[CameraSceneMetadataLabel].state as CameraState
 
 export default async function CameraSystem() {
-  getMutableState(SceneState).sceneMetadataRegistry.merge({
-    [CameraSceneMetadataLabel]: {
-      data: _.cloneDeep(DefaultCameraState),
-      default: DefaultCameraState
-    }
-  })
+  Engine.instance.currentScene.sceneMetadataRegistry[CameraSceneMetadataLabel] = {
+    state: hookstate(_.cloneDeep(DefaultCameraState)),
+    default: DefaultCameraState
+  }
 
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
   const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
@@ -286,7 +281,7 @@ export default async function CameraSystem() {
   const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
 
   const reactor = startReactor(function CameraReactor() {
-    const cameraSettings = useHookstate(getCameraSceneMetadataState())
+    const cameraSettings = useHookstate(getCameraSceneMetadataState(Engine.instance.currentScene))
 
     useEffect(() => {
       const camera = Engine.instance.camera as PerspectiveCamera

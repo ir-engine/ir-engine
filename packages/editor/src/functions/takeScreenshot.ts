@@ -1,7 +1,6 @@
 import { PerspectiveCamera } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { addComponent, defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -17,9 +16,7 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getState } from '@etherealengine/hyperflux'
 
-import { EditorState } from '../services/EditorServices'
 import { getCanvasBlob } from './thumbnails'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -52,16 +49,15 @@ export async function takeScreenshot(
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
-    if (!scenePreviewCamera) {
-      const entity = createEntity()
-      addComponent(entity, ScenePreviewCameraComponent, null)
-      scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
-      const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-      setTransformComponent(entity, position, rotation)
-      addObjectToGroup(entity, scenePreviewCamera)
-      addEntityNodeChild(entity, getState(SceneState).sceneEntity)
-      scenePreviewCamera.updateMatrixWorld(true)
-    }
+  if (!scenePreviewCamera) {
+    const entity = createEntity()
+    addComponent(entity, ScenePreviewCameraComponent, null)
+    scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
+    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    setTransformComponent(entity, position, rotation)
+    addObjectToGroup(entity, scenePreviewCamera)
+    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
+    scenePreviewCamera.updateMatrixWorld(true)
   }
 
   const prevAspect = scenePreviewCamera.aspect
@@ -76,25 +72,7 @@ export async function takeScreenshot(
   const originalHeight = EngineRenderer.instance.renderer.domElement.height
 
   // Rendering the scene to the new canvas with given size
-  await new Promise<void>((resolve, reject) => {
-    const interval = setInterval(() => {
-      const viewport = EngineRenderer.instance.renderContext.getParameter(
-        EngineRenderer.instance.renderContext.VIEWPORT
-      )
-      if (viewport[2] === width && viewport[3] === height) {
-        clearTimeout(timeout)
-        clearInterval(interval)
-        resolve()
-      }
-    }, 10)
-    const timeout = setTimeout(() => {
-      console.warn('Could not resize viewport in time')
-      clearTimeout(timeout)
-      clearInterval(interval)
-      reject()
-    }, 10000)
-
-    // set up effect composer
+  if (getPostProcessingSceneMetadataState(Engine.instance.currentScene).enabled.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.setSize(width, height, true)
   })
@@ -115,26 +93,4 @@ export async function takeScreenshot(
   scenePreviewCamera.updateProjectionMatrix()
 
   return blob
-}
-
-/** @todo make size configurable */
-export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, false, Engine.instance.camera).then((blob) => {
-    if (!blob) return
-
-    const blobUrl = URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-
-    const editorState = getState(EditorState)
-
-    link.href = blobUrl
-    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
-
-    document.body.appendChild(link)
-
-    link.click()
-
-    document.body.removeChild(link)
-  })
 }

@@ -8,7 +8,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { useMediaStreamState } from '../../../media/services/MediaStreamService'

@@ -1,6 +1,13 @@
-import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Object3D, Quaternion, Vector3 } from 'three'
+import {
+  Collider,
+  ColliderDesc,
+  KinematicCharacterController,
+  RigidBody,
+  RigidBodyDesc
+} from '@dimforge/rapier3d-compat'
+import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
@@ -20,12 +27,14 @@ import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunc
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
+import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -33,12 +42,7 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import {
-  AvatarHeadIKComponent,
-  AvatarIKTargetsComponent,
-  AvatarLeftArmIKComponent,
-  AvatarRightArmIKComponent
-} from '../components/AvatarIKComponents'
+import { AvatarIKTargetsComponent } from '../components/AvatarIKComponents'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const avatarRadius = 0.25
@@ -46,34 +50,30 @@ export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawnAvatar.matches._TYPE) => {
-  const ownerId = spawnAction.$from
-  const userId = spawnAction.uuid
-  const primary = ownerId === userId
+  const userId = spawnAction.$from
+  const existingAvatarEntity = Engine.instance.getUserAvatarEntity(spawnAction.$from)
 
-  if (primary) {
-    const existingAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
-
-    // already spawned into the world on another device or tab
-    if (existingAvatarEntity) {
-      const didSpawnEarlierThanThisClient = NetworkPeerFunctions.getCachedActionsForUser(ownerId).find(
-        (action) =>
-          WorldNetworkAction.spawnAvatar.matches.test(action) &&
-          action !== spawnAction &&
-          action.$time > spawnAction.$time
-      )
-      if (didSpawnEarlierThanThisClient) {
-        hasComponent(existingAvatarEntity, NetworkObjectAuthorityTag) &&
-          removeComponent(existingAvatarEntity, NetworkObjectAuthorityTag)
-      }
-      return
+  // already spawned into the world on another device or tab
+  if (existingAvatarEntity) {
+    const didSpawnEarlierThanThisClient = NetworkPeerFunctions.getCachedActionsForUser(userId).find(
+      (action) =>
+        WorldNetworkAction.spawnAvatar.matches.test(action) &&
+        action !== spawnAction &&
+        action.$time > spawnAction.$time
+    )
+    if (didSpawnEarlierThanThisClient) {
+      hasComponent(existingAvatarEntity, NetworkObjectAuthorityTag) &&
+        removeComponent(existingAvatarEntity, NetworkObjectAuthorityTag)
     }
+    return
   }
 
-  const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)!
+  const entity = Engine.instance.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
   const transform = getComponent(entity, TransformComponent)
 
+  setComponent(entity, UUIDComponent, spawnAction.$from as any as EntityUUID)
+
   addComponent(entity, AvatarComponent, {
-    primary,
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
     model: null
@@ -81,7 +81,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
 
   const userNames = getMutableState(WorldState).userNames
   const userName = userNames[userId].value
-  const shortId = ownerId.substring(0, 7)
+  const shortId = userId.substring(0, 7)
   addComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
 
   addComponent(entity, VisibleComponent, true)
@@ -116,7 +116,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     rotation: new Quaternion().copy(transform.rotation)
   })
 
-  if (ownerId === Engine.instance.userId) {
+  if (userId === Engine.instance.userId) {
     createAvatarController(entity)
     addComponent(entity, LocalAvatarTagComponent, true)
     addComponent(entity, LocalInputTagComponent, true)

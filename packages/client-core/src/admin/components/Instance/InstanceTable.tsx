@@ -5,7 +5,7 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

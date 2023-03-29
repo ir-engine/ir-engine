@@ -98,6 +98,8 @@ export default async function PositionalAudioSystem() {
   /**
    * Scene Objects
    */
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+
   const positionalAudioQuery = defineQuery([PositionalAudioComponent, MediaElementComponent, TransformComponent])
 
   /**
@@ -131,7 +133,7 @@ export default async function PositionalAudioSystem() {
     const audioContext = audioState.audioContext
     const network = Engine.instance.mediaNetwork
     const immersiveMedia = shouldUseImmersiveMedia()
-    const positionalAudioSettings = getMediaSceneMetadataState().value
+    const positionalAudioSettings = getMediaSceneMetadataState(Engine.instance.currentScene).value
 
     /**
      * Scene Objects
@@ -267,6 +269,7 @@ export default async function PositionalAudioSystem() {
   }
 
   const cleanup = async () => {
+    removeActionQueue(modifyPropertyActionQueue)
     removeQuery(positionalAudioQuery)
     removeQuery(networkedAvatarAudioQuery)
     removeActionQueue(setMediaStreamVolumeActionQueue)

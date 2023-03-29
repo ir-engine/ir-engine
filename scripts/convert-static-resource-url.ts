@@ -6,10 +6,10 @@ import dotenv from 'dotenv-flow'
 import fetch from 'node-fetch'
 import Sequelize, { DataTypes, Op } from 'sequelize'
 
+import { ServerMode } from '@etherealengine/server-core/declarations'
 import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { addGenericAssetToS3AndStaticResources } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,

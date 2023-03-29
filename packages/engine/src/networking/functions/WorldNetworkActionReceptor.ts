@@ -1,12 +1,14 @@
 import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
-import { SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID, SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import {
+  addComponent,
+  ComponentType,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -16,7 +18,11 @@ import {
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  setLocalTransformComponent,
+  setTransformComponent,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
@@ -26,13 +32,10 @@ import { WorldNetworkAction } from './WorldNetworkAction'
 
 const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
   const existingAvatar =
-    WorldNetworkAction.spawnAvatar.matches.test(action) &&
-    !!Engine.instance.getUserAvatarEntity(action.$from) &&
-    action.uuid === action.$from
+    WorldNetworkAction.spawnAvatar.matches.test(action) && !!Engine.instance.getUserAvatarEntity(action.$from)
   if (existingAvatar) return
 
   const entity = createEntity()
-  setComponent(entity, UUIDComponent, action.uuid)
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
@@ -78,8 +81,8 @@ const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSc
 
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    setComponent(entity, NetworkObjectOwnedTag)
-    setComponent(entity, NetworkObjectAuthorityTag)
+    setComponent(entity, NetworkObjectOwnedTag, true)
+    setComponent(entity, NetworkObjectAuthorityTag, true)
   } else {
     if (hasComponent(entity, NetworkObjectOwnedTag)) removeComponent(entity, NetworkObjectOwnedTag)
     if (hasComponent(entity, NetworkObjectAuthorityTag)) removeComponent(entity, NetworkObjectAuthorityTag)

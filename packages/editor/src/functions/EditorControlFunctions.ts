@@ -7,7 +7,6 @@ import logger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   Component,
@@ -57,7 +56,7 @@ import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
@@ -188,7 +187,7 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 
 const createObjectFromPrefab = (
   prefab: string,
-  parentEntity = getState(SceneState).sceneEntity as Entity | null,
+  parentEntity = Engine.instance.currentScene.sceneEntity as Entity | null,
   beforeEntity = null as Entity | null,
   updateSelection = true
 ) => {
@@ -485,7 +484,7 @@ const scaleObject = (
 
 const reparentObject = (
   nodes: EntityOrObjectUUID[],
-  parent = getState(SceneState).sceneEntity,
+  parent = Engine.instance.currentScene.sceneEntity,
   before?: Entity | null,
   updateSelection = true
 ) => {

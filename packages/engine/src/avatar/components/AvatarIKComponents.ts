@@ -106,7 +106,18 @@ export const AvatarLeftArmIKComponent = defineComponent({
     const leftOffset = new Object3D()
     leftOffset.name = `ik-left-offset-${entity}`
 
+    const rig = getComponent(entity, AvatarRigComponent)
+
     leftOffset.rotation.set(-Math.PI * 0.5, Math.PI, 0)
+
+    if (isClient) {
+      rig.rig.LeftShoulder.getWorldPosition(leftHint.position)
+      rig.rig.LeftArm.getWorldPosition(_vec)
+      _vec.subVectors(_vec, leftHint.position).normalize()
+      leftHint.position.add(_vec)
+      rig.rig.LeftShoulder.attach(leftHint)
+      leftHint.updateMatrixWorld(true)
+    }
 
     const target = new Object3D()
     target.name = `ik-right-target-${entity}`
@@ -127,28 +138,6 @@ export const AvatarLeftArmIKComponent = defineComponent({
   onRemove(entity, world) {
     const leftHand = getComponent(entity, AvatarLeftArmIKComponent)
     leftHand?.hint?.removeFromParent()
-  },
-
-  reactor: function ({ root }) {
-    const entity = root.entity
-
-    const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
-
-    useEffect(() => {
-      if (!rigComponent?.value) return
-
-      const rig = rigComponent.value
-
-      const { hint } = getComponent(entity, AvatarLeftArmIKComponent)
-      rig.rig.LeftShoulder.getWorldPosition(hint.position)
-      rig.rig.LeftArm.getWorldPosition(_vec)
-      _vec.subVectors(_vec, hint.position).normalize()
-      hint.position.add(_vec)
-      rig.rig.LeftShoulder.attach(hint)
-      hint.updateMatrixWorld(true)
-    }, [rigComponent])
-
-    return null
   }
 })
 
@@ -168,6 +157,12 @@ export const AvatarRightArmIKComponent = defineComponent({
     rightOffset.updateMatrixWorld(true)
 
     if (isClient) {
+      rig.rig.RightShoulder.getWorldPosition(rightHint.position)
+      rig.rig.RightArm.getWorldPosition(_vec)
+      _vec.subVectors(_vec, rightHint.position).normalize()
+      rightHint.position.add(_vec)
+      rig.rig.RightShoulder.attach(rightHint)
+      rightHint.updateMatrixWorld(true)
     }
 
     const target = new Object3D()
@@ -189,28 +184,6 @@ export const AvatarRightArmIKComponent = defineComponent({
   onRemove(entity, world) {
     const rightHand = getComponent(entity, AvatarRightArmIKComponent)
     rightHand?.hint?.removeFromParent()
-  },
-
-  reactor: function ({ root }) {
-    const entity = root.entity
-
-    const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
-
-    useEffect(() => {
-      if (!rigComponent?.value) return
-
-      const rig = rigComponent.value
-
-      const { hint } = getComponent(entity, AvatarRightArmIKComponent)
-      rig.rig.RightShoulder.getWorldPosition(hint.position)
-      rig.rig.RightArm.getWorldPosition(_vec)
-      _vec.subVectors(_vec, hint.position).normalize()
-      hint.position.add(_vec)
-      rig.rig.RightShoulder.attach(hint)
-      hint.updateMatrixWorld(true)
-    }, [rigComponent])
-
-    return null
   }
 })
 

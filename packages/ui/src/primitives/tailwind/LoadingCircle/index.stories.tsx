@@ -1,27 +1,27 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 import * as React from 'react'
 
-import LoadingCircle from './index'
+import Checkbox from './index'
 
 const argTypes = {}
 
 //loadingCircle story building
 
 export default {
-  title: 'Tailwind/LoadingCircle',
-  component: LoadingCircle,
+  title: 'MUI/Checkbox',
+  component: Checkbox,
   parameters: {
-    componentSubtitle: 'LoadingCircle',
-    jest: 'LoadingCircle.test.tsx',
+    componentSubtitle: 'Checkbox',
+    jest: 'Checkbox.test.tsx',
     design: {
       type: 'figma',
       url: ''
     }
   },
   argTypes
-} as ComponentMeta<typeof LoadingCircle>
+} as ComponentMeta<typeof Checkbox>
 
-const Template: ComponentStory<typeof LoadingCircle> = (args) => <LoadingCircle {...args} />
+const Template: ComponentStory<typeof Checkbox> = (args) => <Checkbox {...args} />
 
 export const Default = Template.bind({})
-Default.args = LoadingCircle.defaultProps
+Default.args = Checkbox.defaultProps

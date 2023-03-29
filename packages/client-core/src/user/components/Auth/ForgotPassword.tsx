@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@etherealengine/ui/src/Button'
-import Container from '@etherealengine/ui/src/Container'
-import Grid from '@etherealengine/ui/src/Grid'
-import TextField from '@etherealengine/ui/src/TextField'
-import Typography from '@etherealengine/ui/src/Typography'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'

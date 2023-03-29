@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
-import CardMedia from '@etherealengine/ui/src/CardMedia'
-import Icon from '@etherealengine/ui/src/Icon'
+import CardMedia from '@etherealengine/ui/src/primitives/mui/CardMedia'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import styles from './index.module.scss'
 

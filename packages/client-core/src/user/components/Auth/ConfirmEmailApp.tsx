@@ -1,9 +1,9 @@
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 
-import Button from '@etherealengine/ui/src/Button'
-import CardMedia from '@etherealengine/ui/src/CardMedia'
-import Typography from '@etherealengine/ui/src/Typography'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import CardMedia from '@etherealengine/ui/src/primitives/mui/CardMedia'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useRouter } from '../../../common/services/RouterService'
 import { AuthService, useAuthState } from '../../services/AuthService'

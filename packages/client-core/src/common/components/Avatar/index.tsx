@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next'
 
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import Box from '@etherealengine/ui/src/Box'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import Paper from '@etherealengine/ui/src/Paper'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

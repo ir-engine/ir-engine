@@ -1,6 +1,6 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { Scene } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   ComponentType,
@@ -9,7 +9,7 @@ import {
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
@@ -58,9 +58,10 @@ export const updateProperties = <C extends Component>(
 export function traverseScene<T>(
   callback: (node: Entity) => T,
   predicate: (node: Entity) => boolean = () => true,
-  snubChildren: boolean = false
+  snubChildren: boolean = false,
+  scene: Scene = Engine.instance.currentScene
 ): T[] {
   const result: T[] = []
-  iterateEntityNode(getState(SceneState).sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
+  iterateEntityNode(scene.sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
   return result
 }

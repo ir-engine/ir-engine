@@ -7,12 +7,10 @@ import Sequelize, { Op } from 'sequelize'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
-import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { ServerState } from '../../ServerState'
 import getLocalServerIp from '../../util/get-local-server-ip'
 import { InstanceAuthorizedUserDataType } from '../instance-authorized-user/instance-authorized-user.class'
 
@@ -67,8 +65,7 @@ export async function getFreeInstanceserver({
     })
   }
   logger.info('Getting free instanceserver')
-  const k8AgonesClient = getState(ServerState).k8AgonesClient
-  const serverResult = await k8AgonesClient.listNamespacedCustomObject('agones.dev', 'v1', 'default', 'gameservers')
+  const serverResult = await app.k8AgonesClient.listNamespacedCustomObject('agones.dev', 'v1', 'default', 'gameservers')
   const readyServers = _.filter((serverResult.body as any).items, (server: any) => {
     const releaseMatch = releaseRegex.exec(server.metadata.name)
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
@@ -291,8 +288,7 @@ export async function checkForDuplicatedAssignments({
   ])
   if (!responsivenessCheck) {
     await app.service('instance').remove(assignResult.id)
-    const k8DefaultClient = getState(ServerState).k8DefaultClient
-    if (config.kubernetes.enabled) k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
+    if (config.kubernetes.enabled) app.k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
     else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
     return getFreeInstanceserver({
       app,
@@ -418,8 +414,7 @@ export class InstanceProvision implements ServiceMethods<any> {
    */
 
   async isCleanup(instance): Promise<boolean> {
-    const k8AgonesClient = getState(ServerState).k8AgonesClient
-    const instanceservers = await k8AgonesClient.listNamespacedCustomObject(
+    const instanceservers = await this.app.k8AgonesClient.listNamespacedCustomObject(
       'agones.dev',
       'v1',
       'default',

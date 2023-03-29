@@ -6,11 +6,9 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
-import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
-import { InstanceServerState } from './InstanceServerState'
 import {
   authorizeUserToJoinServer,
   handleConnectingPeer,
@@ -102,7 +100,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         }
 
         // Check that this use is allowed on this instance
-        const instance = await app.service('instance').get(getState(InstanceServerState).instance.id)
+        const instance = await app.service('instance').get(app.instance.id)
         if (!(await authorizeUserToJoinServer(app, instance, userId))) {
           authTask.status = 'fail'
           authTask.error = AuthError.USER_NOT_AUTHORIZED

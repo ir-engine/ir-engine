@@ -6,7 +6,8 @@
   color: var(--textColor);
   padding: 8px;
   height: 30px;
+  background: var(--dockBackground);
   width: 100vw;
   z-index: 1000;
-  text-align: center;
+  text-align: right;
 }

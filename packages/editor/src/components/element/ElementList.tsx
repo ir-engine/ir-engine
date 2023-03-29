@@ -6,13 +6,11 @@ import { Vector2 } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getState } from '@etherealengine/hyperflux'
 
 import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
@@ -47,7 +45,11 @@ const getPrefabList = () => {
   return arr
 }
 
-export const addPrefabElement = (item: PrefabItemType, parent = getState(SceneState).sceneEntity, before?: Entity) => {
+export const addPrefabElement = (
+  item: PrefabItemType,
+  parent = Engine.instance.currentScene.sceneEntity,
+  before?: Entity
+) => {
   const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)
 
   return newEntity

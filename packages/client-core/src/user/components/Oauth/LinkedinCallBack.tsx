@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import Button from '@etherealengine/ui/src/Button'
-import Container from '@etherealengine/ui/src/Container'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'

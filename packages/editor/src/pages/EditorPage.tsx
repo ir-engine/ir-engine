@@ -8,67 +8,72 @@ import { ClientModules } from '@etherealengine/client-core/src/world/ClientModul
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
-import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
+import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import EditorCameraSystem from '../systems/EditorCameraSystem'
-import EditorControlSystem from '../systems/EditorControlSystem'
+import EditorControlSystem, { createTransformGizmo } from '../systems/EditorControlSystem'
 import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
 import GizmoSystem from '../systems/GizmoSystem'
 import ModelHandlingSystem from '../systems/ModelHandlingSystem'
-
-const systems = [
-  {
-    uuid: 'core.editor.EditorFlyControlSystem',
-    systemLoader: () => Promise.resolve({ default: EditorFlyControlSystem }),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.EditorControlSystem',
-    systemLoader: () => Promise.resolve({ default: EditorControlSystem }),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.EditorCameraSystem',
-    systemLoader: () => Promise.resolve({ default: EditorCameraSystem }),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.GizmoSystem',
-    systemLoader: () => Promise.resolve({ default: GizmoSystem }),
-    type: SystemUpdateType.PRE_RENDER,
-    args: { enabled: true }
-  },
-  {
-    uuid: 'core.editor.ModelHandlingSystem',
-    systemLoader: () => Promise.resolve({ default: ModelHandlingSystem }),
-    type: SystemUpdateType.FIXED,
-    args: { enabled: true }
-  }
-]
+import RenderSystem from '../systems/RenderSystem'
 
 export const EditorPage = () => {
   const params = useParams()
-  const projectState = useProjectState()
   const editorState = useEditorState()
-  const isEditor = useHookstate(getMutableState(EngineState).isEditor)
+  const projectState = useProjectState()
   const authState = useAuthState()
   const authUser = authState.authUser
   const user = authState.user
-  const [isAuthenticated, setAuthenticated] = useState(false)
   const [clientInitialized, setClientInitialized] = useState(false)
+  const [isAuthenticated, setAuthenticated] = useState(false)
+
   const [engineReady, setEngineReady] = useState(true)
 
+  const systems = [
+    {
+      uuid: 'core.editor.RenderSystem',
+      systemLoader: () => Promise.resolve({ default: RenderSystem }),
+      type: SystemUpdateType.POST_RENDER,
+      args: { enabled: true }
+    },
+    {
+      uuid: 'core.editor.EditorFlyControlSystem',
+      systemLoader: () => Promise.resolve({ default: EditorFlyControlSystem }),
+      type: SystemUpdateType.PRE_RENDER,
+      args: { enabled: true }
+    },
+    {
+      uuid: 'core.editor.EditorControlSystem',
+      systemLoader: () => Promise.resolve({ default: EditorControlSystem }),
+      type: SystemUpdateType.PRE_RENDER,
+      args: { enabled: true }
+    },
+    {
+      uuid: 'core.editor.EditorCameraSystem',
+      systemLoader: () => Promise.resolve({ default: EditorCameraSystem }),
+      type: SystemUpdateType.PRE_RENDER,
+      args: { enabled: true }
+    },
+    {
+      uuid: 'core.editor.GizmoSystem',
+      systemLoader: () => Promise.resolve({ default: GizmoSystem }),
+      type: SystemUpdateType.PRE_RENDER,
+      args: { enabled: true }
+    },
+    {
+      uuid: 'core.editor.ModelHandlingSystem',
+      systemLoader: () => Promise.resolve({ default: ModelHandlingSystem }),
+      type: SystemUpdateType.FIXED,
+      args: { enabled: true }
+    }
+  ]
+
   useEffect(() => {
-    // TODO: This is a hack to prevent the editor from loading the engine twice
-    if (isEditor.value) return
-    isEditor.set(true)
+    getMutableState(EngineState).isEditor.set(true)
     const projects = API.instance.client.service('projects').find()
     ClientModules().then(async () => {
       await initSystems(systems)
@@ -80,9 +85,6 @@ export const EditorPage = () => {
 
   useEffect(() => {
     registerEditorReceptors()
-    return () => {
-      unregisterEditorReceptors()
-    }
   }, [])
 
   useEffect(() => {
@@ -103,7 +105,5 @@ export const EditorPage = () => {
     setClientInitialized(true)
   }, [projectState.projects.value])
 
-  return (
-    <>{clientInitialized && editorState.projectName.value && isAuthenticated && engineReady && <EditorContainer />}</>
-  )
+  return <>{editorState.projectName.value && isAuthenticated && engineReady && <EditorContainer />}</>
 }

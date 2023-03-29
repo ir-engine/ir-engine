@@ -15,7 +15,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
+import { Scene } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -112,14 +112,12 @@ export const DefaultMediaState = {
   coneOuterGain: 0
 }
 
+export type MediaState = State<typeof DefaultMediaState>
+
 export const MediaSceneMetadataLabel = 'mediaSettings'
 
-export const getMediaSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[MediaSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultMediaState>
-    >
-  ).data
+export const getMediaSceneMetadataState = (scene: Scene) =>
+  scene.sceneMetadataRegistry[MediaSceneMetadataLabel].state as MediaState
 
 export default async function MediaSystem() {
   const audioContext = getState(AudioState).audioContext
@@ -148,12 +146,10 @@ export default async function MediaSystem() {
     EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
   }
 
-  getMutableState(SceneState).sceneMetadataRegistry.merge({
-    [MediaSceneMetadataLabel]: {
-      data: _.cloneDeep(DefaultMediaState),
-      default: DefaultMediaState
-    }
-  })
+  Engine.instance.currentScene.sceneMetadataRegistry[MediaSceneMetadataLabel] = {
+    state: hookstate(_.cloneDeep(DefaultMediaState)),
+    default: DefaultMediaState
+  }
 
   Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
