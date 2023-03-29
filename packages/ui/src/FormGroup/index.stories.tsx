@@ -6,7 +6,7 @@ import FormGroup from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/FormGroup',
+  title: 'Primitives/MUI/FormGroup',
   component: FormGroup,
   parameters: {
     componentSubtitle: 'FormGroup',

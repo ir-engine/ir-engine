@@ -6,7 +6,7 @@ import Paper from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Paper',
+  title: 'Primitives/MUI/Paper',
   component: Paper,
   parameters: {
     componentSubtitle: 'Paper',

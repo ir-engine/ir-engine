@@ -6,7 +6,7 @@ import TableContainer from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/TableContainer',
+  title: 'Primitives/MUI/TableContainer',
   component: TableContainer,
   parameters: {
     componentSubtitle: 'TableContainer',
