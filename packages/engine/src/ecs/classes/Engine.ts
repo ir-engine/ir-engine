@@ -5,25 +5,14 @@ import { createHyperStore, getMutableState, getState, hookstate, ReactorRoot, St
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
-import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createScene, Scene } from './Scene'
+import { NetworkTopics } from '../../networking/classes/Network'
 
 import '../utils/threejsPatches'
 
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import type { FeathersApplication } from '@feathersjs/feathers'
 import { Not } from 'bitecs'
-import {
-  BoxGeometry,
-  Group,
-  Mesh,
-  MeshNormalMaterial,
-  Object3D,
-  Raycaster,
-  Shader,
-  Scene as THREEScene,
-  Vector2
-} from 'three'
+import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Object3D, Raycaster, Scene, Vector2 } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
@@ -62,7 +51,7 @@ import {
   setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
-import { EntityTreeComponent } from '../functions/EntityTree'
+import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
 import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { EngineState } from './EngineState'
@@ -99,7 +88,7 @@ export class Engine {
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
 
-    this.currentScene = createScene()
+    initializeSceneEntity()
   }
 
   api: FeathersApplication<ServiceTypes>
@@ -132,11 +121,6 @@ export class Engine {
   }
 
   engineTimer = null! as ReturnType<typeof Timer>
-
-  /**
-   * The current world
-   */
-  currentScene: Scene = null!
 
   /**
    * get the default world network
@@ -212,7 +196,7 @@ export class Engine {
   /**
    * Reference to the three.js scene object.
    */
-  scene = new THREEScene()
+  scene = new Scene()
 
   /**
    * Map of object lists by layer
@@ -337,7 +321,9 @@ export class Engine {
    * @returns
    */
   getUserAvatarEntity(userId: UserId) {
-    return this.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+    return this.getOwnedNetworkObjectsWithComponent(userId, AvatarComponent).find((eid) => {
+      return getComponent(eid, AvatarComponent).primary
+    })!
   }
 
   /**
@@ -352,6 +338,18 @@ export class Engine {
         return hasComponent(eid, component)
       }) || UndefinedEntity
     )
+  }
+
+  /**
+   * Get the user entity that has a specific component
+   * @param userId
+   * @param component
+   * @returns
+   */
+  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+    return this.getOwnedNetworkObjects(userId).filter((eid) => {
+      return hasComponent(eid, component)
+    })
   }
 
   /** ID of last network created. */

@@ -1,6 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
 import {
@@ -42,7 +43,8 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         // incoming action from future
         $time: 2,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
@@ -72,7 +74,8 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         // incoming action from past
         $time: -1,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
@@ -98,7 +101,8 @@ describe('IncomingActionSystem Unit Tests', async () => {
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,
-        $cache: true
+        $cache: true,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 

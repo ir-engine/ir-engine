@@ -1,6 +1,6 @@
 import React from 'react'
 
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 
 type Props = {
   message?: string
