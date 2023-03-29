@@ -645,7 +645,7 @@ const EditorContainer = () => {
                   <DockLayout
                     ref={dockPanelRef}
                     defaultLayout={defaultLayout}
-                    style={{ position: 'absolute', left: 5, top: 55, right: 115, bottom: 35 }}
+                    style={{ position: 'absolute', left: 5, top: 55, right: 130, bottom: 5 }}
                   />
                 </DockContainer>
               </AppContext.Provider>
