@@ -1,74 +1,91 @@
-import { Paginated } from '@feathersjs/feathers/lib'
+import { FeathersService } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
-import { Service } from 'feathers-sequelize'
 import fs from 'fs'
+import { isEqual } from 'lodash'
 import path from 'path'
+import { Model, ModelStatic, Op } from 'sequelize'
+
+import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 
 import { Application } from '../declarations'
 import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
 import seederConfig from './seeder-config'
 
-function matchesTemplateValues(template: any, row: any) {
-  for (const key of Object.keys(template)) {
-    if (typeof template[key] !== 'object' && template[key] !== row[key]) return false
-  }
-  return true
+async function insertOneByOne(app: Application, config: ServicesSeedConfig) {
+  const service = app.service(config.path as any) as FeathersService
+  const templates = config.templates as any[]
+
+  const Model = (service as any).Model as ModelStatic<Model>
+
+  const templateInsertionPromises = templates.map(
+    (template) =>
+      new Promise(async (resolve) => {
+        const searchTemplate = {}
+
+        const uniqueField = Object.values(Model.rawAttributes).find((value: any) => value.unique) as any
+
+        if (uniqueField) {
+          searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
+        } else {
+          for (const key of Object.keys(template)) {
+            if (typeof template[key] !== 'object' && template[key]) {
+              searchTemplate[key] = template[key]
+            }
+          }
+        }
+
+        const result = await service.find({
+          query: searchTemplate
+        })
+        const isSeeded = result.total > 0
+
+        let insertionResult: any
+        if (!isSeeded) insertionResult = await service.create(template)
+
+        resolve(insertionResult)
+      })
+  )
+
+  return Promise.all(templateInsertionPromises)
 }
 
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {
   if (!forceRefresh && !prepareDb) return
 
-  const insertionPromises = seederConfig.map(async (config) => {
-    if (!config.path || !config.templates) return
+  const insertionPromises = seederConfig
+    .filter((config) => config.path && config.templates)
+    .map(
+      (config) =>
+        new Promise(async (resolve) => {
+          if (config.insertSingle) {
+            resolve(await insertOneByOne(app, config))
+            return
+          }
 
-    const service = app.service(config.path as any) as Service
+          const templates = config.templates as any[]
 
-    // setting tables only need to be seeded once
-    if (config.path?.endsWith('setting')) {
-      const result = (await service.find()) as Paginated<any>
-      const isSeeded = result.total > 0
-      if (isSeeded) return
-    }
+          const Model = app.service(config.path as any).Model as ModelStatic<Model>
 
-    const searchTemplates = config.templates?.map((template) => {
-      if (template.id) return { id: template.id }
-      else return template
-    })
+          const rows = await Model.findAll({
+            where: {
+              [Op.or]: templates
+            },
+            attributes: Object.keys(templates.at(0)),
+            raw: true
+          })
 
-    const results = (await service.find({
-      query: { $or: searchTemplates },
-      paginate: {
-        // @ts-ignore - https://github.com/feathersjs/feathers/issues/3129
-        default: 1000,
-        max: 1000
-      }
-    })) as Paginated<unknown>
+          const templatesToBeInserted = templates.filter(
+            (template) => rows.findIndex((row) => isEqual(row, template)) === -1
+          )
 
-    const templatesToBeInserted = config.templates.filter((template) => {
-      return (
-        results.data.findIndex((row) => {
-          return matchesTemplateValues(template, row)
-        }) === -1
-      )
-    })
+          const service = app.service(config.path as any) as FeathersService
 
-    if (!templatesToBeInserted.length) return
-
-    console.log('inerserting templates', templatesToBeInserted)
-
-    if (config.insertSingle) {
-      // NOTE: some of our services do not follow standard feathers service conventions,
-      // and break when passed an array of objects to the create method
-      return Promise.all(templatesToBeInserted.map((template) => service.create(template)))
-    } else {
-      return service.create(templatesToBeInserted)
-    }
-  })
+          resolve(await service.create(templatesToBeInserted))
+        })
+    )
 
   await Promise.all(insertionPromises)
-
-  console.log('seeder done')
 
   if (forceRefresh) {
     // for local dev clear the storage provider
