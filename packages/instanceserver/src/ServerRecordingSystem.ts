@@ -149,7 +149,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
         for (const [dataChannel, data] of dataChannelsRecording.entries()) {
           if (data.length) {
-            let count = chunkIndex
+            const count = chunkIndex
             storageProvider
               .putObject(
                 {

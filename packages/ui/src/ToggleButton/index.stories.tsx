@@ -6,7 +6,7 @@ import ToggleButton from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/ToggleButton',
+  title: 'Primitives/MUI/ToggleButton',
   component: ToggleButton,
   parameters: {
     componentSubtitle: 'ToggleButton',

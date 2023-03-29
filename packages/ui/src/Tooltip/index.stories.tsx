@@ -6,7 +6,7 @@ import Tooltip from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Tooltip',
+  title: 'Primitives/MUI/Tooltip',
   component: Tooltip,
   parameters: {
     componentSubtitle: 'Tooltip',
