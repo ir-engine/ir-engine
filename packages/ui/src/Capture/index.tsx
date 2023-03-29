@@ -1,7 +1,6 @@
 import { useHookstate } from '@hookstate/core'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
-import { t } from 'i18next'
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -216,11 +215,11 @@ const CaptureDashboard = () => {
     const videoElement = videoRef.current
     if (videoElement && videoStream.value) {
       videoElement.srcObject = videoStream.value
-      videoElement.onloadedmetadata = function (e) {
+      videoElement.onloadedmetadata = () => {
         videoElement.style.transform = `scaleX(${isVideoFlipped.value ? -1 : 1})`
         if (videoElement.paused) videoElement.play()
       }
-      videoElement.onplay = function (e) {
+      videoElement.onplay = () => {
         videoActive.set(true)
         let processingData = false
         const onAnimationFrame = () => {
@@ -246,7 +245,7 @@ const CaptureDashboard = () => {
         }
         videoElement.requestVideoFrameCallback(onAnimationFrame)
       }
-      videoElement.onpause = function (e) {
+      videoElement.onpause = () => {
         videoActive.set(false)
       }
     }
