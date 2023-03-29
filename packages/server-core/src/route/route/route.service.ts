@@ -30,7 +30,7 @@ declare module '@etherealengine/common/declarations' {
   }
 }
 
-export const getInstalledRoutes = (): any => {
+export const getInstalledRoutes = () => {
   return async () => {
     const projects = fs
       .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
@@ -60,7 +60,7 @@ export const getInstalledRoutes = (): any => {
   }
 }
 
-export const activateRoute = (routeService: Route): any => {
+export const activateRoute = (routeService: Route) => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
     const activatedRoutes = (await routeService.find(null!)).data as ActiveRoutesInterface[]
     const installedRoutes = (await getInstalledRoutes()()).data
