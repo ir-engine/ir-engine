@@ -1,5 +1,7 @@
 import React from 'react'
 
+//loadingCircle main component
+
 const LoadingCircle = ({ message }: { message: string }) => (
   <div className="z-9001 w-full h-full flex justify-center items-center">
     <div role="status" className="w-40 h-40">

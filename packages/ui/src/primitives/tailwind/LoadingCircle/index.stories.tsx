@@ -5,6 +5,8 @@ import LoadingCircle from './index'
 
 const argTypes = {}
 
+//loadingCircle story building
+
 export default {
   title: 'Tailwind/LoadingCircle',
   component: LoadingCircle,
