@@ -147,13 +147,13 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <ShadowProperties entity={props.entity} />
       {LODComponent.lodsByEntity[props.entity].value && <LODProperties entity={entity} />}
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
-      {!exporting && modelComponent.src.value && (
+      {!exporting.value && modelComponent.src.value && (
         <Well>
           <ModelInput value={exportPath.value} onChange={exportPath.set} />
           <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
         </Well>
       )}
-      {exporting && <p>Exporting...</p>}
+      {exporting.value && <p>Exporting...</p>}
     </NodeEditor>
   )
 }

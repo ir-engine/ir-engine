@@ -5,7 +5,7 @@ import matches, { Validator } from 'ts-matches'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../classes/AssetLoader'
-import { getFileName, getProjectName, modelResourcesPath } from '../../../functions/pathResolver'
+import { getFileName, getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -40,7 +40,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     const writer = this.writer
     if (writer.options.embedImages) return
     this.projectName = getProjectName(writer.options.path!)
-    this.modelName = getFileName(writer.options.path!)
+    this.modelName = getRelativeURI(writer.options.path!)
 
     dispatchAction(
       BufferHandlerExtension.beginModelExport({
@@ -76,11 +76,14 @@ export default class BufferHandlerExtension extends ExporterExtension implements
       }
       if (!/^blob:/.test(image.src)) return
       uri = `${modelResourcesPath(modelName)}/images/${name}.png`
-      bufferPromise = new Promise<void>(async (resolve) => {
-        buffer = await fetch(image.src)
+      bufferPromise = new Promise<void>((resolve) => {
+        fetch(image.src)
           .then((response) => response.blob())
           .then((blob) => blob.arrayBuffer())
-        resolve()
+          .then((arrayBuf) => {
+            buffer = arrayBuf
+            resolve()
+          })
       })
     }
     this.writer.pending.push(

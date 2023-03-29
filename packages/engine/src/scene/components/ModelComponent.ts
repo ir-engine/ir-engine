@@ -6,6 +6,7 @@ import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/S
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DependencyTree } from '../../assets/classes/DependencyTree'
+import { isClient } from '../../common/functions/isClient'
 import {
   defineComponent,
   getComponent,
@@ -23,7 +24,6 @@ import { removeMaterialSource } from '../../renderer/materials/functions/Materia
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
-import { createLODsFromModel } from '../functions/loaders/LODFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
@@ -164,8 +164,13 @@ function ModelReactor({ root }: EntityReactorProps) {
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
     setBoundingBoxComponent(entity)
-    LODComponent.lodsByEntity[entity].value?.map((entity) => removeEntity(entity))
-    LODComponent.lodsByEntity[entity].set(createLODsFromModel(entity))
+    if (isClient) {
+      LODComponent.lodsByEntity[entity].value?.map((entity) => removeEntity(entity))
+      import('../functions/loaders/LODFunctions').then(({ createLODsFromModel }) => {
+        createLODsFromModel(entity).then(LODComponent.lodsByEntity[entity].set)
+      })
+    }
+
     removeComponent(entity, SceneAssetPendingTagComponent)
 
     let active = true

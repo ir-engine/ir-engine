@@ -1,5 +1,7 @@
 import { Scene, Vector3 } from 'three'
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
@@ -37,11 +39,12 @@ export default async function LODSystem() {
         for (let i = 0; i < instancePositions.count; i++) {
           position.set(instancePositions.getX(i), instancePositions.getY(i), instancePositions.getZ(i))
           const distance = cameraPosition.distanceTo(position)
-          const currentLevel = lodComponent.instanceLevels[i].value
+          const levelsAttr = lodComponent.instanceLevels.get(NO_PROXY)
+          const currentLevel = levelsAttr.getX(i)
           let newLevel = currentLevel
           for (let j = 0; j < lodDistances.length; j++) {
             if (distance < lodDistances[j] || j === lodDistances.length - 1) {
-              ;(currentLevel !== j && (newLevel = j)) || lodComponent.instanceLevels[i].set(j)
+              ;(currentLevel !== j && (newLevel = j)) || levelsAttr.setX(i, j)
               break
             }
           }

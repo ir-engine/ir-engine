@@ -1,14 +1,16 @@
 import { DynamicDrawUsage, InstancedBufferAttribute, InstancedMesh, Material, Matrix4, Mesh, Vector3 } from 'three'
 
-import { NO_PROXY, State } from '@etherealengine/hyperflux'
+import { uploadProjectFiles } from '@etherealengine/editor/src/functions/assetFunctions'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 
+import { pathResolver } from '../../../assets/functions/pathResolver'
+import { isClient } from '../../../common/functions/isClient'
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
-import { insertAfterString, insertBeforeString } from '../../../common/functions/string'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { addObjectToGroup } from '../../components/GroupComponent'
-import { LODComponent, LODComponentType, LODLevel } from '../../components/LODComponent'
+import { LODComponent } from '../../components/LODComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { NameComponent } from '../../components/NameComponent'
 import iterateObject3D from '../../util/iterateObject3D'
@@ -93,9 +95,6 @@ export function processLoadedLODLevel(entity: Entity, index: number) {
       instancedModel.updateMatrixWorld(true)
       model.removeFromParent()
       level.model.set(instancedModel)
-      //addObjectToGroup(entity, instancedModel)
-    } else {
-      //addObjectToGroup(entity, model)
     }
   }
 }
@@ -105,22 +104,54 @@ export function processLoadedLODLevel(entity: Entity, index: number) {
  * @param entity : entity to add the LODs to
  * @returns array of generated LOD entities
  */
-export function createLODsFromModel(entity: Entity): Entity[] {
+export async function createLODsFromModel(entity: Entity): Promise<Entity[]> {
   const model = getComponent(entity, ModelComponent)
   const lods: Entity[] = []
-  model.scene &&
-    iterateObject3D(
-      model.scene,
-      (mesh: Mesh) => {
-        if (!mesh?.isMesh) return
+  if (isClient) {
+    const { default: createGLTFExporter } = await import(
+      '@etherealengine/engine/src/assets/functions/createGLTFExporter'
+    )
+    const gltfExporter = createGLTFExporter()
+    let fileIndex = 0
+    if (model.scene) {
+      const meshes = iterateObject3D(
+        model.scene,
+        (mesh: Mesh) => mesh,
+        (mesh: Mesh) => mesh?.isMesh
+      )
+      for (let i = 0; i < meshes.length; i++) {
+        const mesh = meshes[i]
         const lodEntity = createEntity()
+        //clone the mesh and remove its world matrix so it can be exported
+        const toExport = mesh.clone()
+        toExport.removeFromParent()
+        toExport.position.set(0, 0, 0)
+        toExport.rotation.set(0, 0, 0)
+        toExport.scale.set(1, 1, 1)
+        toExport.applyMatrix4(mesh.matrix.clone().invert())
+        toExport.updateMatrixWorld()
+        toExport.updateMatrix()
+        const [, , projectName, fileName] = pathResolver().exec(model.src)!
+        //create a new filename for the lod
+        const nuRelativePath = fileName.replace(/\.[^.]*$/, `_${mesh.name}_${fileIndex++}.gltf`)
+        const nuFileName = nuRelativePath.split('/').pop()!.split('.').shift()!
+        const lodURL = model.src.replace(/(.*)\/([^/]*)\.[^.]*$/, `$1/model-resources/${nuFileName}/${nuFileName}.gltf`)
+        const gltf = await gltfExporter.parseAsync(toExport, {
+          binary: false,
+          embedImages: false,
+          includeCustomExtensions: true,
+          path: lodURL
+        })
+        const [, , , nuNuRelativePath] = pathResolver().exec(lodURL)!
+        const file = new File([JSON.stringify(gltf)], nuNuRelativePath)
+        const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
         addComponent(lodEntity, LODComponent, {
           levels: [
             {
               model: mesh,
               distance: 0,
               loaded: true,
-              src: ''
+              src: urls[0][0]
             }
           ],
           instanced: mesh instanceof InstancedMesh
@@ -128,8 +159,9 @@ export function createLODsFromModel(entity: Entity): Entity[] {
         addComponent(lodEntity, NameComponent, mesh.name)
         processLoadedLODLevel(lodEntity, 0)
         lods.push(lodEntity)
-      },
-      (mesh: Mesh) => mesh?.isMesh
-    )
-  return lods
+      }
+    }
+    return Promise.resolve(lods)
+  }
+  return Promise.resolve([])
 }

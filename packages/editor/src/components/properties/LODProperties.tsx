@@ -11,6 +11,9 @@ import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/compone
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { State } from '@etherealengine/hyperflux'
 
+import { Button } from '../inputs/Button'
+import InputGroup, { InputGroupContainer } from '../inputs/InputGroup'
+import ModelInput from '../inputs/ModelInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import PaginatedList from '../layout/PaginatedList'
 
@@ -36,16 +39,34 @@ export function LODProperties({ entity }: { entity: Entity }) {
           return (
             <div className="bg-gray-800 rounded-lg p-4 m-4">
               <h2 className="text-white text-xl font-bold mb-4">{nameComponent}</h2>
+              <Button
+                onClick={() =>
+                  lodComponent.levels[lodComponent.levels.length].set({
+                    distance: 0,
+                    src: '',
+                    loaded: false,
+                    model: null
+                  })
+                }
+              >
+                Add LOD
+              </Button>
               <PaginatedList
+                options={{ countPerPage: 1 }}
                 list={lodComponent.levels}
                 element={(level: State<LODLevel>) => {
                   return (
                     <div className="bg-gray-900 m-2">
-                      <NumericInputGroup
-                        label={t('editor:properties.lod.distance')}
-                        value={level.distance.value}
-                        onChange={onChangeLevelProperty(level, 'distance')}
-                      />
+                      <div style={{ margin: '2em' }}>
+                        <NumericInputGroup
+                          label={t('editor:properties.lod.distance')}
+                          value={level.distance.value}
+                          onChange={onChangeLevelProperty(level, 'distance')}
+                        />
+                        <InputGroup name="src" label={t('editor:properties.lod.src')}>
+                          <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
+                        </InputGroup>
+                      </div>
                     </div>
                   )
                 }}
