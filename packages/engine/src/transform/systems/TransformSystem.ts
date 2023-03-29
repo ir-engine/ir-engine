@@ -15,6 +15,7 @@ import {
   hasComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -42,7 +43,7 @@ import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
-const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent, Not(LocalAvatarTagComponent)])
 const fixedRigidBodyQuery = defineQuery([TransformComponent, RigidBodyComponent, RigidBodyFixedTagComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
