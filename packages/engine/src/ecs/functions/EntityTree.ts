@@ -107,11 +107,13 @@ export const EntityTreeComponent = defineComponent({
   onRemove: (entity, component) => {
     if (entity === Engine.instance.originEntity) return
 
-    if (component.parentEntity.value) {
+    if (component.parentEntity.value && entityExists(component.parentEntity.value)) {
       const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
-      const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
-      const children = parent.children.get(NO_PROXY)
-      parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+      if (parent) {
+        const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
+        const children = parent.children.get(NO_PROXY)
+        parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+      }
     } else {
       EntityTreeComponent.roots[entity].set(none)
     }
