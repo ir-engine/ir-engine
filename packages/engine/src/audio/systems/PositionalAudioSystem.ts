@@ -98,8 +98,6 @@ export default async function PositionalAudioSystem() {
   /**
    * Scene Objects
    */
-  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
-
   const positionalAudioQuery = defineQuery([PositionalAudioComponent, MediaElementComponent, TransformComponent])
 
   /**
@@ -269,7 +267,6 @@ export default async function PositionalAudioSystem() {
   }
 
   const cleanup = async () => {
-    removeActionQueue(modifyPropertyActionQueue)
     removeQuery(positionalAudioQuery)
     removeQuery(networkedAvatarAudioQuery)
     removeActionQueue(setMediaStreamVolumeActionQueue)

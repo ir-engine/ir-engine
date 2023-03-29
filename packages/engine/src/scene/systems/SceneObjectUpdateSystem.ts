@@ -1,5 +1,4 @@
 import { Not } from 'bitecs'
-import { Color } from 'three'
 
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
@@ -17,8 +16,7 @@ import {
   SCENE_COMPONENT_CLOUD,
   SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
 } from '../components/CloudComponent'
-import { EnvMapBakeComponent, SCENE_COMPONENT_ENVMAP_BAKE } from '../components/EnvMapBakeComponent'
-import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '../components/EnvmapComponent'
+import { SCENE_COMPONENT_ENVMAP } from '../components/EnvmapComponent'
 import { GroundPlaneComponent, SCENE_COMPONENT_GROUND_PLANE } from '../components/GroundPlaneComponent'
 import { GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
 import { ImageComponent, SCENE_COMPONENT_IMAGE } from '../components/ImageComponent'
@@ -33,31 +31,23 @@ import {
   SCENE_COMPONENT_OCEAN,
   SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
 } from '../components/OceanComponent'
-import {
-  DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
-  ParticleSystemComponent,
-  SCENE_COMPONENT_PARTICLE_SYSTEM
-} from '../components/ParticleSystemComponent'
-import { PortalComponent, SCENE_COMPONENT_PORTAL } from '../components/PortalComponent'
+import { ParticleSystemComponent, SCENE_COMPONENT_PARTICLE_SYSTEM } from '../components/ParticleSystemComponent'
 import { PrefabComponent, SCENE_COMPONENT_PREFAB } from '../components/PrefabComponent'
 import { PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE } from '../components/PreventBakeTagComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
-import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SCENE_COMPONENT_SCREENSHARETARGET, ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import {
   SCENE_COMPONENT_SHADOW,
   SCENE_COMPONENT_SHADOW_DEFAULT_VALUES,
   ShadowComponent
 } from '../components/ShadowComponent'
-import { SCENE_COMPONENT_SKYBOX, SkyboxComponent } from '../components/SkyboxComponent'
 import { SCENE_COMPONENT_SPAWN_POINT, SpawnPointComponent } from '../components/SpawnPointComponent'
 import { SCENE_COMPONENT_SPLINE, SplineComponent } from '../components/SplineComponent'
 import { SCENE_COMPONENT_SYSTEM, SystemComponent } from '../components/SystemComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
-import { deserializeEnvMap } from '../functions/loaders/EnvMapFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
@@ -156,20 +146,6 @@ export default async function SceneObjectUpdateSystem() {
   Engine.instance.sceneComponentRegistry.set(PrefabComponent.name, SCENE_COMPONENT_PREFAB)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PREFAB, {
     deserialize: deserializePrefab
-  })
-
-  /**
-   * Portals
-   */
-
-  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.portal, [
-    ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_PORTAL, props: {} }
-  ])
-
-  Engine.instance.sceneComponentRegistry.set(PortalComponent.name, SCENE_COMPONENT_PORTAL)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {
-    defaultData: {}
   })
 
   /**
@@ -363,15 +339,6 @@ export default async function SceneObjectUpdateSystem() {
 
     Engine.instance.sceneComponentRegistry.delete(PrefabComponent.name)
     Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PREFAB)
-
-    /**
-     * Portals
-     */
-
-    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.portal)
-
-    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PORTAL)
-    Engine.instance.sceneComponentRegistry.delete(PortalComponent.name)
 
     /**
      * Objects
