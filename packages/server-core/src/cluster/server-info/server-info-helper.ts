@@ -8,18 +8,22 @@ import {
   ServerInfoInterface,
   ServerPodInfo
 } from '@etherealengine/common/src/interfaces/ServerInfo'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 
 export const getServerInfo = async (app: Application): Promise<ServerInfoInterface[]> => {
   let serverInfo: ServerInfoInterface[] = []
 
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
+
   try {
     logger.info('Attempting to check k8s server info')
 
-    if (app.k8DefaultClient) {
+    if (k8DefaultClient) {
       const builderPods = await getPodsData(
         `app.kubernetes.io/instance=${config.server.releaseName}-builder`,
         'builder',
@@ -72,7 +76,7 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
       serverInfo.push(projectUpdatePods)
     }
 
-    // if (app.k8AgonesClient) {
+    // if (k8AgonesClient) {
     //   const instancePods = await getGameserversData(`agones.dev/fleet=${config.server.releaseName}-instanceserver`, 'instance', 'Instance', app)
     //   serverInfo.push(instancePods)
     // }
@@ -88,8 +92,9 @@ export const removePod = async (app: Application, podName: string): Promise<Serv
   try {
     logger.info(`Attempting to remove k8s pod ${podName}`)
 
-    if (app.k8DefaultClient) {
-      const podsResponse = await app.k8DefaultClient.deleteNamespacedPod(podName, 'default')
+    const k8DefaultClient = getState(ServerState).k8DefaultClient
+    if (k8DefaultClient) {
+      const podsResponse = await k8DefaultClient.deleteNamespacedPod(podName, 'default')
       const pod = getServerPodInfo(podsResponse.body)
 
       return pod
@@ -110,7 +115,8 @@ export const getPodsData = async (
   let pods: ServerPodInfo[] = []
 
   try {
-    const podsResponse = await app.k8DefaultClient.listNamespacedPod(
+    const k8DefaultClient = getState(ServerState).k8DefaultClient
+    const podsResponse = await k8DefaultClient.listNamespacedPod(
       'default',
       undefined,
       false,
@@ -140,7 +146,8 @@ const getGameserversData = async (labelSelector: string, id: string, label: stri
   let gameservers: ServerPodInfo[] = []
 
   try {
-    const gameserversResponse = await app.k8AgonesClient.listNamespacedCustomObject(
+    const k8AgonesClient = getState(ServerState).k8AgonesClient
+    const gameserversResponse = await k8AgonesClient.listNamespacedCustomObject(
       'agones.dev',
       'v1',
       'default',

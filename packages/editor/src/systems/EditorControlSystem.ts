@@ -54,7 +54,6 @@ import { EditorCameraState } from '../classes/EditorCameraState'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
-import { SceneState } from '../functions/sceneRenderFunctions'
 import {
   setTransformMode,
   toggleSnapMode,
