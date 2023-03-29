@@ -21,9 +21,12 @@ const combineConfigs = (config1, config2) => ({
   }
 })
 
-export default {
+const themeNames = ['default', 'dark', 'luxury', 'cupcake']
+const themes = {
   default: combineConfigs(basicTheme, defaultTheme),
   dark: combineConfigs(basicTheme, darkTheme),
   luxury: combineConfigs(basicTheme, luxuryTheme),
   cupcake: combineConfigs(basicTheme, cupcakeTheme)
 }
+
+export { themes, themeNames }

@@ -3,8 +3,10 @@ import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
 import { t } from 'i18next'
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
 import {
   RecordingFunctions,
   RecordingState,
@@ -21,9 +23,12 @@ import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordi
 import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
+import Header from '@etherealengine/ui/src/components/tailwind/Header'
+import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
 
-import LoadingCircle from '../primitives/tailwind/LoadingCircle'
 import Canvas from './Canvas'
+import RecordingsList from './RecordingsList'
 import Video from './Video'
 
 let creatingProducer = false
@@ -49,16 +54,15 @@ const startDataProducer = async () => {
  * Start playback of a recording
  * - If we are streaming data, close the data producer
  */
-const startPlayback = async (recordingID) => {
+const startPlayback = async (recordingID: string, twin: boolean) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
     await closeDataProducer(network, mocapDataChannelType)
   }
   //*** TEMP VARIABLE - PUT IN UI */
-  const isUsingClone = true
   ECSRecordingFunctions.startPlayback({
     recordingID,
-    targetUser: isUsingClone ? undefined : Engine.instance.userId
+    targetUser: twin ? undefined : Engine.instance.userId
   })
 }
 
@@ -83,15 +87,45 @@ const MotionCaptureReceptorSystemInjection = {
 } as const
 
 const CaptureDashboard = () => {
-  const canvasRef = useRef(null as any)
-  const canvasCtxRef = useRef(null as any)
-  const videoRef = useRef(null as HTMLVideoElement | null)
+  const poseDetectorRef = useRef<Pose>()
+  const isDetecting = useHookstate(false)
+
+  const staticImageMode = useHookstate(true)
+  const modelComplexity = useHookstate(1)
+  const smoothLandmarks = useHookstate(true)
+  const enableSegmentation = useHookstate(false)
+  const smoothSegmentation = useHookstate(false)
+  const minDetectionConfidence = useHookstate(0.5)
+  const minTrackingConfidence = useHookstate(0.5)
+
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const canvasCtxRef = useRef<CanvasRenderingContext2D | null>(null)
+
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+
   const mediaConnection = useMediaInstance()
   const recordingState = useHookstate(getMutableState(RecordingState))
-  const modelLoaded = useHookstate(false)
 
-  const ready = !!modelLoaded.value && !!mediaConnection?.value
+  const modelLoaded = useHookstate(false)
+  const isVideoFlipped = useHookstate(false)
+
+  // Restart dectector when option states is updated
+  useEffect(() => {
+    if (poseDetectorRef.current) {
+      stopDetecting()
+      const detector = createPoseDetector()
+      startDetecting(detector)
+    }
+  }, [
+    staticImageMode?.value,
+    modelComplexity?.value,
+    smoothLandmarks?.value,
+    enableSegmentation?.value,
+    smoothSegmentation?.value,
+    minDetectionConfidence?.value,
+    minTrackingConfidence?.value
+  ])
 
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {
@@ -112,6 +146,42 @@ const CaptureDashboard = () => {
   const mediapipe = useHookstate(null as Pose | null)
 
   const videoActive = useHookstate(false)
+
+  useEffect(() => {
+    if (videoRef.current && canvasRef.current) {
+      const factor = isVideoFlipped.value === true ? '-1' : '1'
+      videoRef.current.style.transform = `scaleX(${factor})`
+      canvasRef.current.style.transform = `scaleX(${factor})`
+    }
+  }, [canvasRef, videoRef, isVideoFlipped])
+
+  const startDetecting = async (poseDetector) => {
+    await poseDetector.setOptions({
+      staticImageMode: staticImageMode.value,
+      modelComplexity: modelComplexity.value,
+      smoothLandmarks: smoothLandmarks.value,
+      enableSegmentation: enableSegmentation.value,
+      smoothSegmentation: smoothSegmentation.value,
+      minDetectionConfidence: minDetectionConfidence.value,
+      minTrackingConfidence: minTrackingConfidence.value
+    })
+    poseDetector.onResults(onResults)
+    isDetecting.set(true)
+  }
+
+  const toggleDetecting = async () => {
+    if (isDetecting?.value === true) {
+      await stopDetecting()
+    } else {
+      const detector = createPoseDetector()
+      await startDetecting(detector)
+    }
+  }
+
+  const stopDetecting = async () => {
+    isDetecting.set(false)
+    await poseDetectorRef.current?.close()
+  }
 
   const onResults: ResultsListener = useCallback(
     (results) => {
@@ -147,6 +217,7 @@ const CaptureDashboard = () => {
     if (videoElement && videoStream.value) {
       videoElement.srcObject = videoStream.value
       videoElement.onloadedmetadata = function (e) {
+        videoElement.style.transform = `scaleX(${isVideoFlipped.value ? -1 : 1})`
         if (videoElement.paused) videoElement.play()
       }
       videoElement.onplay = function (e) {
@@ -157,8 +228,11 @@ const CaptureDashboard = () => {
             processingData = false
             return
           }
-          canvasRef.current.width = videoElement.clientWidth
-          canvasRef.current.height = videoElement.clientHeight
+          if (canvasRef.current) {
+            canvasRef.current.width = videoElement.clientWidth
+            canvasRef.current.height = videoElement.clientHeight
+            canvasRef.current.style.transform = `scaleX(${isVideoFlipped.value ? -1 : 1})`
+          }
           if (!mediapipe.value || processingData) {
             videoElement.requestVideoFrameCallback(onAnimationFrame)
           } else {
@@ -182,6 +256,7 @@ const CaptureDashboard = () => {
     if (canvasRef.current !== null) {
       const canvasElement = canvasRef.current
       canvasCtxRef.current = canvasElement.getContext('2d') //canvas context
+      // canvasCtxRef?.current?.scale(isVideoFlipped.value ? -1 : 1, 1);
     }
   }, [canvasRef])
 
@@ -190,72 +265,187 @@ const CaptureDashboard = () => {
     if (mediaConnection?.connected.value) toggleWebcamPaused()
   }, [mediaConnection?.connected])
 
-  useEffect(() => {
-    const pose = new Pose({
+  const createPoseDetector = () => {
+    const poseDetector = new Pose({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
       }
     })
-    pose.setOptions({
-      modelComplexity: 1,
-      smoothLandmarks: true,
-      enableSegmentation: false, //true,
-      smoothSegmentation: false, //true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-    })
-    pose.onResults(onResults)
-    mediapipe.set(pose)
+    poseDetectorRef.current = poseDetector
+    mediapipe.set(poseDetector)
+    return poseDetector
+  }
 
+  useEffect(() => {
+    if (videoRef.current && canvasRef.current) {
+      const detector = createPoseDetector()
+      startDetecting(detector)
+    }
     RecordingFunctions.getRecordings()
-  }, [])
+  }, [videoRef, canvasRef])
 
-  // Todo: Separate canvas and webcam into separate, reusable components (or create stories / switch to existing)
   return (
-    <div className="w-fit-content h-fit-content relative pointer-events-auto">
-      {!ready && (
-        <div className="w-full h-full absolute z-10 flex justify-center items-center">
-          <LoadingCircle message={t('common:loader.connecting')} />
-        </div>
-      )}
-      <Video ref={videoRef} />
-      <div className="object-contain absolute top-0" style={{ objectFit: 'contain', top: '0px' }}>
-        <Canvas ref={canvasRef} />
-      </div>
-      {ready && (
-        <div className="relative">
-          <button
-            className="bottom-0 right-0  bg-grey pointer-events-auto"
-            style={{ pointerEvents: 'all' }}
-            onClick={onToggleRecording}
-          >
-            {recordingState.started.value ? (recordingState.recordingID.value ? 'Stop' : 'Starting...') : 'Record'}
-          </button>
-          <div>
-            {recordingState.recordings.value.map((recording) => (
-              <div key={recording.id} className="bg-grey pointer-events-auto">
-                {/* a button to play back the recording */}
-                {recordingState.playback.value === recording.id ? (
-                  <button
-                    style={{ pointerEvents: 'all' }}
-                    onClick={() => {
-                      ECSRecordingFunctions.stopPlayback({
-                        recordingID: recording.id
-                      })
-                    }}
-                  >
-                    Stop - {recording.id}
-                  </button>
-                ) : (
-                  <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id)}>
-                    Play - {recording.id}
-                  </button>
-                )}
+    <div className="flex-none w-full relative overflow-hidden">
+      <Drawer
+        settings={
+          <div className="w-100 bg-base-100">
+            <div tabIndex={0} className="collapse collapse-open">
+              <div className="collapse-title w-full h-[50px]">
+                <h1>Pose Options</h1>
               </div>
-            ))}
+              <div className="collapse-content w-full h-auto">
+                <ul className="text-base-content w-full h-auto">
+                  <li>
+                    <label className="label">
+                      <span className="label-text">Model Complexity: {modelComplexity.value}</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="1"
+                      value={modelComplexity.value}
+                      className="range w-full"
+                      onChange={(e) => {
+                        modelComplexity.set(parseInt(e.currentTarget.value))
+                      }}
+                    />
+                  </li>
+                  <li>
+                    <label className="cursor-pointer label">
+                      <span className="label-text">Min Detection Confidence: {minDetectionConfidence.value}</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0.0"
+                      max="1.0"
+                      step="0.1"
+                      value={minDetectionConfidence.value}
+                      className="w-full range"
+                      onChange={(e) => {
+                        minDetectionConfidence.set(parseFloat(e.currentTarget.value))
+                      }}
+                    />
+                  </li>
+                  <li>
+                    <label className="cursor-pointer label">
+                      <span className="label-text">Min Tracking Confidence: {minTrackingConfidence.value}</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0.0"
+                      max="1.0"
+                      step="0.1"
+                      value={minTrackingConfidence.value}
+                      className="w-full range"
+                      onChange={(e) => {
+                        minTrackingConfidence.set(parseFloat(e.currentTarget.value))
+                      }}
+                    />
+                  </li>
+                  <li>
+                    <label className="label">
+                      <span className="label-text">Smooth Landmarks</span>
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-primary"
+                        defaultChecked={smoothLandmarks?.value}
+                        onChange={(e) => {
+                          staticImageMode.set(e.currentTarget.checked)
+                        }}
+                      />
+                    </label>
+                  </li>
+                  <li>
+                    <label className="cursor-pointer label">
+                      <span className="label-text">Enable Segmentation</span>
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-primary"
+                        defaultChecked={enableSegmentation?.value}
+                        onChange={(e) => {
+                          staticImageMode.set(e.currentTarget.checked)
+                        }}
+                      />
+                    </label>
+                  </li>
+                  <li>
+                    <label className="cursor-pointer label">
+                      <span className="label-text">Smooth Segmentation</span>
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-primary"
+                        defaultChecked={smoothSegmentation?.value}
+                        onChange={(e) => {
+                          staticImageMode.set(e.currentTarget.checked)
+                        }}
+                      />
+                    </label>
+                  </li>
+                  <li className="">
+                    <label className="label">
+                      <span className="label-text">Static Image Mode</span>
+                      <input
+                        type="checkbox"
+                        disabled
+                        className="toggle toggle-primary"
+                        defaultChecked={staticImageMode?.value}
+                        onChange={(e) => {
+                          staticImageMode.set(e.currentTarget.checked)
+                        }}
+                      />
+                    </label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+      >
+        <Header />
+        <div className="w-full flex">
+          <div className="w-1/2 xs:w-full sm:w-full md:w-full">
+            <div className="w-full relative">
+              <div className={twMerge('relative left-0 top-0 z-10 min-w-full min-h-full')}>
+                <Video ref={videoRef} />
+              </div>
+              <div className="object-contain absolute top-0 z-20" style={{ objectFit: 'contain', top: '0px' }}>
+                <Canvas ref={canvasRef} />
+              </div>
+            </div>
+            <Toolbar
+              className="w-full relative"
+              isVideoOn={mediaConnection?.connected?.value}
+              isDetecting={isDetecting?.value}
+              onToggleRecording={onToggleRecording}
+              toggleWebcam={toggleWebcamPaused}
+              toggleDetecting={toggleDetecting}
+              isRecording={recordingState.started.value}
+              recordingStatus={recordingState.recordingID.value}
+              isVideoFlipped={isVideoFlipped.value}
+              flipVideo={(val) => {
+                isVideoFlipped.set(val)
+              }}
+            />
+          </div>
+          <div className="w-1/2 xs:w-full sm:w-full md:w-full">
+            <div className="w-full relative">
+              <RecordingsList
+                {...{
+                  startPlayback,
+                  stopPlayback: ECSRecordingFunctions.stopPlayback,
+                  recordingState
+                }}
+              />
+            </div>
           </div>
         </div>
-      )}
+        <footer className="footer fixed bottom-0">
+          <div style={{ display: 'none' }}>
+            <InstanceChatWrapper />
+          </div>
+        </footer>
+      </Drawer>
     </div>
   )
 }

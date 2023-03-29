@@ -1,7 +1,6 @@
-import { t } from 'i18next'
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import {
@@ -33,7 +32,6 @@ import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtil
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
 import EngineTW from '../engine_tw'
 import CaptureComp from '../route/capture'
@@ -193,23 +191,12 @@ const AppPage = () => {
 
 const TailwindPage = () => {
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-      <EngineTW>
-        <ThemeContextProvider>
-          <AppPage />
-        </ThemeContextProvider>
-      </EngineTW>
-    </Suspense>
+    <EngineTW>
+      <ThemeContextProvider>
+        <AppPage />
+      </ThemeContextProvider>
+    </EngineTW>
   )
-  // return (
-  //   <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-  //     <EngineTW>
-  //       <ThemeContextProvider>
-  //         <AppPage />
-  //       </ThemeContextProvider>
-  //     </EngineTW>
-  //   </Suspense>
-  // )
 }
 
 export default TailwindPage

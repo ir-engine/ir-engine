@@ -1,8 +1,8 @@
 import React from 'react'
 
 const LoadingCircle = ({ message }: { message: string }) => (
-  <div className="absolute z-9001 w-full h-full flex place-content-center place-items-center">
-    <div role="status" className="w-auto mx-auto">
+  <div className="z-9001 w-full h-full flex justify-center items-center">
+    <div role="status" className="w-40 h-40">
       <svg
         aria-hidden="true"
         className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"

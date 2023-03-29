@@ -43,7 +43,15 @@ const App = () => {
               </Suspense>
             }
           />
-          <Route key={'capture'} path={'/capture/*'} element={<TailwindPage />} />
+          <Route
+            key={'capture'}
+            path={'/capture/*'}
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <TailwindPage />
+              </Suspense>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>

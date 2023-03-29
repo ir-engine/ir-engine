@@ -19,5 +19,6 @@ module.exports = {
     require("@tailwindcss/typography"),
     require("daisyui"),
     require('@tailwindcss/aspect-ratio'),
+    require('tailwindcss-3d'),
   ],
 }

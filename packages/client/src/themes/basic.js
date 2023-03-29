@@ -1,6 +1,12 @@
 export default {
   theme: {
     extend: {
+      scale: {
+        '-100': '-1',
+      },
+      rotate: {
+        '180': '180deg',
+      },
       animation: {
         fadeIn: 'fadeIn 0.15s ease-in-out 1',
         fadeOut: 'fadeOut 0.15s ease-in-out 1',
@@ -30,6 +36,15 @@ export default {
         '75%': '75%',
         '80%': '80%',
       },
+      borderWidth: {
+        DEFAULT: '1px',
+        '0': '0',
+        '2': '2px',
+        '3': '3px',
+        '4': '4px',
+        '6': '6px',
+        '8': '8px',
+      }
     }
   }
 }

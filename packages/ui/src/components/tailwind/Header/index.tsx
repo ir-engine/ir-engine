@@ -30,7 +30,7 @@ import ThemeSwitcher from '@etherealengine/ui/src/components/tailwind/ThemeSwitc
 
 const Header = () => {
   return (
-    <nav className="navbar border-solid border-2 border-sky-500 w-full">
+    <nav className="navbar w-full fixed">
       <div className="flex-1">
         <a className="btn btn-ghost normal-case text-xl">Ethereal Capture</a>
       </div>
@@ -43,20 +43,6 @@ const Header = () => {
           <label tabIndex={0} className="btn btn-ghost btn-square avatar">
             <UserCircleIcon className="w-6 h-6" />
           </label>
-          <ul tabIndex={0} className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
-            <li>
-              <a className="justify-between">
-                Profile
-                <span className="badge">New</span>
-              </a>
-            </li>
-            <li>
-              <a>Settings</a>
-            </li>
-            <li>
-              <a>Logout</a>
-            </li>
-          </ul>
         </div>
       </div>
     </nav>
