@@ -192,7 +192,7 @@ export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
   const [openSettings, setOpenSettings] = useState(false)
-  const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentScene))
+  const postprocessing = useHookstate(getPostProcessingSceneMetadataState())
   if (!postprocessing.value) return null
 
   const getPropertyValue = (keys: string[]): any => {

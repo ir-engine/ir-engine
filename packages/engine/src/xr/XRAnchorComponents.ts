@@ -3,10 +3,11 @@ import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Shadow
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
+import { SceneState } from '../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -153,7 +154,6 @@ const anchorMeshLost = (
  */
 function PersistentAnchorReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const world = Engine.instance.currentScene
 
   const originalParentEntityUUID = useHookstate('' as EntityUUID)
   const meshes = useHookstate([] as Mesh[])
@@ -170,7 +170,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
     if (active) {
       /** remove from scene and add to world origins */
       const originalParent = getComponent(
-        getComponent(entity, LocalTransformComponent).parentEntity ?? world.sceneEntity,
+        getComponent(entity, LocalTransformComponent).parentEntity ?? getState(SceneState).sceneEntity,
         UUIDComponent
       )
       originalParentEntityUUID.set(originalParent)

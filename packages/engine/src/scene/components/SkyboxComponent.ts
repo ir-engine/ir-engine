@@ -1,7 +1,17 @@
-import { Color } from 'three'
+import { useEffect } from 'react'
+import { Color, CubeTexture, sRGBEncoding } from 'three'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { isClient } from '../../common/functions/isClient'
+import { SceneState } from '../../ecs/classes/Scene'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Sky } from '../classes/Sky'
+import { SkyTypeEnum } from '../constants/SkyTypeEnum'
+import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
+import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
@@ -39,6 +49,87 @@ export const SkyboxComponent = defineComponent({
       skyboxProps: component.skyboxProps.get({ noproxy: true }) as any
     }
   },
+
+  reactor: function ({ root }) {
+    const entity = root.entity
+    if (!isClient) return null
+
+    const skyboxState = useComponent(entity, SkyboxComponent)
+    const background = useHookstate(getMutableState(SceneState).background)
+
+    useEffect(() => {
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
+      background.set(skyboxState.backgroundColor.value)
+    }, [skyboxState.backgroundType, skyboxState.backgroundColor])
+
+    useEffect(() => {
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
+      const onLoad = (texture: CubeTexture) => {
+        texture.encoding = sRGBEncoding
+        background.set(getPmremGenerator().fromCubemap(texture).texture)
+        removeError(entity, SkyboxComponent, 'FILE_ERROR')
+      }
+      const loadArgs: [
+        string,
+        (texture: CubeTexture) => void,
+        ((event: ProgressEvent<EventTarget>) => void) | undefined,
+        ((event: ErrorEvent) => void) | undefined
+      ] = [
+        skyboxState.cubemapPath.value,
+        onLoad,
+        undefined,
+        (error) => addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
+      ]
+      loadCubeMapTexture(...loadArgs)
+    }, [skyboxState.backgroundType, skyboxState.cubemapPath])
+
+    useEffect(() => {
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
+      AssetLoader.load(
+        skyboxState.equirectangularPath.value,
+        {},
+        (texture) => {
+          texture.encoding = sRGBEncoding
+          background.set(getPmremGenerator().fromEquirectangular(texture).texture)
+          removeError(entity, SkyboxComponent, 'FILE_ERROR')
+        },
+        undefined,
+        (error) => {
+          addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
+        }
+      )
+    }, [skyboxState.backgroundType, skyboxState.equirectangularPath])
+
+    useEffect(() => {
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.skybox) {
+        if (skyboxState.sky.value) skyboxState.sky.set(null)
+        return
+      }
+
+      if (skyboxState.backgroundType.value === SkyTypeEnum.skybox && !skyboxState.sky.value) {
+        skyboxState.sky.set(new Sky())
+      }
+
+      const sky = skyboxState.sky.value!
+
+      sky.azimuth = skyboxState.skyboxProps.value.azimuth
+      sky.inclination = skyboxState.skyboxProps.value.inclination
+
+      sky.mieCoefficient = skyboxState.skyboxProps.value.mieCoefficient
+      sky.mieDirectionalG = skyboxState.skyboxProps.value.mieDirectionalG
+      sky.rayleigh = skyboxState.skyboxProps.value.rayleigh
+      sky.turbidity = skyboxState.skyboxProps.value.turbidity
+      sky.luminance = skyboxState.skyboxProps.value.luminance
+
+      EngineRenderer.instance.csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
+      background.set(
+        getPmremGenerator().fromCubemap(sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)).texture
+      )
+    }, [skyboxState.backgroundType, skyboxState.skyboxProps])
+
+    return null
+  },
+
   errors: ['FILE_ERROR']
 })
 

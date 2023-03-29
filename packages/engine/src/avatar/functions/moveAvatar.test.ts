@@ -29,17 +29,17 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
-    const world = Engine.instance.currentScene
     const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -62,17 +62,17 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
-    const world = Engine.instance.currentScene
     const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -94,7 +94,6 @@ describe('moveAvatar function tests', () => {
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
     Engine.instance.userId = 'user' as UserId
 
-    const world = Engine.instance.currentScene
     const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
@@ -104,10 +103,11 @@ describe('moveAvatar function tests', () => {
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -129,17 +129,17 @@ describe('moveAvatar function tests', () => {
   it('should not allow velocity to breach a full unit through multiple frames', () => {
     Engine.instance.userId = 'user' as UserId
 
-    const world = Engine.instance.currentScene
     const engineState = getMutableState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)

@@ -1,6 +1,7 @@
 import { PerspectiveCamera } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { addComponent, defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -16,7 +17,9 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getState } from '@etherealengine/hyperflux'
 
+import { EditorState } from '../services/EditorServices'
 import { getCanvasBlob } from './thumbnails'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -51,7 +54,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
     const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
     setTransformComponent(entity, position, rotation)
     addObjectToGroup(entity, scenePreviewCamera)
-    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
+    addEntityNodeChild(entity, getState(SceneState).sceneEntity)
     scenePreviewCamera.updateMatrixWorld(true)
   }
 
@@ -64,7 +67,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   // Rendering the scene to the new canvas with given size
-  if (getPostProcessingSceneMetadataState(Engine.instance.currentScene).enabled.value) {
+  if (getPostProcessingSceneMetadataState().enabled.value) {
     configureEffectComposer(false, scenePreviewCamera)
     EngineRenderer.instance.effectComposer.render()
     configureEffectComposer(false, Engine.instance.camera)
@@ -78,4 +81,26 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.updateProjectionMatrix()
 
   return blob
+}
+
+/** @todo make size configurable */
+export const downloadScreenshot = () => {
+  takeScreenshot(512, 320).then((blob) => {
+    if (!blob) return
+
+    const blobUrl = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+
+    const editorState = getState(EditorState)
+
+    link.href = blobUrl
+    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.jpg'
+
+    document.body.appendChild(link)
+
+    link.click()
+
+    document.body.removeChild(link)
+  })
 }

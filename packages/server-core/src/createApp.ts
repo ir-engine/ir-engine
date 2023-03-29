@@ -18,12 +18,13 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { createEngine, initializeNode, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { Application, ServerTypeMode } from '../declarations'
+import { Application } from '../declarations'
 import appConfig from './appconfig'
 import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
+import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
@@ -108,11 +109,19 @@ export const configureK8s = () => (app: Application) => {
   if (appConfig.kubernetes.enabled) {
     const kc = new k8s.KubeConfig()
     kc.loadFromDefault()
+    const serverState = getMutableState(ServerState)
 
-    app.k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
-    app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
-    app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
-    app.k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
+    const k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
+    const k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
+    const k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
+    const k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
+
+    serverState.merge({
+      k8AppsClient,
+      k8BatchClient,
+      k8DefaultClient,
+      k8AgonesClient
+    })
   }
   return app
 }
@@ -122,7 +131,7 @@ export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureR
 ) => Application
 
 export const createFeathersExpressApp = (
-  serverMode: ServerTypeMode = 'API',
+  serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
   createDefaultStorageProvider()
@@ -142,7 +151,9 @@ export const createFeathersExpressApp = (
 
   Engine.instance.api = app
 
-  app.serverMode = serverMode
+  const serverState = getMutableState(ServerState)
+  serverState.serverMode.set(serverMode)
+
   app.set('nextReadyEmitter', new EventEmitter())
 
   // Feathers authentication-oauth will only append the port in production, but then it will also

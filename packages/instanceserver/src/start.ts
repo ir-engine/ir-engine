@@ -10,7 +10,8 @@ import '@etherealengine/engine/src/patchEngineNode'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
-import { Application, ServerMode } from '@etherealengine/server-core/declarations'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import {
   configureK8s,
@@ -20,6 +21,7 @@ import {
   createFeathersExpressApp
 } from '@etherealengine/server-core/src/createApp'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
 import channels from './channels'
 import { setupSocketFunctions } from './SocketFunctions'
@@ -48,6 +50,7 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 
 export const start = async (): Promise<Application> => {
   const app = createFeathersExpressApp(ServerMode.Instance, instanceServerPipe)
+  const serverState = getMutableState(ServerState)
 
   const agonesSDK = new AgonesSDK()
 
@@ -58,24 +61,11 @@ export const start = async (): Promise<Application> => {
       '\x1b[33mError: Agones is not running!. If you are in local development, please run etherealengine/scripts/sh start-agones.sh and restart server\x1b[0m'
     )
   })
-  app.agonesSDK = agonesSDK
+  serverState.agonesSDK.set(agonesSDK)
+
   setInterval(() => agonesSDK.health(), 1000)
 
   app.configure(channels)
-
-  /**
-   * When using local dev, to properly test multiple worlds for portals we
-   * need to programatically shut down and restart the instanceserver process.
-   */
-  if (!config.kubernetes.enabled) {
-    app.restart = () => {
-      require('child_process').spawn('npm', ['run', 'dev'], {
-        cwd: process.cwd(),
-        stdio: 'inherit'
-      })
-      process.exit(0)
-    }
-  }
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {

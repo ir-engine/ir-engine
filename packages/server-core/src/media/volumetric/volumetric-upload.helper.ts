@@ -4,6 +4,7 @@ import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { addGenericAssetToS3AndStaticResources } from '../upload-asset/upload-asset.service'
 import { videoUpload } from '../video/video-upload.helper'
@@ -41,7 +42,7 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
       ]
     })
   }
-  if (existingResource && existingData) return existingData
+  if (!config.server.cloneProjectStaticResources || (existingResource && existingData)) return existingData
   else {
     if (!existingResource) {
       let file, body
