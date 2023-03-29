@@ -6,7 +6,7 @@ import Divider from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Divider',
+  title: 'Primitives/MUI/Divider',
   component: Divider,
   parameters: {
     componentSubtitle: 'Divider',

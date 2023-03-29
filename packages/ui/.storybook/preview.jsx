@@ -21,16 +21,12 @@ import { withTests } from '@storybook/addon-jest'
 
 // import { theme as defaultTheme, useTheme } from '@etherealengine/client-core/src/theme'
 
-import 'tailwindcss/tailwind.css';
-import '@etherealengine/client/src/index.css';
-
-
 export const decorators = [
   withRouter,
   //withTests({ results }),
   // withThemes(null, [defaultTheme], { providerFn })
 ]
-
+     
 export const parameters = {
   controls: {
     matchers: {

@@ -233,6 +233,7 @@ export const MediaComponent = defineComponent({
 
       // @ts-ignore deprecated autoplay field
       if (json.autoplay) component.paused.set(false)
+      if (json.paused) component.paused.set(json.paused)
     })
 
     return component

@@ -6,7 +6,7 @@ import Accordion from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Accordion',
+  title: 'Primitives/MUI/Accordion',
   component: Accordion,
   parameters: {
     componentSubtitle: 'Accordion',

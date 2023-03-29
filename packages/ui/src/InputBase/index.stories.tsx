@@ -6,7 +6,7 @@ import InputBase from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/InputBase',
+  title: 'Primitives/MUI/InputBase',
   component: InputBase,
   parameters: {
     componentSubtitle: 'InputBase',

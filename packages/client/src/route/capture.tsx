@@ -110,12 +110,16 @@ function CaptureComp() {
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
-    return <LoadingCircle message={t('common:loader.loadingRoutes')} />
+    return (
+      <div className="absolute w-full h-full">
+        <LoadingCircle message={t('common:loader.loadingRoutes')} />
+      </div>
+    )
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+      <Suspense fallback={<LoadingCircle message={'Loading Capture...'} />}>
         <Routes>
           <Route path=":locationName" element={<Capture />} />
           <Route path="/" element={<Navigate to="/capture/default" />} />

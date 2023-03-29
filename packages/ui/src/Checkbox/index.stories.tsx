@@ -6,7 +6,7 @@ import Checkbox from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Checkbox',
+  title: 'Primitives/MUI/Checkbox',
   component: Checkbox,
   parameters: {
     componentSubtitle: 'Checkbox',

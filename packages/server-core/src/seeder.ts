@@ -1,6 +1,4 @@
-import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
-import { Service } from 'feathers-sequelize'
 import fs from 'fs'
 import path from 'path'
 
@@ -9,66 +7,36 @@ import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
 import seederConfig from './seeder-config'
 
-function matchesTemplateValues(template: any, row: any) {
-  for (const key of Object.keys(template)) {
-    if (typeof template[key] !== 'object' && template[key] !== row[key]) return false
-  }
-  return true
-}
-
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {
-  if (!forceRefresh && !prepareDb) return
+  if (forceRefresh || prepareDb)
+    for (let config of seederConfig) {
+      if (config.path) {
+        const templates = config.templates
+        const service = app.service(config.path as any)
+        if (templates)
+          for (let template of templates) {
+            let isSeeded
+            if (config.path.endsWith('-setting')) {
+              const result = await service.find()
+              isSeeded = result.total > 0
+            } else {
+              const searchTemplate = {}
 
-  const insertionPromises = seederConfig.map(async (config) => {
-    if (!config.path || !config.templates) return
-
-    const service = app.service(config.path as any) as Service
-
-    // setting tables only need to be seeded once
-    if (config.path?.endsWith('setting')) {
-      const result = (await service.find()) as Paginated<any>
-      const isSeeded = result.total > 0
-      if (isSeeded) return
-    }
-
-    const searchTemplates = config.templates?.map((template) => {
-      if (template.id) return { id: template.id }
-      else return template
-    })
-
-    const results = (await service.find({
-      query: { $or: searchTemplates },
-      paginate: {
-        // @ts-ignore - https://github.com/feathersjs/feathers/issues/3129
-        default: 1000,
-        max: 1000
+              const sequelizeModel = service.Model
+              const uniqueField = Object.values(sequelizeModel.rawAttributes).find((value: any) => value.unique) as any
+              if (uniqueField) searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
+              else
+                for (let key of Object.keys(template))
+                  if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
+              const result = await service.find({
+                query: searchTemplate
+              })
+              isSeeded = result.total > 0
+            }
+            if (!isSeeded) await service.create(template)
+          }
       }
-    })) as Paginated<unknown>
-
-    const templatesToBeInserted = config.templates.filter((template) => {
-      return (
-        results.data.findIndex((row) => {
-          return matchesTemplateValues(template, row)
-        }) === -1
-      )
-    })
-
-    if (!templatesToBeInserted.length) return
-
-    console.log('inerserting templates', templatesToBeInserted)
-
-    if (config.insertSingle) {
-      // NOTE: some of our services do not follow standard feathers service conventions,
-      // and break when passed an array of objects to the create method
-      return Promise.all(templatesToBeInserted.map((template) => service.create(template)))
-    } else {
-      return service.create(templatesToBeInserted)
     }
-  })
-
-  await Promise.all(insertionPromises)
-
-  console.log('seeder done')
 
   if (forceRefresh) {
     // for local dev clear the storage provider
