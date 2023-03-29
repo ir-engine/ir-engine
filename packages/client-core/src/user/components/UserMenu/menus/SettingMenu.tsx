@@ -19,6 +19,7 @@ import {
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import {
   getPostProcessingSceneMetadataState,
@@ -31,7 +32,6 @@ import Grid from '@etherealengine/ui/src/Grid'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
-import { SceneState } from '../../../../world/services/SceneService'
 import { userHasAccess } from '../../../userHasAccess'
 import styles from '../index.module.scss'
 import { Views } from '../util'
@@ -62,10 +62,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const selectedTab = useHookstate('general')
   const engineState = useHookstate(getMutableState(EngineState))
 
-  const postProcessingSceneMetadataState = Engine.instance.currentScene.sceneMetadataRegistry[
+  const postProcessingSceneMetadataState = getMutableState(SceneState).sceneMetadataRegistry[
     PostProcessingSceneMetadataLabel
   ]
-    ? getPostProcessingSceneMetadataState(Engine.instance.currentScene)
+    ? getPostProcessingSceneMetadataState()
     : undefined
   const postprocessingSettings = postProcessingSceneMetadataState?.enabled
     ? useHookstate(postProcessingSceneMetadataState.enabled)
