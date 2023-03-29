@@ -17,6 +17,7 @@ import {
   BlurOff,
   CachedOutlined,
   CalendarViewDay,
+  CameraAlt,
   Cancel,
   CancelOutlined,
   Chat,
@@ -152,6 +153,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Sync {...props} />
     case 'Download':
       return <Download {...props} />
+    case 'CameraAlt':
+      return <CameraAlt {...props} />
     case 'ChevronLeft':
       return <ChevronLeft {...props} />
     case 'ChevronRight':
