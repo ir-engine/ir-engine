@@ -75,7 +75,7 @@ export async function serializeLOD(
   //create a new filename for the lod
   const nuRelativePath = fileName.replace(/\.[^.]*$/, `_${mesh.name}.gltf`)
   const nuFileName = nuRelativePath.split('/').pop()!.split('.').shift()!
-  const lodURL = rootSrc.replace(/(.*)\/([^/]*)\.[^.]*$/, `$2/model-resources/${nuFileName}/${nuFileName}.gltf`)
+  const lodURL = rootSrc.replace(/(.*)\/([^/]*)\.[^.]*$/, `$1/model-resources/${nuFileName}/${nuFileName}.gltf`)
   const gltf = await gltfExporter.parseAsync(toExport, {
     binary: false,
     embedImages: false,

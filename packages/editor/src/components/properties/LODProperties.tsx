@@ -8,9 +8,11 @@ import {
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/components/LODComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { State } from '@etherealengine/hyperflux'
 
+import { serializeLOD } from '../../functions/lodsFromModel'
 import { Button } from '../inputs/Button'
 import InputGroup, { InputGroupContainer } from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
@@ -21,14 +23,13 @@ export function LODProperties({ entity }: { entity: Entity }) {
   const { t } = useTranslation()
   const entities = LODComponent.lodsByEntity[entity].value
 
-  const onChangeLevelProperty = useCallback(
-    (level: State<LODLevel>, property: keyof LODLevel) => {
-      return (value) => {
-        level[property].set(value)
-      }
-    },
-    [entities]
-  )
+  const model = getComponent(entity, ModelComponent)
+
+  const onChangeLevelProperty = useCallback((level: State<LODLevel>, property: keyof LODLevel) => {
+    return (value) => {
+      level[property].set(value)
+    }
+  }, [])
 
   if (!entities) return <></>
   return (
@@ -69,6 +70,25 @@ export function LODProperties({ entity }: { entity: Entity }) {
                         <InputGroup name="src" label={t('editor:properties.lod.src')}>
                           <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
                         </InputGroup>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={() => {
+                            const index = lodComponent.levels.indexOf(level)
+                            lodComponent.levels.set(lodComponent.levels.value.filter((_, i) => i !== index))
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={() => {
+                            serializeLOD(model.src, entity, level)
+                          }}
+                        >
+                          Serialize
+                        </Button>
                       </div>
                     </div>
                   )
