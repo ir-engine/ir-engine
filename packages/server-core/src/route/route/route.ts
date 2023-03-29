@@ -97,7 +97,7 @@ export default (app: Application): void => {
   const options = {
     name: routePath,
     paginate: app.get('paginate'),
-    Model: app.get('mysqlClient'),
+    Model: app.get('knexClient'),
     multi: true
   }
 

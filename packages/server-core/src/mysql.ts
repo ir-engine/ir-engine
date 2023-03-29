@@ -37,7 +37,7 @@ export default (app: Application): void => {
 
     // const oldSetup = app.setup
 
-    app.set('mysqlClient', db)
+    app.set('knexClient', db)
 
     // let promiseResolve, promiseReject
     // app.isSetup = new Promise((resolve, reject) => {

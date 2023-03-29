@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
+import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
@@ -33,7 +34,7 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       .flat()
   : []
 
-export const seeds: Array<ServicesSeedConfig> = [
+export const sequelizeSeeds: Array<ServicesSeedConfig> = [
   ...mediaSeeds,
   ...networkingSeeds,
   ...socialSeeds,
@@ -46,4 +47,4 @@ export const seeds: Array<ServicesSeedConfig> = [
   ...installedProjects
 ]
 
-export default seeds
+export const knexSeeds: Array<KnexSeed> = [...routeSeeds]

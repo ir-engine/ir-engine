@@ -5,11 +5,16 @@ import path from 'path'
 import { Application } from '../declarations'
 import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
-import seederConfig from './seeder-config'
+import { knexSeeds, sequelizeSeeds } from './seeder-config'
 
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {
-  if (forceRefresh || prepareDb)
-    for (let config of seederConfig) {
+  if (forceRefresh || prepareDb) {
+    const knexClient = app.get('knexClient')
+    for (let seedFile of knexSeeds) {
+      seedFile.seed(knexClient)
+    }
+
+    for (let config of sequelizeSeeds) {
       if (config.path) {
         const templates = config.templates
         const service = app.service(config.path as any)
@@ -37,6 +42,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
           }
       }
     }
+  }
 
   if (forceRefresh) {
     // for local dev clear the storage provider
