@@ -36,6 +36,7 @@ import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../c
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import BackgroundSystem from './BackgroundSystem'
 import FogSystem from './FogSystem'
 import ShadowSystem from './ShadowSystem'
 
@@ -165,7 +166,11 @@ export default async function SceneObjectSystem() {
   }
 
   const subsystems = [() => Promise.resolve({ default: FogSystem })]
-  if (isClient) subsystems.push(() => Promise.resolve({ default: ShadowSystem }))
+  if (isClient)
+    subsystems.push(
+      () => Promise.resolve({ default: ShadowSystem }),
+      () => Promise.resolve({ default: BackgroundSystem })
+    )
 
   return {
     execute,

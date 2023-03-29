@@ -57,14 +57,13 @@ import { SCENE_COMPONENT_SYSTEM, SystemComponent } from '../components/SystemCom
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
-import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
+import { deserializeEnvMap } from '../functions/loaders/EnvMapFunctions'
 import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
-import { updateSkybox } from '../functions/loaders/SkyboxFunctions'
 import { deserializeSpline, serializeSpline } from '../functions/loaders/SplineFunctions'
 
 export const defaultSpatialComponents: ComponentJson[] = [
@@ -216,8 +215,7 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {
-    deserialize: deserializeEnvMap,
-    serialize: serializeEnvMap
+    deserialize: deserializeEnvMap
   })
 
   Engine.instance.sceneComponentRegistry.set(ScreenshareTargetComponent.name, SCENE_COMPONENT_SCREENSHARETARGET)
@@ -352,8 +350,6 @@ export default async function SceneObjectUpdateSystem() {
   const execute = () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, GroupComponent)) updateEnvMap(entity)
-        if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
         if (hasComponent(entity, LoopAnimationComponent)) updateLoopAnimation(entity)
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
@@ -361,10 +357,7 @@ export default async function SceneObjectUpdateSystem() {
       }
     }
 
-    for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
-    for (const entity of skyboxQuery.enter()) updateSkybox(entity)
-    for (const _ of skyboxQuery.exit()) Engine.instance.scene.background = new Color('black')
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)
