@@ -58,8 +58,6 @@ export default async function ReferenceSpaceTransformSystem() {
      * For whatever reason, this must run at the start of the transform system, before the transform system.
      */
     applyInputSourcePoseToIKTargets()
-
-    delete TransformComponent.dirtyTransforms[Engine.instance.localClientEntity]
   }
 
   const cleanup = async () => {}

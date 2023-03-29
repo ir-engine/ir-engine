@@ -43,7 +43,7 @@ import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
-const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent, Not(LocalAvatarTagComponent)])
+const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const fixedRigidBodyQuery = defineQuery([TransformComponent, RigidBodyComponent, RigidBodyFixedTagComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
