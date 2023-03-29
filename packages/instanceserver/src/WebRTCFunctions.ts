@@ -531,7 +531,7 @@ export async function handleWebRtcProduceData(
         id: messageId
       })
     }
-    logger.info(`userId "${userId}", Data channel "${data.label}" %o: `, data)
+    logger.info(`peerID "${peerID}", Data channel "${data.label}" %o: `, data)
     const transport = network.mediasoupTransports[data.transportId]
     if (transport) {
       try {
@@ -826,7 +826,7 @@ export async function handleWebRtcReceiveTrack(
     (router) => router.id === transport?.internal.routerId
   )
   if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
-    const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer.id}`
+    const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.id}`
     logger.error(`recv-track: ${peerID} ${msg}`)
     return spark.write({ type: MessageTypes.WebRTCReceiveTrack.toString(), data: { error: msg }, id: messageId })
   }
