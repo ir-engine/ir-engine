@@ -39,7 +39,7 @@ const FogTypeOptions = [
 export const FogSettingsEditor = () => {
   const { t } = useTranslation()
 
-  const fogState = useHookstate(getFogSceneMetadataState())
+  const fogState = useHookstate(getFogSceneMetadataState(Engine.instance.currentScene))
   const fog = fogState.get({ noproxy: true })
 
   return (

@@ -14,12 +14,10 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createNetwork, DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
-import { getState } from '@etherealengine/hyperflux'
 import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
-import { InstanceServerState } from './InstanceServerState'
 import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
@@ -52,8 +50,7 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
-      /** @todo - for now just send to everyone */
-      network.transport.bufferToAll(dataChannelType, data)
+      /** noop */
     },
 
     /**
@@ -85,6 +82,4 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
 export type SocketWebRTCServerNetwork = Awaited<ReturnType<typeof initializeNetwork>>
 
 export const getServerNetwork = (app: Application) =>
-  (getState(InstanceServerState).isMediaInstance
-    ? Engine.instance.mediaNetwork
-    : Engine.instance.worldNetwork) as SocketWebRTCServerNetwork
+  (app.isChannelInstance ? Engine.instance.mediaNetwork : Engine.instance.worldNetwork) as SocketWebRTCServerNetwork

@@ -7,20 +7,7 @@ import verifyScope from '../../hooks/verify-scope'
 export default {
   before: {
     all: [authenticate()],
-    find: [
-      iff(
-        isProvider('external'),
-        verifyScope('recording', 'read'),
-        addAssociations({
-          models: [
-            {
-              model: 'user',
-              as: 'user'
-            }
-          ]
-        }) as any
-      )
-    ],
+    find: [iff(isProvider('external'), verifyScope('recording', 'read') as any)],
     get: [iff(isProvider('external'), verifyScope('recording', 'read') as any)],
     create: [
       iff(

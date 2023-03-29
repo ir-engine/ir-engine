@@ -31,10 +31,10 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import Slider from '@etherealengine/ui/src/Slider'
-import Tooltip from '@etherealengine/ui/src/Tooltip'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../transports/MediaStreams'
@@ -106,7 +106,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
-  const mediaState = getMediaSceneMetadataState()
+  const mediaState = getMediaSceneMetadataState(Engine.instance.currentScene)
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
     (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)

@@ -7,7 +7,6 @@ import { Readable } from 'stream'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { addGenericAssetToS3AndStaticResources } from '../upload-asset/upload-asset.service'
 
@@ -78,8 +77,7 @@ export const modelUpload = async (app: Application, data) => {
           ]
         }
       })
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingModel))
-      return app.service('model').get(existingModel.id)
+    if (existingResource && existingModel) return app.service('model').get(existingModel.id)
     else {
       let file, body
       if (data.url) {

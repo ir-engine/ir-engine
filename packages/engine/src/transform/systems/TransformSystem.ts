@@ -172,7 +172,6 @@ export default async function TransformSystem() {
   const _frustum = new Frustum()
   const _projScreenMatrix = new Matrix4()
 
-  /** @deprecated */
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   const originChildEntities = new Set<Entity>()
@@ -348,7 +347,6 @@ export default async function TransformSystem() {
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
 
-    /** @todo - refactor */
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (

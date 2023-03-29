@@ -6,7 +6,7 @@ import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 import { createActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
-import AnchorIcon from '@etherealengine/ui/src/Icon'
+import AnchorIcon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 

@@ -88,7 +88,7 @@ export default async function ShadowSystem() {
     const activeLightFromEntity = useOptionalComponent(activeLightEntity, DirectionalLightComponent)?.value.light
     if (!activeLight) activeLight = activeLightFromEntity
 
-    const csmEnabled = useHookstate(getRendererSceneMetadataState().csm).value
+    const csmEnabled = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene).csm).value
 
     const shadowsEnabled = useShadowsEnabled()
     const useCSM = shadowsEnabled && csmEnabled

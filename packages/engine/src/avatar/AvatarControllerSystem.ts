@@ -1,4 +1,3 @@
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { addActionReceptor, createActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
@@ -16,7 +15,6 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { XRAction } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
@@ -51,11 +49,7 @@ export default async function AvatarControllerSystem() {
       setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity: avatarEntity })
 
       // todo: this should be called when the avatar is spawned
-      dispatchAction(
-        WorldNetworkAction.spawnCamera({
-          uuid: ('camera_' + getComponent(avatarEntity, UUIDComponent)) as EntityUUID
-        })
-      )
+      dispatchAction(WorldNetworkAction.spawnCamera({}))
     }
 
     for (const entity of controllerQuery()) {

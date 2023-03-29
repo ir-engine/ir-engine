@@ -22,8 +22,6 @@ RUN npm install --loglevel notice --legacy-peer-deps
 
 COPY . .
 
-CMD ["scripts/strip-engine.sh"]
-
 # copy then compile the code
 
 ENV APP_ENV=production

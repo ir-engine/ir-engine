@@ -26,7 +26,7 @@ const GridTool = () => {
       <InfoTooltip title="Toggle Grid Visibility">
         <button
           onClick={onToggleGridVisible}
-          className={styles.toolButton + ' ' + (rendererState.gridVisibility.value ? styles.selected : '')}
+          className={styles.toolButton + ' ' + (rendererState.gridVisibility ? styles.selected : '')}
         >
           <GridOnIcon fontSize="small" />
         </button>

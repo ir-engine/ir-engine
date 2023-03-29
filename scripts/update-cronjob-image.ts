@@ -2,10 +2,9 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { getState } from '@etherealengine/hyperflux'
+import { ServerMode } from '@etherealengine/server-core/declarations'
 import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
 import { getCronJobBody } from '@etherealengine/server-core/src/projects/project/project-helper'
-import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,
@@ -49,11 +48,10 @@ cli.main(async () => {
         ]
       }
     })
-    const k8BatchClient = getState(ServerState).k8BatchClient
-    if (k8BatchClient)
+    if (app.k8BatchClient)
       for (const project of autoUpdateProjects.data) {
         try {
-          await k8BatchClient.patchNamespacedCronJob(
+          await app.k8BatchClient.patchNamespacedCronJob(
             `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
             'default',
             getCronJobBody(project, `${options.ecrUrl}/${options.repoName}-api:${options.tag}__${options.startTime}`),

@@ -1,8 +1,6 @@
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
-import { matches, matchesPeerID, matchesUserId } from '../common/functions/MatchesUtils'
+import { matches, matchesUserId } from '../common/functions/MatchesUtils'
 import { NetworkTopics } from '../networking/classes/Network'
 import { Engine } from './classes/Engine'
 
@@ -42,50 +40,9 @@ export const stopRecording = (args: { recordingID: string }) => {
   })
 }
 
-export const startPlayback = (args: { recordingID: string; targetUser?: UserId }) => {
-  const { recordingID, targetUser } = args
-  const action = ECSRecordingActions.startPlayback({
-    recordingID,
-    targetUser
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
-  })
-}
-
-export const stopPlayback = (args: { recordingID: string }) => {
-  const { recordingID } = args
-  const action = ECSRecordingActions.stopPlayback({
-    recordingID
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
-  })
-}
-
 export const ECSRecordingFunctions = {
   startRecording,
-  stopRecording,
-  startPlayback,
-  stopPlayback
+  stopRecording
 }
 
 export class ECSRecordingActions {
@@ -107,18 +64,13 @@ export class ECSRecordingActions {
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
     recordingID: matches.string,
-    targetUser: matchesUserId.optional()
-  })
-
-  static playbackChanged = defineAction({
-    type: 'ee.core.motioncapture.PLAYBACK_CHANGED' as const,
-    recordingID: matches.string,
-    playing: matches.boolean
+    targetUser: matchesUserId
   })
 
   static stopPlayback = defineAction({
     type: 'ee.core.motioncapture.STOP_PLAYBACK' as const,
-    recordingID: matches.string
+    recordingID: matches.string,
+    targetUser: matchesUserId
   })
 
   static error = defineAction({

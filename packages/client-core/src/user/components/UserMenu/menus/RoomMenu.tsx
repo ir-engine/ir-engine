@@ -10,7 +10,7 @@ import { InstanceService } from '@etherealengine/client-core/src/common/services
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { XRAction } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
 import styles from '../index.module.scss'
 import { Views } from '../util'

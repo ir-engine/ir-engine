@@ -62,23 +62,16 @@ export default async function AvatarLoadingSystem() {
   const growQuery = defineQuery([AvatarEffectComponent, GroupComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, GroupComponent])
   const dissolveQuery = defineQuery([AvatarEffectComponent, GroupComponent, AvatarDissolveComponent])
-
-  AssetLoader.loadAsync('/itemLight.png').then((texture) => {
-    texture.encoding = sRGBEncoding
-    texture.needsUpdate = true
-    light.material.map = texture
-  })
-
-  AssetLoader.loadAsync('/itemPlate.png').then((texture) => {
-    texture.encoding = sRGBEncoding
-    texture.needsUpdate = true
-    plate.material.map = texture
-  })
+  const [textureLight, texturePlate] = await Promise.all([
+    AssetLoader.loadAsync('/itemLight.png'),
+    AssetLoader.loadAsync('/itemPlate.png')
+  ])
 
   const light = new Mesh(
     new PlaneGeometry(0.04, 3.2),
     new MeshBasicMaterial({
       transparent: true,
+      map: textureLight,
       blending: AdditiveBlending,
       depthWrite: false,
       side: DoubleSide
@@ -89,6 +82,7 @@ export default async function AvatarLoadingSystem() {
     new PlaneGeometry(1.6, 1.6),
     new MeshBasicMaterial({
       transparent: false,
+      map: texturePlate,
       blending: AdditiveBlending,
       depthWrite: false
     })
@@ -98,6 +92,11 @@ export default async function AvatarLoadingSystem() {
   plate.geometry.computeBoundingSphere()
   light.name = 'light_obj'
   plate.name = 'plate_obj'
+
+  textureLight.encoding = sRGBEncoding
+  textureLight.needsUpdate = true
+  texturePlate.encoding = sRGBEncoding
+  texturePlate.needsUpdate = true
 
   const execute = () => {
     const { deltaSeconds: delta } = Engine.instance

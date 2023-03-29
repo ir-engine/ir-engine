@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import Box from '@etherealengine/ui/src/Box'
-import FormControl from '@etherealengine/ui/src/FormControl'
-import FormHelperText from '@etherealengine/ui/src/FormHelperText'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import InputLabel from '@etherealengine/ui/src/InputLabel'
-import OutlinedInput from '@etherealengine/ui/src/OutlinedInput'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
+import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import InputLabel from '@etherealengine/ui/src/primitives/mui/InputLabel'
+import OutlinedInput from '@etherealengine/ui/src/primitives/mui/OutlinedInput'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

@@ -24,7 +24,7 @@ export const useShadowsEnabled = () => {
 
 export const updateShadowMap = () => {
   const enabled = getShadowsEnabled()
-  const type = getRendererSceneMetadataState().shadowMapType.value
+  const type = getRendererSceneMetadataState(Engine.instance.currentScene).shadowMapType.value
 
   EngineRenderer.instance.renderer.shadowMap.enabled = enabled
   EngineRenderer.instance.renderer.shadowMap.type = type

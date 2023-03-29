@@ -5,7 +5,6 @@ import i18n from 'i18next'
 import config from '@etherealengine/common/src/config'
 import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
@@ -152,14 +151,13 @@ export const AvatarService = {
     return API.instance.client.service('static-resource').remove(id)
   },
 
-  async updateUserAvatarId(userId: UserId, avatarId: string, avatarURL: string, thumbnailURL: string) {
+  async updateUserAvatarId(userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) {
     const res = await API.instance.client.service('user').patch(userId, { avatarId: avatarId })
     // dispatchAlertSuccess(dispatch, 'User Avatar updated');
     dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
     dispatchAction(
       WorldNetworkAction.avatarDetails({
-        avatarDetail: { avatarURL, thumbnailURL },
-        uuid: userId
+        avatarDetail: { avatarURL, thumbnailURL }
       })
     )
   },
