@@ -20,14 +20,15 @@ import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { applyIncomingActions } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
-import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
+import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 import '@etherealengine/engine/src/patchEngineNode'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { deserializeGroup } from '@etherealengine/engine/src/scene/functions/loaders/GroupFunctions'
 
 import { createTransformGizmo } from '../systems/EditorControlSystem'
@@ -84,7 +85,7 @@ describe('EditorControlFunctions', () => {
 
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentScene.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
 
       for (let i = 0; i < 2; i++) {
@@ -118,7 +119,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      rootNode = Engine.instance.currentScene.sceneEntity
+      rootNode = getState(SceneState).sceneEntity
     })
 
     afterEach(() => {
@@ -134,7 +135,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const world = Engine.instance.currentScene
+      const world = getState(SceneState)
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -203,7 +204,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentScene.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       beforeNodes = [createEntity(), createEntity()]
@@ -224,7 +225,7 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.duplicateObject(nodes)
       applyIncomingActions()
 
-      const rootEntity = Engine.instance.currentScene.sceneEntity
+      const rootEntity = getState(SceneState).sceneEntity
       const rootNode = getComponent(rootEntity, EntityTreeComponent)
       rootNode.children.forEach((entity) => {
         assert(hasComponent(entity, EntityTreeComponent))
@@ -242,7 +243,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const world = Engine.instance.currentScene
+      const world = getState(SceneState)
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -291,7 +292,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentScene.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       ;[...nodes, ...parentNodes].map((node) =>
@@ -317,7 +318,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('will not remove root node', () => {
-      EditorControlFunctions.removeObject([Engine.instance.currentScene.sceneEntity])
+      EditorControlFunctions.removeObject([getState(SceneState).sceneEntity])
 
       nodes.forEach((node: Entity) => {
         assert(hasComponent(node, EntityTreeComponent))

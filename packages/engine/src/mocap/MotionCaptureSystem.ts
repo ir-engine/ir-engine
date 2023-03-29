@@ -15,7 +15,7 @@ import {
 } from '../avatar/components/AvatarIKComponents'
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
-import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { DataChannelType, Network } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../networking/NetworkState'
@@ -29,47 +29,22 @@ export interface NormalizedLandmark {
   visibility?: number
 }
 
-// export const sendResults = (landmarks: NormalizedLandmark[]) => {
-//   return encode({
-//     timestamp: Date.now(),
-//     peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!,
-//     landmarks
-//   })
-// }
-
-// export const receiveResults = (results: ArrayBuffer) => {
-//   const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
-//     timestamp: number
-//     peerIndex: number
-//     landmarks: NormalizedLandmark[]
-//   }
-//   const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
-//   return { timestamp, peerID, landmarks }
-// }
-
-export const sendResults = (results: NormalizedLandmark[]) => {
-  const peerIndex = Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!
-  const resultsData = results.map((val) => [val.x, val.y, val.z, val.visibility ?? 0]).flat()
-  const dataBuffer = Float64Array.from([Date.now(), peerIndex, ...resultsData]).buffer
-  return dataBuffer
+export const sendResults = (landmarks: NormalizedLandmark[]) => {
+  return encode({
+    timestamp: Date.now(),
+    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!,
+    landmarks
+  })
 }
 
-export const receiveResults = (results: ArrayBufferLike) => {
-  const data = new Float64Array(results)
-  // todo - use timestamp
-  const timestamp = data[0]
-  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(data[1])
-  const resultsData = data.slice(2)
-  const landmarks = [] as NormalizedLandmark[]
-  for (let i = 0; i < resultsData.length; i += 4) {
-    landmarks.push({
-      x: resultsData[i],
-      y: resultsData[i + 1],
-      z: resultsData[i + 2],
-      visibility: resultsData[i + 3]
-    })
+export const receiveResults = (results: ArrayBuffer) => {
+  const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
+    timestamp: number
+    peerIndex: number
+    landmarks: NormalizedLandmark[]
   }
-  return { peerID, landmarks }
+  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
+  return { timestamp, peerID, landmarks }
 }
 
 export const MotionCaptureFunctions = {
@@ -154,8 +129,17 @@ export default async function MotionCaptureSystem() {
         const head = !!nose.visibility && nose.visibility > 0.5
         const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.5
         const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.5
-        const changed = ikTargets.head !== head || ikTargets.leftHand !== leftHand || ikTargets.rightHand !== rightHand
-        if (changed) dispatchAction(WorldNetworkAction.avatarIKTargets({ head, leftHand, rightHand }))
+
+        if (!head && ikTargets.head) removeComponent(localClientEntity, AvatarHeadIKComponent)
+        if (!leftHand && ikTargets.leftHand) removeComponent(localClientEntity, AvatarLeftArmIKComponent)
+        if (!rightHand && ikTargets.rightHand) removeComponent(localClientEntity, AvatarRightArmIKComponent)
+
+        if (head && !ikTargets.head) setComponent(localClientEntity, AvatarHeadIKComponent)
+        if (leftHand && !ikTargets.leftHand) setComponent(localClientEntity, AvatarLeftArmIKComponent)
+        if (rightHand && !ikTargets.rightHand) setComponent(localClientEntity, AvatarRightArmIKComponent)
+        ikTargets.head = head
+        ikTargets.leftHand = leftHand
+        ikTargets.rightHand = rightHand
 
         const avatarRig = getComponent(entity, AvatarRigComponent)
         const avatarTransform = getComponent(entity, TransformComponent)

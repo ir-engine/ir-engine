@@ -44,7 +44,7 @@ const Toolbar = ({
             ></div>
             {isRecording ? (recordingStatus ? 'Stop' : 'Starting...') : 'Record'}
           </button>
-          {/* <button
+          <button
             disabled={!isRecording && !recordingStatus ? true : undefined}
             className="btn"
             onClick={onToggleRecording}
@@ -53,7 +53,7 @@ const Toolbar = ({
           </button>
           <button disabled={!isRecording && !recordingStatus ? true : undefined} className="btn">
             <ArrowPathIcon className="block min-w-6 min-h-6" />
-          </button> */}
+          </button>
         </div>
       </div>
       <div className="navbar-end w-full">

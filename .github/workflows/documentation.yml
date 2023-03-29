@@ -57,8 +57,9 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release to GitHub Pages
+        timeout-minutes: 200
         env:
-          NODE_OPTIONS: --max_old_space_size=8192
+          NODE_OPTIONS: --max_old_space_size=16384
           USE_SSH: true
           GIT_USER: git
           DEPLOYMENT_BRANCH: gh-pages
