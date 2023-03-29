@@ -9,11 +9,6 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  // Deletes ALL existing entries
-  if (forceRefresh || testEnabled) {
-    await knex('route').del()
-  }
-
   const seedData = await Promise.all(
     [
       {
@@ -47,6 +42,18 @@ export async function seed(knex: Knex): Promise<void> {
     ].map(async (item) => ({ ...item, id: v4(), createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )
 
-  // Inserts seed entries
-  await knex('route').insert(seedData)
+  if (forceRefresh || testEnabled) {
+    // Deletes ALL existing entries
+    await knex('route').del()
+
+    // Inserts seed entries
+    await knex('route').insert(seedData)
+  } else {
+    for (const item of seedData) {
+      const existingData = await knex('route').where('project', item.project).andWhere('route', item.route)
+      if (existingData.length === 0) {
+        await knex('route').insert(item)
+      }
+    }
+  }
 }
