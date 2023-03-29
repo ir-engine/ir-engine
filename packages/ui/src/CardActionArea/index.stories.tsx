@@ -6,7 +6,7 @@ import CardActionArea from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/CardActionArea',
+  title: 'Primitives/MUI/CardActionArea',
   component: CardActionArea,
   parameters: {
     componentSubtitle: 'CardActionArea',

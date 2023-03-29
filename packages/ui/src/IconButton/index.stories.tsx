@@ -6,7 +6,7 @@ import IconButton from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/IconButton',
+  title: 'Primitives/MUI/IconButton',
   component: IconButton,
   parameters: {
     componentSubtitle: 'Basic Icon Button',

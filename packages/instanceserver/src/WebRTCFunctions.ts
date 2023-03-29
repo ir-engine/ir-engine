@@ -29,8 +29,10 @@ import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
+import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
   ConsumerExtension,
@@ -444,15 +446,17 @@ export async function handleWebRtcTransportCreate(
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
     if (config.kubernetes.enabled) {
-      const app = Engine.instance.api as Application
-      const serverResult = await app.k8AgonesClient.listNamespacedCustomObject(
+      const serverState = getState(ServerState)
+      const instanceServerState = getState(InstanceServerState)
+
+      const serverResult = await serverState.k8AgonesClient.listNamespacedCustomObject(
         'agones.dev',
         'v1',
         'default',
         'gameservers'
       )
       const thisGs = (serverResult?.body! as any).items.find(
-        (server) => server.metadata.name === app.instanceServer.objectMeta.name
+        (server) => server.metadata.name === instanceServerState.instanceServer.objectMeta.name
       )
 
       for (let [index, candidate] of iceCandidates.entries()) {

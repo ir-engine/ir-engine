@@ -1,3 +1,4 @@
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { addActionReceptor, createActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
@@ -52,7 +53,7 @@ export default async function AvatarControllerSystem() {
       // todo: this should be called when the avatar is spawned
       dispatchAction(
         WorldNetworkAction.spawnCamera({
-          uuid: getComponent(avatarEntity, UUIDComponent)
+          uuid: ('camera_' + getComponent(avatarEntity, UUIDComponent)) as EntityUUID
         })
       )
     }

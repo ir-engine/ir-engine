@@ -6,7 +6,7 @@ import ListItemSecondaryAction from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/ListItemSecondaryAction',
+  title: 'Primitives/MUI/ListItemSecondaryAction',
   component: ListItemSecondaryAction,
   parameters: {
     componentSubtitle: 'ListItemSecondaryAction',
