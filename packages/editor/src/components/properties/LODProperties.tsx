@@ -21,11 +21,14 @@ export function LODProperties({ entity }: { entity: Entity }) {
   const { t } = useTranslation()
   const entities = LODComponent.lodsByEntity[entity].value
 
-  const onChangeLevelProperty = useCallback((level: State<LODLevel>, property: keyof LODLevel) => {
-    return (value) => {
-      level[property].set(value)
-    }
-  }, [])
+  const onChangeLevelProperty = useCallback(
+    (level: State<LODLevel>, property: keyof LODLevel) => {
+      return (value) => {
+        level[property].set(value)
+      }
+    },
+    [entities]
+  )
 
   if (!entities) return <></>
   return (

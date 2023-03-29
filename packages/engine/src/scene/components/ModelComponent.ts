@@ -164,13 +164,6 @@ function ModelReactor({ root }: EntityReactorProps) {
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
     setBoundingBoxComponent(entity)
-    if (isClient) {
-      LODComponent.lodsByEntity[entity].value?.map((entity) => removeEntity(entity))
-      import('../functions/loaders/LODFunctions').then(({ createLODsFromModel }) => {
-        createLODsFromModel(entity).then(LODComponent.lodsByEntity[entity].set)
-      })
-    }
-
     removeComponent(entity, SceneAssetPendingTagComponent)
 
     let active = true

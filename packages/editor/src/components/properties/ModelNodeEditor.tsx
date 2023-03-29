@@ -21,8 +21,9 @@ import { useState } from '@etherealengine/hyperflux'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
+import { createLODsFromModel } from '../../functions/lodsFromModel'
 import BooleanInput from '../inputs/BooleanInput'
-import { PropertiesPanelButton } from '../inputs/Button'
+import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
@@ -145,6 +146,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
       <ShadowProperties entity={props.entity} />
+      <div className="bg-gradient-to-b from-blue-gray-400 to-cool-gray-800 rounded-lg shadow-lg">
+        <div className="px-4 py-2 border-b border-gray-300">
+          <h2 className="text-lg font-semibold text-gray-100">LODs</h2>
+        </div>
+        <div className="p-4">
+          <Button onClick={createLODsFromModel.bind({}, entity)}>{t('editor:properties.model.generate-lods')}</Button>
+        </div>
+      </div>
       {LODComponent.lodsByEntity[props.entity].value && <LODProperties entity={entity} />}
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting.value && modelComponent.src.value && (
