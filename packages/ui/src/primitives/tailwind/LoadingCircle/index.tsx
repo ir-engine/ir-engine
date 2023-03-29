@@ -1,5 +1,7 @@
 import React from 'react'
 
+//loadingCircle main component
+
 const LoadingCircle = ({ message }: { message: string }) => (
   <div role="status">
     <svg
