@@ -173,31 +173,6 @@ export default async function SceneObjectUpdateSystem() {
   })
 
   /**
-   * Environment
-   */
-
-  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.skybox, [
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_SKYBOX, props: {} }
-  ])
-
-  Engine.instance.sceneComponentRegistry.set(SkyboxComponent.name, SCENE_COMPONENT_SKYBOX)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
-    defaultData: {}
-  })
-
-  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
-    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_ENVMAP_BAKE, props: {} }
-  ])
-
-  Engine.instance.sceneComponentRegistry.set(EnvMapBakeComponent.name, SCENE_COMPONENT_ENVMAP_BAKE)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {
-    defaultData: {}
-  })
-
-  /**
    * Objects
    */
 
@@ -211,11 +186,6 @@ export default async function SceneObjectUpdateSystem() {
   Engine.instance.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
     deserialize: deserializeModel
-  })
-
-  Engine.instance.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {
-    deserialize: deserializeEnvMap
   })
 
   Engine.instance.sceneComponentRegistry.set(ScreenshareTargetComponent.name, SCENE_COMPONENT_SCREENSHARETARGET)
@@ -331,18 +301,10 @@ export default async function SceneObjectUpdateSystem() {
     defaultData: {}
   })
 
-  const envmapQuery = defineQuery([GroupComponent, EnvmapComponent])
-  const imageQuery = defineQuery([ImageComponent])
-  const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
   const loopableAnimationQuery = defineQuery([LoopAnimationComponent, Not(SceneAssetPendingTagComponent)])
-  const skyboxQuery = defineQuery([SkyboxComponent])
-  const portalQuery = defineQuery([PortalComponent])
-  const modelQuery = defineQuery([ModelComponent])
-  const groundPlaneQuery = defineQuery([GroundPlaneComponent])
   const cloudQuery = defineQuery([CloudComponent])
   const oceanQuery = defineQuery([OceanComponent])
   const interiorQuery = defineQuery([InteriorComponent])
-  const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
   const spawnPointComponent = defineQuery([SpawnPointComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
@@ -412,20 +374,6 @@ export default async function SceneObjectUpdateSystem() {
     Engine.instance.sceneComponentRegistry.delete(PortalComponent.name)
 
     /**
-     * Environment
-     */
-
-    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.skybox)
-
-    Engine.instance.sceneComponentRegistry.delete(SkyboxComponent.name)
-    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SKYBOX)
-
-    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.envMapbake)
-
-    Engine.instance.sceneComponentRegistry.delete(EnvMapBakeComponent.name)
-    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_ENVMAP_BAKE)
-
-    /**
      * Objects
      */
 
@@ -433,9 +381,6 @@ export default async function SceneObjectUpdateSystem() {
 
     Engine.instance.sceneComponentRegistry.delete(ModelComponent.name)
     Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_MODEL)
-
-    Engine.instance.sceneComponentRegistry.delete(EnvmapComponent.name)
-    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_ENVMAP)
 
     Engine.instance.sceneComponentRegistry.delete(ScreenshareTargetComponent.name)
     Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SCREENSHARETARGET)
@@ -485,18 +430,10 @@ export default async function SceneObjectUpdateSystem() {
     Engine.instance.sceneComponentRegistry.delete(ParticleSystemComponent.name)
     Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_SYSTEM)
 
-    removeQuery(envmapQuery)
-    removeQuery(imageQuery)
-    removeQuery(sceneEnvmapQuery)
     removeQuery(loopableAnimationQuery)
-    removeQuery(skyboxQuery)
-    removeQuery(portalQuery)
-    removeQuery(modelQuery)
-    removeQuery(groundPlaneQuery)
     removeQuery(cloudQuery)
     removeQuery(oceanQuery)
     removeQuery(interiorQuery)
-    removeQuery(scenePreviewCameraQuery)
     removeQuery(spawnPointComponent)
 
     removeActionQueue(modifyPropertyActionQueue)
