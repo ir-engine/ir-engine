@@ -4,25 +4,26 @@ import fetch, { Headers, Request, Response } from 'node-fetch'
 // needed for URL.createObjectURL
 import 'url-polyfill'
 
-;(globalThis as any).fetch = fetch
-;(globalThis as any).Request = Request
-;(globalThis as any).Response = Response
-;(globalThis as any).Headers = Headers
-;(globalThis as any).self = globalThis
+if (!globalThis.fetch) globalThis.fetch = fetch as any
+if (!globalThis.Request) globalThis.Request = Request as any
+if (!globalThis.Response) globalThis.Response = Response as any
+if (!globalThis.Headers) globalThis.Headers = Headers as any
+if (!globalThis.self) globalThis.self = globalThis as any
 
 // import URL from 'url'
-;(globalThis as any).self.URL = URL
-;(globalThis as any).Blob = Blob
+if (!globalThis.self.URL) globalThis.self.URL = URL
+if (!globalThis.Blob) globalThis.Blob = Blob as any
 
 const _localStorage = {} as any
-;(globalThis as any).localStorage = {
-  setItem: (key, val) => {
-    _localStorage[key] = val
-  },
-  getItem: (key) => {
-    return _localStorage[key] ?? null
-  }
-}
+if (!globalThis.localStorage)
+  globalThis.localStorage = {
+    setItem: (key, val) => {
+      _localStorage[key] = val
+    },
+    getItem: (key) => {
+      return _localStorage[key] ?? null
+    }
+  } as any
 
 // patches for headless-gl - currently unused
 

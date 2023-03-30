@@ -4,9 +4,6 @@ import https from 'https'
 import psList from 'ps-list'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
-
-import '@etherealengine/engine/src/patchEngineNode'
-
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
