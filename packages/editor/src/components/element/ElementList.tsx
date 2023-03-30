@@ -32,7 +32,7 @@ export interface PrefabItemType {
   description?: string
 }
 
-const getPrefabList = () => {
+const getPrefabList = useCallback((category: string) => {
   const arr = [] as PrefabItemType[]
 
   Engine.instance.scenePrefabRegistry.forEach((_, prefabType: string) => {
@@ -45,7 +45,7 @@ const getPrefabList = () => {
   })
 
   return arr
-}
+}, [])
 
 export const addPrefabElement = (item: PrefabItemType, parent = getState(SceneState).sceneEntity, before?: Entity) => {
   const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)

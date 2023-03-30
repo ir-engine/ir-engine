@@ -140,3 +140,25 @@ export const prefabIcons = {
   [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent,
   [ScenePrefabs.behaveGraph]: ChairIcon
 }
+
+export const toolCategories = {
+  Light: [
+    LightPrefabs.ambientLight,
+    LightPrefabs.pointLight,
+    LightPrefabs.spotLight,
+    LightPrefabs.directionalLight,
+    LightPrefabs.hemisphereLight
+  ],
+  'Scene Composition': [
+    ScenePrefabs.groundPlane,
+    ScenePrefabs.prefab,
+    ScenePrefabs.group,
+    ScenePrefabs.instancing,
+    PhysicsPrefabs.collider
+  ],
+  Files: [ScenePrefabs.model, ScenePrefabs.image, MediaPrefabs.audio, MediaPrefabs.video, MediaPrefabs.volumetric],
+  Interaction: [ScenePrefabs.portal, ScenePrefabs.spawnPoint, ScenePrefabs.chair],
+  Environment: [ScenePrefabs.skybox, ScenePrefabs.envMapbake, ScenePrefabs.previewCamera, ScenePrefabs.interior],
+  FX: [ScenePrefabs.particleEmitter, ScenePrefabs.cloud, ScenePrefabs.ocean, ScenePrefabs.water, ScenePrefabs.spline],
+  Scripting: [ScenePrefabs.behaveGraph, ScenePrefabs.system]
+}
