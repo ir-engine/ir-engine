@@ -5,7 +5,7 @@ import type { Knex } from 'knex'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable('route', (table) => {
+  await knex.schema.createTableIfNotExists('route', (table) => {
     table.string('id', 36).primary()
     table.string('project', 255).nullable()
     table.string('route', 255).nullable()
