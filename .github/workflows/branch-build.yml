@@ -18,6 +18,9 @@ jobs:
           fi
   compile-codebase:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -41,8 +44,6 @@ jobs:
       - run: npm run lint
       - run: npm run check-errors
         timeout-minutes: 30
-        env:
-          NX_VERBOSE_LOGGING: true
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npm run test 
