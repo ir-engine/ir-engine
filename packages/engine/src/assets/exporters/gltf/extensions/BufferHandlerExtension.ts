@@ -35,13 +35,14 @@ export default class BufferHandlerExtension extends ExporterExtension implements
 
   projectName: string
   modelName: string
+  resourceURI: string | null
 
   beforeParse(input: Object3D<Event> | Object3D<Event>[]) {
     const writer = this.writer
     if (writer.options.embedImages) return
     this.projectName = getProjectName(writer.options.path!)
     this.modelName = getRelativeURI(writer.options.path!)
-
+    this.resourceURI = writer.options.resourceURI ?? null
     dispatchAction(
       BufferHandlerExtension.beginModelExport({
         projectName: this.projectName,
@@ -63,7 +64,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
       if (typeof image.toBlob !== 'function') {
         console.error('trying to serialize unprocessed canvas')
       }
-      uri = `${modelResourcesPath(modelName)}/images/${name}.png`
+      uri = `${this.resourceURI ? modelName : modelResourcesPath(modelName)}/images/${name}.png`
       bufferPromise = new Promise<void>(async (resolve) => {
         buffer = await new Promise<ArrayBuffer>((resolve) => {
           image.toBlob((blob) => blob!.arrayBuffer().then(resolve))
@@ -104,7 +105,11 @@ export default class BufferHandlerExtension extends ExporterExtension implements
   afterParse(input: Object3D | Object3D[]) {
     const writer = this.writer
     const projectName = this.projectName
-    const modelName = this.modelName
+    let modelName = this.modelName
+    if (this.resourceURI) {
+      modelName = `${this.resourceURI}/${modelName.split('/').at(-1)!}`
+    }
+
     const json = writer.json
     const buffers = writer.buffers
     const options = writer.options
@@ -112,10 +117,11 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     if (!options?.binary) {
       writer.buffers.map((buffer, index) => {
         const name = generateUUID()
+        const uri = `${this.resourceURI ? modelResourcesPath(modelName) : modelName}/buffers/${name}.bin`
         const bufferDef: BufferJson = {
           name,
           byteLength: buffer.byteLength,
-          uri: `${modelResourcesPath(modelName)}/buffers/${name}.bin`
+          uri
         }
         json.buffers[index] = bufferDef
         dispatchAction(
