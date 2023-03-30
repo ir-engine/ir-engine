@@ -49,6 +49,8 @@ export interface GLTFExporterOptions {
 
     path?: string;
 
+    resourceURI?: string;
+
     flipY?: boolean;
 }
 

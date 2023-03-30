@@ -80,7 +80,8 @@ export async function serializeLOD(
     binary: false,
     embedImages: false,
     includeCustomExtensions: true,
-    path: lodURL
+    path: lodURL,
+    resourceURI: '.'
   })
   const [, , , nuNuRelativePath] = pathResolver().exec(lodURL)!
   const file = new File([JSON.stringify(gltf)], nuNuRelativePath)

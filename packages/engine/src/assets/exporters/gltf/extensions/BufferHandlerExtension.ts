@@ -64,7 +64,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
       if (typeof image.toBlob !== 'function') {
         console.error('trying to serialize unprocessed canvas')
       }
-      uri = `${this.resourceURI ? modelName : modelResourcesPath(modelName)}/images/${name}.png`
+      uri = `${this.resourceURI ?? modelResourcesPath(modelName)}/images/${name}.png`
       bufferPromise = new Promise<void>(async (resolve) => {
         buffer = await new Promise<ArrayBuffer>((resolve) => {
           image.toBlob((blob) => blob!.arrayBuffer().then(resolve))
@@ -76,7 +76,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
         console.error('trying to serialize unprocessed image')
       }
       if (!/^blob:/.test(image.src)) return
-      uri = `${modelResourcesPath(modelName)}/images/${name}.png`
+      uri = `${this.resourceURI ?? modelResourcesPath(modelName)}/images/${name}.png`
       bufferPromise = new Promise<void>((resolve) => {
         fetch(image.src)
           .then((response) => response.blob())
@@ -105,10 +105,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
   afterParse(input: Object3D | Object3D[]) {
     const writer = this.writer
     const projectName = this.projectName
-    let modelName = this.modelName
-    if (this.resourceURI) {
-      modelName = `${this.resourceURI}/${modelName.split('/').at(-1)!}`
-    }
+    const modelName = this.modelName
 
     const json = writer.json
     const buffers = writer.buffers
@@ -117,21 +114,27 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     if (!options?.binary) {
       writer.buffers.map((buffer, index) => {
         const name = generateUUID()
-        const uri = `${this.resourceURI ? modelResourcesPath(modelName) : modelName}/buffers/${name}.bin`
+        const uri = `${this.resourceURI ?? modelResourcesPath(modelName)}/buffers/${name}.bin`
+        const projectSpaceModelName = this.resourceURI
+          ? LoaderUtils.resolveURL(uri, LoaderUtils.extractUrlBase(modelName))
+          : modelName
         const bufferDef: BufferJson = {
           name,
           byteLength: buffer.byteLength,
           uri
         }
         json.buffers[index] = bufferDef
+
+        const saveParms = {
+          ...bufferDef,
+          uri: this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri,
+          buffer: buffers[index]
+        }
         dispatchAction(
           BufferHandlerExtension.saveBuffer({
             projectName,
-            modelName,
-            saveParms: {
-              ...bufferDef,
-              buffer: buffers[index]
-            }
+            modelName: projectSpaceModelName,
+            saveParms
           })
         )
       })
