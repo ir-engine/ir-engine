@@ -72,8 +72,6 @@ export const TransformComponent = defineComponent({
         : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
       : undefined
 
-    console.log('transform', entity, json.position, rotation)
-
     if (json.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
     if (json.scale) component.scale.value.copy(json.scale)
