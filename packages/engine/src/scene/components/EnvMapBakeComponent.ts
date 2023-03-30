@@ -1,16 +1,30 @@
 import { useEffect } from 'react'
-import { BoxGeometry, BoxHelper, Mesh, MeshPhysicalMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
+import {
+  BoxGeometry,
+  BoxHelper,
+  Mesh,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  Scene,
+  SphereGeometry,
+  Vector3
+} from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
+import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
@@ -94,3 +108,33 @@ export const EnvMapBakeComponent = defineComponent({
 })
 
 export const SCENE_COMPONENT_ENVMAP_BAKE = 'envmapbake'
+
+export const prepareSceneForBake = (): Scene => {
+  const scene = Engine.instance.scene.clone(false)
+  const sceneEntity = getState(SceneState).sceneEntity
+  const parents = {
+    [sceneEntity]: scene
+  } as { [key: Entity]: Object3D }
+
+  traverseEntityNode(sceneEntity, (entity) => {
+    if (entity === sceneEntity) return
+
+    const group = getComponent(entity, GroupComponent) as unknown as Mesh<any, MeshStandardMaterial>[]
+    const node = getComponent(entity, EntityTreeComponent)
+
+    if (group) {
+      for (const obj of group) {
+        const newObj = obj.clone(true)
+        if (node.parentEntity) parents[node.parentEntity].add(newObj)
+        newObj.traverse((o: any) => {
+          if (o.material) {
+            o.material = obj.material.clone()
+            o.material.roughness = 1
+          }
+        })
+      }
+    }
+  })
+
+  return scene
+}

@@ -14,7 +14,8 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  removeQuery
+  removeQuery,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
@@ -27,7 +28,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
-import { InteractableComponent, setInteractableComponent } from '../components/InteractableComponent'
+import { InteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
 
@@ -86,7 +87,7 @@ export const addInteractableUI = (
   xrui: ReturnType<typeof createXRUI>,
   update?: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 ) => {
-  setInteractableComponent(entity)
+  setComponent(entity, InteractableComponent)
 
   if (!update) {
     update = onInteractableUpdate

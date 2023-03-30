@@ -46,9 +46,7 @@ export const BehaveGraphActions = {
 export default async function BehaveGraphSystem() {
   Engine.instance.sceneComponentRegistry.set(BehaveGraphComponent.name, SCENE_COMPONENT_BEHAVE_GRAPH)
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [{ name: SCENE_COMPONENT_BEHAVE_GRAPH, props: {} }])
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_BEHAVE_GRAPH, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_BEHAVE_GRAPH, {})
 
   const graphQuery = defineQuery([BehaveGraphComponent])
   const runtimeQuery = defineQuery([RuntimeGraphComponent])
