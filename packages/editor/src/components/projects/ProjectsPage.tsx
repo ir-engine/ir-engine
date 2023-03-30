@@ -350,7 +350,7 @@ const ProjectsPage = () => {
             >
               <div
                 className={styles.thumbnailContainer}
-                style={{ backgroundImage: `url(${project.thumbnail})` }}
+                style={{ backgroundImage: `url(${project.thumbnail ?? '/static/etherealengine_thumbnail.jpg'})` }}
                 id={'open-' + project.name}
               />
             </a>

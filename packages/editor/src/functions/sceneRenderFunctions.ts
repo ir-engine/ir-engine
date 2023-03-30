@@ -46,10 +46,6 @@ export async function initializeScene(sceneData: SceneData): Promise<Error[] | v
   transform.rotation.copy(camera.quaternion)
   TransformComponent.dirtyTransforms[Engine.instance.cameraEntity] = true
 
-  Engine.instance.camera.layers.enable(ObjectLayers.Scene)
-  Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
-  Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
-
   getMutableState(EditorCameraState).set({
     center: new Vector3(),
     zoomDelta: 0,

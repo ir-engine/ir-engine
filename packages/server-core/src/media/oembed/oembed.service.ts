@@ -52,7 +52,7 @@ export default (app: Application): void => {
         const uniqueProjects = [...new Set<string>(activeRoutes.map((item) => item.project))]
 
         for (const projectName of uniqueProjects) {
-          const projectConfig = await getProjectConfig(projectName)
+          const projectConfig = getProjectConfig(projectName)
           if (projectConfig?.onEvent) {
             const oEmbedResponse: OEmbed | null = await onProjectEvent(
               app,

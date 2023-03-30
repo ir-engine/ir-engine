@@ -15,6 +15,7 @@ import {
   hasComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
