@@ -10,7 +10,6 @@ import {
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { PreventBakeTagComponent } from '@etherealengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
@@ -60,20 +59,12 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   const editorState = useEditorState()
 
   useOptionalComponent(props.entity, VisibleComponent)
-  useOptionalComponent(props.entity, PreventBakeTagComponent)
 
   const onChangeVisible = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
       (n) => typeof n !== 'string'
     ) as EntityOrObjectUUID[]
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
-  }
-
-  const onChangeBakeStatic = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
-      (n) => typeof n === 'number'
-    ) as EntityOrObjectUUID[]
-    EditorControlFunctions.addOrRemoveComponent(nodes, PreventBakeTagComponent, value)
   }
 
   const registeredComponents = Array.from(Engine.instance.sceneComponentRegistry.entries())
@@ -86,9 +77,6 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
           <>
             <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
               <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={onChangeVisible} />
-            </VisibleInputGroup>
-            <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
-              <BooleanInput value={hasComponent(props.entity, PreventBakeTagComponent)} onChange={onChangeBakeStatic} />
             </VisibleInputGroup>
           </>
         )}
