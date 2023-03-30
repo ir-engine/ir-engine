@@ -6,9 +6,13 @@ import { Application } from '../declarations'
 import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
 import seederConfig from './seeder-config'
+import multiLogger from './ServerLogger'
+
+const logger = multiLogger.child({ component: 'server-core:seeder' })
 
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {
-  if (forceRefresh || prepareDb)
+  if (forceRefresh || prepareDb) {
+    logger.info('Seeding or preparing database')
     for (let config of seederConfig) {
       if (config.path) {
         const templates = config.templates
@@ -37,8 +41,10 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
           }
       }
     }
+  }
 
   if (forceRefresh) {
+    logger.info('Refreshing default project')
     // for local dev clear the storage provider
     if (!config.kubernetes.enabled && !config.testEnabled) {
       const uploadPath = path.resolve(appRootPath.path, 'packages/server/upload/')
