@@ -33,7 +33,6 @@ import {
 } from '../components/OceanComponent'
 import { ParticleSystemComponent, SCENE_COMPONENT_PARTICLE_SYSTEM } from '../components/ParticleSystemComponent'
 import { PrefabComponent, SCENE_COMPONENT_PREFAB } from '../components/PrefabComponent'
-import { PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE } from '../components/PreventBakeTagComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
 import { SCENE_COMPONENT_SCREENSHARETARGET, ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
@@ -98,9 +97,6 @@ export default async function SceneObjectUpdateSystem() {
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {
     defaultData: true
   })
-
-  Engine.instance.sceneComponentRegistry.set(PreventBakeTagComponent.name, SCENE_COMPONENT_PREVENT_BAKE)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PREVENT_BAKE, {})
 
   /**
    * Metadata
@@ -308,9 +304,6 @@ export default async function SceneObjectUpdateSystem() {
 
     Engine.instance.sceneComponentRegistry.delete(ShadowComponent.name)
     Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SHADOW)
-
-    Engine.instance.sceneComponentRegistry.delete(PreventBakeTagComponent.name)
-    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PREVENT_BAKE)
 
     /**
      * Metadata
