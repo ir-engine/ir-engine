@@ -55,6 +55,7 @@ export const sendActionsAsHost = (network: Network) => {
       if (!action.$to) continue
       const toUserId = network.peers.get(peerID)?.userId
       if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
+        if (!action.$peer) action.$peer = network.hostPeerID
         arr.push(action)
       }
     }

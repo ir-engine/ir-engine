@@ -35,10 +35,11 @@ describe('moveAvatar function tests', () => {
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -67,10 +68,11 @@ describe('moveAvatar function tests', () => {
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -101,10 +103,11 @@ describe('moveAvatar function tests', () => {
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -132,10 +135,11 @@ describe('moveAvatar function tests', () => {
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)

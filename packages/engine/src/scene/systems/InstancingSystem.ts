@@ -46,11 +46,13 @@ export default async function ScatterSystem() {
   const unstagingQuery = defineQuery([InstancingComponent, InstancingUnstagingComponent])
   const engineState = getEngineState()
 
+  /** @deprecated */
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   const execute = () => {
     instancingQuery.enter().map(updateInstancing)
 
+    /** @todo - refactor */
     modifyPropertyActionQueue().map((action) =>
       action.entities.filter((entity) => hasComponent(entity, InstancingComponent)).map(updateInstancing)
     )

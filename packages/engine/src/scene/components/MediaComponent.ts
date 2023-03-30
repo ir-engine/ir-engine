@@ -232,7 +232,8 @@ export const MediaComponent = defineComponent({
         component.isMusic.set(json.isMusic)
 
       // @ts-ignore deprecated autoplay field
-      if (json.autoplay) component.paused.set(false)
+      if (typeof json.autoplay === 'boolean') component.paused.set(!json.autoplay)
+      if (typeof json.paused === 'boolean') component.paused.set(json.paused)
     })
 
     return component

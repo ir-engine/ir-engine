@@ -11,6 +11,7 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
 const Engine = lazy(() => import('./engine'))
+
 const AppPage = lazy(() => import('./pages/_app'))
 const AdminPage = lazy(() => import('./pages/admin'))
 const TailwindPage = lazy(() => import('./pages/_app_tw'))
@@ -43,13 +44,11 @@ const App = () => {
             }
           />
           <Route
-            key={'recorder'}
-            path={'/recorder/*'}
+            key={'capture'}
+            path={'/capture/*'}
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <TailwindPage />
-                </Engine>
+                <TailwindPage />
               </Suspense>
             }
           />

@@ -79,7 +79,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
-  let themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
+  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
 
   // This is done as a fix because previously studio was called editor
   if (themeModes['editor']) {

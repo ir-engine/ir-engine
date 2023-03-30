@@ -19,6 +19,7 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 
+import { EditorState } from '../services/EditorServices'
 import { getCanvasBlob } from './thumbnails'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -80,4 +81,26 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
   scenePreviewCamera.updateProjectionMatrix()
 
   return blob
+}
+
+/** @todo make size configurable */
+export const downloadScreenshot = () => {
+  takeScreenshot(512, 320).then((blob) => {
+    if (!blob) return
+
+    const blobUrl = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+
+    const editorState = getState(EditorState)
+
+    link.href = blobUrl
+    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.jpg'
+
+    document.body.appendChild(link)
+
+    link.click()
+
+    document.body.removeChild(link)
+  })
 }

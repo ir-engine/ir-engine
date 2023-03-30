@@ -7,6 +7,7 @@ import path from 'path'
 
 import { UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
 import logger from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -14,6 +15,7 @@ import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { ServerState } from '../../ServerState'
 import { UserParams } from '../../user/user/user.class'
 import { pushProjectToGithub } from './github-helper'
 import {
@@ -145,8 +147,11 @@ export const builderInfoGet = (app: Application) => async () => {
     engineVersion: getEnginePackageJson().version || '',
     engineCommit: ''
   }
-  if (app.k8DefaultClient) {
-    const builderDeployment = await app.k8AppsClient.listNamespacedDeployment(
+
+  const k8AppsClient = getState(ServerState).k8AppsClient
+
+  if (k8AppsClient) {
+    const builderDeployment = await k8AppsClient.listNamespacedDeployment(
       'default',
       'false',
       false,

@@ -6,7 +6,7 @@ import Card from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Card',
+  title: 'Primitives/MUI/Card',
   component: Card,
   parameters: {
     componentSubtitle: 'Card',

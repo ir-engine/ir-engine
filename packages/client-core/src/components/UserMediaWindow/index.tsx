@@ -48,7 +48,6 @@ interface Props {
   type: 'screen' | 'cam'
 }
 
-/** @todo separate all media state from UI state and move it to hookstate record keyed to peerID */
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>

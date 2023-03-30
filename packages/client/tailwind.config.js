@@ -1,10 +1,24 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
   ],
-  theme: {
-    extend: {},
+  darkMode: "class",
+  important: true, // important in prod is must be
+  theme: ["dark"],
+  variants: {
+    extend: {
+      display: ['hover', 'focus', 'group-hover'],
+      opacity: ['hover', 'focus', 'group-hover'],
+    }
   },
-  plugins: [],
+  daisyui: {
+    themes: ['default', 'dark', 'luxury', 'cupcake'],
+  },
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("daisyui"),
+    require('@tailwindcss/aspect-ratio'),
+  ],
 }

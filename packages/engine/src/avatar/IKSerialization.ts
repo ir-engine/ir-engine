@@ -1,5 +1,5 @@
 import { Entity } from '../ecs/classes/Entity'
-import { hasComponent } from '../ecs/functions/ComponentFunctions'
+import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag, readCompressedRotation, readVector3 } from '../networking/serialization/DataReader'
 import { writeCompressedRotation, writeVector3 } from '../networking/serialization/DataWriter'
 import { readUint16, rewindViewCursor, spaceUint16, ViewCursor } from '../networking/serialization/ViewCursor'
@@ -72,22 +72,46 @@ export const readXRControllerRightRotation = readCompressedRotation(AvatarRightA
 export const readXRHead = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readXRHeadPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRHeadRotation(v, entity)
+  let changed = false
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readXRHeadPosition(v, entity)
+    changed = true
+  }
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readXRHeadRotation(v, entity)
+    changed = true
+  }
+  if (changed && !hasComponent(entity, AvatarHeadIKComponent)) setComponent(entity, AvatarHeadIKComponent)
 }
 
 export const readXRLeftHand = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerLeftPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerLeftRotation(v, entity)
+  let changed = false
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readXRControllerLeftPosition(v, entity)
+    changed = true
+  }
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readXRControllerLeftRotation(v, entity)
+    changed = true
+  }
+  if (changed && !hasComponent(entity, AvatarLeftArmIKComponent)) setComponent(entity, AvatarLeftArmIKComponent)
 }
 
 export const readXRRightHand = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightRotation(v, entity)
+  let changed = false
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readXRControllerRightPosition(v, entity)
+    changed = true
+  }
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readXRControllerRightRotation(v, entity)
+    changed = true
+  }
+  if (changed && !hasComponent(entity, AvatarRightArmIKComponent)) setComponent(entity, AvatarRightArmIKComponent)
 }
 
 export const IKSerialization = {

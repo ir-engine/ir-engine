@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { LocationInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import LoadLocationScene from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import NetworkInstanceProvisioning from '@etherealengine/client-core/src/components/World/NetworkInstanceProvisioning'
 import { FriendService } from '@etherealengine/client-core/src/social/services/FriendService'
@@ -14,9 +13,15 @@ import { MediaModule } from '@etherealengine/engine/src/audio/MediaModule'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
-import { addActionReceptor, dispatchAction, getMutableState, removeActionReceptor } from '@etherealengine/hyperflux'
+import {
+  addActionReceptor,
+  dispatchAction,
+  getMutableState,
+  removeActionReceptor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import Mediapipe from '@etherealengine/ui/src/Mediapipe'
+import CaptureUI from '@etherealengine/ui/src/Capture'
 
 const systems = [...MediaModule(), ...MotionCaptureModule()]
 
@@ -32,13 +37,13 @@ export const initializeEngineForRecorder = async () => {
   dispatchAction(EngineActions.sceneLoaded({}))
 }
 
-export const Recorder = (): any => {
+export const CaptureLocation = () => {
   const params = useParams()
   AuthService.useAPIListeners()
   SceneService.useAPIListeners()
   FriendService.useAPIListeners()
 
-  const locationName = params.locationName!
+  const locationName = params?.locationName as string
 
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName }))
@@ -51,14 +56,17 @@ export const Recorder = (): any => {
     }
   }, [])
 
+  const engineState = useHookstate(getMutableState(EngineState))
+
+  if (!engineState.isEngineInitialized.value && !engineState.connectedWorld.value) return <></>
+
   return (
-    <div className="container w-full h-full">
-      <Mediapipe />
+    <>
+      <CaptureUI />
       <NetworkInstanceProvisioning />
-      <LocationIcons />
       <LoadLocationScene />
-    </div>
+    </>
   )
 }
 
-export default Recorder
+export default CaptureLocation
