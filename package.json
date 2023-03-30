@@ -43,7 +43,7 @@
     "check": "npm run lint && npm run check-errors && npm run test &&  npm run test:projects && npm run build-client",
     "check-db-exists": "cross-env ts-node --swc scripts/check-db-exists.ts",
     "check-db-exists-only": "cross-env ts-node --swc scripts/check-db-exists-only.ts",
-    "check-errors": "lerna run check-errors --parallel",
+    "check-errors": "lerna run check-errors",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "cleanup-tests": "node tests/cleanup-tests.js",
     "clear-projects-rebuild": "cross-env ts-node --swc scripts/clear-projects-rebuild",
