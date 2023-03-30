@@ -113,7 +113,7 @@ const defaultSSROptions = {
   ior: 1.45,
   maxRoughness: 1,
   maxDepthDifference: 10,
-  blend: 0.9,
+  blend: 0,
   correction: 1,
   correctionRadius: 1,
   blur: 0.5,
