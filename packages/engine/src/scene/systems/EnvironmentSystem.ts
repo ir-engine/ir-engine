@@ -13,7 +13,6 @@ import { EnvMapBakeComponent, SCENE_COMPONENT_ENVMAP_BAKE } from '../components/
 import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '../components/EnvmapComponent'
 import { SCENE_COMPONENT_SKYBOX, SkyboxComponent } from '../components/SkyboxComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
-import { deserializeEnvMap } from '../functions/loaders/EnvMapFunctions'
 import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export default async function EnvironmentSystem() {
@@ -35,9 +34,7 @@ export default async function EnvironmentSystem() {
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {})
 
   Engine.instance.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {
-    deserialize: deserializeEnvMap
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {})
 
   const reactor = startReactor(() => {
     const background = useHookstate(getMutableState(SceneState).background)
