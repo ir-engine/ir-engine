@@ -1,5 +1,3 @@
-import { Not } from 'bitecs'
-
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
@@ -46,7 +44,6 @@ import { SCENE_COMPONENT_SYSTEM, SystemComponent } from '../components/SystemCom
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
-import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
@@ -247,7 +244,6 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {})
 
-  const loopableAnimationQuery = defineQuery([LoopAnimationComponent, Not(SceneAssetPendingTagComponent)])
   const cloudQuery = defineQuery([CloudComponent])
   const oceanQuery = defineQuery([OceanComponent])
   const interiorQuery = defineQuery([InteriorComponent])
@@ -258,14 +254,12 @@ export default async function SceneObjectUpdateSystem() {
   const execute = () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, LoopAnimationComponent)) updateLoopAnimation(entity)
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
         if (hasComponent(entity, InteriorComponent)) updateInterior(entity)
       }
     }
 
-    for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)
@@ -364,7 +358,6 @@ export default async function SceneObjectUpdateSystem() {
     Engine.instance.sceneComponentRegistry.delete(ParticleSystemComponent.name)
     Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_SYSTEM)
 
-    removeQuery(loopableAnimationQuery)
     removeQuery(cloudQuery)
     removeQuery(oceanQuery)
     removeQuery(interiorQuery)

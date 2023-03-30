@@ -22,16 +22,13 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
-import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
+import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 import '@etherealengine/engine/src/patchEngineNode'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { deserializeGroup } from '@etherealengine/engine/src/scene/functions/loaders/GroupFunctions'
-
-import { createTransformGizmo } from '../systems/EditorControlSystem'
 
 class TempProp {
   data: number
