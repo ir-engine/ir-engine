@@ -6,7 +6,7 @@ import Modal from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Modal',
+  title: 'Primitives/MUI/Modal',
   component: Modal,
   parameters: {
     componentSubtitle: 'Modal',

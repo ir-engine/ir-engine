@@ -49,7 +49,6 @@ export const enterVolumetric = async (entity: Entity) => {
   const VolumetricPlayer = await VolumetricPlayerPromise
   if (!entityExists(entity)) return
 
-  const media = getComponent(entity, MediaComponent)
   const mediaElement = getOptionalComponent(entity, MediaElementComponent)
   const volumetricComponent = getOptionalComponent(entity, VolumetricComponent)
   if (!mediaElement) return

@@ -276,16 +276,20 @@ export const getOrAddComponent = <C extends Component>(entity: Entity, component
   return hasComponent(entity, component) ? getComponent(entity, component) : addComponent(entity, component, args)
 }
 
-export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
+export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.existenceMap[entity].set(false)
   component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(Engine.instance, component, entity, false)
-  component.stateMap[entity]?.set(none)
   delete component.valueMap[entity]
   const root = component.reactorMap.get(entity)
-  if (root?.isRunning) root?.stop()
   component.reactorMap.delete(entity)
+  // we need to wait for the reactor to stop before removing the state, otherwise
+  // we can trigger errors in useEffect cleanup functions
+  if (root?.isRunning) await root?.stop()
+  // NOTE: we may need to perform cleanup after a timeout here in case there
+  // are other reactors also referencing this state in their cleanup functions
+  if (!hasComponent(entity, component)) component.stateMap[entity]?.set(none)
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {

@@ -27,7 +27,6 @@ import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearc
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import {
   createNetwork,
   DataChannelType,

@@ -73,7 +73,6 @@
     "postinstall": "patch-package",
     "precommit": "no-master-commits -b master",
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
-    "pretest": "cross-env TEST=true npm run dev-reinit",
     "publish": "lerna publish from-package --yes --registry https://registry.npmjs.org",
     "publish-npm": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://registry.npmjs.org",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",

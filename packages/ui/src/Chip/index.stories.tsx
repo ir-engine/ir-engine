@@ -6,7 +6,7 @@ import Chip from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Chip',
+  title: 'Primitives/MUI/Chip',
   component: Chip,
   parameters: {
     componentSubtitle: 'Chip',

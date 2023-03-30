@@ -1,16 +1,16 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 import {
   LocationInstanceConnectionService,
-  useLocationInstanceConnectionState,
   useWorldInstance
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { DataChannels } from '@etherealengine/client-core/src/components/World/ProducersAndConsumers'
+import { PeerMedia } from '@etherealengine/client-core/src/media/PeerMedia'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-export const useEditorNetworkInstanceProvisioning = () => {
+export const EditorNetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
   const worldHostID = useHookstate(getMutableState(NetworkState).hostIds.world).value
 
@@ -31,4 +31,11 @@ export const useEditorNetworkInstanceProvisioning = () => {
     currentLocationInstanceConnection?.connecting,
     currentLocationInstanceConnection?.provisioned
   ])
+
+  return (
+    <>
+      <DataChannels />
+      <PeerMedia />
+    </>
+  )
 }

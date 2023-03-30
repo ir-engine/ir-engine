@@ -24,7 +24,7 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
-import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
+import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 import '@etherealengine/engine/src/patchEngineNode'

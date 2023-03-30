@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { LocationInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import LoadLocationScene from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import NetworkInstanceProvisioning from '@etherealengine/client-core/src/components/World/NetworkInstanceProvisioning'
 import { FriendService } from '@etherealengine/client-core/src/social/services/FriendService'
@@ -14,10 +13,15 @@ import { MediaModule } from '@etherealengine/engine/src/audio/MediaModule'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
-import { addActionReceptor, dispatchAction, getMutableState, removeActionReceptor } from '@etherealengine/hyperflux'
+import {
+  addActionReceptor,
+  dispatchAction,
+  getMutableState,
+  removeActionReceptor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import CaptureUI from '@etherealengine/ui/src/Capture'
-import Mediapipe from '@etherealengine/ui/src/Mediapipe'
 
 const systems = [...MediaModule(), ...MotionCaptureModule()]
 
@@ -52,13 +56,14 @@ export const CaptureLocation = () => {
     }
   }, [])
 
+  const engineState = useHookstate(getMutableState(EngineState))
+
+  if (!engineState.isEngineInitialized.value && !engineState.connectedWorld.value) return <></>
+
   return (
     <>
-      {/* <CaptureUI> */}
-      <Mediapipe />
-      {/* </CaptureUI> */}
+      <CaptureUI />
       <NetworkInstanceProvisioning />
-      <LocationIcons />
       <LoadLocationScene />
     </>
   )

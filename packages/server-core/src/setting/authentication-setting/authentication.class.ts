@@ -3,10 +3,12 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminAuthSetting as AdminAuthSettingInterface } from '@etherealengine/common/src/interfaces/AdminAuthSetting'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import { UserParams } from '../../user/user/user.class'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
@@ -95,10 +97,12 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
 
     const patchResult = await super.patch(id, data, params)
 
-    if (this.app.k8AppsClient) {
+    const k8AppsClient = getState(ServerState).k8AppsClient
+
+    if (k8AppsClient) {
       try {
         logger.info('Attempting to refresh API pods')
-        const refreshApiPodResponse = await this.app.k8AppsClient.patchNamespacedDeployment(
+        const refreshApiPodResponse = await k8AppsClient.patchNamespacedDeployment(
           `${config.server.releaseName}-etherealengine-api`,
           'default',
           {
