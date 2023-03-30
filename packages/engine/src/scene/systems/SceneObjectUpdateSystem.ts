@@ -1,5 +1,3 @@
-import { Not } from 'bitecs'
-
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
@@ -33,7 +31,6 @@ import {
 } from '../components/OceanComponent'
 import { ParticleSystemComponent, SCENE_COMPONENT_PARTICLE_SYSTEM } from '../components/ParticleSystemComponent'
 import { PrefabComponent, SCENE_COMPONENT_PREFAB } from '../components/PrefabComponent'
-import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
 import { SCENE_COMPONENT_SCREENSHARETARGET, ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import {
@@ -48,7 +45,6 @@ import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/Visible
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
-import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
 import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
@@ -187,9 +183,7 @@ export default async function SceneObjectUpdateSystem() {
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {})
 
   Engine.instance.sceneComponentRegistry.set(LoopAnimationComponent.name, SCENE_COMPONENT_LOOP_ANIMATION)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {
-    serialize: serializeLoopAnimation
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {})
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.cloud, [
     ...defaultSpatialComponents,
@@ -250,7 +244,6 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {})
 
-  const loopableAnimationQuery = defineQuery([LoopAnimationComponent, Not(SceneAssetPendingTagComponent)])
   const cloudQuery = defineQuery([CloudComponent])
   const oceanQuery = defineQuery([OceanComponent])
   const interiorQuery = defineQuery([InteriorComponent])
@@ -261,14 +254,12 @@ export default async function SceneObjectUpdateSystem() {
   const execute = () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, LoopAnimationComponent)) updateLoopAnimation(entity)
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
         if (hasComponent(entity, InteriorComponent)) updateInterior(entity)
       }
     }
 
-    for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)
@@ -367,7 +358,6 @@ export default async function SceneObjectUpdateSystem() {
     Engine.instance.sceneComponentRegistry.delete(ParticleSystemComponent.name)
     Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_SYSTEM)
 
-    removeQuery(loopableAnimationQuery)
     removeQuery(cloudQuery)
     removeQuery(oceanQuery)
     removeQuery(interiorQuery)
