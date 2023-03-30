@@ -1,12 +1,18 @@
 import { Types } from 'bitecs'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 
 export type TransformComponentType = {
   position: Vector3
@@ -60,16 +66,34 @@ export const TransformComponent = defineComponent({
 
     if (!json) return
 
+    const rotation = json.rotation
+      ? typeof json.rotation.w === 'number'
+        ? json.rotation
+        : new Quaternion().setFromEuler(new Euler().setFromVector3(json.rotation as any as Vector3))
+      : undefined
+
+    console.log('transform', entity, json.position, rotation)
+
     if (json.position) component.position.value.copy(json.position)
-    if (json.rotation) component.rotation.value.copy(json.rotation)
+    if (rotation) component.rotation.value.copy(rotation)
     if (json.scale) component.scale.value.copy(json.scale)
+
+    const localTransform = getOptionalComponent(entity, LocalTransformComponent)
+    if (localTransform) {
+      localTransform.position.copy(component.position.value)
+      localTransform.rotation.copy(component.rotation.value)
+      localTransform.scale.copy(component.scale.value)
+    }
   },
 
-  toJSON(entity, component) {
+  toJSON(entity, comp) {
+    const component = hasComponent(entity, LocalTransformComponent)
+      ? getComponent(entity, LocalTransformComponent)
+      : comp.value
     return {
-      position: component.position.value,
-      rotation: component.rotation.value,
-      scale: component.scale.value
+      position: new Vector3().copy(component.position),
+      rotation: new Quaternion().copy(component.rotation),
+      scale: new Vector3().copy(component.scale)
     }
   },
 

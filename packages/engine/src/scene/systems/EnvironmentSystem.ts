@@ -23,9 +23,7 @@ export default async function EnvironmentSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(SkyboxComponent.name, SCENE_COMPONENT_SKYBOX)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {})
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -34,9 +32,7 @@ export default async function EnvironmentSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(EnvMapBakeComponent.name, SCENE_COMPONENT_ENVMAP_BAKE)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {})
 
   Engine.instance.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {

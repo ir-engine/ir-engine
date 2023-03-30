@@ -47,7 +47,6 @@ import { SCENE_COMPONENT_SYSTEM, SystemComponent } from '../components/SystemCom
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
-import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel } from '../functions/loaders/ModelFunctions'
@@ -94,9 +93,7 @@ export default async function SceneObjectUpdateSystem() {
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {})
 
   Engine.instance.sceneComponentRegistry.set(ShadowComponent.name, SCENE_COMPONENT_SHADOW)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {
-    defaultData: true
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {})
 
   /**
    * Metadata
@@ -114,9 +111,7 @@ export default async function SceneObjectUpdateSystem() {
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.system, [{ name: SCENE_COMPONENT_SYSTEM, props: {} }])
 
   Engine.instance.sceneComponentRegistry.set(SystemComponent.name, SCENE_COMPONENT_SYSTEM)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SYSTEM, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SYSTEM, {})
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.spawnPoint, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -125,9 +120,7 @@ export default async function SceneObjectUpdateSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(SpawnPointComponent.name, SCENE_COMPONENT_SPAWN_POINT)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {})
 
   /**
    * Assets
@@ -170,10 +163,7 @@ export default async function SceneObjectUpdateSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-    deserialize: deserializeGroup,
-    serialize: () => undefined!
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.groundPlane, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -183,9 +173,7 @@ export default async function SceneObjectUpdateSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(GroundPlaneComponent.name, SCENE_COMPONENT_GROUND_PLANE)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {})
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.image, [
     ...defaultSpatialComponents,
@@ -196,13 +184,10 @@ export default async function SceneObjectUpdateSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(ImageComponent.name, SCENE_COMPONENT_IMAGE)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {})
 
   Engine.instance.sceneComponentRegistry.set(LoopAnimationComponent.name, SCENE_COMPONENT_LOOP_ANIMATION)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {
-    defaultData: {},
     serialize: serializeLoopAnimation
   })
 
@@ -213,7 +198,6 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneComponentRegistry.set(CloudComponent.name, SCENE_COMPONENT_CLOUD)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_CLOUD, {
-    defaultData: SCENE_COMPONENT_CLOUD_DEFAULT_VALUES,
     deserialize: deserializeCloud,
     serialize: serializeCloud
   })
@@ -224,7 +208,6 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneComponentRegistry.set(OceanComponent.name, SCENE_COMPONENT_OCEAN)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_OCEAN, {
-    defaultData: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES,
     deserialize: deserializeOcean,
     serialize: serializeOcean
   })
@@ -234,9 +217,7 @@ export default async function SceneObjectUpdateSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(WaterComponent.name, SCENE_COMPONENT_WATER)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_WATER, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_WATER, {})
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.interior, [
     ...defaultSpatialComponents,
@@ -245,7 +226,6 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneComponentRegistry.set(InteriorComponent.name, SCENE_COMPONENT_INTERIOR)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERIOR, {
-    defaultData: SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES,
     deserialize: deserializeInterior,
     serialize: serializeInterior
   })
@@ -257,7 +237,6 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneComponentRegistry.set(SplineComponent.name, SCENE_COMPONENT_SPLINE)
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPLINE, {
-    defaultData: {},
     deserialize: deserializeSpline,
     serialize: serializeSpline
   })
@@ -269,9 +248,7 @@ export default async function SceneObjectUpdateSystem() {
 
   Engine.instance.sceneComponentRegistry.set(ParticleSystemComponent.name, SCENE_COMPONENT_PARTICLE_SYSTEM)
 
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {})
 
   const loopableAnimationQuery = defineQuery([LoopAnimationComponent, Not(SceneAssetPendingTagComponent)])
   const cloudQuery = defineQuery([CloudComponent])
