@@ -24,11 +24,10 @@ import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/en
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
+import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
-
-import Canvas from './Canvas'
-import RecordingsList from './RecordingsList'
-import Video from './Video'
+import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
+import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 
 let creatingProducer = false
 const startDataProducer = async () => {
@@ -284,7 +283,7 @@ const CaptureDashboard = () => {
   }, [videoRef, canvasRef])
 
   return (
-    <div className="flex-none w-full relative overflow-hidden">
+    <div className="w-full">
       <Drawer
         settings={
           <div className="w-100 bg-base-100">
@@ -402,8 +401,8 @@ const CaptureDashboard = () => {
         }
       >
         <Header />
-        <div className="w-full flex">
-          <div className="w-1/2 xs:w-full sm:w-full md:w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="card p-4 pb-6">
             <div className="w-full relative">
               <div className={twMerge('relative left-0 top-0 z-10 min-w-full min-h-full')}>
                 <Video ref={videoRef} />
@@ -411,23 +410,23 @@ const CaptureDashboard = () => {
               <div className="object-contain absolute top-0 z-20" style={{ objectFit: 'contain', top: '0px' }}>
                 <Canvas ref={canvasRef} />
               </div>
+              <Toolbar
+                className="w-full z-30 fixed bottom-0"
+                isVideoOn={mediaConnection?.connected?.value}
+                isDetecting={isDetecting?.value}
+                onToggleRecording={onToggleRecording}
+                toggleWebcam={toggleWebcamPaused}
+                toggleDetecting={toggleDetecting}
+                isRecording={recordingState.started.value}
+                recordingStatus={recordingState.recordingID.value}
+                isVideoFlipped={isVideoFlipped.value}
+                flipVideo={(val) => {
+                  isVideoFlipped.set(val)
+                }}
+              />
             </div>
-            <Toolbar
-              className="w-full relative"
-              isVideoOn={mediaConnection?.connected?.value}
-              isDetecting={isDetecting?.value}
-              onToggleRecording={onToggleRecording}
-              toggleWebcam={toggleWebcamPaused}
-              toggleDetecting={toggleDetecting}
-              isRecording={recordingState.started.value}
-              recordingStatus={recordingState.recordingID.value}
-              isVideoFlipped={isVideoFlipped.value}
-              flipVideo={(val) => {
-                isVideoFlipped.set(val)
-              }}
-            />
           </div>
-          <div className="w-1/2 xs:w-full sm:w-full md:w-full">
+          <div className="card p-4">
             <div className="w-full relative">
               <RecordingsList
                 {...{
