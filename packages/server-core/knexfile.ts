@@ -1,12 +1,26 @@
+import fs from 'fs'
 import type { Knex } from 'knex'
+import path from 'path'
 
 import appConfig from '@etherealengine/server-core/src/appconfig'
+
+const migrationsDirectories = ['./migrations']
+
+const projectsDirectory = '../projects/projects'
+const installedProjects = fs.readdirSync(projectsDirectory)
+for (const project of installedProjects) {
+  const projectMigrations = path.join(projectsDirectory, project, 'migrations')
+  const migrationExists = fs.existsSync(projectMigrations)
+  if (migrationExists) {
+    migrationsDirectories.push(projectMigrations)
+  }
+}
 
 const config: Knex.Config = {
   client: 'mysql',
   connection: appConfig.db.url,
   migrations: {
-    directory: './migrations',
+    directory: migrationsDirectories,
     tableName: 'knex_migrations',
     stub: 'migration.stub',
     extension: 'ts'
