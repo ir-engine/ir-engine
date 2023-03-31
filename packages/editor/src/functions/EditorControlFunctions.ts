@@ -1,25 +1,26 @@
 import { command } from 'cli'
 import { Euler, Material, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import logger from '@xrengine/common/src/logger'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import logger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   Component,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   SerializedComponentType,
   setComponent,
   updateComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
   EntityOrObjectUUID,
@@ -29,31 +30,34 @@ import {
   removeEntityNodeRecursively,
   reparentEntityNode,
   traverseEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { materialFromId } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
-import { GLTFLoadedComponent } from '@xrengine/engine/src/scene/components/GLTFLoadedComponent'
-import { GroupComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { getUniqueName } from '@xrengine/engine/src/scene/functions/getUniqueName'
-import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
-import { serializeEntity, serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
-import { createNewEditorNode, deserializeSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
+import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
+import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { getUniqueName } from '@etherealengine/engine/src/scene/functions/getUniqueName'
+import { reparentObject3D } from '@etherealengine/engine/src/scene/functions/ReparentFunction'
+import { serializeEntity, serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import {
+  createNewEditorNode,
+  deserializeSceneEntity
+} from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
   TransformComponent,
   TransformComponentType
-} from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
-} from '@xrengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getState, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
@@ -120,7 +124,7 @@ const modifyProperty = <C extends Component<any, any>>(
 }
 
 const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => {
-  const scene = Engine.instance.currentWorld.scene
+  const scene = Engine.instance.scene
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') return
@@ -184,7 +188,7 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 
 const createObjectFromPrefab = (
   prefab: string,
-  parentEntity = Engine.instance.currentWorld.sceneEntity as Entity | null,
+  parentEntity = getState(SceneState).sceneEntity as Entity | null,
   beforeEntity = null as Entity | null,
   updateSelection = true
 ) => {
@@ -244,7 +248,6 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
   })
 
   const rootObjects = getDetachedObjectsRoots(nodes)
-  const world = Engine.instance.currentWorld
 
   const copyMap = {} as { [eid: EntityOrObjectUUID]: EntityOrObjectUUID }
 
@@ -267,7 +270,7 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
       })
     } else {
       // @todo check this is implemented correctly
-      const parent = (parents.length ? parents[i] ?? parents[0] : world.scene.uuid) as string
+      const parent = (parents.length ? parents[i] ?? parents[0] : Engine.instance.scene.uuid) as string
       // let before = befores.length ? befores[i] ?? befores[0] : undefined
 
       const pObj3d = obj3dFromUuid(parent)
@@ -459,6 +462,11 @@ const scaleObject = (
         ? obj3dFromUuid(node)
         : getComponent(node, LocalTransformComponent) ?? getComponent(node, TransformComponent)
 
+    const componentType =
+      typeof node != 'string' && getComponent(node, LocalTransformComponent)
+        ? LocalTransformComponent
+        : TransformComponent
+
     if (overrideScale) {
       transformComponent.scale.copy(scale)
     } else {
@@ -471,13 +479,13 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent(node as Entity, LocalTransformComponent, { scale: transformComponent.scale })
+    updateComponent(node as Entity, componentType, { scale: transformComponent.scale })
   }
 }
 
 const reparentObject = (
   nodes: EntityOrObjectUUID[],
-  parent = Engine.instance.currentWorld.sceneEntity,
+  parent = getState(SceneState).sceneEntity,
   before?: Entity | null,
   updateSelection = true
 ) => {
@@ -539,7 +547,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
 
   if (updateSelection) {
     // TEMPORARY - this is to stop a crash
-    getState(SelectionState).set({
+    getMutableState(SelectionState).set({
       selectedEntities: [],
       selectedParentEntities: [],
       selectionCounter: 1,
@@ -550,7 +558,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
     })
   }
   const removedParentNodes = getEntityNodeArrayFromEntities(filterParentEntities(nodes, undefined, true, false))
-  const scene = Engine.instance.currentWorld.scene
+  const scene = Engine.instance.scene
   for (let i = 0; i < removedParentNodes.length; i++) {
     const node = removedParentNodes[i]
     if (typeof node === 'string') {
@@ -572,7 +580,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
  * @returns
  */
 const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
-  const current = getState(SelectionState).selectedEntities.value
+  const current = getMutableState(SelectionState).selectedEntities.value
 
   if (nodes.length === current.length) {
     let same = true
@@ -595,7 +603,7 @@ const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
  * @returns
  */
 const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
-  const selectedEntities = getState(SelectionState).selectedEntities.value.slice(0)
+  const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
@@ -612,7 +620,7 @@ const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
 }
 
 const addToSelection = (nodes: EntityOrObjectUUID[]) => {
-  const selectedEntities = getState(SelectionState).selectedEntities.value.slice(0)
+  const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < nodes.length; i++) {
     const object = nodes[i]

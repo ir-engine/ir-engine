@@ -4,31 +4,35 @@ import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState,
   useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
   useMediaInstance,
   useMediaInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { ChatAction, ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+} from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import {
+  MediaServiceReceptor,
+  MediaStreamService
+} from '@etherealengine/client-core/src/media/services/MediaStreamService'
+import { ChatAction, ChatService, useChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import {
   NetworkUserService,
   NetworkUserServiceReceptor,
   useNetworkUserState
-} from '@xrengine/client-core/src/user/services/NetworkUserService'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/user/services/NetworkUserService'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { PeerMedia } from '../../media/PeerMedia'
 import { PartyService, usePartyState } from '../../social/services/PartyService'
 import { MediaStreamActions } from '../../transports/MediaStreams'
 import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
 import InstanceServerWarnings from './InstanceServerWarnings'
+import { DataChannels } from './ProducersAndConsumers'
 
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
@@ -40,10 +44,10 @@ export const NetworkInstanceProvisioning = () => {
   const engineState = useEngineState()
   const partyState = usePartyState()
 
-  const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
+  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentLocationInstanceConnection = useWorldInstance()
 
-  const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
 
   MediaInstanceConnectionService.useAPIListeners()
@@ -94,10 +98,10 @@ export const NetworkInstanceProvisioning = () => {
     if (
       engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
-      currentLocationInstanceConnection.provisioned.value === true &&
-      currentLocationInstanceConnection.readyToConnect.value === true &&
-      currentLocationInstanceConnection.connecting.value === false &&
-      currentLocationInstanceConnection.connected.value === false
+      currentLocationInstanceConnection.provisioned.value &&
+      currentLocationInstanceConnection.readyToConnect.value &&
+      !currentLocationInstanceConnection.connecting.value &&
+      !currentLocationInstanceConnection.connected.value
     )
       LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
   }, [
@@ -190,6 +194,7 @@ export const NetworkInstanceProvisioning = () => {
 
   return (
     <>
+      <DataChannels />
       <PeerMedia />
       <InstanceServerWarnings />
     </>

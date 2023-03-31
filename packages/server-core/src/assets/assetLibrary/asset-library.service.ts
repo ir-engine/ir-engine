@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { AssetLibrary } from './asset-library.class'
 import hooks from './asset-library.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'asset-library': AssetLibrary
   }

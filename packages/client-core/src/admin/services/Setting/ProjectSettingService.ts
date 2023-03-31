@@ -1,5 +1,5 @@
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 
@@ -10,7 +10,7 @@ export interface ProjectSettingValue {
   value: string
 }
 
-const AdminProjectSettingsState = defineState({
+export const AdminProjectSettingsState = defineState({
   name: 'AdminProjectSettingsState',
   initial: () => ({
     projectSetting: [] as Array<ProjectSettingValue>
@@ -20,7 +20,7 @@ const AdminProjectSettingsState = defineState({
 const projectSettingFetchedReceptor = (
   action: typeof AdminProjectSettingsActions.projectSettingFetched.matches._TYPE
 ) => {
-  const state = getState(AdminProjectSettingsState)
+  const state = getMutableState(AdminProjectSettingsState)
   return state.merge({
     projectSetting: action.projectSettings
   })
@@ -29,10 +29,6 @@ const projectSettingFetchedReceptor = (
 export const ProjectSettingReceptors = {
   projectSettingFetchedReceptor
 }
-
-export const accessProjectSettingState = () => getState(AdminProjectSettingsState)
-
-export const useProjectSettingState = () => useState(accessProjectSettingState())
 
 export const ProjectSettingService = {
   fetchProjectSetting: async (projectId: string) => {
@@ -55,7 +51,7 @@ export const ProjectSettingService = {
 
 export class AdminProjectSettingsActions {
   static projectSettingFetched = defineAction({
-    type: 'xre.client.AdminProjectSettings.PROJECT_SETTING_FETCHED' as const,
+    type: 'ee.client.AdminProjectSettings.PROJECT_SETTING_FETCHED' as const,
     projectSettings: matches.array as Validator<unknown, ProjectSettingValue[]>
   })
 }

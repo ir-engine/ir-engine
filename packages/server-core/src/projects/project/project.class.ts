@@ -6,15 +6,16 @@ import fs from 'fs'
 import path from 'path'
 import Sequelize, { Op } from 'sequelize'
 
-import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
+import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
-import templateProjectJson from '@xrengine/projects/template-project/package.json'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { getState } from '@etherealengine/hyperflux'
+import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -23,12 +24,14 @@ import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
+import { convertStaticResource } from '../scene/scene-helper'
 import {
   checkAppOrgStatus,
   checkUserOrgWriteStatus,
@@ -117,11 +120,17 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string, s
 
 /**
  * Updates the local storage provider with the project's current files
+ * @param app Application object
  * @param projectName
  * @param storageProviderName
  * @param remove
  */
-export const uploadLocalProjectToProvider = async (projectName, remove = true, storageProviderName?: string) => {
+export const uploadLocalProjectToProvider = async (
+  app: Application,
+  projectName,
+  remove = true,
+  storageProviderName?: string
+) => {
   const storageProvider = getStorageProvider(storageProviderName)
   const cacheDomain = getCacheDomain(storageProvider, true)
 
@@ -141,6 +150,10 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true, s
         return new Promise(async (resolve) => {
           try {
             const fileResult = fs.readFileSync(file)
+            if (/.scene.json$/.test(file)) {
+              const sceneParsed = JSON.parse(fileResult.toString())
+              const converted = convertStaticResource(app, sceneParsed)
+            }
             const filePathRelative = processFileName(file.slice(projectPath.length))
             await storageProvider.putObject(
               {
@@ -198,7 +211,7 @@ export class Project extends Service {
     await Promise.all(
       projects.map(async ({ name }) => {
         if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
-        const config = await getProjectConfig(name)
+        const config = getProjectConfig(name)
         if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
       })
     )
@@ -206,7 +219,7 @@ export class Project extends Service {
 
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = (await getProjectConfig(projectName)) ?? {}
+    const projectConfig = getProjectConfig(projectName) ?? {}
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
@@ -267,7 +280,7 @@ export class Project extends Service {
         }
       )
 
-      promises.push(uploadLocalProjectToProvider(projectName))
+      promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
     await Promise.all(promises)
@@ -309,7 +322,7 @@ export class Project extends Service {
     packageData.etherealEngine.version = getEnginePackageJson().version
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
-    await uploadLocalProjectToProvider(projectName, false)
+    await uploadLocalProjectToProvider(this.app, projectName, false)
 
     return super.create(
       {
@@ -349,7 +362,7 @@ export class Project extends Service {
   ) {
     if (data.sourceURL === 'default-project') {
       copyDefaultProject()
-      await uploadLocalProjectToProvider('default-project')
+      await uploadLocalProjectToProvider(this.app, 'default-project')
       return
     }
 
@@ -405,9 +418,9 @@ export class Project extends Service {
       throw err
     }
 
-    await uploadLocalProjectToProvider(projectName)
+    await uploadLocalProjectToProvider(this.app, projectName)
 
-    const projectConfig = (await getProjectConfig(projectName)) ?? {}
+    const projectConfig = getProjectConfig(projectName) ?? {}
 
     // when we have successfully re-installed the project, remove the database entry if it already exists
     const existingProjectResult = await this.Model.findOne({
@@ -488,9 +501,11 @@ export class Project extends Service {
       )
     }
 
-    if (this.app.k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
+    const k8BatchClient = getState(ServerState).k8BatchClient
+
+    if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
       await createOrUpdateProjectUpdateJob(this.app, projectName)
-    } else if (this.app.k8BatchClient && (data.updateType === 'none' || data.updateType == null))
+    } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
       await removeProjectUpdateJob(this.app, projectName)
 
     return returned
@@ -534,7 +549,7 @@ export class Project extends Service {
     if (!id) return
     const { name } = await super.get(id, params)
 
-    const projectConfig = await getProjectConfig(name)
+    const projectConfig = getProjectConfig(name)
 
     // run project uninstall script
     if (projectConfig?.onEvent) {
@@ -709,7 +724,6 @@ export class Project extends Service {
         $select: params?.query?.$select || [
           'id',
           'name',
-          'thumbnail',
           'repositoryPath',
           'needsRebuild',
           'sourceRepo',
@@ -729,6 +743,8 @@ export class Project extends Service {
         : (item as ProjectInterface)
       try {
         const packageJson = getProjectPackageJson(values.name)
+        const config = getProjectConfig(values.name)
+        values.thumbnail = config.thumbnail!
         values.version = packageJson.version
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description

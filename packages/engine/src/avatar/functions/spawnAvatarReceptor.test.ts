@@ -1,9 +1,9 @@
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -26,23 +26,27 @@ describe('spawnAvatarReceptor', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld = Physics.createWorld()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('check the create avatar function', () => {
-    const world = Engine.instance.currentWorld
     Engine.instance.userId = 'user' as UserId
 
     // mock entity to apply incoming unreliable updates to
     const action = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
-    WorldNetworkActionReceptor.receiveSpawnObject(action)
+    WorldNetworkActionReceptor.receiveSpawnObject(action as any)
     spawnAvatarReceptor(action)
 
-    const entity = world.getUserAvatarEntity(Engine.instance.userId)
+    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarComponent))
@@ -53,6 +57,6 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, LocalInputTagComponent))
     assert(hasComponent(entity, RigidBodyComponent))
     assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
-    strictEqual(Engine.instance.currentWorld.physicsWorld.colliders.len(), 1)
+    strictEqual(Engine.instance.physicsWorld.colliders.len(), 1)
   })
 })

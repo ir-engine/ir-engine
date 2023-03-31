@@ -1,10 +1,13 @@
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { StaticResourceFilterResult, StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import {
+  StaticResourceFilterResult,
+  StaticResourceResult
+} from '@etherealengine/common/src/interfaces/StaticResourceResult'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -15,7 +18,7 @@ const logger = multiLogger.child({ component: 'client-core:ResourcesService' })
 export const RESOURCE_PAGE_LIMIT = 100
 
 //State
-const AdminResourceState = defineState({
+export const AdminResourceState = defineState({
   name: 'AdminResourceState',
   initial: () => ({
     resources: [] as Array<StaticResourceInterface>,
@@ -33,12 +36,12 @@ const AdminResourceState = defineState({
 })
 
 const resourceNeedsUpdateReceptor = (action: typeof AdminResourceActions.resourceNeedsUpdated.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({ updateNeeded: true })
 }
 
 const resourcesFetchedReceptor = (action: typeof AdminResourceActions.resourcesFetched.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     resources: action.resources.data,
     skip: action.resources.skip,
@@ -52,7 +55,7 @@ const resourcesFetchedReceptor = (action: typeof AdminResourceActions.resourcesF
 }
 
 const resourceFiltersFetchedReceptor = (action: typeof AdminResourceActions.resourceFiltersFetched.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     filters: action.filters,
     selectedMimeTypes: action.filters.mimeTypes,
@@ -61,7 +64,7 @@ const resourceFiltersFetchedReceptor = (action: typeof AdminResourceActions.reso
 }
 
 const setSelectedMimeTypesReceptor = (action: typeof AdminResourceActions.setSelectedMimeTypes.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     updateNeeded: true,
     selectedMimeTypes: action.types
@@ -71,7 +74,7 @@ const setSelectedMimeTypesReceptor = (action: typeof AdminResourceActions.setSel
 const setSelectedResourceTypesReceptor = (
   action: typeof AdminResourceActions.setSelectedResourceTypes.matches._TYPE
 ) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     updateNeeded: true,
     selectedResourceTypes: action.types
@@ -79,7 +82,7 @@ const setSelectedResourceTypesReceptor = (
 }
 
 const resourcesResetFilterReceptor = (action: typeof AdminResourceActions.resourcesResetFilter.matches._TYPE) => {
-  const state = getState(AdminResourceState)
+  const state = getMutableState(AdminResourceState)
   return state.merge({
     updateNeeded: true,
     selectedMimeTypes: state.filters.value?.mimeTypes,
@@ -95,10 +98,6 @@ export const AdminResourceReceptors = {
   resourceNeedsUpdateReceptor,
   resourcesResetFilterReceptor
 }
-
-export const accessAdminResourceState = () => getState(AdminResourceState)
-
-export const useAdminResourceState = () => useState(accessAdminResourceState())
 
 export const ResourceService = {
   createOrUpdateResource: async (resource: any, resourceBlob: Blob) => {
@@ -129,7 +128,7 @@ export const ResourceService = {
     if (sortField.length > 0) {
       sortData[sortField] = orderBy === 'desc' ? 0 : 1
     }
-    const adminResourceState = accessAdminResourceState()
+    const adminResourceState = getMutableState(AdminResourceState)
     const limit = adminResourceState.limit.value
     const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
     const selectedResourceTypes = adminResourceState.selectedResourceTypes.value
@@ -166,30 +165,30 @@ export const ResourceService = {
 //Action
 export class AdminResourceActions {
   static resourceNeedsUpdated = defineAction({
-    type: 'xre.client.AdminResource.RESOURCE_NEEDS_UPDATE' as const
+    type: 'ee.client.AdminResource.RESOURCE_NEEDS_UPDATE' as const
   })
 
   static resourcesFetched = defineAction({
-    type: 'xre.client.AdminResource.RESOURCES_RETRIEVED' as const,
+    type: 'ee.client.AdminResource.RESOURCES_RETRIEVED' as const,
     resources: matches.object as Validator<unknown, StaticResourceResult>
   })
 
   static resourceFiltersFetched = defineAction({
-    type: 'xre.client.AdminResource.RESOURCE_FILTERS_RETRIEVED' as const,
+    type: 'ee.client.AdminResource.RESOURCE_FILTERS_RETRIEVED' as const,
     filters: matches.object as Validator<unknown, StaticResourceFilterResult>
   })
 
   static setSelectedMimeTypes = defineAction({
-    type: 'xre.client.AdminResource.RESOURCE_SET_MIME' as const,
+    type: 'ee.client.AdminResource.RESOURCE_SET_MIME' as const,
     types: matches.object as Validator<unknown, string[]>
   })
 
   static setSelectedResourceTypes = defineAction({
-    type: 'xre.client.AdminResource.RESOURCE_SET_TYPE' as const,
+    type: 'ee.client.AdminResource.RESOURCE_SET_TYPE' as const,
     types: matches.object as Validator<unknown, string[]>
   })
 
   static resourcesResetFilter = defineAction({
-    type: 'xre.client.AdminResource.RESOURCES_RESET_FILTER' as const
+    type: 'ee.client.AdminResource.RESOURCES_RESET_FILTER' as const
   })
 }

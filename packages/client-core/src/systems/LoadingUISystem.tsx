@@ -1,37 +1,42 @@
 import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   getComponent,
   removeComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { setVisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
-import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { textureLoader } from '@etherealengine/engine/src/scene/constants/Util'
+import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
-} from '@xrengine/engine/src/transform/components/ComputedTransformComponent'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
-import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue, getState, removeActionQueue, startReactor, useHookstate } from '@xrengine/hyperflux'
-import type { WebLayer3D } from '@xrengine/xrui'
+} from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
+import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
+import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
+import {
+  createActionQueue,
+  getMutableState,
+  removeActionQueue,
+  startReactor,
+  useHookstate
+} from '@etherealengine/hyperflux'
+import type { WebLayer3D } from '@etherealengine/xrui'
 
-import { AppLoadingState, AppLoadingStates, useLoadingState } from '../common/services/AppLoadingService'
-import { SceneActions } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
 
-export default async function LoadingUISystem(world: World) {
+export default async function LoadingUISystem() {
   const transitionPeriodSeconds = 1
   const transition = createTransitionState(transitionPeriodSeconds, 'IN')
 
@@ -48,16 +53,33 @@ export default async function LoadingUISystem(world: World) {
   // flip inside out
   mesh.scale.set(-1, 1, 1)
   mesh.renderOrder = 1
-  Engine.instance.currentWorld.camera.add(mesh)
+  Engine.instance.camera.add(mesh)
 
   setObjectLayers(mesh, ObjectLayers.UI)
 
-  const currentSceneChangedQueue = createActionQueue(SceneActions.currentSceneChanged.matches)
+  const sceneDataReactor = startReactor(() => {
+    const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+
+    useEffect(() => {
+      if (!sceneData.value) return
+      const thumbnailUrl = sceneData.value.thumbnailUrl.replace('thumbnail.jpeg', 'envmap.png')
+      if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
+        mesh.userData.url = thumbnailUrl
+        textureLoader.load(thumbnailUrl, (texture) => {
+          if (texture) mesh.material.map = texture!
+          mesh.visible = true
+        })
+      }
+    }, [sceneData])
+
+    return null
+  })
+
   const avatarModelChangedQueue = createActionQueue(EngineActions.avatarModelChanged.matches)
   const spectateUserQueue = createActionQueue(EngineActions.spectateUser.matches)
 
-  const appLoadingState = getState(AppLoadingState)
-  const engineState = getState(EngineState)
+  const appLoadingState = getMutableState(AppLoadingState)
+  const engineState = getMutableState(EngineState)
 
   const reactor = startReactor(function LoadingReactor() {
     const loadingState = useHookstate(appLoadingState)
@@ -72,17 +94,6 @@ export default async function LoadingUISystem(world: World) {
   })
 
   const execute = () => {
-    for (const action of currentSceneChangedQueue()) {
-      const thumbnailUrl = action.sceneData.thumbnailUrl.replace('thumbnail.jpeg', 'envmap.png')
-      if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
-        mesh.userData.url = thumbnailUrl
-        textureLoader.load(thumbnailUrl, (texture) => {
-          if (texture) mesh.material.map = texture!
-          mesh.visible = true
-        })
-      }
-    }
-
     for (const action of spectateUserQueue()) {
       if (appLoadingState.state.value === AppLoadingStates.SUCCESS && engineState.sceneLoaded.value)
         transition.setState('OUT')
@@ -90,7 +101,7 @@ export default async function LoadingUISystem(world: World) {
 
     for (const action of avatarModelChangedQueue()) {
       if (
-        (action.entity === world.localClientEntity || engineState.spectating.value) &&
+        (action.entity === Engine.instance.localClientEntity || engineState.spectating.value) &&
         appLoadingState.state.value === AppLoadingStates.SUCCESS &&
         engineState.sceneLoaded.value
       )
@@ -104,7 +115,7 @@ export default async function LoadingUISystem(world: World) {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
     if (transition.state === 'IN' && transition.alpha === 1) {
-      setComputedTransformComponent(ui.entity, world.cameraEntity, () => {
+      setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
         const distance = 0.1
         const ppu = xrui.options.manager.pixelsPerMeter
         const contentWidth = ui.state.imageWidth.value / ppu
@@ -114,18 +125,18 @@ export default async function LoadingUISystem(world: World) {
       })
     }
 
-    mesh.quaternion.copy(Engine.instance.currentWorld.camera.quaternion).invert()
+    mesh.quaternion.copy(Engine.instance.camera.quaternion).invert()
 
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR
     // if (!getEngineState().joinedWorld.value) {
-    //   Engine.instance.currentWorld.camera.rotateY(world.delta * 0.35)
+    //   Engine.instance.camera.rotateY(world.delta * 0.35)
     // } else {
     //   // todo: figure out how to make this work properly for VR #7256
     // }
 
-    const loadingState = getState(LoadingSystemState).loadingScreenOpacity
+    const loadingState = getMutableState(LoadingSystemState).loadingScreenOpacity
 
-    transition.update(world.deltaSeconds, (opacity) => {
+    transition.update(Engine.instance.deltaSeconds, (opacity) => {
       if (opacity !== loadingState.value) loadingState.set(opacity)
       mesh.material.opacity = opacity
       mesh.visible = opacity > 0
@@ -140,12 +151,11 @@ export default async function LoadingUISystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeActionQueue(currentSceneChangedQueue)
     removeActionQueue(avatarModelChangedQueue)
     removeActionQueue(spectateUserQueue)
     removeEntity(ui.entity)
     mesh.removeFromParent()
-    reactor.stop()
+    await reactor.stop()
   }
 
   return { execute, cleanup }

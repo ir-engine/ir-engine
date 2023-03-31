@@ -1,13 +1,13 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { TaskServerSetting } from '@xrengine/common/src/interfaces/TaskServerSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { TaskServerSetting } from '@etherealengine/common/src/interfaces/TaskServerSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminTaskServerSettingsState = defineState({
+export const AdminTaskServerSettingsState = defineState({
   name: 'AdminTaskServerSettingsState',
   initial: () => ({
     taskservers: [] as Array<TaskServerSetting>,
@@ -16,16 +16,13 @@ const AdminTaskServerSettingsState = defineState({
 })
 
 const fetchedTaskServersReceptor = (action: typeof AdminTaskServerSettingActions.fetchedTaskServers.matches._TYPE) => {
-  const state = getState(AdminTaskServerSettingsState)
+  const state = getMutableState(AdminTaskServerSettingsState)
   return state.merge({ taskservers: action.taskServerSettings.data, updateNeeded: false })
 }
 
 export const TaskServerSettingReceptors = {
   fetchedTaskServersReceptor
 }
-
-export const accessSettingTaskServerState = () => getState(AdminTaskServerSettingsState)
-export const useSettingTaskServerState = () => useState(accessSettingTaskServerState())
 
 export const AdminSettingTaskServerService = {
   fetchSettingsTaskServer: async (inDec?: 'increment' | 'decrement') => {
@@ -42,7 +39,7 @@ export const AdminSettingTaskServerService = {
 
 export class AdminTaskServerSettingActions {
   static fetchedTaskServers = defineAction({
-    type: 'xre.client.AdminTaskServerSetting.SETTING_ANALYIS_DISPLAY' as const,
+    type: 'ee.client.AdminTaskServerSetting.SETTING_ANALYIS_DISPLAY' as const,
     taskServerSettings: matches.object as Validator<unknown, Paginated<TaskServerSetting>>
   })
 }

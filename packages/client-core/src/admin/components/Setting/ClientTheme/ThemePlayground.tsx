@@ -1,28 +1,29 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import Box from '@xrengine/ui/src/Box'
-import Button from '@xrengine/ui/src/Button'
-import Dialog from '@xrengine/ui/src/Dialog'
-import Divider from '@xrengine/ui/src/Divider'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
-import InputBase from '@xrengine/ui/src/InputBase'
-import List from '@xrengine/ui/src/List'
-import ListItem from '@xrengine/ui/src/ListItem'
-import ListItemText from '@xrengine/ui/src/ListItemText'
-import Menu from '@xrengine/ui/src/Menu'
-import MenuItem from '@xrengine/ui/src/MenuItem'
-import Select from '@xrengine/ui/src/Select'
-import Table from '@xrengine/ui/src/Table'
-import TableBody from '@xrengine/ui/src/TableBody'
-import TableCell from '@xrengine/ui/src/TableCell'
-import TableContainer from '@xrengine/ui/src/TableContainer'
-import TableHead from '@xrengine/ui/src/TableHead'
-import TablePagination from '@xrengine/ui/src/TablePagination'
-import TableRow from '@xrengine/ui/src/TableRow'
-import Typography from '@xrengine/ui/src/Typography'
+import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Dialog from '@etherealengine/ui/src/Dialog'
+import Divider from '@etherealengine/ui/src/Divider'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import InputBase from '@etherealengine/ui/src/InputBase'
+import List from '@etherealengine/ui/src/List'
+import ListItem from '@etherealengine/ui/src/ListItem'
+import ListItemText from '@etherealengine/ui/src/ListItemText'
+import Menu from '@etherealengine/ui/src/Menu'
+import MenuItem from '@etherealengine/ui/src/MenuItem'
+import Select from '@etherealengine/ui/src/Select'
+import Table from '@etherealengine/ui/src/Table'
+import TableBody from '@etherealengine/ui/src/TableBody'
+import TableCell from '@etherealengine/ui/src/TableCell'
+import TableContainer from '@etherealengine/ui/src/TableContainer'
+import TableHead from '@etherealengine/ui/src/TableHead'
+import TablePagination from '@etherealengine/ui/src/TablePagination'
+import TableRow from '@etherealengine/ui/src/TableRow'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import DrawerView from '../../../common/DrawerView'
 import styles from '../../../styles/settings.module.scss'
@@ -34,20 +35,20 @@ import styles from '../../../styles/settings.module.scss'
 */
 
 const ThemePlayground = () => {
-  const [dock, setDock] = useState(false)
-  const [dialog, setDialog] = useState(false)
-  const [drawerValue, setDrawerValue] = useState(false)
-  const [selectValue, setSelectValue] = useState('')
-  const [anchorEl, setAnchorEl] = useState<any>(null)
+  const dock = useHookstate(false)
+  const dialog = useHookstate(false)
+  const drawerValue = useHookstate(false)
+  const selectValue = useHookstate('')
+  const anchorEl = useHookstate<any>(null)
 
   const { t } = useTranslation()
 
   const openMenu = (e) => {
-    setAnchorEl(e.target)
+    anchorEl.set(e.target)
   }
 
   const closeMenu = () => {
-    setAnchorEl(null)
+    anchorEl.set(null)
   }
 
   const columns = [
@@ -150,7 +151,7 @@ const ThemePlayground = () => {
       <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.themePlayground')}</Typography>
       <Box className="themeDemoArea">
         <nav className="navbar">
-          <div className="logoSection">XREngine</div>
+          <div className="logoSection">Ethereal Engine</div>
         </nav>
         <div className="mainSection">
           <div className="sidebar">
@@ -281,8 +282,8 @@ const ThemePlayground = () => {
                 <label className="textSubheading">Menu Icon Dropdown:</label>
                 <IconButton className="iconButton" onClick={openMenu} icon={<Icon type="Menu" />} />
                 <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
+                  anchorEl={anchorEl.value}
+                  open={Boolean(anchorEl.value)}
                   onClose={closeMenu}
                   classes={{ paper: 'selectPaper' }}
                 >
@@ -295,10 +296,10 @@ const ThemePlayground = () => {
                 <label className="textSubheading">Select Dropdown:</label>
                 <Select
                   displayEmpty
-                  value={selectValue}
+                  value={selectValue.value}
                   className="select"
                   MenuProps={{ classes: { paper: 'selectPaper' } }}
-                  onChange={(e: any) => setSelectValue(e.target.value)}
+                  onChange={(e: any) => selectValue.set(e.target.value)}
                 >
                   <MenuItem value="" key={-1} disabled classes={{ root: 'option', selected: 'optionSelected' }}>
                     Select Option
@@ -315,34 +316,34 @@ const ThemePlayground = () => {
               <InputBase className="input" placeholder={t('admin:components.setting.placeholderText')} />
               <Divider variant="inset" component="div" className={styles.colorGridDivider} />
               <div className="textHeading">Drawer</div>
-              <Button variant="contained" className="filledButton" onClick={() => setDrawerValue(true)}>
+              <Button variant="contained" className="filledButton" onClick={() => drawerValue.set(true)}>
                 Open Drawer
               </Button>
               <DrawerView
-                open={drawerValue}
+                open={drawerValue.value}
                 classes={{ paper: 'drawer' }}
-                onClose={() => setDrawerValue(false)}
+                onClose={() => drawerValue.set(false)}
               ></DrawerView>
               <div className="textHeading">Popup</div>
-              <Button variant="contained" className="filledButton" onClick={() => setDialog(true)}>
+              <Button variant="contained" className="filledButton" onClick={() => dialog.set(true)}>
                 Open Popup
               </Button>
               <Dialog
-                open={dialog}
+                open={dialog.value}
                 className="popupMainBackground"
                 PaperProps={{ className: 'drawerPaper' }}
-                onClose={() => setDialog(false)}
+                onClose={() => dialog.set(false)}
               ></Dialog>
               <div className="textHeading">Editor Dock</div>
-              <Button variant="contained" className="filledButton" onClick={() => setDock(true)}>
+              <Button variant="contained" className="filledButton" onClick={() => dock.set(true)}>
                 Open Dock
               </Button>
               <div
                 className="dockClickAway"
-                style={{ display: dock ? 'block' : 'none' }}
-                onClick={() => setDock(false)}
+                style={{ display: dock.value ? 'block' : 'none' }}
+                onClick={() => dock.set(false)}
               ></div>
-              <div className="dockBackground" style={{ display: dock ? 'block' : 'none' }}></div>
+              <div className="dockBackground" style={{ display: dock.value ? 'block' : 'none' }}></div>
             </Box>
           </div>
         </div>

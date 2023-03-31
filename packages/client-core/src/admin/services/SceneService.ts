@@ -1,13 +1,13 @@
-import { SceneData, SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { SceneData, SceneMetadata } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
 //State
 export const SCENE_PAGE_LIMIT = 100
 
-const AdminSceneState = defineState({
+export const AdminSceneState = defineState({
   name: 'AdminSceneState',
   initial: () => ({
     scenes: [] as Array<SceneMetadata>,
@@ -23,7 +23,7 @@ const AdminSceneState = defineState({
 })
 
 const scenesFetchedReceptor = (action: typeof AdminSceneActions.scenesFetched.matches._TYPE) => {
-  const state = getState(AdminSceneState)
+  const state = getMutableState(AdminSceneState)
   return state.merge({
     scenes: action.sceneData,
     retrieving: false,
@@ -34,7 +34,7 @@ const scenesFetchedReceptor = (action: typeof AdminSceneActions.scenesFetched.ma
 }
 
 const sceneFetchedReceptor = (action: typeof AdminSceneActions.sceneFetched.matches._TYPE) => {
-  const state = getState(AdminSceneState)
+  const state = getMutableState(AdminSceneState)
   return state.merge({
     singleScene: action.sceneData,
     retrieving: false,
@@ -48,10 +48,6 @@ export const AdminSceneReceptors = {
   scenesFetchedReceptor,
   sceneFetchedReceptor
 }
-
-export const accessAdminSceneState = () => getState(AdminSceneState)
-
-export const useAdminSceneState = () => useState(accessAdminSceneState())
 
 export const AdminSceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
@@ -67,12 +63,12 @@ export const AdminSceneService = {
 //Action
 export class AdminSceneActions {
   static scenesFetched = defineAction({
-    type: 'xre.client.AdminScene.ADMIN_SCENES_RETRIEVED' as const,
+    type: 'ee.client.AdminScene.ADMIN_SCENES_RETRIEVED' as const,
     sceneData: matches.array as Validator<unknown, SceneMetadata[]>
   })
 
   static sceneFetched = defineAction({
-    type: 'xre.client.AdminScene.ADMIN_SCENE_RETRIEVED' as const,
+    type: 'ee.client.AdminScene.ADMIN_SCENE_RETRIEVED' as const,
     sceneData: matches.object as Validator<unknown, SceneData>
   })
 }

@@ -1,4 +1,4 @@
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { EditorErrorServiceReceptor } from './EditorErrorServices'
 import { EditorHelperServiceReceptor } from './EditorHelperState'
@@ -10,7 +10,7 @@ export const registerEditorReceptors = () => {
   addActionReceptor(EditorServiceReceptor)
 }
 
-export const deregisterEditorReceptors = () => {
+export const unregisterEditorReceptors = () => {
   removeActionReceptor(EditorErrorServiceReceptor)
   removeActionReceptor(EditorHelperServiceReceptor)
   removeActionReceptor(EditorServiceReceptor)

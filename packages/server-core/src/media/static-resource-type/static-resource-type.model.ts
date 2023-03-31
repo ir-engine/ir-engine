@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { StaticResourceTypeInterface } from '@xrengine/common/src/dbmodels/StaticResourceType'
+import { StaticResourceTypeInterface } from '@etherealengine/common/src/dbmodels/StaticResourceType'
 
 import { Application } from '../../../declarations'
 
@@ -30,7 +30,7 @@ export default (app: Application) => {
   )
 
   ;(staticResourceType as any).associate = (models: any): void => {
-    ;(staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'staticResourceType' })
+    // ;(staticResourceType as any).hasMany(models.static_resource, { foreignKey: 'staticResourceType' })
   }
 
   return staticResourceType

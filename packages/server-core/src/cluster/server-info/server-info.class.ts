@@ -1,6 +1,6 @@
 import { Params, ServiceMethods } from '@feathersjs/feathers'
 
-import { ServerInfoInterface, ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
+import { ServerInfoInterface, ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
 
 import { Application } from '../../../declarations'
 import { getServerInfo, removePod } from './server-info-helper'

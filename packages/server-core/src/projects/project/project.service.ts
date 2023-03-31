@@ -5,8 +5,9 @@ import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 
-import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
-import logger from '@xrengine/common/src/logger'
+import { UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
+import logger from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -14,6 +15,7 @@ import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { ServerState } from '../../ServerState'
 import { UserParams } from '../../user/user/user.class'
 import { pushProjectToGithub } from './github-helper'
 import {
@@ -34,7 +36,7 @@ import hooks from './project.hooks'
 import createModel from './project.model'
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     projects: {
       find: () => ReturnType<typeof getProjectsList>
@@ -145,8 +147,11 @@ export const builderInfoGet = (app: Application) => async () => {
     engineVersion: getEnginePackageJson().version || '',
     engineCommit: ''
   }
-  if (app.k8DefaultClient) {
-    const builderDeployment = await app.k8AppsClient.listNamespacedDeployment(
+
+  const k8AppsClient = getState(ServerState).k8AppsClient
+
+  if (k8AppsClient) {
+    const builderDeployment = await k8AppsClient.listNamespacedDeployment(
       'default',
       'false',
       false,
@@ -155,7 +160,7 @@ export const builderInfoGet = (app: Application) => async () => {
       `app.kubernetes.io/instance=${config.server.releaseName}-builder`
     )
     const builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
-      (container) => container.name === 'xrengine-builder'
+      (container) => container.name === 'etherealengine-builder'
     )
     if (builderContainer) {
       const image = builderContainer.image

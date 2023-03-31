@@ -3,6 +3,7 @@ import { PartyUser } from './PartyUser'
 export type Party = {
   id: string
   partyUsers?: PartyUser[]
+  /** @deprecated */
   party_users?: PartyUser[]
   maxMembers: number
   name?: string | null

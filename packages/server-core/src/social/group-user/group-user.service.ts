@@ -5,7 +5,7 @@ import groupUserDocs from './group-user.docs'
 import hooks from './group-user.hooks'
 import createModel from './group-user.model'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'group-user': GroupUser
   }
@@ -37,7 +37,7 @@ export default (app: Application) => {
    */
   service.publish('created', async (data): Promise<any> => {
     try {
-      await app.service('group').emit('refresh', {
+      app.service('group').emit('refresh', {
         userId: data.userId
       })
       // const channel = await (app.service('channel')).Model.findOne({

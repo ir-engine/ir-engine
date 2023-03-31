@@ -6,12 +6,12 @@ import {
   LocationInstanceConnectionServiceReceptor,
   useLocationInstanceConnectionState,
   useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+} from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import DoneIcon from '@mui/icons-material/Done'
@@ -25,7 +25,7 @@ import {
   EditorActiveInstanceServiceReceptor,
   useEditorActiveInstanceState
 } from './EditorActiveInstanceService'
-import { useEditorNetworkInstanceProvisioning } from './useEditorNetworkInstanceProvisioning'
+import { EditorNetworkInstanceProvisioning } from './EditorNetworkInstanceProvisioning'
 
 export const WorldInstanceConnection = () => {
   const { t } = useTranslation()
@@ -60,12 +60,10 @@ export const WorldInstanceConnection = () => {
     }
   }, [])
 
-  useEditorNetworkInstanceProvisioning()
-
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
       if (worldNetworkHostId) {
-        leaveNetwork(Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork)
+        leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
       }
       return
     }
@@ -76,7 +74,7 @@ export const WorldInstanceConnection = () => {
   // const decrementPage = () => { }
   // const incrementPage = () => { }
 
-  const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
+  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentLocationInstanceConnection = useWorldInstance()
 
   const getIcon = () => {
@@ -90,6 +88,7 @@ export const WorldInstanceConnection = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
+      <EditorNetworkInstanceProvisioning />
       <InfoTooltip title="Active Instances">{getIcon()}</InfoTooltip>
       <SelectInput
         className={styles.selectInput}

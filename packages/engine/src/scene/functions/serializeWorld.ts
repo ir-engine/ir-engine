@@ -1,10 +1,12 @@
 import { MathUtils } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   getAllComponents,
   getComponent,
@@ -19,20 +21,20 @@ import { NameComponent } from '../components/NameComponent'
 import { LoadState, PrefabComponent } from '../components/PrefabComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
-export const serializeEntity = (entity: Entity, world = Engine.instance.currentWorld) => {
+export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
   const jsonComponents = [] as ComponentJson[]
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
+    const sceneComponentID = Engine.instance.sceneComponentRegistry.get(component.name)!
     if (
       sceneComponentID &&
       !ignoreComponents?.includes(component.name) &&
-      world.sceneLoadingRegistry.has(sceneComponentID)
+      Engine.instance.sceneLoadingRegistry.has(sceneComponentID)
     ) {
-      const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
+      const serialize = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)?.serialize
       const data = serialize ? serialize(entity) : serializeComponent(entity, component)
       if (data) {
         jsonComponents.push({
@@ -45,15 +47,17 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
   return jsonComponents
 }
 
-export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, world = Engine.instance.currentWorld) => {
+export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => {
   const sceneJson = {
     version: 0,
-    metadata: getSceneMetadataChanges(Engine.instance.currentWorld),
+    metadata: getSceneMetadataChanges(),
     entities: {},
     root: null! as EntityUUID
   }
 
-  const traverseNode = rootEntity ?? world.sceneEntity
+  const sceneEntity = getState(SceneState).sceneEntity
+
+  const traverseNode = rootEntity ?? sceneEntity
   const loadedAssets = new Set<Entity>()
   iterateEntityNode(
     traverseNode,
@@ -67,7 +71,7 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, wor
 
       const entityTree = getComponent(entity, EntityTreeComponent)
 
-      if (entity !== world.sceneEntity) {
+      if (entity !== sceneEntity) {
         entityJson.parent = getComponent(entityTree.parentEntity!, UUIDComponent)
         entityJson.index = index
       }
@@ -78,7 +82,7 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, wor
 
       entityJson.name = getComponent(entity, NameComponent)
 
-      entityJson.components = serializeEntity(entity, world)
+      entityJson.components = serializeEntity(entity)
 
       if (hasComponent(entity, PrefabComponent)) {
         const asset = getComponent(entity, PrefabComponent)

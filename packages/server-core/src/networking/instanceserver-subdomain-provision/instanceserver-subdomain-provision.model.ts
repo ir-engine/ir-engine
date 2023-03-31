@@ -3,7 +3,7 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 import { HookReturn } from 'sequelize/types/hooks'
 
-import { InstanceserverSubdomainProvisionInterface } from '@xrengine/common/src/dbmodels/InstanceserverSubdomainProvision'
+import { InstanceserverSubdomainProvisionInterface } from '@etherealengine/common/src/dbmodels/InstanceserverSubdomainProvision'
 
 import { Application } from '../../../declarations'
 

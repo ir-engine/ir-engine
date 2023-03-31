@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
+import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../declarations'
 import AnalyticsServices from './analytics/services'
@@ -12,6 +12,7 @@ import MatchMakingServices from './matchmaking/services'
 import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
 import EntityServices from './projects/services'
+import RecordingServices from './recording/services'
 import RouteService from './route/service'
 import ScopeService from './scope/service'
 import SettingService from './setting/service'
@@ -52,6 +53,7 @@ export default (app: Application): void => {
     ...ScopeService,
     ...SettingService,
     ...RouteService,
+    ...RecordingServices,
     ...installedProjects,
     ...MatchMakingServices,
     ...ClusterServices

@@ -1,13 +1,13 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { PatchServerSetting, ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { PatchServerSetting, ServerSetting } from '@etherealengine/common/src/interfaces/ServerSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminServerSettingsState = defineState({
+export const AdminServerSettingsState = defineState({
   name: 'AdminServerSettingsState',
   initial: () => ({
     server: [] as Array<ServerSetting>,
@@ -16,12 +16,12 @@ const AdminServerSettingsState = defineState({
 })
 
 const fetchedSeverInfoReceptor = (action: typeof AdminServerSettingActions.fetchedSeverInfo.matches._TYPE) => {
-  const state = getState(AdminServerSettingsState)
+  const state = getMutableState(AdminServerSettingsState)
   return state.merge({ server: action.serverSettings.data, updateNeeded: false })
 }
 
 const serverSettingPatchedReceptor = (action: typeof AdminServerSettingActions.serverSettingPatched.matches._TYPE) => {
-  const state = getState(AdminServerSettingsState)
+  const state = getMutableState(AdminServerSettingsState)
   return state.updateNeeded.set(true)
 }
 
@@ -29,10 +29,6 @@ export const ServerSettingReceptors = {
   fetchedSeverInfoReceptor,
   serverSettingPatchedReceptor
 }
-
-export const accessServerSettingState = () => getState(AdminServerSettingsState)
-
-export const useServerSettingState = () => useState(accessServerSettingState())
 
 export const ServerSettingService = {
   fetchServerSettings: async (inDec?: 'increment' | 'decrement') => {
@@ -55,10 +51,10 @@ export const ServerSettingService = {
 
 export class AdminServerSettingActions {
   static fetchedSeverInfo = defineAction({
-    type: 'xre.client.AdminServerSetting.SETTING_SERVER_DISPLAY' as const,
+    type: 'ee.client.AdminServerSetting.SETTING_SERVER_DISPLAY' as const,
     serverSettings: matches.object as Validator<unknown, Paginated<ServerSetting>>
   })
   static serverSettingPatched = defineAction({
-    type: 'xre.client.AdminServerSetting.SERVER_SETTING_PATCHED' as const
+    type: 'ee.client.AdminServerSetting.SERVER_SETTING_PATCHED' as const
   })
 }

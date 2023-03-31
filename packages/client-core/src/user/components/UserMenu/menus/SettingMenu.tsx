@@ -1,38 +1,37 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@xrengine/client-core/src/common/components/Button'
-import InputCheck from '@xrengine/client-core/src/common/components/InputCheck'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputSlider from '@xrengine/client-core/src/common/components/InputSlider'
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Tabs from '@xrengine/client-core/src/common/components/Tabs'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
+import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
   AvatarInputSettingsAction,
   AvatarInputSettingsState
-} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
+} from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import {
   getPostProcessingSceneMetadataState,
   PostProcessingSceneMetadataLabel
-} from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-import Box from '@xrengine/ui/src/Box'
-import Collapse from '@xrengine/ui/src/Collapse'
-import Grid from '@xrengine/ui/src/Grid'
-import Icon from '@xrengine/ui/src/Icon'
+} from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
 
-import { useClientSettingState } from '../../../../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
 import styles from '../index.module.scss'
 import { Views } from '../util'
@@ -46,43 +45,41 @@ interface Props {
 
 const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getState(RendererState))
-  const audioState = useAudioState()
-  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
-  const selfUser = useAuthState().user
+  const rendererState = useHookstate(getMutableState(RendererState))
+  const audioState = useHookstate(getMutableState(AudioState))
+  const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
+  const selfUser = useHookstate(getMutableState(AuthState).user)
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const preferredHand = avatarInputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
-  const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
+  const xrSupportedModes = useHookstate(getMutableState(XRState).supportedSessionModes)
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
   const controlSchemes = Object.entries(AvatarAxesControlScheme)
   const handOptions = ['left', 'right']
-  const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
-  const [selectedTab, setSelectedTab] = React.useState('general')
+  const selectedTab = useHookstate('general')
+  const engineState = useHookstate(getMutableState(EngineState))
 
-  const postProcessingSceneMetadataState = Engine.instance.currentWorld.sceneMetadataRegistry[
+  const postProcessingSceneMetadataState = getMutableState(SceneState).sceneMetadataRegistry[
     PostProcessingSceneMetadataLabel
   ]
-    ? getPostProcessingSceneMetadataState(Engine.instance.currentWorld)
+    ? getPostProcessingSceneMetadataState()
     : undefined
   const postprocessingSettings = postProcessingSceneMetadataState?.enabled
     ? useHookstate(postProcessingSceneMetadataState.enabled)
     : { value: undefined }
 
-  const clientSettingState = useClientSettingState()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.user_setting.value
-
-  const world = Engine.instance.currentWorld
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
-  let themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
+  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
 
   // This is done as a fix because previously studio was called editor
   if (themeModes['editor']) {
@@ -93,7 +90,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
     delete themeModes['editor']
   }
 
-  const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
+  const showWorldSettings = Engine.instance.localClientEntity || engineState.value
 
   /**
    * Note: If you're editing this function, be sure to make the same changes to
@@ -124,7 +121,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   }, [avatarInputState.invertRotationAndMoveSticks])
 
   const handleTabChange = (newValue: string) => {
-    setSelectedTab(newValue)
+    selectedTab.set(newValue)
   }
 
   const settingTabs = [{ value: 'general', label: t('user:usermenu.setting.general') }]
@@ -189,12 +186,12 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       open
       showBackButton
       isPopover={isPopover}
-      header={<Tabs value={selectedTab} items={settingTabs} onChange={handleTabChange} />}
+      header={<Tabs value={selectedTab.value} items={settingTabs} onChange={handleTabChange} />}
       onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
       onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
     >
       <Box className={styles.menuContent}>
-        {selectedTab === 'general' && selfUser && (
+        {selectedTab.value === 'general' && selfUser && (
           <>
             <Text align="center" variant="body1" mb={2} mt={1}>
               {t('user:usermenu.setting.themes')}
@@ -334,7 +331,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
           </>
         )}
 
-        {selectedTab === 'audio' && (
+        {selectedTab.value === 'audio' && (
           <>
             {chromeDesktop && (
               <Text align="center" variant="caption" mb={2.5}>
@@ -445,7 +442,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
         )}
 
         {/* Graphics Settings */}
-        {selectedTab === 'graphics' && (
+        {selectedTab.value === 'graphics' && (
           <>
             <InputSlider
               icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}

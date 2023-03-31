@@ -1,13 +1,13 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AdminRedisSetting } from '@etherealengine/common/src/interfaces/AdminRedisSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminRedisSettingsState = defineState({
+export const AdminRedisSettingsState = defineState({
   name: 'AdminRedisSettingsState',
   initial: () => ({
     redisSettings: [] as Array<AdminRedisSetting>,
@@ -19,17 +19,13 @@ const AdminRedisSettingsState = defineState({
 })
 
 const redisSettingRetrievedReceptor = (action: typeof AdminRedisSettingActions.redisSettingRetrieved.matches._TYPE) => {
-  const state = getState(AdminRedisSettingsState)
+  const state = getMutableState(AdminRedisSettingsState)
   return state.merge({ redisSettings: action.adminRedisSetting.data, updateNeeded: false })
 }
 
 export const RedisSettingReceptors = {
   redisSettingRetrievedReceptor
 }
-
-export const accessAdminRedisSettingState = () => getState(AdminRedisSettingsState)
-
-export const useAdminRedisSettingState = () => useState(accessAdminRedisSettingState())
 
 export const AdminRedisSettingService = {
   fetchRedisSetting: async () => {
@@ -44,7 +40,7 @@ export const AdminRedisSettingService = {
 
 export class AdminRedisSettingActions {
   static redisSettingRetrieved = defineAction({
-    type: 'xre.client.AdminRedisSetting.ADMIN_REDIS_SETTING_FETCHED' as const,
+    type: 'ee.client.AdminRedisSetting.ADMIN_REDIS_SETTING_FETCHED' as const,
     adminRedisSetting: matches.object as Validator<unknown, Paginated<AdminRedisSetting>>
   })
 }

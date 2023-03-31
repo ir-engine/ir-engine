@@ -1,16 +1,14 @@
 import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
-import { PeerID, SelfPeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import {
-  addComponent,
-  ComponentType,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -18,11 +16,7 @@ import {
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import {
-  setLocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
@@ -30,23 +24,23 @@ import {
 } from '../components/NetworkObjectComponent'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
-const receiveSpawnObject = (
-  action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
+const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
   const existingAvatar =
-    WorldNetworkAction.spawnAvatar.matches.test(action) && !!world.getUserAvatarEntity(action.$from)
+    WorldNetworkAction.spawnAvatar.matches.test(action) &&
+    !!Engine.instance.getUserAvatarEntity(action.$from) &&
+    action.uuid === action.$from
   if (existingAvatar) return
 
   const entity = createEntity()
+  setComponent(entity, UUIDComponent, action.uuid)
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: action.$peer ?? world.worldNetwork?.peerID ?? SelfPeerID,
+    authorityPeerID: action.$peer ?? Engine.instance.worldNetwork?.peerID ?? SelfPeerID,
     networkId: action.networkId
   })
 
-  const isAuthoritativePeer = !action.$peer || action.$peer === world.worldNetwork?.peerID
+  const isAuthoritativePeer = !action.$peer || action.$peer === Engine.instance.worldNetwork?.peerID
 
   if (isAuthoritativePeer) {
     setComponent(entity, NetworkObjectAuthorityTag)
@@ -71,42 +65,33 @@ const receiveSpawnObject = (
   action.rotation = transform.rotation
 }
 
-const receiveRegisterSceneObject = (
-  action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
+const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE) => {
   const entity = UUIDComponent.entitiesByUUID[action.objectUuid]?.value!
 
   if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: action.$peer ?? world.worldNetwork?.peerID ?? SelfPeerID,
+    authorityPeerID: action.$peer ?? Engine.instance.worldNetwork?.peerID ?? SelfPeerID,
     networkId: action.networkId
   })
 
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    setComponent(entity, NetworkObjectOwnedTag, true)
-    setComponent(entity, NetworkObjectAuthorityTag, true)
+    setComponent(entity, NetworkObjectOwnedTag)
+    setComponent(entity, NetworkObjectAuthorityTag)
   } else {
     if (hasComponent(entity, NetworkObjectOwnedTag)) removeComponent(entity, NetworkObjectOwnedTag)
     if (hasComponent(entity, NetworkObjectAuthorityTag)) removeComponent(entity, NetworkObjectAuthorityTag)
   }
 }
 
-const receiveSpawnDebugPhysicsObject = (
-  action: typeof WorldNetworkAction.spawnDebugPhysicsObject.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
+const receiveSpawnDebugPhysicsObject = (action: typeof WorldNetworkAction.spawnDebugPhysicsObject.matches._TYPE) => {
   generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
 }
 
-const receiveDestroyObject = (
-  action: ReturnType<typeof WorldNetworkAction.destroyObject>,
-  world = Engine.instance.currentWorld
-) => {
-  const entity = world.getNetworkObject(action.$from, action.networkId)
+const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destroyObject>) => {
+  const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
   if (!entity)
     return console.log(
       `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
@@ -115,14 +100,14 @@ const receiveDestroyObject = (
 }
 
 const receiveRequestAuthorityOverObject = (
-  action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE,
-  world = Engine.instance.currentWorld
+  action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
 ) => {
+  console.log('receiveRequestAuthorityOverObject', action, Engine.instance.userId)
   // Authority request can only be processed by owner
   if (Engine.instance.userId !== action.ownerId) return
 
   const ownerId = action.ownerId
-  const entity = world.getNetworkObject(ownerId, action.networkId)
+  const entity = Engine.instance.getNetworkObject(ownerId, action.networkId)
   if (!entity)
     return console.log(
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
@@ -142,22 +127,22 @@ const receiveRequestAuthorityOverObject = (
 }
 
 const receiveTransferAuthorityOfObject = (
-  action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE,
-  world = Engine.instance.currentWorld
+  action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE
 ) => {
+  console.log('receiveTransferAuthorityOfObject', action)
   // Authority request can only be processed by owner
   if (action.$from !== action.ownerId) return
 
   const ownerId = action.ownerId
-  const entity = world.getNetworkObject(ownerId, action.networkId)
+  const entity = Engine.instance.getNetworkObject(ownerId, action.networkId)
   if (!entity)
     return console.log(
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
     )
 
-  getComponentState(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
+  getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 
-  if (world?.worldNetwork.peerID === action.newAuthority) {
+  if (Engine.instance.worldNetwork.peerID === action.newAuthority) {
     if (hasComponent(entity, NetworkObjectAuthorityTag))
       return console.warn(`Warning - User ${Engine.instance.userId} already has authority over entity ${entity}.`)
 
@@ -167,10 +152,7 @@ const receiveTransferAuthorityOfObject = (
   }
 }
 
-const receiveSetUserTyping = (
-  action: typeof WorldNetworkAction.setUserTyping.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
+const receiveSetUserTyping = (action: typeof WorldNetworkAction.setUserTyping.matches._TYPE) => {
   getEngineState().usersTyping[action.$from].set(action.typing ? true : none)
 }
 

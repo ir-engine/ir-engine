@@ -2,12 +2,13 @@ import { Paginated } from '@feathersjs/feathers'
 import axios from 'axios'
 import i18n from 'i18next'
 
-import config from '@xrengine/common/src/config'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -29,7 +30,7 @@ export const AvatarState = defineState({
 })
 
 export const AvatarServiceReceptor = (action) => {
-  const s = getState(AvatarState)
+  const s = getMutableState(AvatarState)
   matches(action)
     .when(AvatarActions.updateAvatarListAction.matches, (action) => {
       s.search.set(action.search ?? undefined)
@@ -42,9 +43,9 @@ export const AvatarServiceReceptor = (action) => {
       return s.avatarList[index].set(action.avatar)
     })
 }
-
-export const accessAvatarState = () => getState(AvatarState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessAvatarState = () => getMutableState(AvatarState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAvatarService = () => useState(accessAvatarState())
 
 export const AvatarService = {
@@ -68,8 +69,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         newAvatar.id,
-        uploadResponse[0]?.url || '',
-        uploadResponse[1]?.url || ''
+        uploadResponse[0]?.LOD0_url || '',
+        uploadResponse[1]?.LOD0_url || ''
       )
     }
   },
@@ -135,8 +136,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         avatar.id,
-        avatar.modelResource?.url || '',
-        avatar.thumbnailResource?.url || ''
+        avatar.modelResource?.LOD0_url || '',
+        avatar.thumbnailResource?.LOD0_url || ''
       )
     }
   },
@@ -151,13 +152,14 @@ export const AvatarService = {
     return API.instance.client.service('static-resource').remove(id)
   },
 
-  async updateUserAvatarId(userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) {
+  async updateUserAvatarId(userId: UserId, avatarId: string, avatarURL: string, thumbnailURL: string) {
     const res = await API.instance.client.service('user').patch(userId, { avatarId: avatarId })
     // dispatchAlertSuccess(dispatch, 'User Avatar updated');
     dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
     dispatchAction(
       WorldNetworkAction.avatarDetails({
-        avatarDetail: { avatarURL, thumbnailURL }
+        avatarDetail: { avatarURL, thumbnailURL },
+        uuid: userId
       })
     )
   },
@@ -194,14 +196,14 @@ export const AvatarService = {
 
 export class AvatarActions {
   static updateAvatarListAction = defineAction({
-    type: 'xre.client.avatar.AVATAR_FETCHED' as const,
+    type: 'ee.client.avatar.AVATAR_FETCHED' as const,
     avatarList: matches.array as Validator<unknown, AvatarInterface[]>,
     search: matches.string.optional(),
     skip: matches.number,
     total: matches.number
   })
   static updateAvatarAction = defineAction({
-    type: 'xre.client.avatar.AVATAR_UPDATED' as const,
+    type: 'ee.client.avatar.AVATAR_UPDATED' as const,
     avatar: matches.object as Validator<unknown, AvatarInterface>
   })
 }

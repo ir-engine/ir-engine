@@ -2,15 +2,15 @@ import { createState, useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { getState } from '@xrengine/hyperflux'
-import Icon from '@xrengine/ui/src/Icon'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { AvatarService, AvatarState } from '../../../user/services/AvatarService'
@@ -33,7 +33,7 @@ const SelectAvatarMenu = () => {
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const authState = useAuthState()
   const avatarId = authState.user?.avatarId?.value
-  const avatarState = useHookstate(getState(AvatarState))
+  const avatarState = useHookstate(getMutableState(AvatarState))
 
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.total.value))
@@ -51,7 +51,7 @@ const SelectAvatarMenu = () => {
   }, [avatarState.total])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
+    if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value)
       AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
   }
@@ -72,8 +72,8 @@ const SelectAvatarMenu = () => {
     if (selectedAvatar && avatarId != selectedAvatar?.avatar?.name) {
       setAvatar(
         selectedAvatar?.id || '',
-        selectedAvatar?.modelResource?.url || '',
-        selectedAvatar?.thumbnailResource?.url || ''
+        selectedAvatar?.modelResource?.LOD0_url || '',
+        selectedAvatar?.thumbnailResource?.LOD0_url || ''
       )
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     }
@@ -115,7 +115,12 @@ const SelectAvatarMenu = () => {
             backgroundColor: 'var(--mainBackground)'
           }}
         >
-          <img className="avatar" crossOrigin="anonymous" src={avatar.thumbnailResource?.url || ''} alt={avatar.name} />
+          <img
+            className="avatar"
+            crossOrigin="anonymous"
+            src={avatar.thumbnailResource?.LOD0_url || ''}
+            alt={avatar.name}
+          />
         </div>
       )
     }

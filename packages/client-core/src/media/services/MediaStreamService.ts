@@ -1,13 +1,13 @@
 import mediasoup from 'mediasoup-client'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
 //State
@@ -18,7 +18,7 @@ export const MediaState = defineState({
     isCamAudioEnabled: false,
     isScreenVideoEnabled: false,
     isScreenAudioEnabled: false,
-    isFaceTrackingEnabled: false,
+    isMotionCaptureEnabled: false,
     enableBydefault: true,
     nearbyLayerUsers: [] as UserId[],
     consumers: [] as ConsumerExtension[]
@@ -26,7 +26,7 @@ export const MediaState = defineState({
 })
 
 export const MediaServiceReceptor = (action) => {
-  const s = getState(MediaState)
+  const s = getMutableState(MediaState)
   matches(action)
     .when(MediaStreamAction.setCamVideoStateAction.matches, (action) => {
       return s.isCamVideoEnabled.set(action.isEnable)
@@ -41,7 +41,7 @@ export const MediaServiceReceptor = (action) => {
       return s.isScreenAudioEnabled.set(action.isEnable)
     })
     .when(MediaStreamAction.setFaceTrackingStateAction.matches, (action) => {
-      return s.isFaceTrackingEnabled.set(action.isEnable)
+      return s.isMotionCaptureEnabled.set(action.isEnable)
     })
     .when(MediaStreamAction.setMediaEnabledByDefaultAction.matches, (action) => {
       return s.enableBydefault.set(action.isEnable)
@@ -50,8 +50,9 @@ export const MediaServiceReceptor = (action) => {
       return s.consumers.set(action.consumers)
     })
 }
-
-export const accessMediaStreamState = () => getState(MediaState)
+/**@deprecated use getMutableState directly instead */
+export const accessMediaStreamState = () => getMutableState(MediaState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useMediaStreamState = () => useState(accessMediaStreamState())
 
 let updateConsumerTimeout
@@ -59,7 +60,7 @@ let updateConsumerTimeout
 //Service
 export const MediaStreamService = {
   updateCamVideoState: () => {
-    const mediaStreamState = getState(MediaStreamState)
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(
       MediaStreamAction.setCamVideoStateAction({
         isEnable: mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
@@ -67,7 +68,7 @@ export const MediaStreamService = {
     )
   },
   updateCamAudioState: () => {
-    const mediaStreamState = getState(MediaStreamState)
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(
       MediaStreamAction.setCamAudioStateAction({
         isEnable: mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
@@ -75,7 +76,7 @@ export const MediaStreamService = {
     )
   },
   updateScreenVideoState: () => {
-    const mediaStreamState = getState(MediaStreamState)
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(
       MediaStreamAction.setScreenVideoStateAction({
         isEnable: mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
@@ -83,7 +84,7 @@ export const MediaStreamService = {
     )
   },
   updateScreenAudioState: () => {
-    const mediaStreamState = getState(MediaStreamState)
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(
       MediaStreamAction.setScreenAudioStateAction({
         isEnable: mediaStreamState.screenAudioProducer.value != null && !mediaStreamState.screenShareAudioPaused.value
@@ -93,14 +94,14 @@ export const MediaStreamService = {
   triggerUpdateConsumers: () => {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
-        const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+        const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
         if (mediaNetwork) dispatchAction(MediaStreamAction.setConsumersAction({ consumers: mediaNetwork.consumers }))
         updateConsumerTimeout = null
       }, 1000)
     }
   },
   updateNearbyLayerUsers: () => {
-    const mediaState = getState(MediaState)
+    const mediaState = getMutableState(MediaState)
     const UserState = accessNetworkUserState()
 
     const nonPartyUserIds = UserState.layerUsers
@@ -111,7 +112,7 @@ export const MediaStreamService = {
       mediaState.nearbyLayerUsers.set(nearbyUsers)
   },
   updateFaceTrackingState: () => {
-    const mediaStreamState = getState(MediaStreamState)
+    const mediaStreamState = getMutableState(MediaStreamState)
     dispatchAction(MediaStreamAction.setFaceTrackingStateAction({ isEnable: mediaStreamState.faceTracking.value }))
   },
   updateEnableMediaByDefault: () => {
@@ -123,37 +124,37 @@ export const MediaStreamService = {
 export type BooleanAction = { [key: string]: boolean }
 export class MediaStreamAction {
   static setCamVideoStateAction = defineAction({
-    type: 'xre.client.MediaStream.CAM_VIDEO_CHANGED' as const,
+    type: 'ee.client.MediaStream.CAM_VIDEO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setCamAudioStateAction = defineAction({
-    type: 'xre.client.MediaStream.CAM_AUDIO_CHANGED' as const,
+    type: 'ee.client.MediaStream.CAM_AUDIO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setScreenVideoStateAction = defineAction({
-    type: 'xre.client.MediaStream.SCREEN_VIDEO_CHANGED' as const,
+    type: 'ee.client.MediaStream.SCREEN_VIDEO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setScreenAudioStateAction = defineAction({
-    type: 'xre.client.MediaStream.SCREEN_AUDIO_CHANGED' as const,
+    type: 'ee.client.MediaStream.SCREEN_AUDIO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setFaceTrackingStateAction = defineAction({
-    type: 'xre.client.MediaStream.FACE_TRACKING_CHANGED' as const,
+    type: 'ee.client.MediaStream.FACE_TRACKING_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setMediaEnabledByDefaultAction = defineAction({
-    type: 'xre.client.MediaStream.MEDIA_ENABLE_BY_DEFAULT' as const,
+    type: 'ee.client.MediaStream.MEDIA_ENABLE_BY_DEFAULT' as const,
     isEnable: matches.boolean
   })
 
   static setConsumersAction = defineAction({
-    type: 'xre.client.MediaStream.CONSUMERS_CHANGED' as const,
+    type: 'ee.client.MediaStream.CONSUMERS_CHANGED' as const,
     consumers: matches.any
   })
 }

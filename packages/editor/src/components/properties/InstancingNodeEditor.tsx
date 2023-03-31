@@ -2,17 +2,17 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mesh, Object3D, Scene, Texture } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
   ComponentType,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOrAddComponent,
   hasComponent,
   useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
   InstancingStagingComponent,
@@ -24,16 +24,16 @@ import {
   SourceProperties,
   TextureRef,
   VertexProperties
-} from '@xrengine/engine/src/scene/components/InstancingComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
+} from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   MESH_PROPERTIES_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
-import getFirstMesh from '@xrengine/engine/src/scene/util/getFirstMesh'
-import { State, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/scene/functions/loaders/InstancingFunctions'
+import getFirstMesh from '@etherealengine/engine/src/scene/util/getFirstMesh'
+import { State, useState } from '@etherealengine/hyperflux'
 
 import AcUnitIcon from '@mui/icons-material/AcUnit'
 
@@ -93,7 +93,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       (eNode) => {
         if (eNode === entity) return false
         if (hasComponent(eNode, ModelComponent)) {
-          const obj3d = getComponentState(eNode, ModelComponent).scene.value as Scene | undefined
+          const obj3d = getMutableComponent(eNode, ModelComponent).scene.value as Scene | undefined
           if (!obj3d) return false
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')
@@ -108,13 +108,13 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const onUnstage = () => {
     if (!hasComponent(entity, InstancingUnstagingComponent)) {
-      addComponent(entity, InstancingUnstagingComponent, {})
+      addComponent(entity, InstancingUnstagingComponent)
     }
   }
 
   const onStage = async () => {
     if (!hasComponent(entity, InstancingStagingComponent)) {
-      addComponent(entity, InstancingStagingComponent, {})
+      addComponent(entity, InstancingStagingComponent)
     }
   }
 
@@ -125,7 +125,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const onChangeMode = (mode) => {
     if (scatter.mode === mode) return
-    const scene = getComponentState(entity, ModelComponent).scene! as any
+    const scene = getMutableComponent(entity, ModelComponent).scene! as any
     if (!scene.value) return
     const uData = JSON.parse(JSON.stringify(scene.userData.value))
     uData[scatter.mode] = scatter.sourceProperties

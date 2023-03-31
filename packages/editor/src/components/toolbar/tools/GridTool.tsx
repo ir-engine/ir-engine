@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 
@@ -11,7 +11,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
-  const rendererState = useHookstate(getState(RendererState))
+  const rendererState = useHookstate(getMutableState(RendererState))
 
   const onToggleGridVisible = () => {
     rendererState.gridVisibility.set(!rendererState.gridVisibility.value)
@@ -26,7 +26,7 @@ const GridTool = () => {
       <InfoTooltip title="Toggle Grid Visibility">
         <button
           onClick={onToggleGridVisible}
-          className={styles.toolButton + ' ' + (rendererState.gridVisibility ? styles.selected : '')}
+          className={styles.toolButton + ' ' + (rendererState.gridVisibility.value ? styles.selected : '')}
         >
           <GridOnIcon fontSize="small" />
         </button>

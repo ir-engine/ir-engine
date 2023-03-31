@@ -1,13 +1,13 @@
-import { SpawnTestBot, TestBot } from '@xrengine/common/src/interfaces/TestBot'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { SpawnTestBot, TestBot } from '@etherealengine/common/src/interfaces/TestBot'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
 const logger = multiLogger.child({ component: 'client-core:TestBotService' })
 
-const AdminTestBotState = defineState({
+export const AdminTestBotState = defineState({
   name: 'AdminTestBotState',
   initial: () => ({
     bots: [] as Array<TestBot>,
@@ -19,7 +19,7 @@ const AdminTestBotState = defineState({
 })
 
 const fetchedBotsReceptor = (action: typeof AdminTestBotActions.fetchedBots.matches._TYPE) => {
-  const state = getState(AdminTestBotState)
+  const state = getMutableState(AdminTestBotState)
   const oldSpawn = state.spawn.value
   return state.merge({
     bots: action.bots,
@@ -29,7 +29,7 @@ const fetchedBotsReceptor = (action: typeof AdminTestBotActions.fetchedBots.matc
   })
 }
 const spawnBotsReceptor = (action: typeof AdminTestBotActions.spawnBots.matches._TYPE) => {
-  const state = getState(AdminTestBotState)
+  const state = getMutableState(AdminTestBotState)
   return state.merge({
     bots: [],
     spawn: undefined,
@@ -37,7 +37,7 @@ const spawnBotsReceptor = (action: typeof AdminTestBotActions.spawnBots.matches.
   })
 }
 const spawnedBotsReceptor = (action: typeof AdminTestBotActions.spawnedBots.matches._TYPE) => {
-  const state = getState(AdminTestBotState)
+  const state = getMutableState(AdminTestBotState)
   return state.merge({
     spawn: action.spawn,
     spawning: false
@@ -49,10 +49,6 @@ export const AdminTestBotReceptors = {
   spawnBotsReceptor,
   spawnedBotsReceptor
 }
-
-export const accessTestBotState = () => getState(AdminTestBotState)
-
-export const useTestBotState = () => useState(accessTestBotState())
 
 //Service
 export const TestBotService = {
@@ -78,16 +74,16 @@ export const TestBotService = {
 //Action
 export class AdminTestBotActions {
   static fetchedBots = defineAction({
-    type: 'xre.client.AdminTestBot.TEST_BOT_FETCHED' as const,
+    type: 'ee.client.AdminTestBot.TEST_BOT_FETCHED' as const,
     bots: matches.array as Validator<unknown, TestBot[]>
   })
 
   static spawnBots = defineAction({
-    type: 'xre.client.AdminTestBot.TEST_BOT_SPAWN' as const
+    type: 'ee.client.AdminTestBot.TEST_BOT_SPAWN' as const
   })
 
   static spawnedBots = defineAction({
-    type: 'xre.client.AdminTestBot.TEST_BOT_SPAWNED' as const,
+    type: 'ee.client.AdminTestBot.TEST_BOT_SPAWNED' as const,
     spawn: matches.object as Validator<unknown, SpawnTestBot>
   })
 }

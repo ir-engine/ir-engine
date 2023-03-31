@@ -1,13 +1,13 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminAwsSetting, PatchAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AdminAwsSetting, PatchAwsSetting } from '@etherealengine/common/src/interfaces/AdminAwsSetting'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminAwsSettingState = defineState({
+export const AdminAwsSettingState = defineState({
   name: 'AdminAwsSettingState',
   initial: () => ({
     awsSettings: [] as Array<AdminAwsSetting>,
@@ -19,12 +19,12 @@ const AdminAwsSettingState = defineState({
 })
 
 const awsSettingRetrievedReceptor = (action: typeof AdminAwsSettingActions.awsSettingRetrieved.matches._TYPE) => {
-  const state = getState(AdminAwsSettingState)
+  const state = getMutableState(AdminAwsSettingState)
   return state.merge({ awsSettings: action.awsSettings.data, updateNeeded: false })
 }
 
 const awsSettingPatchedReceptor = (action: typeof AdminAwsSettingActions.awsSettingPatched.matches._TYPE) => {
-  const state = getState(AdminAwsSettingState)
+  const state = getMutableState(AdminAwsSettingState)
   return state.updateNeeded.set(true)
 }
 
@@ -32,10 +32,6 @@ export const AwsSettingReceptors = {
   awsSettingRetrievedReceptor,
   awsSettingPatchedReceptor
 }
-
-export const accessAdminAwsSettingState = () => getState(AdminAwsSettingState)
-
-export const useAdminAwsSettingState = () => useState(accessAdminAwsSettingState())
 
 export const AwsSettingService = {
   fetchAwsSetting: async () => {
@@ -58,10 +54,10 @@ export const AwsSettingService = {
 
 export class AdminAwsSettingActions {
   static awsSettingRetrieved = defineAction({
-    type: 'xre.client.AdminAwsSetting.ADMIN_AWS_SETTING_FETCHED' as const,
+    type: 'ee.client.AdminAwsSetting.ADMIN_AWS_SETTING_FETCHED' as const,
     awsSettings: matches.object as Validator<unknown, Paginated<AdminAwsSetting>>
   })
   static awsSettingPatched = defineAction({
-    type: 'xre.client.AdminAwsSetting.ADMIN_AWS_SETTING_PATCHED' as const
+    type: 'ee.client.AdminAwsSetting.ADMIN_AWS_SETTING_PATCHED' as const
   })
 }

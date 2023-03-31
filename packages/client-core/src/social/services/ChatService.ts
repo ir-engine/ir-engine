@@ -2,16 +2,16 @@ import { Paginated } from '@feathersjs/feathers'
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { Group } from '@xrengine/common/src/interfaces/Group'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { Message } from '@xrengine/common/src/interfaces/Message'
-import { Party } from '@xrengine/common/src/interfaces/Party'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { Group } from '@etherealengine/common/src/interfaces/Group'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { Message } from '@etherealengine/common/src/interfaces/Message'
+import { Party } from '@etherealengine/common/src/interfaces/Party'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -52,7 +52,7 @@ export const ChatState = defineState({
 })
 
 export const ChatServiceReceptor = (action) => {
-  const s = getState(ChatState)
+  const s = getMutableState(ChatState)
   matches(action)
     .when(ChatAction.loadedChannelsAction.matches, (action) => {
       return s.channels.merge({
@@ -100,7 +100,10 @@ export const ChatServiceReceptor = (action) => {
         s.channels.updateNeeded.set(true)
       } else {
         if (!channel.messages.length) channel.messages.set([action.message])
-        else channel.messages[channel.messages.length].set(action.message)
+        else {
+          const existingMessage = channel.messages.find((message) => message.id.value === action.message.id)
+          if (!existingMessage) channel.messages[channel.messages.length].set(action.message)
+        }
       }
 
       s.updateMessageScroll.set(true)
@@ -228,9 +231,9 @@ export const ChatServiceReceptor = (action) => {
       return s
     })
 }
-
-export const accessChatState = () => getState(ChatState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessChatState = () => getMutableState(ChatState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useChatState = () => useState(accessChatState())
 
 globalThis.chatState = ChatState
@@ -257,7 +260,7 @@ export const ChatService = {
       const channelResult = (await API.instance.client.service('channel').find({
         query: {
           channelType: 'instance',
-          instanceId: Engine.instance.currentWorld.worldNetwork.hostId
+          instanceId: Engine.instance.worldNetwork.hostId
         }
       })) as Channel[]
       if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
@@ -398,7 +401,7 @@ export const ChatService = {
     useEffect(() => {
       const messageCreatedListener = (params) => {
         const selfUser = accessAuthState().user.value
-        dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser: selfUser }))
+        dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser }))
       }
 
       const messagePatchedListener = (params) => {
@@ -410,15 +413,15 @@ export const ChatService = {
       }
 
       const channelCreatedListener = (params) => {
-        dispatchAction(ChatAction.createdChannelAction({ channel: params }))
+        dispatchAction(ChatAction.createdChannelAction(params))
       }
 
       const channelPatchedListener = (params) => {
-        dispatchAction(ChatAction.patchedChannelAction({ channel: params }))
+        dispatchAction(ChatAction.patchedChannelAction(params))
       }
 
       const channelRemovedListener = (params) => {
-        dispatchAction(ChatAction.removedChannelAction({ channel: params }))
+        dispatchAction(ChatAction.removedChannelAction(params))
       }
 
       API.instance.client.service('message').on('created', messageCreatedListener)
@@ -444,34 +447,34 @@ export const ChatService = {
 
 export class ChatAction {
   static loadedChannelAction = defineAction({
-    type: 'xre.client.Chat.LOADED_CHANNEL' as const,
+    type: 'ee.client.Chat.LOADED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>,
     channelType: matches.string
   })
 
   static loadedChannelsAction = defineAction({
-    type: 'xre.client.Chat.LOADED_CHANNELS' as const,
+    type: 'ee.client.Chat.LOADED_CHANNELS' as const,
     channels: matches.any as Validator<unknown, Paginated<Channel>>
   })
 
   static createdMessageAction = defineAction({
-    type: 'xre.client.Chat.CREATED_MESSAGE' as const,
+    type: 'ee.client.Chat.CREATED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>,
     selfUser: matches.object as Validator<unknown, UserInterface>
   })
 
   static patchedMessageAction = defineAction({
-    type: 'xre.client.Chat.PATCHED_MESSAGE' as const,
+    type: 'ee.client.Chat.PATCHED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>
   })
 
   static removedMessageAction = defineAction({
-    type: 'xre.client.Chat.REMOVED_MESSAGE' as const,
+    type: 'ee.client.Chat.REMOVED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>
   })
 
   static loadedMessagesAction = defineAction({
-    type: 'xre.client.Chat.LOADED_MESSAGES' as const,
+    type: 'ee.client.Chat.LOADED_MESSAGES' as const,
     messages: matches.array as Validator<unknown, Message[]>,
     limit: matches.any,
     skip: matches.any,
@@ -480,50 +483,50 @@ export class ChatAction {
   })
 
   static setChatTargetAction = defineAction({
-    type: 'xre.client.Chat.CHAT_TARGET_SET' as const,
+    type: 'ee.client.Chat.CHAT_TARGET_SET' as const,
     targetObjectType: matches.any,
     targetObject: matches.any,
     targetChannelId: matches.any
   })
 
   static setMessageScrollInitAction = defineAction({
-    type: 'xre.client.Chat.SET_MESSAGE_SCROLL_INIT' as const,
+    type: 'ee.client.Chat.SET_MESSAGE_SCROLL_INIT' as const,
     value: matches.boolean
   })
 
   static createdChannelAction = defineAction({
-    type: 'xre.client.Chat.CREATED_CHANNEL' as const,
+    type: 'ee.client.Chat.CREATED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static patchedChannelAction = defineAction({
-    type: 'xre.client.Chat.PATCHED_CHANNEL' as const,
+    type: 'ee.client.Chat.PATCHED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static removedChannelAction = defineAction({
-    type: 'xre.client.Chat.REMOVED_CHANNEL' as const,
+    type: 'ee.client.Chat.REMOVED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static fetchingInstanceChannelAction = defineAction({
-    type: 'xre.client.Chat.FETCHING_INSTANCE_CHANNEL' as const
+    type: 'ee.client.Chat.FETCHING_INSTANCE_CHANNEL' as const
   })
 
   static fetchingPartyChannelAction = defineAction({
-    type: 'xre.client.Chat.FETCHING_PARTY_CHANNEL' as const
+    type: 'ee.client.Chat.FETCHING_PARTY_CHANNEL' as const
   })
 
   static setUpdateMessageScrollAction = defineAction({
-    type: 'xre.client.Chat.SET_UPDATE_MESSAGE_SCROLL' as const,
+    type: 'ee.client.Chat.SET_UPDATE_MESSAGE_SCROLL' as const,
     value: matches.boolean
   })
 
   static refetchPartyChannelAction = defineAction({
-    type: 'xre.client.Chat.REFETCH_PARTY_CHANNEL' as const
+    type: 'ee.client.Chat.REFETCH_PARTY_CHANNEL' as const
   })
 
   static removePartyChannelAction = defineAction({
-    type: 'xre.client.Chat.REMOVE_PARTY_CHANNEL' as const
+    type: 'ee.client.Chat.REMOVE_PARTY_CHANNEL' as const
   })
 }

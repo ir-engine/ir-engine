@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ClientSettingInterface } from '@xrengine/common/src/dbmodels/ClientSetting'
+import { ClientSettingInterface } from '@etherealengine/common/src/dbmodels/ClientSetting'
 
 import { Application } from '../../../declarations'
 
@@ -56,6 +56,14 @@ export default (app: Application) => {
         allowNull: true
       },
       icon512px: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      webmanifestLink: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      swScriptLink: {
         type: DataTypes.STRING,
         allowNull: true
       },

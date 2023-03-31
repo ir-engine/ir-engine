@@ -8,7 +8,7 @@ const StyledStringInput = (styled as any)(Input)`
   width: 100%;
 `
 
-export interface StringInputProp {
+export interface StringInputProps {
   id?: string
   value?: string
   onChange?: Function
@@ -25,7 +25,7 @@ export interface StringInputProp {
   disabled?: boolean
 }
 
-const StringInput = React.forwardRef<{}, StringInputProp>(({ onChange, ...rest }, ref) => (
+const StringInput = React.forwardRef<{}, StringInputProps>(({ onChange, ...rest }, ref) => (
   <StyledStringInput onChange={(e) => onChange?.(e.target.value, e)} {...rest} ref={ref} />
 ))
 
@@ -45,7 +45,7 @@ const DropContainer = (styled as any).div`
   width: 100%;
 `
 
-export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((values, ref) => {
+export const ControlledStringInput = React.forwardRef<{}, StringInputProps>((values, ref) => {
   const { onChange, value, ...rest } = values
   const inputRef = useRef<HTMLInputElement>()
 

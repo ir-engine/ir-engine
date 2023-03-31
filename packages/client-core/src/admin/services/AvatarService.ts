@@ -1,11 +1,11 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AvatarResult } from '@etherealengine/common/src/interfaces/AvatarResult'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -14,7 +14,7 @@ const logger = multiLogger.child({ component: 'client-core:AvatarService' })
 //State
 export const AVATAR_PAGE_LIMIT = 100
 
-const AdminAvatarState = defineState({
+export const AdminAvatarState = defineState({
   name: 'AdminAvatarState',
   initial: () => ({
     avatars: [] as Array<AvatarInterface>,
@@ -30,7 +30,7 @@ const AdminAvatarState = defineState({
 })
 
 const avatarsFetchedReceptor = (action: typeof AdminAvatarActions.avatarsFetched.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({
     avatars: action.avatars.data,
     skip: action.avatars.skip,
@@ -44,17 +44,17 @@ const avatarsFetchedReceptor = (action: typeof AdminAvatarActions.avatarsFetched
 }
 
 const avatarCreatedReceptor = (action: typeof AdminAvatarActions.avatarCreated.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
 const avatarRemovedReceptor = (action: typeof AdminAvatarActions.avatarRemoved.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
 const avatarUpdatedReceptor = (action: typeof AdminAvatarActions.avatarUpdated.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
+  const state = getMutableState(AdminAvatarState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -65,10 +65,6 @@ export const AdminAvatarReceptors = {
   avatarUpdatedReceptor
 }
 
-export const accessAdminAvatarState = () => getState(AdminAvatarState)
-
-export const useAdminAvatarState = () => useState(accessAdminAvatarState())
-
 //Service
 export const AdminAvatarService = {
   fetchAdminAvatars: async (skip = 0, search: string | null = null, sortField = 'name', orderBy = 'asc') => {
@@ -76,7 +72,7 @@ export const AdminAvatarService = {
     if (sortField.length > 0) {
       sortData[sortField] = orderBy === 'desc' ? 0 : 1
     }
-    const adminAvatarState = accessAdminAvatarState()
+    const adminAvatarState = getMutableState(AdminAvatarState)
     const limit = adminAvatarState.limit.value
     const avatars = (await API.instance.client.service('avatar').find({
       query: {
@@ -103,19 +99,19 @@ export const AdminAvatarService = {
 //Action
 export class AdminAvatarActions {
   static avatarsFetched = defineAction({
-    type: 'xre.client.AdminAvatar.AVATARS_RETRIEVED' as const,
+    type: 'ee.client.AdminAvatar.AVATARS_RETRIEVED' as const,
     avatars: matches.object as Validator<unknown, AvatarResult>
   })
 
   static avatarCreated = defineAction({
-    type: 'xre.client.AdminAvatar.AVATAR_CREATED' as const
+    type: 'ee.client.AdminAvatar.AVATAR_CREATED' as const
   })
 
   static avatarRemoved = defineAction({
-    type: 'xre.client.AdminAvatar.AVATAR_REMOVED' as const
+    type: 'ee.client.AdminAvatar.AVATAR_REMOVED' as const
   })
 
   static avatarUpdated = defineAction({
-    type: 'xre.client.AdminAvatar.AVATAR_UPDATED' as const
+    type: 'ee.client.AdminAvatar.AVATAR_UPDATED' as const
   })
 }

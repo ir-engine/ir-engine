@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminScopeType as ScopeTypeInterface } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { AdminScopeType as ScopeTypeInterface } from '@etherealengine/common/src/interfaces/AdminScopeType'
 
 import { Application } from '../../../declarations'
 

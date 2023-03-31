@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ProjectInterface } from '@xrengine/common/src/dbmodels/Project'
+import { ProjectInterface } from '@etherealengine/common/src/dbmodels/Project'
 
 import { Application } from '../../../declarations'
 
@@ -16,9 +16,6 @@ export default (app: Application) => {
         primaryKey: true
       },
       name: {
-        type: DataTypes.STRING
-      },
-      thumbnail: {
         type: DataTypes.STRING
       },
       repositoryPath: {

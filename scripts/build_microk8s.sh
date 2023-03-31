@@ -39,21 +39,21 @@ fi
 
 if [ -z "$MYSQL_DATABASE" ]
 then
-  MYSQL_DATABASE=xrengine
+  MYSQL_DATABASE=etherealengine
 else
   MYSQL_DATABASE=$MYSQL_DATABASE
 fi
 
 if [ -z "$VITE_APP_HOST" ]
 then
-  VITE_APP_HOST=local.etherealengine.com
+  VITE_APP_HOST=local.etherealengine.org
 else
   VITE_APP_HOST=$VITE_APP_HOST
 fi
 
 if [ -z "$VITE_SERVER_HOST" ]
 then
-  VITE_SERVER_HOST=api-local.etherealengine.com
+  VITE_SERVER_HOST=api-local.etherealengine.org
 else
   VITE_SERVER_HOST=$VITE_SERVER_HOST
 fi
@@ -74,7 +74,7 @@ fi
 
 if [ -z "$VITE_INSTANCESERVER_HOST" ]
 then
-  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.com
+  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.org
 else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
@@ -100,7 +100,7 @@ else
   NODE_ENV=$NODE_ENV
 fi
 
-docker start xrengine_minikube_db
+docker start etherealengine_minikube_db
 
 mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
@@ -110,7 +110,7 @@ DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/root-builder -f dockerfil
 
 docker push $REGISTRY_HOST:32000/root-builder
 
-DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/xrengine \
+DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealengine \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
@@ -127,8 +127,8 @@ DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/xrengine \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
-docker push $REGISTRY_HOST:32000/xrengine
+docker push $REGISTRY_HOST:32000/etherealengine
 
-#DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+#DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
 
-# docker push $REGISTRY_HOST:32000/xrengine-testbot
+# docker push $REGISTRY_HOST:32000/etherealengine-testbot

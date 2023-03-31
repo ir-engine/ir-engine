@@ -1,8 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -11,7 +11,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 //State
 export const ROUTE_PAGE_LIMIT = 10000
 
-const AdminRouteState = defineState({
+export const AdminRouteState = defineState({
   name: 'AdminRouteState',
   initial: () => ({
     routes: [] as Array<InstalledRoutesInterface>,
@@ -26,17 +26,13 @@ const AdminRouteState = defineState({
 })
 
 const installedRoutesRetrievedReceptor = (action: typeof AdminRouteActions.installedRoutesRetrieved.matches._TYPE) => {
-  const state = getState(AdminRouteState)
+  const state = getMutableState(AdminRouteState)
   return state.merge({ routes: action.data, updateNeeded: false })
 }
 
 export const AdminRouteReceptors = {
   installedRoutesRetrievedReceptor
 }
-
-export const accessRouteState = () => getState(AdminRouteState)
-
-export const useRouteState = () => useState(accessRouteState())
 
 //Service
 export const RouteService = {
@@ -58,7 +54,7 @@ export const RouteService = {
 //Action
 export class AdminRouteActions {
   static installedRoutesRetrieved = defineAction({
-    type: 'xre.client.AdminRoute.ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
+    type: 'ee.client.AdminRoute.ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
     data: matches.array as Validator<unknown, InstalledRoutesInterface[]>
   })
 }

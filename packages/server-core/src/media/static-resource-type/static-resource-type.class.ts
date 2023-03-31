@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { StaticResourceTypeInterface } from '@xrengine/common/src/dbmodels/StaticResourceType'
+import { StaticResourceTypeInterface } from '@etherealengine/common/src/dbmodels/StaticResourceType'
 
 import { Application } from '../../../declarations'
 

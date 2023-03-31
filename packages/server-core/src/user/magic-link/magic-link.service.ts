@@ -3,7 +3,7 @@ import { Magiclink } from './magic-link.class'
 import magicLinkDocs from './magic-link.docs'
 import hooks from './magic-link.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'magic-link': Magiclink
   }

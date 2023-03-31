@@ -4,9 +4,9 @@ import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
-import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { sendInvite } from '../../hooks/send-invite'

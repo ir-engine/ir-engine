@@ -1,37 +1,34 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
-  createMappedComponent,
+  defineComponent,
   getComponent,
   hasComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, entityExists } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeChild, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { GroupComponent, SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { addEntityNodeChild, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { GroupComponent, SCENE_COMPONENT_GROUP } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SCENE_COMPONENT_VISIBLE } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
-import { applyIncomingActions } from '@xrengine/hyperflux'
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
-import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
+import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
-import '@xrengine/engine/src/patchEngineNode'
+import '@etherealengine/engine/src/patchEngineNode'
 
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { deserializeGroup } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
-
-import { createTransformGizmo } from '../systems/EditorControlSystem'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 
 class TempProp {
   data: number
@@ -49,7 +46,25 @@ type TestComponentType = {
   data: TempProp
 }
 
-export const TestComponent = createMappedComponent<TestComponentType>('TestComponent')
+export const TestComponent = defineComponent({
+  name: 'TestComponent',
+
+  onInit(entity) {
+    return {
+      pos: new Vector3(),
+      index: 0,
+      data: new TempProp(0)
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (json.pos) component.pos.value.copy(json.pos)
+    if (json.index) component.index.set(json.index)
+    if (json.data) component.data.set(json.data)
+  }
+})
 function getRandomValues(): TestComponentType {
   return {
     pos: new Vector3(Math.random(), Math.random(), Math.random()),
@@ -67,13 +82,17 @@ describe('EditorControlFunctions', () => {
 
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentWorld.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
 
       for (let i = 0; i < 2; i++) {
         addEntityNodeChild(nodes[i], rootNode)
         addComponent(nodes[i], TestComponent, getRandomValues())
       }
+    })
+
+    afterEach(() => {
+      return destroyEngine()
     })
 
     it('will execute the command', () => {
@@ -97,7 +116,11 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      rootNode = Engine.instance.currentWorld.sceneEntity
+      rootNode = getState(SceneState).sceneEntity
+    })
+
+    afterEach(() => {
+      return destroyEngine()
     })
   })
 
@@ -109,21 +132,22 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const world = Engine.instance.currentWorld
+      const world = getState(SceneState)
 
-      world.scenePrefabRegistry.set(ScenePrefabs.group, [
+      Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
         { name: SCENE_COMPONENT_VISIBLE, props: true },
         { name: SCENE_COMPONENT_GROUP, props: [] }
       ])
 
-      world.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-        deserialize: deserializeGroup,
-        serialize: () => undefined!
-      })
+      Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
+      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
       rootNode = world.sceneEntity
+    })
+
+    afterEach(() => {
+      return destroyEngine()
     })
 
     it('creates prefab of given type', () => {
@@ -177,7 +201,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentWorld.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       beforeNodes = [createEntity(), createEntity()]
@@ -190,11 +214,15 @@ describe('EditorControlFunctions', () => {
       addEntityNodeChild(beforeNodes[1], parentNodes[1])
     })
 
+    afterEach(() => {
+      return destroyEngine()
+    })
+
     it('duplicates objects', () => {
       EditorControlFunctions.duplicateObject(nodes)
       applyIncomingActions()
 
-      const rootEntity = Engine.instance.currentWorld.sceneEntity
+      const rootEntity = getState(SceneState).sceneEntity
       const rootNode = getComponent(rootEntity, EntityTreeComponent)
       rootNode.children.forEach((entity) => {
         assert(hasComponent(entity, EntityTreeComponent))
@@ -212,18 +240,15 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const world = Engine.instance.currentWorld
+      const world = getState(SceneState)
 
-      world.scenePrefabRegistry.set(ScenePrefabs.group, [
+      Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
         { name: SCENE_COMPONENT_VISIBLE, props: true },
         { name: SCENE_COMPONENT_GROUP, props: [] }
       ])
-      world.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-        deserialize: deserializeGroup,
-        serialize: () => undefined!
-      })
+      Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
+      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
       const rootNode = world.sceneEntity
       nodes = [createEntity(), createEntity()]
@@ -236,6 +261,10 @@ describe('EditorControlFunctions', () => {
       addEntityNodeChild(nodes[1], parentNodes[1])
       addEntityNodeChild(beforeNodes[0], parentNodes[0])
       addEntityNodeChild(beforeNodes[1], parentNodes[1])
+    })
+
+    afterEach(() => {
+      return destroyEngine()
     })
 
     it('duplicates objects', () => {
@@ -260,7 +289,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentWorld.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       ;[...nodes, ...parentNodes].map((node) =>
@@ -273,6 +302,10 @@ describe('EditorControlFunctions', () => {
       addEntityNodeChild(nodes[1], parentNodes[1])
     })
 
+    afterEach(() => {
+      return destroyEngine()
+    })
+
     it('Removes given nodes', () => {
       EditorControlFunctions.removeObject(nodes)
 
@@ -282,7 +315,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('will not remove root node', () => {
-      EditorControlFunctions.removeObject([Engine.instance.currentWorld.sceneEntity])
+      EditorControlFunctions.removeObject([getState(SceneState).sceneEntity])
 
       nodes.forEach((node: Entity) => {
         assert(hasComponent(node, EntityTreeComponent))

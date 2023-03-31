@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import Box from '@xrengine/ui/src/Box'
-import Grid from '@xrengine/ui/src/Grid'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import AvatarPreview from '@etherealengine/client-core/src/common/components/AvatarPreview'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import Box from '@etherealengine/ui/src/Box'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { useAuthState } from '../../../services/AuthService'
 import { AvatarService, useAvatarService } from '../../../services/AvatarService'
@@ -45,7 +45,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
   }, [])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
+    if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
       AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
     }
@@ -53,7 +53,11 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
 
   const handleConfirmAvatar = () => {
     if (selectedAvatarId && selectedAvatar && userAvatarId !== selectedAvatarId) {
-      setAvatar(selectedAvatarId, selectedAvatar.modelResource?.url || '', selectedAvatar.thumbnailResource?.url || '')
+      setAvatar(
+        selectedAvatarId,
+        selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
+        selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || ''
+      )
       changeActiveMenu(Views.Closed)
     }
     setSelectedAvatarId(undefined)
@@ -112,7 +116,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
           <Grid item md={6} sx={{ width: '100%', mt: 1 }}>
-            <AvatarPreview fill avatarUrl={selectedAvatar?.modelResource?.url} />
+            <AvatarPreview fill avatarUrl={selectedAvatar?.modelResource?.LOD0_url} />
           </Grid>
 
           <Grid item md={6} sx={{ width: '100%' }}>
@@ -133,7 +137,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
               {avatarList.map((avatar) => (
                 <Grid item key={avatar.id} md={12} sx={{ pt: 0, width: '100%' }}>
                   <Avatar
-                    imageSrc={avatar.thumbnailResource?.url || ''}
+                    imageSrc={avatar.thumbnailResource?.LOD0_url || ''}
                     isSelected={selectedAvatar && avatar.id === selectedAvatar.id}
                     name={avatar.name}
                     showChangeButton={userId && avatar.userId === userId}

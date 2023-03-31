@@ -9,7 +9,7 @@ export const receiveJoinMediaServer = (props: JoinWorldProps) => {
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  Engine.instance.currentWorld.mediaNetwork.peerID = peerID
+  Engine.instance.mediaNetworkState.peerID.set(peerID)
 
   Engine.instance.store.actions.outgoing[NetworkTopics.media].queue.push(
     ...Engine.instance.store.actions.outgoing[NetworkTopics.media].history

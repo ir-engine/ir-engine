@@ -1,13 +1,13 @@
 /** Functions to provide engine level functionalities. */
 import { Object3D } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { Engine } from '../classes/Engine'
 import { EngineActions } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
+import { SceneState } from '../classes/Scene'
 import { removeEntityNodeRecursively } from '../functions/EntityTree'
 import { defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
@@ -15,15 +15,15 @@ import { unloadAllSystems } from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 
-export const unloadScene = async (world: World) => {
+export const unloadScene = async () => {
   const entitiesToRemove = [] as Entity[]
   const sceneObjectsToRemove = [] as Object3D[]
 
   for (const entity of sceneQuery()) entitiesToRemove.push(entity)
 
-  removeEntityNodeRecursively(world.sceneEntity)
+  removeEntityNodeRecursively(getState(SceneState).sceneEntity)
 
-  Engine.instance.currentWorld.scene.traverse((o: any) => {
+  Engine.instance.scene.traverse((o: any) => {
     if (!o.entity) return
     if (!entitiesToRemove.includes(o.entity)) return
 
@@ -44,9 +44,9 @@ export const unloadScene = async (world: World) => {
     sceneObjectsToRemove.push(o)
   })
 
-  for (const o of sceneObjectsToRemove) Engine.instance.currentWorld.scene.remove(o)
+  for (const o of sceneObjectsToRemove) Engine.instance.scene.remove(o)
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
-  await unloadAllSystems(world, true)
+  await unloadAllSystems(true)
   dispatchAction(EngineActions.sceneUnloaded({}))
 }

@@ -149,7 +149,7 @@ export function InputGroupInfo({ info }: InputGroupInfoProp) {
  *
  * @type {Object}
  */
-type InputGroupPropType = React.PropsWithChildren<
+export type InputGroupProps = React.PropsWithChildren<
   {
     name: string
     disabled?: boolean
@@ -169,7 +169,7 @@ type InputGroupPropType = React.PropsWithChildren<
  * @param       {string} label
  * @constructor
  */
-export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupPropType) {
+export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProps) {
   const styles = useStyles()
 
   return (

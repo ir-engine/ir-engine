@@ -1,23 +1,23 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
-import { BrowserRouter, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import {
-  ClientSettingService,
-  useClientSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { initGA, logPageView } from '@xrengine/client-core/src/common/analytics'
-import MetaTags from '@xrengine/client-core/src/common/components/MetaTags'
-import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
-import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import InviteToast from '@xrengine/client-core/src/components/InviteToast'
-import { theme } from '@xrengine/client-core/src/theme'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
+  AdminClientSettingsState,
+  ClientSettingService
+} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
+import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
+import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
+import { theme } from '@etherealengine/client-core/src/theme'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
@@ -27,28 +27,31 @@ import './styles.scss'
 
 import {
   AdminCoilSettingService,
-  useCoilSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
-import { API } from '@xrengine/client-core/src/API'
-import UIDialog from '@xrengine/client-core/src/common/components/UIDialog'
+  AdminCoilSettingsState
+} from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
+import { API } from '@etherealengine/client-core/src/API'
+import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
   AppThemeState,
   getAppTheme,
   getAppThemeName,
   useAppThemeName
-} from '@xrengine/client-core/src/common/services/AppThemeState'
-import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+} from '@etherealengine/client-core/src/common/services/AppThemeState'
+import {
+  NotificationAction,
+  NotificationActions
+} from '@etherealengine/client-core/src/common/services/NotificationService'
 import {
   OEmbedService,
   OEmbedServiceReceptor,
-  useOEmbedState
-} from '@xrengine/client-core/src/common/services/OEmbedService'
-import Debug from '@xrengine/client-core/src/components/Debug'
-import config from '@xrengine/common/src/config'
-import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+  OEmbedState
+} from '@etherealengine/client-core/src/common/services/OEmbedService'
+import Debug from '@etherealengine/client-core/src/components/Debug'
+import config from '@etherealengine/common/src/config'
+import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -60,24 +63,24 @@ declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
-const App = (): any => {
+const AppPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
-  const clientSettingState = useClientSettingState()
-  const coilSettingState = useCoilSettingState()
-  const appTheme = useHookstate(getState(AppThemeState))
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
+  const appTheme = useHookstate(getMutableState(AppThemeState))
   const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
-  const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
-  const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
+  const ctitle = useHookstate<string>(clientSetting?.title || '')
+  const favicon16 = useHookstate(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [clientThemeSettings, setClientThemeSettings] = useState(clientSetting?.themeSettings)
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useProjectState()
-  const oEmbedState = useOEmbedState()
+  const projectState = useHookstate(getMutableState(ProjectState))
+  const oEmbedState = useHookstate(getMutableState(OEmbedState))
   const pathname = oEmbedState.pathname.value
   const oEmbed = oEmbedState.oEmbed
 
@@ -88,6 +91,7 @@ const App = (): any => {
 
   useEffect(() => {
     const receptor = (action): any => {
+      // @ts-ignore
       matches(action).when(NotificationAction.notify.matches, (action) => {
         AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {
@@ -151,8 +155,8 @@ const App = (): any => {
 
   useEffect(() => {
     if (clientSetting) {
-      setTitle(clientSetting?.title)
-      setFavicon16(clientSetting?.favicon16px)
+      ctitle.set(clientSetting?.title)
+      favicon16.set(clientSetting?.favicon16px)
       setFavicon32(clientSetting?.favicon32px)
       setDescription(clientSetting?.siteDescription)
       setClientThemeSettings(clientSetting?.themeSettings)
@@ -179,7 +183,7 @@ const App = (): any => {
     const currentThemeName = getAppThemeName()
     const theme = getAppTheme()
     if (theme)
-      for (let variable of Object.keys(theme)) {
+      for (const variable of Object.keys(theme)) {
         ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
           '--' + variable,
           theme[variable]
@@ -218,7 +222,7 @@ const App = (): any => {
           </>
         ) : (
           <>
-            <title>{ctitle}</title>
+            <title>{ctitle.value}</title>
             {description && <meta name="description" content={description} data-rh="true" />}
           </>
         )}
@@ -229,7 +233,7 @@ const App = (): any => {
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
         <meta name="theme-color" content={clientThemeSettings?.[currentThemeName]?.mainBackground || '#FFFFFF'} />
-        {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
+        {favicon16.value && <link rel="icon" type="image/png" sizes="16x16" href={favicon16.value} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
       </MetaTags>
       <StyledEngineProvider injectFirst>
@@ -254,14 +258,6 @@ const App = (): any => {
         </ThemeProvider>
       </StyledEngineProvider>
     </>
-  )
-}
-
-const AppPage = () => {
-  return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
   )
 }
 

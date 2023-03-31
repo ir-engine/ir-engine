@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Behavior } from 'three.quarks'
 
-import { NO_PROXY } from '@xrengine/hyperflux'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
@@ -14,7 +14,7 @@ export type ParticleBehaviorComponentType = {
 
 export const ParticleBehaviorComponent = defineComponent({
   name: 'ParticleBehaviorComponent',
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       behaviorParameters: [],
       behaviors: []

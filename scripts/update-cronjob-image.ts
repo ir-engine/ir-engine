@@ -2,9 +2,10 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { ServerMode } from '@xrengine/server-core/declarations'
-import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
-import { getCronJobBody } from '@xrengine/server-core/src/projects/project/project-helper'
+import { getState } from '@etherealengine/hyperflux'
+import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { getCronJobBody } from '@etherealengine/server-core/src/projects/project/project-helper'
+import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,
@@ -14,7 +15,7 @@ dotenv.config({
 const db = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrengine',
+  database: process.env.MYSQL_DATABASE ?? 'etherealengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql',
@@ -48,10 +49,11 @@ cli.main(async () => {
         ]
       }
     })
-    if (app.k8BatchClient)
+    const k8BatchClient = getState(ServerState).k8BatchClient
+    if (k8BatchClient)
       for (const project of autoUpdateProjects.data) {
         try {
-          await app.k8BatchClient.patchNamespacedCronJob(
+          await k8BatchClient.patchNamespacedCronJob(
             `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
             'default',
             getCronJobBody(project, `${options.ecrUrl}/${options.repoName}-api:${options.tag}__${options.startTime}`),

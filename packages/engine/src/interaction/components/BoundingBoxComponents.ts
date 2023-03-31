@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Box3, Box3Helper } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
@@ -38,9 +38,7 @@ export const BoundingBoxComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, BoundingBoxComponent)) throw root.stop()
-
-    const debugEnabled = useHookstate(getState(RendererState).debugEnable)
+    const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
     const boundingBox = useComponent(root.entity, BoundingBoxComponent)
 
     useEffect(() => {
@@ -64,12 +62,3 @@ export const BoundingBoxComponent = defineComponent({
 })
 
 export const BoundingBoxDynamicTag = defineComponent({ name: 'BoundingBoxDynamicTag' })
-
-export function setBoundingBoxComponent(entity: Entity) {
-  if (hasComponent(entity, BoundingBoxComponent)) return getComponent(entity, BoundingBoxComponent)
-  return setComponent(entity, BoundingBoxComponent)
-}
-
-export function setBoundingBoxDynamicTag(entity: Entity) {
-  return setComponent(entity, BoundingBoxDynamicTag, true)
-}

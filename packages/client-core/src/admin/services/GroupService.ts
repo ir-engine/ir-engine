@@ -1,7 +1,7 @@
-import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
-import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
+import { GroupResult } from '@etherealengine/common/src/interfaces/GroupResult'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -9,7 +9,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 //State
 export const GROUP_PAGE_LIMIT = 100
 
-const AdminGroupState = defineState({
+export const AdminGroupState = defineState({
   name: 'AdminGroupState',
   initial: () => ({
     group: [] as Array<Group>,
@@ -25,12 +25,12 @@ const AdminGroupState = defineState({
 })
 
 const fetchingGroupReceptor = (action: typeof AdminGroupActions.fetchingGroup.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({ fetching: true })
 }
 
 const setAdminGroupReceptor = (action: typeof AdminGroupActions.setAdminGroup.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({
     group: action.list.data,
     skip: action.list.skip,
@@ -44,17 +44,17 @@ const setAdminGroupReceptor = (action: typeof AdminGroupActions.setAdminGroup.ma
 }
 
 const updateGroupReceptor = (action: typeof AdminGroupActions.updateGroup.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({ updateNeeded: true })
 }
 
 const removeGroupActionReceptor = (action: typeof AdminGroupActions.removeGroupAction.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({ updateNeeded: true })
 }
 
 const addAdminGroupReceptor = (action: typeof AdminGroupActions.addAdminGroup.matches._TYPE) => {
-  const state = getState(AdminGroupState)
+  const state = getMutableState(AdminGroupState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -66,14 +66,10 @@ export const AdminGroupServiceReceptors = {
   addAdminGroupReceptor
 }
 
-export const accessAdminGroupState = () => getState(AdminGroupState)
-
-export const useAdminGroupState = () => useState(accessAdminGroupState())
-
 //Service
 export const AdminGroupService = {
   getGroupService: async (search: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
-    const limit = accessAdminGroupState().limit.value
+    const limit = getMutableState(AdminGroupState).limit.value
     try {
       let sortData = {}
 
@@ -125,26 +121,26 @@ export const AdminGroupService = {
 //Action
 export class AdminGroupActions {
   static fetchingGroup = defineAction({
-    type: 'xre.client.AdminGroup.GROUP_FETCHING' as const
+    type: 'ee.client.AdminGroup.GROUP_FETCHING' as const
   })
 
   static setAdminGroup = defineAction({
-    type: 'xre.client.AdminGroup.GROUP_ADMIN_RETRIEVED' as const,
+    type: 'ee.client.AdminGroup.GROUP_ADMIN_RETRIEVED' as const,
     list: matches.object as Validator<unknown, GroupResult>
   })
 
   static addAdminGroup = defineAction({
-    type: 'xre.client.AdminGroup.ADD_GROUP' as const,
+    type: 'ee.client.AdminGroup.ADD_GROUP' as const,
     item: matches.object as Validator<unknown, Group>
   })
 
   static updateGroup = defineAction({
-    type: 'xre.client.AdminGroup.GROUP_ADMIN_UPDATE' as const,
+    type: 'ee.client.AdminGroup.GROUP_ADMIN_UPDATE' as const,
     item: matches.object as Validator<unknown, Group>
   })
 
   static removeGroupAction = defineAction({
-    type: 'xre.client.AdminGroup.GROUP_ADMIN_DELETE' as const,
+    type: 'ee.client.AdminGroup.GROUP_ADMIN_DELETE' as const,
     item: matches.object as Validator<unknown, Group>
   })
 }

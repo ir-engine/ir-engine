@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import {
+  BufferAttribute,
   BufferGeometry,
   CompressedTexture,
   DoubleSide,
+  InterleavedBufferAttribute,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -11,7 +13,9 @@ import {
 } from 'three'
 import { LinearMipmapLinearFilter, sRGBEncoding, Texture } from 'three'
 
-import { useHookstate } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
@@ -32,12 +36,22 @@ export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
 export const PLANE_GEO_FLIPPED = flipNormals(new PlaneGeometry(1, 1, 1, 1))
 export const SPHERE_GEO_FLIPPED = flipNormals(new SphereGeometry(1, 64, 32))
 
+export type ImageResource = {
+  source?: string
+  ktx2StaticResource?: StaticResourceInterface
+  pngStaticResource?: StaticResourceInterface
+  jpegStaticResource?: StaticResourceInterface
+  gifStaticResource?: StaticResourceInterface
+  id?: EntityUUID
+}
+
 export const ImageComponent = defineComponent({
-  name: 'XRE_image',
+  name: 'EE_image',
 
   onInit: (entity) => {
     return {
       source: '',
+      resource: null as unknown as ImageResource,
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
@@ -50,6 +64,7 @@ export const ImageComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       source: component.source.value,
+      resource: component.resource.value,
       alphaMode: component.alphaMode.value,
       alphaCutoff: component.alphaCutoff.value,
       projection: component.projection.value,
@@ -62,8 +77,10 @@ export const ImageComponent = defineComponent({
     // backwards compatability
     if (typeof json['imageSource'] === 'string' && json['imageSource'] !== component.source.value)
       component.source.set(json['imageSource'])
-    //
-    if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
+    if (typeof json.resource === 'object') {
+      const resource = json.resource ? (json.resource as ImageResource) : ({ source: json.source } as ImageResource)
+      component.resource.set(resource)
+    }
     if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)
       component.alphaMode.set(json.alphaMode)
     if (typeof json.alphaCutoff === 'number' && json.alphaCutoff !== component.alphaCutoff.value)
@@ -78,7 +95,7 @@ export const ImageComponent = defineComponent({
     component.mesh.value.removeFromParent()
   },
 
-  errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR'],
+  errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR', 'INVALID_URL'],
 
   reactor: ImageReactor
 })
@@ -105,7 +122,7 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 }
 
 function flipNormals<G extends BufferGeometry>(geometry: G) {
-  const uvs = geometry.attributes.uv.array
+  const uvs = (geometry.attributes.uv as BufferAttribute | InterleavedBufferAttribute).array
   for (let i = 1; i < uvs.length; i += 2) {
     // @ts-ignore
     uvs[i] = 1 - uvs[i]
@@ -117,15 +134,19 @@ export const SCENE_COMPONENT_IMAGE = 'image'
 
 export function ImageReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, ImageComponent)) throw root.stop()
-
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
+  const imageValue = image.value
+  const source =
+    imageValue.resource?.jpegStaticResource?.LOD0_url ||
+    imageValue.resource?.gifStaticResource?.LOD0_url ||
+    imageValue.resource?.pngStaticResource?.LOD0_url ||
+    imageValue.resource?.ktx2StaticResource?.LOD0_url ||
+    imageValue.resource?.source ||
+    imageValue.source
 
   useEffect(
     function updateTextureSource() {
-      const source = image.source.value
-
       if (!source) {
         return addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
       }
@@ -147,7 +168,7 @@ export function ImageReactor({ root }: EntityReactorProps) {
         // TODO: abort load request, pending https://github.com/mrdoob/three.js/pull/23070
       }
     },
-    [image.source]
+    [image.resource]
   )
 
   useEffect(

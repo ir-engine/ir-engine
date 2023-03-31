@@ -1,12 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   TransformComponent
-} from '@xrengine/engine/src/transform/components/TransformComponent'
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
@@ -23,7 +23,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onSetFromViewport = () => {
-    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const transform = getComponent(props.entity, LocalTransformComponent)
     transform.position.copy(position)
     transform.rotation.copy(rotation)

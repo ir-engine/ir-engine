@@ -1,12 +1,11 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '@xrengine/engine/src/scene/components/EnvmapComponent'
-import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
-import { deserializeEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
+import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { EnvMapSourceType, EnvMapTextureType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -87,7 +86,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           </InputGroup>
           <InputGroup name="Texture URL" label="Texture URL">
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
-              <FolderInput value={envmapComponent.envMapSourceURL} onChange={onChangeCubemapURLSource} />
+              <FolderInput value={envmapComponent.envMapSourceURL.value} onChange={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
               <ImagePreviewInput

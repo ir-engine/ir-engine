@@ -4,10 +4,10 @@ import React from 'react'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
-} from '@xrengine/editor/src/components/assets/AssetsPreviewPanel'
-import FileBrowserContentPanel from '@xrengine/editor/src/components/assets/FileBrowserContentPanel'
-import { DndWrapper } from '@xrengine/editor/src/components/dnd/DndWrapper'
-import { DockContainer } from '@xrengine/editor/src/components/EditorContainer'
+} from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowserContentPanel'
+import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
+import { DockContainer } from '@etherealengine/editor/src/components/EditorContainer'
 
 import DrawerView from '../../common/DrawerView'
 

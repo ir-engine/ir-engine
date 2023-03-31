@@ -2,17 +2,18 @@ import { useState } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Button from '@xrengine/ui/src/Button'
-import Container from '@xrengine/ui/src/Container'
-import DialogActions from '@xrengine/ui/src/DialogActions'
-import DialogTitle from '@xrengine/ui/src/DialogTitle'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/Button'
+import Container from '@etherealengine/ui/src/Container'
+import DialogActions from '@etherealengine/ui/src/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { InstanceserverService } from '../../services/InstanceserverService'
-import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
+import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -28,10 +29,8 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   })
 
   const { t } = useTranslation()
-  const authState = useAuthState()
-  const user = authState.user
-  const adminLocationState = useAdminLocationState()
-  const location = adminLocationState
+  const user = useHookstate(getMutableState(AuthState).user)
+  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
   const adminLocations = adminLocationState.locations
 
   useEffect(() => {
@@ -48,11 +47,11 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   })
 
   useEffect(() => {
-    if (location.created.value) {
+    if (adminLocationState.created.value) {
       onClose()
       state.location.set('')
     }
-  }, [location.created])
+  }, [adminLocationState.created.value])
 
   const handleChangeLocation = (e) => {
     const { value } = e.target

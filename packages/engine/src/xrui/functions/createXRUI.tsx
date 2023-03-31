@@ -3,11 +3,11 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'
 
-import type { WebContainer3D } from '@xrengine/xrui'
+import type { WebContainer3D } from '@etherealengine/xrui'
 
 import { isNode } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentState, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -18,10 +18,10 @@ import { setTransformComponent } from '../../transform/components/TransformCompo
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
-let Ethereal: typeof import('@xrengine/xrui')
+let Ethereal: typeof import('@etherealengine/xrui')
 
 export async function loadXRUIDeps() {
-  Ethereal = await import('@xrengine/xrui')
+  Ethereal = await import('@etherealengine/xrui')
 }
 
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {

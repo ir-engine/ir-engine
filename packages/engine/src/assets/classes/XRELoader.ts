@@ -1,7 +1,7 @@
 import { FileLoader } from 'three'
 
-import { gltfToSceneJson } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { loadECSData } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import { gltfToSceneJson } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
+import { loadECSData } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityOrObjectUUID } from '../../ecs/functions/EntityTree'

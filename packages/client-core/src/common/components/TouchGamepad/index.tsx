@@ -2,12 +2,12 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { Joystick } from 'react-joystick-component'
 
-import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { ButtonTypes } from '@xrengine/engine/src/input/InputState'
-import { InteractState } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
-import { useIsHeadset } from '@xrengine/engine/src/xr/XRState'
-import { getState } from '@xrengine/hyperflux'
-import Icon from '@xrengine/ui/src/Icon'
+import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
+import { ButtonTypes } from '@etherealengine/engine/src/input/InputState'
+import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
+import { isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
@@ -54,12 +54,11 @@ const buttonsConfig: Array<{ button: ButtonTypes; label: string }> = [
 ]
 
 export const TouchGamepad = () => {
-  const interactState = useHookstate(getState(InteractState))
+  const interactState = useHookstate(getMutableState(InteractState))
   const availableInteractable = interactState.available.value?.[0]
-  const appState = useHookstate(getState(AppState))
-  const isHeadset = useIsHeadset()
+  const appState = useHookstate(getMutableState(AppState))
 
-  if (!isTouchAvailable || isHeadset || !appState.showTouchPad.value) return <></>
+  if (!isTouchAvailable || isMobileXRHeadset || !appState.showTouchPad.value) return <></>
 
   const buttons = buttonsConfig.map((value, index) => {
     return (

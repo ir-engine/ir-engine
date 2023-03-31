@@ -3,7 +3,7 @@ import { AdditiveBlending, BufferGeometry, Texture } from 'three'
 import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { NO_PROXY, none } from '@xrengine/hyperflux'
+import { NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
@@ -635,7 +635,6 @@ export const ParticleSystemComponent = defineComponent({
   }),
   reactor: function ({ root }: EntityReactorProps) {
     const entity = root.entity
-    if (!hasComponent(entity, ParticleSystemComponent)) throw root.stop()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const component = componentState.value
     const batchRenderer = getBatchRenderer()!

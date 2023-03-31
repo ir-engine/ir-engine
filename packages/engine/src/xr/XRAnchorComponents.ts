@@ -2,11 +2,12 @@ import { useEffect } from 'react'
 import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, ShadowMaterial } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { defineAction, getState, State, useHookstate } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
+import { SceneState } from '../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -17,7 +18,11 @@ import {
 import { EntityReactorProps } from '../ecs/functions/EntityFunctions'
 import { GroupComponent, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  setLocalTransformComponent,
+  TransformComponent
+} from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
 /**
@@ -149,30 +154,29 @@ const anchorMeshLost = (
  */
 function PersistentAnchorReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  const world = Engine.instance.currentWorld
 
   const originalParentEntityUUID = useHookstate('' as EntityUUID)
   const meshes = useHookstate([] as Mesh[])
 
-  const anchor = useOptionalComponent(entity, PersistentAnchorComponent)
+  const anchor = useComponent(entity, PersistentAnchorComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
-  const xrState = useHookstate(getState(XRState))
+  const xrState = useHookstate(getMutableState(XRState))
 
   const group = groupComponent?.value as (Object3DWithEntity & Mesh<BufferGeometry, MeshStandardMaterial>)[] | undefined
 
   useEffect(() => {
     if (!group) return
-    const active = anchor?.value && xrState.sessionMode.value === 'immersive-ar'
+    const active = anchor.value && xrState.sessionMode.value === 'immersive-ar'
     if (active) {
       /** remove from scene and add to world origins */
       const originalParent = getComponent(
-        getComponent(entity, LocalTransformComponent).parentEntity ?? world.sceneEntity,
+        getComponent(entity, LocalTransformComponent).parentEntity ?? getState(SceneState).sceneEntity,
         UUIDComponent
       )
       originalParentEntityUUID.set(originalParent)
       const localTransform = getComponent(entity, LocalTransformComponent)
-      localTransform.parentEntity = world.originEntity
-      Engine.instance.currentWorld.dirtyTransforms[entity] = true
+      localTransform.parentEntity = Engine.instance.originEntity
+      TransformComponent.dirtyTransforms[entity] = true
 
       const wireframe = anchor.wireframe.value
       anchorMeshFound(group, wireframe, meshes)
@@ -181,13 +185,11 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value].value
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = originalParent
-      Engine.instance.currentWorld.dirtyTransforms[entity] = true
+      TransformComponent.dirtyTransforms[entity] = true
 
       anchorMeshLost(group, meshes)
     }
-  }, [anchor?.active, groupComponent?.length, xrState.sessionActive])
-
-  if (!hasComponent(entity, PersistentAnchorComponent)) throw root.stop()
+  }, [anchor.active, groupComponent?.length, xrState.sessionActive])
 
   return null
 }

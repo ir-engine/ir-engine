@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react'
 import { Texture, Vector2 } from 'three'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { ImageFileTypes, VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { AssetClass } from '@xrengine/engine/src/assets/enum/AssetClass'
-import { useHookstate } from '@xrengine/hyperflux'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { ImageFileTypes, VideoFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 
@@ -12,6 +12,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
 import { ImageContainer } from './ImagePreviewInput'
 import InputGroup from './InputGroup'
+import { StringInputProps } from './StringInput'
 import Vector2Input from './Vector2Input'
 
 /**
@@ -21,7 +22,7 @@ import Vector2Input from './Vector2Input'
  * @param       {any} rest
  * @constructor
  */
-export function TextureInput({ onChange, ...rest }) {
+export function TextureInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={[...ImageFileTypes, ...VideoFileTypes]}

@@ -1,8 +1,9 @@
-import { pipe } from '@xrengine/common/src/utils/pipe'
-import { Application, ServerMode } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
-import { configurePrimus, configureRedis, createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
+import { pipe } from '@etherealengine/common/src/utils/pipe'
+import { Application } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/server-core/src/appconfig'
+import { configurePrimus, configureRedis, createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 import collectAnalytics from './collect-analytics'
 

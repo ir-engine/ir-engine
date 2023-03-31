@@ -1,17 +1,17 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { Party, PatchParty } from '@xrengine/common/src/interfaces/Party'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Party, PatchParty } from '@etherealengine/common/src/interfaces/Party'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 
 //State
 export const PARTY_PAGE_LIMIT = 100
 
-const AdminPartyState = defineState({
+export const AdminPartyState = defineState({
   name: 'AdminPartyState',
   initial: () => ({
     parties: [] as Array<Party>,
@@ -26,7 +26,7 @@ const AdminPartyState = defineState({
 })
 
 const partyRetrievedReceptor = (action: typeof AdminPartyActions.partyRetrieved.matches._TYPE) => {
-  const state = getState(AdminPartyState)
+  const state = getMutableState(AdminPartyState)
   return state.merge({
     parties: action.party.data,
     updateNeeded: false,
@@ -39,17 +39,17 @@ const partyRetrievedReceptor = (action: typeof AdminPartyActions.partyRetrieved.
 }
 
 const partyAdminCreatedReceptor = (action: typeof AdminPartyActions.partyAdminCreated.matches._TYPE) => {
-  const state = getState(AdminPartyState)
+  const state = getMutableState(AdminPartyState)
   return state.merge({ updateNeeded: true })
 }
 
 const partyRemovedReceptor = (action: typeof AdminPartyActions.partyRemoved.matches._TYPE) => {
-  const state = getState(AdminPartyState)
+  const state = getMutableState(AdminPartyState)
   return state.merge({ updateNeeded: true })
 }
 
 const partyPatchedReceptor = (action: typeof AdminPartyActions.partyPatched.matches._TYPE) => {
-  const state = getState(AdminPartyState)
+  const state = getMutableState(AdminPartyState)
   return state.merge({ updateNeeded: true })
 }
 
@@ -59,10 +59,6 @@ export const AdminPartyReceptors = {
   partyRemovedReceptor,
   partyPatchedReceptor
 }
-
-export const accessPartyState = () => getState(AdminPartyState)
-
-export const usePartyState = () => useState(accessPartyState())
 
 //Service
 export const AdminPartyService = {
@@ -75,7 +71,7 @@ export const AdminPartyService = {
     }
   },
   fetchAdminParty: async (value: string | null = null, skip = 0, sortField = 'maxMembers', orderBy = 'asc') => {
-    const user = accessAuthState().user
+    const user = getMutableState(AuthState).user
 
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
@@ -119,22 +115,22 @@ export const AdminPartyService = {
 
 export class AdminPartyActions {
   static partyAdminCreated = defineAction({
-    type: 'xre.client.AdminParty.PARTY_ADMIN_CREATED' as const,
+    type: 'ee.client.AdminParty.PARTY_ADMIN_CREATED' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static partyRetrieved = defineAction({
-    type: 'xre.client.AdminParty.PARTY_ADMIN_DISPLAYED' as const,
+    type: 'ee.client.AdminParty.PARTY_ADMIN_DISPLAYED' as const,
     party: matches.object as Validator<unknown, Paginated<Party>>
   })
 
   static partyRemoved = defineAction({
-    type: 'xre.client.AdminParty.ADMIN_PARTY_REMOVED' as const,
+    type: 'ee.client.AdminParty.ADMIN_PARTY_REMOVED' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static partyPatched = defineAction({
-    type: 'xre.client.AdminParty.ADMIN_PARTY_PATCHED' as const,
+    type: 'ee.client.AdminParty.ADMIN_PARTY_PATCHED' as const,
     party: matches.object as Validator<unknown, Party>
   })
 }

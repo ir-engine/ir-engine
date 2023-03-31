@@ -1,4 +1,4 @@
-import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
@@ -23,7 +23,6 @@ export const EngineState = defineState({
     isTeleporting: false,
     leaveWorld: false,
     socketInstance: false,
-    userHasInteracted: false,
     spectating: false,
     usersTyping: {} as { [key: string]: true },
     avatarLoadingEffect: true,
@@ -32,12 +31,15 @@ export const EngineState = defineState({
      */
     shareLink: '',
     shareTitle: '',
-    transformsNeedSorting: true
+    publicPath: '',
+    transformsNeedSorting: true,
+    isBot: false,
+    isEditor: false
   }
 })
 
 export function EngineEventReceptor(a) {
-  const s = getState(EngineState)
+  const s = getMutableState(EngineState)
   matches(a)
     .when(EngineActions.browserNotSupported.matches, (action) => {})
     .when(EngineActions.resetEngine.matches, (action) =>
@@ -53,14 +55,13 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
     .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
     .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
-    .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
+    .when(EngineActions.connectToWorld.matches, (action) => s.connectedWorld.set(action.connectedWorld))
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
-    .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
-
-export const getEngineState = () => getState(EngineState)
-
+/**@deprecated use getMutableState directly instead */
+export const getEngineState = () => getMutableState(EngineState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEngineState = () => useState(getEngineState())
 
 export class EngineActions {

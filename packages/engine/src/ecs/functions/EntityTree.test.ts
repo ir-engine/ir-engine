@@ -1,6 +1,7 @@
 import assert from 'assert'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getState } from '@etherealengine/hyperflux'
 
 import { createEngine } from '../../initializeEngine'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -8,9 +9,9 @@ import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Engine } from '../classes/Engine'
+import { destroyEngine, Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
+import { SceneState } from '../classes/Scene'
 import { createEntity } from '../functions/EntityFunctions'
 import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import {
@@ -32,6 +33,10 @@ describe('EntityTreeComponent', () => {
     createEngine()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   it('should add default values', () => {
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent)
@@ -42,17 +47,17 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set given values', () => {
-    const world = Engine.instance.currentWorld
+    const sceneEntity = getState(SceneState).sceneEntity
 
     const entity = createEntity()
     const testUUID = 'test-uuid' as EntityUUID
-    setComponent(entity, EntityTreeComponent, { parentEntity: world.sceneEntity, uuid: testUUID })
+    setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: testUUID })
 
     const node = getComponent(entity, EntityTreeComponent)
 
     assert.equal(node.children.length, 0)
-    assert.equal(node.parentEntity, world.sceneEntity)
-    assert.equal(node.rootEntity, world.sceneEntity)
+    assert.equal(node.parentEntity, sceneEntity)
+    assert.equal(node.rootEntity, sceneEntity)
 
     assert.equal(getComponent(entity, UUIDComponent), testUUID)
     assert.equal(UUIDComponent.entitiesByUUID.value[testUUID], entity)
@@ -63,37 +68,37 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set child at a given index', () => {
-    const world = Engine.instance.currentWorld
+    const sceneEntity = getState(SceneState).sceneEntity
 
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: world.sceneEntity,
+      parentEntity: sceneEntity,
       uuid: 'child-0' as EntityUUID
     })
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: world.sceneEntity,
+      parentEntity: sceneEntity,
       uuid: 'child-1' as EntityUUID
     })
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: world.sceneEntity,
+      parentEntity: sceneEntity,
       uuid: 'child-2' as EntityUUID
     })
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: world.sceneEntity,
+      parentEntity: sceneEntity,
       uuid: 'child-3' as EntityUUID
     })
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: world.sceneEntity,
+      parentEntity: sceneEntity,
       uuid: 'child-4' as EntityUUID
     })
 
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, {
-      parentEntity: world.sceneEntity,
+      parentEntity: sceneEntity,
       childIndex: 2,
       uuid: 'test-uuid' as EntityUUID
     })
 
-    const sceneNode = getComponent(world.sceneEntity, EntityTreeComponent)
+    const sceneNode = getComponent(sceneEntity, EntityTreeComponent)
     assert.equal(sceneNode.children.length, 6)
     assert.equal(sceneNode.children[0], UUIDComponent.entitiesByUUID['child-0'].value)
     assert.equal(sceneNode.children[1], UUIDComponent.entitiesByUUID['child-1'].value)
@@ -102,46 +107,49 @@ describe('EntityTreeComponent', () => {
     assert.equal(sceneNode.children[4], UUIDComponent.entitiesByUUID['child-3'].value)
     assert.equal(sceneNode.children[5], UUIDComponent.entitiesByUUID['child-4'].value)
     assert.equal(sceneNode.parentEntity, null)
-    assert.equal(sceneNode.rootEntity, world.sceneEntity)
+    assert.equal(sceneNode.rootEntity, sceneEntity)
   })
 
   it('should remove entity from maps', () => {
-    const world = Engine.instance.currentWorld
+    const sceneEntity = getState(SceneState).sceneEntity
 
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: world.sceneEntity, uuid: 'test-uuid' as EntityUUID })
+    setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: 'test-uuid' as EntityUUID })
     removeComponent(entity, EntityTreeComponent)
 
     assert.equal(getComponent(entity, UUIDComponent), undefined)
     assert.equal(UUIDComponent.entitiesByUUID['test-uuid'].value, undefined)
 
-    const parentNode = getComponent(world.sceneEntity, EntityTreeComponent)
+    const parentNode = getComponent(sceneEntity, EntityTreeComponent)
     assert.equal(parentNode.children.length, 0)
   })
 })
 
 describe('EntityTreeFunctions', () => {
-  let world: World
   let root: Entity
 
   beforeEach(() => {
     createEngine()
-    world = Engine.instance.currentWorld
 
-    root = world.sceneEntity
+    root = getState(SceneState).sceneEntity
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
       initializeSceneEntity()
-      assert(world.sceneEntity)
-      assert(getComponent(world.sceneEntity, NameComponent), 'scene')
-      assert(hasComponent(world.sceneEntity, VisibleComponent))
-      assert(hasComponent(world.sceneEntity, SceneTagComponent))
-      assert(hasComponent(world.sceneEntity, TransformComponent))
-      assert(hasComponent(world.sceneEntity, EntityTreeComponent))
-      assert.equal(getComponent(world.sceneEntity, EntityTreeComponent).parentEntity, null)
-      assert.equal(getComponent(world.sceneEntity, EntityTreeComponent).rootEntity, world.sceneEntity)
+      const sceneEntity = getState(SceneState).sceneEntity
+      assert(sceneEntity)
+      assert(getComponent(sceneEntity, NameComponent), 'scene')
+      assert(hasComponent(sceneEntity, VisibleComponent))
+      assert(hasComponent(sceneEntity, SceneTagComponent))
+      assert(hasComponent(sceneEntity, TransformComponent))
+      assert(hasComponent(sceneEntity, EntityTreeComponent))
+      assert.equal(getComponent(sceneEntity, EntityTreeComponent).parentEntity, null)
+      assert.equal(getComponent(sceneEntity, EntityTreeComponent).rootEntity, sceneEntity)
     })
   })
 

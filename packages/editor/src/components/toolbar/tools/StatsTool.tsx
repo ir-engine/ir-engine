@@ -1,11 +1,69 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import SsidChartIcon from '@mui/icons-material/SsidChart'
 
-import { SceneState } from '../../../functions/sceneRenderFunctions'
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
+
+export const RenderInfoState = defineState({
+  name: 'RenderInfoState',
+  initial: {
+    visible: false,
+    info: {
+      geometries: 0,
+      textures: 0,
+      fps: 0,
+      frameTime: 0,
+      calls: 0,
+      triangles: 0,
+      points: 0,
+      lines: 0
+    }
+  }
+})
+
+async function RenderInfoSystem() {
+  const state = getMutableState(RenderInfoState)
+
+  const execute = () => {
+    if (state.visible.value) {
+      const info = EngineRenderer.instance.renderer.info
+
+      const fps = 1 / Engine.instance.deltaSeconds
+      const frameTime = Engine.instance.deltaSeconds * 1000
+
+      state.info.set({
+        geometries: info.memory.geometries,
+        textures: info.memory.textures,
+        fps,
+        frameTime,
+        calls: info.render.calls,
+        triangles: info.render.triangles,
+        points: info.render.points,
+        lines: info.render.lines
+      })
+
+      info.reset()
+    }
+  }
+
+  const cleanup = async () => {}
+
+  return { execute, cleanup }
+}
+
+const RenderInfoSystemDefintion = {
+  uuid: 'xre.engine.RenderInfoSystem',
+  type: SystemUpdateType.POST_RENDER,
+  systemLoader: () => Promise.resolve({ default: RenderInfoSystem })
+}
 
 /**
  * Stats used to show stats of  memory and  render.
@@ -13,31 +71,16 @@ import styles from '../styles.module.scss'
  * @constructor
  */
 const StatsTool = () => {
-  const [info, setInfo] = useState<any>({})
-  const [isVisible, setVisible] = useState(false)
+  const renderInfoState = useHookstate(getMutableState(RenderInfoState))
+  const info = renderInfoState.info.value
+  const isVisible = renderInfoState.visible.value
+
   const { t } = useTranslation()
 
-  useEffect(() => {
-    SceneState.onUpdateStats = (info) => {
-      setInfo({
-        geometries: info.memory.geometries,
-        textures: info.memory.textures,
-        fps: (info.render as any).fps,
-        frameTime: (info.render as any).frameTime,
-        calls: info.render.calls,
-        triangles: info.render.triangles,
-        points: info.render.points,
-        lines: info.render.lines
-      })
-    }
-
-    return () => {
-      SceneState.onUpdateStats = undefined
-    }
-  }, [])
+  useSystems([RenderInfoSystemDefintion])
 
   const toggleStats = () => {
-    setVisible(!isVisible)
+    renderInfoState.visible.set(!isVisible)
   }
 
   /**
@@ -61,10 +104,10 @@ const StatsTool = () => {
                 {t('editor:viewport.state.memory')}
                 <ul>
                   <li>
-                    {t('editor:viewport.state.geometries')}: {(info as any).geometries}
+                    {t('editor:viewport.state.geometries')}: {info.geometries}
                   </li>
                   <li>
-                    {t('editor:viewport.state.textures')}: {(info as any).textures}
+                    {t('editor:viewport.state.textures')}: {info.textures}
                   </li>
                 </ul>
               </li>
@@ -72,22 +115,22 @@ const StatsTool = () => {
                 {t('editor:viewport.state.render')}:
                 <ul>
                   <li>
-                    {t('editor:viewport.state.FPS')}: {Math.round((info as any).fps)}
+                    {t('editor:viewport.state.FPS')}: {Math.round(info.fps)}
                   </li>
                   <li>
-                    {t('editor:viewport.state.frameTime')}: {Math.round((info as any).frameTime)}ms
+                    {t('editor:viewport.state.frameTime')}: {Math.round(info.frameTime)}ms
                   </li>
                   <li>
-                    {t('editor:viewport.state.calls')}: {(info as any).calls}
+                    {t('editor:viewport.state.calls')}: {info.calls}
                   </li>
                   <li>
-                    {t('editor:viewport.state.triangles')}: {(info as any).triangles}
+                    {t('editor:viewport.state.triangles')}: {info.triangles}
                   </li>
                   <li>
-                    {t('editor:viewport.state.points')}: {(info as any).points}
+                    {t('editor:viewport.state.points')}: {info.points}
                   </li>
                   <li>
-                    {t('editor:viewport.state.lines')}: {(info as any).lines}
+                    {t('editor:viewport.state.lines')}: {info.lines}
                   </li>
                 </ul>
               </li>

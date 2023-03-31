@@ -1,6 +1,6 @@
 import { DataTypes, Model, ModelStatic, Sequelize } from 'sequelize'
 
-import { PartyUserInterface } from '@xrengine/common/src/dbmodels/PartyUser'
+import { PartyUserInterface } from '@etherealengine/common/src/dbmodels/PartyUser'
 
 export type PartyUserModel = Model<Partial<PartyUserInterface>>
 export type PartyUserModelStatic = ModelStatic<PartyUserModel>

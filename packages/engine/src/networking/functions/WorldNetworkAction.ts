@@ -1,8 +1,9 @@
-import { defineAction } from '@xrengine/hyperflux'
+import { defineAction } from '@etherealengine/hyperflux'
 
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
   matches,
+  matchesEntityUUID,
   matchesNetworkId,
   matchesPeerID,
   matchesQuaternion,
@@ -16,15 +17,6 @@ import { NetworkTopics } from '../classes/Network'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
-  static avatarIKTargets = defineAction({
-    type: 'xre.world.SET_XR_MODE',
-    head: matches.boolean,
-    leftHand: matches.boolean,
-    rightHand: matches.boolean,
-    $cache: { removePrevious: true },
-    $topic: NetworkTopics.world
-  })
-
   static xrHandsConnected = defineAction({
     type: 'xre.world.XR_HANDS_CONNECTED',
     $cache: true,
@@ -39,7 +31,7 @@ export class WorldNetworkAction {
 
   static registerSceneObject = defineAction({
     type: 'xre.world.REGISTER_SCENE_OBJECT',
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
     objectUuid: matches.string,
     $cache: true,
     $topic: NetworkTopics.world
@@ -48,9 +40,10 @@ export class WorldNetworkAction {
   static spawnObject = defineAction({
     type: 'xre.world.SPAWN_OBJECT',
     prefab: matches.string,
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
+    uuid: matchesEntityUUID,
     $cache: true,
     $topic: NetworkTopics.world
   })
@@ -58,6 +51,7 @@ export class WorldNetworkAction {
   static spawnAvatar = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'avatar',
+    uuid: matchesUserId,
     $topic: NetworkTopics.world
   })
 
@@ -105,6 +99,7 @@ export class WorldNetworkAction {
   static avatarDetails = defineAction({
     type: 'xre.world.AVATAR_DETAILS',
     avatarDetail: matchesAvatarProps,
+    uuid: matchesUserId,
     $cache: {
       removePrevious: true
     },

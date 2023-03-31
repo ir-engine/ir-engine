@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 
-import { BuilderInfo } from '@xrengine/common/src/interfaces/BuilderInfo'
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectInterface, ProjectUpdateType } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UpdateProjectInterface } from '@xrengine/common/src/interfaces/UpdateProjectInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
+import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -32,7 +32,7 @@ export const ProjectState = defineState({
 })
 
 export const ProjectServiceReceptor = (action) => {
-  const s = getState(ProjectState)
+  const s = getMutableState(ProjectState)
   matches(action)
     .when(ProjectAction.projectsFetched.matches, (action) => {
       s.projects.set(action.projectResult)
@@ -56,9 +56,9 @@ export const ProjectServiceReceptor = (action) => {
       return s.merge({ refreshingGithubRepoAccess: action.refreshing })
     })
 }
-
-export const accessProjectState = () => getState(ProjectState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessProjectState = () => getMutableState(ProjectState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useProjectState = () => useState(accessProjectState())
 
 //Service
@@ -321,47 +321,47 @@ export const ProjectService = {
 //Action
 export class ProjectAction {
   static projectsFetched = defineAction({
-    type: 'xre.client.Project.PROJECTS_RETRIEVED' as const,
+    type: 'ee.client.Project.PROJECTS_RETRIEVED' as const,
     projectResult: matches.array as Validator<unknown, ProjectInterface[]>
   })
 
   static reloadStatusFetched = defineAction({
-    type: 'xre.client.Project.RELOAD_STATUS_RETRIEVED' as const,
+    type: 'ee.client.Project.RELOAD_STATUS_RETRIEVED' as const,
     status: matches.boolean
   })
 
   static postProject = defineAction({
-    type: 'xre.client.Project.PROJECT_POSTED' as const
+    type: 'ee.client.Project.PROJECT_POSTED' as const
   })
 
   static createdProject = defineAction({
-    type: 'xre.client.Project.PROJECT_CREATED' as const
+    type: 'ee.client.Project.PROJECT_CREATED' as const
   })
 
   static patchedProject = defineAction({
-    type: 'xre.client.Project.PROJECT_PATCHED' as const,
+    type: 'ee.client.Project.PROJECT_PATCHED' as const,
     project: matches.object as Validator<unknown, ProjectInterface>
   })
 
   static builderTagsFetched = defineAction({
-    type: 'xre.client.Project.BUILDER_TAGS_RETRIEVED' as const,
+    type: 'ee.client.Project.BUILDER_TAGS_RETRIEVED' as const,
     builderTags: matches.array as Validator<unknown, BuilderTag[]>
   })
 
   static builderInfoFetched = defineAction({
-    type: 'xre.client.project.BUILDER_INFO_FETCHED' as const,
+    type: 'ee.client.project.BUILDER_INFO_FETCHED' as const,
     builderInfo: matches.object as Validator<unknown, BuilderInfo>
   })
 
   static setGithubRepoAccessRefreshing = defineAction({
-    type: 'xre.client.project.SET_ACCESS_REFRESHING' as const,
+    type: 'ee.client.project.SET_ACCESS_REFRESHING' as const,
     refreshing: matches.boolean
   })
 
   // TODO #7254
   // buildProgress: (message: string) => {
   //   return {
-  //     type: 'xre.client.Project.PROJECT_BUILDER_UPDATE' as const,
+  //     type: 'ee.client.Project.PROJECT_BUILDER_UPDATE' as const,
   //     message
   //   }
   // }

@@ -1,34 +1,36 @@
 import React, { useEffect, useState } from 'react'
+import { Navigate, useNavigate } from 'react-router-dom'
 
-import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { useMediaInstanceConnectionState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaStreamState } from '@etherealengine/client-core/src/media/services/MediaStreamService'
+import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   toggleFaceTracking,
   toggleMicrophonePaused,
   toggleScreenshare,
   toggleWebcamPaused
-} from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import logger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
-import Icon from '@xrengine/ui/src/Icon'
+} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import logger from '@etherealengine/common/src/logger'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
+  const navigate = useNavigate()
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
-  const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const mediaHostId = Engine.instance.mediaNetwork?.hostId
   const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
   const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.locationSetting?.value
@@ -38,13 +40,13 @@ export const MediaIconsBox = () => {
     ? currentLocation?.locationSetting?.audioEnabled?.value
     : false
 
-  const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
+  const isMotionCaptureEnabled = mediastream.isMotionCaptureEnabled
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
   const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
 
   const engineState = useEngineState()
-  const xrState = useHookstate(getState(XRState))
+  const xrState = useHookstate(getMutableState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
@@ -68,7 +70,7 @@ export const MediaIconsBox = () => {
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
       {audioEnabled &&
       hasAudioDevice &&
-      Engine.instance.currentWorld.mediaNetwork &&
+      Engine.instance.mediaNetwork &&
       currentChannelInstanceConnection?.connected.value ? (
         <button
           type="button"
@@ -83,7 +85,7 @@ export const MediaIconsBox = () => {
       ) : null}
       {videoEnabled &&
       hasVideoDevice &&
-      Engine.instance.currentWorld.mediaNetwork &&
+      Engine.instance.mediaNetwork &&
       currentChannelInstanceConnection?.connected.value ? (
         <>
           <button
@@ -98,13 +100,13 @@ export const MediaIconsBox = () => {
           </button>
           <button
             type="button"
-            id="UserFaceTracking"
-            className={styles.iconContainer + ' ' + (isFaceTrackingEnabled.value ? styles.on : '')}
-            onClick={toggleFaceTracking}
+            id="UserPoseTracking"
+            className={styles.iconContainer + ' ' + (isMotionCaptureEnabled.value ? styles.on : '')}
+            onClick={() => window.open('/capture', '_blank')}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <Icon type="Face" />
+            <Icon type={'Accessibility'} />
           </button>
           <button
             type="button"

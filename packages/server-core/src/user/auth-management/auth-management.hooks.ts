@@ -1,6 +1,6 @@
 import { disallow, iff } from 'feathers-hooks-common'
 
-import isAction from '@xrengine/server-core/src/hooks/is-action'
+import isAction from '@etherealengine/server-core/src/hooks/is-action'
 
 import authenticate from '../../hooks/authenticate'
 

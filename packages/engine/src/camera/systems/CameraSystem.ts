@@ -2,17 +2,18 @@ import _ from 'lodash'
 import { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import {
   createActionQueue,
   dispatchAction,
+  getMutableState,
   hookstate,
   removeActionQueue,
   startReactor,
   State,
   useHookstate
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
@@ -22,7 +23,7 @@ import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
+import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
 import {
   defineQuery,
   getComponent,
@@ -97,7 +98,7 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
     return
   }
 
-  const delta = Engine.instance.currentWorld.deltaSeconds
+  const delta = Engine.instance.deltaSeconds
   followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
@@ -114,10 +115,10 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
+  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
   // Raycast to keep the line of sight with avatar
-  const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
   // raycaster.ray.origin.sub(targetToCamVec.multiplyScalar(0.1)) // move origin behind camera
 
@@ -216,7 +217,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     newZoomDistance,
     followCamera.zoomVelocity,
     smoothingSpeed,
-    Engine.instance.currentWorld.deltaSeconds
+    Engine.instance.deltaSeconds
   )
 
   const theta = followCamera.theta
@@ -237,11 +238,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   updateCameraTargetRotation(cameraEntity)
 }
 
-export function cameraSpawnReceptor(
-  spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>,
-  world = Engine.instance.currentWorld
-) {
-  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
+export function cameraSpawnReceptor(spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>) {
+  const entity = Engine.instance.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
   console.log('Camera Spawn Receptor Call', entity)
 
@@ -263,18 +261,22 @@ export const DefaultCameraState = {
   startPhi: 10
 }
 
-export type CameraState = State<typeof DefaultCameraState>
-
 export const CameraSceneMetadataLabel = 'camera'
 
-export const getCameraSceneMetadataState = (world: World) =>
-  world.sceneMetadataRegistry[CameraSceneMetadataLabel].state as CameraState
+export const getCameraSceneMetadataState = () =>
+  (
+    getMutableState(SceneState).sceneMetadataRegistry[CameraSceneMetadataLabel] as State<
+      SceneMetadata<typeof DefaultCameraState>
+    >
+  ).data
 
-export default async function CameraSystem(world: World) {
-  world.sceneMetadataRegistry[CameraSceneMetadataLabel] = {
-    state: hookstate(_.cloneDeep(DefaultCameraState)),
-    default: DefaultCameraState
-  }
+export default async function CameraSystem() {
+  getMutableState(SceneState).sceneMetadataRegistry.merge({
+    [CameraSceneMetadataLabel]: {
+      data: _.cloneDeep(DefaultCameraState),
+      default: DefaultCameraState
+    }
+  })
 
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
   const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
@@ -284,26 +286,26 @@ export default async function CameraSystem(world: World) {
   const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
 
   const reactor = startReactor(function CameraReactor() {
-    const cameraSettings = useHookstate(getCameraSceneMetadataState(world))
+    const cameraSettings = useHookstate(getCameraSceneMetadataState())
 
     useEffect(() => {
-      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+      const camera = Engine.instance.camera as PerspectiveCamera
       if (camera?.isPerspectiveCamera) {
         camera.near = cameraSettings.cameraNearClip.value
         camera.far = cameraSettings.cameraFarClip.value
         camera.updateProjectionMatrix()
       }
-      switchCameraMode(Engine.instance.currentWorld.cameraEntity, cameraSettings.value)
+      switchCameraMode(Engine.instance.cameraEntity, cameraSettings.value)
     }, [cameraSettings])
 
     return null
   })
 
   const execute = () => {
-    for (const action of cameraSpawnActions()) cameraSpawnReceptor(action, world)
+    for (const action of cameraSpawnActions()) cameraSpawnReceptor(action)
 
     for (const action of spectateUserActions()) {
-      const cameraEntity = Engine.instance.currentWorld.cameraEntity
+      const cameraEntity = Engine.instance.cameraEntity
       if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
       else
         setComponent(cameraEntity, FlyControlComponent, {
@@ -315,7 +317,7 @@ export default async function CameraSystem(world: World) {
     }
 
     for (const action of exitSpectateActions()) {
-      const cameraEntity = Engine.instance.currentWorld.cameraEntity
+      const cameraEntity = Engine.instance.cameraEntity
       removeComponent(cameraEntity, SpectatorComponent)
       deleteSearchParams('spectate')
       dispatchAction(EngineActions.leaveWorld({}))
@@ -334,7 +336,7 @@ export default async function CameraSystem(world: World) {
     for (const cameraEntity of spectatorQuery.enter()) {
       const cameraTransform = getComponent(cameraEntity, TransformComponent)
       const spectator = getComponent(cameraEntity, SpectatorComponent)
-      const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, CameraComponent)
+      const networkCameraEntity = Engine.instance.getOwnedNetworkObjectWithComponent(spectator.userId, CameraComponent)
       const networkTransform = getComponent(networkCameraEntity, TransformComponent)
       setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
         cameraTransform.position.copy(networkTransform.position)
@@ -345,8 +347,8 @@ export default async function CameraSystem(world: World) {
     // as spectatee: update network camera from local camera
     for (const networkCameraEntity of ownedNetworkCamera.enter()) {
       const networkTransform = getComponent(networkCameraEntity, TransformComponent)
-      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
-      setComputedTransformComponent(networkCameraEntity, world.cameraEntity, () => {
+      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      setComputedTransformComponent(networkCameraEntity, Engine.instance.cameraEntity, () => {
         networkTransform.position.copy(cameraTransform.position)
         networkTransform.rotation.copy(cameraTransform.rotation)
       })
@@ -354,12 +356,12 @@ export default async function CameraSystem(world: World) {
   }
 
   const cleanup = async () => {
-    removeQuery(world, followCameraQuery)
-    removeQuery(world, ownedNetworkCamera)
-    removeQuery(world, spectatorQuery)
+    removeQuery(followCameraQuery)
+    removeQuery(ownedNetworkCamera)
+    removeQuery(spectatorQuery)
     removeActionQueue(cameraSpawnActions)
     removeActionQueue(spectateUserActions)
-    reactor.stop()
+    await reactor.stop()
   }
 
   return { execute, cleanup, subsystems: [async () => ({ default: CameraFadeBlackEffectSystem })] }

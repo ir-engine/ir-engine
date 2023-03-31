@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BuildStatus } from '@xrengine/common/src/interfaces/BuildStatus'
-import Box from '@xrengine/ui/src/Box'
-import Container from '@xrengine/ui/src/Container'
-import DialogTitle from '@xrengine/ui/src/DialogTitle'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
+import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Container from '@etherealengine/ui/src/Container'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { buildStatusColumns } from '../../common/variables/buildStatus'
-import { BuildStatusService, useBuildStatusState } from '../../services/BuildStatusService'
+import { AdminBuildStatusState, BuildStatusService } from '../../services/BuildStatusService'
 import styles from '../../styles/admin.module.scss'
 import BuildStatusLogsModal from './BuildStatusLogsModal'
 
@@ -31,20 +32,20 @@ const defaultBuildStatus = {
 
 const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const { t } = useTranslation()
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [selectedStatus, setSelectedStatus] = useState(defaultBuildStatus)
-  const [logsModalOpen, setLogsModalOpen] = useState(false)
+  const page = useHookstate(0)
+  const rowsPerPage = useHookstate(10)
+  const selectedStatusId = useHookstate(0)
+  const logsModalOpen = useHookstate(false)
 
-  const [fieldOrder, setFieldOrder] = useState('desc')
-  const [sortField, setSortField] = useState('id')
+  const fieldOrder = useHookstate('desc')
+  const sortField = useHookstate('id')
 
-  const buildStatusState = useBuildStatusState()
+  const buildStatusState = useHookstate(getMutableState(AdminBuildStatusState))
   const buildStatuses = buildStatusState.buildStatuses.value
 
   const handleOpenLogsModal = (buildStatus: BuildStatus) => {
-    setSelectedStatus(buildStatus)
-    setLogsModalOpen(true)
+    selectedStatusId.set(buildStatus.id)
+    logsModalOpen.set(true)
   }
 
   const handleClose = () => {
@@ -52,8 +53,8 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   }
 
   const handleCloseLogsModal = () => {
-    setLogsModalOpen(false)
-    setSelectedStatus(defaultBuildStatus)
+    logsModalOpen.set(false)
+    selectedStatusId.set(0)
   }
   const createData = (el: BuildStatus) => {
     return {
@@ -119,14 +120,16 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
     return createData(el)
   })
 
+  const selectedStatus = buildStatuses.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
+
   const handlePageChange = (event: unknown, newPage: number) => {
     BuildStatusService.fetchBuildStatus(newPage * 10)
-    setPage(newPage)
+    page.set(newPage)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    rowsPerPage.set(+event.target.value)
+    page.set(0)
   }
 
   useEffect(() => {
@@ -136,21 +139,21 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
-        <DialogTitle className={styles.textAlign}></DialogTitle>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.project.buildStatus')}</DialogTitle>
         <TableComponent
           allowSort={false}
-          fieldOrder={fieldOrder}
-          setSortField={setSortField}
-          setFieldOrder={setFieldOrder}
+          fieldOrder={fieldOrder.value}
+          setSortField={sortField.set}
+          setFieldOrder={fieldOrder.set}
           rows={rows}
           column={buildStatusColumns}
-          page={page}
-          rowsPerPage={rowsPerPage}
+          page={page.value}
+          rowsPerPage={rowsPerPage.value}
           count={buildStatusState.total.value}
           handlePageChange={handlePageChange}
           handleRowsPerPageChange={handleRowsPerPageChange}
         />
-        <BuildStatusLogsModal open={logsModalOpen} onClose={handleCloseLogsModal} buildStatus={selectedStatus} />
+        <BuildStatusLogsModal open={logsModalOpen.value} onClose={handleCloseLogsModal} buildStatus={selectedStatus} />
       </Container>
     </DrawerView>
   )

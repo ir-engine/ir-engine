@@ -2,7 +2,7 @@ import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'

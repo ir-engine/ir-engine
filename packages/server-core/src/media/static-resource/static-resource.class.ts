@@ -2,23 +2,13 @@ import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
 import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-
-export type CreateStaticResourceType = {
-  name?: string
-  mimeType: string
-  url: string
-  key: string
-  staticResourceType?: string
-  userId?: string
-  project?: string
-}
 
 export class StaticResource extends Service<StaticResourceInterface> {
   app: Application
@@ -27,27 +17,6 @@ export class StaticResource extends Service<StaticResourceInterface> {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
-  }
-
-  // @ts-ignore
-  async create(data: CreateStaticResourceType, params?: UserParams): Promise<StaticResourceInterface> {
-    const self = this
-    const query = {
-      $select: ['id'],
-      url: data.url
-    } as any
-    if (data.project) query.project = data.project
-    const oldResource = await this.find({
-      query
-    })
-
-    if ((oldResource as any).total > 0) {
-      return this.Model.update(data, {
-        where: { url: data.url }
-      }).then(() => self.Model.findOne({ where: { url: data.url } }))
-    } else {
-      return this.Model.create(data)
-    }
   }
 
   async find(params?: Params): Promise<StaticResourceInterface[] | Paginated<StaticResourceInterface>> {

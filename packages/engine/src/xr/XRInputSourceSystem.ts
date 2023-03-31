@@ -1,8 +1,7 @@
 import { Engine } from '../ecs/classes/Engine'
-import { World } from '../ecs/classes/World'
 import { ReferenceSpace } from './XRState'
 
-export default async function XRInputSourceSystem(world: World) {
+export default async function XRInputSourceSystem() {
   const targetRaySpace = {} as XRSpace
 
   const screenInputSource = {
@@ -38,9 +37,9 @@ export default async function XRInputSourceSystem(world: World) {
       const session = Engine.instance.xrFrame.session
       // session.inputSources is undefined when the session is ending, we should probably use xrState.sessionActive instead of Engine.instance.xrFrame
       const inputSources = session.inputSources ? session.inputSources : []
-      world.inputSources = [...defaultInputSourceArray, ...inputSources]
+      Engine.instance.inputSources = [...defaultInputSourceArray, ...inputSources]
     } else {
-      world.inputSources = defaultInputSourceArray
+      Engine.instance.inputSources = defaultInputSourceArray
     }
   }
 

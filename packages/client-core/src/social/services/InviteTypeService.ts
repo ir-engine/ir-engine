@@ -1,8 +1,15 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { InviteType } from '@etherealengine/common/src/interfaces/InviteType'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -19,7 +26,7 @@ const InviteTypeState = defineState({
 })
 
 export const InviteTypeServiceReceptor = (action) => {
-  const s = getState(InviteTypeState)
+  const s = getMutableState(InviteTypeState)
   matches(action).when(InviteTypeAction.retrievedInvitesTypes.matches, (action) => {
     return s.merge({
       invitesType: action.invitesType.data,
@@ -29,9 +36,9 @@ export const InviteTypeServiceReceptor = (action) => {
     })
   })
 }
-
-export const accessInviteTypeState = () => getState(InviteTypeState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessInviteTypeState = () => getMutableState(InviteTypeState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useInviteTypeState = () => useState(accessInviteTypeState())
 
 //Service
@@ -57,7 +64,7 @@ export const InviteTypeService = {
 //Action
 export class InviteTypeAction {
   static retrievedInvitesTypes = defineAction({
-    type: 'xre.client.InviteType.LOAD_INVITE_TYPE' as const,
+    type: 'ee.client.InviteType.LOAD_INVITE_TYPE' as const,
     total: matches.number,
     limit: matches.number,
     invitesType: matches.any as Validator<unknown, Paginated<InviteType>>,
@@ -65,6 +72,6 @@ export class InviteTypeAction {
   })
 
   static fetchingInvitesTypes = defineAction({
-    type: 'xre.client.InviteType.FETCHING_RECEIVED_INVITES_TYPES' as const
+    type: 'ee.client.InviteType.FETCHING_RECEIVED_INVITES_TYPES' as const
   })
 }

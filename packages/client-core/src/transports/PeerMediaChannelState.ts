@@ -1,7 +1,7 @@
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { defineState, getState, none } from '@xrengine/hyperflux'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
-import { ConsumerExtension, ProducerExtension } from './SocketWebRTCClientNetwork'
+import { ConsumerExtension, ProducerExtension } from './SocketWebRTCClientFunctions'
 
 export interface PeerMediaStreamInterface {
   videoStream: ProducerExtension | ConsumerExtension | null
@@ -28,7 +28,7 @@ export const PeerMediaChannelState = defineState({
 
 export const createPeerMediaChannels = (peerID: PeerID) => {
   console.log('createPeerMediaChannels', peerID)
-  const state = getState(PeerMediaChannelState)
+  const state = getMutableState(PeerMediaChannelState)
   state[peerID].set({
     cam: {
       videoStream: null,
@@ -59,6 +59,11 @@ export const createPeerMediaChannels = (peerID: PeerID) => {
 
 export const removePeerMediaChannels = (peerID: PeerID) => {
   console.log('removePeerMediaChannels', peerID)
-  const state = getState(PeerMediaChannelState)
+  const state = getMutableState(PeerMediaChannelState)
   state[peerID].set(none)
+}
+
+export const clearPeerMediaChannels = () => {
+  console.log('clearPeerMediaChannels')
+  getMutableState(PeerMediaChannelState).set({})
 }

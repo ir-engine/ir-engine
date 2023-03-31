@@ -2,30 +2,30 @@ import classNames from 'classnames'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Autocomplete from '@xrengine/client-core/src/common/components/AutoCompleteSingle'
-import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
-import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
+import Autocomplete from '@etherealengine/client-core/src/common/components/AutoCompleteSingle'
+import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-import Box from '@xrengine/ui/src/Box'
-import Container from '@xrengine/ui/src/Container'
-import DialogTitle from '@xrengine/ui/src/DialogTitle'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
-import TextField from '@xrengine/ui/src/TextField'
-import Tooltip from '@xrengine/ui/src/Tooltip'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
+import Container from '@etherealengine/ui/src/Container'
+import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
+import { AuthState } from '../../../user/services/AuthService'
+import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -56,9 +56,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     ProjectUpdateService.initializeProjectUpdate(project)
   }, [])
 
-  const projectUpdateStatus = useProjectUpdateState()[project.name]
+  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name])
 
-  const selfUser = useAuthState().user
+  const selfUser = useHookstate(getMutableState(AuthState).user)
 
   const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
     (commit: ProjectCommitInterface) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
@@ -106,8 +106,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   }
 
   const copyDestination = async () => {
-    handleChangeSource({ target: { value: projectUpdateStatus.destinationURL.value } })
-    handleChangeSourceRepo({ target: { value: projectUpdateStatus.destinationURL.value } })
+    handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
+    handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
   }
 
   const handleChangeDestinationRepo = async (e) => {

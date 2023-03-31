@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize'
 
-import config, { isDev } from '@xrengine/common/src/config'
-import appConfig from '@xrengine/server-core/src/appconfig'
+import config, { isDev } from '@etherealengine/common/src/config'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { Application } from '../declarations'
 import { seeder } from './seeder'
@@ -33,12 +33,12 @@ export default (app: Application): void => {
       promiseReject = reject
     })
 
-    app.setup = async function (...args: any) {
+    app.setup = async function (...args) {
       try {
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
 
         const tableCount = await sequelize.query(
-          `select table_schema as xrengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
+          `select table_schema as etherealengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
         )
         const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
         // Sync to the database
@@ -47,7 +47,7 @@ export default (app: Application): void => {
           if (typeof (sequelizeModel as any).associate === 'function') {
             ;(sequelizeModel as any).associate(sequelize.models)
           }
-          await sequelizeModel.sync({ force: forceRefresh })
+          await sequelizeModel.sync({ force: forceRefresh || appConfig.testEnabled })
 
           if (prepareDb) {
             const columnResult = await sequelize.query(`DESCRIBE \`${model}\``)
@@ -82,7 +82,7 @@ export default (app: Application): void => {
           const sync = await sequelize.sync()
           try {
             // configure seeder and seed
-            await seeder(app, forceRefresh, prepareDb)
+            await seeder(app, forceRefresh || appConfig.testEnabled, prepareDb)
           } catch (err) {
             logger.error('Feathers seeding error')
             logger.error(err)

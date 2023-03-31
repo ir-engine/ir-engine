@@ -1,8 +1,8 @@
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { getState } from '@xrengine/hyperflux'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -10,7 +10,7 @@ import UserMediaWindow from '../UserMediaWindow'
 import styles from './index.module.scss'
 
 export const UserMediaWindows = () => {
-  const peerMediaChannelState = useHookstate(getState(PeerMediaChannelState))
+  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
     PeerID,

@@ -3,14 +3,14 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Object3D } from 'three'
 
-import { useForceUpdate } from '@xrengine/common/src/utils/useForceUpdate'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
-import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
+import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getAllComponents } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
+import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { useEditorState } from '../../services/EditorServices'
@@ -63,7 +63,6 @@ export const PropertiesPanelContainer = () => {
   const materialLibrary = getMaterialLibrary()
   //rendering editor views for customization of element properties
   let content
-  const world = Engine.instance.currentWorld
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
   let nodeEntity = lockedNode
@@ -80,7 +79,7 @@ export const PropertiesPanelContainer = () => {
     ? materialLibrary.materials[nodeEntity as string].value ??
       Object.values(materialLibrary.materials.value).find(({ material }) => material.uuid === nodeEntity)
     : isObject3D
-    ? world.scene.getObjectByProperty('uuid', nodeEntity as string)
+    ? Engine.instance.scene.getObjectByProperty('uuid', nodeEntity as string)
     : nodeEntity
 
   if (!nodeEntity || !node) {

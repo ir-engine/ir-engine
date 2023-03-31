@@ -1,16 +1,17 @@
 import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getMutableState } from '@etherealengine/hyperflux'
 import {
   ActionRecipients,
   addActionReceptor,
   applyIncomingActions
-} from '@xrengine/hyperflux/functions/ActionFunctions'
+} from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
@@ -21,17 +22,19 @@ describe('IncomingActionSystem Unit Tests', async () => {
     createEngine()
     // this is hacky but works and preserves the logic
     Engine.instance.store.getDispatchTime = () => {
-      return Engine.instance.currentWorld.fixedTick
+      return Engine.instance.fixedTick
     }
     createMockNetwork()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
-      const world = Engine.instance.currentWorld
-
       // fixed tick in past
-      const engineState = getState(EngineState)
+      const engineState = getMutableState(EngineState)
       engineState.fixedTick.set(0)
 
       /* mock */
@@ -40,7 +43,8 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         // incoming action from future
         $time: 2,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
@@ -64,15 +68,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
     })
 
     it('should immediately apply incoming action from the past or present', () => {
-      const world = Engine.instance.currentWorld
-
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
         // incoming action from past
         $time: -1,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
@@ -91,8 +94,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
   describe('applyAndArchiveIncomingAction', () => {
     it('should cache actions where $cache = true', () => {
-      const world = Engine.instance.currentWorld
-
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
@@ -100,7 +101,8 @@ describe('IncomingActionSystem Unit Tests', async () => {
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,
-        $cache: true
+        $cache: true,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 

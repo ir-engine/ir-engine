@@ -1,47 +1,42 @@
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
 
 import WebcamInputSystem from '../media/webcam/WebcamInput'
 import AvatarUISystem from '../systems/AvatarUISystem'
 import LoadingUISystem from '../systems/LoadingUISystem'
-import PortalLoadSystem from '../systems/PortalLoadSystem'
 import PartySystem from '../systems/state/PartySystem'
 import WidgetUISystem from '../systems/WidgetUISystem'
 import UpdateNearbyUsersSystem from '../transports/UpdateNearbyUsersSystem'
 
 export const DefaultLocationSystems: SystemModuleType<any>[] = [
   {
-    uuid: 'xre.client.core.LoadingUISystem',
-    type: 'UPDATE',
+    uuid: 'ee.client.core.LoadingUISystem',
+    type: SystemUpdateType.UPDATE,
     systemLoader: () => Promise.resolve({ default: LoadingUISystem })
   },
   {
-    uuid: 'xre.client.core.AvatarUISystem',
-    type: 'UPDATE',
+    uuid: 'ee.client.core.AvatarUISystem',
+    type: SystemUpdateType.UPDATE,
     systemLoader: () => Promise.resolve({ default: AvatarUISystem })
   },
   {
-    uuid: 'xre.client.core.WidgetUISystem',
-    type: 'UPDATE',
+    uuid: 'ee.client.core.WidgetUISystem',
+    type: SystemUpdateType.UPDATE,
     systemLoader: () => Promise.resolve({ default: WidgetUISystem })
   },
   {
-    uuid: 'xre.client.core.PartySystem',
-    type: 'PRE_RENDER',
+    uuid: 'ee.client.core.PartySystem',
+    type: SystemUpdateType.PRE_RENDER,
     systemLoader: () => Promise.resolve({ default: PartySystem })
   },
   {
-    uuid: 'xre.client.core.PortalLoadSystem',
-    type: 'FIXED',
-    systemLoader: () => Promise.resolve({ default: PortalLoadSystem })
-  },
-  {
-    uuid: 'xre.client.core.UpdateNearbyUsersSystem',
-    type: 'FIXED',
+    uuid: 'ee.client.core.UpdateNearbyUsersSystem',
+    type: SystemUpdateType.FIXED,
     systemLoader: () => Promise.resolve({ default: UpdateNearbyUsersSystem })
   },
   {
-    uuid: 'xre.client.core.WebcamInputSystem',
-    type: 'UPDATE_EARLY',
+    uuid: 'ee.client.core.WebcamInputSystem',
+    type: SystemUpdateType.UPDATE_EARLY,
     systemLoader: () => Promise.resolve({ default: WebcamInputSystem })
   }
 ]

@@ -7,7 +7,7 @@ import TableHead from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/TableHead',
+  title: 'Primitives/MUI/TableHead',
   component: TableHead,
   parameters: {
     componentSubtitle: 'TableHead',

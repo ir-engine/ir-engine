@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { GithubRepoAccessInterface } from '@xrengine/common/src/dbmodels/GithubRepoAccess'
+import { GithubRepoAccessInterface } from '@etherealengine/common/src/dbmodels/GithubRepoAccess'
 
 import { Application } from '../../../declarations'
 

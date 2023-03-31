@@ -9,7 +9,7 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -32,8 +32,12 @@ describe('Physics', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
-    Engine.instance.currentWorld.physicsWorld.timestep = 1 / 60
+    Engine.instance.physicsWorld = Physics.createWorld()
+    Engine.instance.physicsWorld.timestep = 1 / 60
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('should create rapier world & event queue', async () => {
@@ -44,10 +48,9 @@ describe('Physics', () => {
   })
 
   it('should create & remove rigidBody', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = Engine.instance.physicsWorld
 
-    const entity = createEntity(world)
+    const entity = createEntity()
     setTransformComponent(entity)
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
@@ -69,9 +72,8 @@ describe('Physics', () => {
   })
 
   it('component type should match rigid body type', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
-    const entity = createEntity(world)
+    const physicsWorld = Engine.instance.physicsWorld
+    const entity = createEntity()
 
     setTransformComponent(entity)
 
@@ -118,10 +120,9 @@ describe('Physics', () => {
   })
 
   it('should create rigid body from input mesh & config data', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = Engine.instance.physicsWorld
 
-    const entity = createEntity(world)
+    const entity = createEntity()
     setTransformComponent(entity)
 
     const geometry = new BoxGeometry(1, 1, 1)
@@ -154,10 +155,9 @@ describe('Physics', () => {
   })
 
   it('should change rigidBody type', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = Engine.instance.physicsWorld
 
-    const entity = createEntity(world)
+    const entity = createEntity()
     setTransformComponent(entity)
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
@@ -184,10 +184,9 @@ describe('Physics', () => {
   })
 
   it('should cast ray and hit rigidbody', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = Engine.instance.physicsWorld
 
-    const entity = createEntity(world)
+    const entity = createEntity()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic().setTranslation(10, 0, 0)
     const colliderDesc = ColliderDesc.cylinder(5, 5).setCollisionGroups(
@@ -214,14 +213,13 @@ describe('Physics', () => {
   })
 
   it('should generate a collision event', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = Engine.instance.physicsWorld
 
-    const entity1 = createEntity(world)
-    const entity2 = createEntity(world)
+    const entity1 = createEntity()
+    const entity2 = createEntity()
 
-    addComponent(entity1, CollisionComponent, new Map())
-    addComponent(entity2, CollisionComponent, new Map())
+    addComponent(entity1, CollisionComponent)
+    addComponent(entity2, CollisionComponent)
 
     setTransformComponent(entity1)
     setTransformComponent(entity2)
@@ -272,14 +270,13 @@ describe('Physics', () => {
   })
 
   it('should generate a trigger event', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = Engine.instance.physicsWorld
 
-    const entity1 = createEntity(world)
-    const entity2 = createEntity(world)
+    const entity1 = createEntity()
+    const entity2 = createEntity()
 
-    addComponent(entity1, CollisionComponent, new Map())
-    addComponent(entity2, CollisionComponent, new Map())
+    addComponent(entity1, CollisionComponent)
+    addComponent(entity2, CollisionComponent)
 
     setTransformComponent(entity1)
     setTransformComponent(entity2)

@@ -1,4 +1,4 @@
-import { DeepReadonly } from '@xrengine/common/src/DeepReadonly'
+import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 
 import { Entity } from './classes/Entity'
 import { entityExists } from './functions/EntityFunctions'

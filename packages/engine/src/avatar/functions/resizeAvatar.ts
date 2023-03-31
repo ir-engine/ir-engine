@@ -29,7 +29,7 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
 
   if (!hasComponent(entity, RigidBodyComponent)) return
 
-  Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+  Physics.removeCollidersFromRigidBody(entity, Engine.instance.physicsWorld)
 
   const collider = createAvatarCollider(entity)
 

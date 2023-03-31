@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { AvatarClientModule } from '@xrengine/engine/src/avatar/AvatarClientModule'
-import { AvatarCommonModule } from '@xrengine/engine/src/avatar/AvatarCommonModule'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { initSystems, unloadSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SceneClientModule } from '@xrengine/engine/src/scene/SceneClientModule'
-import { SceneCommonModule } from '@xrengine/engine/src/scene/SceneCommonModule'
-import { TransformModule } from '@xrengine/engine/src/transform/TransformModule'
-import Box from '@xrengine/ui/src/Box'
-import Button from '@xrengine/ui/src/Button'
-import Grid from '@xrengine/ui/src/Grid'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { AvatarClientModule } from '@etherealengine/engine/src/avatar/AvatarClientModule'
+import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
+import { RendererModule } from '@etherealengine/engine/src/renderer/RendererModule'
+import { SceneClientModule } from '@etherealengine/engine/src/scene/SceneClientModule'
+import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
+import { TransformModule } from '@etherealengine/engine/src/transform/TransformModule'
+import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import Search from '../../common/Search'
 import { AdminAvatarService } from '../../services/AvatarService'
@@ -28,22 +28,14 @@ const Avatar = () => {
   const [openDeleteAvatarModal, setOpenDeleteAvatarModal] = React.useState(false)
   const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
 
-  useEffect(() => {
-    const systems = [
-      ...TransformModule(),
-      ...SceneCommonModule(),
-      ...SceneClientModule(),
-      ...AvatarCommonModule(),
-      ...AvatarClientModule()
-    ]
-    initSystems(Engine.instance.currentWorld, systems)
-    return () => {
-      unloadSystems(
-        Engine.instance.currentWorld,
-        systems.map((s) => s.uuid)
-      )
-    }
-  }, [])
+  useSystems([
+    ...TransformModule(),
+    ...RendererModule(),
+    ...SceneCommonModule(),
+    ...SceneClientModule(),
+    ...AvatarCommonModule(),
+    ...AvatarClientModule()
+  ])
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

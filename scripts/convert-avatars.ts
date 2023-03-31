@@ -6,10 +6,10 @@ import dotenv from 'dotenv-flow'
 import fetch from 'node-fetch'
 import Sequelize, { DataTypes, Op } from 'sequelize'
 
-import { ServerMode } from '@xrengine/server-core/declarations'
-import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
-import { getCachedURL } from '@xrengine/server-core/src/media/storageprovider/getCachedURL'
-import { addGenericAssetToS3AndStaticResources } from '@xrengine/server-core/src/media/upload-asset/upload-asset.service'
+import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
+import { addGenericAssetToS3AndStaticResources } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,
@@ -18,10 +18,11 @@ dotenv.config({
 const db = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrengine',
+  database: process.env.MYSQL_DATABASE ?? 'etherealengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql'
+  dialect: 'mysql',
+  url: ''
 }
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
@@ -31,6 +32,7 @@ cli.enable('status')
 cli.main(async () => {
   try {
     const app = createFeathersExpressApp(ServerMode.API)
+    await app.setup()
     const sequelizeClient = new Sequelize({
       ...db,
       logging: console.log,

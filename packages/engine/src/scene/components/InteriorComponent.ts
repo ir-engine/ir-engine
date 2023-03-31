@@ -19,6 +19,13 @@ export const InteriorComponent = defineComponent({
       size: new Vector2().copy(SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES.size)
     } as InteriorComponentType
   },
+  toJSON(entity, component) {
+    return {
+      cubeMap: component.cubeMap.value,
+      tiling: component.tiling.value,
+      size: component.size.value
+    }
+  },
   errors: ['LOADING_ERROR']
 })
 

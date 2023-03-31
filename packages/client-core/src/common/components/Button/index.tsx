@@ -1,10 +1,10 @@
 import React from 'react'
 
-import Text from '@xrengine/client-core/src/common/components/Text'
-import Box from '@xrengine/ui/src/Box'
-import { default as MUIButton } from '@xrengine/ui/src/Button'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import Box from '@etherealengine/ui/src/Box'
+import { default as MUIButton } from '@etherealengine/ui/src/Button'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

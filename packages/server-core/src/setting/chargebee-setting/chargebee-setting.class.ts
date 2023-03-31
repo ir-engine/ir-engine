@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { ChargebeeSetting as ChargebeeSettingDataType } from '@xrengine/common/src/interfaces/ChargebeeSetting'
+import { ChargebeeSetting as ChargebeeSettingDataType } from '@etherealengine/common/src/interfaces/ChargebeeSetting'
 
 import { Application } from '../../../declarations'
 

@@ -5,29 +5,29 @@ import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import config from '@xrengine/common/src/config'
-import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
-import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import config from '@etherealengine/common/src/config'
+import { AuthStrategies } from '@etherealengine/common/src/interfaces/AuthStrategies'
+import { AuthUser, AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
+import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import {
   resolveUser,
   resolveWalletUser,
   UserInterface,
   UserSeed,
   UserSetting
-} from '@xrengine/common/src/interfaces/User'
-import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+} from '@etherealengine/common/src/interfaces/User'
+import { UserApiKey } from '@etherealengine/common/src/interfaces/UserApiKey'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   defineAction,
   defineState,
   dispatchAction,
-  getState,
+  getMutableState,
   syncStateWithLocalStorage,
   useState
-} from '@xrengine/hyperflux'
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -51,8 +51,9 @@ export const AuthState = defineState({
     syncStateWithLocalStorage(AuthState, ['authUser'])
   }
 })
-
-export const accessAuthState = () => getState(AuthState)
+/**@deprecated use getMutableState directly instead */
+export const accessAuthState = () => getMutableState(AuthState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useAuthState = () => useState(accessAuthState())
 
 export interface EmailLoginForm {
@@ -74,7 +75,7 @@ export interface LinkedInLoginForm {
 }
 
 export const AuthServiceReceptor = (action) => {
-  const s = getState(AuthState)
+  const s = getMutableState(AuthState)
   matches(action)
     .when(AuthAction.actionProcessing.matches, (action) => {
       return s.merge({ isProcessing: action.processing, error: '' })
@@ -137,118 +138,118 @@ export const AuthServiceReceptor = (action) => {
 
 export class AuthAction {
   static actionProcessing = defineAction({
-    type: 'xre.client.Auth.ACTION_PROCESSING' as const,
+    type: 'ee.client.Auth.ACTION_PROCESSING' as const,
     processing: matches.boolean
   })
 
   static loginUserSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_SUCCESS' as const,
     authUser: matches.object as Validator<unknown, AuthUser>,
     message: matches.string
   })
 
   static loginUserErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_ERROR' as const,
     message: matches.string
   })
 
   static loginUserByGithubSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_GITHUB_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_GITHUB_SUCCESS' as const,
     message: matches.string
   })
 
   static loginUserByGithubErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_GITHUB_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_GITHUB_ERROR' as const,
     message: matches.string
   })
 
   static loginUserByLinkedinSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
     message: matches.string
   })
 
   static loginUserByLinkedinErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_LINKEDIN_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_LINKEDIN_ERROR' as const,
     message: matches.string
   })
 
   static didLogoutAction = defineAction({
-    type: 'xre.client.Auth.LOGOUT_USER' as const
+    type: 'ee.client.Auth.LOGOUT_USER' as const
   })
 
   static registerUserByEmailSuccessAction = defineAction({
-    type: 'xre.client.Auth.REGISTER_USER_BY_EMAIL_SUCCESS' as const,
+    type: 'ee.client.Auth.REGISTER_USER_BY_EMAIL_SUCCESS' as const,
     identityProvider: matches.object as Validator<unknown, IdentityProvider>,
     message: matches.string
   })
 
   static registerUserByEmailErrorAction = defineAction({
-    type: 'xre.client.Auth.REGISTER_USER_BY_EMAIL_ERROR' as const,
+    type: 'ee.client.Auth.REGISTER_USER_BY_EMAIL_ERROR' as const,
     message: matches.string
   })
 
   static didVerifyEmailAction = defineAction({
-    type: 'xre.client.Auth.DID_VERIFY_EMAIL' as const,
+    type: 'ee.client.Auth.DID_VERIFY_EMAIL' as const,
     result: matches.boolean
   })
 
   static didResendVerificationEmailAction = defineAction({
-    type: 'xre.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
+    type: 'ee.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
     result: matches.boolean
   })
 
   static didForgotPasswordAction = defineAction({
-    type: 'xre.client.Auth.DID_FORGOT_PASSWORD' as const,
+    type: 'ee.client.Auth.DID_FORGOT_PASSWORD' as const,
     result: matches.boolean
   })
 
   static didResetPasswordAction = defineAction({
-    type: 'xre.client.Auth.DID_RESET_PASSWORD' as const,
+    type: 'ee.client.Auth.DID_RESET_PASSWORD' as const,
     result: matches.boolean
   })
 
   static didCreateMagicLinkAction = defineAction({
-    type: 'xre.client.Auth.DID_CREATE_MAGICLINK' as const,
+    type: 'ee.client.Auth.DID_CREATE_MAGICLINK' as const,
     result: matches.boolean
   })
 
   static loadedUserDataAction = defineAction({
-    type: 'xre.client.Auth.LOADED_USER_DATA' as const,
+    type: 'ee.client.Auth.LOADED_USER_DATA' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updatedUserSettingsAction = defineAction({
-    type: 'xre.client.Auth.UPDATE_USER_SETTINGS' as const,
+    type: 'ee.client.Auth.UPDATE_USER_SETTINGS' as const,
     data: matches.object as Validator<unknown, UserSetting>
   })
 
   static avatarUpdatedAction = defineAction({
-    type: 'xre.client.Auth.AVATAR_UPDATED' as const,
+    type: 'ee.client.Auth.AVATAR_UPDATED' as const,
     url: matches.any
   })
 
   static usernameUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USERNAME_UPDATED' as const,
+    type: 'ee.client.Auth.USERNAME_UPDATED' as const,
     name: matches.string
   })
 
   static userAvatarIdUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USERAVATARID_UPDATED' as const,
+    type: 'ee.client.Auth.USERAVATARID_UPDATED' as const,
     avatarId: matches.string
   })
 
   static userPatchedAction = defineAction({
-    type: 'xre.client.Auth.USER_PATCHED' as const,
+    type: 'ee.client.Auth.USER_PATCHED' as const,
     params: matches.any
   })
 
   static userUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USER_UPDATED' as const,
+    type: 'ee.client.Auth.USER_UPDATED' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static apiKeyUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USER_API_KEY_UPDATED' as const,
+    type: 'ee.client.Auth.USER_API_KEY_UPDATED' as const,
     apiKey: matches.object as Validator<unknown, UserApiKey>
   })
 }
@@ -274,7 +275,7 @@ async function _resetToGuestToken(options = { reset: true }) {
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
     try {
-      const authData = getState(AuthState)
+      const authData = getMutableState(AuthState)
       let accessToken = !forceClientAuthReset && authData?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) {
@@ -508,7 +509,7 @@ export const AuthService = {
       // in properly. This interval waits to make sure the token has been updated before redirecting
       const waitForTokenStored = setInterval(() => {
         timeoutTimer += TIMEOUT_INTERVAL
-        const authData = getState(AuthState)
+        const authData = getMutableState(AuthState)
         const storedToken = authData.authUser?.accessToken?.value
         if (storedToken === accessToken) {
           clearInterval(waitForTokenStored)

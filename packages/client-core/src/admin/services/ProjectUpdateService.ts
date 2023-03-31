@@ -1,22 +1,22 @@
 import { none } from '@hookstate/core'
 
-import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
-import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
+import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-const ProjectUpdateState = defineState({
+export const ProjectUpdateState = defineState({
   name: 'ProjectUpdateState',
   initial: () => ({})
 })
 
 const initializeProjectUpdateReceptor = (action: typeof ProjectUpdateActions.initializeProjectUpdate.matches._TYPE) => {
-  const state = getState(ProjectUpdateState)
+  const state = getMutableState(ProjectUpdateState)
   return state[action.project.name].set({
     branchProcessing: false,
     destinationProcessing: false,
@@ -51,19 +51,19 @@ const initializeProjectUpdateReceptor = (action: typeof ProjectUpdateActions.ini
 }
 
 const clearProjectUpdateReceptor = (action: typeof ProjectUpdateActions.clearProjectUpdates.matches._TYPE) => {
-  const state = getState(ProjectUpdateState)
+  const state = getMutableState(ProjectUpdateState)
   return state[action.project.name].set(none)
 }
 
 const setProjectUpdateFieldReceptor = (action: typeof ProjectUpdateActions.setProjectUpdateField.matches._TYPE) => {
-  const state = getState(ProjectUpdateState)
+  const state = getMutableState(ProjectUpdateState)
   if (state[action.project.name] && state[action.project.name][action.fieldName])
     return state[action.project.name][action.fieldName].set(action.value)
   return state
 }
 
 const mergeProjectUpdateFieldReceptor = (action: typeof ProjectUpdateActions.mergeProjectUpdateField.matches._TYPE) => {
-  const state = getState(ProjectUpdateState)
+  const state = getMutableState(ProjectUpdateState)
   if (state[action.project.name] && state[action.project.name][action.fieldName]) {
     const field = state[action.project.name][action.fieldName]
     const matchIndex = field.value!.findIndex((fieldItem) => {
@@ -81,10 +81,6 @@ export const ProjectUpdateReceptors = {
   setProjectUpdateFieldReceptor,
   mergeProjectUpdateFieldReceptor
 }
-
-export const accessProjectUpdateState = () => getState(ProjectUpdateState)
-
-export const useProjectUpdateState = () => useState(accessProjectUpdateState())
 
 export const ProjectUpdateService = {
   initializeProjectUpdate: (project: ProjectInterface) => {
@@ -273,24 +269,24 @@ export const ProjectUpdateService = {
 
 export class ProjectUpdateActions {
   static clearProjectUpdates = defineAction({
-    type: 'xre.client.ProjectUpdate.CLEAR_PROJECT_UPDATE' as const,
+    type: 'ee.client.ProjectUpdate.CLEAR_PROJECT_UPDATE' as const,
     project: matches.object as Validator<unknown, ProjectInterface>
   })
 
   static initializeProjectUpdate = defineAction({
-    type: 'xre.client.ProjectUpdate.INITIALIZE_PROJECT_UPDATE' as const,
+    type: 'ee.client.ProjectUpdate.INITIALIZE_PROJECT_UPDATE' as const,
     project: matches.object as Validator<unknown, ProjectInterface>
   })
 
   static setProjectUpdateField = defineAction({
-    type: 'xre.client.ProjectUpdate.SET_PROJECT_UPDATE_FIELD' as const,
+    type: 'ee.client.ProjectUpdate.SET_PROJECT_UPDATE_FIELD' as const,
     project: matches.object as Validator<unknown, ProjectInterface>,
     fieldName: matches.string,
     value: matches.any
   })
 
   static mergeProjectUpdateField = defineAction({
-    type: 'xre.client.ProjectUpdate.MERGE_PROJECT_UPDATE_FIELD' as const,
+    type: 'ee.client.ProjectUpdate.MERGE_PROJECT_UPDATE_FIELD' as const,
     project: matches.object as Validator<unknown, ProjectInterface>,
     fieldName: matches.string,
     uniquenessField: matches.string,

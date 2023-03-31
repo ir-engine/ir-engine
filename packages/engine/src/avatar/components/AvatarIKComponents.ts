@@ -5,7 +5,6 @@ import { isClient } from '../../common/functions/isClient'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  createMappedComponent,
   defineComponent,
   getComponent,
   hasComponent,
@@ -27,9 +26,8 @@ export const AvatarHeadDecapComponent = defineComponent({
 
     useEffect(() => {
       if (rig?.value) {
-        if (headDecap?.value) {
-          rig.value.rig.Head?.scale.setScalar(EPSILON)
-        } else {
+        if (headDecap?.value) rig.value.rig.Head?.scale.setScalar(EPSILON)
+        return () => {
           rig.value.rig.Head?.scale.setScalar(1)
         }
       }
@@ -52,10 +50,32 @@ const XRHeadIKSchema = {
   target: PoseSchema
 }
 
-export const AvatarHeadIKComponent = createMappedComponent<AvatarHeadIKComponentType, typeof XRHeadIKSchema>(
-  'AvatarHeadIKComponent',
-  XRHeadIKSchema
-)
+export const AvatarHeadIKComponent = defineComponent({
+  name: 'AvatarHeadIKComponent',
+  schema: XRHeadIKSchema,
+
+  onInit(entity) {
+    const target = new Object3D()
+    target.name = `ik-head-target-${entity}`
+
+    proxifyVector3(AvatarHeadIKComponent.target.position, entity, target.position)
+    proxifyQuaternion(AvatarHeadIKComponent.target.rotation, entity, target.quaternion)
+
+    target.position.y += 1.8
+
+    return {
+      target,
+      rotationClamp: 0.785398
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.target) component.target.set(json.target as Object3D)
+    if (json.rotationClamp) component.rotationClamp.set(json.rotationClamp)
+  }
+})
 
 /**
  * Avatar Hands IK Solver Component.
@@ -80,24 +100,13 @@ export const AvatarLeftArmIKComponent = defineComponent({
 
   schema: HandIKSchema,
 
-  onInit(entity, world) {
+  onInit(entity) {
     const leftHint = new Object3D()
     leftHint.name = `ik-left-hint-${entity}`
     const leftOffset = new Object3D()
     leftOffset.name = `ik-left-offset-${entity}`
 
-    const rig = getComponent(entity, AvatarRigComponent)
-
     leftOffset.rotation.set(-Math.PI * 0.5, Math.PI, 0)
-
-    if (isClient) {
-      rig.rig.LeftShoulder.getWorldPosition(leftHint.position)
-      rig.rig.LeftArm.getWorldPosition(_vec)
-      _vec.subVectors(_vec, leftHint.position).normalize()
-      leftHint.position.add(_vec)
-      rig.rig.LeftShoulder.attach(leftHint)
-      leftHint.updateMatrixWorld(true)
-    }
 
     const target = new Object3D()
     target.name = `ik-right-target-${entity}`
@@ -118,13 +127,35 @@ export const AvatarLeftArmIKComponent = defineComponent({
   onRemove(entity, world) {
     const leftHand = getComponent(entity, AvatarLeftArmIKComponent)
     leftHand?.hint?.removeFromParent()
+  },
+
+  reactor: function ({ root }) {
+    const entity = root.entity
+
+    const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
+
+    useEffect(() => {
+      if (!rigComponent?.value) return
+
+      const rig = rigComponent.value
+
+      const { hint } = getComponent(entity, AvatarLeftArmIKComponent)
+      rig.rig.LeftShoulder.getWorldPosition(hint.position)
+      rig.rig.LeftArm.getWorldPosition(_vec)
+      _vec.subVectors(_vec, hint.position).normalize()
+      hint.position.add(_vec)
+      rig.rig.LeftShoulder.attach(hint)
+      hint.updateMatrixWorld(true)
+    }, [rigComponent])
+
+    return null
   }
 })
 
 export const AvatarRightArmIKComponent = defineComponent({
   name: 'AvatarLeftArmIKComponent',
   schema: HandIKSchema,
-  onInit(entity, world) {
+  onInit(entity) {
     const rightHint = new Object3D()
     rightHint.name = `ik-right-hint-${entity}`
     const rightOffset = new Object3D()
@@ -137,12 +168,6 @@ export const AvatarRightArmIKComponent = defineComponent({
     rightOffset.updateMatrixWorld(true)
 
     if (isClient) {
-      rig.rig.RightShoulder.getWorldPosition(rightHint.position)
-      rig.rig.RightArm.getWorldPosition(_vec)
-      _vec.subVectors(_vec, rightHint.position).normalize()
-      rightHint.position.add(_vec)
-      rig.rig.RightShoulder.attach(rightHint)
-      rightHint.updateMatrixWorld(true)
     }
 
     const target = new Object3D()
@@ -164,6 +189,28 @@ export const AvatarRightArmIKComponent = defineComponent({
   onRemove(entity, world) {
     const rightHand = getComponent(entity, AvatarRightArmIKComponent)
     rightHand?.hint?.removeFromParent()
+  },
+
+  reactor: function ({ root }) {
+    const entity = root.entity
+
+    const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
+
+    useEffect(() => {
+      if (!rigComponent?.value) return
+
+      const rig = rigComponent.value
+
+      const { hint } = getComponent(entity, AvatarRightArmIKComponent)
+      rig.rig.RightShoulder.getWorldPosition(hint.position)
+      rig.rig.RightArm.getWorldPosition(_vec)
+      _vec.subVectors(_vec, hint.position).normalize()
+      hint.position.add(_vec)
+      rig.rig.RightShoulder.attach(hint)
+      hint.updateMatrixWorld(true)
+    }, [rigComponent])
+
+    return null
   }
 })
 
@@ -173,7 +220,24 @@ export type AvatarIKTargetsType = {
   rightHand: boolean
 }
 
-export const AvatarIKTargetsComponent = createMappedComponent<AvatarIKTargetsType>('AvatarIKTargetsComponent')
+export const AvatarIKTargetsComponent = defineComponent({
+  name: 'AvatarIKTargetsComponent',
+
+  onInit(entity) {
+    return {
+      head: false,
+      leftHand: false,
+      rightHand: false
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+    if (typeof json.head === 'boolean') component.head.set(json.head)
+    if (typeof json.leftHand === 'boolean') component.leftHand.set(json.leftHand)
+    if (typeof json.rightHand === 'boolean') component.rightHand.set(json.rightHand)
+  }
+})
 
 /**
  * Gets the hand position in world space

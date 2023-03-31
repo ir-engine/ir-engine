@@ -1,14 +1,20 @@
 import { Object3D } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   EntityOrObjectUUID,
   EntityTreeComponent,
   findIndexOfEntityNode
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/GroupComponent'
-import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
+import { getState } from '@etherealengine/hyperflux'
 
 import traverseEarlyOut from './traverseEarlyOut'
 
@@ -75,12 +81,12 @@ export const isAncestor = (parent: EntityOrObjectUUID, potentialChild: EntityOrO
 }
 
 const getEntityNode = (uuid: string) => {
-  const world = Engine.instance.currentWorld
+  const sceneEntity = getState(SceneState).sceneEntity
   let obj3d = obj3dFromUuid(uuid) as Object3DWithEntity
   while (obj3d) {
     if (
       obj3d.entity !== undefined &&
-      getOptionalComponent(obj3d.entity, EntityTreeComponent)?.rootEntity === world.sceneEntity
+      getOptionalComponent(obj3d.entity, EntityTreeComponent)?.rootEntity === sceneEntity
     )
       return obj3d.entity
     obj3d = obj3d.parent as Object3DWithEntity

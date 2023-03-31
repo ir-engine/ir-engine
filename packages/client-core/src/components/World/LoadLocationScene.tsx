@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { retrieveLocationByName } from './LocationLoadHelper'
+import {
+  LocationAction,
+  LocationService,
+  useLocationState
+} from '@etherealengine/client-core/src/social/services/LocationService'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 export const LoadLocationScene = () => {
   const { t } = useTranslation()
@@ -32,7 +33,7 @@ export const LoadLocationScene = () => {
       locationState.locationName.value &&
       authState.isLoggedIn.value
     ) {
-      retrieveLocationByName(locationState.locationName.value, selfUser.id.value)
+      LocationService.getLocationByName(locationState.locationName.value, selfUser.id.value)
     }
   }, [authState.isLoggedIn.value, locationState.locationName.value])
 

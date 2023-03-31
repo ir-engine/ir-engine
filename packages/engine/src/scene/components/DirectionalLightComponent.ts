@@ -1,15 +1,10 @@
 import { useEffect } from 'react'
 import { Color, DirectionalLight, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, Vector2 } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import {
-  createMappedComponent,
-  defineComponent,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -19,7 +14,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new DirectionalLight()
     light.target.position.set(0, 0, 1)
     light.target.name = 'light-target'
@@ -42,7 +37,7 @@ export const DirectionalLightComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
-    if (matches.string.test(json.color)) component.color.value.set(json.color)
+    if (matches.string.test(json.color) || matches.number.test(json.color)) component.color.value.set(json.color)
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
@@ -74,9 +69,7 @@ export const DirectionalLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, DirectionalLightComponent)) throw root.stop()
-
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, DirectionalLightComponent)
 
     useEffect(() => {

@@ -22,9 +22,9 @@ export class FXAAEffect extends Effect {
       blendFunction,
 
       uniforms: new Map([
-        ['tDiffuse', new Uniform(null)],
+        ['tDiffuse', new Uniform(null as WebGLRenderTarget | null)],
         ['resolution', new Uniform(new Vector2())]
-      ])
+      ] as [string, Uniform<any>][])
     })
 
     /**

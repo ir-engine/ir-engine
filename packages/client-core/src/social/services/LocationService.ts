@@ -1,15 +1,15 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Location, LocationSeed } from '@etherealengine/common/src/interfaces/Location'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 //State
-const LocationState = defineState({
+export const LocationState = defineState({
   name: 'LocationState',
   initial: () => ({
     locationName: null! as string,
@@ -27,7 +27,7 @@ const LocationState = defineState({
 })
 
 export const LocationServiceReceptor = (action) => {
-  const s = getState(LocationState)
+  const s = getMutableState(LocationState)
   matches(action)
     .when(LocationAction.setLocationName.matches, (action) => {
       return s.merge({
@@ -94,8 +94,9 @@ export const LocationServiceReceptor = (action) => {
     })
 }
 
-export const accessLocationState = () => getState(LocationState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessLocationState = () => getMutableState(LocationState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLocationState = () => useState(accessLocationState())
 
 //Service
@@ -159,34 +160,34 @@ export const LocationService = {
 //Action
 export class LocationAction {
   static setLocationName = defineAction({
-    type: 'xre.client.Location.LOCATION_NAME_SET' as const,
+    type: 'ee.client.Location.LOCATION_NAME_SET' as const,
     locationName: matches.string
   })
 
   static socialLocationRetrieved = defineAction({
-    type: 'xre.client.Location.LOCATION_RETRIEVED' as const,
+    type: 'ee.client.Location.LOCATION_RETRIEVED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static socialLocationBanCreated = defineAction({
-    type: 'xre.client.Location.LOCATION_BAN_CREATED' as const
+    type: 'ee.client.Location.LOCATION_BAN_CREATED' as const
   })
 
   static fetchingCurrentSocialLocation = defineAction({
-    type: 'xre.client.Location.FETCH_CURRENT_LOCATION' as const
+    type: 'ee.client.Location.FETCH_CURRENT_LOCATION' as const
   })
 
   static socialLocationNotFound = defineAction({
-    type: 'xre.client.Location.LOCATION_NOT_FOUND' as const
+    type: 'ee.client.Location.LOCATION_NOT_FOUND' as const
   })
 
   static socialLocationNotAuthorized = defineAction({
-    type: 'xre.client.Location.LOCATION_NOT_AUTHORIZED' as const,
+    type: 'ee.client.Location.LOCATION_NOT_AUTHORIZED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static socialSelfUserBanned = defineAction({
-    type: 'xre.client.Location.LOCATION_LOCAL_USER_BANNED' as const,
+    type: 'ee.client.Location.LOCATION_LOCAL_USER_BANNED' as const,
     banned: matches.boolean
   })
 }

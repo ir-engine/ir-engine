@@ -1,8 +1,8 @@
 import { VariantType } from 'notistack'
 
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, dispatchAction } from '@xrengine/hyperflux'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import { defaultAction } from '../components/NotificationActions'
 
@@ -28,7 +28,7 @@ export const NotificationService = {
 
 export class NotificationAction {
   static notify = defineAction({
-    type: 'xre.client.Notification.ENQUEUE_NOTIFICATION' as const,
+    type: 'ee.client.Notification.ENQUEUE_NOTIFICATION' as const,
     message: matches.string,
     options: matches.object as Validator<unknown, NotificationOptions>
   })

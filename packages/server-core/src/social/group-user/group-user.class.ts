@@ -1,6 +1,6 @@
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { GroupUser as GroupUserInterface } from '@xrengine/common/src/interfaces/GroupUser'
+import { GroupUser as GroupUserInterface } from '@etherealengine/common/src/interfaces/GroupUser'
 
 import { Application } from '../../../declarations'
 

@@ -4,7 +4,7 @@ export const getClientSetting = async () => {
   const db = {
     username: process.env.MYSQL_USER ?? 'server',
     password: process.env.MYSQL_PASSWORD ?? 'password',
-    database: process.env.MYSQL_DATABASE ?? 'xrengine',
+    database: process.env.MYSQL_DATABASE ?? 'etherealengine',
     host: process.env.MYSQL_HOST ?? '127.0.0.1',
     port: process.env.MYSQL_PORT ?? 3306,
     dialect: 'mysql',
@@ -75,8 +75,8 @@ export const getClientSetting = async () => {
         icon512px: dbClient.icon512px
       }) || {
         logo: './logo.svg',
-        title: 'XREngine',
-        url: 'https://local.etherealengine.com',
+        title: 'Ethereal Engine',
+        url: 'https://local.etherealengine.org',
         releaseName: 'local',
         siteDescription: 'Connected Worlds for Everyone',
         favicon32px: '/favicon-32x32.png',

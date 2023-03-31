@@ -2,19 +2,21 @@ import { Params } from '@feathersjs/feathers'
 import express from 'express'
 import multer from 'multer'
 
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState } from '@etherealengine/hyperflux'
 
-import { Application, ServerMode } from '../../../declarations'
+import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
 import logger from '../../ServerLogger'
+import { ServerMode, ServerState } from '../../ServerState'
 import { getAllPortals, getEnvMapBake, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     scene: Scene
     'scene/upload': {
@@ -163,7 +165,7 @@ export default (app: Application) => {
 
   service.hooks(hooks)
 
-  if (app.serverMode === ServerMode.API)
+  if (getState(ServerState).serverMode === ServerMode.API)
     service.publish('updated', async (data, context) => {
       const instances = await getActiveInstancesForScene(app)({ query: { sceneId: data.sceneId } })
       const users = (

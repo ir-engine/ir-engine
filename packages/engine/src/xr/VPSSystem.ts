@@ -1,7 +1,7 @@
-import { createActionQueue, removeActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
-import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, getComponentState, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { Engine } from '../ecs/classes/Engine'
+import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import {
   PersistentAnchorActions,
@@ -9,11 +9,9 @@ import {
   SCENE_COMPONENT_PERSISTENT_ANCHOR
 } from './XRAnchorComponents'
 
-export async function VPSSystem(world: World) {
-  world.sceneComponentRegistry.set(PersistentAnchorComponent.name, SCENE_COMPONENT_PERSISTENT_ANCHOR)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSISTENT_ANCHOR, {
-    defaultData: {}
-  })
+export async function VPSSystem() {
+  Engine.instance.sceneComponentRegistry.set(PersistentAnchorComponent.name, SCENE_COMPONENT_PERSISTENT_ANCHOR)
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSISTENT_ANCHOR, {})
 
   const vpsAnchorQuery = defineQuery([PersistentAnchorComponent])
   const vpsAnchorFoundQueue = createActionQueue(PersistentAnchorActions.anchorFound.matches)
@@ -25,7 +23,7 @@ export async function VPSSystem(world: World) {
 
     for (const action of vpsAnchorFoundQueue()) {
       for (const entity of anchors) {
-        const anchor = getComponentState(entity, PersistentAnchorComponent)
+        const anchor = getMutableComponent(entity, PersistentAnchorComponent)
         if (anchor.name.value === action.name) {
           anchor.active.set(true)
           const localTransform = getComponent(entity, LocalTransformComponent)
@@ -37,7 +35,7 @@ export async function VPSSystem(world: World) {
 
     for (const action of vpsAnchorUpdatedQueue()) {
       for (const entity of anchors) {
-        const anchor = getComponentState(entity, PersistentAnchorComponent)
+        const anchor = getMutableComponent(entity, PersistentAnchorComponent)
         if (anchor.name.value === action.name) {
           const localTransform = getComponent(entity, LocalTransformComponent)
           localTransform.position.copy(action.position)
@@ -48,19 +46,19 @@ export async function VPSSystem(world: World) {
 
     for (const action of vpsAnchorLostQueue()) {
       for (const entity of anchors) {
-        const anchor = getComponentState(entity, PersistentAnchorComponent)
+        const anchor = getMutableComponent(entity, PersistentAnchorComponent)
         if (anchor.name.value === action.name) anchor.active.set(false)
       }
     }
   }
 
   const cleanup = async () => {
-    world.sceneComponentRegistry.delete(PersistentAnchorComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_PERSISTENT_ANCHOR)
+    Engine.instance.sceneComponentRegistry.delete(PersistentAnchorComponent.name)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PERSISTENT_ANCHOR)
     removeActionQueue(vpsAnchorFoundQueue)
     removeActionQueue(vpsAnchorUpdatedQueue)
     removeActionQueue(vpsAnchorLostQueue)
-    removeQuery(world, vpsAnchorQuery)
+    removeQuery(vpsAnchorQuery)
   }
 
   return { execute, cleanup, subsystems: [] }

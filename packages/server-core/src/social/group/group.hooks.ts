@@ -1,9 +1,9 @@
 import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
 
-import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
-import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
-import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
+import createGroupOwner from '@etherealengine/server-core/src/hooks/create-group-owner'
+import groupPermissionAuthenticate from '@etherealengine/server-core/src/hooks/group-permission-authenticate'
+import removeGroupUsers from '@etherealengine/server-core/src/hooks/remove-group-users'
 
 import authenticate from '../../hooks/authenticate'
 import logger from '../../ServerLogger'
@@ -52,13 +52,13 @@ export default {
       createGroupOwner(),
       async (context: HookContext): Promise<HookContext> => {
         try {
-          const data = context.arguments[0]?.scopeTypes?.map((el) => {
+          const data = context.arguments[0]?.scopes?.map((el) => {
             return {
               type: el.type,
               groupId: context.result.id
             }
           })
-          await context.app.service('scope').create(data)
+          if (data) await context.app.service('scope').create(data)
 
           return context
         } catch (err) {

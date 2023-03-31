@@ -1,8 +1,8 @@
 import { useState } from '@hookstate/core'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const EditorState = defineState({
   name: 'EditorState',
@@ -19,7 +19,7 @@ export const EditorState = defineState({
 })
 
 export const EditorServiceReceptor = (action) => {
-  const s = getState(EditorState)
+  const s = getMutableState(EditorState)
   matches(action)
     .when(EditorAction.sceneChanged.matches, (action) => {
       return s.merge({ sceneName: action.sceneName, sceneModified: false })
@@ -46,9 +46,9 @@ export const EditorServiceReceptor = (action) => {
       return s.merge({ advancedMode: action.advanced })
     })
 }
-
-export const accessEditorState = () => getState(EditorState)
-
+/**@deprecated use getMutableState directly instead */
+export const accessEditorState = () => getMutableState(EditorState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useEditorState = () => useState(accessEditorState())
 
 //Service
@@ -57,42 +57,42 @@ export const EditorService = {}
 //Action
 export class EditorAction {
   static projectChanged = defineAction({
-    type: 'xre.editor.Editor.EDITOR_PROJECT_CHANGED' as const,
+    type: 'ee.editor.Editor.EDITOR_PROJECT_CHANGED' as const,
     projectName: matches.any as Validator<unknown, string | null>
   })
 
   static sceneChanged = defineAction({
-    type: 'xre.editor.Editor.EDITOR_SCENE_CHANGED' as const,
+    type: 'ee.editor.Editor.EDITOR_SCENE_CHANGED' as const,
     sceneName: matches.any as Validator<unknown, string | null>
   })
 
   static sceneModified = defineAction({
-    type: 'xre.editor.Editor.EDITOR_SCENE_MODIFIED' as const,
+    type: 'ee.editor.Editor.EDITOR_SCENE_MODIFIED' as const,
     modified: matches.boolean
   })
 
   static projectLoaded = defineAction({
-    type: 'xre.editor.Editor.EDITOR_PROJECT_LOADED' as const,
+    type: 'ee.editor.Editor.EDITOR_PROJECT_LOADED' as const,
     loaded: matches.boolean
   })
 
   static rendererInitialized = defineAction({
-    type: 'xre.editor.Editor.EDITOR_RENDERER_INITIALIZED' as const,
+    type: 'ee.editor.Editor.EDITOR_RENDERER_INITIALIZED' as const,
     initialized: matches.boolean
   })
 
   static showObject3DInHierarchy = defineAction({
-    type: 'xre.editor.Editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
+    type: 'ee.editor.Editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
     showObject3DInHierarchy: matches.boolean
   })
 
   static setAdvancedMode = defineAction({
-    type: 'xre.editor.Editor.SET_ADVANCED_MODE' as const,
+    type: 'ee.editor.Editor.SET_ADVANCED_MODE' as const,
     advanced: matches.boolean
   })
 
   static lockPropertiesPanel = defineAction({
-    type: 'xre.editor.Editor.LOCK_PROPERTIES_PANEL' as const,
+    type: 'ee.editor.Editor.LOCK_PROPERTIES_PANEL' as const,
     lockPropertiesPanel: matches.string as Validator<unknown, EntityUUID>
   })
 }

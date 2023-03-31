@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import { generateDefaults } from '@xrengine/engine/src/renderer/materials/constants/DefaultArgs'
+import { generateDefaults } from '@etherealengine/engine/src/renderer/materials/constants/DefaultArgs'
 
 import BooleanInput from './BooleanInput'
 import ColorInput from './ColorInput'
@@ -17,8 +17,8 @@ export default function ParameterInput({
   thumbnails
 }: {
   entity: string
-  values: Object
-  defaults?: Object
+  values: object
+  defaults?: object
   thumbnails?: Record<string, string>
   onChange: (k: string) => (v) => void
 }) {

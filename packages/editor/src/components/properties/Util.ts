@@ -1,15 +1,15 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   ComponentType,
   SerializedComponentType
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { UUIDComponent } from '@xrengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
@@ -41,8 +41,8 @@ export const updateProperties = <C extends Component>(
   properties: Partial<SerializedComponentType<C>>,
   nodes?: EntityOrObjectUUID[]
 ) => {
-  const editorState = getState(EditorState)
-  const selectionState = getState(SelectionState)
+  const editorState = getMutableState(EditorState)
+  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
@@ -58,10 +58,9 @@ export const updateProperties = <C extends Component>(
 export function traverseScene<T>(
   callback: (node: Entity) => T,
   predicate: (node: Entity) => boolean = () => true,
-  snubChildren: boolean = false,
-  world: World = Engine.instance.currentWorld
+  snubChildren: boolean = false
 ): T[] {
   const result: T[] = []
-  iterateEntityNode(world.sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
+  iterateEntityNode(getState(SceneState).sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
   return result
 }

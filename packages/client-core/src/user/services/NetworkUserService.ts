@@ -1,10 +1,18 @@
 import { Paginated } from '@feathersjs/feathers'
 import { none } from '@hookstate/core'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -22,7 +30,7 @@ export const NetworkUserState = defineState({
 })
 
 export const NetworkUserServiceReceptor = (action) => {
-  const s = getState(NetworkUserState)
+  const s = getMutableState(NetworkUserState)
   matches(action)
     .when(NetworkUserAction.clearLayerUsersAction.matches, () => {
       return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
@@ -78,8 +86,9 @@ export const NetworkUserServiceReceptor = (action) => {
       } else return s
     })
 }
-
-export const accessNetworkUserState = () => getState(NetworkUserState)
+/**@deprecated use getMutableState directly instead */
+export const accessNetworkUserState = () => getMutableState(NetworkUserState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useNetworkUserState = () => useState(accessNetworkUserState())
 
 //Service
@@ -89,13 +98,13 @@ export const NetworkUserService = {
       $limit: 1000,
       action: instance ? 'layer-users' : 'channel-users'
     } as any
-    if (!instance) query.channelInstanceId = Engine.instance.currentWorld.hostIds.media.value
-    else query.instanceId = Engine.instance.currentWorld.hostIds.world.value
+    if (!instance) query.channelInstanceId = getState(NetworkState).hostIds.media
+    else query.instanceId = getState(NetworkState).hostIds.world
     const layerUsers = (await API.instance.client.service('user').find({
       query: query
     })) as Paginated<UserInterface>
 
-    const state = getState(NetworkUserState)
+    const state = getMutableState(NetworkUserState)
 
     if (
       JSON.stringify(instance ? state.layerUsers.value : state.channelLayerUsers.value) !==
@@ -113,40 +122,40 @@ export const NetworkUserService = {
 //Action
 export class NetworkUserAction {
   static loadedLayerUsersAction = defineAction({
-    type: 'xre.client.User.LOADED_LAYER_USERS' as const,
+    type: 'ee.client.User.LOADED_LAYER_USERS' as const,
     users: matches.array as Validator<unknown, UserInterface[]>
   })
 
   static clearLayerUsersAction = defineAction({
-    type: 'xre.client.User.CLEAR_LAYER_USERS' as const
+    type: 'ee.client.User.CLEAR_LAYER_USERS' as const
   })
 
   static addedLayerUserAction = defineAction({
-    type: 'xre.client.User.ADDED_LAYER_USER' as const,
+    type: 'ee.client.User.ADDED_LAYER_USER' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static removedLayerUserAction = defineAction({
-    type: 'xre.client.User.REMOVED_LAYER_USER' as const,
+    type: 'ee.client.User.REMOVED_LAYER_USER' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static loadedChannelLayerUsersAction = defineAction({
-    type: 'xre.client.User.LOADED_CHANNEL_LAYER_USERS' as const,
+    type: 'ee.client.User.LOADED_CHANNEL_LAYER_USERS' as const,
     users: matches.array as Validator<unknown, UserInterface[]>
   })
 
   static clearChannelLayerUsersAction = defineAction({
-    type: 'xre.client.User.CLEAR_CHANNEL_LAYER_USERS' as const
+    type: 'ee.client.User.CLEAR_CHANNEL_LAYER_USERS' as const
   })
 
   static addedChannelLayerUserAction = defineAction({
-    type: 'xre.client.User.ADDED_CHANNEL_LAYER_USER' as const,
+    type: 'ee.client.User.ADDED_CHANNEL_LAYER_USER' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static removedChannelLayerUserAction = defineAction({
-    type: 'xre.client.User.REMOVED_CHANNEL_LAYER_USER' as const,
+    type: 'ee.client.User.REMOVED_CHANNEL_LAYER_USER' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 }

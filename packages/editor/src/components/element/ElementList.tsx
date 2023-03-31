@@ -4,13 +4,15 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityOrObjectUUID, EntityTreeComponent } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getState } from '@etherealengine/hyperflux'
 
 import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
@@ -33,7 +35,7 @@ export interface PrefabItemType {
 const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
 
-  Engine.instance.currentWorld.scenePrefabRegistry.forEach((_, prefabType: string) => {
+  Engine.instance.scenePrefabRegistry.forEach((_, prefabType: string) => {
     arr.push({
       prefabType,
       type: ItemTypes.Prefab,
@@ -45,11 +47,7 @@ const getPrefabList = () => {
   return arr
 }
 
-export const addPrefabElement = (
-  item: PrefabItemType,
-  parent = Engine.instance.currentWorld.sceneEntity,
-  before?: Entity
-) => {
+export const addPrefabElement = (item: PrefabItemType, parent = getState(SceneState).sceneEntity, before?: Entity) => {
   const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)
 
   return newEntity

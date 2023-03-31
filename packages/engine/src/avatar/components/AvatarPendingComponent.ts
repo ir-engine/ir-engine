@@ -1,7 +1,17 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-type AvatarPendingComponentType = {
-  url: string
-}
+export const AvatarPendingComponent = defineComponent({
+  name: 'AvatarPendingComponent',
 
-export const AvatarPendingComponent = createMappedComponent<AvatarPendingComponentType>('AvatarPendingComponent')
+  onInit(entity) {
+    return {
+      url: ''
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.url) component.url.set(json.url)
+  }
+})

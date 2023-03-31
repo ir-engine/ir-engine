@@ -1,8 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { MountPoint, MountPointComponent } from '@xrengine/engine/src/scene/components/MountPointComponent'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

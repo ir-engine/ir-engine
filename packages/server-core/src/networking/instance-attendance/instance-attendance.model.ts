@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { InstanceAttendanceInterface } from '@xrengine/common/src/dbmodels/InstanceAttendance'
+import { InstanceAttendanceInterface } from '@etherealengine/common/src/dbmodels/InstanceAttendance'
 
 import { Application } from '../../../declarations'
 

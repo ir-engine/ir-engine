@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
@@ -108,7 +108,7 @@ export const uploadAvatarStaticResource = async (
 ) => {
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
-  const key = `avatars/${data.isPublic ? 'public' : params?.user!.id}/${name}`
+  const key = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/${name}`
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')

@@ -29,6 +29,18 @@ export const CloudComponent = defineComponent({
       fogRange: new Vector2().copy(SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogRange)
     } as CloudComponentType
   },
+  toJSON(entity, component) {
+    return {
+      texture: component.texture.value,
+      worldScale: component.worldScale.value,
+      dimensions: component.dimensions.value,
+      noiseZoom: component.noiseZoom.value,
+      noiseOffset: component.noiseOffset.value,
+      spriteScaleRange: component.spriteScaleRange.value,
+      fogColor: component.fogColor.value,
+      fogRange: component.fogRange.value
+    }
+  },
   errors: ['TEXTURE_LOADING_ERROR']
 })
 

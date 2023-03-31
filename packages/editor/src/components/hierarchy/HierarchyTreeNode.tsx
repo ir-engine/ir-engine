@@ -3,23 +3,23 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { Object3D } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   EntityOrObjectUUID,
   EntityTreeComponent,
   getEntityNodeArrayFromEntities
-} from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { ErrorComponent, ErrorComponentType } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { ErrorComponent, ErrorComponentType } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -151,7 +151,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       const entityTreeComponent = getComponent(node.entityNode as Entity, EntityTreeComponent)
       parentNode = entityTreeComponent?.parentEntity
       const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-      if (!node.lastChild && parentNode && parentTreeComponent.children.length > node.childIndex + 1) {
+      if (!node.lastChild && parentNode && parentTreeComponent?.children.length > node.childIndex + 1) {
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
       }
     } else {

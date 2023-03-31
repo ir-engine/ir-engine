@@ -1,19 +1,20 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import multiLogger from '@xrengine/common/src/logger'
-import Button from '@xrengine/ui/src/Button'
-import Grid from '@xrengine/ui/src/Grid'
-import Typography from '@xrengine/ui/src/Typography'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/Button'
+import Grid from '@etherealengine/ui/src/Grid'
+import Typography from '@etherealengine/ui/src/Typography'
 
-import { TestBotService, useTestBotState } from '../../services/TestBotService'
+import { AdminTestBotState, TestBotService } from '../../services/TestBotService'
 import styles from '../../styles/admin.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:bot:benchmarking' })
 
 const Benchmarking = () => {
-  const testbotState = useTestBotState()
-  const { bots, spawn, spawning } = testbotState.value
+  const testbotState = useHookstate(getMutableState(AdminTestBotState))
+  const { bots, spawn, spawning } = testbotState.get({ noproxy: true })
   const { t } = useTranslation()
   const REFRESH_MS = 10000
 

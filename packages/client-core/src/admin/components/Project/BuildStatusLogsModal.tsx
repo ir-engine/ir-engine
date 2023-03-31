@@ -1,11 +1,11 @@
 import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { BuildStatus } from '@xrengine/common/src/interfaces/BuildStatus'
-import Fade from '@xrengine/ui/src/Fade'
-import Icon from '@xrengine/ui/src/Icon'
-import IconButton from '@xrengine/ui/src/IconButton'
-import Modal from '@xrengine/ui/src/Modal'
+import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
+import Fade from '@etherealengine/ui/src/Fade'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Modal from '@etherealengine/ui/src/Modal'
 
 import styles from '../../styles/admin.module.scss'
 

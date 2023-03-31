@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { EmailSettingInterface } from '@xrengine/common/src/dbmodels/EmailSetting'
+import { EmailSettingInterface } from '@etherealengine/common/src/dbmodels/EmailSetting'
 
 import { Application } from '../../../declarations'
 

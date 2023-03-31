@@ -20,7 +20,7 @@ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scrip
 chmod 700 get_helm.sh
 ./get_helm.sh
 
-helm repo add xrengine https://helm.xrengine.io
+helm repo add etherealengine https://helm.etherealengine.org
 
 helm repo update
 set +x

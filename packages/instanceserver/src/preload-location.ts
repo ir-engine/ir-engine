@@ -1,7 +1,7 @@
-// import { WorldScene } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-// import { Application } from '@xrengine/server-core/declarations'
-// import config from '@xrengine/server-core/src/appconfig'
-// import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
+// import { WorldScene } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+// import { Application } from '@etherealengine/server-core/declarations'
+// import config from '@etherealengine/server-core/src/appconfig'
+// import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 // TODO: fix this file - currently unused (but nice to have)
 
@@ -58,7 +58,7 @@ export default async function (locationName, app: Application) {
     ipAddress: config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:3031`,
     locationId: location.id
   } as any
-  app.isChannelInstance = false
+  app.isMediaInstance = false
   const instanceResult = await app.service('instance').create(newInstance)
   app.instance = instanceResult
 

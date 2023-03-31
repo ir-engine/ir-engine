@@ -2,8 +2,8 @@ import { Id, NullableId, Params, Query, ServiceMethods } from '@feathersjs/feath
 import appRootPath from 'app-root-path'
 import path from 'path'
 
-import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
-import { Application } from '@xrengine/server-core/declarations'
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { Application } from '@etherealengine/server-core/declarations'
 
 import { transformModel } from './model-transform.helpers'
 
@@ -34,8 +34,7 @@ export class ModelTransform implements ServiceMethods<any> {
     const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_\\\/]+).glb$/.exec(inPath)
     if (!pathData) throw Error('could not extract path data')
     const [_, projectName, fileName] = pathData
-    const commonPath = path.join(this.rootPath, `${projectName}/assets/${fileName}`)
-    return commonPath
+    return path.join(this.rootPath, `${projectName}/assets/${fileName}`)
   }
 
   async find(params?: Params): Promise<any> {

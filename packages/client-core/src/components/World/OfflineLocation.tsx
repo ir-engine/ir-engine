@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
 
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { addOutgoingTopicIfNecessary, useState } from '@xrengine/hyperflux'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { receiveJoinWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { addOutgoingTopicIfNecessary, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -18,24 +19,23 @@ export const OfflineLocation = () => {
   /** OFFLINE */
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
-      const world = Engine.instance.currentWorld
       const userId = Engine.instance.userId
       const userIndex = 1
       const peerID = 'peerID' as PeerID
       const peerIndex = 1
 
-      world.hostIds.world.set(userId)
-      world.networks.set(userId, new Network(userId, NetworkTopics.world))
+      const networkState = getMutableState(NetworkState)
+      networkState.hostIds.world.set(userId)
+      addNetwork(createNetwork(userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(
-        world.worldNetwork,
+        Engine.instance.worldNetwork as Network,
         peerID,
         peerIndex,
         userId,
         userIndex,
-        authState.user.name.value,
-        world
+        authState.user.name.value
       )
 
       receiveJoinWorld({

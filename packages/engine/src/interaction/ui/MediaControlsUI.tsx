@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useHookstate } from '@xrengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { Pause, PlayArrow } from '@mui/icons-material'
 

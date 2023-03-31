@@ -6,7 +6,7 @@ import Typography from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Typography',
+  title: 'Primitives/MUI/Typography',
   component: Typography,
   parameters: {
     componentSubtitle: 'Typography',

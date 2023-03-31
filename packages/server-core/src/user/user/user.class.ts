@@ -4,7 +4,8 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { CreateEditUser, UserInterface, UserScope } from '@xrengine/common/src/interfaces/User'
+import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
+import { CreateEditUser, UserInterface, UserScope } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -17,7 +18,7 @@ export interface UserParams extends Params {
   sequelize?: any
 }
 
-export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[]) => {
+export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[] | AdminScopeType[]) => {
   await app.service('user-settings').create({
     userId: result.id
   })

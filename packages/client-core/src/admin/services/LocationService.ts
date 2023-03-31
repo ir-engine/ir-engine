@@ -1,10 +1,10 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { LocationType } from '@etherealengine/common/src/interfaces/LocationType'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -14,7 +14,7 @@ const logger = multiLogger.child({ component: 'client-core:LocationService' })
 //State
 export const LOCATION_PAGE_LIMIT = 100
 
-const AdminLocationState = defineState({
+export const AdminLocationState = defineState({
   name: 'AdminLocationState',
   initial: () => ({
     locations: [] as Array<Location>,
@@ -31,7 +31,7 @@ const AdminLocationState = defineState({
 })
 
 export const locationsRetrievedReceptor = (action: typeof AdminLocationActions.locationsRetrieved.matches._TYPE) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({
     locations: action.locations.data,
     skip: action.locations.skip,
@@ -45,24 +45,24 @@ export const locationsRetrievedReceptor = (action: typeof AdminLocationActions.l
 }
 
 export const locationCreatedReceptor = (action: typeof AdminLocationActions.locationCreated.matches._TYPE) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({ updateNeeded: true, created: true })
 }
 
 export const locationPatchedReceptor = (action: typeof AdminLocationActions.locationPatched.matches._TYPE) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({ updateNeeded: true })
 }
 
 export const locationRemovedReceptor = (action: typeof AdminLocationActions.locationRemoved.matches._TYPE) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({ updateNeeded: true })
 }
 
 export const locationTypesRetrievedReceptor = (
   action: typeof AdminLocationActions.locationTypesRetrieved.matches._TYPE
 ) => {
-  const state = getState(AdminLocationState)
+  const state = getMutableState(AdminLocationState)
   return state.merge({ locationTypes: action.locationTypes.data, updateNeeded: false })
 }
 
@@ -73,10 +73,6 @@ export const AdminLocationReceptors = {
   locationRemovedReceptor,
   locationTypesRetrievedReceptor
 }
-
-export const accessAdminLocationState = () => getState(AdminLocationState)
-
-export const useAdminLocationState = () => useState(accessAdminLocationState())
 
 //Service
 export const AdminLocationService = {
@@ -106,7 +102,7 @@ export const AdminLocationService = {
   },
   fetchAdminLocations: async (
     value: string | null = null,
-    skip = accessAdminLocationState().skip.value,
+    skip = getMutableState(AdminLocationState).skip.value,
     sortField = 'name',
     orderBy = 'asc'
   ) => {
@@ -149,8 +145,8 @@ export const AdminLocationService = {
           $sort: {
             name: orderBy === 'desc' ? 0 : 1
           },
-          $skip: accessAdminLocationState().skip.value,
-          $limit: accessAdminLocationState().limit.value,
+          $skip: getMutableState(AdminLocationState).skip.value,
+          $limit: getMutableState(AdminLocationState).limit.value,
           adminnedLocations: true
         }
       })) as Paginated<Location>
@@ -166,44 +162,44 @@ export const AdminLocationService = {
 //Action
 export class AdminLocationActions {
   static locationsRetrieved = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATIONS_RETRIEVED' as const,
+    type: 'ee.client.AdminLocation.ADMIN_LOCATIONS_RETRIEVED' as const,
     locations: matches.object as Validator<unknown, Paginated<Location>>
   })
 
   // static locationRetrieved = defineAction({
-  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_RETRIEVED' as const,
+  //   type: 'ee.client.AdminLocation.ADMIN_LOCATION_RETRIEVED' as const,
   //   location: matches.object as Validator<unknown, Location>
   // })
 
   static locationCreated = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATION_CREATED' as const,
+    type: 'ee.client.AdminLocation.ADMIN_LOCATION_CREATED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static locationPatched = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATION_PATCHED' as const,
+    type: 'ee.client.AdminLocation.ADMIN_LOCATION_PATCHED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static locationRemoved = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATION_REMOVED' as const,
+    type: 'ee.client.AdminLocation.ADMIN_LOCATION_REMOVED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   // static locationBanCreated = defineAction({
-  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_BAN_CREATED' as const
+  //   type: 'ee.client.AdminLocation.ADMIN_LOCATION_BAN_CREATED' as const
   // })
 
   // static fetchingCurrentLocation = defineAction({
-  //   type: 'xre.client.AdminLocation.ADMIN_FETCH_CURRENT_LOCATION' as const
+  //   type: 'ee.client.AdminLocation.ADMIN_FETCH_CURRENT_LOCATION' as const
   // })
 
   // static locationNotFound = defineAction({
-  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_NOT_FOUND' as const
+  //   type: 'ee.client.AdminLocation.ADMIN_LOCATION_NOT_FOUND' as const
   // })
 
   static locationTypesRetrieved = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATION_TYPES_RETRIEVED' as const,
+    type: 'ee.client.AdminLocation.ADMIN_LOCATION_TYPES_RETRIEVED' as const,
     locationTypes: matches.object as Validator<unknown, Paginated<LocationType>>
   })
 }

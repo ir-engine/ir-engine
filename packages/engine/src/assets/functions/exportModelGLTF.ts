@@ -32,7 +32,8 @@ export default async function exportModelGLTF(
       },
       {
         ...options,
-        animations: scene.animations
+        animations: scene.animations ?? [],
+        flipY: scene.userData.src.endsWith('.usdz')
       }
     )
   })

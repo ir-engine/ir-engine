@@ -1,10 +1,10 @@
 import i18n from 'i18next'
 
-import { API } from '@xrengine/client-core/src/API'
-import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import { API } from '@etherealengine/client-core/src/API'
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -68,7 +68,9 @@ export const renameScene = async (projectName: string, newSceneName: string, old
 /**
  * saveScene used to save changes in existing project.
  *
+ * @param {string} projectName
  * @param  {any}  sceneName
+ * @param {Blob | null} thumbnailBlob
  * @param  {any}  signal
  * @return {Promise}
  */

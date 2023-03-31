@@ -1,8 +1,8 @@
 import { Types } from 'bitecs'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
