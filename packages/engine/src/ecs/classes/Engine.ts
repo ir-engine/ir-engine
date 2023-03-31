@@ -282,7 +282,10 @@ export class Engine {
 
   /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use EE_ extension names*/
 
-  /** Registry map of scene loader components  */
+  /**
+   * Registry map of scene loader components
+   * @todo replace with a Set once SceneLoaderType is removed
+   * */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
 
   /** Scene component of scene loader components  */

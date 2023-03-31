@@ -179,7 +179,7 @@ const AppPage = () => {
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
       </MetaTags>
-      <div className="w-full h-full container mx-auto overflow-y-scroll">
+      <div className="w-full h-full container mx-auto overflow-y-scroll pointer-events-auto">
         <CaptureComp />
       </div>
       {projectComponents.map((Component, i) => (
