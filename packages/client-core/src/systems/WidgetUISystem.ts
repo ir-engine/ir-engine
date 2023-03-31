@@ -100,7 +100,7 @@ export default async function WidgetUISystem() {
   let createdWidgets = false
   const showWidgetMenu = (show: boolean) => {
     // temporarily only allow widgets on non hmd for local dev
-    if (!createdWidgets && (isMobileXRHeadset() || isDev)) {
+    if (!createdWidgets && (isMobileXRHeadset || isDev)) {
       createdWidgets = true
       createAnchorWidget()
       // createHeightAdjustmentWidget()
@@ -152,7 +152,7 @@ export default async function WidgetUISystem() {
     if (keys.ButtonX?.down) toggleWidgetsMenu('left')
     if (keys.ButtonA?.down) toggleWidgetsMenu('right')
     /** @todo allow non HMDs to access the widget menu too */
-    if ((isDev || isMobileXRHeadset()) && keys.Escape?.down) toggleWidgetsMenu()
+    if ((isDev || isMobileXRHeadset) && keys.Escape?.down) toggleWidgetsMenu()
 
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.widgets.get(action.id)!
