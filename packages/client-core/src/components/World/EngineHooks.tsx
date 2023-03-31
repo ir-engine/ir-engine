@@ -5,7 +5,8 @@ import { useParams } from 'react-router-dom'
 import { LocationInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
@@ -21,12 +22,19 @@ import { EngineActions, EngineState, useEngineState } from '@etherealengine/engi
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { initSystems, SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import {
+  receiveJoinWorld,
+  spawnLocalAvatarInWorld
+} from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
 import {
   addActionReceptor,
+  addOutgoingTopicIfNecessary,
   dispatchAction,
   getMutableState,
   getState,
@@ -170,9 +178,8 @@ type Props = {
   spectate?: boolean
 }
 
-export const LoadEngineWithScene = ({ injectedSystems, spectate }: Props) => {
-  const engineState = useEngineState()
-  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+export const useLoadEngineWithScene = ({ injectedSystems, spectate }: Props) => {
+  const engineState = useHookstate(getMutableState(EngineState))
   const appState = useHookstate(getMutableState(AppLoadingState).state)
 
   useLoadEngine({ injectedSystems })
@@ -183,6 +190,42 @@ export const LoadEngineWithScene = ({ injectedSystems, spectate }: Props) => {
     if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS)
       dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
   }, [engineState.sceneLoaded, engineState.loadingProgress])
+}
 
-  return <></>
+export const useOfflineScene = () => {
+  const engineState = useHookstate(getMutableState(EngineState))
+  const authState = useHookstate(getMutableState(AuthState))
+
+  /** OFFLINE */
+  useEffect(() => {
+    if (engineState.sceneLoaded.value) {
+      const userId = Engine.instance.userId
+      const userIndex = 1
+      const peerID = 'peerID' as PeerID
+      const peerIndex = 1
+
+      const networkState = getMutableState(NetworkState)
+      networkState.hostIds.world.set(userId)
+      addNetwork(createNetwork(userId, NetworkTopics.world))
+      addOutgoingTopicIfNecessary(NetworkTopics.world)
+
+      NetworkPeerFunctions.createPeer(
+        Engine.instance.worldNetwork as Network,
+        peerID,
+        peerIndex,
+        userId,
+        userIndex,
+        authState.user.name.value
+      )
+
+      receiveJoinWorld({
+        highResTimeOrigin: performance.timeOrigin,
+        worldStartTime: performance.now(),
+        cachedActions: [],
+        peerIndex,
+        peerID,
+        routerRtpCapabilities: undefined
+      })
+    }
+  }, [engineState.connectedWorld, engineState.sceneLoaded])
 }
