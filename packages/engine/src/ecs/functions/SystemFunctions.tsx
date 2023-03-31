@@ -3,7 +3,7 @@
 import React, { Suspense } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, ReactorProps, ReactorRoot, startReactor, defineState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
@@ -14,6 +14,80 @@ import { EntityReactorProps, removeEntity } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
+
+
+export type SystemUUID = string
+export interface System {
+  uuid: SystemUUID
+  reactor?: React.FC<ReactorProps>
+  execute: () => void
+  beforeSystems?: SystemUUID[]
+  withSystems?: SystemUUID[]
+  afterSystems?: SystemUUID[]
+}
+
+export const SystemMap = new Map<string, System>()
+
+const SystemState = defineState({
+  name: 'SystemState',
+  init: () => {
+    return {
+      systems: new Map<SystemUUID, SystemInstanceData>(),
+      // referenceCounts: new Map<SystemUUID, number>(), // if still necessary ?
+    }
+  }
+})
+
+export type SystemInsertOrder = 'before'|'with'|'after'
+
+export function defineSystem(systemConfig: Omit<System, 'beforeSystems'|'afterSystems'>, insert?: {[key in SystemInsertOrder]?: SystemUUID[]}) {
+  SystemMap.set(systemConfig.uuid, {beforeSystems: [], withSystems: [], afterSystems:[], ...systemConfig})
+  if (insert) {
+    for (const [insertOrder, uuids] of Object.entries(insert)) {
+      for (const uuid of uuids) {
+        const system = SystemMap.get(uuid)
+        if (!system) throw new Error(`[defineSystem]: System ${uuid} does not exist`)
+        system[insertOrder + 'Systems']!.push(systemConfig.uuid)
+      }
+    }
+  }
+  return systemConfig.uuid
+}
+
+const InputSystemGroup = defineSystem({
+  uuid: 'ee.engine.input-group',
+  execute: () => {},
+  withSystems: ['ee.engine.input']
+  reactor: () => {
+    return <>
+      <ChildReactor />  
+      <ChildReactor />
+    </>
+  }
+})
+
+const SimulationSystemGroup = defineSystem({
+  uuid: 'ee.engine.simulation-group',
+  execute: () => {},
+  withSystems: ['ee.engine.avatar', 'ee.engine.physics']
+})
+
+const PresentationSystemGroup = defineSystem({
+  uuid: 'ee.engine.simulation-group',
+  execute: () => {},
+  withSystems: ['ee.engine.render']
+})
+
+const RootSystemGroup = defineSystem({
+  uuid: 'ee.engine.root-group',
+  execute: () => {},
+  withSystems: [InputSystemGroup, SimulationSystemGroup, PresentationSystemGroup]
+})
+
+const PostAvatarUpdateSystemGroup = defineSystem({
+  uuid: 'ee.engine.post-avatar-update-group',
+  execute: () => {}
+}, {after: ['ee.engine.avatar', SimulationSystemGroup]})
 
 export type CreateSystemSyncFunctionType<A extends any> = (props?: A) => SystemDefintion
 export type CreateSystemFunctionType<A extends any> = (props?: A) => Promise<SystemDefintion>
