@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/projects",
-  "version": "1.2.0-rc6",
+  "version": "1.2.0",
   "main": "index.ts",
   "private": true,
   "description": "",
