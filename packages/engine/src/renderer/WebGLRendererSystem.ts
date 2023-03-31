@@ -116,7 +116,7 @@ export class EngineRenderer {
   webGLLostContext: any = null
 
   initialize() {
-    //overrideOnBeforeCompile()
+    overrideOnBeforeCompile()
     this.onResize = this.onResize.bind(this)
     this.handleWebGLConextLost = this.handleWebGLConextLost.bind(this)
     this.handleWebGLConextRestore = this.handleWebGLConextRestore.bind(this)

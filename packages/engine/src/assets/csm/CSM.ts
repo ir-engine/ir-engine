@@ -313,7 +313,7 @@ export class CSM {
     const shaders = this.shaders
 
     material.userData.CSMPlugin = {
-      id: OBCType.CSM,
+      id: 'CSM',
       compile: (shader: ShaderType) => {
         if (shaders.has(material)) return
         const far = Math.min(this.camera.far, this.maxFar)

@@ -61,26 +61,30 @@ export function processLoadedLODLevel(entity: Entity, index: number) {
       const materials: Material[] = Array.isArray(model.material) ? model.material : [model.material]
       materials.forEach((material) => {
         //add a shader plugin to clip the model if it's not the current level
-        addOBCPlugin(material, (shader, renderer) => {
-          shader.vertexShader = shader.vertexShader.replace(
-            '#define STANDARD',
-            `
+        addOBCPlugin(material, {
+          id: 'lod-culling',
+          priority: 1,
+          compile: (shader, renderer) => {
+            shader.vertexShader = shader.vertexShader.replace(
+              '#define STANDARD',
+              `
   #define STANDARD
   attribute float lodIndex;
   varying float vDoClip;
 `
-          )
-          shader.vertexShader = shader.vertexShader.replace(
-            '#include <fog_vertex>',
-            `
+            )
+            shader.vertexShader = shader.vertexShader.replace(
+              '#include <fog_vertex>',
+              `
   #include <fog_vertex>
   vDoClip = float(lodIndex != ${index}.0);
 `
-          )
-          shader.fragmentShader = shader.fragmentShader.replace(
-            'void main() {\n',
-            'varying float vDoClip;\nvoid main() {\nif (vDoClip > 0.0) discard;\n'
-          )
+            )
+            shader.fragmentShader = shader.fragmentShader.replace(
+              'void main() {\n',
+              'varying float vDoClip;\nvoid main() {\nif (vDoClip > 0.0) discard;\n'
+            )
+          }
         })
       })
     }
