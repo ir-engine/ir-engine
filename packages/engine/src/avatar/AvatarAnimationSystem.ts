@@ -28,7 +28,6 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import {
@@ -38,7 +37,7 @@ import {
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
-import { getCameraMode, ReferenceSpace, useIsHeadset, XRState } from '../xr/XRState'
+import { getCameraMode, isMobileXRHeadset, ReferenceSpace, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -60,7 +59,7 @@ import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePos
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
   initial: {
-    accumulationBudget: 5
+    accumulationBudget: isMobileXRHeadset() ? 3 : 6
   }
 })
 
@@ -99,21 +98,10 @@ export default async function AvatarAnimationSystem() {
 
   const reactor = startReactor(function AvatarAnimationReactor() {
     const state = useHookstate(getMutableState(AvatarAnimationState))
-    const isHeadset = useIsHeadset()
 
     useEffect(() => {
       priorityQueue.accumulationBudget = state.accumulationBudget.value
     }, [state.accumulationBudget])
-
-    useEffect(() => {
-      /**
-       * Defaults for immersive devices are 2, defaults for non immersive devices is 5.
-       * If these have been changed, do not override.
-       */
-      if (isHeadset && state.accumulationBudget.value !== 5) return
-      if (!isHeadset && state.accumulationBudget.value !== 1) return
-      state.accumulationBudget.set(isHeadset ? 1 : 5)
-    }, [])
 
     return null
   })
@@ -135,7 +123,7 @@ export default async function AvatarAnimationSystem() {
 
   let avatarSortAccumulator = 0
 
-  let sortedTransformEntities = [] as Entity[]
+  const sortedTransformEntities = [] as Entity[]
 
   const xrState = getState(XRState)
 

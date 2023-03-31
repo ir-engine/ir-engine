@@ -146,25 +146,13 @@ export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhan
 }
 
 /**
- * @deprecated prefer using a more fine-grained feature or cabability detection, e.g.,
- * xrState.session.interactionMode === 'world-space'
- * or
- * renderState.qualityLevel > 2
- * */
-export const isHeadset = () => {
-  const supportedSessionModes = getMutableState(XRState).supportedSessionModes
-  if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
-  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
-}
-
-/**
- * @deprecated prefer using a more fine-grained feature or cabability detection, e.g.,
- * xrState.session.interactionMode === 'world-space'
- * or
- * renderState.qualityLevel > 2
- * */
-export const useIsHeadset = () => {
-  const supportedSessionModes = useHookstate(getMutableState(XRState).supportedSessionModes)
-  if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
-  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
-}
+ * Wheter or not this is a mobile XR headset
+ **/
+export const isMobileXRHeadset =
+  'navigator' in globalThis === false
+    ? false
+    : navigator.userAgent.includes('Oculus') ||
+      navigator.userAgent.includes('VR') ||
+      navigator.userAgent.includes('AR') ||
+      navigator.userAgent.includes('Reality') ||
+      navigator.userAgent.includes('Wolvic')
