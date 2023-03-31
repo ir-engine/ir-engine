@@ -20,19 +20,18 @@ export type SystemUUID = string
 export interface System {
   uuid: SystemUUID
   reactor?: React.FC<ReactorProps>
-  execute: () => void
-  beforeSystems?: SystemUUID[]
-  withSystems?: SystemUUID[]
-  afterSystems?: SystemUUID[]
+  preSystems?: SystemUUID[]
+  execute: () => void // runs after preSystems, and before subSystems 
+  subSystems?: SystemUUID[]
+  postSystems?: SystemUUID[]
 }
 
-export const SystemMap = new Map<string, System>()
+export const SystemMap = new Map<string, Required<System>>()
 
 const SystemState = defineState({
   name: 'SystemState',
   init: () => {
     return {
-      systems: new Map<SystemUUID, SystemInstanceData>(),
       // referenceCounts: new Map<SystemUUID, number>(), // if still necessary ?
     }
   }
@@ -40,15 +39,27 @@ const SystemState = defineState({
 
 export type SystemInsertOrder = 'before'|'with'|'after'
 
-export function defineSystem(systemConfig: Omit<System, 'beforeSystems'|'afterSystems'>, insert?: {[key in SystemInsertOrder]?: SystemUUID[]}) {
-  SystemMap.set(systemConfig.uuid, {beforeSystems: [], withSystems: [], afterSystems:[], ...systemConfig})
+export function defineSystem(systemConfig: Omit<System, 'preSystems'|'postSystems'>, insert?: {[key in SystemInsertOrder]?: SystemUUID[]}) {
+  SystemMap.set(systemConfig.uuid, {preSystems: [], subSystems: [], postSystems:[], reactor: null, ...systemConfig})
   if (insert) {
-    for (const [insertOrder, uuids] of Object.entries(insert)) {
-      for (const uuid of uuids) {
-        const system = SystemMap.get(uuid)
-        if (!system) throw new Error(`[defineSystem]: System ${uuid} does not exist`)
-        system[insertOrder + 'Systems']!.push(systemConfig.uuid)
+    function insertIntoSystem(systemUUID: SystemUUID, insertUUID: SystemUUID, insertOrder: SystemInsertOrder) {
+      const system = SystemMap.get(systemUUID)
+      if (system) {
+        if (insertOrder === 'before') {
+          system.preSystems.push(insertUUID)
+        } else if (insertOrder === 'after') {
+          system.postSystems.push(insertUUID)
+        } else if (insertOrder === 'with') {
+          system.subSystems.push(insertUUID)
+        }
+      } else {
+        throw new Error(`System ${systemUUID} does not exist. You may have a circular dependency in your system definitions.`)
       }
+    }
+    for (const order in insert) {
+      insert[order].forEach(insertUUID => {
+        insertIntoSystem(systemConfig.uuid, insertUUID, order as SystemInsertOrder)
+      })
     }
   }
   return systemConfig.uuid
@@ -57,7 +68,7 @@ export function defineSystem(systemConfig: Omit<System, 'beforeSystems'|'afterSy
 const InputSystemGroup = defineSystem({
   uuid: 'ee.engine.input-group',
   execute: () => {},
-  withSystems: ['ee.engine.input']
+  subSystems: ['ee.engine.input']
   reactor: () => {
     return <>
       <ChildReactor />  
@@ -69,19 +80,19 @@ const InputSystemGroup = defineSystem({
 const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
   execute: () => {},
-  withSystems: ['ee.engine.avatar', 'ee.engine.physics']
+  subSystems: ['ee.engine.avatar', 'ee.engine.physics']
 })
 
 const PresentationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
   execute: () => {},
-  withSystems: ['ee.engine.render']
+  subSystems: ['ee.engine.render']
 })
 
 const RootSystemGroup = defineSystem({
   uuid: 'ee.engine.root-group',
   execute: () => {},
-  withSystems: [InputSystemGroup, SimulationSystemGroup, PresentationSystemGroup]
+  subSystems: [InputSystemGroup, SimulationSystemGroup, PresentationSystemGroup]
 })
 
 const PostAvatarUpdateSystemGroup = defineSystem({
