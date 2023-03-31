@@ -10,8 +10,6 @@ import { receiveJoinWorld } from '@etherealengine/engine/src/networking/function
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { addOutgoingTopicIfNecessary, getMutableState, useState } from '@etherealengine/hyperflux'
 
-import InstanceServerWarnings from './InstanceServerWarnings'
-
 export const OfflineLocation = () => {
   const engineState = useState(getEngineState())
   const authState = useAuthState()
@@ -49,5 +47,5 @@ export const OfflineLocation = () => {
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 
-  return <InstanceServerWarnings />
+  return <></>
 }

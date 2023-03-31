@@ -62,12 +62,6 @@ export const initClient = async (injectedSystems: SystemModuleType<any>[] = []) 
 export const useLoadEngine = ({ injectedSystems }: LoadEngineProps) => {
   useEffect(() => {
     initClient(injectedSystems)
-
-    addActionReceptor(LocationInstanceConnectionServiceReceptor)
-
-    return () => {
-      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
-    }
   }, [])
 }
 

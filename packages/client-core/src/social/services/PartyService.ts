@@ -27,7 +27,7 @@ import { InviteService } from './InviteService'
 const logger = multiLogger.child({ component: 'client-core:social' })
 
 // State
-const PartyState = defineState({
+export const PartyState = defineState({
   name: 'PartyState',
   initial: () => ({
     party: null! as Party,

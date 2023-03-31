@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { API } from '@etherealengine/client-core/src/API'
 import { LocationInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import LoadLocationScene from '@etherealengine/client-core/src/components/World/LoadLocationScene'
-import NetworkInstanceProvisioning from '@etherealengine/client-core/src/components/World/NetworkInstanceProvisioning'
+// import NetworkInstanceProvisioning from '@etherealengine/client-core/src/components/World/NetworkInstanceProvisioning'
 import { FriendService } from '@etherealengine/client-core/src/social/services/FriendService'
 import { LocationAction } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -63,7 +63,7 @@ export const CaptureLocation = () => {
   return (
     <>
       <CaptureUI />
-      <NetworkInstanceProvisioning />
+      {/* <NetworkInstanceProvisioning /> */}
       <LoadLocationScene />
     </>
   )

@@ -1,38 +1,27 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 import {
   LocationInstanceConnectionService,
-  useLocationInstanceConnectionState,
   useWorldInstance
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
-  useMediaInstance,
-  useMediaInstanceConnectionState
+  useMediaInstance
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import {
-  MediaServiceReceptor,
-  MediaStreamService
-} from '@etherealengine/client-core/src/media/services/MediaStreamService'
+import { MediaStreamService } from '@etherealengine/client-core/src/media/services/MediaStreamService'
 import { ChatAction, ChatService, useChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import {
   NetworkUserService,
-  NetworkUserServiceReceptor,
   useNetworkUserState
 } from '@etherealengine/client-core/src/user/services/NetworkUserService'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
-import { PeerMedia } from '../../media/PeerMedia'
-import { PartyService, usePartyState } from '../../social/services/PartyService'
-import { MediaStreamActions } from '../../transports/MediaStreams'
-import { useRoomCodeURLParam } from '../../user/functions/useRoomCodeURLParam'
-import InstanceServerWarnings from './InstanceServerWarnings'
-import { DataChannels } from './ProducersAndConsumers'
+import { PartyService, usePartyState } from '../social/services/PartyService'
+import { useRoomCodeURLParam } from '../user/functions/useRoomCodeURLParam'
 
 export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
@@ -52,18 +41,6 @@ export const NetworkInstanceProvisioning = () => {
 
   MediaInstanceConnectionService.useAPIListeners()
   PartyService.useAPIListeners()
-
-  useEffect(() => {
-    addActionReceptor(MediaServiceReceptor)
-    addActionReceptor((action) => {
-      matches(action).when(MediaStreamActions.triggerUpdateConsumers.matches, MediaStreamService.triggerUpdateConsumers)
-    })
-    addActionReceptor(NetworkUserServiceReceptor)
-    return () => {
-      removeActionReceptor(MediaServiceReceptor)
-      removeActionReceptor(NetworkUserServiceReceptor)
-    }
-  }, [])
 
   useRoomCodeURLParam(false, true)
 
@@ -192,13 +169,5 @@ export const NetworkInstanceProvisioning = () => {
     currentChannelInstanceConnection?.connecting
   ])
 
-  return (
-    <>
-      <DataChannels />
-      <PeerMedia />
-      <InstanceServerWarnings />
-    </>
-  )
+  return null
 }
-
-export default NetworkInstanceProvisioning
