@@ -13,9 +13,7 @@ export default async function PortalSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(PortalComponent.name, SCENE_COMPONENT_PORTAL)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {})
 
   const sceneLoadedQueue = createActionQueue(EngineActions.sceneLoaded.matches)
   const execute = () => {

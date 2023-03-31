@@ -9,9 +9,8 @@ export type ComponentUpdateFunction = (entity: Entity) => void
 export type ComponentShouldDeserializeFunction = () => boolean
 export type ComponentPrepareForGLTFExportFunction = (object: Object3D) => void
 
+/** @deprecated */
 export type SceneLoaderType = {
-  /** @deprecated - use defineComponent API instead */
-  defaultData?: any
   /**
    * @deprecated An override function to specify custom transformations from ECS to JSON
    * - if no function is set, data will be copied from the component via JSON serialization

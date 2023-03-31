@@ -12,12 +12,13 @@ import {
   getMutableComponent,
   hasComponent,
   removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -161,7 +162,7 @@ function ModelReactor({ root }: EntityReactorProps) {
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
-    setBoundingBoxComponent(entity)
+    setComponent(entity, BoundingBoxComponent)
     removeComponent(entity, SceneAssetPendingTagComponent)
 
     let active = true
