@@ -31,9 +31,7 @@ import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export default async function ScatterSystem() {
   Engine.instance.sceneComponentRegistry.set(InstancingComponent.name, SCENE_COMPONENT_INSTANCING)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {})
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.instancing, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },

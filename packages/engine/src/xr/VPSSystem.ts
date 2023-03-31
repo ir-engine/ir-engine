@@ -11,9 +11,7 @@ import {
 
 export async function VPSSystem() {
   Engine.instance.sceneComponentRegistry.set(PersistentAnchorComponent.name, SCENE_COMPONENT_PERSISTENT_ANCHOR)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSISTENT_ANCHOR, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSISTENT_ANCHOR, {})
 
   const vpsAnchorQuery = defineQuery([PersistentAnchorComponent])
   const vpsAnchorFoundQueue = createActionQueue(PersistentAnchorActions.anchorFound.matches)

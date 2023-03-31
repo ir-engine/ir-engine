@@ -358,12 +358,7 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
     if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
     if (!ComponentMap.get(Component[0])) return console.warn('[ SceneLoading] could not find component', Component[0])
 
-    const isTagComponent = !sceneComponent.defaultData
-    setComponent(
-      entity,
-      ComponentMap.get(Component[0])!,
-      isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
-    )
+    setComponent(entity, ComponentMap.get(Component[0])!, component.props)
   }
 }
 

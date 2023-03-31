@@ -4,36 +4,31 @@ import { Vector3 } from 'three'
 import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
-  createMappedComponent,
   defineComponent,
   getComponent,
   hasComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { GroupComponent, SCENE_COMPONENT_GROUP } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { SCENE_COMPONENT_VISIBLE } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
-import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
+import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 import '@etherealengine/engine/src/patchEngineNode'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { deserializeGroup } from '@etherealengine/engine/src/scene/functions/loaders/GroupFunctions'
-
-import { createTransformGizmo } from '../systems/EditorControlSystem'
 
 class TempProp {
   data: number
@@ -146,10 +141,7 @@ describe('EditorControlFunctions', () => {
       ])
 
       Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-        deserialize: deserializeGroup,
-        serialize: () => undefined!
-      })
+      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
       rootNode = world.sceneEntity
     })
@@ -256,10 +248,7 @@ describe('EditorControlFunctions', () => {
         { name: SCENE_COMPONENT_GROUP, props: [] }
       ])
       Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-        deserialize: deserializeGroup,
-        serialize: () => undefined!
-      })
+      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
       const rootNode = world.sceneEntity
       nodes = [createEntity(), createEntity()]
