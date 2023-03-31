@@ -8,7 +8,7 @@ const config: Knex.Config = {
   migrations: {
     directory: './migrations',
     tableName: 'knex_migrations',
-    stub: 'stubs/migration.stub',
+    stub: 'migration.stub',
     extension: 'ts'
   },
   pool: {
