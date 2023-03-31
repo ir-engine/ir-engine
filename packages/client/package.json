@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/client",
-  "version": "1.2.0-rc6",
+  "version": "1.2.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -33,14 +33,14 @@
     "react": "18.2.0"
   },
   "dependencies": {
-    "@etherealengine/client-core": "^1.2.0-rc6",
-    "@etherealengine/common": "^1.2.0-rc6",
-    "@etherealengine/editor": "^1.2.0-rc6",
-    "@etherealengine/engine": "^1.2.0-rc6",
-    "@etherealengine/hyperflux": "^1.2.0-rc6",
-    "@etherealengine/matchmaking": "^1.2.0-rc6",
-    "@etherealengine/projects": "^1.2.0-rc6",
-    "@etherealengine/ui": "^1.2.0-rc6",
+    "@etherealengine/client-core": "^1.2.0",
+    "@etherealengine/common": "^1.2.0",
+    "@etherealengine/editor": "^1.2.0",
+    "@etherealengine/engine": "^1.2.0",
+    "@etherealengine/hyperflux": "^1.2.0",
+    "@etherealengine/matchmaking": "^1.2.0",
+    "@etherealengine/projects": "^1.2.0",
+    "@etherealengine/ui": "^1.2.0",
     "@heroicons/react": "^2.0.16",
     "@hookstate/core": "4.0.0-rc21",
     "@mui/icons-material": "5.11.0",
