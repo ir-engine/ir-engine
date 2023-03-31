@@ -59,7 +59,7 @@ import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePos
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
   initial: {
-    accumulationBudget: isMobileXRHeadset() ? 3 : 6
+    accumulationBudget: isMobileXRHeadset ? 3 : 6
   }
 })
 
