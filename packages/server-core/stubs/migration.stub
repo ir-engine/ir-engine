@@ -1,6 +1,6 @@
 import type { Knex } from 'knex'
 
-const TABLE_NAME = 'route'
+const TABLE_NAME = 'TABLE_NAME'
 
 /**
  * @param { import("knex").Knex } knex
@@ -12,8 +12,6 @@ export async function up(knex: Knex): Promise<void> {
   if (tableExists === false) {
     await knex.schema.createTable(TABLE_NAME, (table) => {
       table.string('id', 36).primary()
-      table.string('project', 255).nullable()
-      table.string('route', 255).nullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })

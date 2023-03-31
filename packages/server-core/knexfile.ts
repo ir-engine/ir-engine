@@ -7,7 +7,9 @@ const config: Knex.Config = {
   connection: appConfig.db.url,
   migrations: {
     directory: './migrations',
-    tableName: 'knex_migrations'
+    tableName: 'knex_migrations',
+    stub: 'stubs/migration.stub',
+    extension: 'ts'
   },
   pool: {
     min: 2,
