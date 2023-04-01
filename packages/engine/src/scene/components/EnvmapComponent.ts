@@ -27,7 +27,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { isHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
@@ -196,7 +196,7 @@ function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
     if (obj instanceof Scene) {
       obj.environment = envmap
     } else {
-      if (isHeadset()) return
+      if (isMobileXRHeadset) return
       obj.traverse((child: Mesh<any, MeshStandardMaterial>) => {
         if (child.material instanceof MeshMatcapMaterial) return
         if (child.material) child.material.envMap = envmap

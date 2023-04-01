@@ -30,7 +30,7 @@ import { registerMaterial, unregisterMaterial } from '../../renderer/materials/f
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { isHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -58,14 +58,12 @@ const applyBPCEM = (material) => {
 }
 
 export function setupObject(obj: Object3DWithEntity, force = false) {
-  const _isHeadset = isHeadset()
-
   const mesh = obj as any as Mesh<any, any>
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
       if (!child.userData) child.userData = {}
-      const shouldMakeSimple = (force || _isHeadset) && ExpensiveMaterials.has(child.material.constructor)
-      if (!force && !_isHeadset && child.userData.lastMaterial) {
+      const shouldMakeSimple = (force || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
+      if (!force && !isMobileXRHeadset && child.userData.lastMaterial) {
         child.material = child.userData.lastMaterial
         delete child.userData.lastMaterial
       } else if (shouldMakeSimple && !child.userData.lastMaterial) {
