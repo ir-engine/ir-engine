@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
+import { LocationAction, LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -48,6 +48,7 @@ import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { ClientModules } from '../../world/ClientModules'
+import { loadSceneJsonOffline } from '../../world/utils'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -192,9 +193,14 @@ export const useLoadEngineWithScene = ({ injectedSystems, spectate }: Props) => 
   }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 
-export const useOfflineScene = () => {
+export const useOfflineScene = (props: { projectName: string; sceneName: string }) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
+
+  useEffect(() => {
+    dispatchAction(LocationAction.setLocationName({ locationName: `${props.projectName}/${props.sceneName}` }))
+    loadSceneJsonOffline(props.projectName, props.sceneName)
+  }, [])
 
   /** OFFLINE */
   useEffect(() => {

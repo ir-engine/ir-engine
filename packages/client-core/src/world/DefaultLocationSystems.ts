@@ -8,8 +8,14 @@ import PartySystem from '../systems/state/PartySystem'
 import WarningUISystem from '../systems/WarningUISystem'
 import WidgetUISystem from '../systems/WidgetUISystem'
 import UpdateNearbyUsersSystem from '../transports/UpdateNearbyUsersSystem'
+import UserUISystem from '../user/UserUISystem'
 
 export const DefaultLocationSystems: SystemModuleType<any>[] = [
+  {
+    uuid: 'ee.client.core.UserUISystem',
+    type: SystemUpdateType.POST_RENDER,
+    systemLoader: () => Promise.resolve({ default: UserUISystem })
+  },
   {
     uuid: 'ee.client.core.LoadingUISystem',
     type: SystemUpdateType.UPDATE,

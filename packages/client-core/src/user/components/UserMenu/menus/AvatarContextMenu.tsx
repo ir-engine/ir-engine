@@ -18,9 +18,10 @@ import { NotificationService } from '../../../../common/services/NotificationSer
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'
 import { InviteService } from '../../../../social/services/InviteService'
 import { usePartyState } from '../../../../social/services/PartyService'
+import { SocialMenus } from '../../../../systems/state/PartySystem'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
-import { getAvatarURLForUser, Views } from '../util'
+import { getAvatarURLForUser } from '../util'
 
 interface Props {
   changeActiveMenu: Function
@@ -80,7 +81,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
       maxWidth="xs"
       showBackButton={onBack ? true : false}
       onBack={onBack}
-      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
+      onClose={() => changeActiveMenu && changeActiveMenu()}
     >
       {user && user.id && (
         <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
@@ -105,7 +106,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
               width="70%"
               onClick={() => {
                 FriendService.requestFriend(selfId, user.id)
-                changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
+                changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
               }}
             >
               {t('user:personMenu.addAsFriend')}
@@ -118,7 +119,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
               width="70%"
               onClick={() => {
                 FriendService.unfriend(selfId, user.id)
-                changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
+                changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
               }}
             >
               {t('user:personMenu.unFriend')}
@@ -140,7 +141,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
                 width="70%"
                 onClick={() => {
                   FriendService.acceptFriend(selfId, user.id)
-                  changeActiveMenu(Views.Friends)
+                  changeActiveMenu(SocialMenus.Friends)
                 }}
               >
                 {t('user:personMenu.acceptRequest')}
@@ -151,7 +152,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
                 width="70%"
                 onClick={() => {
                   FriendService.declineFriend(selfId, user.id)
-                  changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
+                  changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
                 }}
               >
                 {t('user:personMenu.declineRequest')}
@@ -174,7 +175,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
                 width="70%"
                 onClick={() => {
                   FriendService.unfriend(selfId, user.id)
-                  changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
+                  changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
                 }}
               >
                 {t('user:personMenu.cancelRequest')}
@@ -192,7 +193,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
               width="70%"
               onClick={() => {
                 FriendService.blockUser(selfId, user.id)
-                changeActiveMenu(Views.Friends, { defaultSelectedTab: 'blocked' })
+                changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'blocked' })
               }}
             >
               {t('user:personMenu.block')}
@@ -205,7 +206,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
               width="70%"
               onClick={() => {
                 FriendService.unblockUser(selfId, user.id)
-                changeActiveMenu(Views.Friends)
+                changeActiveMenu(SocialMenus.Friends)
               }}
             >
               {t('user:personMenu.unblock')}

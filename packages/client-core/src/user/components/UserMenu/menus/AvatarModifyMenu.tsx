@@ -29,8 +29,8 @@ import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { AvatarService } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
 
 interface Props {
   changeActiveMenu: Function
@@ -265,11 +265,11 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
           avatarBlob,
           thumbnailBlob
         )
-        changeActiveMenu(Views.AvatarSelect)
+        changeActiveMenu(UserMenus.AvatarSelect)
       } else if (avatarBlob && thumbnailBlob) {
         await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
 
-        changeActiveMenu(Views.Closed)
+        changeActiveMenu()
       }
     } catch (err) {
       console.error(err)
@@ -282,7 +282,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
     if (hasPendingChanges) {
       setShowConfirmChanges(true)
     } else {
-      changeActiveMenu(Views.AvatarSelect)
+      changeActiveMenu(UserMenus.AvatarSelect)
     }
   }
 
@@ -308,7 +308,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
       }
       title={selectedAvatar ? t('user:avatar.titleEditAvatar') : t('user:avatar.createAvatar')}
       onBack={handleBack}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onClose={() => changeActiveMenu()}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
@@ -322,7 +322,12 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
           </Grid>
 
           <Grid item md={5} sx={{ width: '100%' }}>
-            <Button fullWidth type="gradientRounded" sx={{ mt: 1 }} onClick={() => changeActiveMenu(Views.ReadyPlayer)}>
+            <Button
+              fullWidth
+              type="gradientRounded"
+              sx={{ mt: 1 }}
+              onClick={() => changeActiveMenu(UserMenus.ReadyPlayer)}
+            >
               {t('user:usermenu.profile.useReadyPlayerMe')}
             </Button>
 
@@ -425,7 +430,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
                 description={t('user:common.confirmDiscardChange')}
                 submitButtonText={t('user:common.discardChanges')}
                 onClose={() => setShowConfirmChanges(false)}
-                onSubmit={() => changeActiveMenu(Views.AvatarSelect)}
+                onSubmit={() => changeActiveMenu(UserMenus.AvatarSelect)}
               />
             )}
           </Grid>

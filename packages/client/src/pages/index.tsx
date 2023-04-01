@@ -8,7 +8,7 @@ import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { Views } from '@etherealengine/client-core/src/user/components/UserMenu/util'
+import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import config from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -20,7 +20,7 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
-  const selectedMenu = useHookstate(Views.Profile)
+  const selectedMenu = useHookstate(UserMenus.Profile)
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
@@ -91,11 +91,11 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            {selectedMenu.value === Views.Profile && (
-              <ProfileMenu isPopover changeActiveMenu={(type) => selectedMenu.set(type ? type : Views.Profile)} />
+            {selectedMenu.value === UserMenus.Profile && (
+              <ProfileMenu isPopover changeActiveMenu={(type) => selectedMenu.set(type ? type : UserMenus.Profile)} />
             )}
-            {selectedMenu.value === Views.Settings && (
-              <SettingMenu isPopover changeActiveMenu={(type) => selectedMenu.set(type ? type : Views.Profile)} />
+            {selectedMenu.value === UserMenus.Settings && (
+              <SettingMenu isPopover changeActiveMenu={(type) => selectedMenu.set(type ? type : UserMenus.Profile)} />
             )}
           </Box>
         </div>
