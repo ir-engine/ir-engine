@@ -4,7 +4,6 @@ import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/Syste
 import WebcamInputSystem from '../media/webcam/WebcamInput'
 import AvatarUISystem from '../systems/AvatarUISystem'
 import LoadingUISystem from '../systems/LoadingUISystem'
-import PartySystem from '../systems/state/PartySystem'
 import WarningUISystem from '../systems/WarningUISystem'
 import WidgetUISystem from '../systems/WidgetUISystem'
 import UpdateNearbyUsersSystem from '../transports/UpdateNearbyUsersSystem'
