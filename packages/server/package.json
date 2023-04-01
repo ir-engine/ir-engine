@@ -1,7 +1,7 @@
 {
   "name": "@etherealengine/server",
   "description": "API Server for Ethereal Engine",
-  "version": "1.2.0-rc6",
+  "version": "1.2.0",
   "private": true,
   "homepage": "",
   "main": "dist/index.js",
@@ -46,7 +46,7 @@
   },
   "types": "lib/",
   "dependencies": {
-    "@etherealengine/server-core": "^1.2.0-rc6",
+    "@etherealengine/server-core": "^1.2.0",
     "@feathersjs/express": "5.0.0",
     "@feathersjs/feathers": "5.0.0",
     "@feathersjs/primus": "4.5.15",
