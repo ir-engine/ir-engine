@@ -12,9 +12,7 @@ import { updateSceneEntitiesFromJSON } from '../systems/SceneLoadingSystem'
 
 export default async function SceneObjectDynamicLoadSystem() {
   Engine.instance.sceneComponentRegistry.set(SceneDynamicLoadTagComponent.name, SCENE_COMPONENT_DYNAMIC_LOAD)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {})
 
   if (getMutableState(EngineState).isEditor.value)
     return {

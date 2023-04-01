@@ -21,7 +21,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import CaptureUI from '@etherealengine/ui/src/Capture'
+import CaptureUI from '@etherealengine/ui/src/components/tailwind/Capture'
 
 const systems = [...MediaModule(), ...MotionCaptureModule()]
 

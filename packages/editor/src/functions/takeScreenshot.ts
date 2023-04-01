@@ -81,7 +81,8 @@ export async function takeScreenshot(
       const viewport = EngineRenderer.instance.renderContext.getParameter(
         EngineRenderer.instance.renderContext.VIEWPORT
       )
-      if (viewport[2] === width && viewport[3] === height) {
+      const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
+      if (viewport[2] === width * pixelRatio && viewport[3] === height * pixelRatio) {
         clearTimeout(timeout)
         clearInterval(interval)
         resolve()

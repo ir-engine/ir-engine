@@ -1,7 +1,7 @@
 {
   "name": "@etherealengine/server-core",
   "description": "Shared components for Ethereal Engine server",
-  "version": "1.2.0-rc6",
+  "version": "1.2.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/etherealengine/etherealengine.git"
@@ -40,9 +40,9 @@
     "validate": "npm run build && npm run test"
   },
   "dependencies": {
-    "@etherealengine/common": "^1.2.0-rc6",
-    "@etherealengine/engine": "^1.2.0-rc6",
-    "@etherealengine/matchmaking": "^1.2.0-rc6",
+    "@etherealengine/common": "^1.2.0",
+    "@etherealengine/engine": "^1.2.0",
+    "@etherealengine/matchmaking": "^1.2.0",
     "@feathersjs/authentication": "5.0.0",
     "@feathersjs/authentication-local": "5.0.0",
     "@feathersjs/authentication-oauth": "5.0.0",
