@@ -7,12 +7,17 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 const migrationsDirectories = ['./migrations']
 
 const projectsDirectory = '../projects/projects'
-const installedProjects = fs.readdirSync(projectsDirectory)
-for (const project of installedProjects) {
-  const projectMigrations = path.join(projectsDirectory, project, 'migrations')
-  const migrationExists = fs.existsSync(projectMigrations)
-  if (migrationExists) {
-    migrationsDirectories.push(projectMigrations)
+const projectsExists = fs.existsSync(projectsDirectory)
+
+if (projectsExists) {
+  const installedProjects = fs.readdirSync(projectsDirectory)
+  for (const project of installedProjects) {
+    const projectMigrations = path.join(projectsDirectory, project, 'migrations')
+    const migrationExists = fs.existsSync(projectMigrations)
+
+    if (migrationExists) {
+      migrationsDirectories.push(projectMigrations)
+    }
   }
 }
 
