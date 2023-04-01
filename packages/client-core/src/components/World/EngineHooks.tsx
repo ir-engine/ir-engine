@@ -2,7 +2,6 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { LocationInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationAction, LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
