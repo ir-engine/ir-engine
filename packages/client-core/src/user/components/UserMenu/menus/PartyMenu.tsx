@@ -13,9 +13,9 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import Box from '@etherealengine/ui/src/Box'
 import Icon from '@etherealengine/ui/src/Icon'
 
+import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../../social/services/PartyService'
-import { SocialMenus } from '../../../../systems/state/PartySystem'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 
