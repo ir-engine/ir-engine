@@ -16,7 +16,14 @@ export const NetworkState = defineState({
     },
     // todo - move to Network.schemas
     networkSchema: {} as { [key: string]: SerializationSchema },
-    networks: {} as { [key: UserId]: Network }
+    networks: {} as { [key: UserId]: Network },
+    config: {
+      world: false,
+      media: false,
+      party: false,
+      instanceID: false,
+      roomID: false
+    }
   }
 })
 

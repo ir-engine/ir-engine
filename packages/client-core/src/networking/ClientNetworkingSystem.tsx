@@ -27,12 +27,12 @@ import { MediaStreamActions } from '../transports/MediaStreams'
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
 import { NetworkUserServiceReceptor } from '../user/services/NetworkUserService'
-import { NetworkInstanceProvisioning } from './NetworkInstanceProvisioning'
+import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
 export default async function ClientNetworkingSystem() {
   const dataChannelsReactor = startReactor(DataChannels)
   const peerMediaReactor = startReactor(PeerMedia)
-  const networkInstanceProvisioningReactor = startReactor(NetworkInstanceProvisioning)
+  const networkInstanceProvisioningReactor = startReactor(InstanceProvisioning)
 
   const triggerUpdateConsumersQueue = createActionQueue(MediaStreamActions.triggerUpdateConsumers.matches)
   const noWorldServersAvailableQueue = createActionQueue(

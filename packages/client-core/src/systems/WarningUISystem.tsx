@@ -11,7 +11,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
@@ -22,12 +22,10 @@ import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
-import { LoadingSystemState } from './state/LoadingState'
-
 export const WarningUIState = defineState({
   name: 'WarningUIState',
   initial: {
-    open: true,
+    open: false,
     title: '',
     body: '',
     action: null as null | (() => void),
@@ -53,7 +51,7 @@ const WarningSystemXRUI = function () {
   const { t } = useTranslation()
 
   const state = useHookstate(getMutableState(WarningUIState))
-  const { open, title, body, timeRemaining } = state.value
+  const { title, body, timeRemaining } = state.value
 
   const onClose = () => {
     const action = getState(WarningUIState).action
@@ -121,6 +119,7 @@ export default async function WarningUISystem() {
   const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
 
   const ui = createXRUI(WarningSystemXRUI)
+  removeComponent(ui.entity, VisibleComponent)
 
   const reactor = startReactor(function () {
     const state = useHookstate(getMutableState(WarningUIState))

@@ -58,17 +58,21 @@ export default async function UserUISystem() {
   const execute = () => {}
 
   const cleanup = async () => {
-    popupMenuState.menus[UserMenus.Profile].set(none)
-    popupMenuState.menus[UserMenus.Settings].set(none)
-    popupMenuState.menus[UserMenus.AvatarSelect].set(none)
-    popupMenuState.menus[UserMenus.AvatarModify].set(none)
-    popupMenuState.menus[UserMenus.ReadyPlayer].set(none)
-    popupMenuState.menus[UserMenus.Share].set(none)
-    popupMenuState.menus[UserMenus.Emote].set(none)
+    popupMenuState.menus.merge({
+      [UserMenus.Profile]: none,
+      [UserMenus.Settings]: none,
+      [UserMenus.AvatarSelect]: none,
+      [UserMenus.AvatarModify]: none,
+      [UserMenus.ReadyPlayer]: none,
+      [UserMenus.Share]: none,
+      [UserMenus.Emote]: none
+    })
 
-    popupMenuState.hotbar[UserMenus.Profile].set(none)
-    popupMenuState.hotbar[UserMenus.Share].set(none)
-    popupMenuState.hotbar[UserMenus.Emote].set(none)
+    popupMenuState.hotbar.merge({
+      [UserMenus.Profile]: none,
+      [UserMenus.Share]: none,
+      [UserMenus.Emote]: none
+    })
   }
 
   return { execute, cleanup }

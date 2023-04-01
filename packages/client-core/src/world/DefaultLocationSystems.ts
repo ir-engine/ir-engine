@@ -32,11 +32,6 @@ export const DefaultLocationSystems: SystemModuleType<any>[] = [
     systemLoader: () => Promise.resolve({ default: WidgetUISystem })
   },
   {
-    uuid: 'ee.client.core.PartySystem',
-    type: SystemUpdateType.POST_RENDER,
-    systemLoader: () => Promise.resolve({ default: PartySystem })
-  },
-  {
     uuid: 'ee.client.core.UpdateNearbyUsersSystem',
     type: SystemUpdateType.POST_RENDER,
     systemLoader: () => Promise.resolve({ default: UpdateNearbyUsersSystem })
