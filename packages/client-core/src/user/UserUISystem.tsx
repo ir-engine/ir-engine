@@ -1,9 +1,10 @@
 import React from 'react'
 
-import { getMutableState, none } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, none, removeActionReceptor, startReactor } from '@etherealengine/hyperflux'
 
 import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 
+import { InviteService, InviteServiceReceptor } from '../social/services/InviteService'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
@@ -12,6 +13,7 @@ import ReadyPlayerMenu from './components/UserMenu/menus/ReadyPlayerMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
 import ShareMenu from './components/UserMenu/menus/ShareMenu'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
+import { AvatarServiceReceptor } from './services/AvatarService'
 
 export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">
@@ -55,6 +57,14 @@ export default async function UserUISystem() {
     [UserMenus.Emote]: EmoteIcon
   })
 
+  addActionReceptor(AvatarServiceReceptor)
+  addActionReceptor(InviteServiceReceptor)
+
+  const reactor = startReactor(() => {
+    InviteService.useAPIListeners()
+    return null
+  })
+
   const execute = () => {}
 
   const cleanup = async () => {
@@ -73,6 +83,11 @@ export default async function UserUISystem() {
       [UserMenus.Share]: none,
       [UserMenus.Emote]: none
     })
+
+    removeActionReceptor(AvatarServiceReceptor)
+    removeActionReceptor(InviteServiceReceptor)
+
+    await reactor.stop()
   }
 
   return { execute, cleanup }

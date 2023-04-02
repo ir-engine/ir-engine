@@ -36,7 +36,7 @@ const useOnlineLocationHooks = (props: { locationName: string }) => {
     getMutableState(NetworkState).config.set({
       world: true,
       media: true,
-      party: true,
+      friends: true,
       instanceID: true,
       roomID: false
     })

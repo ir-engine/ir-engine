@@ -127,6 +127,7 @@ export const MediaInstanceProvisioning = () => {
   const currentChannelInstanceConnection = useMediaInstance()
 
   MediaInstanceConnectionService.useAPIListeners()
+  ChatService.useAPIListeners()
 
   // Once we have the world server, provision the media server
   useEffect(() => {
@@ -257,7 +258,7 @@ export const InstanceProvisioning = () => {
     <>
       {networkConfigState.world.value && <WorldInstanceProvisioning />}
       {networkConfigState.media.value && <MediaInstanceProvisioning />}
-      {networkConfigState.party.value && <PartyInstanceProvisioning />}
+      {networkConfigState.friends.value && <PartyInstanceProvisioning />}
     </>
   )
 }

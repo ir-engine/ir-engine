@@ -8,9 +8,10 @@ import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import config from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import { Box, Button } from '@mui/material'
 
@@ -25,6 +26,11 @@ export const HomePage = (): any => {
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
     if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
+
+    addActionReceptor(AvatarServiceReceptor)
+    return () => {
+      removeActionReceptor(AvatarServiceReceptor)
+    }
   }, [])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {

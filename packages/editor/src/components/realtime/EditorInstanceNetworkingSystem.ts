@@ -9,7 +9,7 @@ export default async function EditorInstanceNetworkingSystem() {
   getMutableState(NetworkState).config.set({
     world: true,
     media: false,
-    party: false,
+    friends: false,
     instanceID: false,
     roomID: false
   })

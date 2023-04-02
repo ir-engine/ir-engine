@@ -1,10 +1,6 @@
-import { generateUUID } from 'three/src/math/MathUtils'
 import matches from 'ts-matches'
 
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
-
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 
 export class DependencyTreeActions {
   static dependencyFulfilled = defineAction({

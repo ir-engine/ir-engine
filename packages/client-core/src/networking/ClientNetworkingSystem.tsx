@@ -15,12 +15,16 @@ import {
   LocationInstanceConnectionService,
   LocationInstanceConnectionServiceReceptor
 } from '../common/services/LocationInstanceConnectionService'
-import { MediaInstanceConnectionService } from '../common/services/MediaInstanceConnectionService'
+import {
+  MediaInstanceConnectionService,
+  MediaInstanceConnectionServiceReceptor
+} from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerMedia } from '../media/PeerMedia'
 import { MediaServiceReceptor, MediaStreamService } from '../media/services/MediaStreamService'
-import { ChatState } from '../social/services/ChatService'
+import { ChatServiceReceptor, ChatState } from '../social/services/ChatService'
+import { FriendServiceReceptor } from '../social/services/FriendService'
 import { LocationState } from '../social/services/LocationService'
 import { WarningUIService } from '../systems/WarningUISystem'
 import { MediaStreamActions } from '../transports/MediaStreams'
@@ -57,8 +61,11 @@ export default async function ClientNetworkingSystem() {
 
   // todo replace with subsystems
   addActionReceptor(LocationInstanceConnectionServiceReceptor)
+  addActionReceptor(MediaInstanceConnectionServiceReceptor)
   addActionReceptor(MediaServiceReceptor)
   addActionReceptor(NetworkUserServiceReceptor)
+  addActionReceptor(FriendServiceReceptor)
+  addActionReceptor(ChatServiceReceptor)
 
   const locationState = getState(LocationState)
   const chatState = getState(ChatState)
@@ -156,8 +163,11 @@ export default async function ClientNetworkingSystem() {
 
     // todo replace with subsystems
     removeActionReceptor(LocationInstanceConnectionServiceReceptor)
+    removeActionReceptor(MediaInstanceConnectionServiceReceptor)
     removeActionReceptor(MediaServiceReceptor)
     removeActionReceptor(NetworkUserServiceReceptor)
+    removeActionReceptor(FriendServiceReceptor)
+    removeActionReceptor(ChatServiceReceptor)
 
     await Promise.all([dataChannelsReactor.stop(), peerMediaReactor.stop(), networkInstanceProvisioningReactor.stop()])
   }
