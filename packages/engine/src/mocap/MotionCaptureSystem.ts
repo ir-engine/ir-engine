@@ -122,8 +122,8 @@ export default async function MotionCaptureSystem() {
         const rightShoulder = data[POSE_LANDMARKS.RIGHT_SHOULDER]
         const leftElbow = data[POSE_LANDMARKS.LEFT_ELBOW]
         const rightElbow = data[POSE_LANDMARKS.RIGHT_ELBOW]
-        const rightWrist = data[POSE_LANDMARKS.LEFT_WRIST]
-        const leftWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
+        const leftWrist = data[POSE_LANDMARKS.LEFT_WRIST]
+        const rightWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
 
         const ikTargets = getComponent(entity, AvatarIKTargetsComponent)
         const head = !!nose.visibility && nose.visibility > 0.5

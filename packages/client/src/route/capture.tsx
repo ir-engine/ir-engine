@@ -27,10 +27,11 @@ import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
 import { AppLoadingServiceReceptor } from '@etherealengine/engine/src/common/AppLoadingService'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import Capture from '../pages/capture/[locationName]'
+import Capture from '../pages/capture/capture'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 function CaptureComp() {
@@ -71,6 +72,14 @@ function CaptureComp() {
     }
     getCustomRoutes().then((routes) => {
       setCustomRoutes(routes)
+    })
+
+    getMutableState(NetworkState).config.set({
+      world: true,
+      media: true,
+      party: false,
+      instanceID: true,
+      roomID: false
     })
 
     return () => {
