@@ -370,10 +370,9 @@ const EditorContainer = () => {
 
   const onSaveScene = async () => {
     console.log('onSaveScene')
-    const sceneLoaded = getEngineState().sceneLoaded.value
 
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!sceneLoaded) {
+    if (!sceneLoaded.value) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }
