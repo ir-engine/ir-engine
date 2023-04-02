@@ -24,6 +24,7 @@ export default async function EditorInstanceNetworkingSystem() {
     accumulator += Engine.instance.deltaSeconds
 
     if (accumulator > 5) {
+      accumulator = 0
       const sceneId = `${editorState.projectName}/${editorState.sceneName}`
       EditorActiveInstanceService.getActiveInstances(sceneId)
     }

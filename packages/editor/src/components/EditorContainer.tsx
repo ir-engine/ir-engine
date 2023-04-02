@@ -20,9 +20,8 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
-import { disposeProject, loadProjectScene } from '../functions/projectFunctions'
+import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
-import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
@@ -148,12 +147,6 @@ const EditorContainer = () => {
   const dockPanelRef = useRef<DockLayout>(null)
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
-
-  useEffect(() => {
-    return () => {
-      disposeProject()
-    }
-  }, [])
 
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
@@ -472,12 +465,6 @@ const EditorContainer = () => {
       onEditorError(editorError.value)
     }
   }, [editorError])
-
-  useEffect(() => {
-    if (editorState.projectLoaded.value === true) {
-      initializeRenderer()
-    }
-  }, [editorState.projectLoaded.value])
 
   const generateToolbarMenu = () => {
     return [

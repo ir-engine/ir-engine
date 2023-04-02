@@ -457,33 +457,30 @@ export default function HierarchyPanel({
     }
   })
 
-  const HierarchyList = //useCallback(
-    ({ height, width }) => (
-      <FixedSizeList
-        height={height}
-        width={width}
-        itemSize={32}
-        itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
-        itemData={{
-          renamingNode,
-          nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
-          onKeyDown,
-          onChangeName,
-          onRenameSubmit,
-          onMouseDown,
-          onClick,
-          onToggle,
-          onUpload
-        }}
-        itemKey={getNodeKey}
-        outerRef={treeContainerDropTarget}
-        innerElementType="ul"
-      >
-        {MemoTreeNode}
-      </FixedSizeList>
-    ) //,
-  //[editorState.advancedMode, editorState.projectLoaded, collapsedNodes, showObject3DInHierarchy, selectedNode, updateNodeHierarchy]
-  //)
+  const HierarchyList = ({ height, width }) => (
+    <FixedSizeList
+      height={height}
+      width={width}
+      itemSize={32}
+      itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
+      itemData={{
+        renamingNode,
+        nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
+        onKeyDown,
+        onChangeName,
+        onRenameSubmit,
+        onMouseDown,
+        onClick,
+        onToggle,
+        onUpload
+      }}
+      itemKey={getNodeKey}
+      outerRef={treeContainerDropTarget}
+      innerElementType="ul"
+    >
+      {MemoTreeNode}
+    </FixedSizeList>
+  )
 
   return (
     <>

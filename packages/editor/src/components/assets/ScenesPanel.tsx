@@ -11,7 +11,6 @@ import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener } from '@mui/material'
 import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
-import { disposeProject } from '../../functions/projectFunctions'
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
@@ -80,7 +79,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
       if (editorState.sceneName.value === activeScene.name) {
         dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
         dispatchAction(EngineActions.sceneUnloaded({}))
-        disposeProject()
         route(`/studio/${editorState.projectName.value}`)
       }
 
