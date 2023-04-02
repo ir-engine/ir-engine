@@ -14,6 +14,7 @@ import { SceneService } from '@etherealengine/client-core/src/world/services/Sce
 import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
 import { SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useLoadEngineWithScene, useOfflineScene } from '../components/World/EngineHooks'
@@ -29,10 +30,20 @@ const networkingSystems = [
 const useOnlineLocationHooks = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
 
-  const invalidLocationState = locationState.invalidLocation
+  useEffect(() => {
+    dispatchAction(LocationAction.setLocationName({ locationName: props.locationName }))
+
+    getMutableState(NetworkState).config.set({
+      world: true,
+      media: true,
+      party: true,
+      instanceID: true,
+      roomID: false
+    })
+  }, [])
 
   useEffect(() => {
-    if (invalidLocationState.value) {
+    if (locationState.invalidLocation.value) {
       WarningUIService.openWarning({
         title: t('common:instanceServer.invalidLocation'),
         body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
@@ -40,7 +51,7 @@ const useOnlineLocationHooks = (props: { locationName: string }) => {
         )}`
       })
     }
-  }, [invalidLocationState])
+  }, [locationState.invalidLocation])
 
   useEffect(() => {
     if (locationState.currentLocation.selfNotAuthorized.value) {
@@ -50,10 +61,6 @@ const useOnlineLocationHooks = (props: { locationName: string }) => {
       })
     }
   }, [locationState.currentLocation.selfNotAuthorized])
-
-  useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName: props.locationName }))
-  }, [])
 
   /**
    * Once we have the location, fetch the current scene data

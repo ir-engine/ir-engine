@@ -146,6 +146,13 @@ export default async function ClientNetworkingSystem() {
 
   const cleanup = async () => {
     removeActionQueue(triggerUpdateConsumersQueue)
+    removeActionQueue(noWorldServersAvailableQueue)
+    removeActionQueue(noMediaServersAvailableQueue)
+    removeActionQueue(worldInstanceDisconnectedQueue)
+    removeActionQueue(worldInstanceKickedQueue)
+    removeActionQueue(mediaInstanceDisconnectedQueue)
+    removeActionQueue(worldInstanceReconnectedQueue)
+    removeActionQueue(mediaInstanceReconnectedQueue)
 
     // todo replace with subsystems
     removeActionReceptor(LocationInstanceConnectionServiceReceptor)
