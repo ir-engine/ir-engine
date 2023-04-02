@@ -12,7 +12,6 @@ import {
   ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { AppServiceReceptor } from '@etherealengine/client-core/src/common/services/AppService'
 import { DialogServiceReceptor } from '@etherealengine/client-core/src/common/services/DialogService'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import {
@@ -24,7 +23,6 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
-import { AppLoadingServiceReceptor } from '@etherealengine/engine/src/common/AppLoadingService'
 import {
   addActionReceptor,
   getMutableState,
@@ -56,8 +54,6 @@ function AdminRouterComp() {
     addActionReceptor(AvatarServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(DialogServiceReceptor)
-    addActionReceptor(AppLoadingServiceReceptor)
-    addActionReceptor(AppServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
@@ -80,8 +76,6 @@ function AdminRouterComp() {
       removeActionReceptor(AvatarServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(DialogServiceReceptor)
-      removeActionReceptor(AppServiceReceptor)
-      removeActionReceptor(AppLoadingServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
     }
   }, [])
