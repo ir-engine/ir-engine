@@ -67,7 +67,7 @@ export const UserMenu = () => {
         {Panel && (
           <div style={{ pointerEvents: 'auto' }}>
             <Panel
-              {...popupMenuState.params}
+              {...popupMenu.params}
               changeActiveMenu={(id, params) => {
                 setCurrentActiveMenu({ id, params })
               }}
