@@ -142,7 +142,7 @@ export const usePortalTeleport = () => {
         UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
       ) {
         teleportAvatar(
-          Engine.instance.localClientEntity,
+          Engine.instance.localClientEntity!,
           activePortal.remoteSpawnPosition
           // activePortal.remoteSpawnRotation
         )
@@ -165,7 +165,7 @@ export const usePortalTeleport = () => {
 
       setAvatarToLocationTeleportingState()
       if (activePortal.effectType !== 'None') {
-        addComponent(Engine.instance.localClientEntity, PortalEffects.get(activePortal.effectType), true)
+        addComponent(Engine.instance.localClientEntity!, PortalEffects.get(activePortal.effectType), true)
       } else {
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.START_STATE }))
       }
@@ -192,7 +192,7 @@ export const useLoadEngineWithScene = ({ injectedSystems, spectate }: Props) => 
   }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 
-export const useOfflineScene = (props: { projectName: string; sceneName: string }) => {
+export const useOfflineScene = (props: { projectName: string; sceneName: string; spectate?: boolean }) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
 
@@ -203,6 +203,7 @@ export const useOfflineScene = (props: { projectName: string; sceneName: string 
 
   /** OFFLINE */
   useEffect(() => {
+    if (props.spectate) return
     if (engineState.sceneLoaded.value) {
       const userId = Engine.instance.userId
       const userIndex = 1

@@ -115,7 +115,10 @@ export const setupXRSession = async (requestedMode) => {
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
   const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
-  const rigidBody = getComponent(Engine.instance.localClientEntity, RigidBodyComponent)
+  const localClientEntity = Engine.instance.localClientEntity
+  const rigidBody = localClientEntity
+    ? getComponent(localClientEntity, RigidBodyComponent)
+    : getComponent(Engine.instance.cameraEntity, TransformComponent)
   const xrState = getMutableState(XRState)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */

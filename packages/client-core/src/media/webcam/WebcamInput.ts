@@ -85,9 +85,9 @@ export const startFaceTracking = async () => {
 }
 
 export async function faceToInput(detection: { detection: FaceDetection; expressions: FaceExpressions }) {
-  if (!hasComponent(Engine.instance.localClientEntity, WebcamInputComponent)) return
+  if (!hasComponent(Engine.instance.localClientEntity!, WebcamInputComponent)) return
 
-  const entity = Engine.instance.localClientEntity
+  const entity = Engine.instance.localClientEntity!
 
   if (detection !== undefined && detection.expressions !== undefined) {
     for (const expression in detection.expressions) {
@@ -136,7 +136,7 @@ export const startLipsyncTracking = () => {
   audioProcessor.connect(audioContext.destination)
 
   audioProcessor.onaudioprocess = () => {
-    if (!lipsyncTracking || !hasComponent(Engine.instance.localClientEntity, WebcamInputComponent)) return
+    if (!lipsyncTracking || !hasComponent(Engine.instance.localClientEntity!, WebcamInputComponent)) return
     // bincount returns array which is half the FFT_SIZE
     spectrum = new Float32Array(userSpeechAnalyzer.frequencyBinCount)
     // Populate frequency data for computing frequency intensities
@@ -174,7 +174,7 @@ export const startLipsyncTracking = () => {
     const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
     const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
 
-    const entity = Engine.instance.localClientEntity
+    const entity = Engine.instance.localClientEntity!
 
     if (pucker > PUCKER_EXPRESSION_THRESHOLD && pucker >= WebcamInputComponent.expressionValue[entity]) {
       const inputIndex = expressionByIndex.findIndex((exp) => exp === 'pucker')!

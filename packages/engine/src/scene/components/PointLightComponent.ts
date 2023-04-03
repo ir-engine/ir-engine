@@ -16,7 +16,8 @@ export const PointLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new PointLight()
-    if (!isMobileXRHeadset) addObjectToGroup(entity, light)
+    // if (!isMobileXRHeadset)
+    addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,

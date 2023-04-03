@@ -30,8 +30,10 @@ import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 const $index = lazy(() => import('@etherealengine/client/src/pages'))
 const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoutes'))
+const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
 const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
+const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
 
 function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
@@ -115,7 +117,9 @@ function RouterComp() {
             path={'/*'}
             element={<$custom customRoutes={customRoutes.filter((c) => c.route !== '/admin')} />}
           />
+          <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
           {/* default to allowing admin access regardless */}
+          <Route key={'default-studio'} path={'/studio/*'} element={<$studio />} />
           <Route key={'default-admin'} path={'/admin/*'} element={<$admin />} />
           <Route key={'default-auth'} path={'/auth/*'} element={<$auth />} />
           <Route key={'default-index'} path={'/'} element={<$index />} />
