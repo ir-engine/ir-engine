@@ -106,6 +106,7 @@ export const updateBuilder = async (
         undefined,
         undefined,
         undefined,
+        undefined,
         {
           headers: {
             'Content-Type': 'application/strategic-merge-patch+json'
@@ -868,6 +869,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
         `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
         'default',
         getCronJobBody(project, image),
+        undefined,
         undefined,
         undefined,
         undefined,

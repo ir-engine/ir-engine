@@ -120,6 +120,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
           undefined,
           undefined,
           undefined,
+          undefined,
           {
             headers: {
               'Content-Type': 'application/strategic-merge-patch+json'
