@@ -14,7 +14,7 @@ export const MountPoint = {
   seat: 'seat' as const
 }
 
-export type MountPointTypes = typeof MountPoint[keyof typeof MountPoint]
+export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
