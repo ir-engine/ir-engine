@@ -12,13 +12,13 @@ import TextField from '@etherealengine/ui/src/TextField'
 
 import ProfileMenu from '../../user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '../../user/components/UserMenu/menus/SettingMenu'
-import { Views } from '../../user/components/UserMenu/util'
+import { UserMenus } from '../../user/UserUISystem'
 import styles from '../styles/admin.module.scss'
 
 const FormDialog = () => {
   const { t } = useTranslation()
   const [open, setOpen] = React.useState(true)
-  const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
+  const [selectedMenu, setSelectedMenu] = useState(UserMenus.Profile)
 
   const handleClose = () => {
     setOpen(false)
@@ -60,11 +60,11 @@ const FormDialog = () => {
           }}
         >
           <Box sx={{ width: '50%' }}>
-            {selectedMenu === Views.Profile && (
-              <ProfileMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+            {selectedMenu === UserMenus.Profile && (
+              <ProfileMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : UserMenus.Profile)} />
             )}
-            {selectedMenu === Views.Settings && (
-              <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+            {selectedMenu === UserMenus.Settings && (
+              <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : UserMenus.Profile)} />
             )}
           </Box>
         </Box>

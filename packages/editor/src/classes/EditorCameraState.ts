@@ -6,7 +6,6 @@ import { defineState } from '@etherealengine/hyperflux'
 export const EditorCameraState = defineState({
   name: 'EditorCameraState',
   initial: {
-    center: new Vector3(),
     zoomDelta: 0,
     focusedObjects: [] as EntityOrObjectUUID[],
     isPanning: false,
@@ -16,3 +15,5 @@ export const EditorCameraState = defineState({
     refocus: false
   }
 })
+
+export const editorCameraCenter = new Vector3()

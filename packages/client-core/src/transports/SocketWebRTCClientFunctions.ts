@@ -520,6 +520,8 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   network.primus.on('disconnection', disconnectHandler)
   network.primus.on('reconnected', reconnectHandler)
   network.primus.on('data', consumeDataAndKickHandler)
+  network.primus.socket.addEventListener('close', disconnectHandler)
+  network.primus.socket.addEventListener('open', reconnectHandler)
   // Get information for how to consume data from server and init a data consumer
 
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
@@ -675,6 +677,8 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   network.primus.on('disconnection', disconnectHandler)
   network.primus.on('reconnected', reconnectHandler)
   network.primus.on('data', producerConsumerHandler)
+  network.primus.socket.addEventListener('close', disconnectHandler)
+  network.primus.socket.addEventListener('open', reconnectHandler)
 
   addActionReceptor(consumerHandler)
 

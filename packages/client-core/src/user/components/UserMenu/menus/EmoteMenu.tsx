@@ -9,14 +9,13 @@ import Icon from '@etherealengine/ui/src/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { Views } from '../util'
 import styles from './EmoteMenu.module.scss'
 
 const MAX_EMOTE_PER_PAGE = 6
 const MIN_EMOTE_PER_PAGE = 5
 const getEmotePerPage = () => (window.innerWidth > 768 ? MAX_EMOTE_PER_PAGE : MIN_EMOTE_PER_PAGE)
 
-type EmoteMenuHooksProps = { changeActiveMenu: (menu: any) => {} }
+type EmoteMenuHooksProps = { changeActiveMenu: (menu?: string) => {} }
 
 export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => {
   const [page, setPage] = useState(0)
@@ -112,7 +111,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
 
   const closeMenu = (e) => {
     e.preventDefault()
-    changeActiveMenu(Views.Closed)
+    changeActiveMenu()
   }
 
   const calculateOtherValues = (): void => {
@@ -126,7 +125,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
     const entity = Engine.instance.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
-    changeActiveMenu(Views.Closed)
+    changeActiveMenu()
   }
 
   const renderEmoteList = () => {

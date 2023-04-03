@@ -33,14 +33,14 @@ import Icon from '@etherealengine/ui/src/Icon'
 
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
 interface Props {
   isPopover?: boolean
-  changeActiveMenu?: (type: string | null) => void
+  changeActiveMenu?: (type?: string) => void
 }
 
 const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
@@ -187,8 +187,8 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       showBackButton
       isPopover={isPopover}
       header={<Tabs value={selectedTab.value} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
+      onBack={() => changeActiveMenu && changeActiveMenu(UserMenus.Profile)}
+      onClose={() => changeActiveMenu && changeActiveMenu()}
     >
       <Box className={styles.menuContent}>
         {selectedTab.value === 'general' && selfUser && (

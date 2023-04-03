@@ -11,18 +11,17 @@ import { useRouter } from '@etherealengine/client-core/src/common/services/Route
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getEngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState, getEngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
-import { disposeProject, loadProjectScene } from '../functions/projectFunctions'
+import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
-import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
@@ -133,7 +132,8 @@ const EditorContainer = () => {
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
-  const sceneLoaded = useEngineState().sceneLoaded
+  const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
+  const sceneLoading = useHookstate(getMutableState(EngineState)).sceneLoading
 
   const errorState = useEditorErrorState()
   const editorError = errorState.error
@@ -149,23 +149,16 @@ const EditorContainer = () => {
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
 
-  useEffect(() => {
-    return () => {
-      disposeProject()
-    }
-  }, [])
-
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
-      await loadProjectScene({
+      loadProjectScene({
         project: projectName.value!,
         scene: sceneFile,
         thumbnailUrl: null!,
         name: ''
       })
       dispatchAction(EditorAction.sceneModified({ modified: true }))
-      setDialogComponent(null)
     } catch (error) {
       logger.error(error)
       setDialogComponent(
@@ -177,6 +170,12 @@ const EditorContainer = () => {
       )
     }
   }
+
+  useEffect(() => {
+    if (sceneLoaded.value) {
+      setDialogComponent(null)
+    }
+  }, [sceneLoading])
 
   useEffect(() => {
     if (sceneName.value) {
@@ -198,9 +197,7 @@ const EditorContainer = () => {
       const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) return
-      await loadProjectScene(project)
-
-      setDialogComponent(null)
+      loadProjectScene(project)
     } catch (error) {
       logger.error(error)
 
@@ -373,10 +370,9 @@ const EditorContainer = () => {
 
   const onSaveScene = async () => {
     console.log('onSaveScene')
-    const sceneLoaded = getEngineState().sceneLoaded.value
 
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-    if (!sceneLoaded) {
+    if (!sceneLoaded.value) {
       setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
       return
     }
@@ -472,12 +468,6 @@ const EditorContainer = () => {
       onEditorError(editorError.value)
     }
   }, [editorError])
-
-  useEffect(() => {
-    if (editorState.projectLoaded.value === true) {
-      initializeRenderer()
-    }
-  }, [editorState.projectLoaded.value])
 
   const generateToolbarMenu = () => {
     return [

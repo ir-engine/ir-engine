@@ -3,7 +3,7 @@ import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtil
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 //State
-const DialogState = defineState({
+export const DialogState = defineState({
   name: 'DialogState',
   initial: () => ({
     isOpened: false,
@@ -21,10 +21,6 @@ export const DialogServiceReceptor = (action) => {
       return s.merge({ isOpened: false, content: DialogSeed })
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const dialogState = () => getMutableState(DialogState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useDialogState = () => useState(dialogState())
 
 //Action
 export class DialogAction {
