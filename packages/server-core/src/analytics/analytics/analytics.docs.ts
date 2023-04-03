@@ -1,21 +1,11 @@
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'instance-provision': {
-      type: 'object',
-      properties: {}
-    },
-    'instance-provision_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/instance-provision' }
-    }
-  },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import { analyticsDataSchema, analyticsPatchSchema, analyticsQuerySchema, analyticsSchema } from './analytics.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: { analyticsDataSchema, analyticsPatchSchema, analyticsQuerySchema, analyticsSchema },
+  docs: {
+    description: 'Analytics service description',
+    securities: ['all']
   }
-}
+})

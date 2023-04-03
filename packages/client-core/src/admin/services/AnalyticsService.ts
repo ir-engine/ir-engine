@@ -1,3 +1,5 @@
+import { Paginated } from '@feathersjs/feathers'
+
 import { AdminAnalytics, AdminAnalyticsResult } from '@etherealengine/common/src/interfaces/AdminAnalyticsData'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -110,9 +112,9 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const activeParties = await API.instance.client.service('analytics').find({
+      const activeParties = (await API.instance.client.service('analytics').find({
         query: query
-      })
+      })) as Paginated<AdminAnalytics>
       dispatchAction(AdminAnalyticsActions.activePartiesFetched({ analytics: activeParties }))
     } catch (err) {
       logger.error(err)
@@ -135,9 +137,9 @@ export const AdminAnalyticsService = {
     }
 
     try {
-      const activeInstances = await API.instance.client.service('analytics').find({
+      const activeInstances = (await API.instance.client.service('analytics').find({
         query: query
-      })
+      })) as Paginated<AdminAnalytics>
       dispatchAction(AdminAnalyticsActions.activeInstancesFetched({ analytics: activeInstances }))
     } catch (err) {
       logger.error(err)
@@ -160,9 +162,9 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const activeLocations = await API.instance.client.service('analytics').find({
+      const activeLocations = (await API.instance.client.service('analytics').find({
         query: query
-      })
+      })) as Paginated<AdminAnalytics>
       dispatchAction(AdminAnalyticsActions.activeLocationsFetched({ analytics: activeLocations }))
     } catch (err) {
       logger.error(err)
@@ -185,9 +187,9 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const activeScenes = await API.instance.client.service('analytics').find({
+      const activeScenes = (await API.instance.client.service('analytics').find({
         query: query
-      })
+      })) as Paginated<AdminAnalytics>
       dispatchAction(AdminAnalyticsActions.activeScenesFetched({ analytics: activeScenes }))
     } catch (err) {
       logger.error(err)
@@ -210,9 +212,9 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const channelUsers = await API.instance.client.service('analytics').find({
+      const channelUsers = (await API.instance.client.service('analytics').find({
         query: query
-      })
+      })) as Paginated<AdminAnalytics>
       dispatchAction(AdminAnalyticsActions.channelUsersFetched({ analytics: channelUsers }))
     } catch (err) {
       logger.error(err)
@@ -235,9 +237,9 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const instanceUsers = await API.instance.client.service('analytics').find({
+      const instanceUsers = (await API.instance.client.service('analytics').find({
         query: query
-      })
+      })) as Paginated<AdminAnalytics>
       dispatchAction(AdminAnalyticsActions.instanceUsersFetched({ analytics: instanceUsers }))
     } catch (err) {
       logger.error(err)
@@ -260,9 +262,9 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const dailyUsers = await API.instance.client.service('analytics').find({
+      const dailyUsers = (await API.instance.client.service('analytics').find({
         query: query
-      })
+      })) as Paginated<AdminAnalytics>
       dispatchAction(AdminAnalyticsActions.dailyUsersFetched({ analytics: dailyUsers }))
     } catch (error) {
       logger.error(error)
@@ -285,9 +287,9 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const dailyNewUsers = await API.instance.client.service('analytics').find({
+      const dailyNewUsers = (await API.instance.client.service('analytics').find({
         query: query
-      })
+      })) as Paginated<AdminAnalytics>
       dispatchAction(AdminAnalyticsActions.dailyNewUsersFetched({ analytics: dailyNewUsers }))
     } catch (err) {
       logger.error(err)

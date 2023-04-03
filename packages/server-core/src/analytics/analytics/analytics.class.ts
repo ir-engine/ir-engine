@@ -1,25 +1,34 @@
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapter } from '@feathersjs/knex'
+import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 
 import { AdminAnalyticsResult } from '@etherealengine/common/src/interfaces/AdminAnalyticsData'
 
 import { Application } from '../../../declarations'
+import type { AnalyticsData, AnalyticsPatch, AnalyticsQuery, AnalyticsType } from './analytics.schema'
 
 export type AnalyticsDataType = AdminAnalyticsResult
 
+export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
+
 /**
- * A class for Intance service
+ * A class for Analytics service
  */
-export class Analytics<T = AnalyticsDataType> extends Service<T> {
+
+export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = AnalyticsParams> extends KnexAdapter<
+  AnalyticsType,
+  AnalyticsData,
+  AnalyticsParams,
+  AnalyticsPatch
+> {
   app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T> | any> {
+  async find(params?: AnalyticsParams) {
     if (params?.query!.action === 'dailyUsers') {
       const limit = params.query!.$limit || 30
       const returned: AnalyticsDataType = {
@@ -28,19 +37,17 @@ export class Analytics<T = AnalyticsDataType> extends Service<T> {
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
-        const instanceAttendance = await this.app.service('instance-attendance').Model.count({
-          where: {
-            createdAt: {
-              [Op.gt]: new Date().setDate(currentDate.getDate() - (i + 1)),
-              [Op.lte]: new Date().setDate(currentDate.getDate() - i)
-            }
-          },
-          distinct: true,
-          col: 'userId'
-        })
+        const instanceAttendance = await this.app
+          .service('analytics')
+          .Model.countDistinct('userId AS count')
+          .table('instance_attendance')
+          .where('createdAt', '>', new Date(new Date().setDate(currentDate.getDate() - (i + 1))).toISOString())
+          .andWhere('createdAt', '<=', new Date(new Date().setDate(currentDate.getDate() - i)).toISOString())
+          .first()
+
         returned.data.push({
           createdAt: new Date(new Date().setDate(currentDate.getDate() - i)).toDateString(),
-          count: instanceAttendance
+          count: instanceAttendance.count
         })
       }
       return returned
@@ -52,22 +59,25 @@ export class Analytics<T = AnalyticsDataType> extends Service<T> {
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
-        const newUsers = await this.app.service('user').Model.count({
-          where: {
-            createdAt: {
-              [Op.gt]: new Date().setDate(currentDate.getDate() - (i + 1)),
-              [Op.lte]: new Date().setDate(currentDate.getDate() - i)
-            }
-          }
-        })
+        const newUsers = await this.app
+          .service('analytics')
+          .Model.count('id AS count')
+          .table('user')
+          .where('createdAt', '>', new Date(new Date().setDate(currentDate.getDate() - (i + 1))).toISOString())
+          .andWhere('createdAt', '<=', new Date(new Date().setDate(currentDate.getDate() - i)).toISOString())
+          .first()
         returned.data.push({
           createdAt: new Date(new Date().setDate(currentDate.getDate() - i)).toDateString(),
-          count: newUsers
+          count: newUsers.count
         })
       }
       return returned
     } else {
-      return await super.find(params)
+      return await super._find(params)
     }
+  }
+
+  async create(data: AnalyticsData, params?: AnalyticsParams) {
+    return super._create(data, params)
   }
 }
