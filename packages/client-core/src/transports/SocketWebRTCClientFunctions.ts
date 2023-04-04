@@ -1388,9 +1388,8 @@ export const toggleScreenshareAudioPaused = async () => {
 export const toggleScreenshareVideoPaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-  mediaStreamState.screenShareVideoPaused.set(!mediaStreamState.screenShareVideoPaused.value)
   const videoPaused = mediaStreamState.screenShareVideoPaused.value
-  if (videoPaused) await resumeProducer(mediaNetwork, mediaStreamState.screenVideoProducer.value!)
+  if (videoPaused) await startScreenshare(mediaNetwork)
   else await stopScreenshare(mediaNetwork)
   MediaStreamService.updateScreenVideoState()
 }
@@ -1476,7 +1475,6 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   const channelId = currentChannelInstanceConnection.channelId
 
   // create a producer for video
-  mediaStreamState.screenShareVideoPaused.set(false)
   mediaStreamState.screenVideoProducer.set(
     (await network.sendTransport.produce({
       track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
@@ -1507,6 +1505,8 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     return stopScreenshare(network)
   }
 
+  mediaStreamState.screenShareVideoPaused.set(false)
+
   MediaStreamService.updateScreenAudioState()
   MediaStreamService.updateScreenVideoState()
 }
@@ -1515,6 +1515,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
   logger.info('Screen share stopped')
   const mediaStreamState = getMutableState(MediaStreamState)
 
+  console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)
   if (mediaStreamState.screenVideoProducer.value) {
     await mediaStreamState.screenVideoProducer.value.pause()
     mediaStreamState.screenShareVideoPaused.set(true)
