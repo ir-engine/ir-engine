@@ -18,6 +18,7 @@ import { emailRegex, InviteService, phoneRegex } from '../../../../social/servic
 import { PartyService, usePartyState } from '../../../../social/services/PartyService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
 export const usePartyMenuHooks = () => {
   const [token, setToken] = React.useState('')
@@ -85,11 +86,7 @@ export const usePartyMenuHooks = () => {
   }
 }
 
-interface Props {
-  changeActiveMenu: Function
-}
-
-const PartyMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+const PartyMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const partyState = usePartyState()
 
@@ -147,7 +144,7 @@ const PartyMenu = ({ changeActiveMenu }: Props): JSX.Element => {
           {t('user:usermenu.party.create')}
         </Button>
         <Box display="flex" columnGap={1} alignItems="center">
-          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(SocialMenus.Friends)}>
+          <Button fullWidth type="gradientRounded" onClick={() => PopupMenuServices.showPopupMenu(SocialMenus.Friends)}>
             {t('user:usermenu.share.friends')}
           </Button>
         </Box>
@@ -210,7 +207,7 @@ const PartyMenu = ({ changeActiveMenu }: Props): JSX.Element => {
       maxWidth="xs"
       title={t('user:usermenu.party.title')}
       actions={partyState.party.value ? renderUserButtons() : renderCreateButtons()}
-      onClose={() => changeActiveMenu()}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent} display="flex" flexDirection="column">
         {partyState.party.value ? renderUser() : renderCreate()}
