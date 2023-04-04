@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import ClientNetworkingSystem from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientModules } from '@etherealengine/client-core/src/world/ClientModules'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -12,6 +13,7 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
+import EditorInstanceNetworkingSystem from '../components/realtime/EditorInstanceNetworkingSystem'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
 import EditorCameraSystem from '../systems/EditorCameraSystem'
@@ -50,6 +52,17 @@ const systems = [
     systemLoader: () => Promise.resolve({ default: ModelHandlingSystem }),
     type: SystemUpdateType.FIXED,
     args: { enabled: true }
+  },
+  {
+    uuid: 'core.editor.EditorInstanceNetworkingSystem',
+    systemLoader: () => Promise.resolve({ default: EditorInstanceNetworkingSystem }),
+    type: SystemUpdateType.POST_RENDER,
+    args: { enabled: true }
+  },
+  {
+    uuid: 'ee.client.core.ClientNetworkingSystem',
+    type: SystemUpdateType.POST_RENDER,
+    systemLoader: () => Promise.resolve({ default: ClientNetworkingSystem })
   }
 ]
 

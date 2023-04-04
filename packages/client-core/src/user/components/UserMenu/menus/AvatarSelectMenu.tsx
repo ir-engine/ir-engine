@@ -17,8 +17,8 @@ import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { useAuthState } from '../../../services/AuthService'
 import { AvatarService, useAvatarService } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
 
 interface Props {
   changeActiveMenu: Function
@@ -58,7 +58,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
         selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || ''
       )
-      changeActiveMenu(Views.Closed)
+      changeActiveMenu()
     }
     setSelectedAvatarId(undefined)
   }
@@ -110,8 +110,8 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         </Box>
       }
       title={t('user:avatar.titleSelectAvatar')}
-      onBack={() => changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onBack={() => changeActiveMenu(UserMenus.Profile)}
+      onClose={() => changeActiveMenu()}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
@@ -143,7 +143,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
                     showChangeButton={userId && avatar.userId === userId}
                     type="rectangle"
                     onClick={() => setSelectedAvatarId(avatar.id)}
-                    onChange={() => changeActiveMenu(Views.AvatarModify, { selectedAvatar: avatar })}
+                    onChange={() => changeActiveMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })}
                   />
                 </Grid>
               ))}
@@ -168,7 +168,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
               title={t('user:avatar.createAvatar')}
               type="gradientRounded"
               sx={{ mb: 0 }}
-              onClick={() => changeActiveMenu(Views.AvatarModify)}
+              onClick={() => changeActiveMenu(UserMenus.AvatarModify)}
             >
               {t('user:avatar.createAvatar')}
             </Button>

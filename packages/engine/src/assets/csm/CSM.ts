@@ -38,7 +38,7 @@ type CSMParams = {
   light: DirectionalLight
   cascades?: number
   maxFar?: number
-  mode?: typeof CSMModes[keyof typeof CSMModes]
+  mode?: (typeof CSMModes)[keyof typeof CSMModes]
   shadowMapSize?: number
   shadowBias?: number
   lightDirection?: Vector3
@@ -54,7 +54,7 @@ export class CSM {
   parent: Object3D
   cascades: number
   maxFar: number
-  mode: typeof CSMModes[keyof typeof CSMModes]
+  mode: (typeof CSMModes)[keyof typeof CSMModes]
   shadowMapSize: number
   shadowBias: number
   lightDirection: Vector3

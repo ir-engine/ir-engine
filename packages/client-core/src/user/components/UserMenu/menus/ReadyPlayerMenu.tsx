@@ -15,8 +15,8 @@ import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
 
 interface Props {
   changeActiveMenu: Function
@@ -102,7 +102,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
 
     setLoading(LoadingState.None)
-    changeActiveMenu(Views.Closed)
+    changeActiveMenu()
   }
 
   const avatarPreviewLoaded = loading === LoadingState.None && selectedFile
@@ -113,8 +113,8 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
       maxWidth={loading === LoadingState.LoadingRPM ? 'sm' : 'xs'}
       showBackButton={avatarPreviewLoaded ? true : false}
       title={avatarPreviewLoaded ? t('user:avatar.titleSelectThumbnail') : undefined}
-      onBack={() => changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onBack={() => changeActiveMenu(UserMenus.Profile)}
+      onClose={() => changeActiveMenu()}
     >
       <Box
         className={styles.menuContent}

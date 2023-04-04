@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/xrui",
-  "version": "1.2.0-rc6",
+  "version": "1.2.0",
   "description": "A set of utilities for using DOM elements to create immerive user interfaces",
   "homepage": "https://github.com/etherealengine/etherealengine#readme",
   "keywords": [
@@ -39,17 +39,17 @@
     "test": "cross-env TEST=true mocha --config .mocharc.cjs"
   },
   "dependencies": {
-    "@juggle/resize-observer": "^3.2.0",
-    "@loaders.gl/core": "^3.1.4",
-    "@loaders.gl/images": "^3.1.4",
-    "@zip.js/zip.js": "^2.4.4",
-    "dexie": "^3.2.0",
-    "fflate": "^0.7.3",
-    "msgpackr": "^1.5.4"
+    "@juggle/resize-observer": "^3.4.0",
+    "@loaders.gl/core": "^3.3.1",
+    "@loaders.gl/images": "^3.3.1",
+    "@zip.js/zip.js": "^2.6.79",
+    "dexie": "^3.2.3",
+    "fflate": "^0.7.4",
+    "msgpackr": "^1.8.5"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "esbuild": "^0.14.11"
+    "esbuild": "0.17.12"
   },
   "license": "MIT"
 }

@@ -10,8 +10,6 @@ export const EditorState = defineState({
     projectName: null as string | null,
     sceneName: null as string | null,
     sceneModified: false,
-    projectLoaded: false,
-    rendererInitialized: false,
     showObject3DInHierarchy: false,
     lockPropertiesPanel: '' as EntityUUID,
     advancedMode: false
@@ -29,12 +27,6 @@ export const EditorServiceReceptor = (action) => {
     })
     .when(EditorAction.sceneModified.matches, (action) => {
       return s.merge({ sceneModified: action.modified })
-    })
-    .when(EditorAction.projectLoaded.matches, (action) => {
-      return s.merge({ projectLoaded: action.loaded })
-    })
-    .when(EditorAction.rendererInitialized.matches, (action) => {
-      return s.merge({ rendererInitialized: action.initialized })
     })
     .when(EditorAction.showObject3DInHierarchy.matches, (action) => {
       return s.merge({ showObject3DInHierarchy: action.showObject3DInHierarchy })
@@ -69,16 +61,6 @@ export class EditorAction {
   static sceneModified = defineAction({
     type: 'ee.editor.Editor.EDITOR_SCENE_MODIFIED' as const,
     modified: matches.boolean
-  })
-
-  static projectLoaded = defineAction({
-    type: 'ee.editor.Editor.EDITOR_PROJECT_LOADED' as const,
-    loaded: matches.boolean
-  })
-
-  static rendererInitialized = defineAction({
-    type: 'ee.editor.Editor.EDITOR_RENDERER_INITIALIZED' as const,
-    initialized: matches.boolean
   })
 
   static showObject3DInHierarchy = defineAction({

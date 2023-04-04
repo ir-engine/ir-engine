@@ -16,7 +16,19 @@ export const NetworkState = defineState({
     },
     // todo - move to Network.schemas
     networkSchema: {} as { [key: string]: SerializationSchema },
-    networks: {} as { [key: UserId]: Network }
+    networks: {} as { [key: UserId]: Network },
+    config: {
+      /** Allow connections to a world instance server */
+      world: false,
+      /** Allow connections to a media instance server */
+      media: false,
+      /** Allow connections to party media instances and friend functionality */
+      friends: false,
+      /** Use instance IDs in url */
+      instanceID: false,
+      /** Use room IDs in url */
+      roomID: false
+    }
   }
 })
 

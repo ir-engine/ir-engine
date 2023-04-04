@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-
 import { API } from '@etherealengine/client-core/src/API'
 import { LocationInstanceConnectionAction } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { accessAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -8,8 +6,6 @@ import logger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
-import { accessEditorState } from '../../services/EditorServices'
-
 export type ActiveInstance = {
   id: string
   location: string
@@ -17,7 +13,7 @@ export type ActiveInstance = {
   // todo: assignedAt so we can sort by most recent?
 }
 
-const EditorActiveInstanceState = defineState({
+export const EditorActiveInstanceState = defineState({
   name: 'EditorActiveInstanceState',
   initial: () => ({
     activeInstances: [] as ActiveInstance[],
@@ -72,21 +68,6 @@ export const EditorActiveInstanceService = {
       query: { sceneId }
     })
     dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))
-  },
-  useAPIListeners: () => {
-    useEffect(() => {
-      const editorState = accessEditorState()
-      const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
-      EditorActiveInstanceService.getActiveInstances(sceneId)
-      const timer = setInterval(() => {
-        const editorState = accessEditorState()
-        const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
-        EditorActiveInstanceService.getActiveInstances(sceneId)
-      }, 5000)
-      return () => {
-        clearTimeout(timer)
-      }
-    }, [])
   }
 }
 

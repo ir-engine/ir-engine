@@ -29,8 +29,9 @@ import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettin
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { AuthService, AuthState } from '../../../services/AuthService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { getAvatarURLForUser, Views } from '../util'
+import { getAvatarURLForUser } from '../util'
 
 const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
@@ -39,7 +40,7 @@ interface Props {
   hideLogin?: boolean
   allowAvatarChange?: boolean
   isPopover?: boolean
-  changeActiveMenu?: (type: string | null) => void
+  changeActiveMenu?: (type?: string) => void
   onClose?: () => void
 }
 
@@ -190,7 +191,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   }
 
   const handleLogout = async () => {
-    if (changeActiveMenu) changeActiveMenu(Views.Closed)
+    if (changeActiveMenu) changeActiveMenu()
     else if (onClose) onClose()
     showUserId.set(false)
     showApiKey.set(false)
@@ -328,13 +329,13 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <Menu open isPopover={isPopover} onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
+    <Menu open isPopover={isPopover} onClose={() => changeActiveMenu && changeActiveMenu()}>
       <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
             showChangeButton={allowAvatarChange && changeActiveMenu ? true : false}
-            onChange={() => changeActiveMenu && changeActiveMenu(Views.AvatarSelect)}
+            onChange={() => changeActiveMenu && changeActiveMenu(UserMenus.AvatarSelect)}
           />
 
           <Box className={styles.profileDetails}>
@@ -382,7 +383,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   }}
                 />
               }
-              onClick={() => changeActiveMenu(Views.Settings)}
+              onClick={() => changeActiveMenu(UserMenus.Settings)}
             />
           )}
         </Box>

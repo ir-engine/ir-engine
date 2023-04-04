@@ -15,8 +15,6 @@ const InviteToast = () => {
     inviteState.receivedInvites.total.value > 0 ? inviteState.receivedInvites.invites[0].value : ({} as any)
   const { t } = useTranslation()
 
-  InviteService.useAPIListeners()
-
   useEffect(() => {
     if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
       InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')

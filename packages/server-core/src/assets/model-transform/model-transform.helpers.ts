@@ -11,7 +11,7 @@ import {
   Primitive,
   Texture
 } from '@gltf-transform/core'
-import { MeshGPUInstancing, TextureBasisu } from '@gltf-transform/extensions'
+import { EXTMeshGPUInstancing, KHRTextureBasisu } from '@gltf-transform/extensions'
 import { dedup, draco, partition, prune, reorder, weld } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { execFileSync } from 'child_process'
@@ -132,7 +132,7 @@ const split = async (document: Document) => {
 const myInstance = async (document: Document, args: any | null = null) => {
   const root = document.getRoot()
   const scene = root.listScenes()[0]
-  const batchExtension = document.createExtension(MeshGPUInstancing)
+  const batchExtension = document.createExtension(EXTMeshGPUInstancing)
   const meshes = root.listMeshes()
   console.log('meshes:', meshes)
   const nodes = root.listNodes().filter((node) => node.getMesh())
@@ -456,7 +456,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
       if (mergedParms.textureFormat === 'ktx2') {
         //KTX2 Basisu Compression
-        document.createExtension(TextureBasisu).setRequired(true)
+        document.createExtension(KHRTextureBasisu).setRequired(true)
         execFileSync(
           BASIS_U,
           `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${

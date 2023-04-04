@@ -1,25 +1,32 @@
-import { t } from 'i18next'
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import Dashboard from '@etherealengine/ui/src/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import AdminSystem from '../systems/AdminSystem'
 import { useAuthState } from '../user/services/AuthService'
+import UserUISystem from '../user/UserUISystem'
 import Analytics from './components/Analytics'
 
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
-const AdminSystemInjection = {
-  uuid: 'core.admin.AdminSystem',
-  type: 'PRE_RENDER',
-  systemLoader: () => Promise.resolve({ default: AdminSystem })
-} as const
+const AdminSystemInjection = [
+  {
+    uuid: 'core.admin.AdminSystem',
+    type: SystemUpdateType.POST_RENDER,
+    systemLoader: () => Promise.resolve({ default: AdminSystem })
+  },
+  {
+    uuid: 'ee.client.core.UserUISystem',
+    type: SystemUpdateType.POST_RENDER,
+    systemLoader: () => Promise.resolve({ default: UserUISystem })
+  }
+]
 
 const AdminRoutes = () => {
   const location = useLocation()
@@ -46,7 +53,7 @@ const AdminRoutes = () => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    initSystems([AdminSystemInjection]).then(async () => {
+    initSystems(AdminSystemInjection).then(async () => {
       // @ts-ignore
       dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     })

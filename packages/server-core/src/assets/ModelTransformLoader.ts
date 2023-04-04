@@ -13,19 +13,19 @@ import {
   WriterContext
 } from '@gltf-transform/core'
 import {
-  DracoMeshCompression,
-  LightsPunctual,
-  MaterialsClearcoat,
-  MaterialsEmissiveStrength,
-  MaterialsPBRSpecularGlossiness,
-  MaterialsSpecular,
-  MaterialsTransmission,
-  MaterialsUnlit,
-  MeshGPUInstancing,
-  MeshoptCompression,
-  MeshQuantization,
-  TextureBasisu,
-  TextureTransform
+  EXTMeshGPUInstancing,
+  EXTMeshoptCompression,
+  KHRDracoMeshCompression,
+  KHRLightsPunctual,
+  KHRMaterialsClearcoat,
+  KHRMaterialsEmissiveStrength,
+  KHRMaterialsPBRSpecularGlossiness,
+  KHRMaterialsSpecular,
+  KHRMaterialsTransmission,
+  KHRMaterialsUnlit,
+  KHRMeshQuantization,
+  KHRTextureBasisu,
+  KHRTextureTransform
 } from '@gltf-transform/extensions'
 import fetch from 'cross-fetch'
 import draco3d from 'draco3dgltf'
@@ -39,19 +39,19 @@ const transformHistory: string[] = []
 export default async function ModelTransformLoader() {
   const io = new NodeIO(fetch, {}).setAllowHTTP(true)
   io.registerExtensions([
-    LightsPunctual,
-    MaterialsSpecular,
-    MaterialsClearcoat,
-    MaterialsPBRSpecularGlossiness,
-    MaterialsUnlit,
-    MaterialsEmissiveStrength,
-    MaterialsTransmission,
-    DracoMeshCompression,
-    MeshGPUInstancing,
-    MeshoptCompression,
-    MeshQuantization,
-    TextureBasisu,
-    TextureTransform,
+    KHRLightsPunctual,
+    KHRMaterialsSpecular,
+    KHRMaterialsClearcoat,
+    KHRMaterialsPBRSpecularGlossiness,
+    KHRMaterialsUnlit,
+    KHRMaterialsEmissiveStrength,
+    KHRMaterialsTransmission,
+    KHRDracoMeshCompression,
+    EXTMeshGPUInstancing,
+    EXTMeshoptCompression,
+    KHRMeshQuantization,
+    KHRTextureBasisu,
+    KHRTextureTransform,
     MOZLightmapExtension,
     EEMaterialExtension
   ])
