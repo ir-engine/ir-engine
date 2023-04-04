@@ -67,9 +67,6 @@ const Account = () => {
     twitter: {
       key: false,
       secret: false
-    },
-    password: {
-      secret: false
     }
   })
 

@@ -218,10 +218,6 @@ const authentication = {
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
   authStrategies: ['jwt', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
-  local: {
-    usernameField: 'email',
-    passwordField: 'password'
-  },
   jwtOptions: {
     expiresIn: '30 days'
   },

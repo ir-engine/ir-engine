@@ -19,10 +19,6 @@ export const authenticationSeed = {
         { twitter: true },
         { didWallet: true }
       ]),
-      local: JSON.stringify({
-        usernameField: 'email',
-        passwordField: 'password'
-      }),
       jwtOptions: JSON.stringify({
         expiresIn: '30 days'
       }),

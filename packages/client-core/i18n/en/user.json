@@ -14,13 +14,6 @@
       "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click {{here}} to resend the verification email.",
       "haveAnAccount": "Have an account?"
     },
-    "forgotPassword": {
-      "header": "Forgot Password",
-      "enterEmail": "Please enter your registered email address and we'll send you a password reset link.",
-      "lbl-email": "Email Address",
-      "lbl-submit": "Send Link",
-      "emailSent": "Reset Password Email was sent. Please check your email."
-    },
     "login": {
       "email": "Email | SMS",
       "username": "UserName + Password",

@@ -197,11 +197,6 @@ export class AuthAction {
     result: matches.boolean
   })
 
-  static didForgotPasswordAction = defineAction({
-    type: 'ee.client.Auth.DID_FORGOT_PASSWORD' as const,
-    result: matches.boolean
-  })
-
   static didCreateMagicLinkAction = defineAction({
     type: 'ee.client.Auth.DID_CREATE_MAGICLINK' as const,
     result: matches.boolean
@@ -595,24 +590,6 @@ export const AuthService = {
     } catch (err) {
       logger.warn(err, 'Error resending verification email')
       dispatchAction(AuthAction.didResendVerificationEmailAction({ result: false }))
-    } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
-    }
-  },
-
-  async forgotPassword(email: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    logger.info('forgotPassword event for email "${email}".')
-
-    try {
-      await API.instance.client.service('authManagement').create({
-        action: 'sendResetPwd',
-        value: { token: email, type: 'password' }
-      })
-      dispatchAction(AuthAction.didForgotPasswordAction({ result: true }))
-    } catch (err) {
-      logger.warn(err, 'Error sending forgot password email')
-      dispatchAction(AuthAction.didForgotPasswordAction({ result: false }))
     } finally {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }

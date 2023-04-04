@@ -9,8 +9,6 @@ import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
 
 interface Props {
-  //auth: any
-  //type: string
   token: string
 }
 
