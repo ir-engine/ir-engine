@@ -8,10 +8,10 @@ import { defineAction, defineState, dispatchAction, getMutableState, useState } 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
-//State
 export const LocationState = defineState({
   name: 'LocationState',
   initial: () => ({
+    offline: false,
     locationName: null! as string,
     currentLocation: {
       location: LocationSeed as Location,
@@ -99,7 +99,6 @@ export const accessLocationState = () => getMutableState(LocationState)
 /**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLocationState = () => useState(accessLocationState())
 
-//Service
 export const LocationService = {
   getLocation: async (locationId: string) => {
     try {

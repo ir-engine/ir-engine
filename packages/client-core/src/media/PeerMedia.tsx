@@ -282,7 +282,7 @@ const PeerConsumer = (props: {
     }
   }, [mediaStreamState.videoPaused])
 
-  return <></>
+  return null
 }
 
 export const PeerMedia = () => {

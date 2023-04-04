@@ -30,7 +30,7 @@ export const DataChannel = ({ dataChannelType }: { dataChannelType: DataChannelT
     }
   }, [currentLocationInstanceConnection?.connected, connectedToWorld])
 
-  return <></>
+  return null
 }
 
 export const DataChannels = () => {

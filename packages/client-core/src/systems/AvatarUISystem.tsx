@@ -32,8 +32,10 @@ import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
-import { getMutableState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
+import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
+import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
 
@@ -43,6 +45,10 @@ export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView
 export const AvatarUITransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
 const rotMat = new Matrix4()
+
+export const AvatarMenus = {
+  AvatarContext: 'AvatarContext'
+}
 
 export const renderAvatarContextMenu = (userId: UserId, contextMenuEntity: Entity) => {
   const userEntity = Engine.instance.getUserAvatarEntity(userId)
@@ -75,6 +81,10 @@ export default async function AvatarUISystem() {
   const AvatarContextMenuUI = createAvatarContextMenuView()
   removeComponent(AvatarContextMenuUI.entity, VisibleComponent)
   setComponent(AvatarContextMenuUI.entity, XRUIInteractableComponent)
+
+  getMutableState(PopupMenuState).menus.merge({
+    [AvatarMenus.AvatarContext]: AvatarContextMenu
+  })
 
   const _vector3 = new Vector3()
 
@@ -250,6 +260,7 @@ export default async function AvatarUISystem() {
   const cleanup = async () => {
     removeEntity(AvatarContextMenuUI.entity)
     removeQuery(userQuery)
+    getMutableState(PopupMenuState).menus[AvatarMenus.AvatarContext].set(none)
   }
 
   return { execute, cleanup }

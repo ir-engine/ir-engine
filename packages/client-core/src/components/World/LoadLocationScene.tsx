@@ -9,7 +9,7 @@ import {
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
-export const LoadLocationScene = () => {
+export const useLoadLocationScene = () => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const locationState = useLocationState()
@@ -40,7 +40,5 @@ export const LoadLocationScene = () => {
   if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
   if (userNotAuthorized) return <div className="not-authorized">{t('location.notAuthorizedAtLocation')}</div>
 
-  return <> </>
+  return null
 }
-
-export default LoadLocationScene

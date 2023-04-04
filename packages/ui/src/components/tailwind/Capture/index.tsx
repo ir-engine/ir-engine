@@ -106,7 +106,7 @@ const CaptureDashboard = () => {
   const recordingState = useHookstate(getMutableState(RecordingState))
 
   const modelLoaded = useHookstate(false)
-  const isVideoFlipped = useHookstate(false)
+  const isVideoFlipped = useHookstate(true)
 
   // Restart dectector when option states is updated
   useEffect(() => {

@@ -3,50 +3,12 @@ import { Euler, EulerOrder, Quaternion, Vector3 } from 'three'
 export const Deg2Rad = (Math.PI * 2) / 360
 export const Rad2Deg = 1 / Deg2Rad
 
-/**
- * @deprecated creates new vector3
- * */
-export const multiplyQuaternion = (q: Quaternion, v: Vector3): Vector3 => {
-  const x = q.x * 2
-  const y = q.y * 2
-  const z = q.z * 2
-  const xx = q.x * x
-  const yy = q.y * y
-  const zz = q.z * z
-  const xy = q.x * y
-  const xz = q.x * z
-  const yz = q.y * z
-  const wx = q.w * x
-  const wy = q.w * y
-  const wz = q.w * z
-
-  const res = new Vector3(0, 0, 0)
-  res.x = (1 - (yy + zz)) * v.x + (xy - wz) * v.y + (xz + wy) * v.z
-  res.y = (xy + wz) * v.x + (1 - (xx + zz)) * v.y + (yz - wx) * v.z
-  res.z = (xz - wy) * v.x + (yz + wx) * v.y + (1 - (xx + yy)) * v.z
-  return res
-}
-
 export const lookAt = (position: Vector3, rotation: Quaternion, targetPos: Vector3): number => {
   const x = targetPos.x - position.x
   const y = targetPos.z - position.z
   let angle = Math.atan2(x, y)
   angle *= Rad2Deg
   return angle
-}
-
-/**
- * @deprecated creates new euler and quaternion
- * */
-export const rotate = (rot: Quaternion, x: number, y: number, z: number) => {
-  return rot.multiply(eulerToQuaternion(x, y, z))
-}
-
-/**
- * @deprecated creates new euler and quaternion
- * */
-export const eulerToQuaternion = (x, y, z, order = 'XYZ' as EulerOrder) => {
-  return new Quaternion().setFromEuler(new Euler(x, y, z, order))
 }
 
 export const isZero = (v: Vector3): boolean => {

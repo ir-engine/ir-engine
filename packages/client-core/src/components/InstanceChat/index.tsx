@@ -226,14 +226,6 @@ export const InstanceChat = ({
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
   const chatState = useChatState()
 
-  ChatService.useAPIListeners()
-  useEffect(() => {
-    addActionReceptor(ChatServiceReceptor)
-    return () => {
-      removeActionReceptor(ChatServiceReceptor)
-    }
-  }, [])
-
   /**
    * Audio effect
    */

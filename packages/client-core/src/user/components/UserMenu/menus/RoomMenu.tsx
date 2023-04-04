@@ -13,7 +13,6 @@ import { dispatchAction } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 
 import styles from '../index.module.scss'
-import { Views } from '../util'
 
 interface Props {
   changeActiveMenu?: Function
@@ -85,7 +84,7 @@ const RoomMenu = ({ changeActiveMenu, location }: Props): JSX.Element => {
   }
 
   return (
-    <Menu open onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
+    <Menu open onClose={() => changeActiveMenu && changeActiveMenu()}>
       <Box className={styles.menuContent}>
         {!location && (
           <InputText
