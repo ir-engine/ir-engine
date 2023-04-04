@@ -5,6 +5,8 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
+const TABLE_NAME = 'route'
+
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
@@ -44,15 +46,15 @@ export async function seed(knex: Knex): Promise<void> {
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
-    await knex('route').del()
+    await knex(TABLE_NAME).del()
 
     // Inserts seed entries
-    await knex('route').insert(seedData)
+    await knex(TABLE_NAME).insert(seedData)
   } else {
     for (const item of seedData) {
-      const existingData = await knex('route').where('project', item.project).andWhere('route', item.route)
+      const existingData = await knex(TABLE_NAME).where('project', item.project).andWhere('route', item.route)
       if (existingData.length === 0) {
-        await knex('route').insert(item)
+        await knex(TABLE_NAME).insert(item)
       }
     }
   }
