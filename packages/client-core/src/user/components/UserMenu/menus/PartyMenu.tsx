@@ -13,11 +13,11 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import Box from '@etherealengine/ui/src/Box'
 import Icon from '@etherealengine/ui/src/Icon'
 
+import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../../social/services/PartyService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
-import { Views } from '../util'
 
 export const usePartyMenuHooks = () => {
   const [token, setToken] = React.useState('')
@@ -146,6 +146,11 @@ const PartyMenu = ({ changeActiveMenu }: Props): JSX.Element => {
         <Button fullWidth type="gradientRounded" onClick={createParty}>
           {t('user:usermenu.party.create')}
         </Button>
+        <Box display="flex" columnGap={1} alignItems="center">
+          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(SocialMenus.Friends)}>
+            {t('user:usermenu.share.friends')}
+          </Button>
+        </Box>
       </Box>
     )
   }
@@ -205,7 +210,7 @@ const PartyMenu = ({ changeActiveMenu }: Props): JSX.Element => {
       maxWidth="xs"
       title={t('user:usermenu.party.title')}
       actions={partyState.party.value ? renderUserButtons() : renderCreateButtons()}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onClose={() => changeActiveMenu()}
     >
       <Box className={styles.menuContent} display="flex" flexDirection="column">
         {partyState.party.value ? renderUser() : renderCreate()}

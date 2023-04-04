@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { Views } from '@etherealengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 
 import { Person } from '@mui/icons-material'
 import { Box, IconButton, Popover } from '@mui/material'
@@ -15,7 +15,7 @@ export const EditorNavbarProfile = () => {
   const user = authState.user
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
-  const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
+  const [selectedMenu, setSelectedMenu] = useState(UserMenus.Profile)
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
@@ -47,15 +47,15 @@ export const EditorNavbarProfile = () => {
             onClose={handleClose}
           >
             <Box sx={{ width: '600px' }}>
-              {selectedMenu === Views.Profile && (
+              {selectedMenu === UserMenus.Profile && (
                 <ProfileMenu
                   isPopover
                   onClose={handleClose}
-                  changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)}
+                  changeActiveMenu={(type) => setSelectedMenu(type ? type : UserMenus.Profile)}
                 />
               )}
-              {selectedMenu === Views.Settings && (
-                <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
+              {selectedMenu === UserMenus.Settings && (
+                <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : UserMenus.Profile)} />
               )}
             </Box>
           </Popover>

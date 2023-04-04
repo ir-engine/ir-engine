@@ -35,12 +35,14 @@ export const Debug = ({ showingStateRef }) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
-    engineState.joinedWorld.value && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
+    Engine.instance.localClientEntity &&
+    engineState.joinedWorld.value &&
+    hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   const networks = getMutableState(NetworkState).networks
 
   const onClickRespawn = (): void => {
-    respawnAvatar(Engine.instance.localClientEntity)
+    Engine.instance.localClientEntity && respawnAvatar(Engine.instance.localClientEntity)
   }
 
   const toggleDebug = () => {

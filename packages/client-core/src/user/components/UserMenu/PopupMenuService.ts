@@ -1,14 +1,11 @@
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
-
-import { Views } from './util'
 
 export const PopupMenuState = defineState({
   name: 'PopupMenuState',
   initial: () => ({
-    openMenu: Views.Closed,
-    params: null! as object | null,
+    openMenu: null as string | null,
+    params: null as object | null,
     menus: {} as { [id: string]: UserMenuPanelType },
     hotbar: {} as { [id: string]: any }
   })
@@ -20,8 +17,8 @@ export const PopupMenuServiceReceptor = (action) => {
   const s = getMutableState(PopupMenuState)
   matches(action)
     .when(PopupMenuActions.showPopupMenu.matches, (action) => {
-      s.openMenu.set(action.id)
-      s.params.set(action.params)
+      s.openMenu.set(action.id ?? null)
+      s.params.set(action.params ?? null)
     })
     .when(PopupMenuActions.registerPopupMenu.matches, (action) => {
       if (action.unregister) {
@@ -37,7 +34,7 @@ export const PopupMenuServiceReceptor = (action) => {
 export class PopupMenuActions {
   static showPopupMenu = defineAction({
     type: 'ee.client.PopupMenu.showPopupMenu',
-    id: matches.string,
+    id: matches.string.optional(),
     params: matches.any.optional()
   })
 
