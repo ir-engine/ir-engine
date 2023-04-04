@@ -40,7 +40,7 @@ import ModelTransformLoader from '../ModelTransformLoader'
  * @param count
  * @returns
  */
-const createBatch = (doc: Document, batchExtension: MeshGPUInstancing, mesh: Mesh, count) => {
+const createBatch = (doc: Document, batchExtension: EXTMeshGPUInstancing, mesh: Mesh, count) => {
   return mesh.listPrimitives().map((prim) => {
     const buffer = prim.getAttribute('POSITION')?.getBuffer() ?? doc.createBuffer()
 

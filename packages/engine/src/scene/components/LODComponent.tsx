@@ -3,7 +3,7 @@ import React from 'react'
 import { InstancedBufferAttribute, InstancedMesh, Mesh } from 'three'
 import matches from 'ts-matches'
 
-import { createState, State } from '@etherealengine/hyperflux'
+import { createState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -94,9 +94,9 @@ function LODReactor({ root }: EntityReactorProps): ReactElement {
   const lodComponent = useComponent(root.entity, LODComponent)
   return (
     <>
-      {lodComponent.levels.map((level, index) => {
-        ;<LodLevelReactor entity={root.entity} level={index} />
-      })}
+      {lodComponent.levels.map((level, index) => (
+        <LodLevelReactor entity={root.entity} level={index} key={`${root.entity}-${index}`} />
+      ))}
     </>
   )
 }

@@ -1,11 +1,12 @@
 import { Scene, Vector3 } from 'three'
 
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { NO_PROXY, State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
-import { LODComponent, SCENE_COMPONENT_LOD } from '../components/LODComponent'
+import { LODComponent, LODLevel, SCENE_COMPONENT_LOD } from '../components/LODComponent'
 import { processLoadedLODLevel } from '../functions/loaders/LODFunctions'
 import getFirstMesh from '../util/getFirstMesh'
 
@@ -62,8 +63,8 @@ export default async function LODSystem() {
         if (lodComponent.lodHeuristic.value === 'MANUAL') {
           referencedLods.add(currentLevel)
         } else if (['DISTANCE', 'SCENE_SCALE'].includes(lodComponent.lodHeuristic.value)) {
-          const model = lodComponent.levels[currentLevel]?.model.value
-          const position = model?.localToWorld(model?.position.clone())
+          const instanceMatrixElts = lodComponent.instanceMatrix.value.array
+          const position = new Vector3(instanceMatrixElts[12], instanceMatrixElts[13], instanceMatrixElts[14])
           if (position) {
             const distance = cameraPosition.distanceTo(position)
             for (let j = 0; j < lodDistances.length; j++) {
@@ -76,7 +77,7 @@ export default async function LODSystem() {
           }
         } else throw Error('Invalid LOD heuristic')
       }
-
+      const levelsToUnload: State<LODLevel>[] = []
       //iterate through all LOD levels and load/unload models based on referencedLods
       for (let i = 0; i < lodComponent.levels.length; i++) {
         const level = lodComponent.levels[i]
@@ -84,20 +85,21 @@ export default async function LODSystem() {
         if (referencedLods.has(i)) {
           !level.loaded.value &&
             level.src.value &&
-            AssetLoader.load(level.src.value, {}, (loadedScene: Scene) => {
-              const mesh = getFirstMesh(loadedScene)
+            AssetLoader.load(level.src.value, {}, (loadedScene: GLTF) => {
+              const mesh = getFirstMesh(loadedScene.scene)
               mesh && processLoadedLODLevel(entity, i, mesh)
               level.model.set(mesh ?? null)
-
               level.loaded.set(true)
+              for (const levelToUnload of levelsToUnload) {
+                levelToUnload.loaded.set(false)
+                levelToUnload.model.get(NO_PROXY)?.removeFromParent()
+                levelToUnload.model.set(null)
+              }
             })
         } else {
           //if the level is not referenced, unload it if it's loaded
           if (level.loaded.value) {
-            const mesh = level.model.value
-            mesh?.removeFromParent()
-            level.model.set(null)
-            level.loaded.set(false)
+            levelsToUnload.push(level)
           }
         }
       }

@@ -20,11 +20,12 @@ export function processLoadedLODLevel(entity: Entity, index: number, model: Mesh
   }
   const component = getMutableComponent(entity, LODComponent)
   const level = component.levels[index]
-  if (!level.loaded.value) {
+  /*if (!level.loaded.value) {
     console.warn("trying to process a LOD level that hasn't been loaded yet")
     return
-  }
-  const prevModel = level.model.get(NO_PROXY)
+  }*/
+  const lodComponent = getMutableComponent(entity, LODComponent)
+  const loadedModel = lodComponent.levels.find((level) => level.loaded.value)?.model.value ?? null
 
   //if model is an instanced mesh, add the lodIndex instanced attribute
   if (model instanceof InstancedMesh) {
@@ -97,7 +98,12 @@ export function processLoadedLODLevel(entity: Entity, index: number, model: Mesh
         component.instanceLevels.set(new InstancedBufferAttribute(new Uint8Array([index]), 1))
       } else {
         //if the lodComponent does have a matrix defined, set the loaded model's matrix to it
-        model.matrix.fromArray(component.instanceMatrix.value.array)
+        if (loadedModel) {
+          loadedModel.parent?.add(model)
+          model.matrix.copy(loadedModel.matrix)
+          model.updateMatrixWorld(true)
+          model.updateMatrix()
+        }
       }
     }
   }
