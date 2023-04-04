@@ -1,18 +1,27 @@
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  routeDataSchema,
+  routePatchSchema,
+  routeQuerySchema
+} from '@etherealengine/engine/src/schemas/route/route.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   routeDataResolver,
-  routeDataValidator,
   routeExternalResolver,
   routePatchResolver,
-  routePatchValidator,
   routeQueryResolver,
-  routeQueryValidator,
   routeResolver
-} from './route.schema'
+} from './route.resolvers'
+
+const routeDataValidator = getValidator(routeDataSchema, dataValidator)
+const routePatchValidator = getValidator(routePatchSchema, dataValidator)
+const routeQueryValidator = getValidator(routeQuerySchema, queryValidator)
 
 export default {
   around: {

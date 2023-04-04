@@ -3,6 +3,7 @@ import { lazy } from 'react'
 
 import { ROUTE_PAGE_LIMIT } from '@etherealengine/client-core/src/admin/services/RouteService'
 import { API } from '@etherealengine/client-core/src/API'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
 
 export type CustomRoute = {
@@ -17,7 +18,7 @@ export type CustomRoute = {
  * @return {Promise}
  */
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
-  const routes = await API.instance.client.service('route').find({
+  const routes = await API.instance.client.service(routePath).find({
     query: {
       $limit: ROUTE_PAGE_LIMIT
     }

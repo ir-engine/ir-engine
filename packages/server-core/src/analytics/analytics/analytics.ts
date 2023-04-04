@@ -1,3 +1,5 @@
+import { analyticsMethods, analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+
 import { Application } from '../../../declarations'
 import { AnalyticsService } from './analytics.class'
 import analyticsDocs from './analytics.docs'
@@ -8,10 +10,6 @@ declare module '@etherealengine/common/declarations' {
     [analyticsPath]: AnalyticsService
   }
 }
-
-export const analyticsPath = 'analytics'
-
-export const analyticsMethods = ['find', 'create'] as const
 
 export default (app: Application): void => {
   const options = {

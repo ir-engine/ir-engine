@@ -1,6 +1,11 @@
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { routeDataSchema, routePatchSchema, routeQuerySchema, routeSchema } from './route.schema'
+import {
+  routeDataSchema,
+  routePatchSchema,
+  routeQuerySchema,
+  routeSchema
+} from '@etherealengine/engine/src/schemas/route/route.schema'
 
 export default createSwaggerServiceOptions({
   schemas: { routeDataSchema, routePatchSchema, routeQuerySchema, routeSchema },

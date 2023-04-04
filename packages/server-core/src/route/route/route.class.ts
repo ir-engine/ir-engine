@@ -2,7 +2,7 @@ import type { Params } from '@feathersjs/feathers'
 import { KnexService } from '@feathersjs/knex'
 import type { KnexAdapterParams } from '@feathersjs/knex'
 
-import type { RouteData, RoutePatch, RouteQuery, RouteType } from './route.schema'
+import { RouteData, RoutePatch, RouteQuery, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 
 export interface RouteParams extends KnexAdapterParams<RouteQuery> {}
 

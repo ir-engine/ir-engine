@@ -14,6 +14,7 @@ import {
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
@@ -23,7 +24,6 @@ import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
-import { RouteType } from '../../route/route/route.schema'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { UserParams } from '../../user/user/user.class'
@@ -37,9 +37,7 @@ import {
   checkAppOrgStatus,
   checkUserOrgWriteStatus,
   checkUserRepoWriteStatus,
-  getAuthenticatedRepo,
-  getRepo,
-  getUserRepos
+  getAuthenticatedRepo
 } from './github-helper'
 import {
   createOrUpdateProjectUpdateJob,
@@ -589,7 +587,7 @@ export class Project extends Service {
       ]
     }
 
-    const routeItems = (await this.app.service('route').find({
+    const routeItems = (await this.app.service(routePath).find({
       query: {
         $and: [{ project: { $ne: null } }, { project: name }]
       },
@@ -598,7 +596,7 @@ export class Project extends Service {
 
     routeItems.length &&
       routeItems.forEach(async (route) => {
-        await this.app.service('route').remove(route.id)
+        await this.app.service(routePath).remove(route.id)
       })
 
     const avatarItems = await (this.app.service('avatar') as any).Model.findAll({

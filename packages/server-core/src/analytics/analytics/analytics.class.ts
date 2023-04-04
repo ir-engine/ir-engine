@@ -1,13 +1,16 @@
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import { KnexAdapter } from '@feathersjs/knex'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 
-import { AdminAnalyticsResult } from '@etherealengine/common/src/interfaces/AdminAnalyticsData'
+import {
+  AnalyticsData,
+  AnalyticsPatch,
+  analyticsPath,
+  AnalyticsQuery,
+  AnalyticsType
+} from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 
 import { Application } from '../../../declarations'
-import type { AnalyticsData, AnalyticsPatch, AnalyticsQuery, AnalyticsType } from './analytics.schema'
-
-export type AnalyticsDataType = AdminAnalyticsResult
 
 export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
 
@@ -31,14 +34,16 @@ export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = 
   async find(params?: AnalyticsParams) {
     if (params?.query!.action === 'dailyUsers') {
       const limit = params.query!.$limit || 30
-      const returned: AnalyticsDataType = {
+      const returned: Paginated<AnalyticsType> = {
         total: limit,
-        data: [] as Array<any>
+        skip: 0,
+        limit,
+        data: []
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
         const instanceAttendance = await this.app
-          .service('analytics')
+          .service(analyticsPath)
           .Model.countDistinct('userId AS count')
           .table('instance_attendance')
           .where('createdAt', '>', new Date(new Date().setDate(currentDate.getDate() - (i + 1))).toISOString())
@@ -46,29 +51,38 @@ export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = 
           .first()
 
         returned.data.push({
+          id: '',
+          count: instanceAttendance.count,
+          type: '',
           createdAt: new Date(new Date().setDate(currentDate.getDate() - i)).toDateString(),
-          count: instanceAttendance.count
+          updatedAt: new Date(new Date().setDate(currentDate.getDate() - i)).toDateString()
         })
       }
       return returned
     } else if (params?.query!.action === 'dailyNewUsers') {
       const limit = params.query!.$limit || 30
-      const returned = {
+      const returned: Paginated<AnalyticsType> = {
         total: limit,
-        data: [] as Array<any>
+        skip: 0,
+        limit,
+        data: []
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
         const newUsers = await this.app
-          .service('analytics')
+          .service(analyticsPath)
           .Model.count('id AS count')
           .table('user')
           .where('createdAt', '>', new Date(new Date().setDate(currentDate.getDate() - (i + 1))).toISOString())
           .andWhere('createdAt', '<=', new Date(new Date().setDate(currentDate.getDate() - i)).toISOString())
           .first()
+
         returned.data.push({
+          id: '',
+          count: newUsers.count,
+          type: '',
           createdAt: new Date(new Date().setDate(currentDate.getDate() - i)).toDateString(),
-          count: newUsers.count
+          updatedAt: new Date(new Date().setDate(currentDate.getDate() - i)).toDateString()
         })
       }
       return returned

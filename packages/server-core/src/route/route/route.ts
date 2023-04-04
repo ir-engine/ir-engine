@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { routeMethods, routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
@@ -88,10 +89,6 @@ export const activateRoute = (routeService: RouteService): any => {
     return false
   }
 }
-
-export const routePath = 'route'
-
-export const routeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 export default (app: Application): void => {
   const options = {

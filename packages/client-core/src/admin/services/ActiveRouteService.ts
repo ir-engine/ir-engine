@@ -1,5 +1,5 @@
-import { ActiveRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -12,7 +12,7 @@ export const ROUTE_PAGE_LIMIT = 10000
 export const AdminActiveRouteState = defineState({
   name: 'AdminActiveRouteState',
   initial: () => ({
-    activeRoutes: [] as Array<ActiveRoutesInterface>,
+    activeRoutes: [] as Array<RouteType>,
     skip: 0,
     limit: ROUTE_PAGE_LIMIT,
     total: 0,
@@ -49,7 +49,7 @@ export const AdminActiveRouteService = {
     const user = getMutableState(AuthState).user
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-        const routes = await API.instance.client.service('route').find({
+        const routes = await API.instance.client.service(routePath).find({
           query: {
             $limit: ROUTE_PAGE_LIMIT
           }
@@ -66,6 +66,6 @@ export const AdminActiveRouteService = {
 export class AdminActiveRouteActions {
   static activeRoutesRetrieved = defineAction({
     type: 'ee.client.AdminActiveRoute.ADMIN_ROUTE_ACTIVE_RECEIVED' as const,
-    data: matches.array as Validator<unknown, ActiveRoutesInterface[]>
+    data: matches.array as Validator<unknown, RouteType[]>
   })
 }

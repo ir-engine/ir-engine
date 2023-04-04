@@ -1,18 +1,27 @@
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  analyticsDataSchema,
+  analyticsPatchSchema,
+  analyticsQuerySchema
+} from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   analyticsDataResolver,
-  analyticsDataValidator,
   analyticsExternalResolver,
   analyticsPatchResolver,
-  analyticsPatchValidator,
   analyticsQueryResolver,
-  analyticsQueryValidator,
   analyticsResolver
-} from './analytics.schema'
+} from './analytics.resolvers'
+
+const analyticsDataValidator = getValidator(analyticsDataSchema, dataValidator)
+const analyticsPatchValidator = getValidator(analyticsPatchSchema, dataValidator)
+const analyticsQueryValidator = getValidator(analyticsQuerySchema, queryValidator)
 
 export default {
   around: {
