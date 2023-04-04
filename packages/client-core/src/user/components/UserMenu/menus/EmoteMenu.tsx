@@ -9,15 +9,14 @@ import Icon from '@etherealengine/ui/src/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
 
 const MAX_EMOTE_PER_PAGE = 6
 const MIN_EMOTE_PER_PAGE = 5
 const getEmotePerPage = () => (window.innerWidth > 768 ? MAX_EMOTE_PER_PAGE : MIN_EMOTE_PER_PAGE)
 
-type EmoteMenuHooksProps = { changeActiveMenu: (menu?: string) => {} }
-
-export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => {
+export const useEmoteMenuHooks = () => {
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
 
@@ -111,7 +110,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
 
   const closeMenu = (e) => {
     e.preventDefault()
-    changeActiveMenu()
+    PopupMenuServices.showPopupMenu()
   }
 
   const calculateOtherValues = (): void => {
@@ -125,7 +124,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
     const entity = Engine.instance.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
-    changeActiveMenu()
+    PopupMenuServices.showPopupMenu()
   }
 
   const renderEmoteList = () => {
@@ -190,9 +189,8 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
     loadNextEmotes
   }
 }
-type Props = { changeActiveMenu: (menu: any) => {} }
 
-const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+const EmoteMenu = (): JSX.Element => {
   const {
     closeMenu,
     menuRadius,
@@ -204,9 +202,7 @@ const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
     imgPerPage,
     items,
     loadNextEmotes
-  } = useEmoteMenuHooks({
-    changeActiveMenu
-  })
+  } = useEmoteMenuHooks()
 
   return (
     <section className={styles.emoteMenu}>

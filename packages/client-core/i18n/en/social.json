@@ -112,7 +112,6 @@
   "login": {
     "account": "Have an account?",
     "login": "Login",
-    "resetPassword": "Reset Password Fake button (here would be a link from email)",
     "notHavingAccount": "Don't have an account?",
     "signUp": "Sign Up",
     "forgotPassword": "Forgot password?",

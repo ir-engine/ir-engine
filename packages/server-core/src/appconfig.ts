@@ -217,7 +217,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
+  authStrategies: ['jwt', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   local: {
     usernameField: 'email',
     passwordField: 'password'

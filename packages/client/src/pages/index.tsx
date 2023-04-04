@@ -6,8 +6,13 @@ import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/
 import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { UserMenu } from '@etherealengine/client-core/src/user/components/UserMenu'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import {
+  PopupMenuServiceReceptor,
+  PopupMenuState
+} from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import config from '@etherealengine/common/src/config'
@@ -21,15 +26,19 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
-  const selectedMenu = useHookstate(UserMenus.Profile)
+  const openMenu = useHookstate(getMutableState(PopupMenuState).openMenu)
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
     if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
 
+    openMenu.set(UserMenus.Profile)
+
     addActionReceptor(AvatarServiceReceptor)
+    addActionReceptor(PopupMenuServiceReceptor)
     return () => {
       removeActionReceptor(AvatarServiceReceptor)
+      removeActionReceptor(PopupMenuServiceReceptor)
     }
   }, [])
 
@@ -97,12 +106,7 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            {selectedMenu.value === UserMenus.Profile && (
-              <ProfileMenu isPopover changeActiveMenu={(type) => selectedMenu.set(type ? type : UserMenus.Profile)} />
-            )}
-            {selectedMenu.value === UserMenus.Settings && (
-              <SettingMenu isPopover changeActiveMenu={(type) => selectedMenu.set(type ? type : UserMenus.Profile)} />
-            )}
+            {openMenu.value === UserMenus.Profile && <ProfileMenu isPopover />}
           </Box>
         </div>
         <div className="link-container">

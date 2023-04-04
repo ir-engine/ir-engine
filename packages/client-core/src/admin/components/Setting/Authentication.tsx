@@ -461,33 +461,6 @@ const Account = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={6}>
-          <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.local')}</Typography>
-
-          <InputText
-            name="username"
-            label={t('admin:components.setting.userName')}
-            value={authSetting?.local.usernameField || ''}
-            disabled
-          />
-
-          <InputText
-            name="password"
-            label={t('admin:components.setting.password')}
-            value={authSetting?.local.passwordField || ''}
-            type={showPassword.value.password.secret ? 'text' : 'password'}
-            disabled
-            endAdornment={
-              <IconButton
-                onClick={() => handleShowPassword('password-secret')}
-                icon={
-                  <Icon
-                    icon={showPassword.value.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                    color="orange"
-                  />
-                }
-              />
-            }
-          />
           {holdAuth?.google.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.google')}</Typography>

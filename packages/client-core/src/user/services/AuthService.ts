@@ -1,5 +1,4 @@
 import { Paginated } from '@feathersjs/feathers'
-import { Downgraded } from '@hookstate/core'
 import i18n from 'i18next'
 import querystring from 'querystring'
 import { useEffect } from 'react'
@@ -200,11 +199,6 @@ export class AuthAction {
 
   static didForgotPasswordAction = defineAction({
     type: 'ee.client.Auth.DID_FORGOT_PASSWORD' as const,
-    result: matches.boolean
-  })
-
-  static didResetPasswordAction = defineAction({
-    type: 'ee.client.Auth.DID_RESET_PASSWORD' as const,
     result: matches.boolean
   })
 
@@ -619,23 +613,6 @@ export const AuthService = {
     } catch (err) {
       logger.warn(err, 'Error sending forgot password email')
       dispatchAction(AuthAction.didForgotPasswordAction({ result: false }))
-    } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
-    }
-  },
-
-  async resetPassword(token: string, password: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    try {
-      await API.instance.client.service('authManagement').create({
-        action: 'resetPwdLong',
-        value: { token, password }
-      })
-      dispatchAction(AuthAction.didResetPasswordAction({ result: true }))
-      window.location.href = '/'
-    } catch (err) {
-      dispatchAction(AuthAction.didResetPasswordAction({ result: false }))
-      window.location.href = '/'
     } finally {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }

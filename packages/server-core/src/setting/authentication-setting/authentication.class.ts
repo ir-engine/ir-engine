@@ -27,14 +27,12 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
     const data = auth.data.map((el) => {
       let oauth = JSON.parse(el.oauth)
       let authStrategies = JSON.parse(el.authStrategies)
-      let local = JSON.parse(el.local)
       let jwtOptions = JSON.parse(el.jwtOptions)
       let bearerToken = JSON.parse(el.bearerToken)
       let callback = JSON.parse(el.callback)
 
       if (typeof oauth === 'string') oauth = JSON.parse(oauth)
       if (typeof authStrategies === 'string') authStrategies = JSON.parse(authStrategies)
-      if (typeof local === 'string') local = JSON.parse(local)
       if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
       if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
       if (typeof callback === 'string') callback = JSON.parse(callback)
@@ -50,7 +48,6 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
       const returned = {
         ...el,
         authStrategies: authStrategies,
-        local: local,
         jwtOptions: jwtOptions,
         bearerToken: bearerToken,
         callback: callback,

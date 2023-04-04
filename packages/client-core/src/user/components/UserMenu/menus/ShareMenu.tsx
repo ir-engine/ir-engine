@@ -19,6 +19,7 @@ import IconButton from '@etherealengine/ui/src/IconButton'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
@@ -124,11 +125,7 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 }
 
-interface Props {
-  changeActiveMenu: (str?: string) => void
-}
-
-const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const engineState = useEngineState()
@@ -158,7 +155,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
     <Menu
       open
       title={engineState.shareTitle.value ? engineState.shareTitle.value : t('user:usermenu.share.title')}
-      onClose={() => changeActiveMenu()}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Box className={styles.shareQuest}>

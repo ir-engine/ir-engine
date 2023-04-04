@@ -11,7 +11,6 @@ export const authenticationSeed = {
         { jwt: true },
         { smsMagicLink: true },
         { emailMagicLink: true },
-        { local: true },
         { discord: true },
         { facebook: true },
         { github: true },
