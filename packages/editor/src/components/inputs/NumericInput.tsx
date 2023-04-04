@@ -93,7 +93,7 @@ export interface NumericInputProp {
   precision?: number
   mediumStep?: number
   onChange?: (n: number) => void
-  onCommit?: Function
+  onCommit?: (n: number) => void
   smallStep?: number
   largeStep?: number
   min?: number

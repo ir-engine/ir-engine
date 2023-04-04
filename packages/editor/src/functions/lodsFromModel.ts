@@ -94,4 +94,4 @@ export async function serializeLOD(
   level.src.set(urls[0][0])
 }
 
-export async function deserializeLOD()
+export async function deserializeLOD() {}
