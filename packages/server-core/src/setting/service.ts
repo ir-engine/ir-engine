@@ -1,6 +1,6 @@
 import Authentication from './authentication-setting/authentication.service'
 import Aws from './aws-setting/aws-setting.service'
-import Chargebee from './chargebee-setting/chargebee-setting.service'
+import Chargebee from './chargebee-setting/chargebee-setting'
 import ClientSetting from './client-setting/client-setting.service'
 import Coil from './coil-setting/coil-setting.service'
 import Email from './email-setting/email-setting.service'
