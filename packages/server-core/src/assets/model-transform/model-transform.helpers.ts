@@ -32,9 +32,17 @@ import { EEMaterial } from '../extensions/EE_MaterialTransformer'
 import { EEResourceID } from '../extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from '../ModelTransformLoader'
 
-const createBatch = (doc, batchExtension, mesh, count) => {
+/**
+ *
+ * @param doc
+ * @param batchExtension
+ * @param mesh
+ * @param count
+ * @returns
+ */
+const createBatch = (doc: Document, batchExtension: MeshGPUInstancing, mesh: Mesh, count) => {
   return mesh.listPrimitives().map((prim) => {
-    const buffer = prim.getAttribute('POSITION').getBuffer()
+    const buffer = prim.getAttribute('POSITION')?.getBuffer() ?? doc.createBuffer()
 
     const batchTranslation = doc
       .createAccessor()
@@ -144,9 +152,9 @@ const myInstance = async (document: Document, args: any | null = null) => {
       console.log('mesh:', mesh, 'nodes:', nodes)
       const batches = createBatch(document, batchExtension, mesh, _nodes.length)
       batches.map((batch) => {
-        const batchTranslate = batch.getAttribute('TRANSLATION')
-        const batchRotate = batch.getAttribute('ROTATION')
-        const batchScale = batch.getAttribute('SCALE')
+        const batchTranslate = batch.getAttribute('TRANSLATION')!
+        const batchRotate = batch.getAttribute('ROTATION')!
+        const batchScale = batch.getAttribute('SCALE')!
         const batchNode = document.createNode().setMesh(mesh).setExtension('EXT_mesh_gpu_instancing', batch)
         scene.addChild(batchNode)
         _nodes.map((node, i) => {
@@ -311,7 +319,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
 
   const fileUploadPath = (fUploadPath: string) => {
-    const pathCheck = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_\.]*)$/
+    const pathCheck = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_.]*)$/
     const [_, savePath, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(path.join(path.dirname(args.src), fUploadPath))!
     return [savePath, fileName]
@@ -466,54 +474,51 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     }
   }
   let result
-  switch (parms.modelFormat) {
-    case 'glb':
-      const data = await io.writeBinary(document)
-      const [savePath, fileName] = fileUploadPath(args.dst)
-      result = await app.service('file-browser').patch(null, {
+  if (parms.modelFormat === 'glb') {
+    const data = await io.writeBinary(document)
+    const [savePath, fileName] = fileUploadPath(args.dst)
+    result = await app.service('file-browser').patch(null, {
+      path: savePath,
+      fileName,
+      body: data,
+      contentType: getContentType(args.dst)
+    })
+    console.log('Handled glb file')
+  } else if (parms.modelFormat === 'gltf') {
+    ;[root.listBuffers(), root.listMeshes(), root.listTextures()].forEach((elements) =>
+      elements.map((mesh: Texture | Mesh | glBuffer) => !mesh.getName() && mesh.setName(MathUtils.generateUUID()))
+    )
+    document.transform(
+      partition({
+        animations: true,
+        meshes: root.listMeshes().map((mesh) => mesh.getName())
+      })
+    )
+    const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
+    await initializeResourceDir()
+    json.images?.map((image) => {
+      image.uri = path.join(resourceName, path.basename(image.uri!))
+    })
+    const defaultBufURI = MathUtils.generateUUID() + '.bin'
+    json.buffers?.map((buffer) => {
+      buffer.uri = path.join(resourceName, path.basename(buffer.uri ?? defaultBufURI))
+    })
+    Object.keys(resources).map((uri) => {
+      resources[path.join(resourceName, path.basename(uri))] = resources[uri]
+      delete resources[uri]
+    })
+    const doUpload = (uri, data) => {
+      const [savePath, fileName] = fileUploadPath(uri)
+      return app.service('file-browser').patch(null, {
         path: savePath,
         fileName,
         body: data,
-        contentType: getContentType(args.dst)
+        contentType: getContentType(uri)
       })
-      console.log('Handled glb file')
-      break
-    case 'gltf':
-      ;[root.listBuffers(), root.listMeshes(), root.listTextures()].forEach((elements) =>
-        elements.map((mesh: Texture | Mesh | glBuffer) => !mesh.getName() && mesh.setName(MathUtils.generateUUID()))
-      )
-      document.transform(
-        partition({
-          animations: true,
-          meshes: root.listMeshes().map((mesh) => mesh.getName())
-        })
-      )
-      const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-      await initializeResourceDir()
-      json.images?.map((image) => {
-        image.uri = path.join(resourceName, path.basename(image.uri!))
-      })
-      const defaultBufURI = MathUtils.generateUUID() + '.bin'
-      json.buffers?.map((buffer) => {
-        buffer.uri = path.join(resourceName, path.basename(buffer.uri ?? defaultBufURI))
-      })
-      Object.keys(resources).map((uri) => {
-        resources[path.join(resourceName, path.basename(uri))] = resources[uri]
-        delete resources[uri]
-      })
-      const doUpload = (uri, data) => {
-        const [savePath, fileName] = fileUploadPath(uri)
-        return app.service('file-browser').patch(null, {
-          path: savePath,
-          fileName,
-          body: data,
-          contentType: getContentType(uri)
-        })
-      }
-      await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
-      result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
-      console.log('Handled gltf file')
-      break
+    }
+    await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
+    result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
+    console.log('Handled gltf file')
   }
   if (fs.existsSync(tmpDir)) await execFileSync('rm', ['-R', tmpDir])
   return result

@@ -16,6 +16,7 @@ import { serializeLOD } from '../../functions/lodsFromModel'
 import { Button } from '../inputs/Button'
 import InputGroup, { InputGroupContainer } from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
+import NumericInput from '../inputs/NumericInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import PaginatedList from '../layout/PaginatedList'
 
@@ -25,16 +26,19 @@ export function LODProperties({ entity }: { entity: Entity }) {
 
   const model = getComponent(entity, ModelComponent)
 
-  const onChangeLevelProperty = useCallback((level: State<LODLevel>, property: keyof LODLevel) => {
-    return (value) => {
-      level[property].set(value)
-    }
-  }, [])
+  const onChangeLevelProperty = useCallback(
+    (level: State<LODLevel>, property: keyof LODLevel) => {
+      return (value) => {
+        level[property].set(value)
+      }
+    },
+    [entity]
+  )
 
   if (!entities) return <></>
   return (
     <div>
-      <h2 className="text-white text-2xl font-bold mb-4">LODs</h2>
+      <h2 className="text-white text-2xl font-bold m-4">LODs</h2>
       <PaginatedList
         list={entities}
         element={(entity: Entity) => {
@@ -62,11 +66,12 @@ export function LODProperties({ entity }: { entity: Entity }) {
                   return (
                     <div className="bg-gray-900 m-2">
                       <div style={{ margin: '2em' }}>
-                        <NumericInputGroup
-                          label={t('editor:properties.lod.distance')}
-                          value={level.distance.value}
-                          onChange={onChangeLevelProperty(level, 'distance')}
-                        />
+                        <InputGroup name="distance" label={t('editor:properties.lod.distance')}>
+                          <NumericInput
+                            value={level.distance.value}
+                            onChange={onChangeLevelProperty(level, 'distance')}
+                          />
+                        </InputGroup>
                         <InputGroup name="src" label={t('editor:properties.lod.src')}>
                           <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
                         </InputGroup>

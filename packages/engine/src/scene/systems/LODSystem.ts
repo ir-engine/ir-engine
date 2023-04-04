@@ -5,16 +5,13 @@ import { NO_PROXY } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeObjectFromGroup } from '../components/GroupComponent'
 import { LODComponent, SCENE_COMPONENT_LOD } from '../components/LODComponent'
 import { processLoadedLODLevel } from '../functions/loaders/LODFunctions'
 import getFirstMesh from '../util/getFirstMesh'
 
 export default async function LODSystem() {
   Engine.instance.sceneComponentRegistry.set(LODComponent.name, SCENE_COMPONENT_LOD)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOD, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOD, {})
 
   const lodQuery = defineQuery([LODComponent])
 
@@ -34,34 +31,50 @@ export default async function LODSystem() {
       //iterate through all the instance positions and update LOD index based on distance
       const referencedLods = new Set<number>()
       if (lodComponent.instanced.value) {
-        const instancePositions = lodComponent.instancePositions.value
-        const position = new Vector3()
-        for (let i = 0; i < instancePositions.count; i++) {
-          position.set(instancePositions.getX(i), instancePositions.getY(i), instancePositions.getZ(i))
-          const distance = cameraPosition.distanceTo(position)
-          const levelsAttr = lodComponent.instanceLevels.get(NO_PROXY)
-          const currentLevel = levelsAttr.getX(i)
-          let newLevel = currentLevel
-          for (let j = 0; j < lodDistances.length; j++) {
-            if (distance < lodDistances[j] || j === lodDistances.length - 1) {
-              ;(currentLevel !== j && (newLevel = j)) || levelsAttr.setX(i, j)
-              break
+        const heuristic = lodComponent.lodHeuristic.value
+        if (heuristic === 'MANUAL') {
+          referencedLods.add(lodComponent.instanceLevels.get(NO_PROXY).getX(0))
+        } else if (['DISTANCE', 'SCENE_SCALE'].includes(heuristic)) {
+          const instancePositions = lodComponent.instanceMatrix.value
+          const position = new Vector3()
+          for (let i = 0; i < instancePositions.count; i++) {
+            position.set(
+              instancePositions.array[i * 16 + 12],
+              instancePositions.array[i * 16 + 13],
+              instancePositions.array[i * 16 + 14]
+            )
+            const distance = cameraPosition.distanceTo(position)
+            const levelsAttr = lodComponent.instanceLevels.get(NO_PROXY)
+            const currentLevel = levelsAttr.getX(i)
+            let newLevel = currentLevel
+            for (let j = 0; j < lodDistances.length; j++) {
+              if (distance < lodDistances[j] || j === lodDistances.length - 1) {
+                ;(currentLevel !== j && (newLevel = j)) || levelsAttr.setX(i, j)
+                break
+              }
             }
+            referencedLods.add(newLevel)
           }
-          referencedLods.add(newLevel)
-        }
+        } else throw Error('Invalid LOD heuristic')
       } else {
         //if not instanced, just use the first model position
-        const position = lodComponent.levels[0]?.model.value?.position
-        if (position) {
-          const distance = cameraPosition.distanceTo(position)
-          for (let j = 0; j < lodDistances.length; j++) {
-            if (distance < lodDistances[j] || j === lodDistances.length - 1) {
-              referencedLods.add(j)
-              break
+        const currentLevel = lodComponent.instanceLevels.value.array[0]
+        if (lodComponent.lodHeuristic.value === 'MANUAL') {
+          referencedLods.add(currentLevel)
+        } else if (['DISTANCE', 'SCENE_SCALE'].includes(lodComponent.lodHeuristic.value)) {
+          const model = lodComponent.levels[currentLevel]?.model.value
+          const position = model?.localToWorld(model?.position.clone())
+          if (position) {
+            const distance = cameraPosition.distanceTo(position)
+            for (let j = 0; j < lodDistances.length; j++) {
+              if (distance < lodDistances[j] || j === lodDistances.length - 1) {
+                referencedLods.add(j)
+                lodComponent.instanceLevels.get(NO_PROXY).setX(0, j)
+                break
+              }
             }
           }
-        }
+        } else throw Error('Invalid LOD heuristic')
       }
 
       //iterate through all LOD levels and load/unload models based on referencedLods
@@ -73,16 +86,17 @@ export default async function LODSystem() {
             level.src.value &&
             AssetLoader.load(level.src.value, {}, (loadedScene: Scene) => {
               const mesh = getFirstMesh(loadedScene)
+              mesh && processLoadedLODLevel(entity, i, mesh)
               level.model.set(mesh ?? null)
-              processLoadedLODLevel(entity, i)
+
               level.loaded.set(true)
             })
         } else {
           //if the level is not referenced, unload it if it's loaded
           if (level.loaded.value) {
             const mesh = level.model.value
+            mesh?.removeFromParent()
             level.model.set(null)
-            mesh && removeObjectFromGroup(entity, mesh)
             level.loaded.set(false)
           }
         }

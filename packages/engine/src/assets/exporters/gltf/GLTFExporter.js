@@ -537,8 +537,6 @@ class GLTFWriter {
 		const extensionsUsed = writer.extensionsUsed;
 		const extensionsRequired = writer.extensionsRequired;
 
-		// Merge buffers.
-		const blob = new Blob( buffers, { type: 'application/octet-stream' } );
 
 		// Declare extensions.
 		const extensionsUsedList = Object.keys( extensionsUsed );
@@ -548,10 +546,12 @@ class GLTFWriter {
 		if ( extensionsRequiredList.length > 0 ) json.extensionsRequired = extensionsRequiredList;
 
 		// Update bytelength of the single buffer.
-		if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
+		
 
 		if ( options.binary === true ) {
-
+			if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
+			// Merge buffers.
+			const blob = new Blob( buffers, { type: 'application/octet-stream' } );
 			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#glb-file-format-specification
 
 			const reader = new FileReader();

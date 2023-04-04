@@ -12,6 +12,7 @@ import { NameComponent } from '@etherealengine/engine/src/scene/components/NameC
 import { processLoadedLODLevel } from '@etherealengine/engine/src/scene/functions/loaders/LODFunctions'
 import getFirstMesh from '@etherealengine/engine/src/scene/util/getFirstMesh'
 import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { State } from '@etherealengine/hyperflux'
 
 import { uploadProjectFiles } from './assetFunctions'
@@ -47,7 +48,12 @@ export async function createLODsFromModel(entity: Entity): Promise<Entity[]> {
         instanced: mesh instanceof InstancedMesh
       })
       addComponent(lodEntity, NameComponent, mesh.name)
-      processLoadedLODLevel(lodEntity, 0)
+      addComponent(lodEntity, TransformComponent, {
+        position: mesh.position,
+        rotation: mesh.quaternion,
+        scale: mesh.scale
+      })
+      processLoadedLODLevel(lodEntity, 0, mesh)
       lods.push(lodEntity)
     }
   }
@@ -68,7 +74,6 @@ export async function serializeLOD(
   toExport.position.set(0, 0, 0)
   toExport.rotation.set(0, 0, 0)
   toExport.scale.set(1, 1, 1)
-  toExport.applyMatrix4(mesh.matrix.clone().invert())
   toExport.updateMatrixWorld()
   toExport.updateMatrix()
   const [, , projectName, fileName] = pathResolver().exec(rootSrc)!
@@ -88,3 +93,5 @@ export async function serializeLOD(
   const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
   level.src.set(urls[0][0])
 }
+
+export async function deserializeLOD()
