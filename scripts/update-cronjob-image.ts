@@ -61,6 +61,7 @@ cli.main(async () => {
             undefined,
             undefined,
             undefined,
+            undefined,
             {
               headers: {
                 'content-type': 'application/merge-patch+json'
@@ -68,7 +69,7 @@ cli.main(async () => {
             }
           )
         } catch (err) {
-          console.log('Missing cronjob', `${process.env.RELEASE_NAME}-${project.name}-auto-update`)
+          console.error('cronjob update error on', `${process.env.RELEASE_NAME}-${project.name}-auto-update`, err)
         }
       }
     cli.exit(0)
