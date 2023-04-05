@@ -5,13 +5,10 @@ import Box from '@etherealengine/ui/src/Box'
 import Container from '@etherealengine/ui/src/Container'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import EmptyLayout from '../../../common/components/EmptyLayout'
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
 
 interface Props {
-  //auth: any
-  //type: string
   token: string
 }
 
@@ -23,20 +20,18 @@ export const VerifyEmail = ({ token }: Props): JSX.Element => {
   }, [])
 
   return (
-    <EmptyLayout>
-      <Container component="main" maxWidth="md">
-        <div className={styles.paper}>
-          <Typography component="h1" variant="h5">
-            {t('user:auth.verifyEmail.header')}
-          </Typography>
+    <Container component="main" maxWidth="md">
+      <div className={styles.paper}>
+        <Typography component="h1" variant="h5">
+          {t('user:auth.verifyEmail.header')}
+        </Typography>
 
-          <Box mt={3}>
-            <Typography variant="body2" color="textSecondary" align="center">
-              {t('user:auth.verifyEmail.processing')}
-            </Typography>
-          </Box>
-        </div>
-      </Container>
-    </EmptyLayout>
+        <Box mt={3}>
+          <Typography variant="body2" color="textSecondary" align="center">
+            {t('user:auth.verifyEmail.processing')}
+          </Typography>
+        </Box>
+      </div>
+    </Container>
   )
 }

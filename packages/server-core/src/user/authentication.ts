@@ -8,7 +8,6 @@ import GithubStrategy from './strategies/github'
 import GoogleStrategy from './strategies/google'
 import { MyJwtStrategy } from './strategies/jwt'
 import LinkedInStrategy from './strategies/linkedin'
-import { MyLocalStrategy } from './strategies/local'
 import TwitterStrategy from './strategies/twitter'
 
 declare module '@etherealengine/common/declarations' {
@@ -20,7 +19,6 @@ declare module '@etherealengine/common/declarations' {
 export default (app: Application): void => {
   const authentication = new AuthenticationService(app as any)
   authentication.register('jwt', new MyJwtStrategy())
-  authentication.register('local', new MyLocalStrategy() as any)
   authentication.register('discord', new DiscordStrategy(app) as any)
   authentication.register('google', new GoogleStrategy(app) as any)
   authentication.register('facebook', new FacebookStrategy(app) as any)

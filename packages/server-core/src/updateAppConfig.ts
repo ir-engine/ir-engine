@@ -92,10 +92,6 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.JSON,
       allowNull: true
     },
-    local: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
     jwtOptions: {
       type: DataTypes.JSON,
       allowNull: true
@@ -118,14 +114,12 @@ export const updateAppConfig = async (): Promise<void> => {
     .then(([dbAuthentication]) => {
       let oauth = JSON.parse(dbAuthentication.oauth)
       let authStrategies = JSON.parse(dbAuthentication.authStrategies)
-      let local = JSON.parse(dbAuthentication.local)
       let jwtOptions = JSON.parse(dbAuthentication.jwtOptions)
       let bearerToken = JSON.parse(dbAuthentication.bearerToken)
       let callback = JSON.parse(dbAuthentication.callback)
 
       if (typeof oauth === 'string') oauth = JSON.parse(oauth)
       if (typeof authStrategies === 'string') authStrategies = JSON.parse(authStrategies)
-      if (typeof local === 'string') local = JSON.parse(local)
       if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
       if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
       if (typeof callback === 'string') callback = JSON.parse(callback)
@@ -135,7 +129,6 @@ export const updateAppConfig = async (): Promise<void> => {
         entity: dbAuthentication.entity,
         secret: dbAuthentication.secret,
         authStrategies: authStrategies,
-        local: local,
         jwtOptions: jwtOptions,
         bearerToken: bearerToken,
         callback: callback,
@@ -151,7 +144,7 @@ export const updateAppConfig = async (): Promise<void> => {
         if (oauth.google) dbAuthenticationConfig.oauth.google = JSON.parse(oauth.google)
         if (oauth.linkedin) dbAuthenticationConfig.oauth.linkedin = JSON.parse(oauth.linkedin)
         if (oauth.twitter) dbAuthenticationConfig.oauth.twitter = JSON.parse(oauth.twitter)
-        const authStrategies = ['jwt', 'local']
+        const authStrategies = ['jwt']
         for (let authStrategy of dbAuthenticationConfig.authStrategies) {
           const keys = Object.keys(authStrategy)
           for (let key of keys)
@@ -413,10 +406,6 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.INTEGER,
       allowNull: true
     },
-    local: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
     domain: {
       type: DataTypes.STRING,
       allowNull: true
@@ -446,7 +435,6 @@ export const updateAppConfig = async (): Promise<void> => {
         rtc_end_port: dbInstanceServer.rtc_end_port,
         rtc_port_block_size: dbInstanceServer.rtc_port_block_size,
         identifierDigits: dbInstanceServer.identifierDigits,
-        local: dbInstanceServer.local,
         domain: dbInstanceServer.domain,
         releaseName: dbInstanceServer.releaseName,
         port: dbInstanceServer.port,
