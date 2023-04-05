@@ -47,7 +47,11 @@ export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   // Initialize roomstate
   const cores = os.cpus()
-  const routers = { instance: [] } as { instance: Router[] }
+  const routers = { instance: [] } as unknown as {
+    rtpCapabilities: any
+    createPlainTransport: any
+    instance: Router[]
+  }
   const workers = [] as Worker[]
   for (let i = 0; i < cores.length; i++) {
     const newWorker = await createWorker({
@@ -930,17 +934,17 @@ export async function handleWebRtcResumeConsumer(
 }
 
 export async function handleWebRtcCloseConsumer(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  data,
-  messageId: string
+  network?: SocketWebRTCServerNetwork,
+  spark?: Spark,
+  data?: any,
+  messageId?: string
 ): Promise<any> {
   const { consumerId } = data
-  const consumer = network.consumers.find((c) => c.id === consumerId)
+  const consumer = network && network.consumers.find((c) => c.id === consumerId)
   if (consumer) {
     await closeConsumer(network, consumer)
   }
-  spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), data: { closed: true }, id: messageId })
+  spark && spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), data: { closed: true }, id: messageId })
 }
 
 export async function handleWebRtcConsumerSetLayers(

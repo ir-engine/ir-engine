@@ -122,6 +122,20 @@ export const localConfig = {
       listenIps: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 800000,
       maxIncomingBitrate: 150000
+    },
+
+    plainTransport: {
+      listenIp: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }]
+    },
+
+    recording: {
+      ip: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }],
+
+      // FFmpeg's sdpdemux only supports RTCP = RTP + 1
+      audioPort: 5004,
+      audioPortRtcp: 5005,
+      videoPort: 5006,
+      videoPortRtcp: 5007
     }
   }
 }
