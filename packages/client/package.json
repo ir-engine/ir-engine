@@ -82,7 +82,6 @@
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
     "app-root-path": "3.1.0",
-    "autoprefixer": "^10.4.14",
     "cli": "1.0.1",
     "config": "3.3.9",
     "node-fetch": "2.6.9",
