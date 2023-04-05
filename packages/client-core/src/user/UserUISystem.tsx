@@ -42,7 +42,7 @@ export default async function UserUISystem() {
   const popupMenuState = getMutableState(PopupMenuState)
 
   popupMenuState.menus.merge({
-    [UserMenus.Profile]: (props) => <ProfileMenu {...props} allowAvatarChange />,
+    [UserMenus.Profile]: ProfileMenu,
     [UserMenus.Settings]: SettingMenu,
     [UserMenus.AvatarSelect]: AvatarSelectMenu,
     [UserMenus.AvatarModify]: AvatarModifyMenu,

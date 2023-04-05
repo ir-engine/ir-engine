@@ -6,18 +6,12 @@ export interface AdminAuthSetting {
   entity: string
   secret: string
   authStrategies: AuthStrategies[]
-  local: Local
   jwtOptions: JwtOptions
   bearerToken: BearerToken
   callback: Callback
   oauth: Oauth
   createdAt: string
   updatedAt: string
-}
-
-interface Local {
-  usernameField: string
-  passwordField: string
 }
 
 interface JwtOptions {

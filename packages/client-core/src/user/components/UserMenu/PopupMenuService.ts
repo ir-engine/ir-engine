@@ -1,5 +1,5 @@
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, none } from '@etherealengine/hyperflux'
 
 export const PopupMenuState = defineState({
   name: 'PopupMenuState',
@@ -29,6 +29,12 @@ export const PopupMenuServiceReceptor = (action) => {
         if (action.icon) s.hotbar.merge({ [action.id]: action.icon })
       }
     })
+}
+
+export const PopupMenuServices = {
+  showPopupMenu: (id?: string, params?: any) => {
+    dispatchAction(PopupMenuActions.showPopupMenu({ id, params }))
+  }
 }
 
 export class PopupMenuActions {
