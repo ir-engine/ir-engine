@@ -1,17 +1,56 @@
 import { t } from 'i18next'
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
-import FormDialog from '@etherealengine/client-core/src/admin/common/SubmitDialog'
+import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { userHasAccessHook } from '@etherealengine/client-core/src/user/userHasAccess'
-import ProjectEditor from '@etherealengine/editor/src/pages/editor'
+import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
+import UserUISystem from '@etherealengine/client-core/src/user/UserUISystem'
+import { EditorPage } from '@etherealengine/editor/src/pages/EditorPage'
+import { ProjectPage } from '@etherealengine/editor/src/pages/ProjectPage'
+import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
+
+const SystemInjection = [
+  {
+    uuid: 'ee.client.core.UserUISystem',
+    type: SystemUpdateType.POST_RENDER,
+    systemLoader: () => Promise.resolve({ default: UserUISystem })
+  }
+]
 
 const EditorProtectedRoutes = () => {
-  const isSceneAllowed = userHasAccessHook('editor:write')
+  const authState = useAuthState()
+  const route = useRouter()
+  const user = authState.user
+  const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    initSystems(SystemInjection)
+  }, [])
+
+  useEffect(() => {
+    if (user.scopes.value) {
+      const hasAccess = userHasAccess('editor:write')
+      if (!hasAccess) {
+        route('/')
+        setAuthorized(false)
+      } else setAuthorized(true)
+    }
+  }, [user.scopes])
+
+  if (!isAuthorized) return <LoadingCircle message={t('common:loader.auth')} />
 
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.editor')} />}>
-      {isSceneAllowed ? <ProjectEditor /> : <FormDialog />}
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingEditor')} />}>
+      <PopupMenuInline />
+      <Routes>
+        <Route path=":projectName/:sceneName" element={<EditorPage />} />
+        <Route path=":projectName" element={<EditorPage />} />
+        <Route path="*" element={<ProjectPage />} />
+      </Routes>
     </Suspense>
   )
 }

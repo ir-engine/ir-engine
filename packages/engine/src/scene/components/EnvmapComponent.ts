@@ -15,37 +15,35 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
-  getMutableComponent,
   getOptionalComponent,
+  removeComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { isHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 import { EnvMapBakeComponent } from './EnvMapBakeComponent'
 import { GroupComponent } from './GroupComponent'
-import { ModelComponent } from './ModelComponent'
 
-const tempVector = new Vector3()
 const tempColor = new Color()
 
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
   onInit: (entity) => {
     return {
-      type: EnvMapSourceType.None as typeof EnvMapSourceType[keyof typeof EnvMapSourceType],
-      envMapTextureType: EnvMapTextureType.Equirectangular as typeof EnvMapTextureType[keyof typeof EnvMapTextureType],
+      type: EnvMapSourceType.None as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType],
+      envMapTextureType:
+        EnvMapTextureType.Equirectangular as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType],
       envMapSourceColor: new Color(0xfff) as Color,
       envMapSourceURL: '',
       envMapIntensity: 1
@@ -53,6 +51,7 @@ export const EnvmapComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    if (entity === getState(SceneState).sceneEntity) removeComponent(entity, EnvmapComponent)
     if (typeof json?.type === 'string') component.type.set(json.type)
     if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
     if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(new Color(json.envMapSourceColor))
@@ -197,7 +196,7 @@ function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
     if (obj instanceof Scene) {
       obj.environment = envmap
     } else {
-      if (isHeadset()) return
+      if (isMobileXRHeadset) return
       obj.traverse((child: Mesh<any, MeshStandardMaterial>) => {
         if (child.material instanceof MeshMatcapMaterial) return
         if (child.material) child.material.envMap = envmap

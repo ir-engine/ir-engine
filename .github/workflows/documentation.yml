@@ -37,6 +37,7 @@ jobs:
           npm install --legacy-peer-deps
           git clone https://github.com/etherealengine/etherealengine-docs.git docs
           cd docs
+          cp .env.local.default .env.local
           npm install --legacy-peer-deps
           npm run build
   gh-release:
@@ -69,5 +70,6 @@ jobs:
           npm install --legacy-peer-deps
           git clone https://github.com/etherealengine/etherealengine-docs.git docs
           cd docs
+          cp .env.local.default .env.local
           npm install --legacy-peer-deps
           npm run deploy

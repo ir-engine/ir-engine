@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
-import { StaticResourceService } from '@etherealengine/client-core/src/media/services/StaticResourceService'
 import {
   AudioFileTypes,
   VideoFileTypes,
@@ -36,6 +35,7 @@ import { getState } from '@etherealengine/hyperflux'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
+import { StaticResourceService } from '../../services/StaticResourceService'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'

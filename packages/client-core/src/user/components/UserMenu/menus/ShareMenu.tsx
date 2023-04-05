@@ -19,7 +19,7 @@ import IconButton from '@etherealengine/ui/src/IconButton'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
@@ -125,11 +125,7 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 }
 
-interface Props {
-  changeActiveMenu: (str: string) => void
-}
-
-const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const engineState = useEngineState()
@@ -159,7 +155,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
     <Menu
       open
       title={engineState.shareTitle.value ? engineState.shareTitle.value : t('user:usermenu.share.title')}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Box className={styles.shareQuest}>
@@ -213,15 +209,6 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
             {t('user:usermenu.share.lbl-share')}
           </Button>
         )}
-
-        <Box display="flex" columnGap={2} alignItems="center">
-          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(Views.Party)}>
-            {t('user:usermenu.share.party')}
-          </Button>
-          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(Views.Friends)}>
-            {t('user:usermenu.share.friends')}
-          </Button>
-        </Box>
       </Box>
     </Menu>
   )

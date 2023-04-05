@@ -177,24 +177,16 @@ export default async function MediaSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(PositionalAudioComponent.name, SCENE_COMPONENT_POSITIONAL_AUDIO)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_POSITIONAL_AUDIO, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_POSITIONAL_AUDIO, {})
 
   Engine.instance.sceneComponentRegistry.set(VideoComponent.name, SCENE_COMPONENT_VIDEO)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {})
 
   Engine.instance.sceneComponentRegistry.set(MediaComponent.name, SCENE_COMPONENT_MEDIA)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {})
 
   Engine.instance.sceneComponentRegistry.set(VolumetricComponent.name, SCENE_COMPONENT_VOLUMETRIC)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {})
 
   const audioState = getMutableState(AudioState)
   const currentTime = audioState.audioContext.currentTime.value

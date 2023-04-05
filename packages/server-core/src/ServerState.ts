@@ -8,7 +8,7 @@ export const ServerMode = {
   Task: 'Task' as const
 }
 
-export type ServerTypeMode = typeof ServerMode[keyof typeof ServerMode]
+export type ServerTypeMode = (typeof ServerMode)[keyof typeof ServerMode]
 
 export const ServerState = defineState({
   name: 'ServerState',

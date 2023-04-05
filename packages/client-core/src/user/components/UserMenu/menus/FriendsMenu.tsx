@@ -16,19 +16,23 @@ import Chip from '@etherealengine/ui/src/Chip'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
+import Button from '../../../../common/components/Button'
 import { NotificationService } from '../../../../common/services/NotificationService'
+import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'
+import { AvatarMenus } from '../../../../systems/AvatarUISystem'
 import { useAuthState } from '../../../services/AuthService'
 import { NetworkUserService, useNetworkUserState } from '../../../services/NetworkUserService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { getAvatarURLForUser, Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
+import { getAvatarURLForUser } from '../util'
 
 interface Props {
-  changeActiveMenu: Function
   defaultSelectedTab?: string
 }
 
-const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Element => {
+const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   const { t } = useTranslation()
   const [selectedTab, setSelectedTab] = React.useState(defaultSelectedTab ? defaultSelectedTab : 'friends')
 
@@ -48,9 +52,9 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
   }
 
   const handleProfile = (user: UserInterface) => {
-    changeActiveMenu(Views.AvatarContext, {
+    PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, {
       user,
-      onBack: () => changeActiveMenu(Views.Friends, { defaultSelectedTab: selectedTab })
+      onBack: () => PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: selectedTab })
     })
   }
 
@@ -89,8 +93,8 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
     <Menu
       open
       header={<Tabs value={selectedTab} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         {displayList.map((value) => (
@@ -149,6 +153,11 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
             {t('user:friends.noUsers')}
           </Text>
         )}
+      </Box>
+      <Box display="flex" columnGap={2} alignItems="center">
+        <Button fullWidth type="gradientRounded" onClick={() => PopupMenuServices.showPopupMenu(SocialMenus.Party)}>
+          {t('user:usermenu.share.party')}
+        </Button>
       </Box>
     </Menu>
   )

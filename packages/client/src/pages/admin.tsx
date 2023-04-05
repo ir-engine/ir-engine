@@ -30,7 +30,6 @@ import {
   AdminCoilSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
-import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
   AppThemeState,
@@ -249,7 +248,6 @@ const AdminPage = (): any => {
             <GlobalStyle />
             <div style={{ pointerEvents: 'auto' }}>
               <InviteToast />
-              <UIDialog />
               <Debug />
             </div>
             <AdminRouterComp />

@@ -18,6 +18,7 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
@@ -29,21 +30,21 @@ import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettin
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { AuthService, AuthState } from '../../../services/AuthService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { getAvatarURLForUser, Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
+import { getAvatarURLForUser } from '../util'
 
 const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
 interface Props {
   className?: string
   hideLogin?: boolean
-  allowAvatarChange?: boolean
   isPopover?: boolean
-  changeActiveMenu?: (type: string | null) => void
   onClose?: () => void
 }
 
-const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
+const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -59,6 +60,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
 
+  const engineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
   const authSettingState = useHookstate(getMutableState(AuthSettingsState))
   const [authSetting] = authSettingState?.authSettings?.value || []
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
@@ -190,8 +192,8 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   }
 
   const handleLogout = async () => {
-    if (changeActiveMenu) changeActiveMenu(Views.Closed)
-    else if (onClose) onClose()
+    PopupMenuServices.showPopupMenu()
+    if (onClose) onClose()
     showUserId.set(false)
     showApiKey.set(false)
     await AuthService.logoutUser()
@@ -328,13 +330,13 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <Menu open isPopover={isPopover} onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
+    <Menu open isPopover={isPopover} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
-            showChangeButton={allowAvatarChange && changeActiveMenu ? true : false}
-            onChange={() => changeActiveMenu && changeActiveMenu(Views.AvatarSelect)}
+            showChangeButton={engineInitialized.value ? true : false}
+            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />
 
           <Box className={styles.profileDetails}>
@@ -366,7 +368,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
             )}
           </Box>
 
-          {changeActiveMenu && (
+          {!isPopover && (
             <IconButton
               background="var(--textColor)"
               sizePx={80}
@@ -382,7 +384,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   }}
                 />
               }
-              onClick={() => changeActiveMenu(Views.Settings)}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings)}
             />
           )}
         </Box>

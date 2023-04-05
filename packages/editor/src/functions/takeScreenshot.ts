@@ -1,4 +1,4 @@
-import { PerspectiveCamera } from 'three'
+import { Camera, PerspectiveCamera } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -31,6 +31,8 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
   return tmpCanvas
 }
 
+const query = defineQuery([ScenePreviewCameraComponent])
+
 /**
  * Function takeScreenshot used for taking screenshots.
  *
@@ -46,15 +48,13 @@ export async function takeScreenshot(
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    const query = defineQuery([ScenePreviewCameraComponent])
-
     for (const entity of query()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
     if (!scenePreviewCamera) {
       const entity = createEntity()
-      addComponent(entity, ScenePreviewCameraComponent, null)
+      addComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setTransformComponent(entity, position, rotation)
@@ -81,7 +81,8 @@ export async function takeScreenshot(
       const viewport = EngineRenderer.instance.renderContext.getParameter(
         EngineRenderer.instance.renderContext.VIEWPORT
       )
-      if (viewport[2] === width && viewport[3] === height) {
+      const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
+      if (viewport[2] === width * pixelRatio && viewport[3] === height * pixelRatio) {
         clearTimeout(timeout)
         clearInterval(interval)
         resolve()
@@ -95,12 +96,12 @@ export async function takeScreenshot(
     }, 10000)
 
     // set up effect composer
-    configureEffectComposer(false, scenePreviewCamera)
+    EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
     EngineRenderer.instance.effectComposer.setSize(width, height, true)
   })
 
   EngineRenderer.instance.effectComposer.render()
-  configureEffectComposer(false, Engine.instance.camera)
+  EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
 
   const blob = await getCanvasBlob(
     getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height),

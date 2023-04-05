@@ -36,7 +36,7 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   Component,
@@ -84,6 +84,7 @@ export class Engine {
     setComponent(this.cameraEntity, NameComponent, 'camera')
     setComponent(this.cameraEntity, CameraComponent)
     setComponent(this.cameraEntity, VisibleComponent, true)
+    getComponent(this.cameraEntity, TransformComponent).position.set(0, 5, 2)
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
@@ -282,7 +283,10 @@ export class Engine {
 
   /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use EE_ extension names*/
 
-  /** Registry map of scene loader components  */
+  /**
+   * Registry map of scene loader components
+   * @todo replace with a Set once SceneLoaderType is removed
+   * */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
 
   /** Scene component of scene loader components  */
