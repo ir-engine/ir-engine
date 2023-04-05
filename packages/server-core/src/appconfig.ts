@@ -110,6 +110,8 @@ const server = {
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
+  cloneProjectStaticResources:
+    typeof process.env.CLONE_STATIC_RESOURCES === 'undefined' ? true : process.env.CLONE_STATIC_RESOURCES === 'true',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
     endpoint: process.env.HUB_ENDPOINT!
@@ -215,11 +217,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
-  local: {
-    usernameField: 'email',
-    passwordField: 'password'
-  },
+  authStrategies: ['jwt', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   jwtOptions: {
     expiresIn: '30 days'
   },

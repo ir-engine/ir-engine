@@ -31,10 +31,10 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
-import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import Slider from '@etherealengine/ui/src/Slider'
+import Tooltip from '@etherealengine/ui/src/Tooltip'
 
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../transports/MediaStreams'
@@ -48,7 +48,6 @@ interface Props {
   type: 'screen' | 'cam'
 }
 
-/** @todo separate all media state from UI state and move it to hookstate record keyed to peerID */
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
@@ -106,7 +105,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
-  const mediaState = getMediaSceneMetadataState(Engine.instance.currentScene)
+  const mediaState = getMediaSceneMetadataState()
   const rendered =
     mediaSettingState.immersiveMediaMode.value === 'off' ||
     (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)

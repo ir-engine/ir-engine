@@ -3,11 +3,10 @@
     "packages/*",
     "packages/projects/projects/*"
   ],
-  "version": "1.2.0-rc6",
+  "version": "6.5.1",
   "npmClient": "npm",
+  "useNx": true,
+  "loglevel": "verbose",
   "useWorkspaces": true,
-  "hoist": true,
-  "nohoist": [
-    "@docusaurus/*"
-  ]
+  "hoist": true
 }

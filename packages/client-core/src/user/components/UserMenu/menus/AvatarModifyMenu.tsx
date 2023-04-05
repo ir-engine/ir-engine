@@ -22,18 +22,18 @@ import {
 } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Box from '@etherealengine/ui/src/Box'
+import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { AvatarService } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 interface Props {
-  changeActiveMenu: Function
   selectedAvatar?: AvatarInterface
 }
 
@@ -50,7 +50,7 @@ const defaultState = {
   }
 }
 
-const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
+const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const { t } = useTranslation()
   const [state, setState] = useState({ ...defaultState })
   const [avatarSrc, setAvatarSrc] = useState('')
@@ -265,11 +265,11 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
           avatarBlob,
           thumbnailBlob
         )
-        changeActiveMenu(Views.AvatarSelect)
+        PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
       } else if (avatarBlob && thumbnailBlob) {
         await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
 
-        changeActiveMenu(Views.Closed)
+        PopupMenuServices.showPopupMenu()
       }
     } catch (err) {
       console.error(err)
@@ -282,7 +282,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
     if (hasPendingChanges) {
       setShowConfirmChanges(true)
     } else {
-      changeActiveMenu(Views.AvatarSelect)
+      PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
     }
   }
 
@@ -308,7 +308,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
       }
       title={selectedAvatar ? t('user:avatar.titleEditAvatar') : t('user:avatar.createAvatar')}
       onBack={handleBack}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
@@ -322,7 +322,12 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
           </Grid>
 
           <Grid item md={5} sx={{ width: '100%' }}>
-            <Button fullWidth type="gradientRounded" sx={{ mt: 1 }} onClick={() => changeActiveMenu(Views.ReadyPlayer)}>
+            <Button
+              fullWidth
+              type="gradientRounded"
+              sx={{ mt: 1 }}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
+            >
               {t('user:usermenu.profile.useReadyPlayerMe')}
             </Button>
 
@@ -425,7 +430,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
                 description={t('user:common.confirmDiscardChange')}
                 submitButtonText={t('user:common.discardChanges')}
                 onClose={() => setShowConfirmChanges(false)}
-                onSubmit={() => changeActiveMenu(Views.AvatarSelect)}
+                onSubmit={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
               />
             )}
           </Grid>

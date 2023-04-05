@@ -28,7 +28,10 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import {
+  EntityTreeComponent,
+  getEntityNodeArrayFromEntities
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -48,22 +51,24 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { createActionQueue, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { createActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { EditorCameraState } from '../classes/EditorCameraState'
+import { addMediaNode } from '../functions/addMediaNode'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
-import { SceneState } from '../functions/sceneRenderFunctions'
+import isInputSelected from '../functions/isInputSelected'
 import {
   setTransformMode,
   toggleSnapMode,
   toggleTransformPivot,
   toggleTransformSpace
 } from '../functions/transformFunctions'
+import { EditorErrorAction } from '../services/EditorErrorServices'
 import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
 import EditorHistoryReceptor, { EditorHistoryAction } from '../services/EditorHistory'
-import EditorSelectionReceptor, { SelectionState } from '../services/SelectionServices'
+import EditorSelectionReceptor, { accessSelectionState, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -213,6 +218,48 @@ export default async function EditorControlSystem() {
       getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     )
   }
+
+  function copy(event) {
+    if (isInputSelected()) return
+    event.preventDefault()
+
+    // TODO: Prevent copying objects with a disabled transform
+    if (accessSelectionState().selectedEntities.length > 0) {
+      event.clipboardData.setData(
+        'application/vnd.editor.nodes',
+        JSON.stringify({ entities: accessSelectionState().selectedEntities.value })
+      )
+    }
+  }
+
+  function paste(event) {
+    if (isInputSelected()) return
+    event.preventDefault()
+
+    let data
+
+    if ((data = event.clipboardData.getData('application/vnd.editor.nodes')) !== '') {
+      const { entities } = JSON.parse(data)
+
+      if (!Array.isArray(entities)) return
+      const nodes = entities.filter((entity) => hasComponent(entity, EntityTreeComponent))
+
+      if (nodes) {
+        EditorControlFunctions.duplicateObject(nodes)
+      }
+    } else if ((data = event.clipboardData.getData('text')) !== '') {
+      try {
+        const url = new URL(data)
+        addMediaNode(url.href).catch((error) => dispatchAction(EditorErrorAction.throwError({ error })))
+      } catch (e) {
+        console.warn('Clipboard contents did not contain a valid url')
+      }
+    }
+  }
+
+  // todo figure out how to do these with our input system
+  window.addEventListener('copy', copy)
+  window.addEventListener('paste', paste)
 
   const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], excludeLayers?: Layers): void => {
     if (
@@ -620,7 +667,12 @@ export default async function EditorControlSystem() {
     }
   }
 
-  const cleanup = async () => {}
+  const cleanup = async () => {
+    window.removeEventListener('copy', copy)
+    window.removeEventListener('paste', paste)
+
+    removeActionQueue(changedTransformMode)
+  }
 
   return {
     execute,

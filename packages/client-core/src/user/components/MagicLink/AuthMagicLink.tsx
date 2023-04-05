@@ -2,13 +2,12 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Container from '@etherealengine/ui/src/primitives/mui/Container'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+import Box from '@etherealengine/ui/src/Box'
+import Container from '@etherealengine/ui/src/Container'
+import Typography from '@etherealengine/ui/src/Typography'
 
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
-import ResetPassword from '../Auth/ResetPassword'
 import { VerifyEmail } from '../Auth/VerifyEmail'
 
 interface Props {
@@ -52,18 +51,11 @@ const AuthMagicLinkWrapper = (props: any): JSX.Element => {
   const search = new URLSearchParams(useLocation().search)
   const token = search.get('token') as string
   const type = search.get('type') as string
-  const error = search.get('error') as string
   const path = search.get('path') as string
   const instanceId = search.get('instanceId') as string
 
-  const handleResetPassword = (token: string, password: string): void => {
-    AuthService.resetPassword(token, password)
-  }
-
   if (type === 'verify') {
     return <VerifyEmail {...props} type={type} token={token} />
-  } else if (type === 'reset') {
-    return <ResetPassword resetPassword={handleResetPassword} token={token} />
   }
   return <AuthMagicLink {...props} token={token} type={type} instanceId={instanceId} path={path} />
 }

@@ -19,6 +19,7 @@ import {
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import {
   getPostProcessingSceneMetadataState,
@@ -26,24 +27,23 @@ import {
 } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import Box from '@etherealengine/ui/src/Box'
+import Grid from '@etherealengine/ui/src/Grid'
+import Icon from '@etherealengine/ui/src/Icon'
 
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
-import { SceneState } from '../../../../world/services/SceneService'
 import { userHasAccess } from '../../../userHasAccess'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
-interface Props {
+type Props = {
   isPopover?: boolean
-  changeActiveMenu?: (type: string | null) => void
 }
 
-const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
+const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useHookstate(getMutableState(RendererState))
   const audioState = useHookstate(getMutableState(AudioState))
@@ -62,10 +62,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const selectedTab = useHookstate('general')
   const engineState = useHookstate(getMutableState(EngineState))
 
-  const postProcessingSceneMetadataState = Engine.instance.currentScene.sceneMetadataRegistry[
+  const postProcessingSceneMetadataState = getMutableState(SceneState).sceneMetadataRegistry[
     PostProcessingSceneMetadataLabel
   ]
-    ? getPostProcessingSceneMetadataState(Engine.instance.currentScene)
+    ? getPostProcessingSceneMetadataState()
     : undefined
   const postprocessingSettings = postProcessingSceneMetadataState?.enabled
     ? useHookstate(postProcessingSceneMetadataState.enabled)
@@ -187,8 +187,8 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       showBackButton
       isPopover={isPopover}
       header={<Tabs value={selectedTab.value} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         {selectedTab.value === 'general' && selfUser && (

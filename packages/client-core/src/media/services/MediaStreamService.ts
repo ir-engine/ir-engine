@@ -91,6 +91,7 @@ export const MediaStreamService = {
       })
     )
   },
+  /** @deprecated */
   triggerUpdateConsumers: () => {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {

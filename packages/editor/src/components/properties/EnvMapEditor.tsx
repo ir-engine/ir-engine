@@ -6,7 +6,6 @@ import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/funct
 import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
-import { deserializeEnvMap } from '@etherealengine/engine/src/scene/functions/loaders/EnvMapFunctions'
 
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'

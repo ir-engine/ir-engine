@@ -55,9 +55,7 @@ export default async function MountPointSystem() {
   ])
 
   Engine.instance.sceneComponentRegistry.set(MountPointComponent.name, SCENE_COMPONENT_MOUNT_POINT)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {})
 
   if (getMutableState(EngineState).isEditor.value)
     return {

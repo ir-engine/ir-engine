@@ -5,26 +5,30 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { RendererState } from '../../renderer/RendererState'
-import { isHeadset, useIsHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { RenderModes } from '../constants/RenderModes'
 import { EngineRenderer, getRendererSceneMetadataState } from '../WebGLRendererSystem'
 
 export const getShadowsEnabled = () => {
   const rendererState = getMutableState(RendererState)
-  return !isHeadset() && !iOS && rendererState.useShadows.value && rendererState.renderMode.value === RenderModes.SHADOW
+  return (
+    !isMobileXRHeadset &&
+    !iOS &&
+    rendererState.useShadows.value &&
+    rendererState.renderMode.value === RenderModes.SHADOW
+  )
 }
 
 export const useShadowsEnabled = () => {
-  const isHeadset = useIsHeadset()
   const rendererState = getMutableState(RendererState)
   const useShadows = useHookstate(rendererState.useShadows).value
   const renderMode = useHookstate(rendererState.renderMode).value
-  return !isHeadset && !iOS && useShadows && renderMode === RenderModes.SHADOW
+  return !isMobileXRHeadset && !iOS && useShadows && renderMode === RenderModes.SHADOW
 }
 
 export const updateShadowMap = () => {
   const enabled = getShadowsEnabled()
-  const type = getRendererSceneMetadataState(Engine.instance.currentScene).shadowMapType.value
+  const type = getRendererSceneMetadataState().shadowMapType.value
 
   EngineRenderer.instance.renderer.shadowMap.enabled = enabled
   EngineRenderer.instance.renderer.shadowMap.type = type

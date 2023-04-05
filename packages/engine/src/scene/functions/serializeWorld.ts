@@ -2,9 +2,11 @@ import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   getAllComponents,
   getComponent,
@@ -45,15 +47,17 @@ export const serializeEntity = (entity: Entity) => {
   return jsonComponents
 }
 
-export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, world = Engine.instance.currentScene) => {
+export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => {
   const sceneJson = {
     version: 0,
-    metadata: getSceneMetadataChanges(Engine.instance.currentScene),
+    metadata: getSceneMetadataChanges(),
     entities: {},
     root: null! as EntityUUID
   }
 
-  const traverseNode = rootEntity ?? world.sceneEntity
+  const sceneEntity = getState(SceneState).sceneEntity
+
+  const traverseNode = rootEntity ?? sceneEntity
   const loadedAssets = new Set<Entity>()
   iterateEntityNode(
     traverseNode,
@@ -67,7 +71,7 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false, wor
 
       const entityTree = getComponent(entity, EntityTreeComponent)
 
-      if (entity !== world.sceneEntity) {
+      if (entity !== sceneEntity) {
         entityJson.parent = getComponent(entityTree.parentEntity!, UUIDComponent)
         entityJson.index = index
       }

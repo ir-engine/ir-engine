@@ -4,35 +4,31 @@ import { Vector3 } from 'three'
 import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
-  createMappedComponent,
   defineComponent,
   getComponent,
   hasComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { GroupComponent, SCENE_COMPONENT_GROUP } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { SCENE_COMPONENT_VISIBLE } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { applyIncomingActions } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
-import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
+import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 import '@etherealengine/engine/src/patchEngineNode'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { deserializeGroup } from '@etherealengine/engine/src/scene/functions/loaders/GroupFunctions'
-
-import { createTransformGizmo } from '../systems/EditorControlSystem'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 
 class TempProp {
   data: number
@@ -86,7 +82,7 @@ describe('EditorControlFunctions', () => {
 
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentScene.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
 
       for (let i = 0; i < 2; i++) {
@@ -120,7 +116,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      rootNode = Engine.instance.currentScene.sceneEntity
+      rootNode = getState(SceneState).sceneEntity
     })
 
     afterEach(() => {
@@ -136,7 +132,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const world = Engine.instance.currentScene
+      const world = getState(SceneState)
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -145,10 +141,7 @@ describe('EditorControlFunctions', () => {
       ])
 
       Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-        deserialize: deserializeGroup,
-        serialize: () => undefined!
-      })
+      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
       rootNode = world.sceneEntity
     })
@@ -208,7 +201,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentScene.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       beforeNodes = [createEntity(), createEntity()]
@@ -229,7 +222,7 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.duplicateObject(nodes)
       applyIncomingActions()
 
-      const rootEntity = Engine.instance.currentScene.sceneEntity
+      const rootEntity = getState(SceneState).sceneEntity
       const rootNode = getComponent(rootEntity, EntityTreeComponent)
       rootNode.children.forEach((entity) => {
         assert(hasComponent(entity, EntityTreeComponent))
@@ -247,7 +240,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const world = Engine.instance.currentScene
+      const world = getState(SceneState)
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
         { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -255,10 +248,7 @@ describe('EditorControlFunctions', () => {
         { name: SCENE_COMPONENT_GROUP, props: [] }
       ])
       Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
-        deserialize: deserializeGroup,
-        serialize: () => undefined!
-      })
+      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
       const rootNode = world.sceneEntity
       nodes = [createEntity(), createEntity()]
@@ -299,7 +289,7 @@ describe('EditorControlFunctions', () => {
       registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = 0
 
-      const rootNode = Engine.instance.currentScene.sceneEntity
+      const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
       parentNodes = [createEntity(), createEntity()]
       ;[...nodes, ...parentNodes].map((node) =>
@@ -325,7 +315,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('will not remove root node', () => {
-      EditorControlFunctions.removeObject([Engine.instance.currentScene.sceneEntity])
+      EditorControlFunctions.removeObject([getState(SceneState).sceneEntity])
 
       nodes.forEach((node: Entity) => {
         assert(hasComponent(node, EntityTreeComponent))

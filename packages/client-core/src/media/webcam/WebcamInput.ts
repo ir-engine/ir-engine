@@ -15,6 +15,7 @@ import {
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
@@ -259,7 +260,7 @@ export default async function WebcamInputSystem() {
 
   const execute = () => {
     for (const action of avatarSpawnQueue()) {
-      const entity = Engine.instance.getUserAvatarEntity(action.$from)
+      const entity = UUIDComponent.entitiesByUUID.value[action.uuid]
       setComponent(entity, WebcamInputComponent)
     }
     for (const entity of webcamQuery()) setAvatarExpression(entity)

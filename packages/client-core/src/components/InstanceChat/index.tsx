@@ -20,13 +20,13 @@ import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functi
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 import { getMutableState } from '@etherealengine/hyperflux'
-import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
-import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
-import Card from '@etherealengine/ui/src/primitives/mui/Card'
-import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
+import Avatar from '@etherealengine/ui/src/Avatar'
+import Badge from '@etherealengine/ui/src/Badge'
+import Card from '@etherealengine/ui/src/Card'
+import CardContent from '@etherealengine/ui/src/CardContent'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
+import TextField from '@etherealengine/ui/src/TextField'
 
 import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
@@ -225,14 +225,6 @@ export const InstanceChat = ({
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
   const chatState = useChatState()
-
-  ChatService.useAPIListeners()
-  useEffect(() => {
-    addActionReceptor(ChatServiceReceptor)
-    return () => {
-      removeActionReceptor(ChatServiceReceptor)
-    }
-  }, [])
 
   /**
    * Audio effect

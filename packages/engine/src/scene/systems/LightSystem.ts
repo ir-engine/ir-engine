@@ -23,29 +23,19 @@ export const LightPrefabs = {
 
 export default async function LightSystem() {
   Engine.instance.sceneComponentRegistry.set(DirectionalLightComponent.name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {})
 
   Engine.instance.sceneComponentRegistry.set(HemisphereLightComponent.name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {})
 
   Engine.instance.sceneComponentRegistry.set(AmbientLightComponent.name, SCENE_COMPONENT_AMBIENT_LIGHT)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {})
 
   Engine.instance.sceneComponentRegistry.set(PointLightComponent.name, SCENE_COMPONENT_POINT_LIGHT)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {})
 
   Engine.instance.sceneComponentRegistry.set(SpotLightComponent.name, SCENE_COMPONENT_SPOT_LIGHT)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {})
 
   Engine.instance.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: true },

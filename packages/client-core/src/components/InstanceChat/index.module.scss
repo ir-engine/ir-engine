@@ -42,7 +42,7 @@
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
-    justify-content: end;
+    justify-content: flex-end;
     transition: all 0.2s;
 
     .chat-input {
@@ -53,6 +53,7 @@
       &.invisible {
         margin-left: 0;
         width: 0;
+        display: none;
       }
 
       .chat-view {

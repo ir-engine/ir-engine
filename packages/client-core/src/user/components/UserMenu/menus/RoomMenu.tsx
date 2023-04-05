@@ -10,13 +10,12 @@ import { InstanceService } from '@etherealengine/client-core/src/common/services
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { XRAction } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Box from '@etherealengine/ui/src/Box'
 
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 interface Props {
-  changeActiveMenu?: Function
   location?: string
 }
 
@@ -28,7 +27,7 @@ const numberize = (str: string) => {
   return validChars.join('')
 }
 
-const RoomMenu = ({ changeActiveMenu, location }: Props): JSX.Element => {
+const RoomMenu = ({ location }: Props): JSX.Element => {
   const { t } = useTranslation()
   const route = useRouter()
   const [locationName, setLocationName] = useState('')
@@ -85,7 +84,7 @@ const RoomMenu = ({ changeActiveMenu, location }: Props): JSX.Element => {
   }
 
   return (
-    <Menu open onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
+    <Menu open onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className={styles.menuContent}>
         {!location && (
           <InputText

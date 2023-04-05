@@ -8,6 +8,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { updateXRCamera } from '../../xr/XRCameraSystem'
+import { TransformComponent } from '../components/TransformComponent'
 import { computeTransformMatrix } from './TransformSystem'
 
 /**

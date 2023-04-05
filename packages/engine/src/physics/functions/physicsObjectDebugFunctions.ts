@@ -8,6 +8,7 @@ import {
 } from '@dimforge/rapier3d-compat'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 // import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -173,7 +174,8 @@ export const generatePhysicsObject = (
         WorldNetworkAction.spawnObject({
           prefab: 'physics_debug',
           position: transform.position,
-          rotation: transform.rotation
+          rotation: transform.rotation,
+          uuid: getUUID() as EntityUUID
         })
       )
     }

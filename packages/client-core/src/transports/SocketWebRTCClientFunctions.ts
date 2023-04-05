@@ -27,7 +27,6 @@ import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearc
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import {
   createNetwork,
   DataChannelType,
@@ -521,6 +520,8 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   network.primus.on('disconnection', disconnectHandler)
   network.primus.on('reconnected', reconnectHandler)
   network.primus.on('data', consumeDataAndKickHandler)
+  network.primus.socket.addEventListener('close', disconnectHandler)
+  network.primus.socket.addEventListener('open', reconnectHandler)
   // Get information for how to consume data from server and init a data consumer
 
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
@@ -549,6 +550,8 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   }
 
   async function webRTCCloseConsumerHandler(consumerId) {
+    const consumer = network.consumers.find((c) => c.id === consumerId) as ConsumerExtension
+    consumer.close()
     network.consumers = network.consumers.filter((c) => c.id !== consumerId)
     dispatchAction(MediaStreamActions.triggerUpdateConsumers({}))
   }
@@ -674,6 +677,8 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   network.primus.on('disconnection', disconnectHandler)
   network.primus.on('reconnected', reconnectHandler)
   network.primus.on('data', producerConsumerHandler)
+  network.primus.socket.addEventListener('close', disconnectHandler)
+  network.primus.socket.addEventListener('open', reconnectHandler)
 
   addActionReceptor(consumerHandler)
 
@@ -712,6 +717,21 @@ export async function createDataProducer(
     dataProducer?.close()
   })
   network.dataProducers.set(dataChannelType, dataProducer)
+}
+
+export async function closeDataProducer(network: SocketWebRTCClientNetwork, dataChannelType: DataChannelType) {
+  const producer = network.dataProducers.get(dataChannelType)
+
+  const { error } = await promisedRequest(network, MessageTypes.WebRTCCloseProducer.toString(), {
+    producerId: producer.id
+  })
+
+  if (error) {
+    logger.error(error)
+    return
+  }
+
+  await producer.close()
 }
 // utility function to create a transport and hook up signaling logic
 // appropriate to the transport's direction
@@ -1368,9 +1388,8 @@ export const toggleScreenshareAudioPaused = async () => {
 export const toggleScreenshareVideoPaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-  mediaStreamState.screenShareVideoPaused.set(!mediaStreamState.screenShareVideoPaused.value)
   const videoPaused = mediaStreamState.screenShareVideoPaused.value
-  if (videoPaused) await resumeProducer(mediaNetwork, mediaStreamState.screenVideoProducer.value!)
+  if (videoPaused) await startScreenshare(mediaNetwork)
   else await stopScreenshare(mediaNetwork)
   MediaStreamService.updateScreenVideoState()
 }
@@ -1456,7 +1475,6 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   const channelId = currentChannelInstanceConnection.channelId
 
   // create a producer for video
-  mediaStreamState.screenShareVideoPaused.set(false)
   mediaStreamState.screenVideoProducer.set(
     (await network.sendTransport.produce({
       track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
@@ -1487,6 +1505,8 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     return stopScreenshare(network)
   }
 
+  mediaStreamState.screenShareVideoPaused.set(false)
+
   MediaStreamService.updateScreenAudioState()
   MediaStreamService.updateScreenVideoState()
 }
@@ -1495,6 +1515,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
   logger.info('Screen share stopped')
   const mediaStreamState = getMutableState(MediaStreamState)
 
+  console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)
   if (mediaStreamState.screenVideoProducer.value) {
     await mediaStreamState.screenVideoProducer.value.pause()
     mediaStreamState.screenShareVideoPaused.set(true)

@@ -40,9 +40,10 @@ describe('spawnAvatarReceptor', () => {
     const action = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
-    WorldNetworkActionReceptor.receiveSpawnObject(action)
+    WorldNetworkActionReceptor.receiveSpawnObject(action as any)
     spawnAvatarReceptor(action)
 
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)

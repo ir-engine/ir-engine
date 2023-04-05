@@ -115,9 +115,7 @@ export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, sub
 
 export default async function PhysicsSystem() {
   Engine.instance.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {})
 
   Engine.instance.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -142,7 +140,6 @@ export default async function PhysicsSystem() {
   ])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
-  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   await Physics.load()
   Engine.instance.physicsWorld = Physics.createWorld()
@@ -259,7 +256,6 @@ export default async function PhysicsSystem() {
     removeQuery(kinematicVelocityBodyQuery)
 
     removeActionQueue(teleportObjectQueue)
-    removeActionQueue(modifyPropertyActionQueue)
 
     Engine.instance.physicsWorld.free()
 

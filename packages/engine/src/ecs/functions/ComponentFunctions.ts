@@ -1,6 +1,6 @@
 import { subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
-import React, { experimental_use, startTransition, useEffect, useLayoutEffect } from 'react'
+import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
 import type from 'react/experimental'
 
 import config from '@etherealengine/common/src/config'
@@ -276,16 +276,20 @@ export const getOrAddComponent = <C extends Component>(entity: Entity, component
   return hasComponent(entity, component) ? getComponent(entity, component) : addComponent(entity, component, args)
 }
 
-export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
+export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.existenceMap[entity].set(false)
   component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(Engine.instance, component, entity, false)
-  component.stateMap[entity]?.set(none)
   delete component.valueMap[entity]
   const root = component.reactorMap.get(entity)
-  if (root?.isRunning) root?.stop()
   component.reactorMap.delete(entity)
+  // we need to wait for the reactor to stop before removing the state, otherwise
+  // we can trigger errors in useEffect cleanup functions
+  if (root?.isRunning) await root?.stop()
+  // NOTE: we may need to perform cleanup after a timeout here in case there
+  // are other reactors also referencing this state in their cleanup functions
+  if (!hasComponent(entity, component)) component.stateMap[entity]?.set(none)
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {
@@ -389,7 +393,7 @@ export function useQuery(components: QueryComponents) {
   return result.value
 }
 
-// experimental_use seems to be unavailable in the server environment
+// use seems to be unavailable in the server environment
 function _use(promise) {
   if (promise.status === 'fulfilled') {
     return promise.value
@@ -420,7 +424,7 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (!hasComponent)
-    (experimental_use ?? _use)(
+    (use ?? _use)(
       new Promise<void>((resolve) => {
         const unsubscribe = Component.existenceMap[entity].subscribe((value) => {
           if (value) {

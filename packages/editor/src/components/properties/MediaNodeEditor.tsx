@@ -1,7 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { StaticResourceService } from '@etherealengine/client-core/src/media/services/StaticResourceService'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import {
   AudioFileTypes,
@@ -15,6 +14,7 @@ import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 import { addError } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { StaticResourceService } from '../../services/StaticResourceService'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'

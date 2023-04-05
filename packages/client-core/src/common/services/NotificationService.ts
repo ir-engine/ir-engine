@@ -9,7 +9,7 @@ import { defaultAction } from '../components/NotificationActions'
 const logger = multiLogger.child({ component: 'client-core:Notification' })
 
 export type NotificationOptions = {
-  variant: VariantType
+  variant: VariantType // 'default' | 'error' | 'success' | 'warning' | 'info'
   actionType?: keyof typeof NotificationActions
 }
 
