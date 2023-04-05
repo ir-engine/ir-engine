@@ -1,23 +1,4 @@
-import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
-
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  addComponent,
-  getComponent,
-  removeComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
-import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
-import { EditorCameraState } from '../classes/EditorCameraState'
-import { EditorHistoryAction } from '../services/EditorHistory'
-import { EditorAction } from '../services/EditorServices'
+import { Group, Object3D, Scene } from 'three'
 
 export type DefaultExportOptionsType = {
   shouldCombineMeshes: boolean
@@ -27,56 +8,6 @@ export type DefaultExportOptionsType = {
 export const DefaultExportOptions: DefaultExportOptionsType = {
   shouldCombineMeshes: true,
   shouldRemoveUnusedObjects: true
-}
-
-export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
-  if (!Engine.instance.scene) Engine.instance.scene = new Scene()
-
-  // getting scene data
-  getMutableState(SceneState).sceneData.set(sceneData)
-  await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
-
-  dispatchAction(EditorHistoryAction.clearHistory({}))
-
-  const camera = Engine.instance.camera
-  const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-  camera.position.set(0, 5, 10)
-  camera.lookAt(new Vector3())
-  transform.position.copy(camera.position)
-  transform.rotation.copy(camera.quaternion)
-  TransformComponent.dirtyTransforms[Engine.instance.cameraEntity] = true
-
-  getMutableState(EditorCameraState).set({
-    center: new Vector3(),
-    zoomDelta: 0,
-    focusedObjects: [],
-    isPanning: false,
-    cursorDeltaX: 0,
-    cursorDeltaY: 0,
-    isOrbiting: false,
-    refocus: false
-  })
-
-  // Require when changing scene
-  if (!Engine.instance.scene.children.includes(InfiniteGridHelper.instance)) {
-    InfiniteGridHelper.instance = new InfiniteGridHelper()
-    Engine.instance.scene.add(InfiniteGridHelper.instance)
-  }
-
-  return []
-}
-
-/**
- * Function initializeRenderer used to render canvas.
- *
- * @param  {any} canvas [ contains canvas data ]
- */
-export async function initializeRenderer(): Promise<void> {
-  try {
-    dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
-  } catch (error) {
-    console.error(error)
-  }
 }
 
 function removeUnusedObjects(object3d: Object3D) {

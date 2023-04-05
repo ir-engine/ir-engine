@@ -231,10 +231,10 @@
       "secret": "Secret",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
-      "local": "Local",
       "userName": "User Name",
-      "password": "Password",
+      "local": "Local",
       "oauth": "OAuth",
+      "password": "Password",
       "defaults": "Defaults",
       "host": "Host",
       "protocol": "Protocol",
@@ -388,11 +388,6 @@
       "confirmMultiDelete": "Do you want to delete all of the selected avatars?",
       "deleteSelected": "Delete selected avatars",
       "confirmThumbnailReplace": "Do you want to replace previously selected avatar thumbnail with current avatar preview?"
-    },
-    "dialog": {
-      "noAccess": "No access",
-      "askAccessResourceMessage": "To access this resource, please enter your username here to ask for access or login to continue.",
-      "login": "Login"
     },
     "user": {
       "nameCantEmpty": "Name can't be empty",

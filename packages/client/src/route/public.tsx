@@ -12,9 +12,6 @@ import {
   ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { AppServiceReceptor } from '@etherealengine/client-core/src/common/services/AppService'
-import { DialogServiceReceptor } from '@etherealengine/client-core/src/common/services/DialogService'
-import { MediaInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import {
   RouterServiceReceptor,
@@ -22,12 +19,8 @@ import {
   useRouter
 } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { FriendServiceReceptor } from '@etherealengine/client-core/src/social/services/FriendService'
-import { InviteService, InviteServiceReceptor } from '@etherealengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
-import { AppLoadingServiceReceptor } from '@etherealengine/engine/src/common/AppLoadingService'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
@@ -52,22 +45,13 @@ function RouterComp() {
   const route = useRouter()
   const { t } = useTranslation()
 
-  InviteService.useAPIListeners()
-
   useEffect(() => {
     addActionReceptor(RouterServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
-    addActionReceptor(AvatarServiceReceptor)
-    addActionReceptor(InviteServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(DialogServiceReceptor)
-    addActionReceptor(AppLoadingServiceReceptor)
-    addActionReceptor(AppServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
-    addActionReceptor(MediaInstanceConnectionServiceReceptor)
-    addActionReceptor(FriendServiceReceptor)
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
@@ -86,15 +70,8 @@ function RouterComp() {
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
-      removeActionReceptor(AvatarServiceReceptor)
-      removeActionReceptor(InviteServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(DialogServiceReceptor)
-      removeActionReceptor(AppServiceReceptor)
-      removeActionReceptor(AppLoadingServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
-      removeActionReceptor(MediaInstanceConnectionServiceReceptor)
-      removeActionReceptor(FriendServiceReceptor)
     }
   }, [])
 

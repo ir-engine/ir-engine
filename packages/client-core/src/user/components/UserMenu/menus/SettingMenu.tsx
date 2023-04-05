@@ -33,17 +33,17 @@ import Icon from '@etherealengine/ui/src/Icon'
 
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
-interface Props {
+type Props = {
   isPopover?: boolean
-  changeActiveMenu?: (type: string | null) => void
 }
 
-const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
+const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useHookstate(getMutableState(RendererState))
   const audioState = useHookstate(getMutableState(AudioState))
@@ -187,8 +187,8 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       showBackButton
       isPopover={isPopover}
       header={<Tabs value={selectedTab.value} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         {selectedTab.value === 'general' && selfUser && (

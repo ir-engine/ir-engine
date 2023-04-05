@@ -1,7 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { StaticResourceService } from '@etherealengine/client-core/src/media/services/StaticResourceService'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
@@ -9,6 +8,7 @@ import { addError, clearErrors } from '@etherealengine/engine/src/scene/function
 
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 
+import { StaticResourceService } from '../../services/StaticResourceService'
 import ImageInput from '../inputs/ImageInput'
 import InputGroup from '../inputs/InputGroup'
 import ImageSourceProperties from './ImageSourceProperties'

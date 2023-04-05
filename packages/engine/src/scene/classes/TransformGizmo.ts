@@ -86,10 +86,10 @@ export default class TransformGizmo extends Object3D {
     this.previousColor = new Color()
     this.raycasterResults = []
     this.translateControls = this.model.getObjectByName('TranslateControls')!
-    setObjectLayers(this, ObjectLayers.Gizmos)
+    setObjectLayers(this, ObjectLayers.TransformGizmo)
 
     this.raycaster = new Raycaster()
-    this.raycaster.layers.set(ObjectLayers.Gizmos)
+    this.raycaster.layers.set(ObjectLayers.TransformGizmo)
 
     this.translateXAxis = this.translateControls.getObjectByName('TranslateXAxis') as MeshWithAxisInfo
     this.translateXAxis.axisInfo = {
