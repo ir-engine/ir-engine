@@ -31,8 +31,8 @@ const config: Knex.Config = {
     extension: 'ts'
   },
   pool: {
-    min: 2,
-    max: 10
+    min: 5,
+    max: 30
   }
 }
 
