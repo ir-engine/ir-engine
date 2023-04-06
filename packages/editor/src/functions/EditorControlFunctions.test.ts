@@ -2,6 +2,8 @@ import assert from 'assert'
 import { Vector3 } from 'three'
 
 import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   defineComponent,
@@ -24,11 +26,6 @@ import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
 import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
-
-import '@etherealengine/engine/src/patchEngineNode'
-
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 
 class TempProp {
   data: number

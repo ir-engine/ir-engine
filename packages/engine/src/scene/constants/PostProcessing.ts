@@ -15,6 +15,7 @@ import {
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
+import { MotionBlurEffect, SSGIEffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
 import { SSREffect } from 'screen-space-reflections'
 import { ColorRepresentation, Texture } from 'three'
 
@@ -33,7 +34,10 @@ export enum Effects {
   BrightnessContrastEffect = 'BrightnessContrastEffect',
   HueSaturationEffect = 'HueSaturationEffect',
   ColorDepthEffect = 'ColorDepthEffect',
-  LinearTosRGBEffect = 'LinearTosRGBEffect'
+  LinearTosRGBEffect = 'LinearTosRGBEffect',
+  SSGIEffect = 'SSGIEffect',
+  TRAAEffect = 'TRAAEffect',
+  MotionBlurEffect = 'MotionBlurEffect'
 }
 
 export type EffectType = {
@@ -54,6 +58,9 @@ EffectMap.set(Effects.BrightnessContrastEffect, { EffectClass: BrightnessContras
 EffectMap.set(Effects.HueSaturationEffect, { EffectClass: HueSaturationEffect })
 EffectMap.set(Effects.ColorDepthEffect, { EffectClass: ColorDepthEffect })
 EffectMap.set(Effects.LinearTosRGBEffect, { EffectClass: LinearTosRGBEffect })
+EffectMap.set(Effects.SSGIEffect, { EffectClass: SSGIEffect })
+EffectMap.set(Effects.TRAAEffect, { EffectClass: TRAAEffect })
+EffectMap.set(Effects.MotionBlurEffect, { EffectClass: MotionBlurEffect })
 
 export type EffectProps = {
   isActive: boolean
@@ -106,7 +113,7 @@ const defaultSSROptions = {
   ior: 1.45,
   maxRoughness: 1,
   maxDepthDifference: 10,
-  blend: 0.9,
+  blend: 0,
   correction: 1,
   correctionRadius: 1,
   blur: 0.5,
@@ -163,6 +170,46 @@ export type ColorDepthEffectProps = EffectProps & {
 
 export type LinearTosRGBEffectProps = EffectProps
 
+export type SSGIEffectProps = EffectProps & {
+  distance: number
+  thickness: number
+  autoThickness: boolean
+  maxRoughness: number
+  blend: number
+  denoiseIterations: number
+  denoiseKernel: number
+  denoiseDiffuse: number
+  denoiseSpecular: number
+  depthPhi: number
+  normalPhi: number
+  roughnessPhi: number
+  envBlur: number
+  importanceSampling: boolean
+  directLightMultiplier: number
+  steps: number
+  refineSteps: number
+  spp: number
+  resolutionScale: number
+  missedRays: boolean
+}
+
+export type TRAAEffectProps = EffectProps & {
+  blend: number
+  constantBlend: boolean
+  dilation: boolean
+  blockySampling: boolean
+  logTransform: boolean
+  depthDistance: number
+  worldDistance: number
+  neighborhoodClamping: boolean
+}
+
+export type MotionBlurEffectProps = EffectProps & {
+  intensity: 1
+  jitter: 1
+  samples: 16
+}
+
 export type EffectPropsSchema = {
   // [Effects.FXAAEffect]: FXAAEffectProps
   [Effects.SMAAEffect]: SMAAEffectProps
@@ -176,6 +223,9 @@ export type EffectPropsSchema = {
   [Effects.HueSaturationEffect]: HueSaturationEffectProps
   [Effects.ColorDepthEffect]: ColorDepthEffectProps
   [Effects.LinearTosRGBEffect]: LinearTosRGBEffectProps
+  [Effects.SSGIEffect]: SSGIEffectProps
+  [Effects.TRAAEffect]: TRAAEffectProps
+  [Effects.MotionBlurEffect]: MotionBlurEffectProps
 }
 
 export const defaultPostProcessingSchema: EffectPropsSchema = {
@@ -265,5 +315,45 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.LinearTosRGBEffect]: {
     isActive: false
+  },
+  [Effects.SSGIEffect]: {
+    isActive: false,
+    distance: 10,
+    thickness: 10,
+    autoThickness: false,
+    maxRoughness: 1,
+    blend: 0.9,
+    denoiseIterations: 1,
+    denoiseKernel: 2,
+    denoiseDiffuse: 10,
+    denoiseSpecular: 10,
+    depthPhi: 2,
+    normalPhi: 50,
+    roughnessPhi: 1,
+    envBlur: 0.5,
+    importanceSampling: true,
+    directLightMultiplier: 1,
+    steps: 20,
+    refineSteps: 5,
+    spp: 1,
+    resolutionScale: 1,
+    missedRays: false
+  },
+  [Effects.TRAAEffect]: {
+    isActive: false,
+    blend: 0.8,
+    constantBlend: true,
+    dilation: true,
+    blockySampling: false,
+    logTransform: false, // ! todo: check if can use logTransform withoutt artifacts
+    depthDistance: 10,
+    worldDistance: 5,
+    neighborhoodClamping: true
+  },
+  [Effects.MotionBlurEffect]: {
+    isActive: false,
+    intensity: 1,
+    jitter: 1,
+    samples: 16
   }
 }
