@@ -185,11 +185,11 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
  * @param parent
  * @param world
  */
-export const updateSceneEntitiesFromJSON = (parent: string) => {
-  const sceneData = getState(SceneState).sceneData as SceneData
-  const entitiesToLoad = Object.entries(sceneData.scene.entities).filter(
-    ([uuid, entity]) => entity.parent === parent
-  ) as [EntityUUID, EntityJson][]
+export const updateSceneEntitiesFromJSON = (completeEntitylist: [EntityUUID, EntityJson][], parent: string) => {
+  const entitiesToLoad = completeEntitylist.filter(([uuid, entity]) => entity.parent === parent) as [
+    EntityUUID,
+    EntityJson
+  ][]
   for (const [uuid, entityJson] of entitiesToLoad) {
     updateSceneEntity(uuid, entityJson)
     const JSONEntityIsDynamic = !!entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)
@@ -207,7 +207,7 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
       }
     } else {
       // iterate children
-      updateSceneEntitiesFromJSON(uuid)
+      updateSceneEntitiesFromJSON(completeEntitylist, uuid)
     }
   }
 }
@@ -277,7 +277,8 @@ export const updateSceneFromJSON = async () => {
   /** 4. update scene entities with new data, and load new ones */
   setComponent(sceneState.sceneEntity.value, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
-  updateSceneEntitiesFromJSON(sceneData.scene.root)
+  const completeEntitylist = Object.entries(sceneData.scene.entities) as [EntityUUID, EntityJson][]
+  updateSceneEntitiesFromJSON(completeEntitylist, sceneData.scene.root)
 
   if (!sceneAssetPendingTagQuery().length) {
     if (getMutableState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))

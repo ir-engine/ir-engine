@@ -1,8 +1,11 @@
-import { getMutableState } from '@etherealengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityJson, SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -47,8 +50,10 @@ export default async function SceneObjectDynamicLoadSystem() {
 
         /** Load unloaded entities */
         if (!dynamicLoadComponent.loaded && distanceToAvatar < loadDistance) {
+          const sceneData = getState(SceneState).sceneData as SceneData
+          const completeEntitylist = Object.entries(sceneData.scene.entities) as [EntityUUID, EntityJson][]
           // check if entities already loaded
-          updateSceneEntitiesFromJSON(entityUUID)
+          updateSceneEntitiesFromJSON(completeEntitylist, entityUUID)
           dynamicLoadComponent.loaded = true
         }
 
