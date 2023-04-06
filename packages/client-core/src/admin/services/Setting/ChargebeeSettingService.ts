@@ -1,7 +1,10 @@
 import { Paginated } from '@feathersjs/feathers'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import {
+  chargebeeSettingPath,
+  ChargebeeSettingType
+} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
@@ -30,7 +33,7 @@ export const ChargebeeSettingService = {
   fetchChargeBee: async () => {
     try {
       const chargeBee = (await API.instance.client
-        .service('chargebee-setting')
+        .service(chargebeeSettingPath)
         .find()) as Paginated<ChargebeeSettingType>
       dispatchAction(AdminChargebeeSettingActions.chargebeeSettingRetrieved({ chargebeeSetting: chargeBee }))
     } catch (err) {
