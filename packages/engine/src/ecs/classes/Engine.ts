@@ -113,8 +113,6 @@ export class Engine {
     defaultDispatchDelay: 1 / this.tickRate
   }) as HyperStore
 
-  activeReactors: Set<ReactorRoot> = new Set()
-
   /**
    * Current frame timestamp, relative to performance.timeOrigin
    */
@@ -385,7 +383,7 @@ export async function destroyEngine() {
 
   const activeReactors = [] as Promise<void>[]
 
-  for (const reactor of Engine.instance.activeReactors) {
+  for (const reactor of Engine.instance.store.activeReactors) {
     activeReactors.push(reactor.stop())
   }
   await Promise.all(activeReactors)
