@@ -25,5 +25,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(TABLE_NAME)
+  }
 }

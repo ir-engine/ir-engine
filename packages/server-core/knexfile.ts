@@ -28,7 +28,8 @@ const config: Knex.Config = {
     directory: migrationsDirectories,
     tableName: 'knex_migrations',
     stub: 'migration.stub',
-    extension: 'ts'
+    extension: 'ts',
+    disableMigrationsListValidation: true
   },
   pool: {
     min: 5,
