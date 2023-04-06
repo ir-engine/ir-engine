@@ -1,8 +1,7 @@
-import { InstancedMesh, Mesh, Object3D } from 'three'
+import { InstancedMesh, Mesh } from 'three'
 
 import createGLTFExporter from '@etherealengine/engine/src/assets/functions/createGLTFExporter'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { isClient } from '@etherealengine/engine/src/common/functions/isClient'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
@@ -17,7 +16,6 @@ import { NameComponent } from '@etherealengine/engine/src/scene/components/NameC
 import { getLodPath, processLoadedLODLevel } from '@etherealengine/engine/src/scene/functions/loaders/LODFunctions'
 import getFirstMesh from '@etherealengine/engine/src/scene/util/getFirstMesh'
 import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { State } from '@etherealengine/hyperflux'
 
 import { uploadProjectFiles } from './assetFunctions'

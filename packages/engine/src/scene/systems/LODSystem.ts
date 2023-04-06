@@ -1,4 +1,4 @@
-import { Mesh, Scene, Vector3 } from 'three'
+import { Mesh, Vector3 } from 'three'
 
 import { NO_PROXY, State } from '@etherealengine/hyperflux'
 
@@ -98,7 +98,8 @@ export default async function LODSystem() {
               level.model.set(mesh ?? null)
               level.loaded.set(true)
               while (levelsToUnload.length > 0) {
-                const levelToUnload = levelsToUnload.pop()!
+                const levelToUnload = levelsToUnload.pop()
+                if (!levelToUnload) continue
                 levelToUnload.loaded.set(false)
                 levelToUnload.model.get(NO_PROXY)?.removeFromParent()
                 levelToUnload.model.set(null)
@@ -107,7 +108,7 @@ export default async function LODSystem() {
           // if level has blank src, use the mesh at lodPath in the target model
           ;(!level.loaded.value &&
             level.src.value === '' &&
-            level.model.set(objectFromLodPath(modelComponent, lodComponent.lodPath.value)! as Mesh)) ||
+            level.model.set(objectFromLodPath(modelComponent, lodComponent.lodPath.value) as Mesh | null)) ||
             level.loaded.set(true)
         } else {
           //if the level is not referenced, unload it if it's loaded
