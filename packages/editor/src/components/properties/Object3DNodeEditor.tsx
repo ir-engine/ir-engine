@@ -1,9 +1,9 @@
-import { truncate } from 'fs/promises'
 import { range } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactJson from 'react-json-view'
-import { BoxGeometry, Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
+import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
+import { createMeshesFromInstancedMesh } from 'three/examples/jsm/utils/SceneUtils'
 
 import { AxisIcon } from '@etherealengine/client-core/src/util/AxisIcon'
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
@@ -13,11 +13,14 @@ import { hasComponent } from '@etherealengine/engine/src/ecs/functions/Component
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import {
+  addObjectToGroup,
+  Object3DWithEntity,
+  removeObjectFromGroup
+} from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, useHookstate } from '@etherealengine/hyperflux'
 
-import { SpaceBar } from '@mui/icons-material'
 import { Divider } from '@mui/material'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -33,14 +36,11 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
-import { List } from '../layout/List'
 import PaginatedList from '../layout/PaginatedList'
 import Well from '../layout/Well'
 import MaterialEditor from '../materials/MaterialEditor'
 import styles from '../styles.module.scss'
-import NodeEditor from './NodeEditor'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType } from './Util'
 
 type Object3DProps = {
   obj3d: Object3D
@@ -194,8 +194,8 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     editState.merge({
                       position: nuPosition.clone()
                     })
-                    EditorControlFunctions.positionObject([obj3d.uuid], [nuPosition])
-                    //obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
+                    //EditorControlFunctions.positionObject([obj3d.uuid], [nuPosition])
+                    obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
                   }}
                   onRelease={() => {
                     dispatchAction(EditorAction.sceneModified({ modified: true }))
@@ -292,33 +292,54 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
       {isInstancedMesh && (
         <CollapsibleBlock label={'Instance Properties'}>
           {instancedMesh?.count > 0 && (
-            <PaginatedList
-              list={range(0, instancedMesh.count - 1)}
-              element={(i: number) => {
-                let transform = new Matrix4()
-                instancedMesh.getMatrixAt(i, transform)
-                let position = new Vector3()
-                let rotation = new Quaternion()
-                let scale = new Vector3()
-                transform.decompose(position, rotation, scale)
+            <>
+              <Well>
+                <br />
+                <Button
+                  onClick={() => {
+                    const meshes = createMeshesFromInstancedMesh(instancedMesh)
+                    if ((instancedMesh.parent as Object3DWithEntity).entity) {
+                      const parent: Object3DWithEntity = instancedMesh.parent as Object3DWithEntity
+                      addObjectToGroup(parent.entity, meshes)
+                      removeObjectFromGroup(parent.entity, instancedMesh)
+                    } else {
+                      instancedMesh.parent?.add(meshes)
+                      instancedMesh.removeFromParent()
+                    }
+                  }}
+                >
+                  Convert to Meshes
+                </Button>
+                <br />
+              </Well>
+              <PaginatedList
+                list={range(0, instancedMesh.count)}
+                element={(i: number) => {
+                  let transform = new Matrix4()
+                  instancedMesh.getMatrixAt(i, transform)
+                  let position = new Vector3()
+                  let rotation = new Quaternion()
+                  let scale = new Vector3()
+                  transform.decompose(position, rotation, scale)
 
-                const euler = new Euler()
-                euler.setFromQuaternion(rotation)
-                return (
-                  <Well>
-                    <InputGroup name="Position" label="Translation">
-                      <Vector3Input value={position} />
-                    </InputGroup>
-                    <InputGroup name="Rotation" label="Rotation">
-                      <Vector3Input value={new Vector3(euler.x, euler.y, euler.z).multiplyScalar(Rad2Deg)} />
-                    </InputGroup>
-                    <InputGroup name="Scale" label="Scale">
-                      <Vector3Input value={scale} />
-                    </InputGroup>
-                  </Well>
-                )
-              }}
-            />
+                  const euler = new Euler()
+                  euler.setFromQuaternion(rotation)
+                  return (
+                    <Well>
+                      <InputGroup name="Position" label="Translation">
+                        <Vector3Input value={position} />
+                      </InputGroup>
+                      <InputGroup name="Rotation" label="Rotation">
+                        <Vector3Input value={new Vector3(euler.x, euler.y, euler.z).multiplyScalar(Rad2Deg)} />
+                      </InputGroup>
+                      <InputGroup name="Scale" label="Scale">
+                        <Vector3Input value={scale} />
+                      </InputGroup>
+                    </Well>
+                  )
+                }}
+              />
+            </>
           )}
         </CollapsibleBlock>
       )}

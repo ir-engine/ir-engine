@@ -1,6 +1,6 @@
 import { subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
-import React, { experimental_use, startTransition, useEffect, useLayoutEffect } from 'react'
+import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
 import type from 'react/experimental'
 
 import config from '@etherealengine/common/src/config'
@@ -97,6 +97,8 @@ export const defineComponent = <
   Component.toJSON = (entity, component) => null!
   Component.errors = []
   Object.assign(Component, def)
+  if (Component.reactor && (!Component.reactor.name || Component.reactor.name === 'reactor'))
+    Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor` })
   Component.reactorMap = new Map()
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
@@ -197,9 +199,7 @@ export const setComponent = <C extends Component>(
       })
     } else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
-    if (Component.reactor) {
-      if (!Component.reactor.name || Component.reactor.name === 'reactor')
-        Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor-${entity}` })
+    if (Component.reactor && !Component.reactorMap.has(entity)) {
       const root = startReactor(Component.reactor) as EntityReactorRoot
       root.entity = entity
       Component.reactorMap.set(entity, root)
@@ -269,23 +269,27 @@ export const addComponent = <C extends Component>(
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
-  return bitECS.hasComponent(Engine.instance, component, entity)
+  return component.existenceMap[entity]?.value ?? false
 }
 
 export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
   return hasComponent(entity, component) ? getComponent(entity, component) : addComponent(entity, component, args)
 }
 
-export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
-  if (!bitECS.entityExists(Engine.instance, entity) || !bitECS.hasComponent(Engine.instance, component, entity)) return
+export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
+  if (!hasComponent(entity, component)) return
+  component.existenceMap[entity].set(false)
   component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(Engine.instance, component, entity, false)
-  component.existenceMap[entity].set(false)
-  component.stateMap[entity]?.set(none)
   delete component.valueMap[entity]
   const root = component.reactorMap.get(entity)
-  if (root?.isRunning) root?.stop()
   component.reactorMap.delete(entity)
+  // we need to wait for the reactor to stop before removing the state, otherwise
+  // we can trigger errors in useEffect cleanup functions
+  if (root?.isRunning) await root?.stop()
+  // NOTE: we may need to perform cleanup after a timeout here in case there
+  // are other reactors also referencing this state in their cleanup functions
+  if (!hasComponent(entity, component)) component.stateMap[entity]?.set(none)
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {
@@ -389,7 +393,7 @@ export function useQuery(components: QueryComponents) {
   return result.value
 }
 
-// experimental_use seems to be unavailable in the server environment
+// use seems to be unavailable in the server environment
 function _use(promise) {
   if (promise.status === 'fulfilled') {
     return promise.value
@@ -420,7 +424,7 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
   const hasComponent = useHookstate(Component.existenceMap[entity]).value
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (!hasComponent)
-    (experimental_use ?? _use)(
+    (use ?? _use)(
       new Promise<void>((resolve) => {
         const unsubscribe = Component.existenceMap[entity].subscribe((value) => {
           if (value) {
@@ -447,12 +451,12 @@ export type Query = ReturnType<typeof defineQuery>
 
 export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComponent' })
 
-globalThis.XRE_getComponent = getComponent
-globalThis.XRE_getAllComponents = getAllComponents
-globalThis.XRE_getAllComponentData = getAllComponentData
-globalThis.XRE_addComponent = addComponent
-globalThis.XRE_setComponent = setComponent
-globalThis.XRE_removeComponent = removeComponent
+globalThis.EE_getComponent = getComponent
+globalThis.EE_getAllComponents = getAllComponents
+globalThis.EE_getAllComponentData = getAllComponentData
+globalThis.EE_addComponent = addComponent
+globalThis.EE_setComponent = setComponent
+globalThis.EE_removeComponent = removeComponent
 
 /** Template **
 

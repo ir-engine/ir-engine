@@ -11,6 +11,7 @@ import GridTool from './tools/GridTool'
 import HelperToggleTool from './tools/HelperToggleTool'
 import PlayModeTool from './tools/PlayModeTool'
 import RenderModeTool from './tools/RenderModeTool'
+import SceneScreenshot from './tools/SceneScreenshot'
 import StatsTool from './tools/StatsTool'
 import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
@@ -36,6 +37,7 @@ export const ToolBar = (props: ToolBarProps) => {
       <PlayModeTool />
       <StatsTool />
       <HelperToggleTool />
+      <SceneScreenshot />
       <EditorNavbarProfile />
     </div>
   )

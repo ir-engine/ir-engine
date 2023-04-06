@@ -6,7 +6,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { isHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -16,7 +16,7 @@ export const PointLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new PointLight()
-    if (!isHeadset()) addObjectToGroup(entity, light)
+    if (!isMobileXRHeadset) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,

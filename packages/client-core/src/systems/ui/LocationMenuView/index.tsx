@@ -12,8 +12,8 @@ import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
-import { EmoteIcon } from '../../../user/components/UserMenu'
 import { useAuthState } from '../../../user/services/AuthService'
+import { EmoteIcon } from '../../../user/UserUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 

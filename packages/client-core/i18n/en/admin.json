@@ -231,10 +231,10 @@
       "secret": "Secret",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
-      "local": "Local",
       "userName": "User Name",
-      "password": "Password",
+      "local": "Local",
       "oauth": "OAuth",
+      "password": "Password",
       "defaults": "Defaults",
       "host": "Host",
       "protocol": "Protocol",
@@ -288,6 +288,8 @@
       "icon512px": "Icon 512px",
       "favIcon16px": "FavIcon 16px",
       "favIcon32px": "FavIcon 32px",
+      "webmanifestLink": "Webmanifest",
+      "swScriptLink": "pwabuilder-sw.js",
       "releaseName": "Release Name",
       "email": "Email",
       "smtp": "SMTP",
@@ -338,6 +340,7 @@
       "defaultThemes": "Default Themes",
       "theme": "Theme",
       "editor": "Editor",
+      "studio": "Studio",
       "admin": "Admin",
       "key8thWall": "8th Wall Key",
       "shortTitle": "PWA Short Title",
@@ -385,11 +388,6 @@
       "confirmMultiDelete": "Do you want to delete all of the selected avatars?",
       "deleteSelected": "Delete selected avatars",
       "confirmThumbnailReplace": "Do you want to replace previously selected avatar thumbnail with current avatar preview?"
-    },
-    "dialog": {
-      "noAccess": "No access",
-      "askAccessResourceMessage": "To access this resource, please enter your username here to ask for access or login to continue.",
-      "login": "Login"
     },
     "user": {
       "nameCantEmpty": "Name can't be empty",

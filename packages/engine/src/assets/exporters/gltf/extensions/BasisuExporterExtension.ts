@@ -17,7 +17,7 @@ export default class BasisuExporterExtension extends ExporterExtension implement
   sampler: number
 
   writeTexture(_texture: CompressedTexture, textureDef) {
-    if (!_texture.isCompressedTexture) return
+    if (!_texture?.isCompressedTexture) return
     const writer = this.writer
 
     writer.pending.push(

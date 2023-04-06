@@ -5,28 +5,19 @@ import { createHyperStore, getMutableState, getState, hookstate, ReactorRoot, St
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
-import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createScene, Scene } from '../classes/Scene'
+import { NetworkTopics } from '../../networking/classes/Network'
 
 import '../utils/threejsPatches'
+import '../../patchEngineNode'
 
 import { EventQueue } from '@dimforge/rapier3d-compat'
+import type { FeathersApplication } from '@feathersjs/feathers'
 import { Not } from 'bitecs'
-import {
-  BoxGeometry,
-  Group,
-  Mesh,
-  MeshNormalMaterial,
-  Object3D,
-  Raycaster,
-  Shader,
-  Scene as THREEScene,
-  Vector2
-} from 'three'
+import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Object3D, Raycaster, Scene, Vector2 } from 'three'
 
+import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@etherealengine/common/src/logger'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -46,7 +37,7 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   Component,
@@ -61,7 +52,7 @@ import {
   setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
-import { EntityTreeComponent } from '../functions/EntityTree'
+import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
 import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { EngineState } from './EngineState'
@@ -94,12 +85,15 @@ export class Engine {
     setComponent(this.cameraEntity, NameComponent, 'camera')
     setComponent(this.cameraEntity, CameraComponent)
     setComponent(this.cameraEntity, VisibleComponent, true)
+    getComponent(this.cameraEntity, TransformComponent).position.set(0, 5, 2)
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
 
-    this.currentScene = createScene()
+    initializeSceneEntity()
   }
+
+  api: FeathersApplication<ServiceTypes>
 
   tickRate = 60
 
@@ -119,8 +113,6 @@ export class Engine {
     defaultDispatchDelay: 1 / this.tickRate
   }) as HyperStore
 
-  activeReactors: Set<ReactorRoot> = new Set()
-
   /**
    * Current frame timestamp, relative to performance.timeOrigin
    */
@@ -129,11 +121,6 @@ export class Engine {
   }
 
   engineTimer = null! as ReturnType<typeof Timer>
-
-  /**
-   * The current world
-   */
-  currentScene: Scene = null!
 
   /**
    * get the default world network
@@ -209,7 +196,7 @@ export class Engine {
   /**
    * Reference to the three.js scene object.
    */
-  scene = new THREEScene()
+  scene = new Scene()
 
   /**
    * Map of object lists by layer
@@ -295,7 +282,10 @@ export class Engine {
 
   /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use EE_ extension names*/
 
-  /** Registry map of scene loader components  */
+  /**
+   * Registry map of scene loader components
+   * @todo replace with a Set once SceneLoaderType is removed
+   * */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
 
   /** Scene component of scene loader components  */
@@ -334,7 +324,9 @@ export class Engine {
    * @returns
    */
   getUserAvatarEntity(userId: UserId) {
-    return this.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+    return this.getOwnedNetworkObjectsWithComponent(userId, AvatarComponent).find((eid) => {
+      return getComponent(eid, AvatarComponent).primary
+    })!
   }
 
   /**
@@ -349,6 +341,18 @@ export class Engine {
         return hasComponent(eid, component)
       }) || UndefinedEntity
     )
+  }
+
+  /**
+   * Get the user entity that has a specific component
+   * @param userId
+   * @param component
+   * @returns
+   */
+  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+    return this.getOwnedNetworkObjects(userId).filter((eid) => {
+      return hasComponent(eid, component)
+    })
   }
 
   /** ID of last network created. */
@@ -379,7 +383,7 @@ export async function destroyEngine() {
 
   const activeReactors = [] as Promise<void>[]
 
-  for (const reactor of Engine.instance.activeReactors) {
+  for (const reactor of Engine.instance.store.activeReactors) {
     activeReactors.push(reactor.stop())
   }
   await Promise.all(activeReactors)

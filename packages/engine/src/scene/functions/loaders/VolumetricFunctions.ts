@@ -54,12 +54,11 @@ export const enterVolumetric = async (entity: Entity) => {
   if (!mediaElement) return
   if (!volumetricComponent) return
 
-  if (mediaElement.element instanceof HTMLVideoElement == false) {
+  if (!(mediaElement.element instanceof HTMLVideoElement)) {
     throw new Error('expected video media')
   }
 
   const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
-
   const player = new VolumetricPlayer({
     renderer: EngineRenderer.instance.renderer,
     video: mediaElement.element as HTMLVideoElement,

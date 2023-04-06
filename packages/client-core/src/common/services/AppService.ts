@@ -35,15 +35,15 @@ export const AppServiceReceptor = (action) => {
 
 export class AppAction {
   static showTopShelf = defineAction({
-    type: 'xre.client.App.SHOW_TOP_SHELF' as const,
+    type: 'ee.client.App.SHOW_TOP_SHELF' as const,
     show: matches.boolean
   })
   static showBottomShelf = defineAction({
-    type: 'xre.client.App.SHOW_BOTTOM_SHELF' as const,
+    type: 'ee.client.App.SHOW_BOTTOM_SHELF' as const,
     show: matches.boolean
   })
   static showTouchPad = defineAction({
-    type: 'xre.client.App.SHOW_TOUCH_PAD' as const,
+    type: 'ee.client.App.SHOW_TOUCH_PAD' as const,
     show: matches.boolean
   })
 }

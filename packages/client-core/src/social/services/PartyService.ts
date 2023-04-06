@@ -9,7 +9,15 @@ import { PartyUser } from '@etherealengine/common/src/interfaces/PartyUser'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import {
+  createActionQueue,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  removeActionQueue,
+  useState
+} from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import {
@@ -18,7 +26,7 @@ import {
 } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkUserAction, NetworkUserService } from '../../user/services/NetworkUserService'
 import { accessChatState, ChatAction, ChatService } from './ChatService'
@@ -27,7 +35,7 @@ import { InviteService } from './InviteService'
 const logger = multiLogger.child({ component: 'client-core:social' })
 
 // State
-const PartyState = defineState({
+export const PartyState = defineState({
   name: 'PartyState',
   initial: () => ({
     party: null! as Party,
@@ -102,13 +110,53 @@ const removedPartyUserReceptor = (action: typeof PartyActions.removedPartyUserAc
   if (action.partyUser.userId === accessAuthState().user.id.value) state.merge({ party: null!, isOwned: false })
 
   if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
-    const index = state.party.partyUsers.value.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+    const index =
+      state.party.partyUsers.get({ noproxy: true })?.findIndex((partyUser) => partyUser?.id === action.partyUser.id) ||
+      -1
     if (index > -1) {
       const users = JSON.parse(JSON.stringify(state.party.partyUsers.value))
       users.splice(index, 1)
       return state.party.merge({ partyUsers: users })
     }
   }
+}
+
+export default async function PartyReceptorSystem() {
+  const loadedPartyQueue = createActionQueue(PartyActions.loadedPartyAction.matches)
+  const createdPartyQueue = createActionQueue(PartyActions.createdPartyAction.matches)
+  const removedPartyQueue = createActionQueue(PartyActions.removedPartyAction.matches)
+  const invitedPartyUserQueue = createActionQueue(PartyActions.invitedPartyUserAction.matches)
+  const createdPartyUserQueue = createActionQueue(PartyActions.createdPartyUserAction.matches)
+  const patchedPartyUserQueue = createActionQueue(PartyActions.patchedPartyUserAction.matches)
+  const removedPartyUserQueue = createActionQueue(PartyActions.removedPartyUserAction.matches)
+  const changedPartyActionQueue = createActionQueue(PartyActions.changedPartyAction.matches)
+  const resetUpdateNeededActionQueue = createActionQueue(PartyActions.resetUpdateNeededAction.matches)
+
+  const execute = () => {
+    for (const action of loadedPartyQueue()) PartyServiceReceptors.loadedPartyReceptor(action)
+    for (const action of createdPartyQueue()) PartyServiceReceptors.createdPartyReceptor(action)
+    for (const action of removedPartyQueue()) PartyServiceReceptors.removedPartyReceptor(action)
+    for (const action of invitedPartyUserQueue()) PartyServiceReceptors.invitedPartyUserReceptor(action)
+    for (const action of createdPartyUserQueue()) PartyServiceReceptors.createdPartyUserReceptor(action)
+    for (const action of patchedPartyUserQueue()) PartyServiceReceptors.patchedPartyUserReceptor(action)
+    for (const action of removedPartyUserQueue()) PartyServiceReceptors.removedPartyUserReceptor(action)
+    for (const action of changedPartyActionQueue()) PartyServiceReceptors.changedPartyReceptor(action)
+    for (const action of resetUpdateNeededActionQueue()) PartyServiceReceptors.resetUpdateNeededReceptor(action)
+  }
+
+  const cleanup = async () => {
+    removeActionQueue(loadedPartyQueue)
+    removeActionQueue(createdPartyQueue)
+    removeActionQueue(removedPartyQueue)
+    removeActionQueue(invitedPartyUserQueue)
+    removeActionQueue(createdPartyUserQueue)
+    removeActionQueue(patchedPartyUserQueue)
+    removeActionQueue(removedPartyUserQueue)
+    removeActionQueue(changedPartyActionQueue)
+    removeActionQueue(resetUpdateNeededActionQueue)
+  }
+
+  return { execute, cleanup }
 }
 
 export const PartyServiceReceptors = {
@@ -315,20 +363,22 @@ export const PartyService = {
         NetworkUserService.getLayerUsers(false)
       }
 
-      const partyCreatedListener = (params) => {
-        params.party.partyUsers = params.party.party_users
+      const partyCreatedListener = (party: Party) => {
+        party.partyUsers = party.party_users
         dispatchAction(ChatAction.refetchPartyChannelAction({}))
-        dispatchAction(PartyActions.createdPartyAction({ party: params.party }))
+        dispatchAction(PartyActions.createdPartyAction({ party }))
       }
 
-      const partyPatchedListener = (params) => {
-        dispatchAction(PartyActions.patchedPartyAction({ party: params.party }))
-        ChatService.clearChatTargetIfCurrent('party', params.party)
+      const partyPatchedListener = (party: Party) => {
+        party.partyUsers = party.party_users
+        dispatchAction(PartyActions.patchedPartyAction({ party }))
+        ChatService.clearChatTargetIfCurrent('party', party)
       }
 
-      const partyRemovedListener = (params) => {
+      const partyRemovedListener = (party: Party) => {
+        party.partyUsers = party.party_users
         dispatchAction(ChatAction.refetchPartyChannelAction({}))
-        dispatchAction(PartyActions.removedPartyAction({ party: params.party }))
+        dispatchAction(PartyActions.removedPartyAction({ party }))
       }
 
       API.instance.client.service('party-user').on('created', partyUserCreatedListener)
@@ -354,54 +404,54 @@ export const PartyService = {
 
 export class PartyActions {
   static loadedPartyAction = defineAction({
-    type: 'xre.client.Party.LOADED_PARTY' as const,
+    type: 'ee.client.Party.LOADED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>,
     isOwned: matches.boolean
   })
 
   static createdPartyAction = defineAction({
-    type: 'xre.client.Party.CREATED_PARTY' as const,
+    type: 'ee.client.Party.CREATED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static patchedPartyAction = defineAction({
-    type: 'xre.client.Party.PATCHED_PARTY' as const,
+    type: 'ee.client.Party.PATCHED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static removedPartyAction = defineAction({
-    type: 'xre.client.Party.REMOVED_PARTY' as const,
+    type: 'ee.client.Party.REMOVED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>
   })
 
   static invitedPartyUserAction = defineAction({
-    type: 'xre.client.Party.INVITED_PARTY_USER' as const
+    type: 'ee.client.Party.INVITED_PARTY_USER' as const
   })
 
   static leftPartyAction = defineAction({
-    type: 'xre.client.Party.LEFT_PARTY' as const
+    type: 'ee.client.Party.LEFT_PARTY' as const
   })
 
   static createdPartyUserAction = defineAction({
-    type: 'xre.client.Party.CREATED_PARTY_USER' as const,
+    type: 'ee.client.Party.CREATED_PARTY_USER' as const,
     partyUser: matches.object as Validator<unknown, PartyUser>
   })
 
   static patchedPartyUserAction = defineAction({
-    type: 'xre.client.Party.PATCHED_PARTY_USER' as const,
+    type: 'ee.client.Party.PATCHED_PARTY_USER' as const,
     partyUser: matches.object as Validator<unknown, PartyUser>
   })
 
   static removedPartyUserAction = defineAction({
-    type: 'xre.client.Party.REMOVED_PARTY_USER' as const,
+    type: 'ee.client.Party.REMOVED_PARTY_USER' as const,
     partyUser: matches.object as Validator<unknown, PartyUser>
   })
 
   static changedPartyAction = defineAction({
-    type: 'xre.client.Party.CHANGED_PARTY' as const
+    type: 'ee.client.Party.CHANGED_PARTY' as const
   })
 
   static resetUpdateNeededAction = defineAction({
-    type: 'xre.client.Party.RESET_UPDATE_NEEDED' as const
+    type: 'ee.client.Party.RESET_UPDATE_NEEDED' as const
   })
 }

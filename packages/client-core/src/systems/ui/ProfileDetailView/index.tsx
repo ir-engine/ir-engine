@@ -1,11 +1,10 @@
 import { createState, useHookstate } from '@hookstate/core'
 // import * as polyfill from 'credential-handler-polyfill'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import multiLogger from '@etherealengine/common/src/logger'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
@@ -15,8 +14,8 @@ import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
-import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
-import { useClientSettingState } from '../../../admin/services/Setting/ClientSettingService'
+import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
+import { AdminClientSettingsState } from '../../../admin/services/Setting/ClientSettingService'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -25,15 +24,13 @@ import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { initialAuthState, initialOAuthConnectedState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
-import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import { AuthService, AuthState, useAuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
 import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
 import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
-
-const logger = multiLogger.child({ component: 'client-core:ProfileDetailView' })
 
 export function createProfileDetailView() {
   return createXRUI(ProfileDetailView, createProfileDetailState())
@@ -46,27 +43,28 @@ function createProfileDetailState() {
 const ProfileDetailView = () => {
   const { t } = useTranslation()
 
-  const selfUser = useAuthState().user
+  const extAuthState = useHookstate(getMutableState(AuthState))
+  const selfUser = extAuthState?.user
 
-  const [username, setUsername] = useState(selfUser?.name.value)
-  const [emailPhone, setEmailPhone] = useState('')
-  const [showUserId, setShowUserId] = useState(false)
-  const [showApiKey, setShowApiKey] = useState(false)
-  const authSettingState = useAuthSettingState()
+  const username = useHookstate(selfUser?.name.value)
+  const emailPhone = useHookstate('')
+  const showUserId = useHookstate(false)
+  const showApiKey = useHookstate(false)
+  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [authState, setAuthState] = useState(initialAuthState)
-  const loading = useAuthState().isProcessing.value
+  const authState = useHookstate(initialAuthState)
+  const loading = extAuthState.isProcessing.value
   const userSettings = selfUser.user_setting.value
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
   const isGuest = selfUser.isGuest.value
   const isAdmin = selfUser.scopes?.value?.find((scope) => scope.type === 'admin')
-  const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
-  const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
+  const deleteControlsOpen = useHookstate(false)
+  const confirmDeleteOpen = useHookstate(false)
+  const oauthConnectedState = useHookstate(initialOAuthConnectedState)
   const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
-  const clientSettingState = useClientSettingState()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
 
   const hasAdminAccess =
@@ -95,7 +93,7 @@ const ProfileDetailView = () => {
           temp[strategyName] = strategy
         })
       })
-      setAuthState(temp)
+      authState.set(temp)
     }
   }, [authSettingState?.updateNeeded?.value])
 
@@ -112,20 +110,20 @@ const ProfileDetailView = () => {
 
   let type = ''
   const addMoreSocial =
-    (authState?.discord && !oauthConnectedState.discord) ||
-    (authState.facebook && !oauthConnectedState.facebook) ||
-    (authState.github && !oauthConnectedState.github) ||
-    (authState.google && !oauthConnectedState.google) ||
-    (authState.linkedin && !oauthConnectedState.linkedin) ||
-    (authState.twitter && !oauthConnectedState.twitter)
+    (authState?.value.discord && !oauthConnectedState?.value?.discord) ||
+    (authState?.value?.facebook && !oauthConnectedState?.value?.facebook) ||
+    (authState?.value?.github && !oauthConnectedState?.value?.github) ||
+    (authState?.value?.google && !oauthConnectedState?.value?.google) ||
+    (authState?.value?.linkedin && !oauthConnectedState?.value?.linkedin) ||
+    (authState?.value?.twitter && !oauthConnectedState?.value?.twitter)
 
   const removeSocial =
-    (authState?.discord && oauthConnectedState.discord) ||
-    (authState.facebook && oauthConnectedState.facebook) ||
-    (authState.github && oauthConnectedState.github) ||
-    (authState.google && oauthConnectedState.google) ||
-    (authState.linkedin && oauthConnectedState.linkedin) ||
-    (authState.twitter && oauthConnectedState.twitter)
+    (authState?.value?.discord && oauthConnectedState?.value?.discord) ||
+    (authState?.value?.facebook && oauthConnectedState?.value?.facebook) ||
+    (authState?.value?.github && oauthConnectedState?.value?.github) ||
+    (authState?.value?.google && oauthConnectedState?.value?.google) ||
+    (authState?.value?.linkedin && oauthConnectedState?.value?.linkedin) ||
+    (authState?.value?.twitter && oauthConnectedState?.value?.twitter)
 
   // const loadCredentialHandler = async () => {
   //   try {
@@ -142,41 +140,41 @@ const ProfileDetailView = () => {
   // }, []) // Only run once
 
   useEffect(() => {
-    selfUser && setUsername(selfUser.name.value)
+    selfUser && username.set(selfUser.name.value)
   }, [selfUser.name.value])
 
   useEffect(() => {
-    setOauthConnectedState(initialOAuthConnectedState)
+    oauthConnectedState.set(initialOAuthConnectedState)
     if (selfUser.identityProviders.value)
       for (let ip of selfUser.identityProviders.value) {
         switch (ip.type) {
           case 'discord':
-            setOauthConnectedState((oauthConnectedState) => {
+            oauthConnectedState.set((oauthConnectedState) => {
               return { ...oauthConnectedState, discord: true }
             })
             break
           case 'facebook':
-            setOauthConnectedState((oauthConnectedState) => {
+            oauthConnectedState.set((oauthConnectedState) => {
               return { ...oauthConnectedState, facebook: true }
             })
             break
           case 'linkedin':
-            setOauthConnectedState((oauthConnectedState) => {
+            oauthConnectedState.set((oauthConnectedState) => {
               return { ...oauthConnectedState, linkedin: true }
             })
             break
           case 'google':
-            setOauthConnectedState((oauthConnectedState) => {
+            oauthConnectedState.set((oauthConnectedState) => {
               return { ...oauthConnectedState, google: true }
             })
             break
           case 'twitter':
-            setOauthConnectedState((oauthConnectedState) => {
+            oauthConnectedState.set((oauthConnectedState) => {
               return { ...oauthConnectedState, twitter: true }
             })
             break
           case 'github':
-            setOauthConnectedState((oauthConnectedState) => {
+            oauthConnectedState.set((oauthConnectedState) => {
               return { ...oauthConnectedState, github: true }
             })
             break
@@ -190,23 +188,23 @@ const ProfileDetailView = () => {
   }
 
   const handleUsernameChange = (e) => {
-    setUsername(e.target.value)
+    username.set(e.target.value)
   }
 
   const handleUpdateUsername = () => {
-    const name = username.trim()
+    const name = username.value.trim()
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
       AuthService.updateUsername(userId, name)
     }
   }
-  const handleInputChange = (e) => setEmailPhone(e.target.value)
+  const handleInputChange = (e) => emailPhone.set(e.target.value)
 
   const validate = () => {
-    if (emailPhone === '') return false
-    if (validateEmail(emailPhone.trim()) && authState?.emailMagicLink) type = 'email'
-    else if (validatePhoneNumber(emailPhone.trim()) && authState.smsMagicLink) type = 'sms'
+    if (emailPhone.value === '') return false
+    if (validateEmail(emailPhone.value.trim()) && authState?.value?.emailMagicLink) type = 'email'
+    else if (validatePhoneNumber(emailPhone.value.trim()) && authState?.value?.smsMagicLink) type = 'sms'
     else {
       return false
     }
@@ -217,8 +215,8 @@ const ProfileDetailView = () => {
   const handleGuestSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.createMagicLink(emailPhone, authState, 'email')
-    else if (type === 'sms') AuthService.createMagicLink(emailPhone, authState, 'sms')
+    if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState.value, 'email')
+    else if (type === 'sms') AuthService.createMagicLink(emailPhone.value, authState.value, 'sms')
     return
   }
 
@@ -232,8 +230,8 @@ const ProfileDetailView = () => {
 
   const handleLogout = async (e) => {
     WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
-    setShowUserId(false)
-    setShowApiKey(false)
+    showUserId.set(false)
+    showApiKey.set(false)
     await AuthService.logoutUser()
   }
 
@@ -242,11 +240,11 @@ const ProfileDetailView = () => {
   }
 
   const getConnectText = () => {
-    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+    if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.connectPhoneEmail')
-    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+    } else if (authState?.value?.emailMagicLink && !authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.connectEmail')
-    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+    } else if (!authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.connectPhone')
     } else {
       return ''
@@ -254,11 +252,11 @@ const ProfileDetailView = () => {
   }
 
   const getConnectPlaceholder = () => {
-    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+    if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.ph-phoneEmail')
-    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+    } else if (authState?.value?.emailMagicLink && !authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.ph-email')
-    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+    } else if (!authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.ph-phone')
     } else {
       return ''
@@ -270,14 +268,14 @@ const ProfileDetailView = () => {
   }
 
   const enableSocial =
-    authState?.discord ||
-    authState?.facebook ||
-    authState?.github ||
-    authState?.google ||
-    authState?.linkedin ||
-    authState?.twitter
+    authState?.value?.discord ||
+    authState?.value?.facebook ||
+    authState?.value?.github ||
+    authState?.value?.google ||
+    authState?.value?.linkedin ||
+    authState?.value?.twitter
 
-  const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
+  const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
     <>
@@ -301,7 +299,7 @@ const ProfileDetailView = () => {
               <XRInput
                 aria-invalid="false"
                 type="text"
-                value={username || ''}
+                value={username.value || ''}
                 onChange={handleUsernameChange}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') updateUserName(e)
@@ -314,12 +312,12 @@ const ProfileDetailView = () => {
                   {isAdmin ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
                   <span id="user-role">{isAdmin ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
                 </h2>
-                <h2 className="showUserId" id="show-user-id" onClick={() => setShowUserId(!showUserId)}>
-                  {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
+                <h2 className="showUserId" id="show-user-id" onClick={() => showUserId.set(!showUserId.value)}>
+                  {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                 </h2>
                 {selfUser?.apiKey?.id && (
-                  <h2 className="showUserId" onClick={() => setShowApiKey(!showApiKey)}>
-                    {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
+                  <h2 className="showUserId" onClick={() => showApiKey.set(!showApiKey.value)}>
+                    {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                   </h2>
                 )}
               </div>
@@ -338,7 +336,7 @@ const ProfileDetailView = () => {
             </div>
           </section>
 
-          {showUserId && (
+          {showUserId.value && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{t('user:usermenu.profile.userIcon.userId')}</h1>
               <XRInput
@@ -357,7 +355,7 @@ const ProfileDetailView = () => {
             </section>
           )}
 
-          {showApiKey && (
+          {showApiKey.value && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{t('user:usermenu.profile.apiKey')}</h1>
               <XRInput
@@ -406,42 +404,42 @@ const ProfileDetailView = () => {
                 <h3 className="textBlock">{t('user:usermenu.profile.addSocial')}</h3>
               )}
               <div className="socialContainer">
-                {authState?.discord && !oauthConnectedState.discord && (
+                {authState?.value?.discord && !oauthConnectedState?.value?.discord && (
                   <IconButton
                     id="discord"
                     onClick={handleOAuthServiceClick}
                     icon={<DiscordIcon width="40" height="40" viewBox="0 0 40 40" />}
                   />
                 )}
-                {authState?.google && !oauthConnectedState.google && (
+                {authState?.value?.google && !oauthConnectedState?.value?.google && (
                   <IconButton
                     id="google"
                     onClick={handleOAuthServiceClick}
                     icon={<GoogleIcon width="40" height="40" viewBox="0 0 40 40" />}
                   />
                 )}
-                {authState?.facebook && !oauthConnectedState.facebook && (
+                {authState?.value?.facebook && !oauthConnectedState?.value?.facebook && (
                   <IconButton
                     id="facebook"
                     onClick={handleOAuthServiceClick}
                     icon={<FacebookIcon width="40" height="40" viewBox="0 0 40 40" />}
                   />
                 )}
-                {authState?.linkedin && !oauthConnectedState.linkedin && (
+                {authState?.value?.linkedin && !oauthConnectedState?.value?.linkedin && (
                   <IconButton
                     id="linkedin"
                     onClick={handleOAuthServiceClick}
                     icon={<LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />}
                   />
                 )}
-                {authState?.twitter && !oauthConnectedState.twitter && (
+                {authState?.value?.twitter && !oauthConnectedState?.value?.twitter && (
                   <IconButton
                     id="twitter"
                     onClick={handleOAuthServiceClick}
-                    icon={<LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />}
+                    icon={<TwitterIcon width="40" height="40" viewBox="0 0 40 40" />}
                   />
                 )}
-                {authState?.github && !oauthConnectedState.github && (
+                {authState?.value?.github && !oauthConnectedState?.value?.github && (
                   <IconButton id="github" onClick={handleOAuthServiceClick} icon={<Icon type="GitHub" />} />
                 )}
               </div>
@@ -450,42 +448,42 @@ const ProfileDetailView = () => {
               )}
               {!selfUser?.isGuest.value && removeSocial && (
                 <div className="socialContainer">
-                  {authState?.discord && oauthConnectedState.discord && (
+                  {authState?.value?.discord && oauthConnectedState?.value?.discord && (
                     <IconButton
                       id="discord"
                       onClick={handleRemoveOAuthServiceClick}
                       icon={<DiscordIcon width="40" height="40" viewBox="0 0 40 40" />}
                     />
                   )}
-                  {authState?.google && oauthConnectedState.google && (
+                  {authState?.value?.google && oauthConnectedState?.value?.google && (
                     <IconButton
                       id="google"
                       onClick={handleRemoveOAuthServiceClick}
                       icon={<GoogleIcon width="40" height="40" viewBox="0 0 40 40" />}
                     />
                   )}
-                  {authState?.facebook && oauthConnectedState.facebook && (
+                  {authState?.value?.facebook && oauthConnectedState?.value?.facebook && (
                     <IconButton
                       id="facebook"
                       onClick={handleRemoveOAuthServiceClick}
                       icon={<Icon type="Facebook" width="40" height="40" viewBox="0 0 40 40" />}
                     />
                   )}
-                  {authState?.linkedin && oauthConnectedState.linkedin && (
+                  {authState?.value?.linkedin && oauthConnectedState?.value?.linkedin && (
                     <IconButton
                       id="linkedin"
                       onClick={handleRemoveOAuthServiceClick}
                       icon={<LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />}
                     />
                   )}
-                  {authState?.twitter && oauthConnectedState.twitter && (
+                  {authState?.value?.twitter && oauthConnectedState?.value?.twitter && (
                     <IconButton
                       id="twitter"
                       onClick={handleRemoveOAuthServiceClick}
                       icon={<Icon type="Twitter" width="40" height="40" viewBox="0 0 40 40" />}
                     />
                   )}
-                  {authState?.github && oauthConnectedState.github && (
+                  {authState?.value?.github && oauthConnectedState?.value?.github && (
                     <IconButton id="github" onClick={handleRemoveOAuthServiceClick} icon={<Icon type="GitHub" />} />
                   )}
                 </div>
@@ -501,26 +499,26 @@ const ProfileDetailView = () => {
                 className="deleteAccount"
                 id="delete-account"
                 onClick={() => {
-                  setDeleteControlsOpen(!deleteControlsOpen)
-                  setConfirmDeleteOpen(false)
+                  deleteControlsOpen.set(!deleteControlsOpen.value)
+                  confirmDeleteOpen.set(false)
                 }}
               >
                 {t('user:usermenu.profile.delete.deleteAccount')}
               </h2>
-              {deleteControlsOpen && !confirmDeleteOpen && (
+              {deleteControlsOpen.value && !confirmDeleteOpen.value && (
                 <div className="deleteContainer">
                   <h3 className="deleteText">{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
                   <div className="deleteButtonContainer">
                     <XRTextButton
                       variant="outlined"
                       content={t('user:usermenu.profile.delete.deleteControlsCancel')}
-                      onClick={() => setDeleteControlsOpen(false)}
+                      onClick={() => deleteControlsOpen.set(false)}
                     />
                     <XRTextButton
                       variant="gradient"
                       onClick={() => {
-                        setDeleteControlsOpen(false)
-                        setConfirmDeleteOpen(true)
+                        deleteControlsOpen.set(false)
+                        confirmDeleteOpen.set(true)
                       }}
                     >
                       {t('user:usermenu.profile.delete.deleteControlsConfirm')}
@@ -528,7 +526,7 @@ const ProfileDetailView = () => {
                   </div>
                 </div>
               )}
-              {confirmDeleteOpen && (
+              {confirmDeleteOpen.value && (
                 <div className="deleteContainer">
                   <h3 className="deleteText">{t('user:usermenu.profile.delete.finalDeleteText')}</h3>
                   <div className="deleteButtonContainer">
@@ -537,12 +535,12 @@ const ProfileDetailView = () => {
                       onClick={() => {
                         AuthService.removeUser(userId)
                         AuthService.logoutUser()
-                        setConfirmDeleteOpen(false)
+                        confirmDeleteOpen.set(false)
                       }}
                     >
                       {t('user:usermenu.profile.delete.finalDeleteConfirm')}
                     </XRTextButton>
-                    <XRTextButton variant="outlined" onClick={() => setConfirmDeleteOpen(false)}>
+                    <XRTextButton variant="outlined" onClick={() => confirmDeleteOpen.set(false)}>
                       {t('user:usermenu.profile.delete.finalDeleteCancel')}
                     </XRTextButton>
                   </div>

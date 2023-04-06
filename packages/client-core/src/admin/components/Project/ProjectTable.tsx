@@ -1,14 +1,30 @@
+import { Paginated } from '@feathersjs/client'
+import JSZip from 'jszip'
+import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { saveAs } from 'save-as'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import config from '@etherealengine/common/src/config'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { createActionQueue, getState, startReactor } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import Tooltip from '@etherealengine/ui/src/Tooltip'
 
+import { API } from '../../../API'
+import {
+  FileBrowserAction,
+  FileBrowserService,
+  FileBrowserServiceReceptor,
+  FileBrowserState
+} from '../../../common/services/FileBrowserService'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -67,13 +83,13 @@ const ProjectTable = ({ className }: Props) => {
   ProjectService.useAPIListeners()
 
   useEffect(() => {
-    if (project) setProject(adminProjects.value.find((proj) => proj.name === project.name)!)
+    if (project) setProject(adminProjects.get({ noproxy: true }).find((proj) => proj.name === project.name)!)
   }, [adminProjects])
 
   const handleRemoveProject = async () => {
     try {
       if (projectRef.current) {
-        const projectToRemove = adminProjects.value.find((p) => p.name === projectRef.current?.name)!
+        const projectToRemove = adminProjects.get({ noproxy: true }).find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()
@@ -125,6 +141,15 @@ const ProjectTable = ({ className }: Props) => {
       description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${row.repositoryPath}`,
       onSubmit: handlePushProjectToGithub
     })
+  }
+
+  const DownloadProject = async (row: ProjectInterface) => {
+    setProject(row)
+    const url = `/projects/${row.name}`
+
+    const data = await API.instance.client.service('archiver').get(url)
+    const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
+    saveAs(blob, row.name + '.zip')
   }
 
   const openInvalidateConfirmation = (row) => {
@@ -250,12 +275,12 @@ const ProjectTable = ({ className }: Props) => {
               name="update"
               disabled={el.repositoryPath === null}
               onClick={() => handleOpenProjectDrawer(el)}
-              icon={<Icon type="Download" />}
+              icon={<Icon type="Refresh" />}
             />
           )}
           {isAdmin && name === 'default-project' && (
             <Tooltip title={t('admin:components.project.defaultProjectUpdateTooltip')} arrow>
-              <IconButton className={styles.iconButton} name="update" disabled={true} icon={<Icon type="Download" />} />
+              <IconButton className={styles.iconButton} name="update" disabled={true} icon={<Icon type="Refresh" />} />
             </Tooltip>
           )}
         </>
@@ -269,6 +294,19 @@ const ProjectTable = ({ className }: Props) => {
               disabled={!el.hasWriteAccess || !el.repositoryPath}
               onClick={() => openPushConfirmation(el)}
               icon={<Icon type="Upload" />}
+            />
+          )}
+        </>
+      ),
+      download: (
+        <>
+          {isAdmin && (
+            <IconButton
+              className={styles.iconButton}
+              name="download"
+              disabled={!el.repositoryPath}
+              onClick={() => DownloadProject(el)}
+              icon={<Icon type="Download" />}
             />
           )}
         </>

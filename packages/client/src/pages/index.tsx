@@ -1,15 +1,22 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
-import { useClientSettingState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { UserMenu } from '@etherealengine/client-core/src/user/components/UserMenu'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { Views } from '@etherealengine/client-core/src/user/components/UserMenu/util'
+import {
+  PopupMenuServiceReceptor,
+  PopupMenuState
+} from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
+import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
+import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import config from '@etherealengine/common/src/config'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import { Box, Button } from '@mui/material'
 
@@ -17,13 +24,22 @@ const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
   const { t } = useTranslation()
-  const clientSettingState = useClientSettingState()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
-  const [selectedMenu, setSelectedMenu] = useState(Views.Profile)
+  const openMenu = useHookstate(getMutableState(PopupMenuState).openMenu)
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
     if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
+
+    openMenu.set(UserMenus.Profile)
+
+    addActionReceptor(AvatarServiceReceptor)
+    addActionReceptor(PopupMenuServiceReceptor)
+    return () => {
+      removeActionReceptor(AvatarServiceReceptor)
+      removeActionReceptor(PopupMenuServiceReceptor)
+    }
   }, [])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
@@ -90,12 +106,7 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            {selectedMenu === Views.Profile && (
-              <ProfileMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
-            )}
-            {selectedMenu === Views.Settings && (
-              <SettingMenu isPopover changeActiveMenu={(type) => setSelectedMenu(type ? type : Views.Profile)} />
-            )}
+            {openMenu.value === UserMenus.Profile && <ProfileMenu isPopover />}
           </Box>
         </div>
         <div className="link-container">

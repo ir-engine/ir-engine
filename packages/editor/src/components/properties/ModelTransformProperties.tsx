@@ -1,11 +1,14 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import {
+  ImageTransformParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentType,
@@ -17,8 +20,9 @@ import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/con
 import bakeToVertices from '@etherealengine/engine/src/renderer/materials/functions/bakeToVertices'
 import { materialsFromSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { ToggleButton } from '@mui/material'
 
@@ -27,12 +31,14 @@ import { accessSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
+import NumericInput from '../inputs/NumericInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
+import PaginatedList from '../layout/PaginatedList'
 import LightmapBakerProperties from './LightmapBakerProperties'
 
 const TransformContainer = (styled as any).div`
@@ -103,11 +109,13 @@ export default function ModelTransformProperties({
   const selectionState = accessSelectionState()
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
+
   const transformParms = useHookstate<ModelTransformParameters>({
     modelFormat: 'glb',
     dedup: true,
     prune: true,
     reorder: true,
+    resample: true,
     weld: {
       enabled: true,
       tolerance: 0.001
@@ -126,32 +134,15 @@ export default function ModelTransformProperties({
         quantizationVolume: 'mesh'
       }
     },
-    gltfPack: {
-      enabled: false,
-      options: {
-        meshopt: true,
-        basisU: true,
-        instancing: false,
-        mergeNodes: true,
-        mergeMaterials: true
-      }
-    },
-    meshQuantization: {
-      enabled: true,
-      options: {
-        quantizePosition: 14,
-        quantizeNormal: 8,
-        quantizeTexcoord: 8,
-        quantizeColor: 8,
-        quantizeWeight: 8,
-        quantizeGeneric: 8,
-        normalizeWeights: false
-      }
-    },
     textureFormat: 'ktx2',
     textureCompressionType: 'etc1',
+    flipY: true,
     textureCompressionQuality: 128,
-    maxTextureSize: 1024
+    maxTextureSize: 1024,
+    resources: {
+      geometries: [],
+      images: []
+    }
   })
 
   const vertexBakeOptions = useHookstate({
@@ -180,10 +171,7 @@ export default function ModelTransformProperties({
             MeshBasicMaterial.prototypeId
           )
         ) ?? []
-      ) /*
-    if ([AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(vertexBakeOptions.matcapPath.value))) {
-      batchSetMaterialProperty(src, 'matcap', await AssetLoader.loadAsync(vertexBakeOptions.matcapPath.value))
-    }*/
+      )
     },
     [vertexBakeOptions]
   )
@@ -216,6 +204,15 @@ export default function ModelTransformProperties({
     [transformParms]
   )
 
+  const onChangeResourceOverrideParm = useCallback(
+    (state: State<any>, k: keyof typeof state.value) => {
+      return (val) => {
+        state[k].parameters.set(val)
+      }
+    },
+    [transformParms.resources]
+  )
+
   const onTransformModel = useCallback(
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
@@ -225,7 +222,7 @@ export default function ModelTransformProperties({
         transformParameters: transformParms.value
       })
       transformHistory.set([modelSrc, ...transformHistory.value])
-      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_\.]*)$/.exec(nuPath)!
+      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
       await FileBrowserService.fetchFiles(directoryToRefresh)
       onChangeModel(nuPath)
       transforming.set(false)
@@ -234,7 +231,7 @@ export default function ModelTransformProperties({
   )
 
   const onUndoTransform = useCallback(async () => {
-    const prev = transformHistory[0]
+    const prev = transformHistory.value[0]
     onChangeModel(prev)
     transformHistory.set(transformHistory.value.slice(1))
   }, [transforming])
@@ -277,6 +274,10 @@ export default function ModelTransformProperties({
       onChangeModel(transformedPath)
     }
   }, [selectionState.selectedEntities])
+
+  useEffect(() => {
+    transformParms.resources.set(getModelResources(modelState.value))
+  }, [modelState.scene])
 
   return (
     <CollapsibleBlock label="Model Transform Properties">
@@ -330,22 +331,12 @@ export default function ModelTransformProperties({
                 />
               </>
             )}
-
-            <InputGroup name="Use Mesh Quantization" label={t('editor:properties.model.transform.useQuantization')}>
+            <InputGroup name="Resample Animations" label={t('editor:properties.model.transform.resampleAnimations')}>
               <BooleanInput
-                value={transformParms.meshQuantization.enabled.value}
-                onChange={onChangeTransformParm(transformParms.meshQuantization, 'enabled')}
+                value={transformParms.resample.value}
+                onChange={onChangeTransformParm(transformParms, 'resample')}
               />
             </InputGroup>
-            {transformParms.meshQuantization.enabled.value && (
-              <>
-                <ParameterInput
-                  entity={`${modelState.src.value}-mesh-quantization`}
-                  values={transformParms.meshQuantization.options.value}
-                  onChange={onChangeTransformParm.bind({}, transformParms.meshQuantization.options)}
-                />
-              </>
-            )}
             <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
               <BooleanInput
                 value={transformParms.dracoCompression.enabled.value}
@@ -358,21 +349,6 @@ export default function ModelTransformProperties({
                   entity={`${modelState.src.value}-draco-compression`}
                   values={transformParms.dracoCompression.options.value}
                   onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
-                />
-              </>
-            )}
-            <InputGroup name="Use GLTFPack" label={t('editor:properties.model.transform.useGLTFPack')}>
-              <BooleanInput
-                value={transformParms.gltfPack.enabled.value}
-                onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
-              />
-            </InputGroup>
-            {transformParms.gltfPack.enabled.value && (
-              <>
-                <ParameterInput
-                  entity={`${modelState.src.value}-gltfpack`}
-                  values={transformParms.gltfPack.options.value}
-                  onChange={onChangeTransformParm.bind({}, transformParms.gltfPack.options)}
                 />
               </>
             )}
@@ -425,6 +401,116 @@ export default function ModelTransformProperties({
                 />
               </>
             )}
+            <CollapsibleBlock label="Resource Overrides">
+              <PaginatedList
+                list={transformParms.resources.images}
+                element={(image: State<ImageTransformParameters>) => {
+                  return (
+                    <>
+                      <div style={{ width: '100%' }}>
+                        <InputGroup name="Resource" label={image.resourceId.value}>
+                          <BooleanInput
+                            value={image.enabled.value}
+                            onChange={onChangeTransformParm(image, 'enabled')}
+                          />
+                        </InputGroup>
+                      </div>
+                      {image.enabled.value && (
+                        <div style={{ width: '100%' }}>
+                          <BooleanInput
+                            value={image.parameters.textureFormat.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.textureFormat, 'enabled')}
+                          />
+                          <InputGroup
+                            name="Texture Format"
+                            label={t('editor:properties.model.transform.textureFormat')}
+                          >
+                            {image.parameters.textureFormat.enabled.value && (
+                              <SelectInput
+                                value={image.parameters.textureFormat.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'textureFormat')}
+                                options={[
+                                  { label: 'Default', value: 'default' },
+                                  { label: 'JPG', value: 'jpg' },
+                                  { label: 'KTX2', value: 'ktx2' },
+                                  { label: 'PNG', value: 'png' },
+                                  { label: 'WebP', value: 'webp' }
+                                ]}
+                              />
+                            )}
+                          </InputGroup>
+                          <BooleanInput
+                            value={image.parameters.maxTextureSize.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.maxTextureSize, 'enabled')}
+                          />
+                          <InputGroup
+                            name="Max Texture Size"
+                            label={t('editor:properties.model.transform.maxTextureSize')}
+                          >
+                            {image.parameters.maxTextureSize.enabled.value && (
+                              <NumericInput
+                                value={image.parameters.maxTextureSize.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'maxTextureSize')}
+                                max={4096}
+                                min={64}
+                              />
+                            )}
+                          </InputGroup>
+                          <BooleanInput
+                            value={image.parameters.textureCompressionType.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.textureCompressionType, 'enabled')}
+                          />
+                          <InputGroup
+                            name="Texture Compression Type"
+                            label={t('editor:properties.model.transform.textureCompressionType')}
+                          >
+                            {image.parameters.textureCompressionType.enabled.value && (
+                              <SelectInput
+                                value={image.parameters.textureCompressionType.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'textureCompressionType')}
+                                options={[
+                                  { label: 'UASTC', value: 'uastc' },
+                                  { label: 'ETC1', value: 'etc1' }
+                                ]}
+                              />
+                            )}
+                          </InputGroup>
+                          <BooleanInput
+                            value={image.parameters.textureCompressionQuality.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.textureCompressionQuality, 'enabled')}
+                          />
+                          <InputGroup name="KTX2 Quality" label={t('editor:properties.model.transform.ktx2Quality')}>
+                            {image.parameters.textureCompressionQuality.enabled.value && (
+                              <NumericInput
+                                value={image.parameters.textureCompressionQuality.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'textureCompressionQuality')}
+                                max={255}
+                                min={1}
+                                smallStep={1}
+                                mediumStep={1}
+                                largeStep={2}
+                              />
+                            )}
+                          </InputGroup>
+                          <BooleanInput
+                            value={image.parameters.flipY.enabled.value}
+                            onChange={onChangeTransformParm(image.parameters.flipY, 'enabled')}
+                          />
+                          <InputGroup name="Flip Y" label={t('editor:properties.model.transform.flipY')}>
+                            {image.parameters.flipY.enabled.value && (
+                              <BooleanInput
+                                value={image.parameters.flipY.parameters.value}
+                                onChange={onChangeResourceOverrideParm(image.parameters, 'flipY')}
+                              />
+                            )}
+                          </InputGroup>
+                        </div>
+                      )}
+                    </>
+                  )
+                }}
+              />
+            </CollapsibleBlock>
             {!transforming.value && <OptimizeButton onClick={onTransformModel(modelState)}>Optimize</OptimizeButton>}
             {transforming.value && <p>Transforming...</p>}
             {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}

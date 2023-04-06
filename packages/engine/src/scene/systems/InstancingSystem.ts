@@ -2,7 +2,6 @@ import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
-import { Scene } from '../../ecs/classes/Scene'
 import {
   defineQuery,
   getMutableComponent,
@@ -32,9 +31,7 @@ import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export default async function ScatterSystem() {
   Engine.instance.sceneComponentRegistry.set(InstancingComponent.name, SCENE_COMPONENT_INSTANCING)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
-    defaultData: {}
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {})
 
   Engine.instance.scenePrefabRegistry.set(ScenePrefabs.instancing, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -47,11 +44,13 @@ export default async function ScatterSystem() {
   const unstagingQuery = defineQuery([InstancingComponent, InstancingUnstagingComponent])
   const engineState = getEngineState()
 
+  /** @deprecated */
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   const execute = () => {
     instancingQuery.enter().map(updateInstancing)
 
+    /** @todo - refactor */
     modifyPropertyActionQueue().map((action) =>
       action.entities.filter((entity) => hasComponent(entity, InstancingComponent)).map(updateInstancing)
     )

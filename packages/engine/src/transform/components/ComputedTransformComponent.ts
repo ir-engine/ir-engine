@@ -2,40 +2,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import {
-  ComponentType,
-  createMappedComponent,
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
-
-class ComputedTransform {
-  _referenceEntity = UndefinedEntity
-
-  // Our ECS debugger/inspector crashes when it encounters enumerable functions,
-  // so we have to make sure this function is not an instance property
-  #computeFunction = (entity: Entity, referenceEntity: Entity) => {}
-
-  get referenceEntity() {
-    return this._referenceEntity
-  }
-
-  set referenceEntity(v) {
-    if (this._referenceEntity === v) return
-    this._referenceEntity = v
-    getMutableState(EngineState).transformsNeedSorting.set(true)
-  }
-
-  get computeFunction() {
-    return this.#computeFunction
-  }
-
-  set computeFunction(v) {
-    this.#computeFunction = v
-  }
-}
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const ComputedTransformComponent = defineComponent({
   name: 'ComputedTransformComponent',
@@ -57,7 +24,6 @@ export const ComputedTransformComponent = defineComponent({
   }
 })
 
-/** @deprecated */
 export function setComputedTransformComponent(
   entity: Entity,
   referenceEntity: Entity,

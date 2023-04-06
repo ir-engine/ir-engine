@@ -1,6 +1,7 @@
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -57,7 +58,8 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: network.peerID
+          $peer: network.peerID,
+          uuid: network.peerID as any as EntityUUID
         })
       )
 
@@ -98,7 +100,8 @@ describe('WorldNetworkActionReceptors', () => {
           $from: userId, // from  user
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
-          $peer: network.peerID
+          $peer: network.peerID,
+          uuid: network.peerID as any as EntityUUID
         })
       )
 
@@ -145,7 +148,8 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $peer: peerID3,
-          $topic: NetworkTopics.world
+          $topic: NetworkTopics.world,
+          uuid: peerID3 as any as EntityUUID
         })
       )
 
@@ -175,9 +179,10 @@ describe('WorldNetworkActionReceptors', () => {
 
       const action = WorldNetworkAction.spawnAvatar({
         networkId: 42 as NetworkId,
-        $peer: peerID
+        $peer: peerID,
+        uuid: userId
       })
-      WorldNetworkActionReceptor.receiveSpawnObject(action)
+      WorldNetworkActionReceptor.receiveSpawnObject(action as any)
       spawnAvatarReceptor(action)
 
       const entity = Engine.instance.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
@@ -215,7 +220,8 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab,
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: network.peerID
+          $peer: network.peerID,
+          uuid: network.peerID as any as EntityUUID
         })
       )
 
@@ -287,7 +293,8 @@ describe('WorldNetworkActionReceptors', () => {
         prefab: objPrefab, // generic prefab
         networkId: objNetId,
         $topic: NetworkTopics.world,
-        $peer: network.peerID
+        $peer: network.peerID,
+        uuid: network.peerID as any as EntityUUID
       })
     )
 

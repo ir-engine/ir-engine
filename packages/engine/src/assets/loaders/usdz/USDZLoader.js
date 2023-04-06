@@ -6,6 +6,7 @@ import {
 	Group,
 	InstancedMesh,
 	Loader,
+	Material,
 	Matrix4,
 	Mesh,
 	MeshStandardMaterial,
@@ -198,6 +199,7 @@ class USDZLoader extends Loader {
 		const parser = new USDAParser();
 		const pending = []
 		const textureCache = {}
+		const materialCache = {}
 		function parseAssets( zip ) {
 
 			const data = {};
@@ -265,7 +267,11 @@ class USDZLoader extends Loader {
 
 		// Parse file
 
-		const text = fflate.strFromU8( file );
+		let text = fflate.strFromU8( file );
+
+		//remove all "nan" values
+		text = text.replace('nan', '0')
+
 		const root = parser.parse( text );
 		const plugins = this.plugins
 		// Build scene
@@ -491,17 +497,20 @@ class USDZLoader extends Loader {
 			}
 
 		}
-
+		let materialIndex = 0
 		function buildMaterial( data ) {
             const scopes = Object.keys(data).filter(key => registryRegex.test(key))
             if (scopes.length > 0) return buildMaterial(data[scopes[0]])
-			const material = new MeshStandardMaterial();
+			let material = new MeshStandardMaterial();
 			
 			if ( data !== undefined ) {
                 const surfaceRegexp = /def Shader "(PreviewSurface|surfaceShader|Principled_BSDF|[^"]+_preview)"/
-				if ( Object.keys(data).some(key => surfaceRegexp.test(key)) ) {
-                    const key = Object.keys(data).find(key => surfaceRegexp.test(key))
-					const surface = data[key];
+				const key = Object.keys(data).find(key => surfaceRegexp.test(key))
+								if ( key !== undefined ) {
+										if (materialCache[key]) return materialCache[key]
+										const matName = surfaceRegexp.exec(key)?.[1] || `material-${materialIndex++}`
+										material.name = matName
+										const surface = data[key];
                     const acceptedColorTypes = ['color3f', 'float3']
                     for (const colorType of acceptedColorTypes) {
 											if ( `${colorType} inputs:diffuseColor.connect` in surface ) {
@@ -608,11 +617,9 @@ class USDZLoader extends Loader {
 					material.normalMap = buildTexture( sampler );
 
 				}
-
+				materialCache[key] = material
 			}
-
 			return material;
-
 		}
 
 		function findTexture( data, id ) {
@@ -651,6 +658,7 @@ class USDZLoader extends Loader {
 				}
 				const loader = new TextureLoader()
 				const texture = new Texture()
+				texture.name = path
 				if ( textureCache[ path ]) {
 					pending.push(new Promise(resolve => textureCache[ path ].then((_texture) => {
 						if (!texture) resolve()
@@ -723,8 +731,11 @@ class USDZLoader extends Loader {
 					? Object.entries(nameContext['rel prototypes'])
 					: [[0, /[\s<>,]*(.*?)[\s<>,]*$/.exec(nameContext['rel prototypes'])[1]]]
 				for ( const [i, prototypePath] of prototypePaths ) {
-					const baseMesh = buildMesh(findMeshGeometry(findContext(prototypePath)))
+					const geo = findMeshGeometry(findContext(prototypePath))
+					const baseMesh = geo ? buildMesh(geo) : new Mesh()
+					baseMesh.name = /\/([^\/]*)$/.exec(prototypePath)?.[1] || `baseMesh-${i}`
 					baseMesh.geometry.scale( 1, 1, 1 )
+					baseMesh.geometry.computeBoundingBox()
 					instanceTable[i] = {
 						matrices: [],
 						baseMesh
@@ -788,6 +799,7 @@ class USDZLoader extends Loader {
 
 				const instancedMeshes = Object.entries(instanceTable).map(([index, { matrices, baseMesh }]) => {
 					const instancedMesh = new InstancedMesh(baseMesh.geometry, baseMesh.material, matrices.length)
+					instancedMesh.name = `${index}-${baseMesh.name}-instanced`
 					instancedMesh.instanceMatrix.set(matrices.flatMap(mat => mat.toArray()))
 					return instancedMesh
 				})

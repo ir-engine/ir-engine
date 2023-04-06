@@ -17,8 +17,7 @@ import {
 import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeInterior: ComponentDeserializeFunction = (entity: Entity, data: InteriorComponentType) => {
-  const props = parseInteriorProperties(data)
-  setComponent(entity, InteriorComponent, props)
+  setComponent(entity, InteriorComponent, data)
 }
 
 export const updateInterior: ComponentUpdateFunction = (entity: Entity) => {
@@ -50,16 +49,4 @@ export const serializeInterior: ComponentSerializeFunction = (entity) => {
     tiling: component.tiling,
     size: component.size
   }
-}
-
-const parseInteriorProperties = (props): InteriorComponentType => {
-  const result = {
-    cubeMap: props.cubeMap ?? SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES.cubeMap,
-    tiling: props.tiling ?? SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES.tiling
-  } as InteriorComponentType
-
-  const tempV2 = result.size ?? SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES.size
-  result.size = new Vector2(tempV2.x, tempV2.y)
-
-  return result
 }

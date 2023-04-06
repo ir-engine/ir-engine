@@ -2,9 +2,9 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { ServerMode } from '@etherealengine/server-core/declarations'
 import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
 import { checkProjectAutoUpdate } from '@etherealengine/server-core/src/projects/project/project-helper'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,

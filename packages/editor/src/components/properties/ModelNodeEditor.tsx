@@ -2,10 +2,16 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
+import {
+  AudioFileTypes,
+  VideoFileTypes,
+  VolumetricFileTypes
+} from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   getComponent,
@@ -18,13 +24,18 @@ import {
 import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
 import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
+import { getState } from '@etherealengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
+import { StaticResourceService } from '../../services/StaticResourceService'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -58,7 +69,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
-  traverseEntityNode(Engine.instance.currentScene.sceneEntity, (node) => {
+  traverseEntityNode(getState(SceneState).sceneEntity, (node) => {
     if (entity === entity) return
 
     textureOverrideEntities.push({
@@ -94,6 +105,19 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     setExporting(false)
   }
 
+  const updateResources = async (path: string) => {
+    let model
+    clearErrors(entity, ModelComponent)
+    try {
+      model = await StaticResourceService.uploadModel(path)
+    } catch (err) {
+      console.log('Error getting path', path)
+      addError(entity, ModelComponent, 'INVALID_URL', path)
+      return {}
+    }
+    updateProperty(ModelComponent, 'resource')(model)
+  }
+
   return (
     <NodeEditor
       name={t('editor:properties.model.title')}
@@ -101,7 +125,16 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src.value} onChange={updateProperty(ModelComponent, 'src')} />
+        <ModelInput
+          value={
+            modelComponent.resource?.value?.glbStaticResource?.LOD0_url ||
+            modelComponent.resource?.value?.gltfStaticResource?.LOD0_url ||
+            modelComponent.resource?.value?.fbxStaticResource?.LOD0_url ||
+            modelComponent.resource?.value?.usdzStaticResource?.LOD0_url ||
+            modelComponent.src?.value
+          }
+          onChange={updateResources}
+        />
         {errors?.LOADING_ERROR && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}

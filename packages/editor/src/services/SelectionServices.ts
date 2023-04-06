@@ -105,21 +105,21 @@ export const SelectionService = {}
 //Action
 export class SelectionAction {
   static changedObject = defineAction({
-    type: 'xre.editor.Selection.OBJECT_CHANGED',
+    type: 'ee.editor.Selection.OBJECT_CHANGED',
     objects: matches.array as Validator<unknown, EntityOrObjectUUID[]>,
     propertyName: matches.string
   })
 
   static changedSceneGraph = defineAction({
-    type: 'xre.editor.Selection.SCENE_GRAPH_CHANGED'
+    type: 'ee.editor.Selection.SCENE_GRAPH_CHANGED'
   })
 
   static updateSelection = defineAction({
-    type: 'xre.editor.Selection.SELECTION_CHANGED',
+    type: 'ee.editor.Selection.SELECTION_CHANGED',
     selectedEntities: matches.array as Validator<unknown, EntityOrObjectUUID[]>
   })
 
   static forceUpdate = defineAction({
-    type: 'xre.editor.Selection.FORCE_UPDATE'
+    type: 'ee.editor.Selection.FORCE_UPDATE'
   })
 }

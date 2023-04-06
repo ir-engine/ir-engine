@@ -3,10 +3,10 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { SystemDefintion } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import { updateSceneFromJSON } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 import {
   createActionQueue,
   dispatchAction,
@@ -40,7 +40,7 @@ export default function EditorHistoryReceptor(): SystemDefintion {
   const applyCurrentSnapshot = () => {
     const snapshot = state.history[state.index.value].get(NO_PROXY)
     console.log('Applying snapshot', state.index.value, snapshot)
-    if (snapshot.data) updateSceneFromJSON(snapshot.data)
+    if (snapshot.data) getMutableState(SceneState).sceneData.set(snapshot.data)
     if (snapshot.selectedEntities)
       dispatchAction(SelectionAction.updateSelection({ selectedEntities: snapshot.selectedEntities }))
   }
@@ -67,7 +67,7 @@ export default function EditorHistoryReceptor(): SystemDefintion {
     for (const action of clearHistoryQueue()) {
       state.merge({
         index: 0,
-        history: [{ data: { scene: serializeWorld(Engine.instance.currentScene.sceneEntity) } as any as SceneData }]
+        history: [{ data: { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData }]
       })
     }
 
@@ -90,7 +90,7 @@ export default function EditorHistoryReceptor(): SystemDefintion {
     /** Local only - serialize world then push to CRDT */
     for (const action of modifyQueue()) {
       if (action.modify) {
-        const data = { scene: serializeWorld(Engine.instance.currentScene.sceneEntity) } as any as SceneData
+        const data = { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData
         state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { data }])
         state.index.set(state.index.value + 1)
       } else if (state.includeSelection.value) {
@@ -117,32 +117,32 @@ export const EditorHistoryService = {}
 
 export class EditorHistoryAction {
   static undo = defineAction({
-    type: 'xre.editor.EditorHistory.UNDO' as const,
+    type: 'ee.editor.EditorHistory.UNDO' as const,
     count: matches.number
     // $topic: EditorTopic,
     // $cache: true
   })
 
   static redo = defineAction({
-    type: 'xre.editor.EditorHistory.REDO' as const,
+    type: 'ee.editor.EditorHistory.REDO' as const,
     count: matches.number
     // $topic: EditorTopic,
     // $cache: true
   })
 
   static clearHistory = defineAction({
-    type: 'xre.editor.EditorHistory.CLEAR_HISTORY' as const
+    type: 'ee.editor.EditorHistory.CLEAR_HISTORY' as const
   })
 
   static appendSnapshot = defineAction({
-    type: 'xre.editor.EditorHistory.APPEND_SNAPSHOT' as const,
+    type: 'ee.editor.EditorHistory.APPEND_SNAPSHOT' as const,
     json: matches.object as Validator<unknown, SceneJson>
     // $topic: EditorTopic,
     // $cache: true
   })
 
   static createSnapshot = defineAction({
-    type: 'xre.editor.EditorHistory.CREATE_SNAPSHOT' as const,
+    type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
     selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>,
     modify: matches.boolean.optional()
   })

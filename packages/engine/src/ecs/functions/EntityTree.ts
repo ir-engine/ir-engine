@@ -1,7 +1,8 @@
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getMutableState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
+import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getMutableState, getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntity, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -19,6 +20,7 @@ import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity, UndefinedEntity } from '../classes/Entity'
+import { SceneState } from '../classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -50,8 +52,6 @@ export const EntityTreeComponent = defineComponent({
     return {
       // api
       parentEntity: null as Entity | null,
-      /** @deprecated use UUIDComponent instead */
-      uuid: MathUtils.generateUUID() as EntityUUID,
       // internal
       children: [] as Entity[],
       rootEntity: null as Entity | null
@@ -72,8 +72,7 @@ export const EntityTreeComponent = defineComponent({
     // set new data
     if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
 
-    if (matchesEntityUUID.test(json?.uuid)) component.uuid.set(json.uuid)
-    setComponent(entity, UUIDComponent, component.uuid.value)
+    if (matchesEntityUUID.test(json?.uuid)) setComponent(entity, UUIDComponent, json.uuid)
 
     if (component.parentEntity.value) {
       const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
@@ -105,11 +104,13 @@ export const EntityTreeComponent = defineComponent({
   onRemove: (entity, component) => {
     if (entity === Engine.instance.originEntity) return
 
-    if (component.parentEntity.value) {
+    if (component.parentEntity.value && entityExists(component.parentEntity.value)) {
       const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
-      const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
-      const children = parent.children.get(NO_PROXY)
-      parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+      if (parent) {
+        const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
+        const children = parent.children.get(NO_PROXY)
+        parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+      }
     } else {
       EntityTreeComponent.roots[entity].set(none)
     }
@@ -126,15 +127,17 @@ export type EntityOrObjectUUID = Entity | string
  * Initialize the world with enity tree
  * @param scene World
  */
-export function initializeSceneEntity(scene = Engine.instance.currentScene): void {
-  if (scene.sceneEntity && entityExists(scene.sceneEntity)) removeEntity(scene.sceneEntity, true)
+export function initializeSceneEntity(): void {
+  const oldSceneEntity = getState(SceneState).sceneEntity
+  if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity, true)
 
-  scene.sceneEntity = createEntity()
-  setComponent(scene.sceneEntity, NameComponent, 'scene')
-  setComponent(scene.sceneEntity, VisibleComponent, true)
-  setComponent(scene.sceneEntity, SceneTagComponent, true)
-  setTransformComponent(scene.sceneEntity)
-  setComponent(scene.sceneEntity, EntityTreeComponent, { parentEntity: null })
+  const sceneEntity = createEntity()
+  getMutableState(SceneState).sceneEntity.set(sceneEntity)
+  setComponent(sceneEntity, NameComponent, 'scene')
+  setComponent(sceneEntity, VisibleComponent, true)
+  setComponent(sceneEntity, SceneTagComponent, true)
+  setTransformComponent(sceneEntity)
+  setComponent(sceneEntity, EntityTreeComponent, { parentEntity: null })
 }
 
 /**
@@ -195,14 +198,15 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
   // }
 }
 
-export function serializeNodeToWorld(entity: Entity, world = Engine.instance.currentScene) {
+export function serializeNodeToWorld(entity: Entity) {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
-  const jsonEntity = world.sceneJson.entities[entityTreeNode.uuid]
+  const nodeUUID = getComponent(entity, UUIDComponent)
+  const jsonEntity = getState(SceneState).sceneData!.scene.entities[nodeUUID] as EntityJson
   if (jsonEntity) {
     jsonEntity.components = serializeEntity(entity)
-    if (entityTreeNode.parentEntity && entityTreeNode.parentEntity !== world.sceneEntity) {
-      const parentNode = getComponent(entityTreeNode.parentEntity, EntityTreeComponent)
-      jsonEntity.parent = parentNode.uuid
+    if (entityTreeNode.parentEntity && entityTreeNode.parentEntity !== getState(SceneState).sceneEntity) {
+      const parentNodeUUID = getComponent(entityTreeNode.parentEntity, UUIDComponent)
+      jsonEntity.parent = parentNodeUUID
     }
   }
 }
@@ -244,7 +248,7 @@ export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, 
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   if (entityTreeNode.parentEntity === parentEntity) return
   if (parentEntity) addEntityNodeChild(entity, parentEntity)
-  else setComponent(entity, EntityTreeComponent, { parentEntity: null, uuid: entityTreeNode.uuid })
+  else setComponent(entity, EntityTreeComponent, { parentEntity: null })
 }
 
 /**

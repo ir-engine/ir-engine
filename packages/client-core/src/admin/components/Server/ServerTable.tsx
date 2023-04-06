@@ -1,13 +1,13 @@
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import config from '@etherealengine/common/src/config'
 import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
 import multiLogger from '@etherealengine/common/src/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 import Icon from '@etherealengine/ui/src/Icon'
@@ -15,7 +15,7 @@ import IconButton from '@etherealengine/ui/src/IconButton'
 
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
-import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
+import { AdminServerInfoState, ServerInfoService } from '../../services/ServerInfoService'
 import { ServerLogsService } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'
 
@@ -31,26 +31,26 @@ interface Props {
 
 const ServerTable = ({ selectedCard }: Props) => {
   const { t } = useTranslation()
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [autoRefresh, setAutoRefresh] = useState('60')
-  const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
-  const [selectedPod, setSelectedPod] = useState<ServerPodInfo | null>(null)
-  const serverInfo = useServerInfoState()
+  const openConfirm = useHookstate(false)
+  const autoRefresh = useHookstate('60')
+  const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
+  const selectedPod = useHookstate<ServerPodInfo | null>(null)
+  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
 
   useEffect(() => {
-    if (autoRefresh !== '0') {
+    if (autoRefresh.value !== '0') {
       const interval = setInterval(() => {
         handleRefreshServerInfo()
-      }, parseInt(autoRefresh) * 1000)
-      setIntervalTimer(interval)
+      }, parseInt(autoRefresh.value) * 1000)
+      intervalTimer.set(interval)
       return () => {
         if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
       }
-    } else if (intervalTimer) {
-      clearInterval(intervalTimer)
-      setIntervalTimer(undefined)
+    } else if (intervalTimer.value) {
+      clearInterval(intervalTimer.value)
+      intervalTimer.set(undefined)
     }
-  }, [autoRefresh])
+  }, [autoRefresh.value])
 
   const createData = (el: ServerPodInfo): ServerPodData => {
     return {
@@ -109,8 +109,8 @@ const ServerTable = ({ selectedCard }: Props) => {
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setSelectedPod(el)
-              setOpenConfirm(true)
+              selectedPod.set(el)
+              openConfirm.set(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
@@ -128,16 +128,16 @@ const ServerTable = ({ selectedCard }: Props) => {
   const handleAutoRefreshServerInfoChange = (e) => {
     const { value } = e.target
 
-    setAutoRefresh(value)
+    autoRefresh.set(value)
   }
 
   const handleRemovePod = async () => {
-    if (!selectedPod) {
+    if (!selectedPod.value) {
       return
     }
 
-    await ServerInfoService.removePod(selectedPod.name)
-    setOpenConfirm(false)
+    await ServerInfoService.removePod(selectedPod.value.name)
+    openConfirm.set(false)
   }
 
   const autoRefreshMenu: InputMenuItem[] = [
@@ -195,7 +195,7 @@ const ServerTable = ({ selectedCard }: Props) => {
           <InputSelect
             name="autoRefresh"
             label={t('admin:components.server.autoRefresh')}
-            value={autoRefresh}
+            value={autoRefresh.value}
             menu={autoRefreshMenu}
             sx={{ marginBottom: 0, flex: 1 }}
             onChange={handleAutoRefreshServerInfoChange}
@@ -206,7 +206,8 @@ const ServerTable = ({ selectedCard }: Props) => {
     }
   ]
 
-  const rows = serverInfo.value.servers
+  const rows = serverInfo.servers
+    .get({ noproxy: true })
     .find((item) => item.id === selectedCard)!
     .pods.map((el) => {
       return createData(el)
@@ -226,9 +227,9 @@ const ServerTable = ({ selectedCard }: Props) => {
       />
 
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.name}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.value?.name}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={handleRemovePod}
       />
     </>

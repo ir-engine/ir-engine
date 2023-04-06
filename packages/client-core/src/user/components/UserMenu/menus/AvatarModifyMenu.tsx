@@ -29,11 +29,11 @@ import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 
 import { AvatarService } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 interface Props {
-  changeActiveMenu: Function
   selectedAvatar?: AvatarInterface
 }
 
@@ -50,7 +50,7 @@ const defaultState = {
   }
 }
 
-const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
+const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const { t } = useTranslation()
   const [state, setState] = useState({ ...defaultState })
   const [avatarSrc, setAvatarSrc] = useState('')
@@ -69,14 +69,13 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
 
   let hasPendingChanges = state.name && avatarSrc && thumbnailSrc ? true : false
   if (selectedAvatar) {
-    hasPendingChanges =
+    hasPendingChanges = !!(
       selectedAvatar.name !== state.name ||
       state.avatarFile ||
       state.thumbnailFile ||
-      selectedAvatar.modelResource?.url !== state.avatarUrl ||
-      selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl
-        ? true
-        : false
+      selectedAvatar.modelResource?.LOD0_url !== state.avatarUrl ||
+      selectedAvatar.thumbnailResource?.LOD0_url !== state.thumbnailUrl
+    )
   }
 
   useEffect(() => {
@@ -94,8 +93,8 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
       setState({
         ...defaultState,
         name: selectedAvatar.name || '',
-        avatarUrl: selectedAvatar.modelResource?.url || '',
-        thumbnailUrl: selectedAvatar.thumbnailResource?.url || '',
+        avatarUrl: selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || '',
         avatarFile: undefined,
         thumbnailFile: undefined
       })
@@ -261,16 +260,16 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
         await AvatarService.patchAvatar(
           selectedAvatar,
           state.name,
-          selectedAvatar.modelResource?.url !== state.avatarUrl ||
-            selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
+          selectedAvatar.modelResource?.LOD0_url !== state.avatarUrl ||
+            selectedAvatar.thumbnailResource?.LOD0_url !== state.thumbnailUrl,
           avatarBlob,
           thumbnailBlob
         )
-        changeActiveMenu(Views.AvatarSelect)
+        PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
       } else if (avatarBlob && thumbnailBlob) {
         await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
 
-        changeActiveMenu(Views.Closed)
+        PopupMenuServices.showPopupMenu()
       }
     } catch (err) {
       console.error(err)
@@ -283,7 +282,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
     if (hasPendingChanges) {
       setShowConfirmChanges(true)
     } else {
-      changeActiveMenu(Views.AvatarSelect)
+      PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
     }
   }
 
@@ -309,7 +308,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
       }
       title={selectedAvatar ? t('user:avatar.titleEditAvatar') : t('user:avatar.createAvatar')}
       onBack={handleBack}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
@@ -323,7 +322,12 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
           </Grid>
 
           <Grid item md={5} sx={{ width: '100%' }}>
-            <Button fullWidth type="gradientRounded" sx={{ mt: 1 }} onClick={() => changeActiveMenu(Views.ReadyPlayer)}>
+            <Button
+              fullWidth
+              type="gradientRounded"
+              sx={{ mt: 1 }}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
+            >
               {t('user:usermenu.profile.useReadyPlayerMe')}
             </Button>
 
@@ -426,7 +430,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
                 description={t('user:common.confirmDiscardChange')}
                 submitButtonText={t('user:common.discardChanges')}
                 onClose={() => setShowConfirmChanges(false)}
-                onSubmit={() => changeActiveMenu(Views.AvatarSelect)}
+                onSubmit={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
               />
             )}
           </Grid>

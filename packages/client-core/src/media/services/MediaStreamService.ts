@@ -7,7 +7,7 @@ import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
 //State
@@ -18,7 +18,7 @@ export const MediaState = defineState({
     isCamAudioEnabled: false,
     isScreenVideoEnabled: false,
     isScreenAudioEnabled: false,
-    isFaceTrackingEnabled: false,
+    isMotionCaptureEnabled: false,
     enableBydefault: true,
     nearbyLayerUsers: [] as UserId[],
     consumers: [] as ConsumerExtension[]
@@ -41,7 +41,7 @@ export const MediaServiceReceptor = (action) => {
       return s.isScreenAudioEnabled.set(action.isEnable)
     })
     .when(MediaStreamAction.setFaceTrackingStateAction.matches, (action) => {
-      return s.isFaceTrackingEnabled.set(action.isEnable)
+      return s.isMotionCaptureEnabled.set(action.isEnable)
     })
     .when(MediaStreamAction.setMediaEnabledByDefaultAction.matches, (action) => {
       return s.enableBydefault.set(action.isEnable)
@@ -91,6 +91,7 @@ export const MediaStreamService = {
       })
     )
   },
+  /** @deprecated */
   triggerUpdateConsumers: () => {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
@@ -124,37 +125,37 @@ export const MediaStreamService = {
 export type BooleanAction = { [key: string]: boolean }
 export class MediaStreamAction {
   static setCamVideoStateAction = defineAction({
-    type: 'xre.client.MediaStream.CAM_VIDEO_CHANGED' as const,
+    type: 'ee.client.MediaStream.CAM_VIDEO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setCamAudioStateAction = defineAction({
-    type: 'xre.client.MediaStream.CAM_AUDIO_CHANGED' as const,
+    type: 'ee.client.MediaStream.CAM_AUDIO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setScreenVideoStateAction = defineAction({
-    type: 'xre.client.MediaStream.SCREEN_VIDEO_CHANGED' as const,
+    type: 'ee.client.MediaStream.SCREEN_VIDEO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setScreenAudioStateAction = defineAction({
-    type: 'xre.client.MediaStream.SCREEN_AUDIO_CHANGED' as const,
+    type: 'ee.client.MediaStream.SCREEN_AUDIO_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setFaceTrackingStateAction = defineAction({
-    type: 'xre.client.MediaStream.FACE_TRACKING_CHANGED' as const,
+    type: 'ee.client.MediaStream.FACE_TRACKING_CHANGED' as const,
     isEnable: matches.boolean
   })
 
   static setMediaEnabledByDefaultAction = defineAction({
-    type: 'xre.client.MediaStream.MEDIA_ENABLE_BY_DEFAULT' as const,
+    type: 'ee.client.MediaStream.MEDIA_ENABLE_BY_DEFAULT' as const,
     isEnable: matches.boolean
   })
 
   static setConsumersAction = defineAction({
-    type: 'xre.client.MediaStream.CONSUMERS_CHANGED' as const,
+    type: 'ee.client.MediaStream.CONSUMERS_CHANGED' as const,
     consumers: matches.any
   })
 }

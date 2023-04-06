@@ -1,6 +1,6 @@
 .elementListContainer {
-  width: 105px;
-  height: calc(100vh - 90px);
+  width: 120px;
+  height: calc(100vh - 60px);
   display: flex;
   flex-flow: row wrap;
   gap: 5px;
@@ -9,7 +9,7 @@
   right: 5px;
   z-index: 10;
   align-content: start;
-  overflow-y: auto;
+  overflow-y: overlay;
   pointer-events: auto;
   background: var(--dockBackground);
   padding: 5px;

@@ -34,8 +34,7 @@ export class ModelTransform implements ServiceMethods<any> {
     const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_\\\/]+).glb$/.exec(inPath)
     if (!pathData) throw Error('could not extract path data')
     const [_, projectName, fileName] = pathData
-    const commonPath = path.join(this.rootPath, `${projectName}/assets/${fileName}`)
-    return commonPath
+    return path.join(this.rootPath, `${projectName}/assets/${fileName}`)
   }
 
   async find(params?: Params): Promise<any> {

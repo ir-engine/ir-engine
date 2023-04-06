@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'

@@ -123,7 +123,7 @@ const EffectsOptions: EffectOptionsType = {
   BloomEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size' },
-    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1, step: 0.01 },
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1000, step: 0.01 },
     luminanceSmoothing: {
       propertyType: PropertyTypes.Number,
       name: 'Luminance Smoothing',
@@ -153,7 +153,50 @@ const EffectsOptions: EffectOptionsType = {
   ColorDepthEffect: {
     bits: { propertyType: PropertyTypes.Number, name: 'Bits', min: -1, max: 1, step: 0.01 }
   },
-  LinearTosRGBEffect: {}
+  LinearTosRGBEffect: {},
+  SSGIEffect: {
+    distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
+    thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 5, step: 0.01 },
+    autoThickness: { propertyType: PropertyTypes.Boolean, name: 'Auto Thickness' },
+    maxRoughness: { propertyType: PropertyTypes.Number, name: 'Max Roughness', min: 0, max: 1, step: 0.01 },
+    blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
+    denoiseIterations: { propertyType: PropertyTypes.Number, name: 'Denoise Iterations', min: 0, max: 5, step: 1 },
+    denoiseKernel: { propertyType: PropertyTypes.Number, name: 'Denoise Kernel', min: 1, max: 5, step: 1 },
+    denoiseDiffuse: { propertyType: PropertyTypes.Number, name: 'Denoise Diffuse', min: 0, max: 50, step: 0.01 },
+    denoiseSpecular: { propertyType: PropertyTypes.Number, name: 'Denoise Specular', min: 0, max: 50, step: 0.01 },
+    depthPhi: { propertyType: PropertyTypes.Number, name: 'Depth Phi', min: 0, max: 15, step: 0.001 },
+    normalPhi: { propertyType: PropertyTypes.Number, name: 'Normal Phi', min: 0, max: 50, step: 0.001 },
+    roughnessPhi: { propertyType: PropertyTypes.Number, name: 'Roughness Phi', min: 0, max: 100, step: 0.001 },
+    envBlur: { propertyType: PropertyTypes.Number, name: 'Environment Blur', min: 0, max: 1, step: 0.01 },
+    importanceSampling: { propertyType: PropertyTypes.Boolean, name: 'Importance Sampling' },
+    directLightMultiplier: {
+      propertyType: PropertyTypes.Number,
+      name: 'Direct Light Multiplier',
+      min: 0.001,
+      max: 10,
+      step: 0.01
+    },
+    steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 0, max: 256, step: 1 },
+    refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
+    spp: { propertyType: PropertyTypes.Number, name: 'SPP', min: 1, max: 32, step: 1 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.25, max: 1, step: 0.25 },
+    missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' }
+  },
+  TRAAEffect: {
+    blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
+    constantBlend: { propertyType: PropertyTypes.Boolean, name: 'Constant Blend' },
+    dilation: { propertyType: PropertyTypes.Boolean, name: 'Dilation' },
+    blockySampling: { propertyType: PropertyTypes.Boolean, name: 'Blocky Sampling' },
+    logTransform: { propertyType: PropertyTypes.Boolean, name: 'Log Transform' },
+    depthDistance: { propertyType: PropertyTypes.Number, name: 'Depth Distance', min: 0.01, max: 100, step: 0.01 },
+    worldDistance: { propertyType: PropertyTypes.Number, name: 'World Distance', min: 0.01, max: 100, step: 0.01 },
+    neighborhoodClamping: { propertyType: PropertyTypes.Boolean, name: 'Neighborhood Clamping' }
+  },
+  MotionBlurEffect: {
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
+    jitter: { propertyType: PropertyTypes.Number, name: 'Jitter', min: 0, max: 10, step: 0.01 },
+    samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 1, max: 64, step: 1 }
+  }
 }
 
 const BlendFunctionSelect = Object.entries(BlendFunction).map(([label, value]) => {
@@ -192,7 +235,7 @@ export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
   const [openSettings, setOpenSettings] = useState(false)
-  const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentScene))
+  const postprocessing = useHookstate(getPostProcessingSceneMetadataState())
   if (!postprocessing.value) return null
 
   const getPropertyValue = (keys: string[]): any => {

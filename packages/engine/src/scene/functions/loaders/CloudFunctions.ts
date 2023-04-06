@@ -16,8 +16,7 @@ import {
 import { addObjectToGroup } from '../../components/GroupComponent'
 
 export const deserializeCloud: ComponentDeserializeFunction = (entity: Entity, data: CloudComponentType) => {
-  const props = parseCloudProperties(data)
-  setComponent(entity, CloudComponent, props)
+  setComponent(entity, CloudComponent, data)
 }
 
 export const updateCloud: ComponentUpdateFunction = (entity: Entity) => {
@@ -50,31 +49,4 @@ export const serializeCloud: ComponentSerializeFunction = (entity) => {
     fogColor: component.fogColor?.getHex(),
     fogRange: component.fogRange
   }
-}
-
-export const parseCloudProperties = (props: any): CloudComponentType => {
-  const result = {
-    texture: props.texture ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.texture,
-    fogColor: new Color(props.fogColor ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogColor)
-  } as CloudComponentType
-
-  let tempV3 = props.worldScale ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.worldScale
-  result.worldScale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  tempV3 = props.dimensions ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.dimensions
-  result.dimensions = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  tempV3 = props.noiseZoom ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.noiseZoom
-  result.noiseZoom = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  tempV3 = props.noiseOffset ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.noiseOffset
-  result.noiseOffset = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  let tempV2 = props.spriteScaleRange ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.spriteScaleRange
-  result.spriteScaleRange = new Vector2(tempV2.x, tempV2.y)
-
-  tempV2 = props.fogRange ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogRange
-  result.fogRange = new Vector2(tempV2.x, tempV2.y)
-
-  return result
 }

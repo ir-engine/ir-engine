@@ -33,7 +33,7 @@ export default (app: Application): void => {
       promiseReject = reject
     })
 
-    app.setup = async function (...args: any) {
+    app.setup = async function (...args) {
       try {
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
 
@@ -47,7 +47,7 @@ export default (app: Application): void => {
           if (typeof (sequelizeModel as any).associate === 'function') {
             ;(sequelizeModel as any).associate(sequelize.models)
           }
-          await sequelizeModel.sync({ force: forceRefresh })
+          await sequelizeModel.sync({ force: forceRefresh || appConfig.testEnabled })
 
           if (prepareDb) {
             const columnResult = await sequelize.query(`DESCRIBE \`${model}\``)
@@ -82,7 +82,7 @@ export default (app: Application): void => {
           const sync = await sequelize.sync()
           try {
             // configure seeder and seed
-            await seeder(app, forceRefresh, prepareDb)
+            await seeder(app, forceRefresh || appConfig.testEnabled, prepareDb)
           } catch (err) {
             logger.error('Feathers seeding error')
             logger.error(err)

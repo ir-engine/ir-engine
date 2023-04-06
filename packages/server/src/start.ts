@@ -4,11 +4,11 @@ import path from 'path'
 import psList from 'ps-list'
 import favicon from 'serve-favicon'
 
-import { ServerMode } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
 import { StartCorsServer } from '@etherealengine/server-core/src/createCorsServer'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 import channels from './channels'
 
@@ -24,7 +24,7 @@ export const start = async (): Promise<void> => {
   app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)
 
-  if (!config.kubernetes.enabled && !config.db.forceRefresh) {
+  if (!config.kubernetes.enabled && !config.db.forceRefresh && !config.testEnabled) {
     app.isSetup.then(() => {
       app.service('project')._fetchDevLocalProjects()
     })
