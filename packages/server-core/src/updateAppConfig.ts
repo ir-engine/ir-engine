@@ -3,6 +3,7 @@ import knex from 'knex'
 import { DataTypes, Sequelize } from 'sequelize'
 
 import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
 import appConfig from './appconfig'
 import logger from './ServerLogger'
@@ -46,18 +47,9 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const promises: any[] = []
 
-  const taskServerSetting = sequelizeClient.define('taskServerSetting', {
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    processInterval: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const taskServerSettingPromise = taskServerSetting
-    .findAll()
+  const taskServerSettingPromise = knexClient
+    .select()
+    .from<TaskServerSettingType>('taskServerSetting')
     .then(([dbTaskServer]) => {
       const dbTaskServerConfig = dbTaskServer && {
         port: dbTaskServer.port,

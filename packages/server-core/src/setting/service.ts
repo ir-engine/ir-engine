@@ -8,7 +8,7 @@ import InstanceServer from './instance-server-setting/instance-server-setting.se
 import ProjectSetting from './project-setting/project-setting.service'
 import RedisSetting from './redis-setting/redis-setting.service'
 import ServerSetting from './server-setting/server-setting.service'
-import TaskServer from './task-server-setting/task-server-setting.service'
+import TaskServer from './task-server-setting/task-server-setting'
 
 export default [
   ServerSetting,
