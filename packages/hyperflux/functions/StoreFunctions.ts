@@ -3,6 +3,7 @@ import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
 import { ActionReceptor, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
+import { ReactorRoot } from './ReactorFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -62,6 +63,9 @@ export interface HyperStore {
   }
   /** functions that receive actions */
   receptors: ReadonlyArray<ActionReceptor>
+
+  /** active reactors */
+  activeReactors: Set<ReactorRoot>
 }
 
 export class HyperFlux {
@@ -92,6 +96,7 @@ export function createHyperStore(options: {
     },
     receptors: [],
     reactors: new WeakMap(),
+    activeReactors: new Set(),
     toJSON: () => {
       const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
         return merge(obj, { [name]: state.attach(Downgraded).value })
