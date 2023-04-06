@@ -8,6 +8,7 @@ import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 import { NetworkTopics } from '../../networking/classes/Network'
 
 import '../utils/threejsPatches'
+import '../../patchEngineNode'
 
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import type { FeathersApplication } from '@feathersjs/feathers'

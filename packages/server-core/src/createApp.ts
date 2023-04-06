@@ -11,8 +11,6 @@ import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
 
-import '@etherealengine/engine/src/patchEngineNode'
-
 import { isDev } from '@etherealengine/common/src/config'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
