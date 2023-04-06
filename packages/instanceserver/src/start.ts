@@ -4,9 +4,6 @@ import https from 'https'
 import psList from 'ps-list'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
-
-import '@etherealengine/engine/src/patchEngineNode'
-
 import { getMutableState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
