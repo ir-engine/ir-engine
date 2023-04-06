@@ -5,7 +5,8 @@ import { NO_PROXY, State } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { LODComponent, LODLevel, SCENE_COMPONENT_LOD } from '../components/LODComponent'
 import { processLoadedLODLevel } from '../functions/loaders/LODFunctions'
 import getFirstMesh from '../util/getFirstMesh'
@@ -66,6 +67,8 @@ export default async function LODSystem() {
           const instanceMatrixElts = lodComponent.instanceMatrix.value.array
           const position = new Vector3(instanceMatrixElts[12], instanceMatrixElts[13], instanceMatrixElts[14])
           if (position) {
+            const transform = getComponent(lodComponent.target.value, TransformComponent)
+            position.applyMatrix4(transform.matrix)
             const distance = cameraPosition.distanceTo(position)
             for (let j = 0; j < lodDistances.length; j++) {
               if (distance < lodDistances[j] || j === lodDistances.length - 1) {

@@ -1,4 +1,4 @@
-import { InstancedMesh, Mesh } from 'three'
+import { InstancedMesh, Mesh, Object3D } from 'three'
 
 import createGLTFExporter from '@etherealengine/engine/src/assets/functions/createGLTFExporter'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
@@ -6,10 +6,11 @@ import { isClient } from '@etherealengine/engine/src/common/functions/isClient'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { processLoadedLODLevel } from '@etherealengine/engine/src/scene/functions/loaders/LODFunctions'
+import { getLodPath, processLoadedLODLevel } from '@etherealengine/engine/src/scene/functions/loaders/LODFunctions'
 import getFirstMesh from '@etherealengine/engine/src/scene/util/getFirstMesh'
 import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -29,14 +30,19 @@ export async function createLODsFromModel(entity: Entity): Promise<Entity[]> {
   if (model.scene) {
     const meshes = iterateObject3D(
       model.scene,
-      (mesh: Mesh) => mesh,
+      (mesh: Mesh) => {
+        getLodPath(mesh)
+        return mesh
+      },
       (mesh: Mesh) => mesh?.isMesh
     )
     for (let i = 0; i < meshes.length; i++) {
       const mesh = meshes[i]
       const lodEntity = createEntity()
-
+      addEntityNodeChild(lodEntity, entity)
       addComponent(lodEntity, LODComponent, {
+        target: entity,
+        lodPath: mesh.userData['lodPath'],
         levels: [
           {
             model: mesh,
@@ -48,11 +54,6 @@ export async function createLODsFromModel(entity: Entity): Promise<Entity[]> {
         instanced: mesh instanceof InstancedMesh
       })
       addComponent(lodEntity, NameComponent, mesh.name)
-      addComponent(lodEntity, TransformComponent, {
-        position: mesh.position,
-        rotation: mesh.quaternion,
-        scale: mesh.scale
-      })
       processLoadedLODLevel(lodEntity, 0, mesh)
       lods.push(lodEntity)
     }
@@ -93,5 +94,3 @@ export async function serializeLOD(
   const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
   level.src.set(urls[0][0])
 }
-
-export async function deserializeLOD() {}

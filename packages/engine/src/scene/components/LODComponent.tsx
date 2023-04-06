@@ -6,8 +6,10 @@ import matches from 'ts-matches'
 import { createState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { LODPath } from '../functions/loaders/LODFunctions'
+import { UUIDComponent } from './UUIDComponent'
 
 export type LODLevel = {
   distance: number
@@ -17,6 +19,8 @@ export type LODLevel = {
 }
 
 export type LODComponentType = {
+  target: Entity
+  lodPath: LODPath
   instanced: boolean
   levels: LODLevel[]
   lodHeuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL'
@@ -30,6 +34,8 @@ export const LODComponent = defineComponent({
   name: 'EE_LOD',
   onInit: (entity) =>
     ({
+      target: 0,
+      lodPath: '',
       instanced: false,
       levels: [] as LODLevel[],
       lodHeuristic: 'MANUAL',
@@ -38,7 +44,27 @@ export const LODComponent = defineComponent({
     } as LODComponentType),
   onSet: (entity, component, json) => {
     if (!json) return
+    if (['number', 'string'].includes(typeof json.target)) {
+      const targetEntity =
+        typeof json.target === 'string' ? UUIDComponent.entitiesByUUID[json.target].value : json.target
+      if (targetEntity && component.target.value !== targetEntity) {
+        LODComponent.lodsByEntity[targetEntity].set(
+          (
+            (LODComponent.lodsByEntity[targetEntity].value ?? []).filter(
+              (e) => ![component.target.value, entity].includes(e)
+            ) ?? []
+          ).concat(entity)
+        )
+        component.target.set(targetEntity)
+      }
+    }
+
+    if (typeof json.lodHeuristic === 'string') component.lodHeuristic.set(json.lodHeuristic)
+
+    if (typeof json.lodPath === 'string') component.lodPath.set(json.lodPath)
+
     if (typeof json.instanced === 'boolean') component.instanced.set(json.instanced)
+
     if (
       !!json.levels &&
       matches
@@ -72,19 +98,31 @@ export const LODComponent = defineComponent({
       }
     }
   },
+  onRemove: (entity, component) => {
+    const targetEntity = component.target.value
+    if (targetEntity) {
+      LODComponent.lodsByEntity[targetEntity].set(
+        (LODComponent.lodsByEntity[targetEntity].value ?? []).filter(
+          (e) => ![component.target.value, entity].includes(e)
+        ) ?? []
+      )
+    }
+  },
   toJSON: (entity, component) => ({
     instanced: component.instanced.value,
+    target: getComponent(component.target.value, UUIDComponent),
     levels: component.levels.value.map((level) => {
       return {
         distance: level.distance,
         model: null,
         src: level.src,
-        loaded: level.loaded
+        loaded: false
       }
     }),
+    lodPath: component.lodPath.value,
     lodHeuristic: component.lodHeuristic.value,
-    instanceMatrix: component.instanceMatrix.value.array,
-    instanceLevels: component.instanceLevels.value.array
+    instanceMatrix: Array.from(component.instanceMatrix.value.array),
+    instanceLevels: Array.from(component.instanceLevels.value.array)
   }),
   reactor: LODReactor,
   lodsByEntity: createState({} as Record<Entity, Entity[]>)
@@ -104,8 +142,7 @@ function LODReactor({ root }: EntityReactorProps): ReactElement {
 function LodLevelReactor({ entity, level }: { level: number; entity: Entity }) {
   const lodComponent = useComponent(entity, LODComponent)
   useEffect(() => {
-    //if the lod level is 0, update the instance levels and positions when a lod level's model changes
-    //otherwise,
+    const levelModel = lodComponent.levels[level].model.value
   }, [lodComponent.levels[level].model])
   return null
 }
