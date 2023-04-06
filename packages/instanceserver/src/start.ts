@@ -4,9 +4,9 @@ import https from 'https'
 import psList from 'ps-list'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
+
+import '@etherealengine/engine/src/patchEngineNode'
+
 import { getMutableState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -60,7 +60,14 @@ export const start = async (): Promise<Application> => {
   })
   serverState.agonesSDK.set(agonesSDK)
 
-  setInterval(() => agonesSDK.health(), 1000)
+  setInterval(
+    () =>
+      agonesSDK.health((err) => {
+        logger.error('Agones health check error:')
+        logger.error(err)
+      }),
+    1000
+  )
 
   app.configure(channels)
 

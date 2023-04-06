@@ -14,9 +14,10 @@ import { FriendService, useFriendState } from '../../../social/services/FriendSe
 import { InviteService } from '../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../social/services/PartyService'
 import { PopupMenuActions } from '../../../user/components/UserMenu/PopupMenuService'
-import { getAvatarURLForUser, Views } from '../../../user/components/UserMenu/util'
+import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useNetworkUserState } from '../../../user/services/NetworkUserService'
+import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
@@ -78,7 +79,9 @@ const AvatarContextMenu = () => {
   useEffect(() => {
     if (detailState.id.value !== '') {
       const tappedUser = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-      dispatchAction(PopupMenuActions.showPopupMenu({ id: Views.AvatarContext, params: { user: tappedUser?.value } }))
+      dispatchAction(
+        PopupMenuActions.showPopupMenu({ id: AvatarMenus.AvatarContext, params: { user: tappedUser?.value } })
+      )
     }
   }, [detailState.id])
 

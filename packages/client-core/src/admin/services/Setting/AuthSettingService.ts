@@ -68,6 +68,7 @@ export const AuthSettingsService = {
         .find()) as Paginated<AdminAuthSetting>
       dispatchAction(AuthSettingsActions.authSettingRetrieved({ authSetting }))
     } catch (err) {
+      console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },

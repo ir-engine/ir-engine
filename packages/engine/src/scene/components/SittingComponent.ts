@@ -8,7 +8,7 @@ export const SittingComponent = defineComponent({
   onInit(entity) {
     return {
       mountPointEntity: UndefinedEntity,
-      state: null! as typeof AvatarStates[keyof typeof AvatarStates]
+      state: null! as (typeof AvatarStates)[keyof typeof AvatarStates]
     }
   },
 

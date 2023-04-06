@@ -1,9 +1,6 @@
 .backdrop {
   position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
+  inset: 0;
   width: 100vw;
   background: #00000091;
   pointer-events: all;
@@ -53,6 +50,7 @@
       &.invisible {
         margin-left: 0;
         width: 0;
+        display: none;
       }
 
       .chat-view {
