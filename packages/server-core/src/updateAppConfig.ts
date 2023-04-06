@@ -3,6 +3,7 @@ import knex from 'knex'
 import { DataTypes, Sequelize } from 'sequelize'
 
 import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import { CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
 import appConfig from './appconfig'
@@ -233,26 +234,14 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(chargebeeSettingPromise)
 
-  const coilSetting = sequelizeClient.define('coilSetting', {
-    paymentPointer: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientSecret: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const coilSettingPromise = coilSetting
-    .findAll()
+  const coilSettingPromise = knexClient
+    .select()
+    .from<CoilSettingType>('coilSetting')
     .then(([dbCoil]) => {
       const dbCoilConfig = dbCoil && {
-        url: dbCoil.url,
-        apiKey: dbCoil.apiKey
+        paymentPointer: dbCoil.paymentPointer,
+        clientId: dbCoil.clientId,
+        clientSecret: dbCoil.clientSecret
       }
       if (dbCoilConfig) {
         appConfig.coil = {
