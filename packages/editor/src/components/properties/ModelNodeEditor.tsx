@@ -22,13 +22,13 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
 import { createLODsFromModel } from '../../functions/lodsFromModel'
+import { LODsFromModelParameters } from '../../functions/lodsFromModel'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import Well from '../layout/Well'
-import { LODProperties } from './LODProperties'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -53,6 +53,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const errors = getEntityErrors(props.entity, ModelComponent)
 
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
+
+  const lodParms = useState<LODsFromModelParameters>(() => ({
+    serialize: false
+  }))
 
   const onChangeEquippable = useCallback(() => {
     if (isEquippable.value) {
@@ -150,11 +154,15 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <div className="px-4 py-2 border-b border-gray-300">
           <h2 className="text-lg font-semibold text-gray-100">LODs</h2>
         </div>
+        <InputGroup name="Serialize" label={t('editor:properties.model.lods.serialize')}>
+          <BooleanInput value={lodParms.value.serialize} onChange={lodParms.serialize.set} />
+        </InputGroup>
         <div className="p-4">
-          <Button onClick={createLODsFromModel.bind({}, entity)}>{t('editor:properties.model.generate-lods')}</Button>
+          <Button onClick={createLODsFromModel.bind({}, entity, lodParms.value)}>
+            {t('editor:properties.model.generate-lods')}
+          </Button>
         </div>
       </div>
-      {LODComponent.lodsByEntity[props.entity].value && <LODProperties entity={entity} />}
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting.value && modelComponent.src.value && (
         <Well>

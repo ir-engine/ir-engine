@@ -1,4 +1,4 @@
-import { Scene, Vector3 } from 'three'
+import { Mesh, Scene, Vector3 } from 'three'
 
 import { NO_PROXY, State } from '@etherealengine/hyperflux'
 
@@ -8,7 +8,8 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { LODComponent, LODLevel, SCENE_COMPONENT_LOD } from '../components/LODComponent'
-import { processLoadedLODLevel } from '../functions/loaders/LODFunctions'
+import { ModelComponent } from '../components/ModelComponent'
+import { objectFromLodPath, processLoadedLODLevel } from '../functions/loaders/LODFunctions'
 import getFirstMesh from '../util/getFirstMesh'
 
 export default async function LODSystem() {
@@ -28,6 +29,9 @@ export default async function LODSystem() {
     lastUpdate = Engine.instance.elapsedSeconds
     for (const entity of lodQuery()) {
       const lodComponent = getMutableComponent(entity, LODComponent)
+      const modelComponent = getComponent(lodComponent.target.value, ModelComponent)
+      //if the model is not loaded, skip
+      if (!modelComponent.scene) continue
       //create LOD distances array
       const lodDistances = lodComponent.levels.map((level) => level.distance.value)
       //iterate through all the instance positions and update LOD index based on distance
@@ -93,12 +97,18 @@ export default async function LODSystem() {
               mesh && processLoadedLODLevel(entity, i, mesh)
               level.model.set(mesh ?? null)
               level.loaded.set(true)
-              for (const levelToUnload of levelsToUnload) {
+              while (levelsToUnload.length > 0) {
+                const levelToUnload = levelsToUnload.pop()!
                 levelToUnload.loaded.set(false)
                 levelToUnload.model.get(NO_PROXY)?.removeFromParent()
                 levelToUnload.model.set(null)
               }
             })
+          // if level has blank src, use the mesh at lodPath in the target model
+          ;(!level.loaded.value &&
+            level.src.value === '' &&
+            level.model.set(objectFromLodPath(modelComponent, lodComponent.lodPath.value)! as Mesh)) ||
+            level.loaded.set(true)
         } else {
           //if the level is not referenced, unload it if it's loaded
           if (level.loaded.value) {

@@ -4,7 +4,11 @@ import createGLTFExporter from '@etherealengine/engine/src/assets/functions/crea
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { isClient } from '@etherealengine/engine/src/common/functions/isClient'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getMutableComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/components/LODComponent'
@@ -18,12 +22,21 @@ import { State } from '@etherealengine/hyperflux'
 
 import { uploadProjectFiles } from './assetFunctions'
 
+export type LODsFromModelParameters = {
+  serialize: boolean
+}
+
 /**
  * Iterates through a model's meshes and creates LODComponents for each one
  * @param entity : entity to add the LODs to
  * @returns array of generated LOD entities
  */
-export async function createLODsFromModel(entity: Entity): Promise<Entity[]> {
+export async function createLODsFromModel(
+  entity: Entity,
+  options: LODsFromModelParameters = {
+    serialize: false
+  }
+): Promise<Entity[]> {
   LODComponent.lodsByEntity[entity].value?.map((entity) => removeEntity(entity))
   const model = getComponent(entity, ModelComponent)
   const lods: Entity[] = []
@@ -36,6 +49,7 @@ export async function createLODsFromModel(entity: Entity): Promise<Entity[]> {
       },
       (mesh: Mesh) => mesh?.isMesh
     )
+    const exporter = createGLTFExporter()
     for (let i = 0; i < meshes.length; i++) {
       const mesh = meshes[i]
       const lodEntity = createEntity()
@@ -55,6 +69,10 @@ export async function createLODsFromModel(entity: Entity): Promise<Entity[]> {
       })
       addComponent(lodEntity, NameComponent, mesh.name)
       processLoadedLODLevel(lodEntity, 0, mesh)
+      if (options.serialize) {
+        const lodComponent = getMutableComponent(lodEntity, LODComponent)
+        await serializeLOD(model.src, lodEntity, lodComponent.levels[0], exporter)
+      }
       lods.push(lodEntity)
     }
   }

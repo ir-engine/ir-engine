@@ -107,10 +107,14 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
           removeLoaded = () => {
             loadedModel?.removeFromParent()
           }
+        } else {
+          console.log('loaded model exists')
         }
         if (loadedModel) {
           loadedModel.parent?.add(mesh)
-          mesh.matrix.copy(loadedModel.matrix)
+          mesh.position.copy(loadedModel.position)
+          mesh.quaternion.copy(loadedModel.quaternion)
+          mesh.scale.copy(loadedModel.scale)
           mesh.updateMatrixWorld(true)
           mesh.updateMatrix()
         }

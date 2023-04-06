@@ -12,6 +12,8 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { State } from '@etherealengine/hyperflux'
 
+import DeblurIcon from '@mui/icons-material/Deblur'
+
 import { serializeLOD } from '../../functions/lodsFromModel'
 import { Button } from '../inputs/Button'
 import InputGroup, { InputGroupContainer } from '../inputs/InputGroup'
@@ -20,12 +22,13 @@ import NumericInput from '../inputs/NumericInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PaginatedList from '../layout/PaginatedList'
+import { EditorComponentType } from './Util'
 
-export function LODProperties({ entity }: { entity: Entity }) {
+export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity }) => {
   const { t } = useTranslation()
-  const entities = LODComponent.lodsByEntity[entity].value
 
-  const model = getComponent(entity, ModelComponent)
+  const lodComponent = useComponent(entity, LODComponent)
+  const nameComponent = getComponent(entity, NameComponent)
 
   const onChangeLevelProperty = useCallback(
     (level: State<LODLevel>, property: keyof LODLevel) => {
@@ -35,86 +38,75 @@ export function LODProperties({ entity }: { entity: Entity }) {
     },
     [entity]
   )
-
-  if (!entities) return <></>
   return (
     <div>
       <h2 className="text-white text-2xl font-bold m-4">LODs</h2>
-      <PaginatedList
-        list={entities}
-        element={(entity: Entity) => {
-          const lodComponent = useComponent(entity, LODComponent)
-          const nameComponent = getComponent(entity, NameComponent)
-          return (
-            <div className="bg-gray-800 rounded-lg p-4 m-4">
-              <h2 className="text-white text-xl font-bold mb-4">{nameComponent}</h2>
-              <InputGroup name="lodHeuristic" label={t('editor:properties.lod.heuristic')}>
-                <SelectInput
-                  value={lodComponent.lodHeuristic.value}
-                  onChange={(val: typeof lodComponent.lodHeuristic.value) => lodComponent.lodHeuristic.set(val)}
-                  options={[
-                    { value: 'DISTANCE', label: t('editor:properties.lod.heuristic.distance') },
-                    { value: 'SCENE_SCALE', label: t('editor:properties.lod.heuristic.sceneScale') },
-                    { value: 'MANUAL', label: t('editor:properties.lod.heuristic.manual') }
-                  ]}
-                />
-              </InputGroup>
-              <Button
-                onClick={() =>
-                  lodComponent.levels[lodComponent.levels.length].set({
-                    distance: 0,
-                    src: '',
-                    loaded: false,
-                    model: null
-                  })
-                }
-              >
-                Add LOD
-              </Button>
-              <PaginatedList
-                options={{ countPerPage: 1 }}
-                list={lodComponent.levels}
-                element={(level: State<LODLevel>) => {
-                  return (
-                    <div className="bg-gray-900 m-2">
-                      <div style={{ margin: '2em' }}>
-                        <InputGroup name="distance" label={t('editor:properties.lod.distance')}>
-                          <NumericInput
-                            value={level.distance.value}
-                            onChange={onChangeLevelProperty(level, 'distance')}
-                          />
-                        </InputGroup>
-                        <InputGroup name="src" label={t('editor:properties.lod.src')}>
-                          <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
-                        </InputGroup>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button
-                          onClick={() => {
-                            const index = lodComponent.levels.indexOf(level)
-                            lodComponent.levels.set(lodComponent.levels.value.filter((_, i) => i !== index))
-                          }}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button
-                          onClick={() => {
-                            serializeLOD(model.src, entity, level)
-                          }}
-                        >
-                          Serialize
-                        </Button>
-                      </div>
-                    </div>
-                  )
-                }}
-              />
-            </div>
-          )
-        }}
-      />
+      <div className="bg-gray-800 rounded-lg p-4 m-4">
+        <h2 className="text-white text-xl font-bold mb-4">{nameComponent}</h2>
+        <InputGroup name="lodHeuristic" label={t('editor:properties.lod.heuristic')}>
+          <SelectInput
+            value={lodComponent.lodHeuristic.value}
+            onChange={(val: typeof lodComponent.lodHeuristic.value) => lodComponent.lodHeuristic.set(val)}
+            options={[
+              { value: 'DISTANCE', label: t('editor:properties.lod.heuristic.distance') },
+              { value: 'SCENE_SCALE', label: t('editor:properties.lod.heuristic.sceneScale') },
+              { value: 'MANUAL', label: t('editor:properties.lod.heuristic.manual') }
+            ]}
+          />
+        </InputGroup>
+        <Button
+          onClick={() =>
+            lodComponent.levels[lodComponent.levels.length].set({
+              distance: 0,
+              src: '',
+              loaded: false,
+              model: null
+            })
+          }
+        >
+          Add LOD
+        </Button>
+        <PaginatedList
+          options={{ countPerPage: 1 }}
+          list={lodComponent.levels}
+          element={(level: State<LODLevel>) => {
+            return (
+              <div className="bg-gray-900 m-2">
+                <div style={{ margin: '2em' }}>
+                  <InputGroup name="distance" label={t('editor:properties.lod.distance')}>
+                    <NumericInput value={level.distance.value} onChange={onChangeLevelProperty(level, 'distance')} />
+                  </InputGroup>
+                  <InputGroup name="src" label={t('editor:properties.lod.src')}>
+                    <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
+                  </InputGroup>
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => {
+                      const index = lodComponent.levels.indexOf(level)
+                      lodComponent.levels.set(lodComponent.levels.value.filter((_, i) => i !== index))
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => {
+                      const model = getComponent(lodComponent.target.value, ModelComponent)
+                      serializeLOD(model.src, entity, level)
+                    }}
+                  >
+                    Serialize
+                  </Button>
+                </div>
+              </div>
+            )
+          }}
+        />
+      </div>
     </div>
   )
 }
+
+LODProperties.iconComponent = DeblurIcon

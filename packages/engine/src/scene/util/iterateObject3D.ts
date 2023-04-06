@@ -15,9 +15,9 @@ export default function iterateObject3D<T extends Object3D, R>(
       if (predicate(obj3d as T)) {
         result.push(callback(obj3d as T))
         if (breakOnFind) break
-        snubChildren && frontier.push(obj3d.children ?? [])
+        snubChildren && frontier.push(obj3d?.children ?? [])
       }
-      !snubChildren && frontier.push(obj3d.children ?? [])
+      !snubChildren && frontier.push(obj3d?.children ?? [])
     }
   } while (frontier.length > 0)
   return result
