@@ -6,7 +6,7 @@ import LoadingCircle from './index'
 const argTypes = {}
 
 export default {
-  title: 'Tailwind/LoadingCircle',
+  title: 'Primitives/Tailwind/LoadingCircle',
   component: LoadingCircle,
   parameters: {
     componentSubtitle: 'LoadingCircle',

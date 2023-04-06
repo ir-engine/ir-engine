@@ -6,7 +6,7 @@ import Capture from './index'
 const argTypes = {}
 
 export default {
-  title: 'Pages/Capture',
+  title: 'Primitives/Tailwind/Capture',
   component: Capture,
   parameters: {
     componentSubtitle: 'Capture',
