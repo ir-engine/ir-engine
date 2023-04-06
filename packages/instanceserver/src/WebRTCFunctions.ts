@@ -17,13 +17,17 @@ import {
 import os from 'os'
 import { Spark } from 'primus'
 
-import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeer } from '@etherealengine/engine/src/networking/interfaces/NetworkPeer'
-import { dataChannelRegistry, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  dataChannelRegistry,
+  MediaStreamAppData,
+  MediaTagType,
+  NetworkState
+} from '@etherealengine/engine/src/networking/NetworkState'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'

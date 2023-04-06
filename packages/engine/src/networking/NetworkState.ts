@@ -1,3 +1,4 @@
+import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
@@ -38,6 +39,32 @@ export const webcamVideoDataChannelType = 'ee.core.webcamVideo.dataChannel' as D
 export const webcamAudioDataChannelType = 'ee.core.webcamAudio.dataChannel' as DataChannelType
 export const screenshareVideoDataChannelType = 'ee.core.screenshareVideo.dataChannel' as DataChannelType
 export const screenshareAudioDataChannelType = 'ee.core.screenshareAudio.dataChannel' as DataChannelType
+
+export type MediaTagType =
+  | typeof webcamVideoDataChannelType
+  | typeof webcamAudioDataChannelType
+  | typeof screenshareVideoDataChannelType
+  | typeof screenshareAudioDataChannelType
+
+export type MediaStreamAppData = {
+  mediaTag: MediaTagType
+  peerID: PeerID
+  direction: TransportDirection
+  channelType: ChannelType
+  channelId: string
+  clientDirection?: 'recv' | 'send'
+}
+
+export type PeerMediaType = {
+  paused: boolean
+  producerId: string
+  globalMute: boolean
+  encodings: any
+  channelType: ChannelType
+  channelId: string
+}
+
+export type TransportDirection = 'send' | 'receive'
 
 export const addNetwork = (network: Network) => {
   getMutableState(NetworkState).networks[network.hostId].set(network)

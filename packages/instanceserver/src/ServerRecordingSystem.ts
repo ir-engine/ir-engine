@@ -31,6 +31,7 @@ import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
 
+import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { createOutgoingDataProducer } from './WebRTCFunctions'
 
@@ -60,6 +61,7 @@ export const activePlaybacks = new Map<string, ActivePlayback>()
 
 export const dispatchError = (error: string, targetUser: UserId) => {
   const app = Engine.instance.api as Application as Application
+  logger.error('Recording Error: ' + error)
   dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
 }
 
@@ -72,6 +74,8 @@ const mediaDataChannels = [
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
   const app = Engine.instance.api as Application as Application
+
+  console.log('onStartRecording', action)
 
   const recording = await app.service('recording').get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$from)
@@ -184,11 +188,9 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   if (Engine.instance.mediaNetwork) {
     const dataChannelSchema = schema
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
-      .filter(Boolean)
+      .filter(Boolean) as DataChannelType[]
 
-    for (const dataChannel of dataChannelSchema) {
-      /** @todo */
-    }
+    startMediaRecording(recording.id, userID, dataChannelSchema)
   }
 
   activeRecordings.set(recording.id, activeRecording)

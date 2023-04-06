@@ -15,9 +15,9 @@ export const RecordingState = defineState({
     started: false,
     recordingID: null as string | null,
     config: {
-      mocap: true,
+      mocap: false,
       video: true,
-      pose: true
+      pose: false
     },
     recordings: [] as RecordingResult[],
     playback: null as string | null
