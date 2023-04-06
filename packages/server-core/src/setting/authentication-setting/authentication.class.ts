@@ -1,4 +1,5 @@
 import { Paginated, Params } from '@feathersjs/feathers'
+import k8s from '@kubernetes/client-node'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminAuthSetting as AdminAuthSettingInterface } from '@etherealengine/common/src/interfaces/AdminAuthSetting'
@@ -120,7 +121,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
           undefined,
           {
             headers: {
-              'Content-Type': 'application/strategic-merge-patch+json'
+              'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
             }
           }
         )
