@@ -1,4 +1,4 @@
-import { SpawnTestBot, TestBot } from '@etherealengine/common/src/interfaces/TestBot'
+import { BotPod, SpawnBotPod } from '@etherealengine/common/src/interfaces/AdminBot'
 import { getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -12,9 +12,9 @@ export const getTestbotPod = async (app: Application) => {
     try {
       const jobName = `${config.server.releaseName}-etherealengine-testbot`
       const podsResult = await k8DefaultClient.listNamespacedPod('default')
-      let pods: TestBot[] = []
+      const pods: BotPod[] = []
       for (const pod of podsResult.body.items) {
-        let labels = pod.metadata!.labels
+        const labels = pod.metadata!.labels
         if (labels && labels['job-name'] && labels['job-name'] === jobName) {
           pods.push({
             name: pod.metadata!.name!,
@@ -37,7 +37,7 @@ export const getTestbotPod = async (app: Application) => {
  * @param app
  * @returns
  */
-export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => {
+export const runTestbotJob = async (app: Application): Promise<SpawnBotPod> => {
   const k8BatchClient = getState(ServerState).k8BatchClient
   if (k8BatchClient) {
     try {
