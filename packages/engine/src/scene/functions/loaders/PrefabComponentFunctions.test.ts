@@ -20,9 +20,6 @@ import {
   EntityTreeComponent
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
-
-import '@etherealengine/engine/src/patchEngineNode'
-
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'

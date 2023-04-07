@@ -12,8 +12,6 @@ import { createMockAPI } from '../../../tests/createMockAPI'
 import { API } from '../../API'
 import { accessChatState } from '../../social/services/ChatService'
 
-import '@etherealengine/engine/src/patchEngineNode'
-
 describe('Instance Chat Component', () => {
   let rootContainer: HTMLDivElement
 
