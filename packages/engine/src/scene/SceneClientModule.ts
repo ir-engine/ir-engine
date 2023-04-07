@@ -33,7 +33,7 @@ export function SceneClientModule() {
     },
     {
       uuid: 'ee.engine.LODSystem',
-      type: SystemUpdateType.PRE_RENDER,
+      type: SystemUpdateType.POST_RENDER,
       systemLoader: () => Promise.resolve({ default: LODSystem })
     },
     {

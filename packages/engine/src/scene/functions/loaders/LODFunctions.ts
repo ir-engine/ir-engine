@@ -31,6 +31,41 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
   const lodComponent = getMutableComponent(entity, LODComponent)
   let loadedModel: Object3D | null = lodComponent.levels.find((level) => level.loaded.value)?.model.value ?? null
 
+  function addPlugin(mesh: Mesh) {
+    delete mesh.geometry.attributes['lodIndex']
+    delete mesh.geometry.attributes['_lodIndex']
+    mesh.geometry.setAttribute('lodIndex', component.instanceLevels.get(NO_PROXY))
+    const materials: Material[] = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+    materials.forEach((material) => {
+      //add a shader plugin to clip the model if it's not the current level
+      addOBCPlugin(material, {
+        id: 'lod-culling',
+        priority: 1,
+        compile: (shader, renderer) => {
+          shader.vertexShader = shader.vertexShader.replace(
+            '#define STANDARD',
+            `
+  #define STANDARD
+  attribute float lodIndex;
+  varying float vDoClip;
+`
+          )
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <fog_vertex>',
+            `
+  #include <fog_vertex>
+  vDoClip = float(lodIndex != ${index}.0);
+`
+          )
+          shader.fragmentShader = shader.fragmentShader.replace(
+            'void main() {\n',
+            'varying float vDoClip;\nvoid main() {\nif (vDoClip > 0.0) discard;\n'
+          )
+        }
+      })
+    })
+  }
+
   //if model is an instanced mesh, add the lodIndex instanced attribute
   if (mesh instanceof InstancedMesh) {
     mesh.instanceMatrix.setUsage(DynamicDrawUsage)
@@ -40,8 +75,8 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
       //if the lodComponent does not have instanced positions defined, create them based on this model's instance matrix
       if (component.instanceMatrix.value.array.length === 0) {
         const transforms = new Float32Array(mesh.count * 16)
+        const matrix = new Matrix4()
         for (let i = 0; i < mesh.count; i++) {
-          const matrix = new Matrix4()
           mesh.getMatrixAt(i, matrix)
           for (let j = 0; j < 16; j++) {
             transforms[i * 16 + j] = matrix.elements[j]
@@ -53,46 +88,44 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
         //if the lodComponent does have instanced positions defined, set the model's instance matrix to it
         mesh.instanceMatrix = component.instanceMatrix.value
       }
-      mesh.geometry.setAttribute('lodIndex', component.instanceLevels.get(NO_PROXY))
-      const materials: Material[] = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-      materials.forEach((material) => {
-        //add a shader plugin to clip the model if it's not the current level
-        addOBCPlugin(material, {
-          id: 'lod-culling',
-          priority: 1,
-          compile: (shader, renderer) => {
-            shader.vertexShader = shader.vertexShader.replace(
-              '#define STANDARD',
-              `
-  #define STANDARD
-  attribute float lodIndex;
-  varying float vDoClip;
-`
-            )
-            shader.vertexShader = shader.vertexShader.replace(
-              '#include <fog_vertex>',
-              `
-  #include <fog_vertex>
-  vDoClip = float(lodIndex != ${index}.0);
-`
-            )
-            shader.fragmentShader = shader.fragmentShader.replace(
-              'void main() {\n',
-              'varying float vDoClip;\nvoid main() {\nif (vDoClip > 0.0) discard;\n'
-            )
-          }
-        })
-      })
+      let removeLoaded = () => {}
+      if (!loadedModel) {
+        loadedModel = objectFromLodPath(targetModel.value, component.lodPath.value)
+        removeLoaded = () => {
+          loadedModel?.removeFromParent()
+        }
+      }
+      loadedModel.parent?.add(mesh)
+      mesh.name = loadedModel.name
+      mesh.position.copy(loadedModel.position)
+      mesh.quaternion.copy(loadedModel.quaternion)
+      mesh.scale.copy(loadedModel.scale)
+      mesh.updateMatrixWorld(true)
+      removeLoaded()
+      addPlugin(mesh)
+      level.model.set(mesh)
     }
   } else {
     if (component.instanced.value) {
+      let removeLoaded = () => {}
+      if (!loadedModel) {
+        loadedModel = objectFromLodPath(targetModel.value, component.lodPath.value)
+        removeLoaded = () => {
+          loadedModel?.removeFromParent()
+        }
+      }
       //if the lodComponent has instanced positions defined, create an instanced version of this model with the same positions
       const instancedModel = new InstancedMesh(mesh.geometry, mesh.material, component.instanceMatrix.value.count)
       instancedModel.instanceMatrix = component.instanceMatrix.get(NO_PROXY)
-      mesh.parent && mesh.parent.add(instancedModel)
-      instancedModel.matrix.copy(mesh.matrix)
+      loadedModel.parent?.add(instancedModel)
+      instancedModel.name = loadedModel.name
+      instancedModel.position.copy(loadedModel.position)
+      instancedModel.quaternion.copy(loadedModel.quaternion)
+      instancedModel.scale.copy(loadedModel.scale)
       instancedModel.updateMatrixWorld(true)
       mesh.removeFromParent()
+      removeLoaded()
+      addPlugin(instancedModel)
       level.model.set(instancedModel)
     } else {
       //if the model is not instanced, and the lodComponent does not have instanced positions defined, create singletons based on this model's position
@@ -101,25 +134,25 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
         component.instanceLevels.set(new InstancedBufferAttribute(new Uint8Array([index]), 1))
       } else {
         //if the lodComponent does have a matrix defined, set the loaded model's matrix to it
-        let removeLoaded = () => {}
-        if (!loadedModel) {
-          loadedModel = objectFromLodPath(targetModel.value, component.lodPath.value)
-          removeLoaded = () => {
-            loadedModel?.removeFromParent()
-          }
-        } else {
-          console.log('loaded model exists')
-        }
-        if (loadedModel) {
-          loadedModel.parent?.add(mesh)
-          mesh.position.copy(loadedModel.position)
-          mesh.quaternion.copy(loadedModel.quaternion)
-          mesh.scale.copy(loadedModel.scale)
-          mesh.updateMatrixWorld(true)
-          mesh.updateMatrix()
-        }
-        removeLoaded()
+        mesh.applyMatrix4(new Matrix4().fromArray(component.instanceMatrix.value.array))
       }
+      let removeLoaded = () => {}
+      if (!loadedModel) {
+        loadedModel = objectFromLodPath(targetModel.value, component.lodPath.value)
+        removeLoaded = () => {
+          loadedModel?.removeFromParent()
+        }
+      } else {
+        console.log('loaded model exists')
+      }
+      loadedModel.parent?.add(mesh)
+      mesh.name = loadedModel.name
+      mesh.position.copy(loadedModel.position)
+      mesh.quaternion.copy(loadedModel.quaternion)
+      mesh.scale.copy(loadedModel.scale)
+      mesh.updateMatrixWorld(true)
+      removeLoaded()
+      level.model.set(mesh)
     }
   }
 }
@@ -146,13 +179,12 @@ export function objectFromLodPath(model: ComponentType<typeof ModelComponent>, p
   const pathParts = path.split('/')
   pathParts.pop()
   while (pathParts.length > 0) {
-    const part = pathParts.pop()
+    const part = pathParts.shift()
     if (!part) break
     walker = walker?.children.find((child) => child.name === part) ?? null
   }
-  const result = walker ?? model.scene
-  if (!result) {
+  if (!walker) {
     throw new Error(`Could not find object from path ${path} in model ${model.scene}`)
   }
-  return result
+  return walker
 }

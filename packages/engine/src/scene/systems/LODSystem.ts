@@ -43,24 +43,29 @@ export default async function LODSystem() {
         } else if (['DISTANCE', 'SCENE_SCALE'].includes(heuristic)) {
           const instancePositions = lodComponent.instanceMatrix.value
           const position = new Vector3()
+          const transform = getComponent(lodComponent.target.value, TransformComponent)
           for (let i = 0; i < instancePositions.count; i++) {
             position.set(
               instancePositions.array[i * 16 + 12],
               instancePositions.array[i * 16 + 13],
               instancePositions.array[i * 16 + 14]
             )
+            position.applyMatrix4(transform.matrix)
             const distance = cameraPosition.distanceTo(position)
             const levelsAttr = lodComponent.instanceLevels.get(NO_PROXY)
             const currentLevel = levelsAttr.getX(i)
             let newLevel = currentLevel
             for (let j = 0; j < lodDistances.length; j++) {
               if (distance < lodDistances[j] || j === lodDistances.length - 1) {
-                ;(currentLevel !== j && (newLevel = j)) || levelsAttr.setX(i, j)
+                currentLevel !== j && (newLevel = j)
+                levelsAttr.setX(i, newLevel)
                 break
               }
             }
             referencedLods.add(newLevel)
           }
+          const levelsAttr = lodComponent.instanceLevels.get(NO_PROXY)
+          levelsAttr.needsUpdate = true
         } else throw Error('Invalid LOD heuristic')
       } else {
         //if not instanced, just use the first model position
@@ -95,14 +100,12 @@ export default async function LODSystem() {
             AssetLoader.load(level.src.value, {}, (loadedScene: GLTF) => {
               const mesh = getFirstMesh(loadedScene.scene)
               mesh && processLoadedLODLevel(entity, i, mesh)
-              level.model.set(mesh ?? null)
               level.loaded.set(true)
               while (levelsToUnload.length > 0) {
                 const levelToUnload = levelsToUnload.pop()
-                if (!levelToUnload) continue
-                levelToUnload.loaded.set(false)
-                levelToUnload.model.get(NO_PROXY)?.removeFromParent()
-                levelToUnload.model.set(null)
+                levelToUnload?.loaded.set(false)
+                levelToUnload?.model.get(NO_PROXY)?.removeFromParent()
+                levelToUnload?.model.set(null)
               }
             })
           // if level has blank src, use the mesh at lodPath in the target model
