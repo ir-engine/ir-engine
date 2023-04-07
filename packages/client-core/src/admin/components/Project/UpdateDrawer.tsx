@@ -73,7 +73,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     })
     return {
       value: el.tag,
-      label: `Commit ${el.commitSHA.slice(0, 8)} -- ${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
+      label: `Commit ${el.commitSHA?.slice(0, 8)} -- ${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
         el.engineVersion
       } -- Pushed ${pushedDate}`
     }
