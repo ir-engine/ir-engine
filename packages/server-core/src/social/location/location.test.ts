@@ -11,6 +11,7 @@ const params = { isInternal: true } as any
 describe('location.test', () => {
   let app: Application
   const locations: any[] = []
+  let location_settings: any
 
   before(async () => {
     app = createFeathersExpressApp()
@@ -24,7 +25,7 @@ describe('location.test', () => {
   it('should create a new location', async () => {
     const name = `Test Location ${v1()}`
 
-    const location_settings = await app.service('location-settings').create({})
+    location_settings = await app.service('location-settings').create({})
 
     const item = await app.service('location').create(
       {
@@ -50,7 +51,10 @@ describe('location.test', () => {
 
   it('should be able to update the location', async () => {
     const newName = `Update Test Location ${v1()}`
-    const item = await app.service('location').patch(locations[0].id, { ...locations[0], name: newName })
+    const item = await app
+      .service('location')
+      .patch(locations[0].id, { ...locations[0], name: newName, location_settings })
+
     assert.ok(item)
     assert.equal(item.name, newName)
 

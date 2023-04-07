@@ -327,19 +327,17 @@ export class Location<T = LocationDataType> extends Service<T> {
 
       await this.Model.update(locationData, { where: { id }, transaction: t }) // super.patch(id, locationData, params);
 
-      if (location_settings) {
-        await this.app.service('location-settings').Model.update(
-          {
-            videoEnabled: !!location_settings.videoEnabled,
-            audioEnabled: !!location_settings.audioEnabled,
-            faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
-            screenSharingEnabled: !!location_settings.screenSharingEnabled,
-            maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
-            locationType: location_settings.locationType || 'private'
-          },
-          { where: { id: oldSettings.id }, transaction: t }
-        )
-      }
+      await this.app.service('location-settings').Model.update(
+        {
+          videoEnabled: !!location_settings.videoEnabled,
+          audioEnabled: !!location_settings.audioEnabled,
+          faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
+          screenSharingEnabled: !!location_settings.screenSharingEnabled,
+          maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
+          locationType: location_settings.locationType || 'private'
+        },
+        { where: { id: oldSettings.id }, transaction: t }
+      )
 
       await t.commit()
       const location = await this.Model.findOne({
