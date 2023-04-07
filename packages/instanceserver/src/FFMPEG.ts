@@ -7,8 +7,14 @@ const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
 
 /**
  * @todo
- * - support more codecs and get codec data from the producer directly
+ *
+ *  - support more codecs and get codec data from the producer directly
  * - support more than one ffmpeg at the same time by specifying different ports
+ */
+
+/**
+ * Complete list of ffmpeg flags
+ * https://gist.github.com/tayvano/6e2d456a9897f55025e25035478a3a50
  */
 
 /**
@@ -102,6 +108,9 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   const stop = () => {
     childProcess.kill('SIGINT')
   }
+  childProcess.stdout.on('data', (chunk) => {
+    console.log('chunk', chunk)
+  })
 
   await new Promise<void>((resolve, reject) => {
     // FFmpeg writes its logs to stderr
@@ -126,3 +135,19 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     stop
   }
 }
+
+/**
+ * 
+/home/josh/Desktop/etherealengine/node_modules/ffmpeg-static/ffmpeg
+ -nostdin
+ -protocol_whitelist file,rtp,udp
+ -analyzeduration 3000000
+ -fflags +genpts
+ -i /home/josh/Desktop/etherealengine/packages/instanceserver/src/recording/input-vp8.sdp 
+ -map 0:v:0
+ -c:v copy
+ -f webm
+ -flags +global_header
+ -y /home/josh/Desktop/etherealengine/packages/instanceserver/src/recording/output-ffmpeg-vp8.webm
+
+ */
