@@ -1,5 +1,6 @@
 import React, { ReactElement, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { Location } from '@etherealengine/common/src/interfaces/Location'
@@ -20,6 +21,8 @@ interface Props {
   className?: string
   search: string
 }
+
+const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
 const LocationTable = ({ className, search }: Props) => {
   const page = useHookstate(0)
@@ -92,8 +95,8 @@ const LocationTable = ({ className, search }: Props) => {
     return {
       el,
       id,
-      name,
-      sceneId,
+      name: <a href={`/location/${transformLink(name)}`}>{name}</a>,
+      sceneId: <a href={`/studio/${sceneId}`}>{sceneId}</a>,
       maxUsersPerInstance,
       scene,
       type,
