@@ -12,6 +12,7 @@ import {
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { localConfig } from '@etherealengine/server-core/src/config'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { startFFMPEG } from './FFMPEG'
@@ -151,7 +152,8 @@ export const startMediaRecordingPair = async (peerID: PeerID, mediaType: string,
     logger.info('Resuming recording audio consumer', tracks.audioConsumer)
   }
   return {
-    stopRecording
+    stopRecording,
+    stream: ffmpegProcess.stream
   }
 }
 
@@ -195,15 +197,14 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
     }
   }
 
-  const activeProcesses = await Promise.all(promises)
+  const recordings = await Promise.all(promises)
 
-  const stopRecording = () => {
-    for (const process of activeProcesses) {
-      process.stopRecording()
-    }
+  const storageprovider = getStorageProvider()
+
+  for (const recording of recordings) {
+    // storageprovider.createWriteStream(
+    // )
   }
 
-  return {
-    stopRecording
-  }
+  return recordings
 }

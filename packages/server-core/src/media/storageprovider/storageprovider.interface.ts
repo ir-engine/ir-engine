@@ -224,4 +224,14 @@ export interface StorageProviderInterface {
    * @param params Parameters of the add request.
    */
   putObject(object: StorageObjectInterface, params?: PutObjectParams): Promise<any>
+
+  /**
+   *
+   */
+  createWriteStream()
+
+  /**
+   *
+   */
+  createReadStream()
 }

@@ -231,7 +231,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
 
-    await activeRecording.mediaChannelRecorder.stopRecording()
+    await Promise.all(activeRecording.mediaChannelRecorder.map((recording) => recording.stopRecording()))
     // stop recording data channel
   }
 

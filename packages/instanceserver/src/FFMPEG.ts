@@ -1,5 +1,6 @@
 import Process from 'child_process'
 import ffmpeg from 'ffmpeg-static'
+import Stream from 'stream'
 
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
@@ -51,6 +52,8 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     }
   }
 
+  const stream = new Stream.PassThrough()
+
   if (!ffmpegOk) {
     throw new Error('FFmpeg >= 4.0.0 not found in $PATH; please install it')
   }
@@ -80,7 +83,7 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     `-i ${cmdInputPath}`,
     cmdCodec,
     cmdFormat,
-    `-y ${cmdOutputPath}`
+    `-y pipe:1`
   ]
     .join(' ')
     .trim()
@@ -91,6 +94,10 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
 
   childProcess.on('error', (err) => {
     logger.error('Recording process error:', err)
+  })
+
+  childProcess.on('data', (chunk) => {
+    console.log(chunk)
   })
 
   childProcess.on('exit', (code, signal) => {
@@ -108,9 +115,7 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   const stop = () => {
     childProcess.kill('SIGINT')
   }
-  childProcess.stdout.on('data', (chunk) => {
-    console.log('chunk', chunk)
-  })
+  childProcess.stdout.pipe(stream, { end: true })
 
   await new Promise<void>((resolve, reject) => {
     // FFmpeg writes its logs to stderr
@@ -132,6 +137,7 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
 
   return {
     childProcess,
-    stop
+    stop,
+    stream
   }
 }
