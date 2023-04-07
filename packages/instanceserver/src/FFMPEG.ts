@@ -135,19 +135,3 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     stop
   }
 }
-
-/**
- * 
-/home/josh/Desktop/etherealengine/node_modules/ffmpeg-static/ffmpeg
- -nostdin
- -protocol_whitelist file,rtp,udp
- -analyzeduration 3000000
- -fflags +genpts
- -i /home/josh/Desktop/etherealengine/packages/instanceserver/src/recording/input-vp8.sdp 
- -map 0:v:0
- -c:v copy
- -f webm
- -flags +global_header
- -y /home/josh/Desktop/etherealengine/packages/instanceserver/src/recording/output-ffmpeg-vp8.webm
-
- */
