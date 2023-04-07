@@ -93,7 +93,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     (authState?.value?.linkedin && !oauthConnectedState.linkedin.value) ||
     (authState?.value?.twitter && !oauthConnectedState.twitter.value)
 
-  const removeSocial = Object.values(oauthConnectedState.value).filter((value) => value).length > 1
+  const removeSocial = Object.values(oauthConnectedState.value).filter((value) => value).length >= 1
 
   // const loadCredentialHandler = async () => {
   //   try {
@@ -192,7 +192,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleLogout = async () => {
-    PopupMenuServices.showPopupMenu()
+    PopupMenuServices.showPopupMenu(UserMenus.Profile)
     if (onClose) onClose()
     showUserId.set(false)
     showApiKey.set(false)
