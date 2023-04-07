@@ -294,7 +294,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     } catch (err) {
       logger.error(err)
       await t.rollback()
-      if (err.errors[0].message === 'slugifiedName must be unique') {
+      if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('Name is in use.')
       }
       throw err
@@ -349,7 +349,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     } catch (err) {
       logger.error(err)
       await t.rollback()
-      if (err.errors[0].message === 'slugifiedName must be unique') {
+      if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use')
       }
       throw err
