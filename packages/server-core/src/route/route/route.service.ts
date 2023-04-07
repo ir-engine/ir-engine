@@ -61,7 +61,7 @@ export const getInstalledRoutes = () => {
 }
 
 export const activateRoute = (routeService: Route) => {
-  return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
+  return async (data: { project: string; route: string; activate: boolean }, params: Params = {}) => {
     const activatedRoutes = (await routeService.find(null!)).data as ActiveRoutesInterface[]
     const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
