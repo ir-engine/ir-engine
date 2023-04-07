@@ -7,17 +7,24 @@ import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine
 import logger from '@etherealengine/common/src/logger'
 import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
+  addActionReceptor,
   dispatchAction,
   getMutableState,
   getState,
   NO_PROXY,
+  removeActionReceptor,
   startReactor,
   State,
   useHookstate
 } from '@etherealengine/hyperflux'
 import { getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { AppLoadingAction, AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
+import {
+  AppLoadingAction,
+  AppLoadingServiceReceptor,
+  AppLoadingState,
+  AppLoadingStates
+} from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -358,18 +365,15 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
     if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
     if (!ComponentMap.get(Component[0])) return console.warn('[ SceneLoading] could not find component', Component[0])
 
-    const isTagComponent = !sceneComponent.defaultData
-    setComponent(
-      entity,
-      ComponentMap.get(Component[0])!,
-      isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
-    )
+    setComponent(entity, ComponentMap.get(Component[0])!, component.props)
   }
 }
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 export default async function SceneLoadingSystem() {
+  addActionReceptor(AppLoadingServiceReceptor)
+
   let totalPendingAssets = 0
 
   const sceneDataReactor = startReactor(() => {
@@ -412,6 +416,7 @@ export default async function SceneLoadingSystem() {
   }
 
   const cleanup = async () => {
+    removeActionReceptor(AppLoadingServiceReceptor)
     removeQuery(sceneAssetPendingTagQuery)
     await sceneDataReactor.stop()
   }

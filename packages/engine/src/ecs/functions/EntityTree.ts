@@ -52,8 +52,6 @@ export const EntityTreeComponent = defineComponent({
     return {
       // api
       parentEntity: null as Entity | null,
-      /** @deprecated use UUIDComponent instead */
-      uuid: MathUtils.generateUUID() as EntityUUID,
       // internal
       children: [] as Entity[],
       rootEntity: null as Entity | null
@@ -74,8 +72,7 @@ export const EntityTreeComponent = defineComponent({
     // set new data
     if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
 
-    if (matchesEntityUUID.test(json?.uuid)) component.uuid.set(json.uuid)
-    setComponent(entity, UUIDComponent, component.uuid.value)
+    if (matchesEntityUUID.test(json?.uuid)) setComponent(entity, UUIDComponent, json.uuid)
 
     if (component.parentEntity.value) {
       const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
@@ -107,11 +104,13 @@ export const EntityTreeComponent = defineComponent({
   onRemove: (entity, component) => {
     if (entity === Engine.instance.originEntity) return
 
-    if (component.parentEntity.value) {
+    if (component.parentEntity.value && entityExists(component.parentEntity.value)) {
       const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
-      const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
-      const children = parent.children.get(NO_PROXY)
-      parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+      if (parent) {
+        const parentChildIndex = parent.children.value.findIndex((child) => child === entity)
+        const children = parent.children.get(NO_PROXY)
+        parent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
+      }
     } else {
       EntityTreeComponent.roots[entity].set(none)
     }
@@ -201,12 +200,13 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
 
 export function serializeNodeToWorld(entity: Entity) {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
-  const jsonEntity = getState(SceneState).sceneData!.scene.entities[entityTreeNode.uuid] as EntityJson
+  const nodeUUID = getComponent(entity, UUIDComponent)
+  const jsonEntity = getState(SceneState).sceneData!.scene.entities[nodeUUID] as EntityJson
   if (jsonEntity) {
     jsonEntity.components = serializeEntity(entity)
     if (entityTreeNode.parentEntity && entityTreeNode.parentEntity !== getState(SceneState).sceneEntity) {
-      const parentNode = getComponent(entityTreeNode.parentEntity, EntityTreeComponent)
-      jsonEntity.parent = parentNode.uuid
+      const parentNodeUUID = getComponent(entityTreeNode.parentEntity, UUIDComponent)
+      jsonEntity.parent = parentNodeUUID
     }
   }
 }
@@ -248,7 +248,7 @@ export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, 
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   if (entityTreeNode.parentEntity === parentEntity) return
   if (parentEntity) addEntityNodeChild(entity, parentEntity)
-  else setComponent(entity, EntityTreeComponent, { parentEntity: null, uuid: entityTreeNode.uuid })
+  else setComponent(entity, EntityTreeComponent, { parentEntity: null })
 }
 
 /**

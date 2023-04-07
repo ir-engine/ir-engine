@@ -15,6 +15,7 @@ import {
   hasComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -25,7 +26,6 @@ import {
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { deserializeTransform, serializeTransform } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -163,15 +163,12 @@ const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) =
 
 export default async function TransformSystem() {
   Engine.instance.sceneComponentRegistry.set(TransformComponent.name, SCENE_COMPONENT_TRANSFORM)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
-    defaultData: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-    deserialize: deserializeTransform,
-    serialize: serializeTransform
-  })
+  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {})
 
   const _frustum = new Frustum()
   const _projScreenMatrix = new Matrix4()
 
+  /** @deprecated */
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   const originChildEntities = new Set<Entity>()
@@ -347,6 +344,7 @@ export default async function TransformSystem() {
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
 
+    /** @todo - refactor */
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (

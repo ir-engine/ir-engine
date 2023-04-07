@@ -3,18 +3,16 @@ import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  defineQuery,
   getComponent,
   getOptionalComponent,
-  hasComponent,
-  removeQuery
+  hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { EditorCameraState } from '../classes/EditorCameraState'
+import { editorCameraCenter, EditorCameraState } from '../classes/EditorCameraState'
 
 const ZOOM_SPEED = 0.1
 const MAX_FOCUS_DISTANCE = 1000
@@ -37,7 +35,7 @@ export default async function EditorCameraSystem() {
     const camera = getComponent(entity, CameraComponent)
 
     if (editorCamera.zoomDelta) {
-      const distance = transform.position.distanceTo(editorCamera.center)
+      const distance = transform.position.distanceTo(editorCameraCenter)
       delta.set(0, 0, editorCamera.zoomDelta * distance * ZOOM_SPEED)
       if (delta.length() < distance) {
         delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
@@ -49,7 +47,7 @@ export default async function EditorCameraSystem() {
     if (editorCamera.refocus) {
       let distance = 0
       if (editorCamera.focusedObjects.length === 0) {
-        editorCamera.center.set(0, 0, 0)
+        editorCameraCenter.set(0, 0, 0)
         distance = 10
       } else {
         box.makeEmpty()
@@ -65,14 +63,14 @@ export default async function EditorCameraSystem() {
           const object = editorCamera.focusedObjects[0]
 
           if (typeof object === 'string') {
-            editorCamera.center.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
+            editorCameraCenter.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
           } else if (hasComponent(object, TransformComponent)) {
             const position = getComponent(object, TransformComponent).position
-            editorCamera.center.copy(position)
+            editorCameraCenter.copy(position)
           }
           distance = 0.1
         } else {
-          box.getCenter(editorCamera.center)
+          box.getCenter(editorCameraCenter)
           distance = box.getBoundingSphere(sphere).radius
         }
       }
@@ -81,35 +79,36 @@ export default async function EditorCameraSystem() {
         .set(0, 0, 1)
         .applyQuaternion(transform.rotation)
         .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
-      transform.position.copy(editorCamera.center).add(delta)
+      transform.position.copy(editorCameraCenter).add(delta)
 
       editorCameraState.focusedObjects.set(null!)
       editorCameraState.refocus.set(false)
     }
 
     if (editorCamera.isPanning) {
-      const distance = transform.position.distanceTo(editorCamera.center)
+      const distance = transform.position.distanceTo(editorCameraCenter)
       delta
         .set(-editorCamera.cursorDeltaX, -editorCamera.cursorDeltaY, 0)
         .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
         .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
       transform.position.add(delta)
-      editorCamera.center.add(delta)
+      editorCameraCenter.add(delta)
 
       editorCameraState.isPanning.set(false)
     }
 
     if (editorCamera.isOrbiting) {
-      delta.copy(transform.position).sub(editorCamera.center)
+      delta.copy(transform.position).sub(editorCameraCenter)
+
       spherical.setFromVector3(delta)
       spherical.theta -= editorCamera.cursorDeltaX * ORBIT_SPEED
       spherical.phi += editorCamera.cursorDeltaY * ORBIT_SPEED
       spherical.makeSafe()
       delta.setFromSpherical(spherical)
 
-      camera.position.copy(editorCamera.center).add(delta)
+      camera.position.copy(editorCameraCenter).add(delta)
       camera.updateMatrix()
-      camera.lookAt(editorCamera.center)
+      camera.lookAt(editorCameraCenter)
       transform.position.copy(camera.position)
       transform.rotation.copy(camera.quaternion)
 

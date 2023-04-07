@@ -2,7 +2,7 @@ import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectCon
 
 const config: ProjectConfigInterface = {
   onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/etherealengine.png',
+  thumbnail: '/static/etherealengine_thumbnail.jpg',
   routes: {
     '/': {
       component: () => import('@etherealengine/client/src/pages/index'),
@@ -31,9 +31,7 @@ const config: ProjectConfigInterface = {
     '/capture': {
       component: () => import('@etherealengine/client/src/route/capture')
     }
-  },
-  services: undefined,
-  databaseSeed: undefined
+  }
 }
 
 export default config

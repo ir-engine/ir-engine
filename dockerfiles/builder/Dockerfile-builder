@@ -9,6 +9,7 @@ WORKDIR /app
 RUN apt install -y build-essential meson python3-testresources python3-venv python3-pip git
 
 # to make use of caching, copy only package files and install dependencies
+COPY patches/ ./patches/
 COPY package.json .
 COPY packages/common/package.json ./packages/common/
 COPY packages/engine/package.json ./packages/engine/
@@ -21,6 +22,8 @@ COPY packages/server-core/package.json ./packages/server-core/
 RUN npm install --loglevel notice --legacy-peer-deps
 
 COPY . .
+
+CMD ["scripts/strip-engine.sh"]
 
 # copy then compile the code
 

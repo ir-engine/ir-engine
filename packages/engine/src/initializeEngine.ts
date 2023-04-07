@@ -69,6 +69,7 @@ export const initializeBrowser = () => {
   Engine.instance.camera.layers.enable(ObjectLayers.Scene)
   Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
   Engine.instance.camera.layers.enable(ObjectLayers.UI)
+  Engine.instance.camera.layers.enable(ObjectLayers.TransformGizmo)
 
   getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
 

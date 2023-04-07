@@ -3,8 +3,10 @@ import _ from 'lodash'
 
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { getState } from '@etherealengine/hyperflux'
 
 import config from '../appconfig'
+import { ServerState } from '../ServerState'
 import getLocalServerIp, { ServerAddress } from '../util/get-local-server-ip'
 import { Application } from './../../declarations'
 
@@ -23,7 +25,7 @@ export default () => {
     const partyOwner = partyUserResult.rows.find((partyUser) => partyUser.isOwner === true)
 
     if (config.kubernetes.enabled) {
-      const serverResult = (await context.app.k8AgonesClient.listNamespacedCustomObject(
+      const serverResult = (await getState(ServerState).k8AgonesClient.listNamespacedCustomObject(
         'agones.dev',
         'v1',
         'default',

@@ -1,16 +1,29 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  addActionReceptor,
+  dispatchAction,
+  getMutableState,
+  removeActionReceptor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
-import { AppAction, AppState } from '../../common/services/AppService'
+import { AppAction, AppServiceReceptor, AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'
 
 export const Shelves = () => {
   const appState = useHookstate(getMutableState(AppState))
   const showTopShelf = appState.showTopShelf.value
   const showBottomShelf = appState.showBottomShelf.value
+
+  useEffect(() => {
+    addActionReceptor(AppServiceReceptor)
+    return () => {
+      removeActionReceptor(AppServiceReceptor)
+    }
+  }, [])
 
   const handleShowMediaIcons = () => {
     dispatchAction(AppAction.showTopShelf({ show: !appState.showTopShelf.value }))

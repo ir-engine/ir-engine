@@ -1,14 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Reconciler from 'react-reconciler'
-import {
-  ConcurrentRoot,
-  ContinuousEventPriority,
-  DefaultEventPriority,
-  DiscreteEventPriority
-} from 'react-reconciler/constants'
+import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
+import { HyperFlux } from './StoreFunctions'
 
 const ReactorReconciler = Reconciler({
   getPublicInstance: (instance) => instance,
@@ -64,7 +60,7 @@ export interface ReactorProps {
   root: ReactorRoot
 }
 
-export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
+export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.store): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -91,7 +87,7 @@ export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
       if (reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
-        Engine.instance.activeReactors.add(reactorRoot)
+        store.activeReactors.add(reactorRoot)
         ReactorReconciler.updateContainer(<Reactor root={reactorRoot} />, fiberRoot, null, () => resolve())
       })
     },
@@ -100,7 +96,7 @@ export function startReactor(Reactor: React.FC<ReactorProps>): ReactorRoot {
       return new Promise<void>((resolve) => {
         ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
           reactorRoot.isRunning = false
-          Engine.instance.activeReactors.delete(reactorRoot)
+          store.activeReactors.delete(reactorRoot)
           resolve()
         })
       })

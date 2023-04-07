@@ -41,10 +41,13 @@ export const updateNearbyAvatars = () => {
 
 export default async function UpdateNearbyUsersSystem() {
   // every 5 seconds
-  const NEARBY_AVATAR_UPDATE_PERIOD = Engine.instance.tickRate * 5
+  const NEARBY_AVATAR_UPDATE_PERIOD = 5
+  let accumulator = 0
 
   const execute = () => {
-    if (Engine.instance.fixedTick % NEARBY_AVATAR_UPDATE_PERIOD === 0) {
+    accumulator += Engine.instance.deltaSeconds
+    if (accumulator > NEARBY_AVATAR_UPDATE_PERIOD) {
+      accumulator = 0
       updateNearbyAvatars()
     }
   }

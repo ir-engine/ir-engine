@@ -4,7 +4,6 @@ export interface AuthenticationInterface {
   entity: string
   secret: string
   authStrategies: string
-  local: string
   jwtOptions: string
   bearerToken: string
   callback: string

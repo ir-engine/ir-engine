@@ -18,17 +18,17 @@ import { XRLoading } from '../XRLoading'
 import styles from './index.module.scss'
 
 export const LocationIcons = () => {
-  const loadingSystemState = useHookstate(getMutableState(LoadingSystemState))
-  const engineState = useHookstate(getMutableState(EngineState))
+  const loadingScreenOpacity = useHookstate(getMutableState(LoadingSystemState).loadingScreenOpacity)
+  const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
   useHookstate(getMutableState(XRState))
   const cameraMode = getCameraMode()
 
-  if (!engineState.isEngineInitialized.value) return <></>
+  if (!isEngineInitialized.value) return <></>
   return (
     <>
       <UserMenu />
       {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
-      <div style={{ opacity: 1 - loadingSystemState.loadingScreenOpacity.value }}>
+      <div style={{ opacity: 1 - loadingScreenOpacity.value }}>
         <div className={`${styles.rightSidebar}`}>
           <UserMediaWindows />
           <InstanceChatWrapper />

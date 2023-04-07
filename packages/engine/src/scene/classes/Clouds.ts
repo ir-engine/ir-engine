@@ -1,4 +1,5 @@
-import SimplexNoise from 'simplex-noise'
+import alea from 'alea'
+import { createNoise3D, NoiseFunction3D } from 'simplex-noise'
 import {
   Color,
   InstancedBufferAttribute,
@@ -69,7 +70,7 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
   private _spriteScaleRange: Vector2
   private _fogRange: Vector2
   private _fogColor: Color
-  _noise: SimplexNoise
+  _noise3D: NoiseFunction3D
   needsUpdate: boolean
 
   entity: Entity
@@ -98,7 +99,8 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
     this.entity = entity
 
     this.frustumCulled = false
-    this._noise = new SimplexNoise('seed')
+    const prng = alea('seed')
+    this._noise3D = createNoise3D(prng)
 
     this._worldScale = new Vector3()
     this._dimensions = new Vector3()
@@ -112,7 +114,7 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
   }
 
   private getNoise3D(x: number, y: number, z: number) {
-    return (this._noise.noise3D(x, y, z) + 1) * 0.5
+    return (this._noise3D(x, y, z) + 1) * 0.5
   }
 
   updateParticles() {

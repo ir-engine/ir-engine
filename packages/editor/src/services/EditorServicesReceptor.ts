@@ -10,7 +10,7 @@ export const registerEditorReceptors = () => {
   addActionReceptor(EditorServiceReceptor)
 }
 
-export const deregisterEditorReceptors = () => {
+export const unregisterEditorReceptors = () => {
   removeActionReceptor(EditorErrorServiceReceptor)
   removeActionReceptor(EditorHelperServiceReceptor)
   removeActionReceptor(EditorServiceReceptor)

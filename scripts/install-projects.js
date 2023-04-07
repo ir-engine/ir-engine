@@ -7,7 +7,7 @@ import fs from "fs";
 import appRootPath from 'app-root-path'
 import logger from '@etherealengine/server-core/src/ServerLogger'
 import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
-import { ServerMode } from '@etherealengine/server-core/declarations'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
 
 dotenv.config();
@@ -37,7 +37,7 @@ async function installAllProjects() {
     logger.info('found projects %o', projects)
     await Promise.all(projects.map((project) => download(project.name)))
     await app.service('project').update({ sourceURL: 'default-project' })
-    const projectConfig = (await getProjectConfig('default-project')) ?? {}
+    const projectConfig = getProjectConfig('default-project') ?? {}
     if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')
     process.exit(0)
   } catch (e) {

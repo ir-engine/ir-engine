@@ -6,7 +6,7 @@ import AppBar from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/AppBar',
+  title: 'Primitives/MUI/AppBar',
   component: AppBar,
   parameters: {
     componentSubtitle: 'AppBar',

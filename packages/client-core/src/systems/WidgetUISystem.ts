@@ -33,7 +33,12 @@ import {
   setLocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getPreferredInputSource, isHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
+import {
+  getPreferredInputSource,
+  isMobileXRHeadset,
+  ReferenceSpace,
+  XRState
+} from '@etherealengine/engine/src/xr/XRState'
 import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
@@ -95,7 +100,7 @@ export default async function WidgetUISystem() {
   let createdWidgets = false
   const showWidgetMenu = (show: boolean) => {
     // temporarily only allow widgets on non hmd for local dev
-    if (!createdWidgets && (isHeadset() || isDev)) {
+    if (!createdWidgets && (isMobileXRHeadset || isDev)) {
       createdWidgets = true
       createAnchorWidget()
       // createHeightAdjustmentWidget()
@@ -147,7 +152,7 @@ export default async function WidgetUISystem() {
     if (keys.ButtonX?.down) toggleWidgetsMenu('left')
     if (keys.ButtonA?.down) toggleWidgetsMenu('right')
     /** @todo allow non HMDs to access the widget menu too */
-    if ((isDev || isHeadset()) && keys.Escape?.down) toggleWidgetsMenu()
+    if ((isDev || isMobileXRHeadset) && keys.Escape?.down) toggleWidgetsMenu()
 
     for (const action of showWidgetQueue()) {
       const widget = Engine.instance.widgets.get(action.id)!

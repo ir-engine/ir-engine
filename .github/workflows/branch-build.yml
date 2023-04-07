@@ -18,6 +18,9 @@ jobs:
           fi
   compile-codebase:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js

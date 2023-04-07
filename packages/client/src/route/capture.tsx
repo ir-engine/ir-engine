@@ -12,25 +12,19 @@ import {
   ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { AppServiceReceptor } from '@etherealengine/client-core/src/common/services/AppService'
-import { DialogServiceReceptor } from '@etherealengine/client-core/src/common/services/DialogService'
-import { MediaInstanceConnectionServiceReceptor } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import {
   RouterServiceReceptor,
   RouterState,
   useRouter
 } from '@etherealengine/client-core/src/common/services/RouterService'
-import { FriendServiceReceptor } from '@etherealengine/client-core/src/social/services/FriendService'
-import { InviteService, InviteServiceReceptor } from '@etherealengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
-import { AppLoadingServiceReceptor } from '@etherealengine/engine/src/common/AppLoadingService'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import Capture from '../pages/capture/[locationName]'
+import Capture from '../pages/capture/capture'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 function CaptureComp() {
@@ -44,22 +38,13 @@ function CaptureComp() {
   const route = useRouter()
   const { t } = useTranslation()
 
-  InviteService.useAPIListeners()
-
   useEffect(() => {
     addActionReceptor(RouterServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
-    addActionReceptor(AvatarServiceReceptor)
-    addActionReceptor(InviteServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(DialogServiceReceptor)
-    addActionReceptor(AppLoadingServiceReceptor)
-    addActionReceptor(AppServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
-    addActionReceptor(MediaInstanceConnectionServiceReceptor)
-    addActionReceptor(FriendServiceReceptor)
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
@@ -73,20 +58,21 @@ function CaptureComp() {
       setCustomRoutes(routes)
     })
 
+    getMutableState(NetworkState).config.set({
+      world: true,
+      media: true,
+      friends: false,
+      instanceID: true,
+      roomID: false
+    })
+
     return () => {
       removeActionReceptor(RouterServiceReceptor)
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
-      removeActionReceptor(AvatarServiceReceptor)
-      removeActionReceptor(InviteServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(DialogServiceReceptor)
-      removeActionReceptor(AppServiceReceptor)
-      removeActionReceptor(AppLoadingServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
-      removeActionReceptor(MediaInstanceConnectionServiceReceptor)
-      removeActionReceptor(FriendServiceReceptor)
     }
   }, [])
 
@@ -110,12 +96,16 @@ function CaptureComp() {
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
-    return <LoadingCircle message={t('common:loader.loadingRoutes')} />
+    return (
+      <div className="absolute w-full h-full">
+        <LoadingCircle message={t('common:loader.loadingRoutes')} />
+      </div>
+    )
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+      <Suspense fallback={<LoadingCircle message={'Loading Capture...'} />}>
         <Routes>
           <Route path=":locationName" element={<Capture />} />
           <Route path="/" element={<Navigate to="/capture/default" />} />
