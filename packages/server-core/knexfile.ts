@@ -4,21 +4,27 @@ import path from 'path'
 
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-const migrationsDirectories = ['./migrations']
+const migrationsDirectories: string[] = []
+
+const parseDirectory = (directoryPath: string) => {
+  const directoryContent = fs.readdirSync(directoryPath, { withFileTypes: true }).filter((dir) => dir.isDirectory())
+  for (const directory of directoryContent) {
+    const subFolder = path.join(directoryPath, directory.name)
+    if (directory.name === 'migrations') {
+      migrationsDirectories.push(subFolder)
+    } else {
+      parseDirectory(subFolder)
+    }
+  }
+}
+
+parseDirectory('./src')
 
 const projectsDirectory = '../projects/projects'
 const projectsExists = fs.existsSync(projectsDirectory)
 
 if (projectsExists) {
-  const installedProjects = fs.readdirSync(projectsDirectory)
-  for (const project of installedProjects) {
-    const projectMigrations = path.join(projectsDirectory, project, 'migrations')
-    const migrationExists = fs.existsSync(projectMigrations)
-
-    if (migrationExists) {
-      migrationsDirectories.push(projectMigrations)
-    }
-  }
+  parseDirectory(projectsDirectory)
 }
 
 const config: Knex.Config = {

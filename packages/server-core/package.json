@@ -39,7 +39,7 @@
     "test": "npm run migrate && mocha --jobs 1",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
-    "migrate:make": "knex migrate:make"
+    "migrate:make": "knex --migrations-directory ./ migrate:make"
   },
   "dependencies": {
     "@etherealengine/common": "^1.2.0",
