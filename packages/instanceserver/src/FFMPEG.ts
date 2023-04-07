@@ -5,6 +5,20 @@ import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
 
+/**
+ * @todo
+ * - support more codecs and get codec data from the producer directly
+ * - support more than one ffmpeg at the same time by specifying different ports
+ */
+
+/**
+ *
+ * @param useAudio
+ * @param useVideo
+ * @param onExit
+ * @param useH264
+ * @returns
+ */
 export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: () => void, useH264: boolean) => {
   // require on demand as not to unnecessary slow down instance server
   if (!ffmpeg) throw new Error('FFmpeg not found')

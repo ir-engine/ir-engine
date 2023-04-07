@@ -74,14 +74,84 @@ export const createTransport = async (router: Router, port: number, rtcpPort: nu
   return { transport, consumer }
 }
 
-export type MediaRecordingPeer = {
-  [media: string]: {
-    video?: PeerMediaType
-    videoTransport?: any
-    videoConsumer?: any
-    audio?: PeerMediaType
-    audioTransport?: any
-    audioConsumer?: any
+export type MediaTrackPair = {
+  video?: PeerMediaType
+  videoTransport?: any
+  videoConsumer?: any
+  audio?: PeerMediaType
+  audioTransport?: any
+  audioConsumer?: any
+}
+
+export const startMediaRecordingPair = async (peerID: PeerID, mediaType: string, tracks: MediaTrackPair) => {
+  const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
+
+  const promises = [] as Promise<any>[]
+
+  if (tracks.video) {
+    const routers = network.routers[`${tracks.video.channelType}:${tracks.video.channelId}`]
+    const transportPromise = createTransport(
+      routers[0],
+      localConfig.mediasoup.recording.videoPort,
+      localConfig.mediasoup.recording.videoPortRtcp,
+      tracks.video.producerId
+    )
+    promises.push(transportPromise)
+    transportPromise.then(({ transport, consumer }) => {
+      tracks.videoTransport = transport
+      tracks.videoConsumer = consumer
+    })
+  }
+
+  if (tracks.audio) {
+    const routers = network.routers[`${tracks.audio.channelType}:${tracks.audio.channelId}`]
+    const transportPromise = createTransport(
+      routers[0],
+      localConfig.mediasoup.recording.audioPort,
+      localConfig.mediasoup.recording.audioPortRtcp,
+      tracks.audio.producerId
+    )
+    promises.push(transportPromise)
+    transportPromise.then(({ transport, consumer }) => {
+      tracks.audioTransport = transport
+      tracks.audioConsumer = consumer
+    })
+  }
+
+  await Promise.all(promises)
+
+  const stopRecording = () => {
+    if (tracks.video) {
+      tracks.videoConsumer.close()
+      tracks.videoTransport.close()
+    }
+    if (tracks.audio) {
+      tracks.audioConsumer.close()
+      tracks.audioTransport.close()
+    }
+    console.log('ffmpeg connected:', ffmpegProcess.childProcess.connected)
+    if (ffmpegProcess.childProcess.connected) ffmpegProcess.stop()
+  }
+
+  const onExit = () => {
+    stopRecording()
+  }
+
+  /** start ffmpeg */
+  const isH264 = !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
+  const ffmpegProcess = await startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264)
+
+  /** resume consumers */
+  if (tracks.video) {
+    tracks.videoConsumer.resume()
+    logger.info('Resuming recording video consumer', tracks.videoConsumer)
+  }
+  if (tracks.audio) {
+    tracks.audioConsumer.resume()
+    logger.info('Resuming recording audio consumer', tracks.audioConsumer)
+  }
+  return {
+    stopRecording
   }
 }
 
@@ -94,7 +164,7 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
 
   if (!peers) return
 
-  const mediaStreams = {} as Record<PeerID, MediaRecordingPeer>
+  const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>
 
   for (const peerID of peers) {
     const peer = network.peers.get(peerID)!
@@ -117,107 +187,23 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
     }
   }
 
-  const promises = [] as Promise<any>[]
+  const promises = [] as ReturnType<typeof startMediaRecordingPair>[]
 
-  /** create transports */
-  for (const [peerID, media] of Object.entries(mediaStreams)) {
+  for (const [peer, media] of Object.entries(mediaStreams)) {
     for (const [mediaType, tracks] of Object.entries(media)) {
-      let router = null as Router | null
-
-      if (tracks.video) {
-        const routers = network.routers[`${tracks.video.channelType}:${tracks.video.channelId}`]
-        router = routers[0]
-      }
-
-      if (!router && tracks.audio) {
-        const routers = network.routers[`${tracks.audio.channelType}:${tracks.audio.channelId}`]
-        router = routers[0]
-      }
-
-      if (router) {
-        if (tracks.video) {
-          const transportPromise = createTransport(
-            router,
-            localConfig.mediasoup.recording.videoPort,
-            localConfig.mediasoup.recording.videoPortRtcp,
-            tracks.video.producerId
-          )
-          promises.push(transportPromise)
-          transportPromise.then(({ transport, consumer }) => {
-            tracks.videoTransport = transport
-            tracks.videoConsumer = consumer
-          })
-        }
-        if (tracks.audio) {
-          const transportPromise = createTransport(
-            router,
-            localConfig.mediasoup.recording.audioPort,
-            localConfig.mediasoup.recording.audioPortRtcp,
-            tracks.audio.producerId
-          )
-          promises.push(transportPromise)
-          transportPromise.then(({ transport, consumer }) => {
-            tracks.audioTransport = transport
-            tracks.audioConsumer = consumer
-          })
-        }
-      }
+      promises.push(startMediaRecordingPair(peer as PeerID, mediaType, tracks))
     }
   }
 
-  await Promise.all(promises)
-
-  const onExit = () => {
-    stopRecording()
-  }
-
-  /** start ffmpeg */
-
-  const ffmpegProcesses = Object.entries(mediaStreams).map(async ([peerID, media]) => {
-    const ffmpegPromises = [] as ReturnType<typeof startFFMPEG>[]
-
-    for (const [mediaType, tracks] of Object.entries(media)) {
-      const isH264 = !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
-      ffmpegPromises.push(startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264))
-    }
-
-    return ffmpegPromises
-  })
-
-  /** resume consumers */
-
-  for (const [peerID, media] of Object.entries(mediaStreams)) {
-    for (const [mediaType, tracks] of Object.entries(media)) {
-      if (tracks.video) {
-        tracks.videoConsumer.resume()
-        console.log('resuming video consumer', tracks.videoConsumer)
-      }
-      if (tracks.audio) {
-        tracks.audioConsumer.resume()
-        console.log('resuming audio consumer', tracks.audioConsumer)
-      }
-    }
-  }
+  const activeProcesses = await Promise.all(promises)
 
   const stopRecording = () => {
-    for (const [peerID, media] of Object.entries(mediaStreams)) {
-      for (const [mediaType, tracks] of Object.entries(media)) {
-        if (tracks.video) {
-          tracks.videoConsumer.close()
-          tracks.videoTransport.close()
-        }
-        if (tracks.audio) {
-          tracks.audioConsumer.close()
-          tracks.audioTransport.close()
-        }
-      }
+    for (const process of activeProcesses) {
+      process.stopRecording()
     }
-    console.log('ffmpeg connected:', ffmpegProcess.childProcess.connected)
-    if (ffmpegProcess.childProcess.connected) ffmpegProcess.stop()
   }
 
   return {
-    stopRecording,
-    ffmpegProcess
+    stopRecording
   }
 }
