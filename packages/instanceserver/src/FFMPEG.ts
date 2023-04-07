@@ -5,7 +5,7 @@ import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
 
-export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit = () => {}, useH264 = false) => {
+export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: () => void, useH264: boolean) => {
   // require on demand as not to unnecessary slow down instance server
   if (!ffmpeg) throw new Error('FFmpeg not found')
 

@@ -122,7 +122,7 @@ export const localConfig = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: configFile.instanceserver.hostname! }],
+      listenIps: [{ ip: configFile.instanceserver.hostname!, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 800000,
       maxIncomingBitrate: 150000
     },

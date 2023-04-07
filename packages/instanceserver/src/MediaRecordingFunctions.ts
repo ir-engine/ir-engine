@@ -117,9 +117,6 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
     }
   }
 
-  let useAudio = false
-  let useVideo = false
-
   const promises = [] as Promise<any>[]
 
   /** create transports */
@@ -139,7 +136,6 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
 
       if (router) {
         if (tracks.video) {
-          useVideo = true
           const transportPromise = createTransport(
             router,
             localConfig.mediasoup.recording.videoPort,
@@ -153,7 +149,6 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
           })
         }
         if (tracks.audio) {
-          useAudio = true
           const transportPromise = createTransport(
             router,
             localConfig.mediasoup.recording.audioPort,
@@ -178,7 +173,16 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
 
   /** start ffmpeg */
 
-  const ffmpegProcess = await startFFMPEG(useAudio, useVideo, onExit)
+  const ffmpegProcesses = Object.entries(mediaStreams).map(async ([peerID, media]) => {
+    const ffmpegPromises = [] as ReturnType<typeof startFFMPEG>[]
+
+    for (const [mediaType, tracks] of Object.entries(media)) {
+      const isH264 = !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
+      ffmpegPromises.push(startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264))
+    }
+
+    return ffmpegPromises
+  })
 
   /** resume consumers */
 

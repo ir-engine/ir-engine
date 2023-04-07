@@ -64,7 +64,13 @@ export type PeerMediaType = {
   paused: boolean
   producerId: string
   globalMute: boolean
-  encodings: any
+  encodings: Array<{
+    mimeType: 'video/rtx' | 'video/vp8' | 'video/h264' | 'video/vp9' | 'audio/opus' | 'audio/pcmu' | 'audio/pcma'
+    payloadType: number
+    clockRate: number
+    parameters: any
+    rtcpFeedback: any[]
+  }>
   channelType: ChannelType
   channelId: string
 }
