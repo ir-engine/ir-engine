@@ -1,3 +1,5 @@
+import type { PlainTransportOptions } from 'mediasoup/node/lib/PlainTransport'
+
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'
 
@@ -87,6 +89,7 @@ export const localConfig = {
         {
           kind: 'video',
           mimeType: 'video/VP8',
+          preferredPayloadType: 96,
           clockRate: 90000,
           parameters: {
             //                'x-google-start-bitrate': 1000
@@ -119,9 +122,23 @@ export const localConfig = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }],
+      listenIps: [{ ip: configFile.instanceserver.hostname! }],
       initialAvailableOutgoingBitrate: 800000,
       maxIncomingBitrate: 150000
+    },
+
+    plainTransport: {
+      listenIp: { ip: configFile.instanceserver.hostname }
+    } as PlainTransportOptions,
+
+    recording: {
+      ip: configFile.instanceserver.hostname,
+
+      // FFmpeg's sdpdemux only supports RTCP = RTP + 1
+      audioPort: 5004,
+      audioPortRtcp: 5005,
+      videoPort: 5006,
+      videoPortRtcp: 5007
     }
   }
 }

@@ -46,6 +46,11 @@ export type MediaTagType =
   | typeof screenshareVideoDataChannelType
   | typeof screenshareAudioDataChannelType
 
+// export const webcamMediaType = 'webcam'
+// export const screenshareMediaType = 'screenshare'
+
+// export type MediaType = typeof webcamMediaType | typeof screenshareMediaType
+
 export type MediaStreamAppData = {
   mediaTag: MediaTagType
   peerID: PeerID

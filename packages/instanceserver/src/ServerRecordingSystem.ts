@@ -41,7 +41,7 @@ interface ActiveRecording {
   userID: UserId
   serializer?: ECSSerializer
   dataChannelRecorder?: any // todo
-  mediaChannelRecorder?: any // todo
+  mediaChannelRecorder?: Awaited<ReturnType<typeof startMediaRecording>>
 }
 
 interface ActivePlayback {
@@ -190,7 +190,10 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean) as DataChannelType[]
 
-    startMediaRecording(recording.id, userID, dataChannelSchema)
+    const mediaRecorder = await startMediaRecording(recording.id, userID, dataChannelSchema)
+
+    activeRecording.mediaChannelRecorder = mediaRecorder
+    console.log('media recording started')
   }
 
   activeRecordings.set(recording.id, activeRecording)
@@ -228,6 +231,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
 
+    await activeRecording.mediaChannelRecorder.stopRecording()
     // stop recording data channel
   }
 
