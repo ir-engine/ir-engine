@@ -137,16 +137,11 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       chunkLength,
       onCommitChunk(chunk, chunkIndex) {
         storageProvider
-          .putObject(
-            {
-              Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee',
-              Body: encode(chunk),
-              ContentType: 'application/octet-stream'
-            },
-            {
-              isDirectory: false
-            }
-          )
+          .putObject({
+            Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee',
+            Body: encode(chunk),
+            ContentType: 'application/octet-stream'
+          })
           .then(() => {
             logger.info('Uploaded entities chunk', chunkIndex)
           })
@@ -155,16 +150,11 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
           if (data.length) {
             const count = chunkIndex
             storageProvider
-              .putObject(
-                {
-                  Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee',
-                  Body: encode(data),
-                  ContentType: 'application/octet-stream'
-                },
-                {
-                  isDirectory: false
-                }
-              )
+              .putObject({
+                Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee',
+                Body: encode(data),
+                ContentType: 'application/octet-stream'
+              })
               .then(() => {
                 logger.info('Uploaded raw chunk', count)
               })
@@ -231,7 +221,10 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
 
-    await Promise.all(activeRecording.mediaChannelRecorder.map((recording) => recording.stopRecording()))
+    await Promise.all([
+      ...activeRecording.mediaChannelRecorder.recordings.map((recording) => recording.stopRecording()),
+      ...activeRecording.mediaChannelRecorder.activeUploads
+    ])
     // stop recording data channel
   }
 

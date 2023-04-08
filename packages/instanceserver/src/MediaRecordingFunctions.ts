@@ -153,7 +153,10 @@ export const startMediaRecordingPair = async (peerID: PeerID, mediaType: string,
   }
   return {
     stopRecording,
-    stream: ffmpegProcess.stream
+    stream: ffmpegProcess.stream,
+    peerID,
+    mediaType,
+    format: isH264 ? 'h264' : 'vp8'
   }
 }
 
@@ -189,22 +192,37 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
     }
   }
 
-  const promises = [] as ReturnType<typeof startMediaRecordingPair>[]
+  const recordingPromises = [] as ReturnType<typeof startMediaRecordingPair>[]
 
   for (const [peer, media] of Object.entries(mediaStreams)) {
     for (const [mediaType, tracks] of Object.entries(media)) {
-      promises.push(startMediaRecordingPair(peer as PeerID, mediaType, tracks))
+      recordingPromises.push(startMediaRecordingPair(peer as PeerID, mediaType, tracks))
     }
   }
 
-  const recordings = await Promise.all(promises)
+  const recordings = await Promise.all(recordingPromises)
 
   const storageprovider = getStorageProvider()
 
-  for (const recording of recordings) {
-    // storageprovider.createWriteStream(
-    // )
-  }
+  const activeUploads = recordings.map((recording) => {
+    const stream = recording.stream
+    const upload = storageprovider.putObject({
+      Key:
+        'recordings/' +
+        recordingID +
+        '/' +
+        recording.peerID +
+        '-' +
+        recording.mediaType +
+        (recording.format === 'vp8' ? '.webm' : '.mp4'),
+      Body: stream,
+      ContentType: recording.format === 'vp8' ? 'video/webm' : 'video/mp4'
+    })
+    return upload
+  })
 
-  return recordings
+  return {
+    recordings,
+    activeUploads
+  }
 }
