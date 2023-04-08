@@ -240,7 +240,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   })
 
   const commitMenu: InputMenuItem[] = projectUpdateStatus?.value?.commitData.map((el: ProjectCommitInterface) => {
-    let label = `Commit ${el.commitSHA.slice(0, 8)}`
+    let label = `Commit ${el.commitSHA?.slice(0, 8)}`
     if (el.projectVersion) label += ` -- Project Ver. ${el.projectVersion}`
     if (el.engineVersion) label += ` -- Engine Ver. ${el.engineVersion}`
     if (el.datetime) {

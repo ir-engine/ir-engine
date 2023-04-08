@@ -4,17 +4,17 @@ if (isNode) {
   const { Blob } = require('buffer')
   const fetch = require('node-fetch')
 
-  if (!globalThis.fetch) globalThis.fetch = fetch as any
-  if (!globalThis.Request) globalThis.Request = fetch.Request as any
-  if (!globalThis.Response) globalThis.Response = fetch.Response as any
-  if (!globalThis.Headers) globalThis.Headers = fetch.Headers as any
-  if (!globalThis.self) globalThis.self = globalThis as any
+  globalThis.fetch = fetch
+  globalThis.Request = fetch.Request
+  globalThis.Response = fetch.Response
+  globalThis.Headers = fetch.Headers
+  globalThis.self = globalThis as Window & typeof globalThis
 
   // this will be added in node 19
   if (!globalThis.URL.createObjectURL) globalThis.URL.createObjectURL = (blob) => null!
-  if (!globalThis.Blob) globalThis.Blob = Blob as any
+  if (!globalThis.Blob) globalThis.Blob = Blob
 
-  const _localStorage = {} as any
+  const _localStorage = {}
   if (!globalThis.localStorage)
     globalThis.localStorage = {
       setItem: (key, val) => {
@@ -23,7 +23,7 @@ if (isNode) {
       getItem: (key) => {
         return _localStorage[key] ?? null
       }
-    } as any
+    } as Storage
 
   // patches for headless-gl - currently unused
 
