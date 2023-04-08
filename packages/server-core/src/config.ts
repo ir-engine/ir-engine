@@ -92,7 +92,7 @@ export const localConfig = {
           preferredPayloadType: 96,
           clockRate: 90000,
           parameters: {
-            //                'x-google-start-bitrate': 1000
+            //'x-google-start-bitrate': 1000
           }
         },
         {

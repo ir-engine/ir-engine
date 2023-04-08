@@ -34,6 +34,7 @@ import {
 } from '@etherealengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
+  CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
   CAM_VIDEO_SIMULCAST_ENCODINGS,
   SCREEN_SHARE_SIMULCAST_ENCODINGS
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
@@ -1022,9 +1023,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
               const producer = (await transport.produce({
                 track: mediaStreamState.videoStream.value!.getVideoTracks()[0],
                 encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-                codecOptions: {
-                  videoGoogleStartBitrate: 1000
-                },
+                codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
                 appData: { mediaTag: webcamVideoDataChannelType, channelType: channelType, channelId: channelId }
               })) as any as ProducerExtension
               mediaStreamState.camVideoProducer.set(producer)

@@ -760,7 +760,7 @@ export async function handleWebRtcSendTrack(
         paused,
         producerId: producer.id,
         globalMute: false,
-        encodings: rtpParameters.encodings,
+        encodings: rtpParameters.encodings as any,
         channelType: appData.channelType,
         channelId: appData.channelId
       }
