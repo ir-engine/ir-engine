@@ -1486,9 +1486,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     (await network.sendTransport.produce({
       track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
       encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
-      codecOptions: {
-        videoGoogleStartBitrate: 1000
-      },
+      codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
       appData: { mediaTag: screenshareVideoDataChannelType, channelType: channelType, channelId: channelId }
     })) as any as ProducerExtension
   )

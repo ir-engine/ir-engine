@@ -34,6 +34,7 @@ export const CAM_VIDEO_SIMULCAST_CODEC_OPTIONS = {
 }
 
 export const SCREEN_SHARE_SIMULCAST_ENCODINGS = [
-  { dtx: true, maxBitrate: 1500000 },
-  { dtx: true, maxBitrate: 6000000 }
+  { dtx: true, maxBitrate: 6000000 }, // 6mbps
+  { dtx: true, maxBitrate: 20000000 }, // 20mbps
+  { dtx: true, maxBitrate: 100000000 } // 100mbps
 ]

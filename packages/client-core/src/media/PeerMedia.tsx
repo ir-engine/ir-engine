@@ -96,8 +96,11 @@ const PeerConsumer = (props: {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
 
   const peerID = props.peerID
-  const type = props.mediaTag.startsWith('screen') ? 'screen' : 'cam'
-  const isAudio = props.mediaTag.endsWith('audio')
+  const type =
+    props.mediaTag === screenshareAudioDataChannelType || props.mediaTag === screenshareVideoDataChannelType
+      ? 'screen'
+      : 'cam'
+  const isAudio = props.mediaTag === webcamAudioDataChannelType || props.mediaTag === screenshareAudioDataChannelType
 
   const isScreen = type === 'screen'
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
