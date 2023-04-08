@@ -19,6 +19,8 @@ function processInclude(context: HookContext, includeCollection?: ModelType[]) {
 type ModelType = {
   model: string
   include?: ModelType[]
+  where?: Object
+  required?: boolean
   as?: string
 }
 

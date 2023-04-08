@@ -21,20 +21,34 @@ export default (app): void => {
     })
     const instanceUsers = await app.service('user').find({
       query: {
-        $limit: 0,
-        instanceId: {
-          $ne: null
-        }
+        $limit: 0
       },
+      include: [
+        {
+          model: app.service('instance-attendance').Model,
+          as: 'instanceAttendance',
+          where: {
+            ended: false,
+            isChannel: false
+          }
+        }
+      ],
       isInternal: true
     })
     const channelUsers = await app.service('user').find({
       query: {
-        $limit: 0,
-        channelInstanceId: {
-          $ne: null
-        }
+        $limit: 0
       },
+      include: [
+        {
+          model: app.service('instance-attendance').Model,
+          as: 'instanceAttendance',
+          where: {
+            ended: false,
+            isChannel: true
+          }
+        }
+      ],
       isInternal: true
     })
     const activeInstances = await app.service('instance').find({

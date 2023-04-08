@@ -2,18 +2,16 @@ import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { Action, ActionShape, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
-import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
-import { NetworkState } from '../NetworkState'
+import { NetworkState, updateNetwork } from '../NetworkState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 function createPeer(
@@ -24,8 +22,6 @@ function createPeer(
   userIndex: number,
   name: string
 ) {
-  console.log('[Network]: Create Peer', network.topic, peerID, peerIndex, userID, userIndex, name)
-
   network.userIDToUserIndex.set(userID, userIndex)
   network.userIndexToUserID.set(userIndex, userID)
   network.peerIDToPeerIndex.set(peerID, peerIndex)
@@ -44,17 +40,29 @@ function createPeer(
     network.users.get(userID)!.push(peerID)
   }
 
+  //TODO: remove this once all network state properties are reactively set
+  updateNetwork(network)
+
   const worldState = getMutableState(WorldState)
   worldState.userNames[userID].set(name)
+
+  if (network.topic === 'world') {
+    dispatchAction(EngineActions.peerCreated({ peer: network.peers.get(peerID)!, name: name ?? '' }))
+  }
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {
-  console.log('[Network]: Destroy Peer', network.topic, peerID)
   if (!network.peers.has(peerID))
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove client with peerID ${peerID} that doesn't exit`)
   const userID = network.peers.get(peerID)!.userId
   if (userID === Engine.instance.userId)
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
+
+  if (network.topic === 'world') {
+    const worldState = getState(WorldState)
+    const name = worldState.userNames[userID]
+    dispatchAction(EngineActions.peerDestroyed({ peer: network.peers.get(peerID)!, name: name ?? '' }))
+  }
 
   network.peers.delete(peerID)
 
@@ -70,6 +78,9 @@ function destroyPeer(network: Network, peerID: PeerID) {
   const peerIndexInUserPeers = userPeers.indexOf(peerID)
   userPeers.splice(peerIndexInUserPeers, 1)
   if (!userPeers.length) network.users.delete(userID)
+
+  //TODO: remove this once all network state properties are reactively set
+  updateNetwork(network)
 
   /**
    * if no other connections exist for this user, and this action is occurring on the world network,

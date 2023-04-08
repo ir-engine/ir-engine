@@ -2,6 +2,7 @@ import { Params } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
+import { PartyUserInterface } from '@etherealengine/common/src/dbmodels/PartyUser'
 import { PartyUser as PartyUserDataType } from '@etherealengine/common/src/interfaces/PartyUser'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
@@ -44,8 +45,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         if (typeof params.query.isOwner !== 'undefined') where.isOwner = params.query.isOwner
       }
 
-      const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
-      const users = await PartyUserMS.findAll({
+      let users = await this.app.service('party-user').Model.findAll({
         where,
         include: [
           {
@@ -54,10 +54,17 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         ]
       })
 
-      users.forEach(async (partyUser: any) => {
-        partyUser.user.avatar = await self.app.service('avatar').get(partyUser.user.avatarId)
-        return partyUser
-      })
+      users = await Promise.all(
+        users.map(
+          (partyUser: PartyUserDataType) =>
+            new Promise(async (resolve, reject) => {
+              const avatar = await self.app.service('avatar').get(partyUser.user!.avatarId)
+              if ((partyUser.user as any)!.dataValues) (partyUser.user as any)!.dataValues.avatar = avatar
+              else partyUser.user!.avatar = avatar
+              resolve(partyUser)
+            })
+        )
+      )
 
       return { data: users, total: users.length }
     } catch (e) {
@@ -152,6 +159,18 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
   async remove(id: string, params?: PartyUserParams): Promise<any> {
     try {
       const partyUser = (await this.app.service('party-user').get(id)) as any
+      const channel = await this.app.service('channel').Model.findOne({
+        where: {
+          partyId: partyUser.partyId
+        }
+      })
+      let instance
+      if (channel)
+        instance = await this.app.service('instance').Model.findOne({
+          where: {
+            channelId: channel.id
+          }
+        })
 
       const partyUserCount = await this.app.service('party-user').Model.count({ where: { partyId: partyUser.partyId } })
 
@@ -175,10 +194,17 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         partyId: null
       })
 
-      const returned = super.remove(id, params)
+      const returned = (await super.remove(id, params)) as PartyUserDataType
 
       if (partyUserCount <= 1 && !params!.deletingParty)
         await this.app.service('party').remove(partyUser.partyId, { skipPartyUserDelete: true })
+
+      if ((returned as any).dataValues) {
+        ;(returned as any).dataValues.channel = channel(returned as any).dataValues.instance = instance
+      } else {
+        returned.channel = channel
+        returned.instance = instance
+      }
 
       return returned
     } catch (err) {

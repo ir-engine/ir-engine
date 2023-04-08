@@ -1,8 +1,9 @@
-import { InstanceInterface } from '../dbmodels/Instance'
 import { AdminScopeType } from './AdminScopeType'
 import { AvatarInterface } from './AvatarInterface'
 import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
+import { Instance } from './Instance'
+import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { Party } from './Party'
@@ -45,14 +46,12 @@ export interface UserInterface {
   /** @deprecated */
   instanceId?: string
   /** @deprecated */
-  instance?: InstanceInterface
+  instance?: Instance
   /** @deprecated */
   channelInstanceId?: string
   /** @deprecated */
-  channelInstance?: InstanceInterface
-  /** @deprecated */
+  channelInstance?: Instance
   partyId?: string
-  /** @deprecated */
   party?: Party
   locationBans?: LocationBan[]
   user_setting?: UserSetting
@@ -60,6 +59,7 @@ export interface UserInterface {
   scopes?: UserScope[]
   apiKey: UserApiKey
   static_resources?: StaticResourceInterface
+  instanceAttendance?: InstanceAttendanceInterface[]
 }
 
 export const UserSeed: UserInterface = {

@@ -10,14 +10,7 @@ import { easeOutElastic } from '@etherealengine/engine/src/common/functions/Math
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  removeQuery,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
@@ -29,12 +22,12 @@ import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/Collis
 import { getInteractionGroups } from '@etherealengine/engine/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@etherealengine/engine/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
-import { defineState, getMutableState, getState, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -45,8 +38,6 @@ const logger = multiLogger.child({ component: 'client-core:systems' })
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 export const AvatarUITransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
-
-const rotMat = new Matrix4()
 
 export const AvatarMenus = {
   AvatarContext: 'AvatarContext'
@@ -118,7 +109,7 @@ const onSecondaryClick = () => {
       if (hasComponent(hitEntity, NetworkObjectComponent)) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
         state.id.set(userId)
-        setVisibleComponent(state.ui.entity.value, true)
+        // setVisibleComponent(state.ui.entity.value, true)
         return // successful hit
       }
     }
@@ -131,10 +122,10 @@ const execute = () => {
   const engineState = getState(EngineState)
   if (!engineState.isEngineInitialized) return
 
-  // const keys = Engine.instance.buttons
+  const keys = Engine.instance.buttons
 
-  // if (keys.PrimaryClick?.down) onPrimaryClick()
-  // if (keys.SecondaryClick?.down) onSecondaryClick()
+  if (keys.PrimaryClick?.down) onPrimaryClick()
+  if (keys.SecondaryClick?.down) onSecondaryClick()
 
   videoPreviewTimer += Engine.instance.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
