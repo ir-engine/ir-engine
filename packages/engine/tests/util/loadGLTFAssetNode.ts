@@ -3,8 +3,6 @@ import fs from 'fs'
 import path from 'path'
 import { FileLoader } from 'three'
 
-import '../../src/patchEngineNode'
-
 const toArrayBuffer = (buf) => {
   const arrayBuffer = new ArrayBuffer(buf.length)
   const view = new Uint8Array(arrayBuffer)

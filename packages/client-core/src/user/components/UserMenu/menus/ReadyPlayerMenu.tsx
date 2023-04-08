@@ -17,10 +17,7 @@ import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunc
 import { AvatarService } from '../../../services/AvatarService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-
-interface Props {
-  changeActiveMenu: Function
-}
+import { PopupMenuServices } from '../PopupMenuService'
 
 enum LoadingState {
   None,
@@ -30,7 +27,7 @@ enum LoadingState {
   Uploading
 }
 
-const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
+const ReadyPlayerMenu = () => {
   const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
@@ -102,7 +99,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
 
     setLoading(LoadingState.None)
-    changeActiveMenu()
+    PopupMenuServices.showPopupMenu()
   }
 
   const avatarPreviewLoaded = loading === LoadingState.None && selectedFile
@@ -113,8 +110,8 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
       maxWidth={loading === LoadingState.LoadingRPM ? 'sm' : 'xs'}
       showBackButton={avatarPreviewLoaded ? true : false}
       title={avatarPreviewLoaded ? t('user:avatar.titleSelectThumbnail') : undefined}
-      onBack={() => changeActiveMenu(UserMenus.Profile)}
-      onClose={() => changeActiveMenu()}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box
         className={styles.menuContent}

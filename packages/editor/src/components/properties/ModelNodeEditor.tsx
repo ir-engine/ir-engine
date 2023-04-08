@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { StaticResourceService } from '@etherealengine/client-core/src/media/services/StaticResourceService'
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import {
@@ -13,7 +12,6 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { LODComponent } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 import { useState } from '@etherealengine/hyperflux'
@@ -23,6 +21,7 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import exportGLTF from '../../functions/exportGLTF'
 import { createLODsFromModel } from '../../functions/lodsFromModel'
 import { LODsFromModelParameters } from '../../functions/lodsFromModel'
+import { StaticResourceService } from '../../services/StaticResourceService'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'

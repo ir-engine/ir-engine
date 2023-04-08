@@ -12,7 +12,6 @@ import {
   ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { DialogServiceReceptor } from '@etherealengine/client-core/src/common/services/DialogService'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import {
   RouterServiceReceptor,
@@ -53,7 +52,6 @@ function AdminRouterComp() {
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(AvatarServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(DialogServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
@@ -75,7 +73,6 @@ function AdminRouterComp() {
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(AvatarServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(DialogServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
     }
   }, [])

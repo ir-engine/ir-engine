@@ -1,16 +1,14 @@
 import clsx from 'clsx'
-import React, { useState } from 'react'
+import React from 'react'
 
-import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
+import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import AppBar from '@etherealengine/ui/src/AppBar'
-import Box from '@etherealengine/ui/src/Box'
 import Drawer from '@etherealengine/ui/src/Drawer'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
-import Popover from '@etherealengine/ui/src/Popover'
 import Typography from '@etherealengine/ui/src/Typography'
 
 import { useTheme } from '@mui/material/styles'
@@ -28,20 +26,11 @@ import styles from './index.module.scss'
 const Dashboard = ({ children }) => {
   const authState = useAuthState()
   const theme = useTheme()
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
   const [open, setOpen] = React.useState(false)
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
-  const [selectedMenu, setSelectedMenu] = useState(UserMenus.Profile)
   const { user } = authState
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-    setProfileMenuOpen(true)
-  }
-
-  const handleClose = () => {
-    setProfileMenuOpen(false)
-    setAnchorEl(undefined)
+    PopupMenuServices.showPopupMenu(UserMenus.Profile)
   }
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -56,6 +45,7 @@ const Dashboard = ({ children }) => {
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
+      <PopupMenuInline />
       <AppBar position="fixed" className={styles.appBar}>
         <nav className={styles.navbar}>
           <div className={styles.navContainer}>
@@ -84,37 +74,6 @@ const Dashboard = ({ children }) => {
                   </>
                 }
               />
-              {profileMenuOpen && (
-                <>
-                  <div className={styles.backdrop}></div>
-                  <Popover
-                    open
-                    anchorEl={anchorEl}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left'
-                    }}
-                    classes={{ paper: styles.profilePaper }}
-                    onClose={handleClose}
-                  >
-                    <Box sx={{ width: '600px' }}>
-                      {selectedMenu === UserMenus.Profile && (
-                        <ProfileMenu
-                          isPopover
-                          onClose={handleClose}
-                          changeActiveMenu={(type) => setSelectedMenu(type ? type : UserMenus.Profile)}
-                        />
-                      )}
-                      {selectedMenu === UserMenus.Settings && (
-                        <SettingMenu
-                          isPopover
-                          changeActiveMenu={(type) => setSelectedMenu(type ? type : UserMenus.Profile)}
-                        />
-                      )}
-                    </Box>
-                  </Popover>
-                </>
-              )}
             </div>
           </div>
         </nav>

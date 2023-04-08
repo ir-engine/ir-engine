@@ -21,15 +21,15 @@ import { InviteService } from '../../../../social/services/InviteService'
 import { usePartyState } from '../../../../social/services/PartyService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 import { getAvatarURLForUser } from '../util'
 
 interface Props {
-  changeActiveMenu: Function
   user: UserInterface
   onBack?: () => void
 }
 
-const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Element => {
+const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
   const { t } = useTranslation()
 
   const partyState = usePartyState()
@@ -81,7 +81,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
       maxWidth="xs"
       showBackButton={onBack ? true : false}
       onBack={onBack}
-      onClose={() => changeActiveMenu && changeActiveMenu()}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       {user && user.id && (
         <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
@@ -106,7 +106,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
               width="70%"
               onClick={() => {
                 FriendService.requestFriend(selfId, user.id)
-                changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
+                PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
               }}
             >
               {t('user:personMenu.addAsFriend')}
@@ -119,7 +119,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
               width="70%"
               onClick={() => {
                 FriendService.unfriend(selfId, user.id)
-                changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
+                PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
               }}
             >
               {t('user:personMenu.unFriend')}
@@ -141,7 +141,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
                 width="70%"
                 onClick={() => {
                   FriendService.acceptFriend(selfId, user.id)
-                  changeActiveMenu(SocialMenus.Friends)
+                  PopupMenuServices.showPopupMenu(SocialMenus.Friends)
                 }}
               >
                 {t('user:personMenu.acceptRequest')}
@@ -152,7 +152,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
                 width="70%"
                 onClick={() => {
                   FriendService.declineFriend(selfId, user.id)
-                  changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
+                  PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
                 }}
               >
                 {t('user:personMenu.declineRequest')}
@@ -175,7 +175,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
                 width="70%"
                 onClick={() => {
                   FriendService.unfriend(selfId, user.id)
-                  changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
+                  PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
                 }}
               >
                 {t('user:personMenu.cancelRequest')}
@@ -193,7 +193,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
               width="70%"
               onClick={() => {
                 FriendService.blockUser(selfId, user.id)
-                changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: 'blocked' })
+                PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'blocked' })
               }}
             >
               {t('user:personMenu.block')}
@@ -206,7 +206,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
               width="70%"
               onClick={() => {
                 FriendService.unblockUser(selfId, user.id)
-                changeActiveMenu(SocialMenus.Friends)
+                PopupMenuServices.showPopupMenu(SocialMenus.Friends)
               }}
             >
               {t('user:personMenu.unblock')}

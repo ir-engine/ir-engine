@@ -19,12 +19,9 @@ import { useAuthState } from '../../../services/AuthService'
 import { AvatarService, useAvatarService } from '../../../services/AvatarService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
-interface Props {
-  changeActiveMenu: Function
-}
-
-const AvatarMenu = ({ changeActiveMenu }: Props) => {
+const AvatarMenu = () => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const userId = authState.user?.id?.value
@@ -58,7 +55,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
         selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || ''
       )
-      changeActiveMenu()
+      PopupMenuServices.showPopupMenu()
     }
     setSelectedAvatarId(undefined)
   }
@@ -110,8 +107,8 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         </Box>
       }
       title={t('user:avatar.titleSelectAvatar')}
-      onBack={() => changeActiveMenu(UserMenus.Profile)}
-      onClose={() => changeActiveMenu()}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
@@ -143,7 +140,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
                     showChangeButton={userId && avatar.userId === userId}
                     type="rectangle"
                     onClick={() => setSelectedAvatarId(avatar.id)}
-                    onChange={() => changeActiveMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })}
+                    onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })}
                   />
                 </Grid>
               ))}
@@ -168,7 +165,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
               title={t('user:avatar.createAvatar')}
               type="gradientRounded"
               sx={{ mb: 0 }}
-              onClick={() => changeActiveMenu(UserMenus.AvatarModify)}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
             >
               {t('user:avatar.createAvatar')}
             </Button>

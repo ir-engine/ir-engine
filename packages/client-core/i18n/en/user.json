@@ -14,13 +14,6 @@
       "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click {{here}} to resend the verification email.",
       "haveAnAccount": "Have an account?"
     },
-    "forgotPassword": {
-      "header": "Forgot Password",
-      "enterEmail": "Please enter your registered email address and we'll send you a password reset link.",
-      "lbl-email": "Email Address",
-      "lbl-submit": "Send Link",
-      "emailSent": "Reset Password Email was sent. Please check your email."
-    },
     "login": {
       "email": "Email | SMS",
       "username": "UserName + Password",
@@ -42,18 +35,6 @@
       "success-msg": "Login Magic Link was sent. Please check your Email or SMS.",
       "sms-sent-msg": "Login Magic Link was sent. Please check your SMS."
     },
-    "passwordLogin": {
-      "header": "Sign In",
-      "lbl-email": "Email Address",
-      "lbl-password": "Password",
-      "lbl-rememberMe": "Remember me",
-      "lbl-signin": "Sign In",
-      "forgotPassword": "Forgot password?",
-      "signup": "Don't have an account? Sign Up",
-      "lbl-login": "Log In",
-      "ph-password": "Password",
-      "ph-email": "Email"
-    },
     "social": {
       "gitHub": "Login with GitHub",
       "google": "Login with Google",
@@ -71,16 +52,6 @@
       "ph-password": "Password",
       "ph-confirmPassword": "Password Confirm",
       "ph-email": "Email"
-    },
-    "resetPassword": {
-      "header": "Reset Password",
-      "description": "Please enter your password for your email address",
-      "lbl-submit": "Reset Password",
-      "lbl-password": "Password",
-      "lbl-confirmPassword": "Password Confirm",
-      "passwordNotMatch": "Passwords Don't Match",
-      "nowLoginYourAccount": "You can now log into the your account",
-      "yourPasswordResetSuccess": "Your password was successfully reset!"
     },
     "verifyEmail": {
       "header": "Verify Email",

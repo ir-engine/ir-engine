@@ -29,10 +29,6 @@ export default (app: Application) => {
       type: DataTypes.JSON,
       allowNull: true
     },
-    local: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
     jwtOptions: {
       type: DataTypes.JSON,
       allowNull: true

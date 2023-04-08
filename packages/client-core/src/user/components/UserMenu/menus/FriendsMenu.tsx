@@ -25,14 +25,14 @@ import { useAuthState } from '../../../services/AuthService'
 import { NetworkUserService, useNetworkUserState } from '../../../services/NetworkUserService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 import { getAvatarURLForUser } from '../util'
 
 interface Props {
-  changeActiveMenu: Function
   defaultSelectedTab?: string
 }
 
-const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Element => {
+const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   const { t } = useTranslation()
   const [selectedTab, setSelectedTab] = React.useState(defaultSelectedTab ? defaultSelectedTab : 'friends')
 
@@ -52,9 +52,9 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
   }
 
   const handleProfile = (user: UserInterface) => {
-    changeActiveMenu(AvatarMenus.AvatarContext, {
+    PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, {
       user,
-      onBack: () => changeActiveMenu(SocialMenus.Friends, { defaultSelectedTab: selectedTab })
+      onBack: () => PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: selectedTab })
     })
   }
 
@@ -93,8 +93,8 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
     <Menu
       open
       header={<Tabs value={selectedTab} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => changeActiveMenu && changeActiveMenu(UserMenus.Profile)}
-      onClose={() => changeActiveMenu && changeActiveMenu()}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         {displayList.map((value) => (
@@ -155,7 +155,7 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
         )}
       </Box>
       <Box display="flex" columnGap={2} alignItems="center">
-        <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(SocialMenus.Party)}>
+        <Button fullWidth type="gradientRounded" onClick={() => PopupMenuServices.showPopupMenu(SocialMenus.Party)}>
           {t('user:usermenu.share.party')}
         </Button>
       </Box>
