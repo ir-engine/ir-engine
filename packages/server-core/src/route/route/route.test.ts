@@ -20,7 +20,7 @@ const cleanup = async (app: Application, projectName: string) => {
   } catch (e) {}
 }
 
-const updateXREngineConfigForTest = (customRoute: string) => {
+const updateXREngineConfigForTest = (projectName: string, customRoute: string) => {
   const testXREngineConfig = `
   import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
@@ -39,7 +39,7 @@ const updateXREngineConfigForTest = (customRoute: string) => {
   `
 
   const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
-  const projectLocalDirectory = path.resolve(projectsRootFolder, customRoute)
+  const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
   const xrEngineConfigFilePath = path.resolve(projectLocalDirectory, 'xrengine.config.ts')
 
   fs.rmSync(xrEngineConfigFilePath)
@@ -48,6 +48,7 @@ const updateXREngineConfigForTest = (customRoute: string) => {
 
 describe('route.test', () => {
   let app: Application
+  let testProject: string
   let testRoute: string
 
   before(async () => {
@@ -57,44 +58,46 @@ describe('route.test', () => {
 
   after(async () => {
     await destroyEngine()
-    await cleanup(app, testRoute)
+    await cleanup(app, testProject)
   })
 
   it('should find the installed project routes', async () => {
-    testRoute = `test-project-${uuid()}`
-    await app.service('project').create({ name: testRoute }, params)
-    updateXREngineConfigForTest(testRoute)
+    testProject = `test-project-${uuid()}`
+    testRoute = `test-route-${uuid()}`
+
+    await app.service('project').create({ name: testProject }, params)
+    updateXREngineConfigForTest(testProject, testRoute)
 
     const installedRoutes = await app.service('routes-installed').find()
-    const route = installedRoutes.data.find((route) => route.project === testRoute)
+    const route = installedRoutes.data.find((route) => route.project === testProject)
 
     assert.ok(route)
-    assert.equal(route.project, testRoute)
+    assert.equal(route.project, testProject)
   })
 
   it('should not be activated by default (the installed project)', async () => {
-    const route = await app.service('route').find({ query: { project: testRoute } })
+    const route = await app.service('route').find({ query: { project: testProject } })
     assert.equal(route.total, 0)
   })
 
   it('should activate a route', async () => {
     const activateResult = await app
       .service('route-activate')
-      .create({ project: testRoute, route: testRoute, activate: true }, params)
-    const fetchResult = await app.service('route').find({ query: { project: testRoute } })
-    const route = fetchResult.data.find((d) => d.project === testRoute)
+      .create({ project: testProject, route: testRoute, activate: true }, params)
+    const fetchResult = await app.service('route').find({ query: { project: testProject } })
+    const route = fetchResult.data.find((d) => d.project === testProject)
 
     assert.ok(activateResult)
     assert.equal(fetchResult.total, 1)
 
-    assert.equal(route?.project, testRoute)
+    assert.equal(route?.project, testProject)
     assert.equal(route?.route, testRoute)
   })
 
   it('should deactivate a route', async () => {
-    await app.service('route-activate').create({ project: testRoute, route: testRoute, activate: false }, params)
+    await app.service('route-activate').create({ project: testProject, route: testRoute, activate: false }, params)
 
-    const route = await app.service('route').find({ query: { project: testRoute } })
+    const route = await app.service('route').find({ query: { project: testProject } })
     assert.equal(route.total, 0)
   })
 })
