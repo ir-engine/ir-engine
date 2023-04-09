@@ -5,7 +5,7 @@ import path from 'path'
 import { Application } from '../declarations'
 import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
-import seederConfig from './seeder-config'
+import { knexSeeds, sequelizeSeeds } from './seeder-config'
 import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:seeder' })
@@ -13,7 +13,13 @@ const logger = multiLogger.child({ component: 'server-core:seeder' })
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {
   if (forceRefresh || prepareDb) {
     logger.info('Seeding or preparing database')
-    for (let config of seederConfig) {
+
+    const knexClient = app.get('knexClient')
+    for (let seedFile of knexSeeds) {
+      seedFile.seed(knexClient)
+    }
+
+    for (let config of sequelizeSeeds) {
       if (config.path) {
         const templates = config.templates
         const service = app.service(config.path as any)

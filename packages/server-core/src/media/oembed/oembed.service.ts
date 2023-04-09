@@ -5,6 +5,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import { ClientSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
 import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
 import { ServerSetting } from '@etherealengine/common/src/interfaces/ServerSetting'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 
 import { Application } from '../../../declarations'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
@@ -48,8 +49,8 @@ export default (app: Application): void => {
           query_url: queryURL
         } as OEmbed
 
-        const activeRoutes = await app.service('route').find()
-        const uniqueProjects = [...new Set<string>(activeRoutes.data.map((item) => item.project))]
+        const activeRoutes = await app.service(routePath).find({ paginate: false })
+        const uniqueProjects = [...new Set<string>(activeRoutes.map((item) => item.project))]
 
         for (const projectName of uniqueProjects) {
           const projectConfig = getProjectConfig(projectName)

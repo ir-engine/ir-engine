@@ -8,6 +8,7 @@ import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
+import { parse, stringify } from 'flatted'
 import helmet from 'helmet'
 import path from 'path'
 
@@ -22,6 +23,7 @@ import { Application } from '../declarations'
 import appConfig from './appconfig'
 import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
+import mysql from './mysql'
 import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
@@ -34,10 +36,11 @@ require('fix-esm').register()
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
-      docsPath: '/openapi',
-      docsJsonPath: '/openapi.json',
-      uiIndex: path.join(process.cwd() + '/openapi.html'),
-      // TODO: Relate to server config, don't hardcode this here
+      ui: swagger.swaggerUI({
+        docsPath: '/openapi'
+        // docsJsonPath: '/openapi.json',
+        // indexFile: path.join(process.cwd() + '/openapi.html')
+      }),
       specs: {
         info: {
           title: 'Ethereal Engine API Surface',
@@ -91,11 +94,14 @@ export const configurePrimus =
 
 export const configureRedis = () => (app: Application) => {
   if (appConfig.redis.enabled) {
+    // https://github.com/feathersjs-ecosystem/feathers-sync/issues/140#issuecomment-810144263
     app.configure(
       sync({
         uri: appConfig.redis.password
           ? `redis://:${appConfig.redis.password}@${appConfig.redis.address}:${appConfig.redis.port}`
-          : `redis://${appConfig.redis.address}:${appConfig.redis.port}`
+          : `redis://${appConfig.redis.address}:${appConfig.redis.port}`,
+        serialize: stringify,
+        deserialize: parse
       })
     )
     app.sync.ready.then(() => {
@@ -194,6 +200,8 @@ export const createFeathersExpressApp = (
   //   ;(req as any).feathers.res = res
   //   next()
   // })
+
+  app.configure(mysql)
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)

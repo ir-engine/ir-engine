@@ -1,5 +1,5 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'

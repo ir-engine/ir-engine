@@ -1,4 +1,7 @@
 import type { Application as ExpressFeathers } from '@feathersjs/express'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/typescript.html
+import { HookContext as FeathersHookContext } from '@feathersjs/feathers'
+import { ServiceSwaggerOptions } from 'feathers-swagger'
 import Primus from 'primus'
 
 import '@feathersjs/transport-commons'
@@ -15,3 +18,15 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   primus: PrimusType
   isSetup: Promise<boolean>
 }
+
+/**
+ * Ref: https://feathersjs-ecosystem.github.io/feathers-swagger/#/?id=configure-the-documentation-for-a-feathers-service
+ */
+declare module '@feathersjs/feathers' {
+  interface ServiceOptions {
+    docs?: ServiceSwaggerOptions
+  }
+}
+
+// The context for hook functions - can be typed with a service class
+export type HookContext<S = any> = FeathersHookContext<Application, S>

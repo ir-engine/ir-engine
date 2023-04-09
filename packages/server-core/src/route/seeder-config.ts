@@ -1,5 +1,5 @@
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
+import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 
-import { routeSeedData } from './route/route.seed'
+import * as routeSeed from './route/route.seed'
 
-export const routeSeeds: Array<ServicesSeedConfig> = [routeSeedData]
+export const routeSeeds: Array<KnexSeed> = [routeSeed]

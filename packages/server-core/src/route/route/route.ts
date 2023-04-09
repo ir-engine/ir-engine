@@ -2,19 +2,19 @@ import { Params } from '@feathersjs/feathers'
 import fs from 'fs'
 import path from 'path'
 
-import { ActiveRoutesInterface, InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { routeMethods, routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { Route } from './route.class'
+import { RouteService } from './route.class'
 import routeDocs from './route.docs'
 import hooks from './route.hooks'
-import createModel from './route.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    route: Route
+    [routePath]: RouteService
   }
 
   interface ServiceTypes {
@@ -60,9 +60,11 @@ export const getInstalledRoutes = () => {
   }
 }
 
-export const activateRoute = (routeService: Route) => {
-  return async (data: { project: string; route: string; activate: boolean }, params: Params = {}) => {
-    const activatedRoutes = (await routeService.find(null!)).data as ActiveRoutesInterface[]
+export const activateRoute = (routeService: RouteService) => {
+  return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
+    const activatedRoutes = await routeService.find({
+      paginate: false
+    })
     const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
@@ -90,24 +92,29 @@ export const activateRoute = (routeService: Route) => {
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: routePath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new Route(options, app)
-  event.docs = routeDocs
-  app.use('route', event)
+  app.use(routePath, new RouteService(options), {
+    // A list of all methods this service exposes externally
+    methods: routeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: routeDocs
+  })
+
+  const service = app.service(routePath)
+  service.hooks(hooks)
+
   // @ts-ignore
   app.use('routes-installed', {
     find: getInstalledRoutes()
   })
   // @ts-ignore
   app.use('route-activate', {
-    create: activateRoute(event)
+    create: activateRoute(service)
   })
-
-  const service = app.service('route')
-
-  service.hooks(hooks)
 }
