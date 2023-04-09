@@ -1,5 +1,10 @@
 import dotenv from 'dotenv'
+import knex from 'knex'
 import { DataTypes, Sequelize } from 'sequelize'
+
+import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import { CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
 import appConfig from './appconfig'
 import logger from './ServerLogger'
@@ -20,6 +25,18 @@ db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.ho
 
 export const updateAppConfig = async (): Promise<void> => {
   if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
+
+  const knexClient = knex({
+    client: 'mysql',
+    connection: {
+      user: db.username,
+      password: db.password,
+      host: db.host,
+      port: parseInt(db.port.toString()),
+      database: db.database,
+      charset: 'utf8mb4'
+    }
+  })
   const sequelizeClient = new Sequelize({
     ...(db as any),
     define: {
@@ -31,18 +48,9 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const promises: any[] = []
 
-  const taskServerSetting = sequelizeClient.define('taskServerSetting', {
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    processInterval: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const taskServerSettingPromise = taskServerSetting
-    .findAll()
+  const taskServerSettingPromise = knexClient
+    .select()
+    .from<TaskServerSettingType>('taskServerSetting')
     .then(([dbTaskServer]) => {
       const dbTaskServerConfig = dbTaskServer && {
         port: dbTaskServer.port,
@@ -206,18 +214,9 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(promisePromise)
 
-  const chargebeeSetting = sequelizeClient.define('chargebeeSetting', {
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    apiKey: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const chargebeeSettingPromise = chargebeeSetting
-    .findAll()
+  const chargebeeSettingPromise = knexClient
+    .select()
+    .from<ChargebeeSettingType>('chargebeeSetting')
     .then(([dbChargebee]) => {
       const dbChargebeeConfig = dbChargebee && {
         url: dbChargebee.url,
@@ -235,26 +234,14 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(chargebeeSettingPromise)
 
-  const coilSetting = sequelizeClient.define('coilSetting', {
-    paymentPointer: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientSecret: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const coilSettingPromise = coilSetting
-    .findAll()
+  const coilSettingPromise = knexClient
+    .select()
+    .from<CoilSettingType>('coilSetting')
     .then(([dbCoil]) => {
       const dbCoilConfig = dbCoil && {
-        url: dbCoil.url,
-        apiKey: dbCoil.apiKey
+        paymentPointer: dbCoil.paymentPointer,
+        clientId: dbCoil.clientId,
+        clientSecret: dbCoil.clientSecret
       }
       if (dbCoilConfig) {
         appConfig.coil = {
