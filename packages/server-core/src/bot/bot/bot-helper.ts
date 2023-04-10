@@ -65,8 +65,11 @@ export const createBotService = async () => {
       serverLogger.error(e)
       return e
     }
+  } else {
+    console.log('k8s client not available!')
   }
 }
+
 export const deleteBotService = async () => {
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   if (k8DefaultClient) {
@@ -77,8 +80,11 @@ export const deleteBotService = async () => {
       serverLogger.error(e)
       return e
     }
+  } else {
+    console.log('k8s client not available!')
   }
 }
+
 export const createBotPod = async (data: any) => {
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   const pod = getBotPodBody(data.id)
@@ -90,6 +96,8 @@ export const createBotPod = async (data: any) => {
       serverLogger.error(e)
       return e
     }
+  } else {
+    console.log('k8s client not available!')
   }
 }
 
@@ -103,6 +111,8 @@ export const deleteBodPod = async (data: any) => {
       serverLogger.error(e)
       return e
     }
+  } else {
+    console.log('k8s client not available!')
   }
 }
 
@@ -130,5 +140,7 @@ export const getBotPod = async () => {
       serverLogger.error(e)
       return e
     }
+  } else {
+    console.log('k8s client not available!')
   }
 }

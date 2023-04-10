@@ -7,6 +7,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 
 import { Application } from '../../../declarations'
+import * as botk8s from './bot-helper'
 
 export type AdminBotDataType = AdminBot
 
@@ -19,6 +20,7 @@ export class Bot extends Service {
     super(options)
     this.app = app
     this.botmanager = new BotManager({ verbose: false, headless: false })
+    botk8s.createBotService()
   }
 
   async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
@@ -43,15 +45,17 @@ export class Bot extends Service {
     // make it create bot pod with a specific name
     data.instanceId = data.instanceId ? data.instanceId : null
     const result = await super.create(data)
-    this.botmanager.addBot(result.id, result.name)
+    botk8s.createBotPod(result)
+    /*this.botmanager.addBot(result.id, result.name)
     console.log(`added bot id = ${result.id}and name = ${result.name} to server`)
     this.botmanager.addAction(result.id, BotAction.connect())
     // convert location if to location name
     // domain stays the same 90% of the time
     this.botmanager.addAction(result.id, BotAction.enterRoom('localhost:3000', 'default'))
     await this.botmanager.run()
+    console.log(`finished adding bot to server`)*/
     //createBotCommands(this.app, result, data.command!)
-    console.log(`finished adding bot to server`)
+
     return result
   }
 
@@ -63,9 +67,10 @@ export class Bot extends Service {
   async remove(id: string): Promise<AdminBotDataType | AdminBotDataType[]> {
     //make this remove pod of the bot
     // need to try and find name instead
-    console.log(`removed bot with id = ${id} from server`)
+    botk8s.deleteBodPod(id)
+    /*console.log(`removed bot with id = ${id} from server`)
     this.botmanager.addAction(id, BotAction.disconnect())
-    await this.botmanager.run()
+    await this.botmanager.run()*/
     return super.remove(id)
   }
 }
