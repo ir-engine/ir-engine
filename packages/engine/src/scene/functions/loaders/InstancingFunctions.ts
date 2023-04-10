@@ -3,7 +3,6 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  ColorRepresentation,
   DoubleSide,
   InstancedBufferAttribute,
   InstancedBufferGeometry,
@@ -18,46 +17,31 @@ import {
   Quaternion,
   RawShaderMaterial,
   ShaderChunk,
-  ShaderMaterial,
   Texture,
   Vector2,
   Vector3
 } from 'three'
-import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, dispatchAction, State } from '@etherealengine/hyperflux'
+import { State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
-import { DependencyTree } from '../../../assets/classes/DependencyTree'
-import { AssetClass } from '../../../assets/enum/AssetClass'
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
   getMutableComponent,
-  getOptionalComponent,
   hasComponent,
-  removeComponent,
-  useComponent
+  removeComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
 import { setCallback } from '../../components/CallbackComponent'
-import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
+import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../components/GroupComponent'
 import {
   GrassProperties,
   InstancingComponent,
   InstancingComponentType,
-  InstancingStagingComponent,
   MeshProperties,
   SampleMode,
   SampleProperties,
@@ -69,7 +53,6 @@ import {
   VertexProperties
 } from '../../components/InstancingComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
-import { UUIDComponent } from '../../components/UUIDComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
 import LogarithmicDepthBufferMaterialChunk from '../LogarithmicDepthBufferMaterialChunk'
@@ -312,43 +295,6 @@ gl_FragColor = vec4(col, 1.0);
 
 //${ShaderChunk.logdepthbuf_fragment}
 //}`
-
-export class InstancingActions {
-  static instancingStaged = defineAction({
-    type: 'xre.scene.Instancing.INSTANCING_STAGED' as const,
-    uuid: matches.string
-  })
-}
-
-export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
-  if (!getOptionalComponent(entity, GroupComponent)?.[0]) {
-    addObjectToGroup(entity, new Object3D())
-  }
-  const scatterProps = getComponent(entity, InstancingComponent)
-  if (scatterProps.surface) {
-    const eNode = entity
-    DependencyTree.add(
-      scatterProps.surface,
-      new Promise<void>((resolve) => {
-        matchActionOnce(
-          InstancingActions.instancingStaged.matches.validate(
-            (action) => action.uuid === getComponent(eNode, UUIDComponent),
-            ''
-          ),
-          () => resolve()
-        )
-      })
-    )
-  }
-
-  if (scatterProps.state === ScatterState.STAGED) {
-    const executeStaging = () => {
-      addComponent(entity, InstancingStagingComponent)
-    }
-    if (!getEngineState().sceneLoaded.value) matchActionOnce(EngineActions.sceneLoaded.matches, executeStaging)
-    else executeStaging()
-  }
-}
 
 const loadTex = async (props: State<TextureRef>) => {
   const texture = (await AssetLoader.loadAsync(props.src.value)) as Texture
@@ -734,9 +680,7 @@ export async function stageInstancing(entity: Entity) {
       result = new Mesh()
       break
   }
-  if (!getComponent(entity, GroupComponent)?.[0]) addObjectToGroup(entity, new Object3D())
-  const obj3d = getComponent(entity, GroupComponent)[0]
-  obj3d.name = `${result.name} Base`
+  addObjectToGroup(entity, result)
   const updates: ((dt: number) => void)[] = []
   switch (scatter.mode) {
     case ScatterMode.GRASS:
@@ -753,16 +697,13 @@ export async function stageInstancing(entity: Entity) {
     setCallback(entity, UpdatableCallback, (dt) => updates.forEach((update) => update(dt)))
   }
   result.frustumCulled = false
-  obj3d.add(result)
+  scatterState.mesh.set(result)
   scatterState.state.set(ScatterState.STAGED)
-  dispatchAction(InstancingActions.instancingStaged({ uuid: getComponent(entity, UUIDComponent) }))
 }
 
 export function unstageInstancing(entity: Entity) {
-  const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
-  const group = getComponent(entity, GroupComponent)
-  const obj3d = group.pop()
-  obj3d?.removeFromParent()
-  if (group.length === 0) removeComponent(entity, GroupComponent)
-  comp.state = ScatterState.UNSTAGED
+  const comp = getMutableComponent(entity, InstancingComponent)
+  if (!comp.mesh.value) return
+  removeObjectFromGroup(entity, comp.mesh.value)
+  comp.state.set(ScatterState.UNSTAGED)
 }
