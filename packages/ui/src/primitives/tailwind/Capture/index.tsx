@@ -22,11 +22,11 @@ import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordi
 import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
-import Header from '@etherealengine/ui/src/components/tailwind/Header'
-import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
-import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
+import Drawer from '@etherealengine/ui/src/primitives/tailwind/Drawer'
+import Header from '@etherealengine/ui/src/primitives/tailwind/Header'
+import RecordingsList from '@etherealengine/ui/src/primitives/tailwind/RecordingList'
+import Toolbar from '@etherealengine/ui/src/primitives/tailwind/Toolbar'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 
 let creatingProducer = false

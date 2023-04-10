@@ -14,7 +14,7 @@ import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/Syste
 import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import CaptureUI from '@etherealengine/ui/src/components/tailwind/Capture'
+import CaptureUI from '@etherealengine/ui/src/primitives/tailwind/Capture'
 
 const networkingSystems = {
   uuid: 'ee.client.core.ClientNetworkingSystem',

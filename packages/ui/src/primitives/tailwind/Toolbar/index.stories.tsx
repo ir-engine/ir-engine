@@ -6,7 +6,7 @@ import Drawer from './index'
 const argTypes = {}
 
 export default {
-  title: 'Primatives/Tailwind/Drawer',
+  title: 'Primitives/Tailwind/Drawer',
   component: Drawer,
   parameters: {
     componentSubtitle: 'Drawer',
