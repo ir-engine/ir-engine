@@ -61,7 +61,7 @@ export const getInstalledRoutes = () => {
 }
 
 export const activateRoute = (routeService: RouteService) => {
-  return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
+  return async (data: { project: string; route: string; activate: boolean }, params: Params = {}) => {
     const activatedRoutes = await routeService.find({
       paginate: false
     })
