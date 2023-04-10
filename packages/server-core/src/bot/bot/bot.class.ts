@@ -18,7 +18,7 @@ export class Bot extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
-    this.botmanager = new BotManager({ verbose: true, headless: false })
+    this.botmanager = new BotManager({ verbose: false, headless: false })
   }
 
   async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
@@ -51,6 +51,7 @@ export class Bot extends Service {
     this.botmanager.addAction(result.id, BotAction.enterRoom('localhost:3000', 'default'))
     await this.botmanager.run()
     //createBotCommands(this.app, result, data.command!)
+    console.log(`finished adding bot to server`)
     return result
   }
 

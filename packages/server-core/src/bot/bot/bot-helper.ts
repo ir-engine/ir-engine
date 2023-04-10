@@ -1,17 +1,91 @@
+import { V1Pod, V1PodSpec, V1Service, V1ServiceSpec } from '@kubernetes/client-node'
+
 import { BotPod, SpawnBotPod } from '@etherealengine/common/src/interfaces/AdminBot'
 import { getState } from '@etherealengine/hyperflux'
+import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
 
-import { Application } from '../../../declarations'
-import { ServerState } from '../../ServerState'
+const packageName = 'ee-bot'
+const packageUrl = 'https://github.com/EtherealEngine/ee-bot'
+export const getBotPodBody = (botid: string) => {
+  const podSpec: V1PodSpec = {
+    containers: [
+      {
+        name: 'npm-container',
+        image: 'node:latest',
+        command: ['bash', '-c', `git clone ${packageUrl} && cd ${packageName} && npm install`]
+      }
+    ]
+  }
 
-export const getBotPodBody = () => {}
-export const createBotPod = async (data: any) => {
+  const pod: V1Pod = {
+    metadata: {
+      name: `${packageName}-pod-${botid}`,
+      labels: {
+        app: packageName
+      }
+    },
+    spec: podSpec
+  }
+  return pod
+}
+export const getBotServiceBody = () => {
+  const serviceSpec: V1ServiceSpec = {
+    type: 'ClusterIP',
+    ports: [
+      {
+        name: 'http',
+        port: 8080,
+        targetPort: 3000
+      }
+    ],
+    selector: {
+      app: packageName
+    }
+  }
+  const service: V1Service = {
+    metadata: {
+      name: `${packageName}-service`
+    },
+    spec: serviceSpec
+  }
+  return service
+}
+
+export const createBotService = async () => {
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
+  const service = getBotServiceBody()
+  if (k8DefaultClient) {
+    try {
+      const deployService = await k8DefaultClient.createNamespacedService('default', service)
+      console.log('Bot Service created!')
+    } catch (e) {
+      serverLogger.error(e)
+      return e
+    }
+  }
+}
+export const deleteBotService = async () => {
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   if (k8DefaultClient) {
     try {
-      const jobName = `${config.server.releaseName}-etherealengine-bot-${data.id}`
+      const destroyService = await k8DefaultClient.deleteNamespacedService(`${packageName}-service`, 'default')
+      console.log('Bot Service destroyed!')
+    } catch (e) {
+      serverLogger.error(e)
+      return e
+    }
+  }
+}
+export const createBotPod = async (data: any) => {
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
+  const pod = getBotPodBody(data.id)
+  if (k8DefaultClient) {
+    try {
+      const deployPod = await k8DefaultClient.createNamespacedPod('default', pod)
+      console.log('Bot Pod created!')
     } catch (e) {
       serverLogger.error(e)
       return e
@@ -19,29 +93,37 @@ export const createBotPod = async (data: any) => {
   }
 }
 
-export const getBotPod = async (app: Application) => {
+export const deleteBodPod = async (data: any) => {
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   if (k8DefaultClient) {
     try {
-      const jobNamePrefix = `${config.server.releaseName}-etherealengine-bot`
+      const destroyPod = await k8DefaultClient.deleteNamespacedPod(`${packageName}-pod-${data.id}`, 'default')
+      console.log('Bot Pod deleted!')
+    } catch (e) {
+      serverLogger.error(e)
+      return e
+    }
+  }
+}
+
+export const getBotPod = async () => {
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
+  if (k8DefaultClient) {
+    try {
+      const jobNamePrefix = `${packageName}`
       const podsResult = await k8DefaultClient.listNamespacedPod(
         'default',
         undefined,
         undefined,
         undefined,
-        undefined,
-        `job-name=${jobNamePrefix}`
+        `name=${jobNamePrefix}`
       ) // filter metadta label by prefix
       const pods: BotPod[] = []
       for (const pod of podsResult.body.items) {
-        const labels = pod.metadata!.labels
-        if (labels && labels['job-name'] && labels['job-name'].includes(jobNamePrefix)) {
-          // double check
-          pods.push({
-            name: pod.metadata!.name!,
-            status: pod.status!.phase!
-          })
-        }
+        pods.push({
+          name: pod.metadata!.name!,
+          status: pod.status!.phase!
+        })
       }
       return pods
     } catch (e) {
@@ -49,44 +131,4 @@ export const getBotPod = async (app: Application) => {
       return e
     }
   }
-}
-export const runBotPodJob = async (app: Application): Promise<SpawnBotPod> => {
-  const k8BatchClient = getState(ServerState).k8BatchClient
-  if (k8BatchClient) {
-    try {
-      const jobName = `${config.server.releaseName}-etherealengine-bot`
-      const oldJobResult = await k8BatchClient.readNamespacedJob(jobName, 'default')
-
-      if (oldJobResult && oldJobResult.body) {
-        // Removed unused properties
-        delete oldJobResult.body.metadata!.managedFields
-        delete oldJobResult.body.metadata!.resourceVersion
-        delete oldJobResult.body.spec!.selector
-        delete oldJobResult.body.spec!.template!.metadata!.labels
-
-        oldJobResult.body.spec!.suspend = false
-
-        const deleteJobResult = await k8BatchClient.deleteNamespacedJob(
-          jobName,
-          'default',
-          undefined,
-          undefined,
-          0,
-          undefined,
-          'Background'
-        )
-
-        if (deleteJobResult.body.status === 'Success') {
-          await k8BatchClient.createNamespacedJob('default', oldJobResult.body)
-
-          return { status: true, message: 'Bot spawned successfully' }
-        }
-      }
-    } catch (e) {
-      serverLogger.error(e)
-      return { status: false, message: `Failed to spawn bot. (${e.body.reason})` }
-    }
-  }
-
-  return { status: false, message: 'Failed to spawn bot' }
 }
