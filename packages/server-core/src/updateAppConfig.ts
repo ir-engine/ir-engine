@@ -4,6 +4,11 @@ import { DataTypes, Sequelize } from 'sequelize'
 
 import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import { CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import {
+  EmailSettingDatabaseType,
+  EmailSmtpType,
+  EmailSubjectType
+} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
 import appConfig from './appconfig'
@@ -319,28 +324,12 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(clientSettingPromise)
 
-  const emailSetting = sequelizeClient.define('emailSetting', {
-    smtp: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    from: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    subject: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    smsNameCharacterLimit: {
-      type: DataTypes.INTEGER
-    }
-  })
-  const emailSettingPromise = emailSetting
-    .findAll()
+  const emailSettingPromise = knexClient
+    .select()
+    .from<EmailSettingDatabaseType>('emailSetting')
     .then(([dbEmail]) => {
-      let smtp = JSON.parse(dbEmail.smtp)
-      let subject = JSON.parse(dbEmail.subject)
+      let smtp = JSON.parse(dbEmail.smtp) as EmailSmtpType
+      let subject = JSON.parse(dbEmail.subject) as EmailSubjectType
 
       if (typeof smtp === 'string') smtp = JSON.parse(smtp)
       if (typeof subject === 'string') subject = JSON.parse(subject)
@@ -350,7 +339,7 @@ export const updateAppConfig = async (): Promise<void> => {
         smsNameCharacterLimit: dbEmail.smsNameCharacterLimit,
         smtp: {
           ...smtp,
-          auth: JSON.parse(smtp.auth)
+          port: parseInt(smtp.port)
         },
         subject: subject
       }

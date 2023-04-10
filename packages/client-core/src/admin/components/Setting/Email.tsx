@@ -78,9 +78,9 @@ const Email = () => {
 
     EmailSettingService.patchEmailSetting(
       {
-        smtp: JSON.stringify({ ...smtp.value, auth: JSON.stringify(auth.value) }),
+        smtp: { ...smtp.value, auth: auth.value },
         from: from.value,
-        subject: JSON.stringify(subject.value)
+        subject: subject.value
       },
       id
     )
