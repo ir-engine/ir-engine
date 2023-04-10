@@ -3,6 +3,7 @@ import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path/posix'
+import { PassThrough } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
@@ -15,6 +16,7 @@ import {
   PutObjectParams,
   StorageListObjectInterface,
   StorageObjectInterface,
+  StorageObjectPutInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
 
@@ -98,7 +100,7 @@ export class LocalStorage implements StorageProviderInterface {
    * @param data Storage object to be added.
    * @param params Parameters of the add request.
    */
-  putObject = async (data: StorageObjectInterface, params: PutObjectParams = {}): Promise<any> => {
+  putObject = async (data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> => {
     const filePath = path.join(this.PATH_PREFIX, data.Key!)
 
     if (params.isDirectory) {
@@ -113,9 +115,28 @@ export class LocalStorage implements StorageProviderInterface {
     if (pathWithoutFile == null) throw new Error('Invalid file path in local putObject')
     if (!fs.existsSync(pathWithoutFile)) fs.mkdirSync(pathWithoutFile, { recursive: true })
 
-    fs.writeFileSync(filePath, data.Body)
-
-    return true
+    if (data.Body instanceof PassThrough) {
+      return new Promise<boolean>((resolve, reject) => {
+        try {
+          const writeableStream = fs.createWriteStream(filePath)
+          const passthrough = data.Body as PassThrough
+          passthrough.pipe(writeableStream)
+          passthrough.on('end', () => {
+            resolve(true)
+          })
+          passthrough.on('error', (e) => {
+            logger.error(e)
+            reject(e)
+          })
+        } catch (e) {
+          logger.error(e)
+          reject(e)
+        }
+      })
+    } else {
+      fs.writeFileSync(filePath, data.Body)
+      return true
+    }
   }
 
   /**

@@ -37,7 +37,7 @@ import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
 import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { WorldHostModule } from './WorldHostModule'
+import { RecordingSystems, WorldHostModule } from './WorldHostModule'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -252,7 +252,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId as UserId)
-    await initSystems([...RealtimeNetworkingModule(true, false)])
+    await initSystems([...RealtimeNetworkingModule(true, false), ...RecordingSystems()])
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
@@ -270,7 +270,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
       ...RealtimeNetworkingModule(false, true),
       ...SceneCommonModule(),
       ...AvatarCommonModule(),
-      ...WorldHostModule()
+      ...WorldHostModule(),
+      ...RecordingSystems()
     ])
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))

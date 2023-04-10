@@ -31,6 +31,7 @@ import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
 
+import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { createOutgoingDataProducer } from './WebRTCFunctions'
 
@@ -40,7 +41,7 @@ interface ActiveRecording {
   userID: UserId
   serializer?: ECSSerializer
   dataChannelRecorder?: any // todo
-  mediaChannelRecorder?: any // todo
+  mediaChannelRecorder?: Awaited<ReturnType<typeof startMediaRecording>>
 }
 
 interface ActivePlayback {
@@ -60,6 +61,7 @@ export const activePlaybacks = new Map<string, ActivePlayback>()
 
 export const dispatchError = (error: string, targetUser: UserId) => {
   const app = Engine.instance.api as Application as Application
+  logger.error('Recording Error: ' + error)
   dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
 }
 
@@ -72,6 +74,8 @@ const mediaDataChannels = [
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
   const app = Engine.instance.api as Application as Application
+
+  console.log('onStartRecording', action)
 
   const recording = await app.service('recording').get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$from)
@@ -133,16 +137,11 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       chunkLength,
       onCommitChunk(chunk, chunkIndex) {
         storageProvider
-          .putObject(
-            {
-              Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee',
-              Body: encode(chunk),
-              ContentType: 'application/octet-stream'
-            },
-            {
-              isDirectory: false
-            }
-          )
+          .putObject({
+            Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee',
+            Body: encode(chunk),
+            ContentType: 'application/octet-stream'
+          })
           .then(() => {
             logger.info('Uploaded entities chunk', chunkIndex)
           })
@@ -151,16 +150,11 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
           if (data.length) {
             const count = chunkIndex
             storageProvider
-              .putObject(
-                {
-                  Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee',
-                  Body: encode(data),
-                  ContentType: 'application/octet-stream'
-                },
-                {
-                  isDirectory: false
-                }
-              )
+              .putObject({
+                Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee',
+                Body: encode(data),
+                ContentType: 'application/octet-stream'
+              })
               .then(() => {
                 logger.info('Uploaded raw chunk', count)
               })
@@ -184,11 +178,12 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   if (Engine.instance.mediaNetwork) {
     const dataChannelSchema = schema
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
-      .filter(Boolean)
+      .filter(Boolean) as DataChannelType[]
 
-    for (const dataChannel of dataChannelSchema) {
-      /** @todo */
-    }
+    const mediaRecorder = await startMediaRecording(recording.id, userID, dataChannelSchema)
+
+    activeRecording.mediaChannelRecorder = mediaRecorder
+    console.log('media recording started')
   }
 
   activeRecordings.set(recording.id, activeRecording)
@@ -226,6 +221,10 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
 
+    await Promise.all([
+      ...activeRecording.mediaChannelRecorder.recordings.map((recording) => recording.stopRecording()),
+      ...activeRecording.mediaChannelRecorder.activeUploads
+    ])
     // stop recording data channel
   }
 

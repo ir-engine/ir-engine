@@ -7,6 +7,7 @@ import { MediaState } from '@etherealengine/client-core/src/media/services/Media
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { NetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { screenshareVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ConferenceModeParticipant from './ConferenceModeParticipant'
@@ -36,7 +37,8 @@ const ConferenceMode = (): JSX.Element => {
       : []
 
   const consumers = mediaState.consumers.value
-  const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
+  const screenShareConsumers =
+    consumers?.filter((consumer) => consumer.appData.mediaTag === screenshareVideoDataChannelType) || []
 
   let totalScreens = 1
 
@@ -67,7 +69,7 @@ const ConferenceMode = (): JSX.Element => {
       <ConferenceModeParticipant type={'cam'} peerID={network.peerID} key={'cam_' + network.peerID} />
       {consumers.map((consumer) => {
         const peerID = consumer.appData.peerID
-        const type = consumer.appData.mediaTag === 'screen-video' ? 'screen' : 'cam'
+        const type = consumer.appData.mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
         return <ConferenceModeParticipant type={type} peerID={peerID} key={type + '_' + peerID} />
       })}
     </div>
