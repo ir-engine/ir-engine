@@ -463,7 +463,7 @@ const EditorContainer = () => {
   }, [sceneLoaded])
 
   useEffect(() => {
-    if (errorState) {
+    if (errorState.value) {
       onEditorError(errorState.value)
     }
   }, [errorState])
