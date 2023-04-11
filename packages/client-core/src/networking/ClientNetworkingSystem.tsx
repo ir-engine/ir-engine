@@ -22,7 +22,6 @@ import {
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerConsumers } from '../media/PeerMedia'
-import { MediaServiceReceptor, MediaStreamService } from '../media/services/MediaStreamService'
 import { ChatServiceReceptor, ChatState } from '../social/services/ChatService'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import { LocationState } from '../social/services/LocationService'
@@ -60,7 +59,6 @@ export default async function ClientNetworkingSystem() {
   // todo replace with subsystems
   addActionReceptor(LocationInstanceConnectionServiceReceptor)
   addActionReceptor(MediaInstanceConnectionServiceReceptor)
-  addActionReceptor(MediaServiceReceptor)
   addActionReceptor(NetworkUserServiceReceptor)
   addActionReceptor(FriendServiceReceptor)
   addActionReceptor(ChatServiceReceptor)
@@ -159,7 +157,6 @@ export default async function ClientNetworkingSystem() {
     // todo replace with subsystems
     removeActionReceptor(LocationInstanceConnectionServiceReceptor)
     removeActionReceptor(MediaInstanceConnectionServiceReceptor)
-    removeActionReceptor(MediaServiceReceptor)
     removeActionReceptor(NetworkUserServiceReceptor)
     removeActionReceptor(FriendServiceReceptor)
     removeActionReceptor(ChatServiceReceptor)

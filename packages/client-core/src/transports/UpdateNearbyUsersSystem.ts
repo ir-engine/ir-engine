@@ -1,11 +1,32 @@
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { getState } from '@etherealengine/hyperflux'
+import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
-import { MediaState, MediaStreamService } from '../media/services/MediaStreamService'
-import { NetworkUserService } from '../user/services/NetworkUserService'
+import { accessNetworkUserState, NetworkUserService } from '../user/services/NetworkUserService'
 import { closeConsumer, promisedRequest, SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
+
+export const NearbyUsersState = defineState({
+  name: 'NearbyUsersState',
+  initial: () => ({
+    nearbyLayerUsers: [] as UserId[]
+  })
+})
+
+export const MediaStreamService = {
+  updateNearbyLayerUsers: () => {
+    const mediaState = getMutableState(NearbyUsersState)
+    const userState = accessNetworkUserState()
+    const nonPartyUserIds = userState.layerUsers
+      .filter((user) => user.partyId.value == null)
+      .map((user) => user.id.value)
+    const nearbyUsers = getNearbyUsers(Engine.instance.userId, nonPartyUserIds)
+    if (JSON.stringify(mediaState.nearbyLayerUsers.value) !== JSON.stringify(nearbyUsers))
+      mediaState.nearbyLayerUsers.set(nearbyUsers)
+  }
+}
 
 export const updateNearbyAvatars = () => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
@@ -14,14 +35,13 @@ export const updateNearbyAvatars = () => {
 
   if (!network) return
 
-  const mediaState = getState(MediaState)
-
   NetworkUserService.getLayerUsers(true)
   const channelConnectionState = getState(MediaInstanceState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
   if (!currentChannelInstanceConnection) return
 
-  const nearbyUserIds = mediaState.nearbyLayerUsers
+  const nearbyUsersState = getState(NearbyUsersState)
+  const nearbyUserIds = nearbyUsersState.nearbyLayerUsers
 
   promisedRequest(network, MessageTypes.WebRTCRequestCurrentProducers.toString(), {
     userIds: nearbyUserIds,

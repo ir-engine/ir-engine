@@ -78,7 +78,6 @@ import {
   MediaInstanceState
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
-import { MediaState, MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -622,7 +621,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
         await configureMediaTransports(network, ['video'])
         await createCamVideoProducer(network)
       }
-      MediaStreamService.updateCamVideoState()
     }
     if (mediaStreamState.audioStream.value) {
       if (mediaStreamState.camAudioProducer.value != null) {
@@ -634,7 +632,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
         await configureMediaTransports(network, ['audio'])
         await createCamAudioProducer(network)
       }
-      MediaStreamService.updateCamAudioState()
     }
     network.primus.removeListener('reconnected', reconnectHandler)
     network.primus.removeListener('disconnection', disconnectHandler)
@@ -644,7 +641,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
           producerId: mediaStreamState.screenVideoProducer.value.id
         })
       await mediaStreamState.screenVideoProducer.value?.close()
-      MediaStreamService.updateScreenVideoState()
     }
     if (mediaStreamState.screenAudioProducer.value) {
       if (!primus.disconnect && typeof promisedRequest === 'function')
@@ -652,7 +648,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
           producerId: mediaStreamState.screenAudioProducer.value.id
         })
       await mediaStreamState.screenAudioProducer.value?.close()
-      MediaStreamService.updateScreenAudioState()
     }
   }
 
@@ -1328,19 +1323,16 @@ const checkEndVideoChat = async () => {
 
 export const toggleFaceTracking = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaState = getMutableState(MediaState)
-  if (mediaState.isMotionCaptureEnabled.value) {
+  if (mediaStreamState.faceTracking.value) {
     mediaStreamState.faceTracking.set(false)
     stopFaceTracking()
     stopLipsyncTracking()
-    MediaStreamService.updateFaceTrackingState()
   } else {
     const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaNetwork, ['video', 'audio'])) {
       mediaStreamState.faceTracking.set(true)
       startFaceTracking()
       startLipsyncTracking()
-      MediaStreamService.updateFaceTrackingState()
     }
   }
 }
@@ -1357,7 +1349,6 @@ export const toggleMicrophonePaused = async () => {
       mediaStreamState.audioPaused.set(!audioPaused)
       checkEndVideoChat()
     }
-    MediaStreamService.updateCamAudioState()
   }
 }
 
@@ -1372,8 +1363,6 @@ export const toggleWebcamPaused = async () => {
       else await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       mediaStreamState.videoPaused.set(!videoPaused)
     }
-
-    MediaStreamService.updateCamVideoState()
   }
 }
 
@@ -1391,7 +1380,6 @@ export const toggleScreenshareAudioPaused = async () => {
   if (audioPaused) await resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   else await pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   mediaStreamState.screenShareAudioPaused.set(!audioPaused)
-  MediaStreamService.updateScreenAudioState()
 }
 
 export const toggleScreenshareVideoPaused = async () => {
@@ -1400,7 +1388,6 @@ export const toggleScreenshareVideoPaused = async () => {
   const videoPaused = mediaStreamState.screenShareVideoPaused.value
   if (videoPaused) await startScreenshare(mediaNetwork)
   else await stopScreenshare(mediaNetwork)
-  MediaStreamService.updateScreenVideoState()
 }
 
 export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolean) {
@@ -1514,9 +1501,6 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   }
 
   mediaStreamState.screenShareVideoPaused.set(false)
-
-  MediaStreamService.updateScreenAudioState()
-  MediaStreamService.updateScreenVideoState()
 }
 
 export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
@@ -1552,7 +1536,4 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
     mediaStreamState.screenAudioProducer.set(null)
     mediaStreamState.screenShareAudioPaused.set(true)
   }
-
-  MediaStreamService.updateScreenAudioState()
-  MediaStreamService.updateScreenVideoState()
 }

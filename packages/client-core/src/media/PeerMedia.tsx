@@ -29,13 +29,14 @@ import {
   ProducerExtension,
   SocketWebRTCClientNetwork
 } from '../transports/SocketWebRTCClientFunctions'
+import { NearbyUsersState } from '../transports/UpdateNearbyUsersSystem'
 import { AuthState } from '../user/services/AuthService'
 import { NetworkUserState } from '../user/services/NetworkUserService'
-import { MediaState } from './services/MediaStreamService'
 
 export const getMediaChannels = (network: SocketWebRTCClientNetwork, consumers: ConsumerExtension[]) => {
-  const mediaState = getMutableState(MediaState)
-  const nearbyLayerUsers = mediaState.nearbyLayerUsers
+  const nearbyUsersState = getMutableState(NearbyUsersState)
+  const mediaStreamState = getMutableState(MediaStreamState)
+  const nearbyLayerUsers = nearbyUsersState.nearbyLayerUsers
   const selfUserId = getMutableState(AuthState).user.id
   const userState = getMutableState(NetworkUserState)
   const channelConnectionState = getMutableState(MediaInstanceState)
@@ -61,9 +62,9 @@ export const getMediaChannels = (network: SocketWebRTCClientNetwork, consumers: 
 
   /** always put own peer first */
   const selfPeerID = network?.peerID ?? 'self'
-  if (mediaState.isScreenVideoEnabled.value)
+  if (mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value)
     mediaChannels.push({ peerID: selfPeerID, mediaTag: screenshareVideoDataChannelType })
-  if (mediaState.isScreenAudioEnabled.value)
+  if (mediaStreamState.screenAudioProducer.value != null && !mediaStreamState.screenShareAudioPaused.value)
     mediaChannels.push({ peerID: selfPeerID, mediaTag: screenshareAudioDataChannelType })
   mediaChannels.push({ peerID: selfPeerID, mediaTag: webcamVideoDataChannelType })
   mediaChannels.push({ peerID: selfPeerID, mediaTag: webcamAudioDataChannelType })
@@ -310,7 +311,7 @@ const PeerMedia = (props: {
 }
 
 export const PeerConsumers = () => {
-  const mediaState = useHookstate(getMutableState(MediaState))
+  const nearbyUsersState = useHookstate(getMutableState(NearbyUsersState))
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
@@ -334,7 +335,7 @@ export const PeerConsumers = () => {
       }
     }
   }, [
-    mediaState.nearbyLayerUsers.length,
+    nearbyUsersState.nearbyLayerUsers.length,
     networkState?.consumers?.length,
     mediaStreamState.videoStream,
     mediaStreamState.audioStream,
