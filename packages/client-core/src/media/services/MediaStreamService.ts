@@ -1,13 +1,11 @@
-import mediasoup from 'mediasoup-client'
-
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { accessNetworkUserState } from '../../user/services/NetworkUserService'
 
 //State
@@ -20,8 +18,7 @@ export const MediaState = defineState({
     isScreenAudioEnabled: false,
     isMotionCaptureEnabled: false,
     enableBydefault: true,
-    nearbyLayerUsers: [] as UserId[],
-    consumers: [] as ConsumerExtension[]
+    nearbyLayerUsers: [] as UserId[]
   })
 })
 
@@ -45,9 +42,6 @@ export const MediaServiceReceptor = (action) => {
     })
     .when(MediaStreamAction.setMediaEnabledByDefaultAction.matches, (action) => {
       return s.enableBydefault.set(action.isEnable)
-    })
-    .when(MediaStreamAction.setConsumersAction.matches, (action) => {
-      return s.consumers.set(action.consumers)
     })
 }
 /**@deprecated use getMutableState directly instead */
@@ -90,16 +84,6 @@ export const MediaStreamService = {
         isEnable: mediaStreamState.screenAudioProducer.value != null && !mediaStreamState.screenShareAudioPaused.value
       })
     )
-  },
-  /** @deprecated */
-  triggerUpdateConsumers: () => {
-    if (!updateConsumerTimeout) {
-      updateConsumerTimeout = setTimeout(() => {
-        const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-        if (mediaNetwork) dispatchAction(MediaStreamAction.setConsumersAction({ consumers: mediaNetwork.consumers }))
-        updateConsumerTimeout = null
-      }, 1000)
-    }
   },
   updateNearbyLayerUsers: () => {
     const mediaState = getMutableState(MediaState)
@@ -152,10 +136,5 @@ export class MediaStreamAction {
   static setMediaEnabledByDefaultAction = defineAction({
     type: 'ee.client.MediaStream.MEDIA_ENABLE_BY_DEFAULT' as const,
     isEnable: matches.boolean
-  })
-
-  static setConsumersAction = defineAction({
-    type: 'ee.client.MediaStream.CONSUMERS_CHANGED' as const,
-    consumers: matches.any
   })
 }

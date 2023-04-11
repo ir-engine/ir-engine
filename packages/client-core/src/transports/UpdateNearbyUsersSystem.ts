@@ -1,12 +1,11 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { MediaState, MediaStreamService } from '../media/services/MediaStreamService'
 import { NetworkUserService } from '../user/services/NetworkUserService'
-import { MediaStreamActions } from './MediaStreams'
-import { promisedRequest, SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
+import { closeConsumer, promisedRequest, SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 
 export const updateNearbyAvatars = () => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
@@ -25,18 +24,18 @@ export const updateNearbyAvatars = () => {
   const nearbyUserIds = mediaState.nearbyLayerUsers
 
   promisedRequest(network, MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    userIds: nearbyUserIds || [],
+    userIds: nearbyUserIds,
     channelType: currentChannelInstanceConnection.channelType,
     channelId: currentChannelInstanceConnection.channelId
   })
 
   if (!nearbyUserIds.length) return
 
-  network.consumers.forEach((consumer) => {
+  for (const consumer of network.consumers) {
     if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
-      dispatchAction(MediaStreamActions.closeConsumer({ consumer }))
+      closeConsumer(network, consumer)
     }
-  })
+  }
 }
 
 export default async function UpdateNearbyUsersSystem() {

@@ -36,7 +36,7 @@ const ConferenceMode = (): JSX.Element => {
         : []
       : []
 
-  const consumers = mediaState.consumers.value
+  const consumers = network.consumers
   const screenShareConsumers =
     consumers?.filter((consumer) => consumer.appData.mediaTag === screenshareVideoDataChannelType) || []
 

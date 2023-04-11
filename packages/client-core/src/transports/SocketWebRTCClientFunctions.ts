@@ -88,7 +88,7 @@ import {
 import { ChatState } from '../social/services/ChatService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
-import { MediaStreamService as _MediaStreamService, MediaStreamActions, MediaStreamState } from './MediaStreams'
+import { MediaStreamService as _MediaStreamService, MediaStreamState } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 import { updateNearbyAvatars } from './UpdateNearbyUsersSystem'
 
@@ -561,8 +561,15 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   async function webRTCCloseConsumerHandler(consumerId) {
     const consumer = network.consumers.find((c) => c.id === consumerId) as ConsumerExtension
     consumer.close()
-    network.consumers = network.consumers.filter((c) => c.id !== consumerId)
-    dispatchAction(MediaStreamActions.triggerUpdateConsumers({}))
+    const networkState = getMutableState(NetworkState).networks[network.hostId]
+    // reactively splice the consumer out of the array
+    networkState.consumers.set((p) => {
+      const index = p.findIndex((c) => c.id === consumer.id)
+      if (index > -1) {
+        p.splice(index, 1)
+      }
+      return p
+    })
   }
 
   async function webRTCCreateProducerHandler({
@@ -582,12 +589,11 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     const channelConnectionState = getState(MediaInstanceState)
     const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
 
-    const consumerMatch = network.consumers?.find(
+    const consumerMatch = network.consumers.find(
       (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
     )
     if (
       producerId != null &&
-      // channelType === self.channelType &&
       selfProducerIds.indexOf(producerId) < 0 &&
       (consumerMatch == null || (consumerMatch.track?.muted && consumerMatch.track?.enabled)) &&
       (channelType === 'instance'
@@ -598,12 +604,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
       // that we don't already have consumers for...
       await subscribeToTrack(network as SocketWebRTCClientNetwork, peerID, mediaTag)
     }
-  }
-
-  async function consumerHandler(action) {
-    matches(action).when(MediaStreamActions.closeConsumer.matches, ({ consumer }) => {
-      closeConsumer(network, consumer)
-    })
   }
 
   async function reconnectHandler() {
@@ -680,7 +680,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     network.consumers.forEach((consumer) => closeConsumer(network, consumer))
     dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected({}))
     network.primus.removeListener('data', producerConsumerHandler)
-    removeActionReceptor(consumerHandler)
   }
 
   network.primus.on('disconnection', disconnectHandler)
@@ -688,8 +687,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   network.primus.on('data', producerConsumerHandler)
   network.primus.socket.addEventListener('close', disconnectHandler)
   network.primus.socket.addEventListener('open', reconnectHandler)
-
-  addActionReceptor(consumerHandler)
 
   await initRouter(network)
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
@@ -1188,7 +1185,6 @@ export function resetProducer(): void {
   mediaStreamState.audioStream.set(null)
   mediaStreamState.videoStream.set(null)
   mediaStreamState.localScreen.set(null)
-  // mediaStreamState.instance.value?.consumers = [];
 }
 
 export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: MediaTagType) {
@@ -1220,23 +1216,22 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   consumer.producerPaused = consumerParameters.producerPaused
 
   // if we do already have a consumer, we shouldn't have called this method
-  const existingConsumer = network.consumers?.find(
+  const existingConsumer = network.consumers.find(
     (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag
   )
+  const networkState = getMutableState(NetworkState).networks[network.hostId]
   if (existingConsumer == null) {
-    network.consumers.push(consumer)
+    networkState.consumers.merge([consumer])
     // okay, we're ready. let's ask the peer to send us media
     if (!consumer.producerPaused) await resumeConsumer(network, consumer)
     else await pauseConsumer(network, consumer)
   } else if (existingConsumer?.track?.muted) {
     await closeConsumer(network, existingConsumer)
-    network.consumers.push(consumer)
+    networkState.consumers.merge([consumer])
     // okay, we're ready. let's ask the peer to send us media
     if (!consumer.producerPaused) await resumeConsumer(network, consumer)
     else await pauseConsumer(network, consumer)
   } else await closeConsumer(network, consumer)
-
-  dispatchAction(MediaStreamActions.triggerUpdateConsumers({}))
 }
 
 export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: any) {
@@ -1295,8 +1290,15 @@ export async function globalUnmuteProducer(network: SocketWebRTCClientNetwork, p
 export async function closeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   await consumer?.close()
 
-  network.consumers = network.consumers.filter((c) => !(c.id === consumer.id))
-  dispatchAction(MediaStreamAction.setConsumersAction({ consumers: network.consumers }))
+  const networkState = getMutableState(NetworkState).networks[network.hostId]
+  // reactively splice the consumer out of the array
+  networkState.consumers.set((p) => {
+    const index = p.findIndex((c) => c.id === consumer.id)
+    if (index > -1) {
+      p.splice(index, 1)
+    }
+    return p
+  })
   await promisedRequest(network, MessageTypes.WebRTCCloseConsumer.toString(), {
     consumerId: consumer.id
   })
@@ -1426,7 +1428,8 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       mediaStreamState.videoStream.set(null)
       mediaStreamState.audioStream.set(null)
       mediaStreamState.localScreen.set(null)
-      network.consumers = []
+      const networkState = getMutableState(NetworkState).networks[network.hostId]
+      networkState.consumers.set([])
       clearPeerMediaChannels()
       removeNetwork(network)
       getMutableState(NetworkState).hostIds.media.set(none)
