@@ -286,7 +286,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
   const app = Engine.instance.api as Application
 
-  const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
+  const recording = (await app.service('recording').get(action.recordingID, { internal: true })) as RecordingResult
 
   const isClone = !action.targetUser
 
@@ -300,6 +300,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) return dispatchError('User does not have record:read scope', recording.userId)
 
+  if (!recording.resources?.length) return dispatchError('Recording has no resources', recording.userId)
+
   const schema = JSON.parse(recording.schema) as string[]
 
   const activePlayback = {
@@ -308,13 +310,15 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const storageProvider = getStorageProvider()
 
-  const files = await storageProvider.listObjects('recordings/' + action.recordingID + '/', true)
+  const entityFiles = recording.resources.filter((key) => key.includes('entities-'))
 
-  const entityFiles = files.Contents.filter((file) => file.Key.includes('entities-'))
+  const rawFiles = recording.resources.filter(
+    (key) => !key.includes('entities-') && !new RegExp(mediaDataChannels.join('|')).test(key)
+  )
 
-  const rawFiles = files.Contents.filter((file) => !file.Key.includes('entities-'))
+  const mediaFiles = recording.resources.filter((key) => new RegExp(mediaDataChannels.join('|')).test(key))
 
-  const entityChunks = (await Promise.all(entityFiles.map((file) => storageProvider.getObject(file.Key)))).map((data) =>
+  const entityChunks = (await Promise.all(entityFiles.map((key) => storageProvider.getObject(key)))).map((data) =>
     decode(data.Body)
   )
 
@@ -322,9 +326,9 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   await Promise.all(
     rawFiles.map(async (file) => {
-      const dataChannel = file.Key.split('/')[2].split('-')[0] as DataChannelType
+      const dataChannel = file.split('/')[2].split('-')[0] as DataChannelType
       if (!dataChannelChunks.has(dataChannel)) dataChannelChunks.set(dataChannel, [])
-      const data = await storageProvider.getObject(file.Key)
+      const data = await storageProvider.getObject(file)
       dataChannelChunks.get(dataChannel)!.push(decode(data.Body))
     })
   )
