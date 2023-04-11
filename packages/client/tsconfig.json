@@ -4,7 +4,8 @@
     "lib": [
       "esnext",
       "dom",
-      "dom.iterable"
+      "dom.iterable",
+      "WebWorker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -26,10 +27,10 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha", "@types/offscreencanvas"]
+    "types": ["vite/client", "mocha", "@types/offscreencanvas", "vite-plugin-pwa/client"]
   },
   "exclude": [
-    "**/node_modules/**"
+    "**/node_modules/**",
   ],
   "include": [
     "../server-core/src/",
