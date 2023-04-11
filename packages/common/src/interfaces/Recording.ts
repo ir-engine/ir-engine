@@ -6,3 +6,9 @@ export interface RecordingResult {
   ended: boolean
   schema: string
 }
+
+export interface RecordingResourceResult {
+  id: string
+  recordingId: string
+  staticResourceId: string
+}
