@@ -2,10 +2,8 @@ import { AuthError } from '@etherealengine/common/src/enums/AuthError'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -51,8 +49,14 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
    *
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
-  if (!getEngineState().joinedWorld.value)
-    await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
+  await new Promise<void>((resolve) => {
+    const interval = setInterval(() => {
+      if (getState(EngineState).joinedWorld) {
+        clearInterval(interval)
+        resolve()
+      }
+    }, 100)
+  })
 
   const network = getServerNetwork(app)
 

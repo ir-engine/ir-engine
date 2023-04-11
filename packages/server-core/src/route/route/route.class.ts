@@ -1,30 +1,14 @@
-import { Paginated } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
 
-import { ActiveRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { RouteData, RoutePatch, RouteQuery, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 
-import { Application } from '../../../declarations'
-import { UserParams } from '../../user/user/user.class'
+export interface RouteParams extends KnexAdapterParams<RouteQuery> {}
 
-export type ActiveRoutesDataType = ActiveRoutesInterface
-
-export class Route<T = ActiveRoutesDataType> extends Service<T> {
-  app: Application
-  docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  // @ts-ignore
-  async find(params?: UserParams): Promise<T[], Paginated<T>> {
-    if (!params) params = {}
-    params.paginate = false
-    const routes = await super.find(params)
-    return {
-      total: (routes as any).length,
-      data: routes
-    }
-  }
-}
+export class RouteService<T = RouteType, ServiceParams extends Params = RouteParams> extends KnexService<
+  RouteType,
+  RouteData,
+  RouteParams,
+  RoutePatch
+> {}

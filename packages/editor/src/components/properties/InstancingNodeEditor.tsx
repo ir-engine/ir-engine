@@ -15,8 +15,6 @@ import {
 import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
-  InstancingStagingComponent,
-  InstancingUnstagingComponent,
   SampleMode,
   ScatterMode,
   ScatterProperties,
@@ -106,21 +104,8 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const surfaces = useState(initialSurfaces())
 
-  const onUnstage = () => {
-    if (!hasComponent(entity, InstancingUnstagingComponent)) {
-      addComponent(entity, InstancingUnstagingComponent)
-    }
-  }
-
-  const onStage = async () => {
-    if (!hasComponent(entity, InstancingStagingComponent)) {
-      addComponent(entity, InstancingStagingComponent)
-    }
-  }
-
-  const onReload = async () => {
-    await onUnstage()
-    await onStage()
+  const onRestage = () => {
+    scatterState.state.set(ScatterState.UNSTAGING)
   }
 
   const onChangeMode = (mode) => {
@@ -143,8 +128,8 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       }
     }
     scene.userData.set(uData)
-    updateProperty(InstancingComponent, 'sourceProperties')(srcProperties)
-    updateProperty(InstancingComponent, 'mode')(mode)
+    scatterState.sourceProperties.set(srcProperties)
+    scatterState.mode.set(mode)
   }
 
   return (
@@ -246,16 +231,10 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
           />
         )}
       </span>
-      {scatter.state === ScatterState.UNSTAGED && (
-        <PropertiesPanelButton onClick={onStage}>{t('editor:properties:instancing.lbl-load')}</PropertiesPanelButton>
-      )}
       {scatter.state === ScatterState.STAGING && <p>{t('Loading...')}</p>}
       {scatter.state === ScatterState.STAGED && (
         <InputGroup name={t('editor:properties:instancing.lbl-options')}>
-          <PropertiesPanelButton onClick={onUnstage}>
-            {t('editor:properties:instancing.lbl-unload')}
-          </PropertiesPanelButton>
-          <PropertiesPanelButton onClick={onReload}>
+          <PropertiesPanelButton onClick={onRestage}>
             {t('editor:properties:instancing.lbl-reload')}
           </PropertiesPanelButton>
         </InputGroup>

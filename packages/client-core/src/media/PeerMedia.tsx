@@ -1,9 +1,15 @@
 import React, { useEffect } from 'react'
 
-import { MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
+import {
+  MediaTagType,
+  screenshareAudioDataChannelType,
+  screenshareVideoDataChannelType,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -50,18 +56,20 @@ export const getMediaChannels = (network: SocketWebRTCClientNetwork, consumers: 
 
   /** always put own peer first */
   const selfPeerID = network?.peerID ?? 'self'
-  if (mediaState.isScreenVideoEnabled.value) mediaChannels.push({ peerID: selfPeerID, mediaTag: 'screen-video' })
-  if (mediaState.isScreenAudioEnabled.value) mediaChannels.push({ peerID: selfPeerID, mediaTag: 'screen-audio' })
-  mediaChannels.push({ peerID: selfPeerID, mediaTag: 'cam-video' })
-  mediaChannels.push({ peerID: selfPeerID, mediaTag: 'cam-audio' })
+  if (mediaState.isScreenVideoEnabled.value)
+    mediaChannels.push({ peerID: selfPeerID, mediaTag: screenshareVideoDataChannelType })
+  if (mediaState.isScreenAudioEnabled.value)
+    mediaChannels.push({ peerID: selfPeerID, mediaTag: screenshareAudioDataChannelType })
+  mediaChannels.push({ peerID: selfPeerID, mediaTag: webcamVideoDataChannelType })
+  mediaChannels.push({ peerID: selfPeerID, mediaTag: webcamAudioDataChannelType })
 
   // filter out pairs of cam video & cam audio
   consumers.forEach((consumer) => {
     const isUnique = !mediaChannels.find(
       (u) =>
         consumer.appData.peerID === u.peerID &&
-        ((consumer.appData.mediaTag === 'cam-video' && u.mediaTag === 'cam-audio') ||
-          (consumer.appData.mediaTag === 'cam-audio' && u.mediaTag === 'cam-video'))
+        ((consumer.appData.mediaTag === webcamVideoDataChannelType && u.mediaTag === webcamAudioDataChannelType) ||
+          (consumer.appData.mediaTag === webcamAudioDataChannelType && u.mediaTag === webcamVideoDataChannelType))
     )
     if (isUnique && displayedUsers.includes(network.peers.get(consumer.appData.peerID)?.userId!))
       mediaChannels.push({ peerID: consumer.appData.peerID, mediaTag: consumer.appData.mediaTag })
@@ -88,8 +96,11 @@ const PeerConsumer = (props: {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
 
   const peerID = props.peerID
-  const type = props.mediaTag.startsWith('screen') ? 'screen' : 'cam'
-  const isAudio = props.mediaTag.endsWith('audio')
+  const type =
+    props.mediaTag === screenshareAudioDataChannelType || props.mediaTag === screenshareVideoDataChannelType
+      ? 'screen'
+      : 'cam'
+  const isAudio = props.mediaTag === webcamAudioDataChannelType || props.mediaTag === screenshareAudioDataChannelType
 
   const isScreen = type === 'screen'
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
@@ -121,13 +132,13 @@ const PeerConsumer = (props: {
         (c) =>
           c.appData.peerID === peerID &&
           c.producerId === producerId &&
-          c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+          c.appData.mediaTag === (isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType)
       )
       const audioConsumer = network.consumers?.find(
         (c) =>
           c.appData.peerID === peerID &&
           c.producerId === producerId &&
-          c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+          c.appData.mediaTag === (isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType)
       )
       if (videoConsumer) {
         videoConsumer.producerPaused = true
@@ -149,10 +160,14 @@ const PeerConsumer = (props: {
       peerMediaChannelState.audioProducerGlobalMute.set(false)
     } else {
       const videoConsumer = network.consumers?.find(
-        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+        (c) =>
+          c.appData.peerID === peerID &&
+          c.appData.mediaTag === (isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType)
       )
       const audioConsumer = network.consumers?.find(
-        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+        (c) =>
+          c.appData.peerID === peerID &&
+          c.appData.mediaTag === (isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType)
       )
       if (videoConsumer) {
         videoConsumer.producerPaused = false
@@ -199,10 +214,14 @@ const PeerConsumer = (props: {
       }
     } else {
       const videoConsumer = network.consumers?.find(
-        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+        (c) =>
+          c.appData.peerID === peerID &&
+          c.appData.mediaTag === (isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType)
       )
       const audioConsumer = network.consumers?.find(
-        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+        (c) =>
+          c.appData.peerID === peerID &&
+          c.appData.mediaTag === (isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType)
       )
       if (videoConsumer) {
         peerMediaChannelState.videoProducerPaused.set(videoConsumer.producerPaused)
@@ -330,13 +349,29 @@ export const PeerMedia = () => {
   const peerID = network?.peerID ?? 'self'
 
   if (mediaStreamState.camVideoProducer.value)
-    mediaChannels.push({ peerID, channel: mediaStreamState.camVideoProducer.value, mediaTag: 'cam-video' })
+    mediaChannels.push({
+      peerID,
+      channel: mediaStreamState.camVideoProducer.value,
+      mediaTag: webcamVideoDataChannelType
+    })
   if (mediaStreamState.camAudioProducer.value)
-    mediaChannels.push({ peerID, channel: mediaStreamState.camAudioProducer.value, mediaTag: 'cam-audio' })
+    mediaChannels.push({
+      peerID,
+      channel: mediaStreamState.camAudioProducer.value,
+      mediaTag: webcamAudioDataChannelType
+    })
   if (mediaStreamState.screenVideoProducer.value)
-    mediaChannels.push({ peerID, channel: mediaStreamState.screenVideoProducer.value, mediaTag: 'screen-video' })
+    mediaChannels.push({
+      peerID,
+      channel: mediaStreamState.screenVideoProducer.value,
+      mediaTag: screenshareVideoDataChannelType
+    })
   if (mediaStreamState.screenAudioProducer.value)
-    mediaChannels.push({ peerID, channel: mediaStreamState.screenAudioProducer.value, mediaTag: 'screen-audio' })
+    mediaChannels.push({
+      peerID,
+      channel: mediaStreamState.screenAudioProducer.value,
+      mediaTag: screenshareAudioDataChannelType
+    })
 
   return (
     <>
