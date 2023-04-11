@@ -14,6 +14,7 @@ import {
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
@@ -36,9 +37,7 @@ import {
   checkAppOrgStatus,
   checkUserOrgWriteStatus,
   checkUserRepoWriteStatus,
-  getAuthenticatedRepo,
-  getRepo,
-  getUserRepos
+  getAuthenticatedRepo
 } from './github-helper'
 import {
   createOrUpdateProjectUpdateJob,
@@ -114,7 +113,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string, s
       ])
     }
   } catch (e) {
-    logger.info('[ERROR deleteProjectFilesInStorageProvider]:', e)
+    logger.error(e, '[ERROR deleteProjectFilesInStorageProvider]:')
   }
 }
 
@@ -588,12 +587,16 @@ export class Project extends Service {
       ]
     }
 
-    const routeItems = await (this.app.service('route') as any).Model.findAll({
-      where: whereClause
-    })
+    const routeItems = (await this.app.service(routePath).find({
+      query: {
+        $and: [{ project: { $ne: null } }, { project: name }]
+      },
+      paginate: false
+    })) as any as RouteType[]
+
     routeItems.length &&
       routeItems.forEach(async (route) => {
-        await this.app.service('route').remove(route.dataValues.id)
+        await this.app.service(routePath).remove(route.id)
       })
 
     const avatarItems = await (this.app.service('avatar') as any).Model.findAll({

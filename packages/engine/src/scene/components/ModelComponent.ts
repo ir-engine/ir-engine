@@ -5,13 +5,10 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { DependencyTree } from '../../assets/classes/DependencyTree'
-import { isClient } from '../../common/functions/isClient'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -24,7 +21,7 @@ import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
+import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
@@ -117,7 +114,6 @@ function ModelReactor({ root }: EntityReactorProps) {
       }
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
-      DependencyTree.add(uuid)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
         case 'glb':

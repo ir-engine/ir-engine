@@ -3,6 +3,7 @@ import { ObjectIdentifierList, PresignedPost } from 'aws-sdk/clients/s3'
 import fetch from 'node-fetch'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
+import { PassThrough } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
@@ -13,6 +14,7 @@ import {
   SignedURLResponse,
   StorageListObjectInterface,
   StorageObjectInterface,
+  StorageObjectPutInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
 
@@ -171,7 +173,7 @@ export class S3Provider implements StorageProviderInterface {
    * @param object Storage object to be added.
    * @param params Parameters of the add request.
    */
-  async putObject(data: StorageObjectInterface, params: PutObjectParams = {}): Promise<any> {
+  async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> {
     if (!data.Key) return
 
     // key should not contain '/' at the begining
@@ -197,7 +199,21 @@ export class S3Provider implements StorageProviderInterface {
 
     if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
 
-    return this.provider.putObject(args).promise()
+    if (data.Body instanceof PassThrough) {
+      return new Promise<AWS.S3.ManagedUpload.SendData>((resolve, reject) => {
+        const upload = this.provider.upload(args)
+        upload.on('httpUploadProgress', (progress) => {
+          console.log(progress)
+          // if (params.onProgress) params.onProgress(progress.loaded, progress.total)
+        })
+        upload.send((err, data) => {
+          if (err) reject(err)
+          else resolve(data)
+        })
+      })
+    } else {
+      return this.provider.putObject(args).promise()
+    }
   }
 
   /**
