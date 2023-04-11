@@ -5,7 +5,7 @@ import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
-import { accessNetworkUserState, NetworkUserService } from '../user/services/NetworkUserService'
+import { NetworkUserService, NetworkUserState } from '../user/services/NetworkUserService'
 import { closeConsumer, promisedRequest, SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 
 export const NearbyUsersState = defineState({
@@ -18,13 +18,10 @@ export const NearbyUsersState = defineState({
 export const MediaStreamService = {
   updateNearbyLayerUsers: () => {
     const mediaState = getMutableState(NearbyUsersState)
-    const userState = accessNetworkUserState()
-    const nonPartyUserIds = userState.layerUsers
-      .filter((user) => user.partyId.value == null)
-      .map((user) => user.id.value)
+    const userState = getState(NetworkUserState)
+    const nonPartyUserIds = userState.layerUsers.filter((user) => user.partyId == null).map((user) => user.id)
     const nearbyUsers = getNearbyUsers(Engine.instance.userId, nonPartyUserIds)
-    if (JSON.stringify(mediaState.nearbyLayerUsers.value) !== JSON.stringify(nearbyUsers))
-      mediaState.nearbyLayerUsers.set(nearbyUsers)
+    mediaState.nearbyLayerUsers.set(nearbyUsers)
   }
 }
 

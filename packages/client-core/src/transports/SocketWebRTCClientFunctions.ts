@@ -1,7 +1,6 @@
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
-  ConsumerOptions,
   DataConsumer,
   DataConsumerOptions,
   DataProducer,
@@ -23,7 +22,6 @@ import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/P
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
@@ -56,15 +54,7 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import {
-  addActionReceptor,
-  dispatchAction,
-  getMutableState,
-  getState,
-  none,
-  removeActionReceptor,
-  removeActionsForTopic
-} from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, none, removeActionsForTopic } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import {
@@ -227,7 +217,7 @@ export const initializeNetwork = (hostId: UserId, topic: Topic) => {
   return network
 }
 
-export type SocketWebRTCClientNetwork = Awaited<ReturnType<typeof initializeNetwork>>
+export type SocketWebRTCClientNetwork = ReturnType<typeof initializeNetwork>
 
 export const connectToNetwork = async (
   network: SocketWebRTCClientNetwork,
