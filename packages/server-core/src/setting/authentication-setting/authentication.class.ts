@@ -1,5 +1,5 @@
 import { Paginated, Params } from '@feathersjs/feathers'
-import k8s from '@kubernetes/client-node'
+import * as k8s from '@kubernetes/client-node'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminAuthSetting as AdminAuthSettingInterface } from '@etherealengine/common/src/interfaces/AdminAuthSetting'

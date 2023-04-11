@@ -19,7 +19,6 @@ import { v4 as uuidv4 } from 'uuid'
 import config from '@etherealengine/common/src/config'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
 import { Channel, ChannelType } from '@etherealengine/common/src/interfaces/Channel'
-import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -35,6 +34,7 @@ import {
 } from '@etherealengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
+  CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
   CAM_VIDEO_SIMULCAST_ENCODINGS,
   SCREEN_SHARE_SIMULCAST_ENCODINGS
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
@@ -45,8 +45,17 @@ import {
   JoinWorldRequestData,
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { dataChannelRegistry, NetworkState, removeNetwork } from '@etherealengine/engine/src/networking/NetworkState'
-import { ecsDataChannelType } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
+import {
+  dataChannelRegistry,
+  MediaStreamAppData,
+  MediaTagType,
+  NetworkState,
+  removeNetwork,
+  screenshareAudioDataChannelType,
+  screenshareVideoDataChannelType,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@etherealengine/engine/src/networking/NetworkState'
 import {
   addActionReceptor,
   dispatchAction,
@@ -823,16 +832,16 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
         let paused = false
 
         switch (appData.mediaTag) {
-          case 'cam-video':
+          case webcamVideoDataChannelType:
             paused = mediaStreamState.videoPaused.value
             break
-          case 'cam-audio':
+          case webcamAudioDataChannelType:
             paused = mediaStreamState.audioPaused.value
             break
-          case 'screen-video':
+          case screenshareVideoDataChannelType:
             paused = mediaStreamState.screenShareVideoPaused.value
             break
-          case 'screen-audio':
+          case screenshareAudioDataChannelType:
             paused = mediaStreamState.screenShareAudioPaused.value
             break
           default:
@@ -1014,10 +1023,8 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
               const producer = (await transport.produce({
                 track: mediaStreamState.videoStream.value!.getVideoTracks()[0],
                 encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-                codecOptions: {
-                  videoGoogleStartBitrate: 1000
-                },
-                appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
+                codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
+                appData: { mediaTag: webcamVideoDataChannelType, channelType: channelType, channelId: channelId }
               })) as any as ProducerExtension
               mediaStreamState.camVideoProducer.set(producer)
             }
@@ -1081,7 +1088,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
               produceInProgress = true
               const producer = (await transport.produce({
                 track: mediaStreamState.audioStream.value!.getAudioTracks()[0],
-                appData: { mediaTag: 'cam-audio', channelType: channelType, channelId: channelId }
+                appData: { mediaTag: webcamAudioDataChannelType, channelType: channelType, channelId: channelId }
               })) as any as ProducerExtension
               mediaStreamState.camAudioProducer.set(producer)
             }
@@ -1479,10 +1486,8 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     (await network.sendTransport.produce({
       track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
       encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
-      codecOptions: {
-        videoGoogleStartBitrate: 1000
-      },
-      appData: { mediaTag: 'screen-video', channelType: channelType, channelId: channelId }
+      codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
+      appData: { mediaTag: screenshareVideoDataChannelType, channelType: channelType, channelId: channelId }
     })) as any as ProducerExtension
   )
 
@@ -1493,7 +1498,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     mediaStreamState.screenAudioProducer.set(
       (await network.sendTransport.produce({
         track: mediaStreamState.localScreen.value!.getAudioTracks()[0],
-        appData: { mediaTag: 'screen-audio', channelType: channelType, channelId: channelId }
+        appData: { mediaTag: screenshareAudioDataChannelType, channelType: channelType, channelId: channelId }
       })) as any as ProducerExtension
     )
     mediaStreamState.screenShareAudioPaused.set(false)

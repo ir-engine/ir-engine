@@ -65,7 +65,7 @@ import {
   toggleTransformPivot,
   toggleTransformSpace
 } from '../functions/transformFunctions'
-import { EditorErrorAction } from '../services/EditorErrorServices'
+import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
 import EditorHistoryReceptor, { EditorHistoryAction } from '../services/EditorHistory'
 import EditorSelectionReceptor, { accessSelectionState, SelectionState } from '../services/SelectionServices'
@@ -250,7 +250,7 @@ export default async function EditorControlSystem() {
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-        addMediaNode(url.href).catch((error) => dispatchAction(EditorErrorAction.throwError({ error })))
+        addMediaNode(url.href).catch((error) => getMutableState(EditorErrorState).error.set(error))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
       }
