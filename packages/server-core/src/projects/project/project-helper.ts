@@ -1,4 +1,4 @@
-import k8s from '@kubernetes/client-node'
+import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import AWS from 'aws-sdk'
 import axios from 'axios'
