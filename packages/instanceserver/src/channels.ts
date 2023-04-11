@@ -12,13 +12,12 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { ECSSerializationModule } from '@etherealengine/engine/src/ecs/ECSSerializationModule'
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
@@ -280,7 +279,15 @@ const loadEngine = async (app: Application, sceneId: string) => {
       const sceneData = (await sceneResultPromise).data
       getMutableState(SceneState).sceneData.set(sceneData)
       /** @todo - quick hack to wait until scene has loaded */
-      await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
+
+      await new Promise<void>((resolve) => {
+        const interval = setInterval(() => {
+          if (getState(EngineState).sceneLoaded) {
+            clearInterval(interval)
+            resolve()
+          }
+        }, 100)
+      })
     }
     app.service('scene').on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()
@@ -382,9 +389,15 @@ const createOrUpdateInstance = async (
     await loadEngine(app, sceneId)
   } else {
     try {
-      if (!getEngineState().joinedWorld.value) {
-        await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
-      }
+      if (!getState(EngineState).joinedWorld)
+        await new Promise<void>((resolve) => {
+          const interval = setInterval(() => {
+            if (getState(EngineState).joinedWorld) {
+              clearInterval(interval)
+              resolve()
+            }
+          }, 1000)
+        })
       const instance = await app.service('instance').get(instanceServerState.instance.id)
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
       await serverState.agonesSDK.allocate()

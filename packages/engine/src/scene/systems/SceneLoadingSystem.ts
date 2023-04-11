@@ -406,7 +406,7 @@ export default async function SceneLoadingSystem() {
       totalPendingAssets++
     }
 
-    for (const entity of sceneAssetPendingTagQuery.exit()) {
+    if (sceneAssetPendingTagQuery.exit().length) {
       onComplete(pendingAssets)
       if (pendingAssets === 0) {
         totalPendingAssets = 0
