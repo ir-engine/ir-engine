@@ -1,12 +1,12 @@
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { IKSerialization } from '@etherealengine/engine/src/avatar/IKSerialization'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
 import { createActionQueue, defineState, getMutableState, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
-import { API } from '../API'
 import { NotificationService } from '../common/services/NotificationService'
 
 export const RecordingState = defineState({
@@ -41,7 +41,7 @@ export const RecordingFunctions = {
       if (state.config.video) {
         schema.push(webcamVideoDataChannelType)
       }
-      const recording = (await API.instance.client.service('recording').create({
+      const recording = (await Engine.instance.api.service('recording').create({
         schema: JSON.stringify(schema)
       })) as RecordingResult
       return recording.id
@@ -50,7 +50,7 @@ export const RecordingFunctions = {
     }
   },
   getRecordings: async () => {
-    const recordings = (await API.instance.client.service('recording').find()).data as RecordingResult[]
+    const recordings = (await Engine.instance.api.service('recording').find()).data as RecordingResult[]
     const recordingState = getMutableState(RecordingState)
     recordingState.recordings.set(recordings)
   }
