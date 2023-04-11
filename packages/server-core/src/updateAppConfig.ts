@@ -328,8 +328,8 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<EmailSettingDatabaseType>('emailSetting')
     .then(([dbEmail]) => {
-      let smtp = JSON.parse(dbEmail.smtp) as EmailSmtpType
-      let subject = JSON.parse(dbEmail.subject) as EmailSubjectType
+      let smtp: EmailSmtpType = dbEmail.smtp
+      let subject: EmailSubjectType = dbEmail.subject
 
       if (typeof smtp === 'string') smtp = JSON.parse(smtp)
       if (typeof subject === 'string') subject = JSON.parse(subject)
