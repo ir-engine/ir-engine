@@ -5,11 +5,11 @@ import { PopupMenuInline } from '@etherealengine/client-core/src/user/components
 import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
-import AppBar from '@etherealengine/ui/src/AppBar'
-import Drawer from '@etherealengine/ui/src/Drawer'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import Typography from '@etherealengine/ui/src/Typography'
+import AppBar from '@etherealengine/ui/src/primitives/mui/AppBar'
+import Drawer from '@etherealengine/ui/src/primitives/mui/Drawer'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useTheme } from '@mui/material/styles'
 

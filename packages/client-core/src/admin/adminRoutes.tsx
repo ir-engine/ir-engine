@@ -5,7 +5,7 @@ import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineStat
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
 import { dispatchAction } from '@etherealengine/hyperflux'
-import Dashboard from '@etherealengine/ui/src/Dashboard'
+import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import AdminSystem from '../systems/AdminSystem'

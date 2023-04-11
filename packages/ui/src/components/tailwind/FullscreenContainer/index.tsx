@@ -7,7 +7,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 
-export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
+const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
   const fullScreenActive = useHookstate(false)
   const handle = useFullScreenHandle()
 
@@ -44,3 +44,5 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
     </FullscreenContext.Provider>
   )
 })
+
+export default FullscreenContainer

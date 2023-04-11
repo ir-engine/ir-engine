@@ -24,7 +24,7 @@ import { NameComponent } from '@etherealengine/engine/src/scene/components/NameC
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'

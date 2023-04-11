@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Grid from '@etherealengine/ui/src/Grid'
-import Typography from '@etherealengine/ui/src/Typography'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { AuthState } from '../../../user/services/AuthService'
 import {

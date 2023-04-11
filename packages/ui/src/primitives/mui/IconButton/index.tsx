@@ -1,9 +1,10 @@
 import React, { ReactNode } from 'react'
 
+import { handleSoundEffect } from '@etherealengine/client-core/src/common/utils'
+
 import CloseIcon from '@mui/icons-material/Close'
 import { IconButtonProps, default as MUIIconButton } from '@mui/material/IconButton'
 
-import { handleSoundEffect } from '../../../client-core/src/common/utils'
 import styles from './index.module.scss'
 
 const IconButton = ({

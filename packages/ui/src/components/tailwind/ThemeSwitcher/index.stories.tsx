@@ -6,7 +6,7 @@ import ThemeSwitcher from './index'
 const argTypes = {}
 
 export default {
-  title: 'Primitives/Tailwind/ThemeSwitcher',
+  title: 'Components/Tailwind/ThemeSwitcher',
   component: ThemeSwitcher,
   parameters: {
     componentSubtitle: 'ThemeSwitcher',

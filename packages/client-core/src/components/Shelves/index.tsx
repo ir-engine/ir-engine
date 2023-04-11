@@ -8,7 +8,7 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppAction, AppServiceReceptor, AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'

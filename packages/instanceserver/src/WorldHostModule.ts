@@ -9,7 +9,12 @@ export function WorldHostModule() {
       uuid: 'ee.instanceserver.ServerHostNetworkSystem',
       type: SystemUpdateType.FIXED,
       systemLoader: () => Promise.resolve({ default: ServerHostNetworkSystem })
-    },
+    }
+  ]
+}
+
+export function RecordingSystems() {
+  return [
     {
       uuid: 'ee.instanceserver.ServerRecordingSystem',
       type: SystemUpdateType.POST_RENDER,

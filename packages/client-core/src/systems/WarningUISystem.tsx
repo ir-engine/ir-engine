@@ -18,8 +18,8 @@ import { createTransitionState } from '@etherealengine/engine/src/xrui/functions
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { defineState, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 export const WarningUIState = defineState({

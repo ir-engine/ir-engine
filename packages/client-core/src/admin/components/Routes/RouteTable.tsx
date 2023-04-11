@@ -1,9 +1,9 @@
 import React, { ChangeEvent, useEffect } from 'react'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Checkbox from '@etherealengine/ui/src/Checkbox'
-import CircularProgress from '@etherealengine/ui/src/CircularProgress'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

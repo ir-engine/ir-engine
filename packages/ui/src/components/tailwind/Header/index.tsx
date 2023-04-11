@@ -1,7 +1,7 @@
 import { EllipsisHorizontalIcon, UserCircleIcon } from '@heroicons/react/20/solid'
 import React from 'react'
 
-import ThemeSwitcher from '../../tailwind/ThemeSwitcher/index'
+import ThemeSwitcher from '@etherealengine/ui/src/components/tailwind/ThemeSwitcher'
 
 // const Header = (props: any) => {
 //   return (

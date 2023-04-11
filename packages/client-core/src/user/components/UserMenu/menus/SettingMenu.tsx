@@ -27,9 +27,9 @@ import {
 } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Grid from '@etherealengine/ui/src/Grid'
-import Icon from '@etherealengine/ui/src/Icon'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'

@@ -1,11 +1,11 @@
 import { Spark } from 'primus'
 
-import { MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { DataChannelType } from '../classes/Network'
+import { MediaTagType, PeerMediaType } from '../NetworkState'
 
 export interface NetworkPeer {
   userId: UserId
@@ -18,7 +18,7 @@ export interface NetworkPeer {
   peerID: PeerID
   lastSeenTs?: any
   joinTs?: any
-  media?: Record<MediaTagType, any>
+  media?: Record<MediaTagType, PeerMediaType>
   consumerLayers?: {}
   stats?: {}
   instanceSendTransport?: any

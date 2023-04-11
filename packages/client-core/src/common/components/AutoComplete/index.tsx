@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AutocompleteGetTagProps, useAutocomplete } from '@mui/base/AutocompleteUnstyled'
 
