@@ -48,9 +48,9 @@ export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity 
             value={lodComponent.lodHeuristic.value}
             onChange={(val: typeof lodComponent.lodHeuristic.value) => lodComponent.lodHeuristic.set(val)}
             options={[
-              { value: 'DISTANCE', label: t('editor:properties.lod.heuristic.distance') },
-              { value: 'SCENE_SCALE', label: t('editor:properties.lod.heuristic.sceneScale') },
-              { value: 'MANUAL', label: t('editor:properties.lod.heuristic.manual') }
+              { value: 'DISTANCE', label: t('editor:properties.lod.heuristic-distance') },
+              { value: 'SCENE_SCALE', label: t('editor:properties.lod.heuristic-sceneScale') },
+              { value: 'MANUAL', label: t('editor:properties.lod.heuristic-manual') }
             ]}
           />
         </InputGroup>

@@ -159,7 +159,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
         <div className="p-4">
           <Button onClick={createLODsFromModel.bind({}, entity, lodParms.value)}>
-            {t('editor:properties.model.generate-lods')}
+            {t('editor:properties.model.lods.generate')}
           </Button>
         </div>
       </div>
