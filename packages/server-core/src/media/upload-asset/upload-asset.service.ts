@@ -67,6 +67,13 @@ const uploadLOD = async (file: Buffer, mimeType: string, key: string, storagePro
   )
 }
 
+export const createStaticResourceHash = (file: Buffer, props: { name?: string; assetURL?: string }) => {
+  return createHash('sha3-256')
+    .update(file.length.toString())
+    .update(props.name || props.assetURL!.split('/').pop()!.split('.')[0])
+    .digest('hex')
+}
+
 export const addGenericAssetToS3AndStaticResources = async (
   app: Application,
   file: Buffer,
@@ -87,12 +94,7 @@ export const addGenericAssetToS3AndStaticResources = async (
 
   let promises: Promise<any>[] = []
   const assetURL = getCachedURL(key, provider.cacheDomain)
-  const hash =
-    args.hash ||
-    createHash('sha3-256')
-      .update(file.length.toString())
-      .update(args.name || assetURL.split('/').pop()!.split('.')[0])
-      .digest('hex')
+  const hash = args.hash || createStaticResourceHash(file, { name: args.name, assetURL })
   if (!args.numLODs) args.numLODs = 1
   const body = {
     hash,

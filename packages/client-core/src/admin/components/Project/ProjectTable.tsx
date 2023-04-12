@@ -231,7 +231,9 @@ const ProjectTable = ({ className }: Props) => {
       el,
       name: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <span className={`${el.needsRebuild ? styles.orangeColor : ''}`}>{name}</span>
+          <a href={`/studio/${name}`} className={`${el.needsRebuild ? styles.orangeColor : ''}`}>
+            {name}
+          </a>
           {el.needsRebuild && (
             <Tooltip title={t('admin:components.project.outdatedBuild')} arrow>
               <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.orangeColor} />

@@ -5,28 +5,28 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { DependencyTree } from '../../assets/classes/DependencyTree'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { entityExists, EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
+import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { LODComponent } from './LODComponent'
+import { LODComponentType } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -45,10 +45,10 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      resource: null as unknown as ModelResource,
+      resource: null as ModelResource | null,
       generateBVH: true,
       avoidCameraOcclusion: false,
-      scene: undefined as undefined | Scene
+      scene: null as Scene | null
     }
   },
 
@@ -75,7 +75,7 @@ export const ModelComponent = defineComponent({
   onRemove: (entity, component) => {
     if (component.scene.value) {
       removeObjectFromGroup(entity, component.scene.value)
-      component.scene.set(undefined)
+      component.scene.set(null)
     }
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
@@ -114,7 +114,6 @@ function ModelReactor({ root }: EntityReactorProps) {
       }
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
-      DependencyTree.add(uuid)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
         case 'glb':

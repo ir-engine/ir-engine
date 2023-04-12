@@ -1,3 +1,4 @@
+import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import AWS from 'aws-sdk'
 import axios from 'axios'
@@ -109,7 +110,7 @@ export const updateBuilder = async (
         undefined,
         {
           headers: {
-            'Content-Type': 'application/strategic-merge-patch+json'
+            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
           }
         }
       )
@@ -876,7 +877,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
         undefined,
         {
           headers: {
-            'content-type': 'application/merge-patch+json'
+            'content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_MERGE_PATCH
           }
         }
       )

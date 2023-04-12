@@ -1,8 +1,10 @@
 import { decode, encode } from 'msgpackr'
+import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -30,7 +32,9 @@ import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
+import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 
+import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { createOutgoingDataProducer } from './WebRTCFunctions'
 
@@ -40,7 +44,7 @@ interface ActiveRecording {
   userID: UserId
   serializer?: ECSSerializer
   dataChannelRecorder?: any // todo
-  mediaChannelRecorder?: any // todo
+  mediaChannelRecorder?: Awaited<ReturnType<typeof startMediaRecording>>
 }
 
 interface ActivePlayback {
@@ -59,8 +63,44 @@ export const activeRecordings = new Map<string, ActiveRecording>()
 export const activePlaybacks = new Map<string, ActivePlayback>()
 
 export const dispatchError = (error: string, targetUser: UserId) => {
-  const app = Engine.instance.api as Application as Application
+  const app = Engine.instance.api as Application
+  logger.error('Recording Error: ' + error)
   dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
+}
+
+export const uploadRecordingStaticResource = async (props: {
+  recordingID: string
+  key: string
+  body: Buffer | PassThrough
+  mimeType: string
+  staticResourceType: string
+  hash: string
+}) => {
+  const app = Engine.instance.api as Application
+  const storageProvider = getStorageProvider()
+
+  const upload = await storageProvider.putObject({
+    Key: props.key,
+    Body: props.body,
+    ContentType: props.mimeType
+  })
+
+  const staticResource = (await app.service('static-resource').create(
+    {
+      hash: props.hash,
+      key: props.key,
+      mimeType: props.mimeType,
+      staticResourceType: props.staticResourceType
+    },
+    { isInternal: true }
+  )) as StaticResourceInterface
+
+  await app.service('recording-resource').create({
+    staticResourceId: staticResource.id,
+    recordingId: props.recordingID
+  })
+
+  return upload
 }
 
 const mediaDataChannels = [
@@ -71,7 +111,9 @@ const mediaDataChannels = [
 ]
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
-  const app = Engine.instance.api as Application as Application
+  const app = Engine.instance.api as Application
+
+  console.log('onStartRecording', action)
 
   const recording = await app.service('recording').get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$from)
@@ -132,38 +174,33 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       schema: serializationSchema,
       chunkLength,
       onCommitChunk(chunk, chunkIndex) {
-        storageProvider
-          .putObject(
-            {
-              Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee',
-              Body: encode(chunk),
-              ContentType: 'application/octet-stream'
-            },
-            {
-              isDirectory: false
-            }
-          )
-          .then(() => {
-            logger.info('Uploaded entities chunk', chunkIndex)
-          })
+        const key = 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee'
+        const buffer = encode(chunk)
+        uploadRecordingStaticResource({
+          recordingID: recording.id,
+          key,
+          body: buffer,
+          mimeType: 'application/octet-stream',
+          staticResourceType: 'data',
+          hash: createStaticResourceHash(buffer, { assetURL: key })
+        }).then(() => {
+          logger.info('Uploaded entities chunk', chunkIndex)
+        })
 
         for (const [dataChannel, data] of dataChannelsRecording.entries()) {
           if (data.length) {
-            const count = chunkIndex
-            storageProvider
-              .putObject(
-                {
-                  Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee',
-                  Body: encode(data),
-                  ContentType: 'application/octet-stream'
-                },
-                {
-                  isDirectory: false
-                }
-              )
-              .then(() => {
-                logger.info('Uploaded raw chunk', count)
-              })
+            const key = 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee'
+            const buffer = encode(data)
+            uploadRecordingStaticResource({
+              recordingID: recording.id,
+              key,
+              body: buffer,
+              mimeType: 'application/octet-stream',
+              staticResourceType: 'data',
+              hash: createStaticResourceHash(buffer, { assetURL: key })
+            }).then(() => {
+              logger.info('Uploaded raw chunk', chunkIndex)
+            })
           }
           dataChannelsRecording.set(dataChannel, [])
         }
@@ -184,11 +221,12 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   if (Engine.instance.mediaNetwork) {
     const dataChannelSchema = schema
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
-      .filter(Boolean)
+      .filter(Boolean) as DataChannelType[]
 
-    for (const dataChannel of dataChannelSchema) {
-      /** @todo */
-    }
+    const mediaRecorder = await startMediaRecording(recording.id, userID, dataChannelSchema)
+
+    activeRecording.mediaChannelRecorder = mediaRecorder
+    console.log('media recording started')
   }
 
   activeRecordings.set(recording.id, activeRecording)
@@ -226,6 +264,10 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
 
+    await Promise.all([
+      ...activeRecording.mediaChannelRecorder.recordings.map((recording) => recording.stopRecording()),
+      ...activeRecording.mediaChannelRecorder.activeUploads
+    ])
     // stop recording data channel
   }
 
@@ -244,7 +286,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
   const app = Engine.instance.api as Application
 
-  const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
+  const recording = (await app.service('recording').get(action.recordingID, { internal: true })) as RecordingResult
 
   const isClone = !action.targetUser
 
@@ -258,6 +300,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) return dispatchError('User does not have record:read scope', recording.userId)
 
+  if (!recording.resources?.length) return dispatchError('Recording has no resources', recording.userId)
+
   const schema = JSON.parse(recording.schema) as string[]
 
   const activePlayback = {
@@ -266,13 +310,15 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const storageProvider = getStorageProvider()
 
-  const files = await storageProvider.listObjects('recordings/' + action.recordingID + '/', true)
+  const entityFiles = recording.resources.filter((key) => key.includes('entities-'))
 
-  const entityFiles = files.Contents.filter((file) => file.Key.includes('entities-'))
+  const rawFiles = recording.resources.filter(
+    (key) => !key.includes('entities-') && !new RegExp(mediaDataChannels.join('|')).test(key)
+  )
 
-  const rawFiles = files.Contents.filter((file) => !file.Key.includes('entities-'))
+  const mediaFiles = recording.resources.filter((key) => new RegExp(mediaDataChannels.join('|')).test(key))
 
-  const entityChunks = (await Promise.all(entityFiles.map((file) => storageProvider.getObject(file.Key)))).map((data) =>
+  const entityChunks = (await Promise.all(entityFiles.map((key) => storageProvider.getObject(key)))).map((data) =>
     decode(data.Body)
   )
 
@@ -280,9 +326,9 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   await Promise.all(
     rawFiles.map(async (file) => {
-      const dataChannel = file.Key.split('/')[2].split('-')[0] as DataChannelType
+      const dataChannel = file.split('/')[2].split('-')[0] as DataChannelType
       if (!dataChannelChunks.has(dataChannel)) dataChannelChunks.set(dataChannel, [])
-      const data = await storageProvider.getObject(file.Key)
+      const data = await storageProvider.getObject(file)
       dataChannelChunks.get(dataChannel)!.push(decode(data.Body))
     })
   )

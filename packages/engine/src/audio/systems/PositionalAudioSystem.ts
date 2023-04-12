@@ -27,6 +27,7 @@ import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
+import { webcamAudioDataChannelType } from '../../networking/NetworkState'
 import {
   AudioNodeGroup,
   AudioNodeGroups,
@@ -152,7 +153,7 @@ export default async function PositionalAudioSystem() {
       const peerID = networkObject.ownerId
       const consumer = network?.consumers.find(
         (c) =>
-          c.appData.mediaTag === 'cam-audio' &&
+          c.appData.mediaTag === webcamAudioDataChannelType &&
           Array.from(network.peers.values()).find(
             (peer) => c.appData.peerID === peer.peerID && peer.userId === networkObject.ownerId
           )

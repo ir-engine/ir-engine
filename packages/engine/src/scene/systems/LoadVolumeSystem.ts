@@ -8,5 +8,11 @@ export default async function LoadVolumeSystem() {
 
   Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOAD_VOLUME, {})
 
-  return {}
+  async function cleanup() {
+    Engine.instance.sceneComponentRegistry.delete(LoadVolumeComponent.name)
+    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.loadVolume)
+    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_LOAD_VOLUME)
+  }
+
+  return { cleanup }
 }
