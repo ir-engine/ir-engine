@@ -2,7 +2,11 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -12,9 +16,10 @@ import DeblurIcon from '@mui/icons-material/Deblur'
 
 import { serializeLOD } from '../../functions/lodsFromModel'
 import { Button } from '../inputs/Button'
-import InputGroup from '../inputs/InputGroup'
+import InputGroup, { InputGroupContainer } from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
+import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PaginatedList from '../layout/PaginatedList'
 import { EditorComponentType } from './Util'
