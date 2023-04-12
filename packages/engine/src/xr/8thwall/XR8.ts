@@ -157,7 +157,6 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null)
   })
 }
 
-const skyboxQuery = defineQuery([SkyboxComponent])
 const vpsQuery = defineQuery([PersistentAnchorComponent])
 
 export default async function XR8System() {

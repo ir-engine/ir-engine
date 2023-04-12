@@ -15,10 +15,13 @@ import {
   SphereGeometry,
   Vector3
 } from 'three'
+import matches from 'ts-matches'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import {
   createActionQueue,
+  defineAction,
+  dispatchAction,
   getMutableState,
   removeActionQueue,
   startReactor,
@@ -211,6 +214,8 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   if (targetScale !== xrState.sceneScale.value)
     xrState.sceneScale.set(MathUtils.lerp(xrState.sceneScale.value, targetScale, lerpAlpha))
 
+  if (!xrState.viewerPose.value) xrState.sceneScale.set(1)
+
   const targetPosition = _vecPosition.copy(localTransform.position) //.multiplyScalar(1 / xrState.sceneScale.value)
   const targetRotation = localTransform.rotation.multiply(
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset.value)
@@ -220,6 +225,13 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   xrState.sceneRotation.value.copy(targetRotation)
   // xrState.scenePosition.value.lerp(targetPosition, lerpAlpha)
   // xrState.sceneRotation.value.slerp(targetRotation, lerpAlpha)
+}
+
+export class XRAnchorActions {
+  static placementModeChanged = defineAction({
+    type: 'ee.xr.PLACEMENT_MODE_CHANGED',
+    mode: matches.literals('unplaced', 'placing', 'placed')
+  })
 }
 
 /**
@@ -268,7 +280,8 @@ export default async function XRAnchorSystem() {
     useEffect(() => {
       if (!xrSession.value) return
 
-      let active = true
+      // dispatch an action to consume it inside the system
+      dispatchAction(XRAnchorActions.placementModeChanged({ mode: scenePlacementMode.value }))
 
       if (scenePlacementMode.value === 'unplaced') {
         removeComponent(scenePlacementEntity, XRHitTestComponent)
@@ -292,59 +305,13 @@ export default async function XRAnchorSystem() {
         if (xrSession.value.interactionMode === 'world-space') {
           // @todo: handle world-space scene placement
         }
-        return
-      }
-
-      if (scenePlacementMode.value === 'placed') {
-        worldOriginPinpointAnchor.removeFromParent()
-        const hitTestResult = hitTest?.results?.value?.[0]
-        if (hitTestResult) {
-          if (!hitTestResult.createAnchor) {
-            const xrFrame = Engine.instance.xrFrame
-            const hitPose = ReferenceSpace.localFloor && hitTestResult.getPose(ReferenceSpace.localFloor)
-            hitPose &&
-              xrFrame?.createAnchor?.(hitPose.transform, ReferenceSpace.localFloor!)?.then((anchor) => {
-                if (!active) {
-                  anchor.delete()
-                  return
-                }
-                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
-              })
-            removeComponent(scenePlacementEntity, XRHitTestComponent)
-            return
-          }
-          // @ts-ignore createAnchor function is not typed correctly
-          const anchorPromise = hitTestResult.createAnchor()
-          if (anchorPromise)
-            anchorPromise
-              .then((anchor) => {
-                if (!active) {
-                  anchor.delete()
-                  return
-                }
-                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
-                removeComponent(scenePlacementEntity, XRHitTestComponent)
-              })
-              .catch(() => {
-                removeComponent(scenePlacementEntity, XRHitTestComponent)
-              })
-          else removeComponent(scenePlacementEntity, XRHitTestComponent)
-        }
-      }
-
-      return () => {
-        active = false
       }
     }, [scenePlacementMode, xrSession, hitTest])
 
     return null
   })
 
-  const cleanup = async () => {
-    removeQuery(xrHitTestQuery)
-    removeActionQueue(xrSessionChangedQueue)
-    await scenePlacementReactor.stop()
-  }
+  const placementModeChangedQueue = createActionQueue(XRAnchorActions.placementModeChanged.matches)
 
   const execute = () => {
     for (const action of xrSessionChangedQueue()) {
@@ -358,6 +325,47 @@ export default async function XRAnchorSystem() {
 
     if (!Engine.instance.xrFrame) return
 
+    /** xrFrame is only defined during the execution of the animation frame, so we must handle this here  */
+    for (const action of placementModeChangedQueue()) {
+      if (action.mode === 'placed') {
+        const hitTest = getOptionalComponent(scenePlacementEntity, XRHitTestComponent)
+        worldOriginPinpointAnchor.removeFromParent()
+        const hitTestResult = hitTest?.results?.[0]
+        if (hitTestResult) {
+          if (!hitTestResult.createAnchor) {
+            const xrFrame = Engine.instance.xrFrame
+            const hitPose = ReferenceSpace.localFloor && hitTestResult.getPose(ReferenceSpace.localFloor)
+            hitPose &&
+              xrFrame?.createAnchor?.(hitPose.transform, ReferenceSpace.localFloor!)?.then((anchor) => {
+                if (xrState.scenePlacementMode.value !== 'placed') {
+                  anchor.delete()
+                  return
+                }
+                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
+              })
+            removeComponent(scenePlacementEntity, XRHitTestComponent)
+            return
+          }
+          // @ts-ignore createAnchor function is not typed correctly
+          const anchorPromise = hitTestResult.createAnchor()
+          if (anchorPromise)
+            anchorPromise
+              .then((anchor) => {
+                if (xrState.scenePlacementMode.value !== 'placed') {
+                  anchor.delete()
+                  return
+                }
+                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
+                removeComponent(scenePlacementEntity, XRHitTestComponent)
+              })
+              .catch(() => {
+                removeComponent(scenePlacementEntity, XRHitTestComponent)
+              })
+          else removeComponent(scenePlacementEntity, XRHitTestComponent)
+        }
+      }
+    }
+
     for (const entity of xrAnchorQuery()) updateAnchor(entity)
     for (const entity of xrHitTestQuery()) updateHitTest(entity)
 
@@ -365,6 +373,13 @@ export default async function XRAnchorSystem() {
       updateScenePlacement(scenePlacementEntity)
       updateWorldOriginFromScenePlacement()
     }
+  }
+
+  const cleanup = async () => {
+    removeQuery(xrHitTestQuery)
+    removeActionQueue(xrSessionChangedQueue)
+    removeActionQueue(placementModeChangedQueue)
+    await scenePlacementReactor.stop()
   }
 
   return { execute, cleanup }
