@@ -239,206 +239,204 @@ export const MediaComponent = defineComponent({
     return component
   },
 
-  reactor: MediaReactor,
+  errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS', 'INVALID_URL'],
 
-  errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS', 'INVALID_URL']
-})
+  reactor: function MediaReactor({ root }) {
+    const entity = root.entity as Entity<[typeof MediaComponent, typeof MediaElementComponent]>
+    const media = useComponent(entity, MediaComponent)
+    const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+    const audioContext = getState(AudioState).audioContext
+    const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
 
-export function MediaReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
-  const media = useComponent(entity, MediaComponent)
-  const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-  const audioContext = getState(AudioState).audioContext
-  const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
+    useEffect(
+      function updatePlay() {
+        if (!mediaElement) return
+        if (media.paused.value) {
+          mediaElement.element.value.pause()
+        } else {
+          mediaElement.element.value.play()
+        }
+      },
+      [media.paused, mediaElement]
+    )
 
-  useEffect(
-    function updatePlay() {
-      if (!mediaElement) return
-      if (media.paused.value) {
-        mediaElement.element.value.pause()
-      } else {
-        mediaElement.element.value.play()
-      }
-    },
-    [media.paused, mediaElement]
-  )
+    useEffect(
+      function updateTrackMetadata() {
+        clearErrors(entity, MediaComponent)
 
-  useEffect(
-    function updateTrackMetadata() {
-      clearErrors(entity, MediaComponent)
+        const paths = media.resources.value.map((resource) => getResourceURL(resource))
 
-      const paths = media.resources.value.map((resource) => getResourceURL(resource))
+        for (const path of paths) {
+          const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+          if (assetClass !== 'audio' && assetClass !== 'video') {
+            return addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
+          }
+        }
 
-      for (const path of paths) {
+        const metadataListeners = [] as Array<{ tempElement: HTMLMediaElement; listener: () => void }>
+
+        for (const [i, path] of paths.entries()) {
+          const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+          const tempElement = document.createElement(assetClass) as HTMLMediaElement
+          const listener = () => media.trackDurations[i].set(tempElement.duration)
+          metadataListeners.push({ tempElement, listener })
+          tempElement.addEventListener('loadedmetadata', listener)
+          tempElement.crossOrigin = 'anonymous'
+          tempElement.preload = 'metadata'
+          tempElement.src = path
+        }
+
+        return () => {
+          for (const { tempElement, listener } of metadataListeners) {
+            tempElement.removeEventListener('loadedmetadata', listener)
+            tempElement.src = ''
+            tempElement.load()
+          }
+        }
+      },
+      [media.resources]
+    )
+
+    useEffect(
+      function updateMediaElement() {
+        if (!isClient) return
+
+        const track = media.track.value
+        const resource = media.resources[track].value
+        const path = getResourceURL(resource)
+        if (!path) {
+          if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
+          return
+        }
+
+        const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+
         if (assetClass !== 'audio' && assetClass !== 'video') {
-          return addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
+          addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
+          return
         }
-      }
 
-      const metadataListeners = [] as Array<{ tempElement: HTMLMediaElement; listener: () => void }>
+        if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
+          setComponent(entity, MediaElementComponent, {
+            element: document.createElement(assetClass) as HTMLMediaElement
+          })
+          const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
-      for (const [i, path] of paths.entries()) {
-        const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
-        const tempElement = document.createElement(assetClass) as HTMLMediaElement
-        const listener = () => media.trackDurations[i].set(tempElement.duration)
-        metadataListeners.push({ tempElement, listener })
-        tempElement.addEventListener('loadedmetadata', listener)
-        tempElement.crossOrigin = 'anonymous'
-        tempElement.preload = 'metadata'
-        tempElement.src = path
-      }
+          const element = mediaElementState.element.value
 
-      return () => {
-        for (const { tempElement, listener } of metadataListeners) {
-          tempElement.removeEventListener('loadedmetadata', listener)
-          tempElement.src = ''
-          tempElement.load()
+          element.crossOrigin = 'anonymous'
+          element.preload = 'auto'
+          element.muted = false
+          element.setAttribute('playsinline', 'true')
+
+          const signal = mediaElementState.abortController.signal.value
+
+          element.addEventListener(
+            'playing',
+            () => {
+              media.waiting.set(false)
+              clearErrors(entity, MediaElementComponent)
+            },
+            { signal }
+          )
+          element.addEventListener('waiting', () => media.waiting.set(true), { signal })
+          element.addEventListener(
+            'error',
+            (err) => {
+              addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
+              if (!media.paused.value) media.track.set(getNextTrack(media.value))
+              media.waiting.set(false)
+            },
+            { signal }
+          )
+
+          element.addEventListener(
+            'ended',
+            () => {
+              if (media.playMode.value === PlayMode.single) return
+              media.track.set(getNextTrack(media.value))
+              media.waiting.set(false)
+            },
+            { signal }
+          )
+
+          const audioNodes = createAudioNodeGroup(
+            element,
+            audioContext.createMediaElementSource(element),
+            media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
+          )
+
+          audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
         }
-      }
-    },
-    [media.resources]
-  )
 
-  useEffect(
-    function updateMediaElement() {
-      if (!isClient) return
-
-      const track = media.track.value
-      const resource = media.resources[track].value
-      const path = getResourceURL(resource)
-      if (!path) {
-        if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
-        return
-      }
-
-      const mediaElement = getOptionalComponent(entity, MediaElementComponent)
-
-      const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
-
-      if (assetClass !== 'audio' && assetClass !== 'video') {
-        addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
-        return
-      }
-
-      if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
-        setComponent(entity, MediaElementComponent, {
-          element: document.createElement(assetClass) as HTMLMediaElement
-        })
+        setComponent(entity, MediaElementComponent)
         const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
-        const element = mediaElementState.element.value
+        mediaElementState.hls.value?.destroy()
+        mediaElementState.hls.set(undefined)
 
-        element.crossOrigin = 'anonymous'
-        element.preload = 'auto'
-        element.muted = false
-        element.setAttribute('playsinline', 'true')
+        if (isHLS(path)) {
+          mediaElementState.hls.set(setupHLS(entity, path))
+          mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)
+        } else {
+          mediaElementState.element.src.set(path)
+        }
+      },
+      [media.resources, media.track]
+    )
 
-        const signal = mediaElementState.abortController.signal.value
+    useEffect(
+      function updateVolume() {
+        const volume = media.volume.value
+        const element = getOptionalComponent(entity, MediaElementComponent)?.element as HTMLMediaElement
+        if (!element) return
+        const audioNodes = AudioNodeGroups.get(element)
+        if (audioNodes) {
+          audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+        }
+      },
+      [media.volume]
+    )
 
-        element.addEventListener(
-          'playing',
-          () => {
-            media.waiting.set(false)
-            clearErrors(entity, MediaElementComponent)
-          },
-          { signal }
-        )
-        element.addEventListener('waiting', () => media.waiting.set(true), { signal })
-        element.addEventListener(
-          'error',
-          (err) => {
-            addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            if (!media.paused.value) media.track.set(getNextTrack(media.value))
-            media.waiting.set(false)
-          },
-          { signal }
-        )
+    useEffect(
+      function updateMixbus() {
+        if (!mediaElement?.value) return
+        const element = mediaElement.element.get({ noproxy: true })
+        const audioNodes = AudioNodeGroups.get(element)
+        if (audioNodes) {
+          audioNodes.gain.disconnect(audioNodes.mixbus)
+          audioNodes.mixbus = media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
+          audioNodes.gain.connect(audioNodes.mixbus)
+        }
+      },
+      [mediaElement, media.isMusic]
+    )
 
-        element.addEventListener(
-          'ended',
-          () => {
-            if (media.playMode.value === PlayMode.single) return
-            media.track.set(getNextTrack(media.value))
-            media.waiting.set(false)
-          },
-          { signal }
-        )
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
-        const audioNodes = createAudioNodeGroup(
-          element,
-          audioContext.createMediaElementSource(element),
-          media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
-        )
-
-        audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
+    useEffect(() => {
+      if (debugEnabled.value && !media.helper.value) {
+        const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
+        helper.name = `audio-helper-${root.entity}`
+        AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
+          helper.material.map = AUDIO_HELPER_TEXTURE
+        })
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        addObjectToGroup(root.entity, helper)
+        media.helper.set(helper)
       }
 
-      setComponent(entity, MediaElementComponent)
-      const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-
-      mediaElementState.hls.value?.destroy()
-      mediaElementState.hls.set(undefined)
-
-      if (isHLS(path)) {
-        mediaElementState.hls.set(setupHLS(entity, path))
-        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)
-      } else {
-        mediaElementState.element.src.set(path)
+      if (!debugEnabled.value && media.helper.value) {
+        removeObjectFromGroup(root.entity, media.helper.value)
+        media.helper.set(none)
       }
-    },
-    [media.resources, media.track]
-  )
+    }, [debugEnabled])
 
-  useEffect(
-    function updateVolume() {
-      const volume = media.volume.value
-      const element = getOptionalComponent(entity, MediaElementComponent)?.element as HTMLMediaElement
-      if (!element) return
-      const audioNodes = AudioNodeGroups.get(element)
-      if (audioNodes) {
-        audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
-      }
-    },
-    [media.volume]
-  )
-
-  useEffect(
-    function updateMixbus() {
-      if (!mediaElement?.value) return
-      const element = mediaElement.element.get({ noproxy: true })
-      const audioNodes = AudioNodeGroups.get(element)
-      if (audioNodes) {
-        audioNodes.gain.disconnect(audioNodes.mixbus)
-        audioNodes.mixbus = media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
-        audioNodes.gain.connect(audioNodes.mixbus)
-      }
-    },
-    [mediaElement, media.isMusic]
-  )
-
-  const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-
-  useEffect(() => {
-    if (debugEnabled.value && !media.helper.value) {
-      const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
-      helper.name = `audio-helper-${root.entity}`
-      AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
-        helper.material.map = AUDIO_HELPER_TEXTURE
-      })
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      addObjectToGroup(root.entity, helper)
-      media.helper.set(helper)
-    }
-
-    if (!debugEnabled.value && media.helper.value) {
-      removeObjectFromGroup(root.entity, media.helper.value)
-      media.helper.set(none)
-    }
-  }, [debugEnabled])
-
-  return null
-}
+    return null
+  }
+})
 
 export const SCENE_COMPONENT_MEDIA = 'media'
 

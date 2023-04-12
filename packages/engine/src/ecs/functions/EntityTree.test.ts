@@ -47,7 +47,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set given values', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = getState(SceneState).sceneEntity as Entity
 
     const entity = createEntity()
     const testUUID = 'test-uuid' as EntityUUID
@@ -68,7 +68,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set child at a given index', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = getState(SceneState).sceneEntity as Entity
 
     setComponent(createEntity(), EntityTreeComponent, {
       parentEntity: sceneEntity,
@@ -111,7 +111,7 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should remove entity from maps', () => {
-    const sceneEntity = getState(SceneState).sceneEntity
+    const sceneEntity = getState(SceneState).sceneEntity as Entity
 
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: 'test-uuid' as EntityUUID })
@@ -141,7 +141,7 @@ describe('EntityTreeFunctions', () => {
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
       initializeSceneEntity()
-      const sceneEntity = getState(SceneState).sceneEntity
+      const sceneEntity = getState(SceneState).sceneEntity as Entity
       assert(sceneEntity)
       assert(getComponent(sceneEntity, NameComponent), 'scene')
       assert(hasComponent(sceneEntity, VisibleComponent))

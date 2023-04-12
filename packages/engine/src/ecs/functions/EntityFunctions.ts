@@ -6,10 +6,10 @@ import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { EntityRemovedComponent, removeAllComponents, setComponent } from './ComponentFunctions'
 
-export const createEntity = (): Entity => {
+export const createEntity = <ComponentType extends readonly any[] = []>() => {
   let entity = bitECS.addEntity(Engine.instance)
   if (entity === 0) entity = bitECS.addEntity(Engine.instance) // always discard entity 0 since we do a lot of `if (entity)` checks
-  return entity as Entity
+  return entity as Entity<ComponentType>
 }
 
 export const removeEntity = (entity: Entity, immediately = false) => {
@@ -27,10 +27,10 @@ export const entityExists = (entity: Entity) => {
   return bitECS.entityExists(Engine.instance, entity)
 }
 
-export interface EntityReactorRoot extends ReactorRoot {
-  entity: Entity
+export interface EntityReactorRoot<Components extends readonly any[]> extends ReactorRoot {
+  entity: Entity<Components>
 }
 
-export interface EntityReactorProps {
-  root: EntityReactorRoot
+export interface EntityReactorProps<Components extends readonly any[]> {
+  root: EntityReactorRoot<Components>
 }

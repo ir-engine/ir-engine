@@ -1,11 +1,8 @@
-import { Event, Object3D } from 'three'
-
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentMap,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent
 } from '../../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../../scene/components/ColliderComponent'
@@ -27,16 +24,18 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
     const data = new Array<[string, any]>()
     for (const field of gltfLoaded) {
       switch (field) {
-        case 'entity':
-          const name = getComponent(entity, NameComponent)
+        case 'entity': {
+          const name = getOptionalComponent(entity, NameComponent)
           data.push(['xrengine.entity', name])
           break
-        default:
-          const component = ComponentMap.get(field)!
+        }
+        default: {
+          const component = ComponentMap.get(field)! as any
           const compData = component.toJSON(entity, getMutableComponent(entity, component))
           for (const [field, value] of Object.entries(compData)) {
             data.push([`xrengine.${component.name}.${field}`, value])
           }
+        }
       }
     }
     nodeDef.extensions = nodeDef.extensions ?? {}

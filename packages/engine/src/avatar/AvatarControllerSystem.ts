@@ -24,7 +24,7 @@ import { respawnAvatar } from './functions/respawnAvatar'
 import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 export default async function AvatarControllerSystem() {
-  const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
+  const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent, UUIDComponent])
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const sessionChangedActions = createActionQueue(XRAction.sessionChanged.matches)
 
@@ -70,8 +70,12 @@ export default async function AvatarControllerSystem() {
 
     const controlledEntity = Engine.instance.localClientEntity
 
-    if (hasComponent(controlledEntity, AvatarControllerComponent)) {
+    if (
+      hasComponent(controlledEntity, AvatarControllerComponent) &&
+      hasComponent(controlledEntity, RigidBodyComponent)
+    ) {
       const controller = getComponent(controlledEntity, AvatarControllerComponent)
+      const rigidbody = getComponent(controlledEntity, RigidBodyComponent)
 
       if (controller.movementEnabled) {
         /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
@@ -95,7 +99,6 @@ export default async function AvatarControllerSystem() {
         }
       }
 
-      const rigidbody = getComponent(controlledEntity, RigidBodyComponent)
       if (rigidbody.position.y < -10) respawnAvatar(controlledEntity)
     }
   }

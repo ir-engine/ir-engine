@@ -103,13 +103,13 @@ export const ColliderComponent = defineComponent({
   reactor: function ({ root }) {
     const entity = root.entity
 
-    const transformComponent = useComponent(entity, TransformComponent)
+    const transformComponent = useComponent(entity as any, TransformComponent)
     const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      if (!!isLoadedFromGLTF?.value) {
+      if (isLoadedFromGLTF?.value) {
         const colliderComponent = getComponent(entity, ColliderComponent)
 
         if (hasComponent(entity, RigidBodyComponent)) {
@@ -133,7 +133,7 @@ export const ColliderComponent = defineComponent({
       } else {
         const rigidbodyTypeChanged =
           !hasComponent(entity, RigidBodyComponent) ||
-          colliderComponent.bodyType.value !== getComponent(entity, RigidBodyComponent).body.bodyType()
+          colliderComponent.bodyType.value !== getComponent(entity as any, RigidBodyComponent).body.bodyType()
 
         if (rigidbodyTypeChanged) {
           const rigidbody = getOptionalComponent(entity, RigidBodyComponent)?.body
@@ -166,7 +166,7 @@ export const ColliderComponent = defineComponent({
           }
         }
 
-        const rigidbody = getComponent(entity, RigidBodyComponent)
+        const rigidbody = getComponent(entity as any, RigidBodyComponent)
 
         /**
          * This component only supports one collider, always at index 0

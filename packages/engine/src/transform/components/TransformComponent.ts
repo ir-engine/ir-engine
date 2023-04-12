@@ -1,14 +1,13 @@
-import { Types } from 'bitecs'
+import { Not, Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
-  getComponent,
+  defineQuery,
   getOptionalComponent,
   hasComponent,
   setComponent
@@ -85,9 +84,7 @@ export const TransformComponent = defineComponent({
   },
 
   toJSON(entity, comp) {
-    const component = hasComponent(entity, LocalTransformComponent)
-      ? getComponent(entity, LocalTransformComponent)
-      : comp.value
+    const component = getOptionalComponent(entity, LocalTransformComponent) ?? comp.value
     return {
       position: new Vector3().copy(component.position),
       rotation: new Quaternion().copy(component.rotation),
@@ -99,7 +96,7 @@ export const TransformComponent = defineComponent({
     delete TransformComponent.dirtyTransforms[entity]
   },
 
-  dirtyTransforms: {} as Record<Entity, boolean>
+  dirtyTransforms: {} as Record<Entity<[{ name: 'TransformComponent' }]>, boolean>
 })
 
 export const LocalTransformComponent = defineComponent({

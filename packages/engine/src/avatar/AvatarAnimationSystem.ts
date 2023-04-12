@@ -35,6 +35,7 @@ import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
 import { getCameraMode, isMobileXRHeadset, ReferenceSpace, XRState } from '../xr/XRState'
@@ -112,7 +113,7 @@ export default async function AvatarAnimationSystem() {
   })
 
   Engine.instance.priorityAvatarEntities = priorityQueue.priorityEntities
-  const filterPriorityEntities = (entity: Entity) =>
+  const filterPriorityEntities = (entity: Entity<any>) =>
     Engine.instance.priorityAvatarEntities.has(entity) || entity === Engine.instance.localClientEntity
 
   const filterFrustumCulledEntities = (entity: Entity) =>
@@ -339,7 +340,7 @@ export default async function AvatarAnimationSystem() {
     for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
     for (const entity of Engine.instance.priorityAvatarEntities) {
-      const avatarRig = getComponent(entity, AvatarRigComponent)
+      const avatarRig = getComponent(entity as Entity<[typeof AvatarRigComponent]>, AvatarRigComponent)
       if (avatarRig) {
         avatarRig.rig.Hips.updateWorldMatrix(true, true)
         avatarRig.helper?.updateMatrixWorld(true)

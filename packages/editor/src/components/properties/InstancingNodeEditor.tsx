@@ -8,7 +8,6 @@ import {
   ComponentType,
   getComponent,
   getMutableComponent,
-  getOrAddComponent,
   hasComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'

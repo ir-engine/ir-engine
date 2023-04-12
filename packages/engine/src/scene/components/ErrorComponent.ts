@@ -12,7 +12,7 @@ export type ErrorComponentType = {
   }
 }
 
-export const ErrorComponent = defineComponent<ErrorComponentType>({
+export const ErrorComponent = defineComponent({
   name: 'ErrorComponent',
   onInit: () => ({} as ErrorComponentType)
 })

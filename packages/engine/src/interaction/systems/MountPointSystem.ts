@@ -11,9 +11,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import {
   addComponent,
-  ComponentType,
   defineQuery,
   getComponent,
+  getOptionalComponentState,
   hasComponent,
   removeComponent,
   removeQuery
@@ -68,8 +68,15 @@ export default async function MountPointSystem() {
     }
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
-  const mountPointQuery = defineQuery([MountPointComponent])
-  const sittingIdleQuery = defineQuery([SittingComponent])
+  const mountPointQuery = defineQuery([MountPointComponent, TransformComponent])
+  const sittingIdleQuery = defineQuery([
+    SittingComponent,
+    TransformComponent,
+    AvatarControllerComponent,
+    AvatarAnimationComponent,
+    AvatarComponent,
+    RigidBodyComponent
+  ])
 
   const execute = () => {
     for (const entity of mountPointQuery.enter()) {
@@ -88,13 +95,14 @@ export default async function MountPointSystem() {
       if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
       const avatarEntity = Engine.instance.getUserAvatarEntity(action.$from)
 
-      const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
+      const mountPoint = getComponent(action.targetEntity, MountPointComponent)
       if (mountPoint.type === MountPoint.seat) {
         const avatar = getComponent(avatarEntity, AvatarComponent)
 
         if (hasComponent(avatarEntity, SittingComponent)) continue
+        if (!hasComponent(action.targetEntity, TransformComponent)) continue
 
-        const transform = getComponent(action.targetEntity!, TransformComponent)
+        const transform = getComponent(action.targetEntity, TransformComponent)
         const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
         rigidBody.body.setTranslation(
           {
@@ -105,17 +113,16 @@ export default async function MountPointSystem() {
           true
         )
         rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-        addComponent(avatarEntity, SittingComponent, {
-          mountPointEntity: action.targetEntity!,
+        const sitting = addComponent(avatarEntity, SittingComponent, {
+          mountPointEntity: action.targetEntity,
           state: AvatarStates.SIT_ENTER
         })
-        const sitting = getComponent(avatarEntity, SittingComponent)
         getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
 
         const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
 
         changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
-        sitting.state = AvatarStates.SIT_IDLE
+        sitting.state.set(AvatarStates.SIT_IDLE)
       }
     }
 
@@ -160,7 +167,9 @@ export default async function MountPointSystem() {
 
         changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
         removeComponent(entity, SittingComponent)
-        getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
+        getOptionalComponentState(Engine.instance.localClientEntity, AvatarControllerComponent)?.movementEnabled.set(
+          true
+        )
       }
     }
   }

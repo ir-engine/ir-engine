@@ -9,16 +9,16 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { defineQuery, EntityRemovedComponent, Query, QueryComponents, useQuery } from './ComponentFunctions'
+import { defineQuery, EntityRemovedComponent, QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityReactorProps, removeEntity } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
-export type CreateSystemSyncFunctionType<A extends any> = (props?: A) => SystemDefintion
-export type CreateSystemFunctionType<A extends any> = (props?: A) => Promise<SystemDefintion>
-export type SystemModule<A extends any> = { default: CreateSystemFunctionType<A> }
-export type SystemLoader<A extends any> = () => Promise<SystemModule<A>>
+export type CreateSystemSyncFunctionType<A> = (props?: A) => SystemDefintion
+export type CreateSystemFunctionType<A> = (props?: A) => Promise<SystemDefintion>
+export type SystemModule<A> = { default: CreateSystemFunctionType<A> }
+export type SystemLoader<A> = () => Promise<SystemModule<A>>
 
 export interface SystemDefintion {
   execute: () => void
@@ -322,12 +322,12 @@ export const unloadSystem = (uuid: string) => {
   return systemToUnload.cleanup()
 }
 
-function QueryReactor(props: {
+function QueryReactor<QC extends QueryComponents>(props: {
   root: ReactorRoot
-  query: QueryComponents
-  ChildEntityReactor: React.FC<EntityReactorProps>
+  query: QC
+  ChildEntityReactor: React.FC<EntityReactorProps<QC>>
 }) {
-  const entities = useQuery(props.query)
+  const entities = useQuery(props.query) as Entity<QC>[]
   return (
     <>
       {entities.map((entity) => (
@@ -341,7 +341,10 @@ function QueryReactor(props: {
   )
 }
 
-export const startQueryReactor = (Components: QueryComponents, ChildEntityReactor: React.FC<EntityReactorProps>) => {
+export const startQueryReactor = <QC extends QueryComponents>(
+  Components: QC,
+  ChildEntityReactor: React.FC<EntityReactorProps<QC>>
+) => {
   if (!ChildEntityReactor.name) Object.defineProperty(ChildEntityReactor, 'name', { value: 'ChildEntityReactor' })
   return startReactor(function HyperfluxQueryReactor({ root }: ReactorProps) {
     return <QueryReactor query={Components} ChildEntityReactor={ChildEntityReactor} root={root} />
