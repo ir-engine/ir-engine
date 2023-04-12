@@ -101,8 +101,6 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
     if (component.instanceMatrix.value.array.length === 0) {
       component.instanceMatrix.set(new InstancedBufferAttribute(new Float32Array([...loadedMesh.matrix.elements]), 16))
       component.instanceLevels.set(new InstancedBufferAttribute(new Uint8Array([index]), 1))
-    } else {
-      loadedMesh.applyMatrix4(new Matrix4().fromArray(component.instanceMatrix.value.array))
     }
   }
 
@@ -123,7 +121,7 @@ export function getLodPath(object: Object3D): LODPath {
   let path = ''
   while (walker !== null && !(walker as Object3DWithEntity).entity) {
     if (walker.userData['lodPath']) {
-      path = `${walker.userData['lodPath']}/${path}`
+      path = `${walker.userData['lodPath']}${path ? `/${path}` : ''}`
       break
     }
     path = `${walker.name}/${path}`
@@ -135,14 +133,16 @@ export function getLodPath(object: Object3D): LODPath {
 
 export function objectFromLodPath(model: ComponentType<typeof ModelComponent>, path: LODPath): Object3D {
   let walker: Object3D | null = model.scene
+  let prev: typeof walker = null
   const pathParts = path.split('/')
-  pathParts.pop()
   while (pathParts.length > 0) {
     const part = pathParts.shift()
     if (!part) break
+    prev = walker
     walker = walker?.children.find((child) => child.name === part) ?? null
   }
   if (!walker) {
+    console.error('walker', walker, 'prev', prev)
     throw new Error(`Could not find object from path ${path} in model ${model.scene}`)
   }
   return walker

@@ -12,7 +12,7 @@ import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   addObjectToGroup,
   GroupComponent,
@@ -21,13 +21,14 @@ import {
 } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessEditorState } from '../services/EditorServices'
+import { EditorState } from '../services/EditorServices'
 
 export const exportPrefab = async (entity: Entity) => {
   const node = getComponent(entity, EntityTreeComponent)
   const asset = getComponent(entity, PrefabComponent)
-  const projectName = accessEditorState().projectName.value!
+  const projectName = getState(EditorState).projectName ?? ''
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }

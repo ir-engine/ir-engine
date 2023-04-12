@@ -451,7 +451,7 @@ function getToBlobPromise( canvas, mimeType ) {
 /**
  * Writer
  */
-class GLTFWriter {
+export class GLTFWriter {
 
 	constructor() {
 

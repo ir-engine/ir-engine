@@ -89,6 +89,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     try {
       StaticResourceService.uploadModel(path).then((model) => {
         updateProperty(ModelComponent, 'resource')(model)
+        updateProperty(ModelComponent, 'src')(path)
       })
     } catch (err) {
       console.log('Error getting path', path)

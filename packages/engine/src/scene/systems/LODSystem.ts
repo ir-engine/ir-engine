@@ -23,7 +23,7 @@ export default async function LODSystem() {
 
   function updateLOD(entity, currentLevel, lodComponent: State<LODComponentType>, lodDistances, position) {
     const heuristic = lodComponent.lodHeuristic.value
-    if (heuristic === 'MANUAL' || ['DISTANCE', 'SCENE_SCALE'].includes(heuristic)) {
+    if (['DISTANCE', 'SCENE_SCALE'].includes(heuristic)) {
       const distance = cameraPosition.distanceTo(position)
       for (let j = 0; j < lodDistances.length; j++) {
         if (distance < lodDistances[j] || j === lodDistances.length - 1) {
@@ -35,6 +35,8 @@ export default async function LODSystem() {
           break
         }
       }
+    } else if (heuristic === 'MANUAL') {
+      //todo: implement manual LOD setting
     } else {
       throw Error('Invalid LOD heuristic')
     }
@@ -73,29 +75,31 @@ export default async function LODSystem() {
       for (let i = 0; i < lodComponent.levels.length; i++) {
         const level = lodComponent.levels[i]
         if (referencedLods.has(i)) {
-          if (!level.loaded.value && level.src.value) {
-            AssetLoader.load(level.src.value, {}, (loadedScene: GLTF) => {
-              const mesh = getFirstMesh(loadedScene.scene)
-              mesh && processLoadedLODLevel(entity, i, mesh)
-              level.loaded.set(true)
-              while (levelsToUnload.length > 0) {
-                const levelToUnload = levelsToUnload.pop()
-                levelToUnload?.loaded.set(false)
-                levelToUnload?.model.get(NO_PROXY)?.removeFromParent()
-                levelToUnload?.model.set(null)
-              }
-            })
-          } else if (!level.loaded.value && level.src.value === '') {
-            level.model.set(objectFromLodPath(modelComponent, lodComponent.lodPath.value) as Mesh | null)
+          if (!level.loaded.value) {
+            if (level.src.value) {
+              AssetLoader.load(level.src.value, {}, (loadedScene: GLTF) => {
+                const mesh = getFirstMesh(loadedScene.scene)
+                mesh && processLoadedLODLevel(entity, i, mesh)
+                while (levelsToUnload.length > 0) {
+                  const levelToUnload = levelsToUnload.pop()
+                  levelToUnload?.loaded.set(false)
+                  levelToUnload?.model.get(NO_PROXY)?.removeFromParent()
+                  levelToUnload?.model.set(null)
+                }
+              })
+            } else {
+              !level.src.value &&
+                processLoadedLODLevel(entity, i, objectFromLodPath(modelComponent, lodComponent.lodPath.value) as Mesh)
+            }
             level.loaded.set(true)
-          }
-        } else {
-          if (level.loaded.value) {
-            levelsToUnload.push(level)
+          } else {
+            if (!lodComponent.instanced.value && level.loaded.value) {
+              levelsToUnload.push(level)
+            }
           }
         }
+        referencedLods.clear()
       }
-      referencedLods.clear()
     }
   }
 

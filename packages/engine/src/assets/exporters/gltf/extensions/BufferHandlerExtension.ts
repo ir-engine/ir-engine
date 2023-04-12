@@ -1,3 +1,4 @@
+import { sha3_256 } from 'js-sha3'
 import { Event, LoaderUtils, Object3D } from 'three'
 import { generateUUID } from 'three/src/math/MathUtils'
 import matches, { Validator } from 'ts-matches'
@@ -36,6 +37,15 @@ export default class BufferHandlerExtension extends ExporterExtension implements
   projectName: string
   modelName: string
   resourceURI: string | null
+
+  comparisonCanvas: HTMLCanvasElement
+  bufferCache: Record<string, string>
+
+  constructor(writer: GLTFWriter) {
+    super(writer)
+    this.bufferCache = {}
+    this.comparisonCanvas = document.createElement('canvas')
+  }
 
   beforeParse(input: Object3D<Event> | Object3D<Event>[]) {
     const writer = this.writer
@@ -113,7 +123,12 @@ export default class BufferHandlerExtension extends ExporterExtension implements
 
     if (!options?.binary) {
       writer.buffers.map((buffer, index) => {
-        const name = generateUUID()
+        const hash = sha3_256.create()
+        const view = new DataView(buffer)
+        for (let i = 0; i < buffer.byteLength; i++) {
+          hash.update(String.fromCharCode(view.getUint8(i)))
+        }
+        const name = hash.hex()
         const uri = `${this.resourceURI ?? modelResourcesPath(modelName)}/buffers/${name}.bin`
         const projectSpaceModelName = this.resourceURI
           ? LoaderUtils.resolveURL(uri, LoaderUtils.extractUrlBase(modelName))
@@ -130,13 +145,18 @@ export default class BufferHandlerExtension extends ExporterExtension implements
           uri: this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri,
           buffer: buffers[index]
         }
-        dispatchAction(
-          BufferHandlerExtension.saveBuffer({
-            projectName,
-            modelName: projectSpaceModelName,
-            saveParms
-          })
-        )
+        if (!this.bufferCache[name]) {
+          dispatchAction(
+            BufferHandlerExtension.saveBuffer({
+              projectName,
+              modelName: projectSpaceModelName,
+              saveParms
+            })
+          )
+          this.bufferCache[name] = uri
+        } else {
+          bufferDef.uri = this.bufferCache[name]
+        }
       })
     }
   }
