@@ -14,6 +14,7 @@ import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/compo
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { InteriorComponent } from '@etherealengine/engine/src/scene/components/InteriorComponent'
+import { LODComponent } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
@@ -51,6 +52,7 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
+import { LODProperties } from '../components/properties/LODProperties'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
@@ -108,6 +110,7 @@ EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
 EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
+EntityNodeEditor.set(LODComponent, LODProperties)
 
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,

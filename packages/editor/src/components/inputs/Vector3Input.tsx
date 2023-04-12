@@ -55,8 +55,8 @@ interface Vector3InputProp {
   largeStep?: number
   value: Vector3
   hideLabels?: boolean
-  onChange: Function
-  onRelease?: Function
+  onChange: (v: Vector3) => void
+  onRelease?: (v: Vector3) => void
 }
 
 export const Vector3Input = ({

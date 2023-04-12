@@ -49,6 +49,8 @@ export interface GLTFExporterOptions {
 
     path?: string;
 
+    resourceURI?: string;
+
     flipY?: boolean;
 }
 
@@ -110,12 +112,13 @@ export class GLTFWriter {
         includeCustomExtensions?: boolean,
         truncateDrawRange?: boolean,
         maxTextureSize?: number,
+        resourceURI?: string
 
     }
     pending: Promise<any>[]
     extensionsUsed : {[key:string] : any}
 
-    applyTextureTransform(mapDef: Object, texture: Texture)
+    applyTextureTransform(mapDef: object, texture: Texture)
 
     processTexture(map: Texture): number
 
@@ -152,8 +155,6 @@ export class GLTFWriter {
     processBuffer(buffer: ArrayBuffer): number
 
     processSampler(map: Texture): number
-
-    processTexture(map: Texture): number
 
     setPlugins(plugins: GLTFExporterPlugin[]): void;
 
