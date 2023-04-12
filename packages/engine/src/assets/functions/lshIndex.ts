@@ -11,7 +11,6 @@ export class LSHIndex {
     const hashes: string[] = []
     for (let i = 0; i < this.l; i++) {
       const start = Math.floor((i * binaryHash.length) / this.l)
-      //const end = Math.floor(((i + 1) * binaryHash.length) / this.l)
       const hash = binaryHash.slice(start, start + this.k)
       hashes.push(hash)
     }
