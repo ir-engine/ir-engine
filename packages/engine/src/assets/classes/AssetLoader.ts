@@ -74,7 +74,7 @@ export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
   const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
   const attributes = geo.attributes
   if (!args.ignoreDisposeGeometry) {
-    for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer()
+    for (const name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer()
     if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer()
   }
   Object.entries(mat)

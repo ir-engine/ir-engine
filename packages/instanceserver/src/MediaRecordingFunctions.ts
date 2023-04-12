@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import { Router } from 'mediasoup/node/lib/types'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -12,10 +13,10 @@ import {
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { localConfig } from '@etherealengine/server-core/src/config'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { startFFMPEG } from './FFMPEG'
+import { uploadRecordingStaticResource } from './ServerRecordingSystem'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = serverLogger.child({ module: 'instanceserver:MediaRecording' })
@@ -84,7 +85,11 @@ export type MediaTrackPair = {
   audioConsumer?: any
 }
 
-export const startMediaRecordingPair = async (peerID: PeerID, mediaType: string, tracks: MediaTrackPair) => {
+export const startMediaRecordingPair = async (
+  peerID: PeerID,
+  mediaType: 'webcam' | 'screenshare',
+  tracks: MediaTrackPair
+) => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
 
   const promises = [] as Promise<any>[]
@@ -139,7 +144,7 @@ export const startMediaRecordingPair = async (peerID: PeerID, mediaType: string,
   }
 
   /** start ffmpeg */
-  const isH264 = !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
+  const isH264 = !!tracks.video && !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
   const ffmpegProcess = await startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264)
 
   /** resume consumers */
@@ -156,7 +161,7 @@ export const startMediaRecordingPair = async (peerID: PeerID, mediaType: string,
     stream: ffmpegProcess.stream,
     peerID,
     mediaType,
-    format: isH264 ? 'h264' : 'vp8'
+    format: isH264 ? 'h264' : ((tracks.video ? 'vp8' : 'mp3') as 'h264' | 'vp8' | 'mp3')
   }
 }
 
@@ -196,28 +201,29 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
 
   for (const [peer, media] of Object.entries(mediaStreams)) {
     for (const [mediaType, tracks] of Object.entries(media)) {
-      recordingPromises.push(startMediaRecordingPair(peer as PeerID, mediaType, tracks))
+      recordingPromises.push(startMediaRecordingPair(peer as PeerID, mediaType as 'webcam' | 'screenshare', tracks))
     }
   }
 
   const recordings = await Promise.all(recordingPromises)
 
-  const storageprovider = getStorageProvider()
-
   const activeUploads = recordings.map((recording) => {
     const stream = recording.stream
-    const upload = storageprovider.putObject({
-      Key:
-        'recordings/' +
-        recordingID +
-        '/' +
-        recording.peerID +
-        '-' +
-        recording.mediaType +
-        (recording.format === 'vp8' ? '.webm' : '.mp4'),
-      Body: stream,
-      ContentType: recording.format === 'vp8' ? 'video/webm' : 'video/mp4'
+    const format = recording.format === 'mp3' ? 'audio/opus' : recording.format === 'vp8' ? 'video/webm' : 'video/mp4'
+    const ext = recording.format === 'mp3' ? 'mp3' : recording.format === 'vp8' ? 'webm' : 'mp4'
+    const key = `recordings/${recordingID}/${recording.peerID}-${recording.mediaType}.${ext}`
+
+    const upload = uploadRecordingStaticResource({
+      recordingID,
+      key,
+      body: stream,
+      mimeType: format,
+      staticResourceType: recording.format === 'mp3' ? 'audio' : 'video',
+      hash: createHash('sha3-256').update(key.split('/').pop()!.split('.')[0]).digest('hex')
+    }).then(() => {
+      logger.info('Uploaded media file' + key)
     })
+
     return upload
   })
 

@@ -1,11 +1,6 @@
-import { Event, Object3D } from 'three'
-
-import { Entity } from '../../../../ecs/classes/Entity'
-import { addComponent } from '../../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../../ecs/functions/EntityFunctions'
-import { NameComponent } from '../../../../scene/components/NameComponent'
 import { parseECSData } from '../../../../scene/functions/loadGLTFModel'
-import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
+import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export type EE_ecs = {

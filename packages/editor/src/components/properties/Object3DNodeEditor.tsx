@@ -272,7 +272,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                 <MaterialInput
                   value={materials[currentMaterialId.value].uuid}
                   onChange={(nuId) => {
-                    if (!!materialLibrary.materials[nuId].value) {
+                    if (materialLibrary.materials[nuId].value) {
                       if (Array.isArray(mesh.material)) {
                         mesh.material[currentMaterialId.value] = materialFromId('' + nuId).material
                       } else {
