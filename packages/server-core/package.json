@@ -81,7 +81,7 @@
     "internal-ip": "^6.1.0",
     "ipfs-http-client": "^56.0.3",
     "jszip": "^3.10.1",
-    "knex": "2.4.2",
+    "knex": "^2.4.2",
     "lodash": "4.17.21",
     "meshoptimizer": "^0.18.1",
     "mime-types": "^2.1.35",

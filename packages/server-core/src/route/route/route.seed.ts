@@ -27,6 +27,10 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         project: 'default-project',
+        route: '/home'
+      },
+      {
+        project: 'default-project',
         route: '/auth'
       },
       {
