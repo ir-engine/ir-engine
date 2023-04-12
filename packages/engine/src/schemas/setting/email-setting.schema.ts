@@ -57,22 +57,7 @@ export const emailSettingSchema = Type.Object(
 )
 export type EmailSettingType = Static<typeof emailSettingSchema>
 
-export const emailSettingDatabaseSchema = Type.Object(
-  {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    smtp: Type.String(),
-    from: Type.String(),
-    subject: Type.String(),
-    smsNameCharacterLimit: Type.Number(),
-    createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
-  },
-  { $id: 'EmailSetting', additionalProperties: false }
-)
-export type EmailSettingDatabaseType = Static<typeof emailSettingSchema>
-// export type EmailSettingDatabaseType = Omit<EmailSettingType, 'smtp' | 'subject'> & { smtp: string; subject: string }
+export type EmailSettingDatabaseType = Omit<EmailSettingType, 'smtp' | 'subject'> & { smtp: string; subject: string }
 
 // Schema for creating new entries
 export const emailSettingDataSchema = Type.Pick(
@@ -85,15 +70,15 @@ export const emailSettingDataSchema = Type.Pick(
 export type EmailSettingData = Static<typeof emailSettingDataSchema>
 
 // Schema for updating existing entries
-export const emailSettingPatchSchema = Type.Partial(emailSettingDatabaseSchema, {
+export const emailSettingPatchSchema = Type.Partial(emailSettingSchema, {
   $id: 'EmailSettingPatch'
 })
 export type EmailSettingPatch = Static<typeof emailSettingPatchSchema>
 
 // Schema for allowed query properties
-export const emailSettingQueryProperties = Type.Pick(emailSettingDatabaseSchema, [
+export const emailSettingQueryProperties = Type.Pick(emailSettingSchema, [
   'id',
-  'smtp',
+  // 'smtp', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
   'from',
   'subject',
   'smsNameCharacterLimit'

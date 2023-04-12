@@ -3,10 +3,11 @@ import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  emailSettingDatabaseSchema,
+  // emailSettingDatabaseSchema,
   emailSettingDataSchema,
   emailSettingPatchSchema,
-  emailSettingQuerySchema
+  emailSettingQuerySchema,
+  emailSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
@@ -20,7 +21,8 @@ import {
   emailSettingResolver
 } from './email-setting.resolvers'
 
-const emailSettingDataValidator = getValidator(emailSettingDatabaseSchema, dataValidator)
+const emailSettingValidator = getValidator(emailSettingSchema, dataValidator)
+const emailSettingDataValidator = getValidator(emailSettingDataSchema, dataValidator)
 const emailSettingPatchValidator = getValidator(emailSettingPatchSchema, dataValidator)
 const emailSettingQueryValidator = getValidator(emailSettingQuerySchema, queryValidator)
 
