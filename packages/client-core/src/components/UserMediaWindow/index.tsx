@@ -4,7 +4,6 @@ import hark from 'hark'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useMediaStreamState } from '@etherealengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   globalMuteProducer,

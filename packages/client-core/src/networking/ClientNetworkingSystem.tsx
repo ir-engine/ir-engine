@@ -21,13 +21,11 @@ import {
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
-import { PeerMedia } from '../media/PeerMedia'
-import { MediaServiceReceptor, MediaStreamService } from '../media/services/MediaStreamService'
+import { PeerConsumers } from '../media/PeerMedia'
 import { ChatServiceReceptor, ChatState } from '../social/services/ChatService'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import { LocationState } from '../social/services/LocationService'
 import { WarningUIService } from '../systems/WarningUISystem'
-import { MediaStreamActions } from '../transports/MediaStreams'
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
 import { NetworkUserServiceReceptor } from '../user/services/NetworkUserService'
@@ -35,10 +33,9 @@ import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
 export default async function ClientNetworkingSystem() {
   const dataChannelsReactor = startReactor(DataChannels)
-  const peerMediaReactor = startReactor(PeerMedia)
+  const peerConsumerReactor = startReactor(PeerConsumers)
   const networkInstanceProvisioningReactor = startReactor(InstanceProvisioning)
 
-  const triggerUpdateConsumersQueue = createActionQueue(MediaStreamActions.triggerUpdateConsumers.matches)
   const noWorldServersAvailableQueue = createActionQueue(
     NetworkConnectionService.actions.noWorldServersAvailable.matches
   )
@@ -62,7 +59,6 @@ export default async function ClientNetworkingSystem() {
   // todo replace with subsystems
   addActionReceptor(LocationInstanceConnectionServiceReceptor)
   addActionReceptor(MediaInstanceConnectionServiceReceptor)
-  addActionReceptor(MediaServiceReceptor)
   addActionReceptor(NetworkUserServiceReceptor)
   addActionReceptor(FriendServiceReceptor)
   addActionReceptor(ChatServiceReceptor)
@@ -73,8 +69,6 @@ export default async function ClientNetworkingSystem() {
   const engineState = getState(EngineState)
 
   const execute = () => {
-    for (const action of triggerUpdateConsumersQueue()) MediaStreamService.triggerUpdateConsumers()
-
     for (const action of noWorldServersAvailableQueue()) {
       const currentLocationID = locationState.currentLocation.location.id
       WarningUIService.openWarning({
@@ -152,7 +146,6 @@ export default async function ClientNetworkingSystem() {
   }
 
   const cleanup = async () => {
-    removeActionQueue(triggerUpdateConsumersQueue)
     removeActionQueue(noWorldServersAvailableQueue)
     removeActionQueue(noMediaServersAvailableQueue)
     removeActionQueue(worldInstanceDisconnectedQueue)
@@ -164,12 +157,15 @@ export default async function ClientNetworkingSystem() {
     // todo replace with subsystems
     removeActionReceptor(LocationInstanceConnectionServiceReceptor)
     removeActionReceptor(MediaInstanceConnectionServiceReceptor)
-    removeActionReceptor(MediaServiceReceptor)
     removeActionReceptor(NetworkUserServiceReceptor)
     removeActionReceptor(FriendServiceReceptor)
     removeActionReceptor(ChatServiceReceptor)
 
-    await Promise.all([dataChannelsReactor.stop(), peerMediaReactor.stop(), networkInstanceProvisioningReactor.stop()])
+    await Promise.all([
+      dataChannelsReactor.stop(),
+      peerConsumerReactor.stop(),
+      networkInstanceProvisioningReactor.stop()
+    ])
   }
 
   return { execute, cleanup }
