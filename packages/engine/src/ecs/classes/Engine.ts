@@ -53,7 +53,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
+import { System, SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
@@ -260,6 +260,7 @@ export class Engine {
 
   /**
    * Custom systems injected into this world
+   * @deprecated
    */
   pipelines = {
     [SystemUpdateType.UPDATE_EARLY]: [],
@@ -273,6 +274,9 @@ export class Engine {
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstance[] }
 
+  systems = new Map<string, Required<System>>()
+
+  /** @deprecated */
   systemsByUUID = {} as Record<string, SystemInstance>
 
   /**
