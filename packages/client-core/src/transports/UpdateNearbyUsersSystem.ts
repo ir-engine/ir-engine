@@ -1,4 +1,5 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
@@ -39,20 +40,22 @@ export const updateNearbyAvatars = () => {
   })
 }
 
-export default async function UpdateNearbyUsersSystem() {
-  // every 5 seconds
-  const NEARBY_AVATAR_UPDATE_PERIOD = 5
-  let accumulator = 0
+// every 5 seconds
+const NEARBY_AVATAR_UPDATE_PERIOD = 5
+let accumulator = 0
 
-  const execute = () => {
-    accumulator += Engine.instance.deltaSeconds
-    if (accumulator > NEARBY_AVATAR_UPDATE_PERIOD) {
-      accumulator = 0
-      updateNearbyAvatars()
-    }
+const execute = () => {
+  accumulator += Engine.instance.deltaSeconds
+  if (accumulator > NEARBY_AVATAR_UPDATE_PERIOD) {
+    accumulator = 0
+    updateNearbyAvatars()
   }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
 }
+
+export const UpdateNearbyUsersSystem = defineSystem(
+  {
+    uuid: 'ee.client.UpdateNearbyUsersSystem',
+    execute
+  },
+  { after: [PresentationSystemGroup] }
+)

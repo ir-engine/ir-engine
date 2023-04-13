@@ -1,44 +1,60 @@
+import { useEffect } from 'react'
+
 import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
+import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 
-export default async function ModelHandlingSystem() {
-  const beginModelExportQueue = createActionQueue(BufferHandlerExtension.beginModelExport.matches)
-  const saveBufferQueue = createActionQueue(BufferHandlerExtension.saveBuffer.matches)
+const beginModelExportQueue = createActionQueue(BufferHandlerExtension.beginModelExport.matches)
+const saveBufferQueue = createActionQueue(BufferHandlerExtension.saveBuffer.matches)
 
-  const executionPromises = new Map<string, Promise<void>>()
-  const executionPromiseKey = ({ projectName, modelName }) => `${projectName}-${modelName}`
+const executionPromises = new Map<string, Promise<void>>()
+const executionPromiseKey = ({ projectName, modelName }) => `${projectName}-${modelName}`
 
-  const getPromise = ({ projectName, modelName }) =>
-    executionPromises.get(executionPromiseKey({ projectName, modelName })) ?? Promise.resolve()
+const getPromise = ({ projectName, modelName }) =>
+  executionPromises.get(executionPromiseKey({ projectName, modelName })) ?? Promise.resolve()
 
-  const execute = () => {
-    beginModelExportQueue().map((action) => {
-      const key = executionPromiseKey(action)
-      const currentPromise = getPromise(action)
-      executionPromises.set(
-        key,
-        currentPromise.then(() => clearModelResources(action.projectName, action.modelName))
-      )
-    })
-    saveBufferQueue().map(({ saveParms, projectName, modelName }) => {
-      const blob = new Blob([saveParms.buffer])
-      const file = new File([blob], saveParms.uri)
-      const currentPromise = getPromise({ projectName, modelName })
-      executionPromises.set(
-        executionPromiseKey({ projectName, modelName }),
-        currentPromise.then(() =>
-          Promise.all(uploadProjectFiles(projectName, [file], true).promises).then(() => Promise.resolve())
-        )
-      )
-    })
+/** @todo convert these to reactors */
+const execute = () => {
+  for (const action of beginModelExportQueue()) {
+    const key = executionPromiseKey(action)
+    const currentPromise = getPromise(action)
+    executionPromises.set(
+      key,
+      currentPromise.then(() => clearModelResources(action.projectName, action.modelName))
+    )
   }
 
-  const cleanup = async () => {
-    removeActionQueue(beginModelExportQueue)
-    removeActionQueue(saveBufferQueue)
+  for (const action of saveBufferQueue()) {
+    const { saveParms, projectName, modelName } = action
+    const blob = new Blob([saveParms.buffer])
+    const file = new File([blob], saveParms.uri)
+    const currentPromise = getPromise({ projectName, modelName })
+    executionPromises.set(
+      executionPromiseKey({ projectName, modelName }),
+      currentPromise.then(() =>
+        Promise.all(uploadProjectFiles(projectName, [file], true).promises).then(() => Promise.resolve())
+      )
+    )
   }
-
-  return { execute, cleanup }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    return () => {
+      removeActionQueue(beginModelExportQueue)
+      removeActionQueue(saveBufferQueue)
+      executionPromises.clear()
+    }
+  }, [])
+  return null
+}
+export const ModelHandlingSystem = defineSystem(
+  {
+    uuid: 'ee.editor.ModelHandlingSystem',
+    execute,
+    reactor
+  },
+  { after: [PresentationSystemGroup] }
+)

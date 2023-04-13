@@ -10,6 +10,7 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
@@ -114,79 +115,104 @@ const WarningSystemXRUI = function () {
   )
 }
 
-export default async function WarningUISystem() {
-  const transitionPeriodSeconds = 0.2
-  const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
+export const WarningUISystemState = defineState({
+  name: 'WarningUISystemState',
+  initial: () => {
+    return {
+      ui: null! as ReturnType<typeof createXRUI>,
+      transition: null! as ReturnType<typeof createTransitionState>
+    }
+  }
+})
 
-  const ui = createXRUI(WarningSystemXRUI)
-  removeComponent(ui.entity, VisibleComponent)
+const transitionPeriodSeconds = 0.2
+function TransitionReactor() {
+  const state = useHookstate(getMutableState(WarningUIState))
+  const transition = useHookstate(getMutableState(WarningUISystemState).transition).value
 
-  const reactor = startReactor(function () {
-    const state = useHookstate(getMutableState(WarningUIState))
+  useEffect(() => {
+    if (state.open.value) {
+      transition.setState('IN')
+    } else {
+      transition.setState('OUT')
+    }
+  }, [state.open])
 
-    useEffect(() => {
-      if (state.open.value) {
-        transition.setState('IN')
-      } else {
-        transition.setState('OUT')
-      }
-    }, [state.open])
+  return null
+}
 
-    return null
-  })
+let accumulator = 0
 
+const execute = () => {
   const state = getState(WarningUIState)
+  const { transition, ui } = getState(WarningUISystemState)
 
-  addComponent(ui.entity, NameComponent, 'Warning XRUI')
-
-  let accumulator = 0
-
-  const execute = () => {
-    if (state.timeRemaining > 0) {
-      accumulator += Engine.instance.deltaSeconds
-      if (state.open && accumulator > 1) {
-        const timeRemaining = Math.max(0, state.timeRemaining - 1)
-        getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
-        if (timeRemaining === 0) {
-          const action = state.action
-          if (action) action()
-          WarningUIService.closeWarning()
-        }
-        accumulator = 0
+  if (state.timeRemaining > 0) {
+    accumulator += Engine.instance.deltaSeconds
+    if (state.open && accumulator > 1) {
+      const timeRemaining = Math.max(0, state.timeRemaining - 1)
+      getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
+      if (timeRemaining === 0) {
+        const action = state.action
+        if (action) action()
+        WarningUIService.closeWarning()
       }
+      accumulator = 0
     }
+  }
 
-    if (transition.state === 'OUT' && transition.alpha === 0) {
-      removeComponent(ui.entity, ComputedTransformComponent)
-      return
-    }
+  if (transition.state === 'OUT' && transition.alpha === 0) {
+    removeComponent(ui.entity, ComputedTransformComponent)
+    return
+  }
 
-    const xrui = getComponent(ui.entity, XRUIComponent)
+  const xrui = getComponent(ui.entity, XRUIComponent)
 
-    if (transition.state === 'IN') {
-      setComponent(ui.entity, ComputedTransformComponent, {
-        referenceEntity: Engine.instance.cameraEntity,
-        computeFunction: () => {
-          ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, 0.3, 0.2)
-        }
-      })
-    }
-
-    transition.update(Engine.instance.deltaSeconds, (opacity) => {
-      xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-        const mat = layer.contentMesh.material as MeshBasicMaterial
-        mat.opacity = opacity
-        mat.visible = opacity > 0
-        layer.visible = opacity > 0
-      })
-      setVisibleComponent(ui.entity, opacity > 0)
+  if (transition.state === 'IN') {
+    setComponent(ui.entity, ComputedTransformComponent, {
+      referenceEntity: Engine.instance.cameraEntity,
+      computeFunction: () => {
+        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, 0.3, 0.2)
+      }
     })
   }
 
-  const cleanup = async () => {
-    removeEntity(ui.entity)
-    await reactor.stop()
-  }
-
-  return { execute, cleanup }
+  transition.update(Engine.instance.deltaSeconds, (opacity) => {
+    xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+      const mat = layer.contentMesh.material as MeshBasicMaterial
+      mat.opacity = opacity
+      mat.visible = opacity > 0
+      layer.visible = opacity > 0
+    })
+    setVisibleComponent(ui.entity, opacity > 0)
+  })
 }
+
+const reactor = () => {
+  useEffect(() => {
+    const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
+
+    const ui = createXRUI(WarningSystemXRUI)
+    removeComponent(ui.entity, VisibleComponent)
+    addComponent(ui.entity, NameComponent, 'Warning XRUI')
+
+    getMutableState(WarningUISystemState).set({
+      ui,
+      transition
+    })
+
+    return () => {
+      removeEntity(ui.entity)
+    }
+  }, [])
+  return <TransitionReactor />
+}
+
+export const WarningUISystem = defineSystem(
+  {
+    uuid: 'ee.client.WarningUISystem',
+    execute,
+    reactor
+  },
+  { after: [PresentationSystemGroup] }
+)
