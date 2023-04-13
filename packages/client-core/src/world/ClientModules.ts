@@ -1,6 +1,6 @@
 import { MediaModule } from '@etherealengine/engine/src/audio/MediaModule'
-import { AvatarClientModule } from '@etherealengine/engine/src/avatar/AvatarClientModule'
-import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
+import { AvatarClientSystems } from '@etherealengine/engine/src/avatar/AvatarClientSystems'
+import { AvatarCommonSystems } from '@etherealengine/engine/src/avatar/AvatarCommonSystems'
 import { CameraModule } from '@etherealengine/engine/src/camera/CameraModule'
 import { DebugModule } from '@etherealengine/engine/src/debug/DebugModule'
 import { ECSSerializationModule } from '@etherealengine/engine/src/ecs/ECSSerializationModule'

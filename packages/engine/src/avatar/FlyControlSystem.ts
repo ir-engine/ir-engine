@@ -97,11 +97,8 @@ const reactor = () => {
   return null
 }
 
-export const FlyControlSystem = defineSystem(
-  {
-    uuid: 'ee.engine.FlyControlSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const FlyControlSystem = defineSystem({
+  uuid: 'ee.engine.FlyControlSystem',
+  execute,
+  reactor
+})

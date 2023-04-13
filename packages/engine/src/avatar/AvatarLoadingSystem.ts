@@ -28,7 +28,7 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
-import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Physics, RaycastArgs } from '../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
@@ -300,11 +300,8 @@ const reactor = () => {
   return null
 }
 
-export const AvatarLoadingSystem = defineSystem(
-  {
-    uuid: 'ee.engine.AvatarLoadingSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const AvatarLoadingSystem = defineSystem({
+  uuid: 'ee.engine.AvatarLoadingSystem',
+  execute,
+  reactor
+})

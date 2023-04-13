@@ -98,11 +98,8 @@ const reactor = () => {
   return null
 }
 
-export const BehaveGraphSystem = defineSystem(
-  {
-    uuid: 'ee.engine.BehaveGraphSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const BehaveGraphSystem = defineSystem({
+  uuid: 'ee.engine.BehaveGraphSystem',
+  execute,
+  reactor
+})

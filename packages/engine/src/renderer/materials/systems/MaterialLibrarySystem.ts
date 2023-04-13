@@ -31,11 +31,8 @@ const reactor = () => {
   return null
 }
 
-export const MaterialLibrarySystem = defineSystem(
-  {
-    uuid: 'ee.engine.MaterialLibrarySystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const MaterialLibrarySystem = defineSystem({
+  uuid: 'ee.engine.MaterialLibrarySystem',
+  execute,
+  reactor
+})

@@ -63,11 +63,8 @@ const reactor = () => {
   return null
 }
 
-export const EnvironmentSystem = defineSystem(
-  {
-    uuid: 'ee.engine.EnvironmentSystem',
-    execute: () => {},
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const EnvironmentSystem = defineSystem({
+  uuid: 'ee.engine.EnvironmentSystem',
+  execute: () => {},
+  reactor
+})

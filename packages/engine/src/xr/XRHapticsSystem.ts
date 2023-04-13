@@ -1,6 +1,9 @@
+import { useEffect } from 'react'
+
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { XRAction } from './XRState'
 
 /** haptic typings are currently incomplete */
@@ -13,22 +16,29 @@ type Haptic = {
   pulse: (value: number, duration: number) => void
 }
 
-export default async function XRHapticsSystem() {
-  const vibrateControllerQueue = createActionQueue(XRAction.vibrateController.matches)
+const vibrateControllerQueue = createActionQueue(XRAction.vibrateController.matches)
 
-  const execute = () => {
-    for (const action of vibrateControllerQueue()) {
-      for (const inputSource of Engine.instance.inputSources) {
-        if (inputSource.handedness === action.handedness && inputSource.gamepad?.hapticActuators?.length) {
-          ;(inputSource.gamepad.hapticActuators[0] as Haptic).pulse(action.value, action.duration)
-        }
+const execute = () => {
+  for (const action of vibrateControllerQueue()) {
+    for (const inputSource of Engine.instance.inputSources) {
+      if (inputSource.handedness === action.handedness && inputSource.gamepad?.hapticActuators?.length) {
+        ;(inputSource.gamepad.hapticActuators[0] as Haptic).pulse(action.value, action.duration)
       }
     }
   }
-
-  const cleanup = async () => {
-    removeActionQueue(vibrateControllerQueue)
-  }
-
-  return { execute, cleanup, subsystems: [] }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    return () => {
+      removeActionQueue(vibrateControllerQueue)
+    }
+  }, [])
+  return null
+}
+
+export const XRHapticsSystem = defineSystem({
+  uuid: 'ee.engine.XRHapticsSystem',
+  execute,
+  reactor
+})

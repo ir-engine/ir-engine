@@ -6,10 +6,7 @@ const execute = () => {
   applyIncomingActions()
 }
 
-export const IncomingActionSystem = defineSystem(
-  {
-    uuid: 'ee.engine.IncomingActionSystem',
-    execute
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const IncomingActionSystem = defineSystem({
+  uuid: 'ee.engine.IncomingActionSystem',
+  execute
+})

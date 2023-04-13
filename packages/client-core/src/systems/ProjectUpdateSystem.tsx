@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { ProjectUpdateActions, ProjectUpdateReceptors } from '../admin/services/ProjectUpdateService'
@@ -29,11 +29,8 @@ const reactor = () => {
   return null
 }
 
-export const ProjectUpdateSystem = defineSystem(
-  {
-    uuid: 'ee.client.ProjectUpdateSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const ProjectUpdateSystem = defineSystem({
+  uuid: 'ee.client.ProjectUpdateSystem',
+  execute,
+  reactor
+})

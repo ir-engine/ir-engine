@@ -1,5 +1,5 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
@@ -52,10 +52,7 @@ const execute = () => {
   }
 }
 
-export const UpdateNearbyUsersSystem = defineSystem(
-  {
-    uuid: 'ee.client.UpdateNearbyUsersSystem',
-    execute
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const UpdateNearbyUsersSystem = defineSystem({
+  uuid: 'ee.client.UpdateNearbyUsersSystem',
+  execute
+})

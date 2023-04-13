@@ -65,11 +65,8 @@ const reactor = () => {
   return null
 }
 
-export const MediaControlSystem = defineSystem(
-  {
-    uuid: 'ee.engine.MediaControlSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const MediaControlSystem = defineSystem({
+  uuid: 'ee.engine.MediaControlSystem',
+  execute,
+  reactor
+})

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
@@ -27,11 +27,8 @@ const reactor = () => {
   return null
 }
 
-export const GizmoSystem = defineSystem(
-  {
-    uuid: 'ee.editor.GizmoSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const GizmoSystem = defineSystem({
+  uuid: 'ee.editor.GizmoSystem',
+  execute,
+  reactor
+})

@@ -14,7 +14,7 @@ import {
   removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
@@ -112,11 +112,8 @@ const reactor = () => {
   return null
 }
 
-export const AvatarControllerSystem = defineSystem(
-  {
-    uuid: 'ee.engine.AvatarControllerSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const AvatarControllerSystem = defineSystem({
+  uuid: 'ee.engine.AvatarControllerSystem',
+  execute,
+  reactor
+})

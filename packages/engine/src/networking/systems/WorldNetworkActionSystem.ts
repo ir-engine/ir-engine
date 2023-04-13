@@ -39,11 +39,8 @@ const reactor = () => {
   return null
 }
 
-export const WorldNetworkActionSystem = defineSystem(
-  {
-    uuid: 'ee.engine.WorldNetworkActionSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const WorldNetworkActionSystem = defineSystem({
+  uuid: 'ee.engine.WorldNetworkActionSystem',
+  execute,
+  reactor
+})

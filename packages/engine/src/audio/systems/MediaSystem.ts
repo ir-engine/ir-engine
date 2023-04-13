@@ -18,7 +18,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '../../ecs/functions/SystemFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
@@ -285,11 +285,8 @@ const reactor = () => {
   return null
 }
 
-export const MediaSystem = defineSystem(
-  {
-    uuid: 'ee.engine.MediaSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const MediaSystem = defineSystem({
+  uuid: 'ee.engine.MediaSystem',
+  execute,
+  reactor
+})

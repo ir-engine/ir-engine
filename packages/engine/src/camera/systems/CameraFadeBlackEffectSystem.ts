@@ -70,11 +70,8 @@ const reactor = () => {
   return null
 }
 
-export const CameraFadeBlackEffectSystem = defineSystem(
-  {
-    uuid: 'ee.engine.CameraFadeBlackEffectSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const CameraFadeBlackEffectSystem = defineSystem({
+  uuid: 'ee.engine.CameraFadeBlackEffectSystem',
+  execute,
+  reactor
+})

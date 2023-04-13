@@ -403,11 +403,8 @@ const reactor = () => {
   return null
 }
 
-export const WebGLRendererSystem = defineSystem(
-  {
-    uuid: 'ee.engine.WebGLRendererSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const WebGLRendererSystem = defineSystem({
+  uuid: 'ee.engine.WebGLRendererSystem',
+  execute,
+  reactor
+})

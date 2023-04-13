@@ -18,7 +18,7 @@ import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/function
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { createGroupQueryReactor, GroupReactorProps, startGroupQueryReactor } from '../components/GroupComponent'
+import { createGroupQueryReactor, GroupReactorProps } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { FogType } from '../constants/FogType'
@@ -184,11 +184,8 @@ const reactor = ({ root }: ReactorProps) => {
   return <FogGroupQueryReactor root={root} />
 }
 
-export const FogSystem = defineSystem(
-  {
-    uuid: 'ee.engine.FogSystem',
-    execute: () => {},
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const FogSystem = defineSystem({
+  uuid: 'ee.engine.FogSystem',
+  execute: () => {},
+  reactor
+})

@@ -32,7 +32,7 @@ import {
   EntityTreeComponent,
   getEntityNodeArrayFromEntities
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -679,12 +679,9 @@ const reactor = () => {
   return null
 }
 
-export const EditorControlSystem = defineSystem(
-  {
-    uuid: 'ee.editor.EditorControlSystem',
-    execute,
-    reactor,
-    subsystems: [EditorSelectionReceptor, EditorHistoryReceptor]
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const EditorControlSystem = defineSystem({
+  uuid: 'ee.editor.EditorControlSystem',
+  execute,
+  reactor,
+  subsystems: [EditorSelectionReceptor, EditorHistoryReceptor]
+})

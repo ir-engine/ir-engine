@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { addActionReceptor, getMutableState, none, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { FaceRetouchingNatural, Send } from '@mui/icons-material'
@@ -88,11 +88,8 @@ const reactor = () => {
   return null
 }
 
-export const UserUISystem = defineSystem(
-  {
-    uuid: 'ee.client.UserUISystem',
-    execute: () => {},
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const UserUISystem = defineSystem({
+  uuid: 'ee.client.UserUISystem',
+  execute: () => {},
+  reactor
+})

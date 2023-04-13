@@ -171,11 +171,8 @@ const reactor = () => {
   return null
 }
 
-export const MountPointSystem = defineSystem(
-  {
-    uuid: 'ee.engine.MountPointSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const MountPointSystem = defineSystem({
+  uuid: 'ee.engine.MountPointSystem',
+  execute,
+  reactor
+})

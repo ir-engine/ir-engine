@@ -149,11 +149,8 @@ const reactor = ({ root }: ReactorProps) => {
   return <DebugReactor root={root} />
 }
 
-export const DebugRendererSystem = defineSystem(
-  {
-    uuid: 'ee.engine.DebugRendererSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const DebugRendererSystem = defineSystem({
+  uuid: 'ee.engine.DebugRendererSystem',
+  execute,
+  reactor
+})

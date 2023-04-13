@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
@@ -307,11 +307,8 @@ const reactor = () => {
   return null
 }
 
-export const AdminSystem = defineSystem(
-  {
-    uuid: 'ee.client.AdminSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const AdminSystem = defineSystem({
+  uuid: 'ee.client.AdminSystem',
+  execute,
+  reactor
+})

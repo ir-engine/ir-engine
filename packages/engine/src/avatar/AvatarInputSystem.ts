@@ -13,7 +13,7 @@ import {
   removeComponent,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
@@ -178,10 +178,7 @@ const execute = () => {
   }
 }
 
-export const AvatarInputSystem = defineSystem(
-  {
-    uuid: 'ee.engine.AvatarInputSystem',
-    execute
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const AvatarInputSystem = defineSystem({
+  uuid: 'ee.engine.AvatarInputSystem',
+  execute
+})

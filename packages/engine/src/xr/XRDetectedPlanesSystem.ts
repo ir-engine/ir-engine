@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   BoxGeometry,
   BufferAttribute,
@@ -10,7 +11,7 @@ import {
 } from 'three'
 import matches from 'ts-matches'
 
-import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -22,6 +23,7 @@ import {
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -126,62 +128,74 @@ export const lostPlane = (plane: XRPlane, entity: Entity) => {
 export const detectedPlanesMap = new Map<XRPlane, Entity>()
 export const planesLastChangedTimes = new Map<XRPlane, number>()
 
-export default async function XRDetectedPlanesSystem() {
-  const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
-  // detected planes should have significantly different poses very infrequently, so we can afford to run this at a low priority
-  const planesQueue = createPriorityQueue({
-    accumulationBudget: 1
-  })
+// detected planes should have significantly different poses very infrequently, so we can afford to run this at a low priority
+const planesQueue = createPriorityQueue({
+  accumulationBudget: 1
+})
 
-  const execute = () => {
-    for (const action of xrSessionChangedQueue()) {
-      if (!action.active) {
-        for (const [plane, entity] of detectedPlanesMap) {
-          lostPlane(plane, entity)
-          detectedPlanesMap.delete(plane)
-          planesLastChangedTimes.delete(plane)
-        }
-        return
-      }
-    }
-
-    const frame = Engine.instance.xrFrame as XRFrame & DetectedPlanesType
-    if (!frame?.detectedPlanes || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
-
-    for (const [plane, entity] of detectedPlanesMap) {
-      if (!frame.detectedPlanes.has(plane)) {
+const execute = () => {
+  for (const action of xrSessionChangedQueue()) {
+    if (!action.active) {
+      for (const [plane, entity] of detectedPlanesMap) {
         lostPlane(plane, entity)
         detectedPlanesMap.delete(plane)
         planesLastChangedTimes.delete(plane)
       }
-    }
-
-    for (const plane of frame.detectedPlanes) {
-      if (!detectedPlanesMap.has(plane)) {
-        foundPlane(plane)
-      }
-      const entity = detectedPlanesMap.get(plane)!
-      planesQueue.addPriority(entity, 1)
-    }
-
-    planesQueue.update()
-
-    for (const entity of planesQueue.priorityEntities) {
-      const plane = getComponent(entity, XRPlaneComponent).plane
-      const lastKnownTime = planesLastChangedTimes.get(plane)!
-      if (plane.lastChangedTime > lastKnownTime) {
-        updatePlaneGeometry(entity, getComponent(entity, XRPlaneComponent).plane)
-      }
-    }
-
-    for (const entity of planesQueue.priorityEntities) {
-      const plane = getComponent(entity, XRPlaneComponent).plane
-      updatePlanePose(entity, plane)
+      return
     }
   }
 
-  const cleanup = async () => {}
+  const frame = Engine.instance.xrFrame as XRFrame & DetectedPlanesType
+  if (!frame?.detectedPlanes || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
 
-  return { execute, cleanup }
+  for (const [plane, entity] of detectedPlanesMap) {
+    if (!frame.detectedPlanes.has(plane)) {
+      lostPlane(plane, entity)
+      detectedPlanesMap.delete(plane)
+      planesLastChangedTimes.delete(plane)
+    }
+  }
+
+  for (const plane of frame.detectedPlanes) {
+    if (!detectedPlanesMap.has(plane)) {
+      foundPlane(plane)
+    }
+    const entity = detectedPlanesMap.get(plane)!
+    planesQueue.addPriority(entity, 1)
+  }
+
+  planesQueue.update()
+
+  for (const entity of planesQueue.priorityEntities) {
+    const plane = getComponent(entity, XRPlaneComponent).plane
+    const lastKnownTime = planesLastChangedTimes.get(plane)!
+    if (plane.lastChangedTime > lastKnownTime) {
+      updatePlaneGeometry(entity, getComponent(entity, XRPlaneComponent).plane)
+    }
+  }
+
+  for (const entity of planesQueue.priorityEntities) {
+    const plane = getComponent(entity, XRPlaneComponent).plane
+    updatePlanePose(entity, plane)
+  }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    return () => {
+      removeActionQueue(xrSessionChangedQueue)
+      detectedPlanesMap.clear()
+      planesLastChangedTimes.clear()
+      planesQueue.reset()
+    }
+  }, [])
+  return null
+}
+
+export const XRDetectedPlanesSystem = defineSystem({
+  uuid: 'ee.engine.XRDetectedPlanesSystem',
+  execute,
+  reactor
+})

@@ -214,11 +214,8 @@ const reactor = () => {
   return null
 }
 
-export const MotionCaptureSystem = defineSystem(
-  {
-    uuid: 'ee.engine.MotionCaptureSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const MotionCaptureSystem = defineSystem({
+  uuid: 'ee.engine.MotionCaptureSystem',
+  execute,
+  reactor
+})

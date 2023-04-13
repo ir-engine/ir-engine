@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { addActionReceptor, getMutableState, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
@@ -40,11 +40,8 @@ const reactor = () => {
   return null
 }
 
-export const EditorInstanceNetworkingSystem = defineSystem(
-  {
-    uuid: 'ee.editor.EditorInstanceNetworkingSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const EditorInstanceNetworkingSystem = defineSystem({
+  uuid: 'ee.editor.EditorInstanceNetworkingSystem',
+  execute,
+  reactor
+})

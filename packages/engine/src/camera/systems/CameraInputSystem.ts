@@ -209,11 +209,8 @@ const reactor = () => {
   return null
 }
 
-export const CameraInputSystem = defineSystem(
-  {
-    uuid: 'ee.engine.CameraInputSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const CameraInputSystem = defineSystem({
+  uuid: 'ee.engine.CameraInputSystem',
+  execute,
+  reactor
+})

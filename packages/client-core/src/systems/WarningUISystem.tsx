@@ -10,7 +10,7 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
@@ -208,11 +208,8 @@ const reactor = () => {
   return <TransitionReactor />
 }
 
-export const WarningUISystem = defineSystem(
-  {
-    uuid: 'ee.client.WarningUISystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const WarningUISystem = defineSystem({
+  uuid: 'ee.client.WarningUISystem',
+  execute,
+  reactor
+})

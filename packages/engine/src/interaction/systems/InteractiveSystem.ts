@@ -165,11 +165,8 @@ const reactor = () => {
   return null
 }
 
-export const InteractiveSystem = defineSystem(
-  {
-    uuid: 'ee.engine.InteractiveSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const InteractiveSystem = defineSystem({
+  uuid: 'ee.engine.InteractiveSystem',
+  execute,
+  reactor
+})

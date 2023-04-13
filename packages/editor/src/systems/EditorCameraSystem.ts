@@ -7,7 +7,7 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -116,10 +116,7 @@ const execute = () => {
   }
 }
 
-export const EditorCameraSystem = defineSystem(
-  {
-    uuid: 'ee.editor.EditorCameraSystem',
-    execute
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const EditorCameraSystem = defineSystem({
+  uuid: 'ee.editor.EditorCameraSystem',
+  execute
+})

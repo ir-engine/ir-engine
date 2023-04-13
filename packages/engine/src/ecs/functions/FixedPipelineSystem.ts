@@ -37,7 +37,7 @@ const execute = () => {
     engineState.fixedTick.set(engineState.fixedTick.value + 1)
     engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
 
-    const s = Engine.instance.systems.get(SimulationSystemGroup)!
+    const s = Engine.instance.systemDefinitions.get(SimulationSystemGroup)!
     if (s.enabled) s.execute()
 
     accumulator -= timestep
@@ -56,10 +56,7 @@ const execute = () => {
   }
 }
 
-export const FixedPipelineSystem = defineSystem(
-  {
-    uuid: 'ee.engine.FixedPipelineSystem',
-    execute
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const FixedPipelineSystem = defineSystem({
+  uuid: 'ee.engine.FixedPipelineSystem',
+  execute
+})

@@ -1,14 +1,16 @@
 import { createGLTFLoader } from '../assets/functions/createGLTFLoader'
-import BehaveGraphSystem from '../behave-graph/systems/BehaveGraphSystem'
+import { BehaveGraphSystem } from '../behave-graph/systems/BehaveGraphSystem'
 import { Engine } from '../ecs/classes/Engine'
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
-import SceneLoadingSystem from './systems/SceneLoadingSystem'
-import SceneObjectSystem from './systems/SceneObjectSystem'
-import SceneObjectUpdateSystem from './systems/SceneObjectUpdateSystem'
-import TriggerSystem from './systems/TriggerSystem'
+import { PostAvatarUpdateSystemGroup, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
+import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
+import { SceneObjectSystem } from './systems/SceneObjectSystem'
+import { SceneObjectUpdateSystem } from './systems/SceneObjectUpdateSystem'
+import { TriggerSystem } from './systems/TriggerSystem'
 
 export function SceneCommonModule() {
-  Engine.instance.gltfLoader = createGLTFLoader()
+  insertSystems([SceneObjectSystem], 'before', PostAvatarUpdateSystemGroup)
+  insertSystems([XRSystem], 'before', InputSystemGroup)
+  insertSystems([XRSystem], 'before', InputSystemGroup)
   return [
     {
       uuid: 'xre.engine.SceneObjectSystem',

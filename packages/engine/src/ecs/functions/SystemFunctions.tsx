@@ -1,18 +1,15 @@
-/** Functions to provide system level functionalities. */
-
 import React, { Suspense } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { defineState, getMutableState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, ReactorProps, ReactorRoot } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { defineQuery, EntityRemovedComponent, Query, QueryComponents, useQuery } from './ComponentFunctions'
+import { defineQuery, EntityRemovedComponent, QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityReactorProps, removeEntity } from './EntityFunctions'
-import { SystemUpdateType } from './SystemUpdateType'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
@@ -35,7 +32,7 @@ const wrapExecute = (system: Required<System>) => {
 
   return () => {
     for (const preSystem of system.preSystems) {
-      const preSystemInstance = Engine.instance.systems.get(preSystem)
+      const preSystemInstance = Engine.instance.systemDefinitions.get(preSystem)
       if (preSystemInstance) {
         preSystemInstance.execute()
       }
@@ -54,13 +51,13 @@ const wrapExecute = (system: Required<System>) => {
       logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
     }
     for (const subSystem of system.subSystems) {
-      const subSystemInstance = Engine.instance.systems.get(subSystem)
+      const subSystemInstance = Engine.instance.systemDefinitions.get(subSystem)
       if (subSystemInstance) {
         subSystemInstance.execute()
       }
     }
     for (const postSystem of system.postSystems) {
-      const postSystemInstance = Engine.instance.systems.get(postSystem)
+      const postSystemInstance = Engine.instance.systemDefinitions.get(postSystem)
       if (postSystemInstance) {
         postSystemInstance.execute()
       }
@@ -68,11 +65,8 @@ const wrapExecute = (system: Required<System>) => {
   }
 }
 
-export function defineSystem(
-  systemConfig: Omit<System, 'preSystems' | 'postSystems'>,
-  insert?: { [key in SystemInsertOrder]?: SystemUUID[] }
-) {
-  if (Engine.instance.systems.has(systemConfig.uuid)) {
+export function defineSystem(systemConfig: Omit<System, 'preSystems' | 'postSystems'>) {
+  if (Engine.instance.systemDefinitions.has(systemConfig.uuid)) {
     throw new Error(`System ${systemConfig.uuid} already exists.`)
   }
 
@@ -88,55 +82,75 @@ export function defineSystem(
 
   system.execute = wrapExecute(system)
 
-  Engine.instance.systems.set(systemConfig.uuid, system)
-  if (insert) {
-    function insertIntoSystem(systemUUID: SystemUUID, insertUUID: SystemUUID, insertOrder: SystemInsertOrder) {
-      const system = Engine.instance.systems.get(systemUUID)
-      if (system) {
-        if (insertOrder === 'before') {
-          system.preSystems.push(insertUUID)
-        } else if (insertOrder === 'after') {
-          system.postSystems.push(insertUUID)
-        } else if (insertOrder === 'with') {
-          system.subSystems.push(insertUUID)
-        }
-      } else {
-        throw new Error(
-          `System ${systemUUID} does not exist. You may have a circular dependency in your system definitions.`
-        )
+  Engine.instance.systemDefinitions.set(systemConfig.uuid, system)
+
+  return systemConfig.uuid as SystemUUID
+}
+
+export function insertSystems(referenceUUIDs: SystemUUID[], insertOrder: SystemInsertOrder, systemUUID: SystemUUID) {
+  for (const referenceUUID of referenceUUIDs) {
+    const system = Engine.instance.systemDefinitions.get(referenceUUID)
+    if (system) {
+      if (insertOrder === 'before') {
+        system.preSystems.push(systemUUID)
+      } else if (insertOrder === 'after') {
+        system.postSystems.push(systemUUID)
+      } else if (insertOrder === 'with') {
+        system.subSystems.push(systemUUID)
       }
-    }
-    for (const order in insert) {
-      insert[order].forEach((insertUUID) => {
-        insertIntoSystem(systemConfig.uuid as SystemUUID, insertUUID, order as SystemInsertOrder)
-      })
+    } else {
+      throw new Error(
+        `System ${referenceUUID} does not exist. You may have a circular dependency in your system definitions.`
+      )
     }
   }
-  return systemConfig.uuid as SystemUUID
+}
+export const unloadAllSystems = () => {}
+
+export const unloadSystems = (uuids: string[]) => {
+  // const systemsToUnload = uuids.map((uuid) => Engine.instance.systemsByUUID[uuid])
+  // const promises = [] as Promise<void>[]
+  // for (const system of systemsToUnload) {
+  //   const pipeline = Engine.instance.pipelines[system.type]
+  //   const i = pipeline.indexOf(system)
+  //   pipeline.splice(i, 1)
+  //   delete Engine.instance.systemsByUUID[system.uuid]
+  //   promises.push(system.cleanup())
+  // }
+  // return promises
+}
+
+export const unloadSystem = (uuid: string) => {
+  // const systemToUnload = Engine.instance.systemsByUUID[uuid]
+  // const pipeline = Engine.instance.pipelines[systemToUnload.type]
+  // const i = pipeline.indexOf(systemToUnload)
+  // pipeline.splice(i, 1)
+  // delete Engine.instance.systemsByUUID[systemToUnload.uuid]
+  // return systemToUnload.cleanup()
 }
 
 export const InputSystemGroup = defineSystem({
   uuid: 'ee.engine.input-group',
-  execute: () => {},
-  subSystems: [] //'ee.engine.input']
+  execute: () => {}
+  // subSystems: [] //'ee.engine.input']
 })
 
 export const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
-  execute: () => {},
-  subSystems: [] //'ee.engine.avatar', 'ee.engine.physics']
+  execute: () => {}
+  // subSystems: [] //'ee.engine.avatar', 'ee.engine.physics']
 })
 
 export const PresentationSystemGroup = defineSystem({
   uuid: 'ee.engine.presentation-group',
-  execute: () => {},
-  subSystems: [] //'ee.engine.render']
+  execute: () => {}
+  // subSystems: [] //'ee.engine.render']
 })
 
 export const RootSystemGroup = defineSystem({
   uuid: 'ee.engine.root-group',
-  execute: () => {},
-  subSystems: [InputSystemGroup, SimulationSystemGroup, PresentationSystemGroup]
+  execute: () => {}
+  // subSystems: [InputSystemGroup, SimulationSystemGroup]
 })
 
 // todo, move to client only somehow maybe??
@@ -144,67 +158,9 @@ export const PostAvatarUpdateSystemGroup = defineSystem(
   {
     uuid: 'ee.engine.post-avatar-update-group',
     execute: () => {}
-  },
-  { after: ['ee.engine.avatar', SimulationSystemGroup] }
+  }
+  // { after: [AvatarSpawnSystem, SimulationSystemGroup] }
 )
-
-export type CreateSystemSyncFunctionType<A extends any> = (props?: A) => SystemDefintion
-export type CreateSystemFunctionType<A extends any> = (props?: A) => Promise<SystemDefintion>
-export type SystemModule<A extends any> = { default: CreateSystemFunctionType<A> }
-export type SystemLoader<A extends any> = () => Promise<SystemModule<A>>
-
-export interface SystemDefintion {
-  execute: () => void
-  cleanup: () => Promise<void>
-  subsystems?: Array<SystemLoader<any>>
-}
-
-/** Internal */
-interface SystemInstanceData {
-  execute: () => void
-  cleanup: () => Promise<void>
-  subsystems: SystemInstanceData[]
-}
-
-export interface SystemInstance extends SystemInstanceData {
-  name: string
-  uuid: string
-  type: SystemUpdateType
-  before?: string
-  after?: string
-  sceneSystem: boolean
-  enabled: boolean
-  subsystems: SystemInstance[]
-}
-
-export type SystemSyncFunctionType<A> = {
-  systemFunction: CreateSystemSyncFunctionType<A>
-  uuid: string
-  type: SystemUpdateType
-  args?: A
-}
-
-export type SystemModuleType<A> = {
-  systemLoader: SystemLoader<A>
-  /** any string to uniquely identity this module - can be a uuidv4 or a string name */
-  uuid: string
-  type: SystemUpdateType
-  sceneSystem?: boolean
-  /** @todo replace this with a more robust identifier */
-  before?: string
-  after?: string
-  args?: A
-}
-
-export type SystemFactoryType<A> = {
-  uuid: string
-  systemModule: SystemModule<A>
-  type: SystemUpdateType
-  before?: string
-  after?: string
-  sceneSystem?: boolean
-  args?: A
-}
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -230,7 +186,8 @@ export const executeSystems = (frameTime: number) => {
   )
   engineState.elapsedSeconds.set(worldElapsedSeconds)
 
-  for (const system of Engine.instance.systems.values()) system.enabled && system.execute()
+  const rootSystem = Engine.instance.systemDefinitions.get(RootSystemGroup)!
+  rootSystem.execute()
 
   for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)
 
@@ -247,208 +204,6 @@ export const executeSystems = (frameTime: number) => {
   if (duration > 150) {
     logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
   }
-}
-
-/** @deprecated */
-const createExecute = (system: SystemDefintion, subsystems: SystemInstanceData[], name: string, uuid: string) => {
-  let lastWarningTime = 0
-  const warningCooldownDuration = 1000 * 10 // 10 seconds
-
-  return () => {
-    const startTime = nowMilliseconds()
-    try {
-      system.execute()
-    } catch (e) {
-      logger.error(`Failed to execute system ${name}`)
-      logger.error(e)
-    }
-    const endTime = nowMilliseconds()
-    const systemDuration = endTime - startTime
-    if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
-      lastWarningTime = endTime
-      logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
-    }
-    for (const sys of subsystems) {
-      sys.execute()
-    }
-  }
-}
-/** @deprecated */
-const loadSubsystems = (parentSystemFactory: SystemFactoryType<any>, subsystems: Array<SystemLoader<any>> = []) => {
-  return Promise.all(
-    subsystems.map(async (subsystemInit, i) => {
-      const subsystem = await subsystemInit()
-      const name = subsystem.default.name
-      const uuid = name
-      const type = 'SUB_SYSTEM' as any
-      return {
-        uuid,
-        name,
-        type,
-        sceneSystem: parentSystemFactory.sceneSystem,
-        enabled: true,
-        ...(await loadSystemInjection({
-          systemModule: subsystem,
-          uuid,
-          type
-        }))
-      }
-    })
-  )
-}
-/** @deprecated */
-const loadSystemInjection = async (s: SystemFactoryType<any>, type?: SystemUpdateType, args?: any) => {
-  const name = s.systemModule.default.name
-  try {
-    if (type) logger.info(`${name} initializing on ${type} pipeline`)
-    else logger.info(`${name} initializing`)
-    const system = await s.systemModule.default(args)
-    const subsystems = await loadSubsystems(s, system.subsystems)
-    logger.info(`${name} (${s.uuid}) ready`)
-    return {
-      execute: createExecute(system, subsystems, name, s.uuid),
-      cleanup: system.cleanup,
-      subsystems
-    } as SystemInstanceData
-  } catch (e) {
-    console.error(e)
-    logger.error(new Error(`System ${name} (${s.uuid}) failed to initialize!`, { cause: e.stack }))
-    return null
-  }
-}
-/** @deprecated */
-export const initSystems = async (systemModulesToLoad: SystemModuleType<any>[]) => {
-  const systemModule = await Promise.all(
-    systemModulesToLoad.map(async (s) => {
-      return {
-        uuid: s.uuid,
-        args: s.args,
-        type: s.type,
-        before: s.before,
-        after: s.after,
-        sceneSystem: s.sceneSystem,
-        systemModule: await s.systemLoader()
-      } as SystemFactoryType<any>
-    })
-  )
-  const systems = await Promise.all(
-    systemModule.map(async (s) => {
-      return {
-        uuid: s.uuid,
-        name: s.systemModule.default.name,
-        type: s.type,
-        before: s.before,
-        after: s.after,
-        sceneSystem: s.sceneSystem,
-        enabled: true,
-        ...(await loadSystemInjection(s))
-      } as SystemInstance
-    })
-  )
-  systems.forEach((s) => {
-    if (s) {
-      Engine.instance.systemsByUUID[s.uuid] = s
-      if (s.before) {
-        const index = Engine.instance.pipelines[s.type].findIndex((system) => system.uuid === s.before)
-        if (index === -1) throw new Error(`System with id ${s.before} could not be found in pipeline ${s.type}`)
-        Engine.instance.pipelines[s.type].splice(index, 0, s)
-      } else if (s.after) {
-        const index = Engine.instance.pipelines[s.type].findIndex((system) => system.uuid === s.after)
-        if (index === -1) throw new Error(`System with id ${s.after} could not be found in pipeline ${s.type}`)
-        Engine.instance.pipelines[s.type].splice(index + 1, 0, s)
-      } else {
-        Engine.instance.pipelines[s.type].push(s)
-      }
-    }
-  })
-}
-/** @deprecated */
-export const initSystemSync = (systemArgs: SystemSyncFunctionType<any>) => {
-  const name = systemArgs.systemFunction.name
-  logger.info(`${name} initializing on ${systemArgs.type} pipeline`)
-  const system = systemArgs.systemFunction(systemArgs.args)
-  logger.info(`${name} ready`)
-  let lastWarningTime = 0
-  const warningCooldownDuration = 1000 * 10 // 10 seconds
-  const systemData = {
-    uuid: systemArgs.uuid,
-    name,
-    type: systemArgs.type,
-    sceneSystem: false,
-    enabled: true,
-    execute: () => {
-      const startTime = nowMilliseconds()
-      try {
-        system.execute()
-      } catch (e) {
-        logger.error(`Failed to execute system ${name} (${systemArgs.uuid})`)
-        logger.error(e)
-      }
-      const endTime = nowMilliseconds()
-      const systemDuration = endTime - startTime
-      if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
-        lastWarningTime = endTime
-        logger.warn(
-          `Long system execution detected. System: ${name} (${systemArgs.uuid}) \n Duration: ${systemDuration}`
-        )
-      }
-    },
-    cleanup: system.cleanup,
-    subsystems: []
-  } as SystemInstance
-  Engine.instance.systemsByUUID[systemData.uuid] = systemData
-  Engine.instance.pipelines[systemData.type].push(systemData)
-}
-/** @deprecated */
-export const unloadAllSystems = (sceneSystemsOnly = false) => {
-  const promises = [] as Promise<void>[]
-  Object.entries(Engine.instance.pipelines).forEach(([type, pipeline]) => {
-    const systemsToRemove: SystemInstance[] = []
-    pipeline.forEach((s) => {
-      if (sceneSystemsOnly) {
-        if (s.sceneSystem) systemsToRemove.push(s)
-      } else {
-        systemsToRemove.push(s)
-      }
-    })
-    systemsToRemove.forEach((s) => {
-      const i = pipeline.indexOf(s)
-      pipeline.splice(i, 1)
-      delete Engine.instance.systemsByUUID[s.uuid]
-      promises.push(s.cleanup())
-      const cleanupSubsystems = (subsystems: SystemInstance[]) => {
-        for (const subsystem of subsystems) {
-          delete Engine.instance.systemsByUUID[subsystem.uuid]
-          promises.push(subsystem.cleanup())
-          cleanupSubsystems(subsystem.subsystems)
-        }
-      }
-      cleanupSubsystems(s.subsystems)
-    })
-  })
-  return promises
-}
-/** @deprecated */
-export const unloadSystems = (uuids: string[]) => {
-  const systemsToUnload = uuids.map((uuid) => Engine.instance.systemsByUUID[uuid])
-  const promises = [] as Promise<void>[]
-  for (const system of systemsToUnload) {
-    const pipeline = Engine.instance.pipelines[system.type]
-    const i = pipeline.indexOf(system)
-    pipeline.splice(i, 1)
-    delete Engine.instance.systemsByUUID[system.uuid]
-    promises.push(system.cleanup())
-  }
-  return promises
-}
-/** @deprecated */
-export const unloadSystem = (uuid: string) => {
-  const systemToUnload = Engine.instance.systemsByUUID[uuid]
-  const pipeline = Engine.instance.pipelines[systemToUnload.type]
-  const i = pipeline.indexOf(systemToUnload)
-  pipeline.splice(i, 1)
-  delete Engine.instance.systemsByUUID[systemToUnload.uuid]
-  return systemToUnload.cleanup()
 }
 
 function QueryReactor(props: {
@@ -468,13 +223,6 @@ function QueryReactor(props: {
       ))}
     </>
   )
-}
-
-export const startQueryReactor = (Components: QueryComponents, ChildEntityReactor: React.FC<EntityReactorProps>) => {
-  if (!ChildEntityReactor.name) Object.defineProperty(ChildEntityReactor, 'name', { value: 'ChildEntityReactor' })
-  return startReactor(function HyperfluxQueryReactor({ root }: ReactorProps) {
-    return <QueryReactor query={Components} ChildEntityReactor={ChildEntityReactor} root={root} />
-  })
 }
 
 export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: React.FC<EntityReactorProps>) => {
@@ -534,6 +282,6 @@ export const MySystem = defineSystem({
   uuid: 'ee.engine.MySystem',
   execute,
   reactor
-}, { after: [PresentationSystemGroup] })
+})
 
- */
+*/

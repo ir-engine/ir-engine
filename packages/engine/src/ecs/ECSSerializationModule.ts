@@ -1,12 +1,6 @@
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
-import ECSSerializerSystem from './ECSSerializerSystem'
+import { ECSSerializerSystem } from './ECSSerializerSystem'
+import { insertSystems, PresentationSystemGroup } from './functions/SystemFunctions'
 
-export function ECSSerializationModule() {
-  return [
-    {
-      uuid: 'xre.engine.ECSSerializerSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: ECSSerializerSystem })
-    }
-  ]
+export const ECSSerializationSystems = () => {
+  insertSystems([ECSSerializerSystem], 'after', PresentationSystemGroup)
 }

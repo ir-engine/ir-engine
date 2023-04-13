@@ -33,11 +33,8 @@ const reactor = () => {
   return null
 }
 
-export const HighlightSystem = defineSystem(
-  {
-    uuid: 'ee.engine.HighlightSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const HighlightSystem = defineSystem({
+  uuid: 'ee.engine.HighlightSystem',
+  execute,
+  reactor
+})

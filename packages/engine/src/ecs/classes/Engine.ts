@@ -53,8 +53,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { System, SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
-import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { System, unloadAllSystems } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -258,26 +257,7 @@ export class Engine {
   // @todo move to EngineState
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
-  /**
-   * Custom systems injected into this world
-   * @deprecated
-   */
-  pipelines = {
-    [SystemUpdateType.UPDATE_EARLY]: [],
-    [SystemUpdateType.UPDATE]: [],
-    [SystemUpdateType.FIXED_EARLY]: [],
-    [SystemUpdateType.FIXED]: [],
-    [SystemUpdateType.FIXED_LATE]: [],
-    [SystemUpdateType.UPDATE_LATE]: [],
-    [SystemUpdateType.PRE_RENDER]: [],
-    [SystemUpdateType.RENDER]: [],
-    [SystemUpdateType.POST_RENDER]: []
-  } as { [pipeline: string]: SystemInstance[] }
-
-  systems = new Map<string, Required<System>>()
-
-  /** @deprecated */
-  systemsByUUID = {} as Record<string, SystemInstance>
+  systemDefinitions = new Map<string, Required<System>>()
 
   /**
    * Network object query

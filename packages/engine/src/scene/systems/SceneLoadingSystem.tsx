@@ -48,7 +48,7 @@ import {
   removeEntityNode,
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
-import { initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
+import { defineSystem, initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -371,55 +371,57 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
-export default async function SceneLoadingSystem() {
-  addActionReceptor(AppLoadingServiceReceptor)
+addActionReceptor(AppLoadingServiceReceptor)
 
-  let totalPendingAssets = 0
+let totalPendingAssets = 0
 
-  const sceneDataReactor = startReactor(() => {
-    const sceneData = useHookstate(getMutableState(SceneState).sceneData)
-    const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
-
-    useEffect(() => {
-      if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
-    }, [sceneData, isEngineInitialized])
-
-    return null
-  })
-
-  const onComplete = (pendingAssets: number) => {
-    const promisesCompleted = totalPendingAssets - pendingAssets
-    dispatchAction(
-      EngineActions.sceneLoadingProgress({
-        progress:
-          promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
-      })
-    )
-  }
-
-  const execute = () => {
-    if (!getMutableState(EngineState).sceneLoading.value) return
-
-    const pendingAssets = sceneAssetPendingTagQuery().length
-
-    for (const entity of sceneAssetPendingTagQuery.enter()) {
-      totalPendingAssets++
-    }
-
-    if (sceneAssetPendingTagQuery.exit().length) {
-      onComplete(pendingAssets)
-      if (pendingAssets === 0) {
-        totalPendingAssets = 0
-        dispatchAction(EngineActions.sceneLoaded({}))
-      }
-    }
-  }
-
-  const cleanup = async () => {
-    removeActionReceptor(AppLoadingServiceReceptor)
-    removeQuery(sceneAssetPendingTagQuery)
-    await sceneDataReactor.stop()
-  }
-
-  return { execute, cleanup }
+const onComplete = (pendingAssets: number) => {
+  const promisesCompleted = totalPendingAssets - pendingAssets
+  dispatchAction(
+    EngineActions.sceneLoadingProgress({
+      progress:
+        promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
+    })
+  )
 }
+
+const execute = () => {
+  if (!getMutableState(EngineState).sceneLoading.value) return
+
+  const pendingAssets = sceneAssetPendingTagQuery().length
+
+  for (const entity of sceneAssetPendingTagQuery.enter()) {
+    totalPendingAssets++
+  }
+
+  if (sceneAssetPendingTagQuery.exit().length) {
+    onComplete(pendingAssets)
+    if (pendingAssets === 0) {
+      totalPendingAssets = 0
+      dispatchAction(EngineActions.sceneLoaded({}))
+    }
+  }
+}
+
+const reactor = () => {
+  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
+
+  useEffect(() => {
+    if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
+  }, [sceneData, isEngineInitialized])
+
+  useEffect(() => {
+    return () => {
+      removeActionReceptor(AppLoadingServiceReceptor)
+      removeQuery(sceneAssetPendingTagQuery)
+    }
+  }, [])
+  return null
+}
+
+export const SceneLoadingSystem = defineSystem({
+  uuid: 'ee.engine.SceneLoadingSystem',
+  execute,
+  reactor
+})

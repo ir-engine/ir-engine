@@ -83,10 +83,7 @@ const execute = () => {
   sendOutgoingActions()
 }
 
-export const OutgoingActionSystem = defineSystem(
-  {
-    uuid: 'ee.engine.OutgoingActionSystem',
-    execute
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const OutgoingActionSystem = defineSystem({
+  uuid: 'ee.engine.OutgoingActionSystem',
+  execute
+})

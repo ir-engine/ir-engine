@@ -3,6 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { VPSSystem } from './VPSSystem'
 import { ReferenceSpace, XRState } from './XRState'
 
@@ -85,70 +86,70 @@ export const XRAnchorFunctions = {
   anchorPoses
 }
 
-export default async function XRPersistentAnchorSystem() {
-  const execute = () => {
-    const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
-    if (!frame) return
+const execute = () => {
+  const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
+  if (!frame) return
 
-    const xrSpace = ReferenceSpace.origin
-    if (!xrSpace) return
+  const xrSpace = ReferenceSpace.origin
+  if (!xrSpace) return
 
-    if (frame.trackedAnchors) {
-      const anchorsToRemove = [] as XRAnchorPersistentType[]
+  if (frame.trackedAnchors) {
+    const anchorsToRemove = [] as XRAnchorPersistentType[]
 
-      for (const anchor of anchors) {
-        if (!frame.trackedAnchors.has(anchor)) {
-          anchorsToRemove.push(anchor)
-        }
+    for (const anchor of anchors) {
+      if (!frame.trackedAnchors.has(anchor)) {
+        anchorsToRemove.push(anchor)
       }
+    }
 
-      if (anchorsToRemove.length) {
-        for (const anchor of anchorsToRemove) {
-          anchors.delete(anchor)
-        }
+    if (anchorsToRemove.length) {
+      for (const anchor of anchorsToRemove) {
+        anchors.delete(anchor)
       }
+    }
 
-      for (const anchor of frame.trackedAnchors) {
-        if (!anchors.has(anchor)) {
-          anchors.add(anchor)
-        }
+    for (const anchor of frame.trackedAnchors) {
+      if (!anchors.has(anchor)) {
+        anchors.add(anchor)
       }
+    }
 
-      for (const anchor of anchors) {
-        const knownPose = anchorPoses.get(anchor)
-        const anchorPose = frame.getPose(anchor.anchorSpace, xrSpace)
-        if (anchorPose) {
-          if (knownPose === undefined) {
-            anchorPoses.set(anchor, anchorPose)
-          } else {
-            const position = anchorPose.transform.position
-            const orientation = anchorPose.transform.orientation
-
-            const knownPosition = knownPose.transform.position
-            const knownOrientation = knownPose.transform.orientation
-
-            if (
-              position.x !== knownPosition.x ||
-              position.y !== knownPosition.y ||
-              position.z !== knownPosition.z ||
-              orientation.x !== knownOrientation.x ||
-              orientation.y !== knownOrientation.y ||
-              orientation.z !== knownOrientation.z ||
-              orientation.w !== knownOrientation.w
-            ) {
-              anchorPoses.set(anchor, anchorPose)
-            }
-          }
+    for (const anchor of anchors) {
+      const knownPose = anchorPoses.get(anchor)
+      const anchorPose = frame.getPose(anchor.anchorSpace, xrSpace)
+      if (anchorPose) {
+        if (knownPose === undefined) {
+          anchorPoses.set(anchor, anchorPose)
         } else {
-          if (knownPose !== undefined) {
-            // anchor pose changed
+          const position = anchorPose.transform.position
+          const orientation = anchorPose.transform.orientation
+
+          const knownPosition = knownPose.transform.position
+          const knownOrientation = knownPose.transform.orientation
+
+          if (
+            position.x !== knownPosition.x ||
+            position.y !== knownPosition.y ||
+            position.z !== knownPosition.z ||
+            orientation.x !== knownOrientation.x ||
+            orientation.y !== knownOrientation.y ||
+            orientation.z !== knownOrientation.z ||
+            orientation.w !== knownOrientation.w
+          ) {
+            anchorPoses.set(anchor, anchorPose)
           }
+        }
+      } else {
+        if (knownPose !== undefined) {
+          // anchor pose changed
         }
       }
     }
   }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup, subsystems: [() => Promise.resolve({ default: VPSSystem })] }
 }
+
+export const XRPersistentAnchorSystem = defineSystem({
+  uuid: 'ee.engine.XRPersistentAnchorSystem',
+  execute,
+  subSystems: [VPSSystem]
+})

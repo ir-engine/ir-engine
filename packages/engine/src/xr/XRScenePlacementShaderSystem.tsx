@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
+import React from 'react'
 import { Material, Mesh } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
 
-import { Object3DWithEntity, startGroupQueryReactor } from '../scene/components/GroupComponent'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { createGroupQueryReactor, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { XRState } from './XRState'
 
@@ -49,39 +51,39 @@ const removeShaderFromObject = (object: Object3DWithEntity) => {
  * @param world
  * @returns
  */
-export default async function XRScenePlacementShader() {
-  const xrState = getMutableState(XRState)
 
-  const xrScenePlacementReactor = startGroupQueryReactor(
-    function XRScenePLacementReactor({ obj }) {
-      const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
-      const sessionActive = useHookstate(xrState.sessionActive)
+const ScenePlacementReactor = createGroupQueryReactor(
+  function XRScenePLacementReactor({ obj }) {
+    const xrState = getMutableState(XRState)
+    const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
+    const sessionActive = useHookstate(xrState.sessionActive)
 
-      useEffect(() => {
-        const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value === 'placing'
-        if (useShader) {
-          obj.traverse(addShaderToObject)
-        } else {
-          obj.traverse(removeShaderFromObject)
-        }
-      }, [scenePlacementMode, sessionActive])
+    useEffect(() => {
+      const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value === 'placing'
+      if (useShader) {
+        obj.traverse(addShaderToObject)
+      } else {
+        obj.traverse(removeShaderFromObject)
+      }
+    }, [scenePlacementMode, sessionActive])
 
-      useEffect(() => {
-        return () => {
-          obj.traverse(removeShaderFromObject)
-        }
-      }, [])
+    useEffect(() => {
+      return () => {
+        obj.traverse(removeShaderFromObject)
+      }
+    }, [])
 
-      return null
-    },
-    [VisibleComponent]
-  )
+    return null
+  },
+  [VisibleComponent]
+)
 
-  const execute = () => {}
-
-  const cleanup = async () => {
-    xrScenePlacementReactor.stop()
-  }
-
-  return { execute, cleanup }
+const reactor = ({ root }: ReactorProps) => {
+  return <ScenePlacementReactor root={root} />
 }
+
+export const XRScenePlacementShaderSystem = defineSystem({
+  uuid: 'ee.engine.XRScenePlacementShaderSystem',
+  execute: () => {},
+  reactor
+})

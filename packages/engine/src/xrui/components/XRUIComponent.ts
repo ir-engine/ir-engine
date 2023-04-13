@@ -1,7 +1,8 @@
+import { getState } from '@etherealengine/hyperflux'
 import type { WebContainer3D } from '@etherealengine/xrui'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRUIManager } from '../classes/XRUIManager'
+import { XRUIState } from '../systems/XRUISystem'
 
 export const XRUIComponent = defineComponent({
   name: 'XRUIComponent',
@@ -13,7 +14,7 @@ export const XRUIComponent = defineComponent({
   onSet: (entity, component, json: WebContainer3D) => {
     if (typeof json !== 'undefined') {
       component.set(json)
-      component.value.interactionRays = XRUIManager.instance.interactionRays
+      component.value.interactionRays = getState(XRUIState).interactionRays
     }
   },
 

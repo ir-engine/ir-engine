@@ -60,11 +60,8 @@ const reactor = () => {
   return null
 }
 
-export const OutgoingNetworkSystem = defineSystem(
-  {
-    uuid: 'ee.engine.OutgoingNetworkSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const OutgoingNetworkSystem = defineSystem({
+  uuid: 'ee.engine.OutgoingNetworkSystem',
+  execute,
+  reactor
+})

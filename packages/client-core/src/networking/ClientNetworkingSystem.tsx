@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
   addActionReceptor,
   createActionQueue,
@@ -174,11 +174,8 @@ const reactor = () => {
   )
 }
 
-export const ClientNetworkingSystem = defineSystem(
-  {
-    uuid: 'ee.client.ClientNetworkingSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const ClientNetworkingSystem = defineSystem({
+  uuid: 'ee.client.ClientNetworkingSystem',
+  execute,
+  reactor
+})

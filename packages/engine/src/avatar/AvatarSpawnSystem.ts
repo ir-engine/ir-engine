@@ -6,7 +6,7 @@ import { createActionQueue, getMutableState, none, removeActionQueue } from '@et
 
 import { isClient } from '../common/functions/isClient'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
 import { NetworkState } from '../networking/NetworkState'
@@ -121,11 +121,8 @@ const reactor = () => {
   return null
 }
 
-export const AvatarSpawnSystem = defineSystem(
-  {
-    uuid: 'ee.engine.AvatarSpawnSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const AvatarSpawnSystem = defineSystem({
+  uuid: 'ee.engine.AvatarSpawnSystem',
+  execute,
+  reactor
+})

@@ -28,7 +28,7 @@ import {
   removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -364,11 +364,8 @@ const reactor = () => {
   return <AvatarAnimationReactor />
 }
 
-export const AvatarAnimationSystem = defineSystem(
-  {
-    uuid: 'ee.engine.AvatarAnimationSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const AvatarAnimationSystem = defineSystem({
+  uuid: 'ee.engine.AvatarAnimationSystem',
+  execute,
+  reactor
+})

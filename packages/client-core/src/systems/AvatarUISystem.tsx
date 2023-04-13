@@ -19,7 +19,7 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '@etherealengine/engine/src/networking/MediaSettingsState'
@@ -263,11 +263,8 @@ const reactor = () => {
   return null
 }
 
-export const AvatarUISystem = defineSystem(
-  {
-    uuid: 'ee.client.AvatarUISystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const AvatarUISystem = defineSystem({
+  uuid: 'ee.client.AvatarUISystem',
+  execute,
+  reactor
+})

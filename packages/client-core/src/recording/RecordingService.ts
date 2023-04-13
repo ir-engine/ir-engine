@@ -4,7 +4,7 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 import { IKSerialization } from '@etherealengine/engine/src/avatar/IKSerialization'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
@@ -98,11 +98,8 @@ const reactor = () => {
   return null
 }
 
-export const WebcamInputSystem = defineSystem(
-  {
-    uuid: 'ee.client.WebcamInputSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const WebcamInputSystem = defineSystem({
+  uuid: 'ee.client.WebcamInputSystem',
+  execute,
+  reactor
+})

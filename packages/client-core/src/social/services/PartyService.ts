@@ -9,7 +9,7 @@ import { PartyUser } from '@etherealengine/common/src/interfaces/PartyUser'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
   createActionQueue,
   defineAction,
@@ -447,14 +447,11 @@ const reactor = () => {
   return null
 }
 
-export const PartyServiceReceptorSystem = defineSystem(
-  {
-    uuid: 'ee.client.PartyServiceReceptorSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const PartyServiceReceptorSystem = defineSystem({
+  uuid: 'ee.client.PartyServiceReceptorSystem',
+  execute,
+  reactor
+})
 
 export const PartyServiceReceptors = {
   loadedPartyReceptor,

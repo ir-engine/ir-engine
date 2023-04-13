@@ -1,4 +1,5 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 
@@ -14,18 +15,17 @@ export async function validateNetworkObjects(network: SocketWebRTCServerNetwork)
   }
 }
 
-export default async function ServerHostNetworkSystem() {
-  const VALIDATE_NETWORK_INTERVAL = Engine.instance.tickRate * 5
+const VALIDATE_NETWORK_INTERVAL = Engine.instance.tickRate * 5
 
-  const execute = () => {
-    const network = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
-    if (!network) return
-    if (Engine.instance.worldNetwork.isHosting && Engine.instance.fixedTick % VALIDATE_NETWORK_INTERVAL === 0) {
-      validateNetworkObjects(network)
-    }
+const execute = () => {
+  const network = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
+  if (!network) return
+  if (Engine.instance.worldNetwork.isHosting && Engine.instance.fixedTick % VALIDATE_NETWORK_INTERVAL === 0) {
+    validateNetworkObjects(network)
   }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
 }
+
+export const ServerHostNetworkSystem = defineSystem({
+  uuid: 'ee.engine.ServerHostNetworkSystem',
+  execute
+})

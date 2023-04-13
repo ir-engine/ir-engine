@@ -5,7 +5,7 @@ import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -66,11 +66,8 @@ const reactor = () => {
   return null
 }
 
-export const AnimationSystem = defineSystem(
-  {
-    uuid: 'ee.engine.AnimationSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const AnimationSystem = defineSystem({
+  uuid: 'ee.engine.AnimationSystem',
+  execute,
+  reactor
+})

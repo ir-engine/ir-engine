@@ -12,7 +12,7 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
@@ -226,11 +226,8 @@ const reactor = () => {
   return null
 }
 
-export const WidgetUISystem = defineSystem(
-  {
-    uuid: 'ee.client.WidgetUISystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const WidgetUISystem = defineSystem({
+  uuid: 'ee.client.WidgetUISystem',
+  execute,
+  reactor
+})

@@ -293,11 +293,8 @@ const reactor = () => {
   return null
 }
 
-export const PhysicsSystem = defineSystem(
-  {
-    uuid: 'ee.engine.PhysicsSystem',
-    execute,
-    reactor
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const PhysicsSystem = defineSystem({
+  uuid: 'ee.engine.PhysicsSystem',
+  execute,
+  reactor
+})

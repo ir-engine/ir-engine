@@ -7,7 +7,7 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { editorCameraCenter } from '../classes/EditorCameraState'
@@ -47,10 +47,7 @@ const execute = () => {
   if (keys.SecondaryClick?.up) onSecondaryReleased()
 }
 
-export const FlyControlSystem = defineSystem(
-  {
-    uuid: 'ee.editor.FlyControlSystem',
-    execute
-  },
-  { after: [PresentationSystemGroup] }
-)
+export const FlyControlSystem = defineSystem({
+  uuid: 'ee.editor.FlyControlSystem',
+  execute
+})
