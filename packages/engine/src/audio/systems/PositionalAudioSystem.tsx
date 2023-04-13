@@ -19,17 +19,10 @@ import {
   ComponentType,
   defineQuery,
   getComponent,
-  hasComponent,
   removeQuery,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import {
-  createQueryReactor,
-  defineSystem,
-  PresentationSystemGroup,
-  startQueryReactor
-} from '../../ecs/functions/SystemFunctions'
+import { createQueryReactor, defineSystem, PresentationSystemGroup } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'

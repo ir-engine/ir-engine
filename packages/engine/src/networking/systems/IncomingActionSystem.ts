@@ -1,11 +1,15 @@
 import { applyIncomingActions } from '@etherealengine/hyperflux'
 
-export default function IncomingActionSystem() {
-  const execute = () => {
-    applyIncomingActions()
-  }
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+const execute = () => {
+  applyIncomingActions()
 }
+
+export const IncomingActionSystem = defineSystem(
+  {
+    uuid: 'ee.engine.IncomingActionSystem',
+    execute
+  },
+  { after: [PresentationSystemGroup] }
+)

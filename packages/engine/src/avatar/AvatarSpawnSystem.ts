@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -5,6 +6,7 @@ import { createActionQueue, getMutableState, none, removeActionQueue } from '@et
 
 import { isClient } from '../common/functions/isClient'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
 import { NetworkState } from '../networking/NetworkState'
@@ -71,49 +73,59 @@ export function avatarDetailsReceptor(action: ReturnType<typeof WorldNetworkActi
 
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
-export default async function AvatarSpawnSystem() {
-  const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
-  const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
+const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
+const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
 
-  const networkState = getMutableState(NetworkState)
+const execute = () => {
+  for (const action of avatarSpawnQueue()) spawnAvatarReceptor(action)
+  for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
 
-  networkState.networkSchema[IKSerialization.headID].set({
-    read: IKSerialization.readXRHead,
-    write: IKSerialization.writeXRHead
-  })
-
-  networkState.networkSchema[IKSerialization.leftHandID].set({
-    read: IKSerialization.readXRLeftHand,
-    write: IKSerialization.writeXRLeftHand
-  })
-
-  networkState.networkSchema[IKSerialization.rightHandID].set({
-    read: IKSerialization.readXRRightHand,
-    write: IKSerialization.writeXRRightHand
-  })
-
-  const execute = () => {
-    for (const action of avatarSpawnQueue()) spawnAvatarReceptor(action)
-    for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
-
-    // Keep a list of spawn points so we can send our user to one
-    for (const entity of spawnPointQuery.enter()) {
-      if (!hasComponent(entity, TransformComponent)) {
-        console.warn("Can't add spawn point, no transform component on entity")
-        continue
-      }
+  // Keep a list of spawn points so we can send our user to one
+  for (const entity of spawnPointQuery.enter()) {
+    if (!hasComponent(entity, TransformComponent)) {
+      console.warn("Can't add spawn point, no transform component on entity")
+      continue
     }
   }
-
-  const cleanup = async () => {
-    removeQuery(spawnPointQuery)
-    removeActionQueue(avatarSpawnQueue)
-    removeActionQueue(avatarDetailsQueue)
-
-    networkState.networkSchema[IKSerialization.headID].set(none)
-    networkState.networkSchema[IKSerialization.leftHandID].set(none)
-    networkState.networkSchema[IKSerialization.rightHandID].set(none)
-  }
-
-  return { execute, cleanup }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    const networkState = getMutableState(NetworkState)
+
+    networkState.networkSchema[IKSerialization.headID].set({
+      read: IKSerialization.readXRHead,
+      write: IKSerialization.writeXRHead
+    })
+
+    networkState.networkSchema[IKSerialization.leftHandID].set({
+      read: IKSerialization.readXRLeftHand,
+      write: IKSerialization.writeXRLeftHand
+    })
+
+    networkState.networkSchema[IKSerialization.rightHandID].set({
+      read: IKSerialization.readXRRightHand,
+      write: IKSerialization.writeXRRightHand
+    })
+
+    return () => {
+      removeQuery(spawnPointQuery)
+      removeActionQueue(avatarSpawnQueue)
+      removeActionQueue(avatarDetailsQueue)
+
+      networkState.networkSchema[IKSerialization.headID].set(none)
+      networkState.networkSchema[IKSerialization.leftHandID].set(none)
+      networkState.networkSchema[IKSerialization.rightHandID].set(none)
+    }
+  }, [])
+  return null
+}
+
+export const AvatarSpawnSystem = defineSystem(
+  {
+    uuid: 'ee.engine.AvatarSpawnSystem',
+    execute,
+    reactor
+  },
+  { after: [PresentationSystemGroup] }
+)

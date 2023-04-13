@@ -14,10 +14,9 @@ import {
   hasComponent,
   QueryComponents,
   removeComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
+import { createQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
@@ -100,11 +99,11 @@ export type GroupReactorProps = {
   obj: Object3DWithEntity
 }
 
-export const startGroupQueryReactor = (
+export const createGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
   Components: QueryComponents = []
 ) =>
-  startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
+  createQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
     const entity = props.root.entity
     const groupComponent = useComponent(entity, GroupComponent)
     return (

@@ -24,6 +24,7 @@ import {
   removeComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
@@ -150,89 +151,99 @@ const vec3 = new Vector3()
  */
 export const equippableInteractMessage = 'Equip'
 
-export default async function EquippableSystem() {
-  Engine.instance.sceneComponentRegistry.set(EquippableComponent.name, SCENE_COMPONENT_EQUIPPABLE)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {})
+const interactedActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
+const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
+const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
 
-  const interactedActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
-  const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
-  const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
+const equipperQuery = defineQuery([EquipperComponent])
+const equipperInputQuery = defineQuery([LocalInputTagComponent, EquipperComponent])
+const equippableQuery = defineQuery([EquippableComponent])
 
-  const equipperQuery = defineQuery([EquipperComponent])
-  const equipperInputQuery = defineQuery([LocalInputTagComponent, EquipperComponent])
-  const equippableQuery = defineQuery([EquippableComponent])
-
-  const onKeyU = () => {
-    for (const entity of equipperInputQuery()) {
-      const equipper = getComponent(entity, EquipperComponent)
-      if (!equipper.equippedEntity) return
-      unequipEntity(entity)
-    }
+const onKeyU = () => {
+  for (const entity of equipperInputQuery()) {
+    const equipper = getComponent(entity, EquipperComponent)
+    if (!equipper.equippedEntity) return
+    unequipEntity(entity)
   }
-
-  const execute = () => {
-    const keys = Engine.instance.buttons
-    if (keys.KeyU?.down) onKeyU()
-
-    for (const action of interactedActionQueue()) {
-      if (action.$from !== Engine.instance.userId) continue
-      if (!hasComponent(action.targetEntity!, EquippableComponent)) continue
-
-      const avatarEntity = Engine.instance.localClientEntity
-
-      const equipperComponent = getComponent(avatarEntity, EquipperComponent)
-      if (equipperComponent?.equippedEntity) {
-        const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
-        const attachmentPoint = equippedComponent.attachmentPoint
-        if (attachmentPoint !== action.handedness) {
-          changeHand(avatarEntity, action.handedness)
-        } else {
-          // drop(entity, inputKey, inputValue)
-        }
-      } else {
-        equipEntity(avatarEntity, action.targetEntity!, 'none')
-      }
-    }
-
-    for (const action of setEquippedObjectQueue()) setEquippedObjectReceptor(action)
-
-    for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
-
-    /**
-     * @todo use an XRUI pool
-     */
-    for (const entity of equippableQuery.enter()) {
-      if (isClient) addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
-      if (Engine.instance.worldNetwork?.isHosting) {
-        const objectUuid = getComponent(entity, UUIDComponent)
-        dispatchAction(WorldNetworkAction.registerSceneObject({ objectUuid }))
-      }
-    }
-
-    for (const entity of equippableQuery.exit()) {
-      removeInteractiveUI(entity)
-    }
-
-    for (const entity of equipperQuery()) {
-      equipperQueryAll(entity)
-    }
-
-    for (const entity of equipperQuery.exit()) {
-      equipperQueryExit(entity)
-    }
-  }
-
-  const cleanup = async () => {
-    Engine.instance.sceneComponentRegistry.delete(EquippableComponent.name)
-    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_EQUIPPABLE)
-
-    removeActionQueue(interactedActionQueue)
-    removeActionQueue(transferAuthorityOfObjectQueue)
-    removeActionQueue(setEquippedObjectQueue)
-
-    removeQuery(equipperQuery)
-    removeQuery(equippableQuery)
-  }
-
-  return { execute, cleanup }
 }
+
+const execute = () => {
+  const keys = Engine.instance.buttons
+  if (keys.KeyU?.down) onKeyU()
+
+  for (const action of interactedActionQueue()) {
+    if (action.$from !== Engine.instance.userId) continue
+    if (!hasComponent(action.targetEntity!, EquippableComponent)) continue
+
+    const avatarEntity = Engine.instance.localClientEntity
+
+    const equipperComponent = getComponent(avatarEntity, EquipperComponent)
+    if (equipperComponent?.equippedEntity) {
+      const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+      const attachmentPoint = equippedComponent.attachmentPoint
+      if (attachmentPoint !== action.handedness) {
+        changeHand(avatarEntity, action.handedness)
+      } else {
+        // drop(entity, inputKey, inputValue)
+      }
+    } else {
+      equipEntity(avatarEntity, action.targetEntity!, 'none')
+    }
+  }
+
+  for (const action of setEquippedObjectQueue()) setEquippedObjectReceptor(action)
+
+  for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
+
+  /**
+   * @todo use an XRUI pool
+   */
+  for (const entity of equippableQuery.enter()) {
+    if (isClient) addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
+    if (Engine.instance.worldNetwork?.isHosting) {
+      const objectUuid = getComponent(entity, UUIDComponent)
+      dispatchAction(WorldNetworkAction.registerSceneObject({ objectUuid }))
+    }
+  }
+
+  for (const entity of equippableQuery.exit()) {
+    removeInteractiveUI(entity)
+  }
+
+  for (const entity of equipperQuery()) {
+    equipperQueryAll(entity)
+  }
+
+  for (const entity of equipperQuery.exit()) {
+    equipperQueryExit(entity)
+  }
+}
+
+const reactor = () => {
+  useEffect(() => {
+    Engine.instance.sceneComponentRegistry.set(EquippableComponent.name, SCENE_COMPONENT_EQUIPPABLE)
+    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {})
+
+    return () => {
+      Engine.instance.sceneComponentRegistry.delete(EquippableComponent.name)
+      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_EQUIPPABLE)
+
+      removeActionQueue(interactedActionQueue)
+      removeActionQueue(transferAuthorityOfObjectQueue)
+      removeActionQueue(setEquippedObjectQueue)
+
+      removeQuery(equipperQuery)
+      removeQuery(equippableQuery)
+    }
+  }, [])
+  return null
+}
+
+export const EquippableSystem = defineSystem(
+  {
+    uuid: 'ee.engine.EquippableSystem',
+    execute,
+    reactor
+  },
+  { after: [PresentationSystemGroup] }
+)
