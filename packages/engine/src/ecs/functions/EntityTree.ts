@@ -38,6 +38,14 @@ type EntityTreeSetType = {
   childIndex?: number
 }
 
+export type EntityTreeNode = [
+  typeof EntityTreeComponent,
+  typeof UUIDComponent,
+  typeof NameComponent,
+  typeof TransformComponent,
+  typeof LocalTransformComponent
+]
+
 /**
  * EntityTreeComponent describes parent-child relationship between entities.
  * A root entity has it's parentEntity set to null.
