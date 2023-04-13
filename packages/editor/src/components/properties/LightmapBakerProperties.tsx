@@ -9,7 +9,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { useHookstate } from '@etherealengine/hyperflux'
 import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 
 import { bakeLightmaps } from '../../lightmapper/lightmap'
 import { WorkbenchSettings } from '../../lightmapper/workbench'
@@ -73,16 +73,7 @@ export default function LightmapBakerProperties({
               bounceMultiplier: { ...FloatArg, default: 1 },
               emissiveMultiplier: { ...FloatArg, default: 1 },
               lightMapSize: { ...FloatArg, default: 1024 },
-              texelsPerUnit: { ...FloatArg, default: 16 },
-              samplerSettings: {
-                ...ObjectArg,
-                default: {
-                  targetSize: { ...FloatArg, default: 64 },
-                  offset: FloatArg,
-                  near: { ...FloatArg, default: 0.05 },
-                  far: { ...FloatArg, default: 50 }
-                }
-              }
+              texelsPerUnit: { ...FloatArg, default: 16 }
             }}
             onChange={(k: keyof WorkbenchSettings) => {
               return (val) => {
@@ -90,6 +81,41 @@ export default function LightmapBakerProperties({
               }
             }}
           />
+          <Grid
+            container
+            spacing={2}
+            style={{
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              outline: 'solid 1px #fff',
+              borderRadius: '0.5rem',
+              paddingBottom: '1rem',
+              width: 'auto',
+              margin: '1rem',
+              overflow: 'overlay'
+            }}
+          >
+            <Grid item xs={2}>
+              <Typography variant="subtitle1">Sampler Settings</Typography>
+            </Grid>
+            <Grid item xs>
+              <ParameterInput
+                entity={modelState.src.value}
+                values={bakeProperties.samplerSettings.value ?? {}}
+                defaults={{
+                  targetSize: { ...FloatArg, default: 64 },
+                  offset: FloatArg,
+                  near: { ...FloatArg, default: 0.05 },
+                  far: { ...FloatArg, default: 50 }
+                }}
+                onChange={(k: string) => {
+                  return (val) => {
+                    bakeProperties.samplerSettings[k].set(val)
+                  }
+                }}
+              />
+            </Grid>
+          </Grid>
         </Well>
         {!baking.value && <Button onClick={doLightmapBake}>Bake Lightmaps</Button>}
         {baking.value && <Typography variant="subtitle1">Baking...</Typography>}
