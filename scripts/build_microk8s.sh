@@ -2,6 +2,9 @@
 set -e
 set -x
 
+TAG=$1
+CLEAN=$2
+
 if [ -z "$REGISTRY_HOST" ]
 then
   REGISTRY_HOST=localhost
@@ -106,11 +109,25 @@ mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/root-builder -f dockerfiles/package-root/Dockerfile-root .
+if [ "$CLEAN" ]
+then
+  echo "Cleaning docker"
+
+  docker system prune --force
+fi
+
+if [ -z "$TAG" ]
+then
+  TAG="latest"
+fi
+
+echo "Tag is: $TAG"
+
+DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/root-builder:$TAG -f dockerfiles/package-root/Dockerfile-root .
 
 docker push $REGISTRY_HOST:32000/root-builder
 
-DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealengine \
+DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealengine:$TAG \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
@@ -127,8 +144,8 @@ DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealen
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
-docker push $REGISTRY_HOST:32000/etherealengine
+docker push $REGISTRY_HOST:32000/etherealengine:$TAG
 
-#DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+#DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/etherealengine-testbot:$TAG -f ./dockerfiles/testbot/Dockerfile-testbot .
 
-# docker push $REGISTRY_HOST:32000/etherealengine-testbot
+# docker push $REGISTRY_HOST:32000/etherealengine-testbot:$TAG
