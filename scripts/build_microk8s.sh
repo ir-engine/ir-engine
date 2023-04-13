@@ -123,11 +123,12 @@ fi
 
 echo "Tag is: $TAG"
 
-DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/root-builder:$TAG -f dockerfiles/package-root/Dockerfile-root .
+# DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/root-builder -f dockerfiles/package-root/Dockerfile-root .
 
-docker push $REGISTRY_HOST:32000/root-builder
+# docker tag $REGISTRY_HOST:32000/root-builder $REGISTRY_HOST:32000/root-builder:$TAG
+# docker push $REGISTRY_HOST:32000/root-builder:$TAG
 
-DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealengine:$TAG \
+DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealengine \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
@@ -144,8 +145,10 @@ DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealen
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
+docker tag $REGISTRY_HOST:32000/etherealengine $REGISTRY_HOST:32000/etherealengine:$TAG
 docker push $REGISTRY_HOST:32000/etherealengine:$TAG
 
-#DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/etherealengine-testbot:$TAG -f ./dockerfiles/testbot/Dockerfile-testbot .
+# DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
 
+# docker tag $REGISTRY_HOST:32000/etherealengine-testbot $REGISTRY_HOST:32000/etherealengine-testbot:$TAG
 # docker push $REGISTRY_HOST:32000/etherealengine-testbot:$TAG
