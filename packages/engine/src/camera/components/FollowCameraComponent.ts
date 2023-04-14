@@ -5,7 +5,7 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { getCameraSceneMetadataState } from '../systems/CameraSystem'
+import { getCameraSceneMetadataState } from '../CameraSceneMetadata'
 import { CameraMode } from '../types/CameraMode'
 
 //const cameraRayCount = 1

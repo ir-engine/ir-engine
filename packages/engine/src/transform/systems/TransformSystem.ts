@@ -432,5 +432,6 @@ const reactor = () => {
 export const TransformSystem = defineSystem({
   uuid: 'ee.engine.TransformSystem',
   execute,
-  reactor
+  reactor,
+  enabled: true
 })

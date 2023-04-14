@@ -262,7 +262,7 @@ export class Engine {
     presentation: SystemUUID
   }
 
-  activeSystemReactors = new Set<ReactorRoot>()
+  activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
 
   /**
    * Network object query

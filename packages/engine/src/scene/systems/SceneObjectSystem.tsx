@@ -15,7 +15,7 @@ import {
 import { getMutableState, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
 
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
-import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
+import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -158,7 +158,6 @@ const execute = () => {
 const reactor = ({ root }: ReactorProps) => {
   useEffect(() => {
     Engine.instance.gltfLoader = createGLTFLoader()
-    loadDRACODecoder()
     return () => {
       removeQuery(groupQuery)
       removeQuery(updatableQuery)

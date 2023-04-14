@@ -58,22 +58,26 @@ export const unloadScene = async () => {
 }
 
 export const InputSystemGroup = defineSystem({
-  uuid: 'ee.engine.input-group'
+  uuid: 'ee.engine.input-group',
+  enabled: true
 })
 
 /** Run inside of fixed pipeline */
 export const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
   preSystems: [IncomingActionSystem],
-  postSystems: [OutgoingActionSystem]
+  postSystems: [OutgoingActionSystem],
+  enabled: true
 })
 
 export const AnimationSystemGroup = defineSystem({
-  uuid: 'ee.engine.animation-group'
+  uuid: 'ee.engine.animation-group',
+  enabled: true
 })
 
 export const PresentationSystemGroup = defineSystem({
-  uuid: 'ee.engine.presentation-group'
+  uuid: 'ee.engine.presentation-group',
+  enabled: true
 })
 
 /**
@@ -88,8 +92,27 @@ export const RootSystemGroup = defineSystem({
   preSystems: [InputSystemGroup],
   execute: executeFixedPipeline,
   subSystems: [AnimationSystemGroup, TransformSystem],
-  postSystems: [PresentationSystemGroup]
+  postSystems: [PresentationSystemGroup],
+  enabled: true
 })
+
+export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
+  const system = SystemDefintions.get(systemUUID)
+  if (!system) return
+
+  for (const preSystem of system.preSystems) {
+    getDAG(preSystem, depth + 1)
+  }
+  console.log('-'.repeat(depth), system.uuid)
+  for (const subSystem of system.subSystems) {
+    getDAG(subSystem, depth + 1)
+  }
+  for (const postSystem of system.postSystems) {
+    getDAG(postSystem, depth + 1)
+  }
+}
+
+globalThis.getDAG = getDAG
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -116,7 +139,7 @@ export const executeSystems = (frameTime: number) => {
   engineState.elapsedSeconds.set(worldElapsedSeconds)
 
   const rootSystem = SystemDefintions.get(RootSystemGroup)!
-  // rootSystem.execute()
+  rootSystem.execute()
 
   for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)
 

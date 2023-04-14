@@ -2,7 +2,7 @@ import { getState } from '@etherealengine/hyperflux'
 import type { WebContainer3D } from '@etherealengine/xrui'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRUIState } from '../systems/XRUISystem'
+import { XRUIState } from '../XRUIState'
 
 export const XRUIComponent = defineComponent({
   name: 'XRUIComponent',

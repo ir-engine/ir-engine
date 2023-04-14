@@ -4,8 +4,7 @@ import { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import {
@@ -17,10 +16,9 @@ import {
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { defineSystem, InputSystemGroup } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '../networking/classes/Network'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../networking/NetworkState'
+import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from '../xr/XRState'
 
@@ -217,6 +215,5 @@ const reactor = () => {
 export const MotionCaptureSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureSystem',
   execute,
-  reactor,
-  before: InputSystemGroup
+  reactor
 })

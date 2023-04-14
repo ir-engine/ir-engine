@@ -75,11 +75,8 @@ function SceneDataReactor() {
 const avatarModelChangedQueue = createActionQueue(EngineActions.avatarModelChanged.matches)
 const spectateUserQueue = createActionQueue(EngineActions.spectateUser.matches)
 
-const appLoadingState = getMutableState(AppLoadingState)
-const engineState = getMutableState(EngineState)
-
 function LoadingReactor() {
-  const loadingState = useHookstate(appLoadingState)
+  const loadingState = useHookstate(getMutableState(AppLoadingState))
   const transition = useHookstate(getMutableState(LoadingUISystemState).transition).value
 
   useEffect(() => {
@@ -93,17 +90,18 @@ function LoadingReactor() {
 
 const execute = () => {
   const { transition, ui, mesh } = getState(LoadingUISystemState)
+  const appLoadingState = getState(AppLoadingState)
+  const engineState = getState(EngineState)
 
   for (const action of spectateUserQueue()) {
-    if (appLoadingState.state.value === AppLoadingStates.SUCCESS && engineState.sceneLoaded.value)
-      transition.setState('OUT')
+    if (appLoadingState.state === AppLoadingStates.SUCCESS && engineState.sceneLoaded) transition.setState('OUT')
   }
 
   for (const action of avatarModelChangedQueue()) {
     if (
-      (action.entity === Engine.instance.localClientEntity || engineState.spectating.value) &&
-      appLoadingState.state.value === AppLoadingStates.SUCCESS &&
-      engineState.sceneLoaded.value
+      (action.entity === Engine.instance.localClientEntity || engineState.spectating) &&
+      appLoadingState.state === AppLoadingStates.SUCCESS &&
+      engineState.sceneLoaded
     )
       transition.setState('OUT')
   }
@@ -187,6 +185,7 @@ const reactor = () => {
       })
     }
   }, [])
+
   return (
     <>
       <SceneDataReactor />

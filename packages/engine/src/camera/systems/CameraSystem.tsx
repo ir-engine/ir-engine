@@ -45,6 +45,7 @@ import {
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { CameraSceneMetadataLabel, DefaultCameraState, getCameraSceneMetadataState } from '../CameraSceneMetadata'
 import { CameraComponent } from '../components/CameraComponent'
 import { coneDebugHelpers, debugRays, FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
@@ -249,30 +250,6 @@ export function cameraSpawnReceptor(spawnAction: ReturnType<typeof WorldNetworkA
   setComponent(entity, CameraComponent)
 }
 
-export const DefaultCameraState = {
-  fov: 50,
-  cameraNearClip: 0.01,
-  cameraFarClip: 10000,
-  projectionType: ProjectionType.Perspective,
-  minCameraDistance: 1,
-  maxCameraDistance: 50,
-  startCameraDistance: 3,
-  cameraMode: CameraMode.Dynamic,
-  cameraModeDefault: CameraMode.ThirdPerson,
-  minPhi: -70,
-  maxPhi: 85,
-  startPhi: 10
-}
-
-export const CameraSceneMetadataLabel = 'camera'
-
-export const getCameraSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[CameraSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultCameraState>
-    >
-  ).data
-
 const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
 const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
 const spectatorQuery = defineQuery([SpectatorComponent])
@@ -284,6 +261,7 @@ function CameraReactor() {
   const cameraSettings = useHookstate(getCameraSceneMetadataState())
 
   useEffect(() => {
+    if (!cameraSettings?.cameraNearClip) return
     const camera = Engine.instance.camera as PerspectiveCamera
     if (camera?.isPerspectiveCamera) {
       camera.near = cameraSettings.cameraNearClip.value
@@ -291,7 +269,7 @@ function CameraReactor() {
       camera.updateProjectionMatrix()
     }
     switchCameraMode(Engine.instance.cameraEntity, cameraSettings.value)
-  }, [cameraSettings])
+  }, [cameraSettings.cameraNearClip, cameraSettings.cameraFarClip])
 
   return null
 }

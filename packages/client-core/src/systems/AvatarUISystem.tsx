@@ -34,12 +34,12 @@ import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
-import { getMutableState, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
-import { createAvatarContextMenuView } from './ui/UserMenuView'
+import { AvatarUIContextMenuState, createAvatarContextMenuView } from './ui/UserMenuView'
 
 const logger = multiLogger.child({ component: 'client-core:systems' })
 
@@ -74,13 +74,6 @@ export const renderAvatarContextMenu = (userId: UserId, contextMenuEntity: Entit
 }
 
 const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)])
-const AvatarContextMenuUI = createAvatarContextMenuView()
-removeComponent(AvatarContextMenuUI.entity, VisibleComponent)
-setComponent(AvatarContextMenuUI.entity, XRUIInteractableComponent)
-
-getMutableState(PopupMenuState).menus.merge({
-  [AvatarMenus.AvatarContext]: AvatarContextMenu
-})
 
 const _vector3 = new Vector3()
 
@@ -90,12 +83,13 @@ const applyingVideo = new Map()
 
 /** XRUI Clickaway */
 const onPrimaryClick = () => {
-  if (AvatarContextMenuUI.state.id.value !== '') {
-    const layer = getComponent(AvatarContextMenuUI.entity, XRUIComponent)
+  const state = getMutableState(AvatarUIContextMenuState)
+  if (state.id.value !== '') {
+    const layer = getComponent(state.ui.entity.value, XRUIComponent)
     const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
     if (!hit) {
-      AvatarContextMenuUI.state.id.set('')
-      setVisibleComponent(AvatarContextMenuUI.entity, false)
+      state.id.set('')
+      setVisibleComponent(state.ui.entity.value, false)
     }
   }
 }
@@ -116,21 +110,21 @@ const onSecondaryClick = () => {
     Engine.instance.physicsWorld,
     raycastComponentData
   )
-
+  const state = getMutableState(AvatarUIContextMenuState)
   if (hits.length) {
     const hit = hits[0]
     const hitEntity = (hit.body?.userData as any)?.entity as Entity
     if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.localClientEntity) {
       if (hasComponent(hitEntity, NetworkObjectComponent)) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
-        AvatarContextMenuUI.state.id.set(userId)
-        setVisibleComponent(AvatarContextMenuUI.entity, true)
+        state.id.set(userId)
+        setVisibleComponent(state.ui.entity.value, true)
         return // successful hit
       }
     }
   }
 
-  AvatarContextMenuUI.state.id.set('')
+  state.id.set('')
 }
 
 const execute = () => {
@@ -247,13 +241,23 @@ const execute = () => {
     AvatarUITransitions.delete(userEntity)
   }
 
-  if (AvatarContextMenuUI.state.id.value !== '') {
-    renderAvatarContextMenu(AvatarContextMenuUI.state.id.value, AvatarContextMenuUI.entity)
+  const state = getState(AvatarUIContextMenuState)
+  if (state.id !== '') {
+    renderAvatarContextMenu(state.id as UserId, state.ui.entity)
   }
 }
 
 const reactor = () => {
   useEffect(() => {
+    const AvatarContextMenuUI = createAvatarContextMenuView()
+    getMutableState(AvatarUIContextMenuState).ui.set(AvatarContextMenuUI)
+    removeComponent(AvatarContextMenuUI.entity, VisibleComponent)
+    setComponent(AvatarContextMenuUI.entity, XRUIInteractableComponent)
+
+    getMutableState(PopupMenuState).menus.merge({
+      [AvatarMenus.AvatarContext]: AvatarContextMenu
+    })
+
     return () => {
       removeEntity(AvatarContextMenuUI.entity)
       removeQuery(userQuery)

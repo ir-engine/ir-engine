@@ -8,7 +8,7 @@ import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineSta
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { FriendService, useFriendState } from '../../../social/services/FriendService'
 import { InviteService } from '../../../social/services/InviteService'
@@ -21,21 +21,20 @@ import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
-export function createAvatarContextMenuView() {
-  return createXRUI(
-    AvatarContextMenu,
-    createState({
-      id: '' as UserId | ''
-    })
-  )
-}
+export const AvatarUIContextMenuState = defineState({
+  name: 'AvatarUISystem',
+  initial: {
+    ui: null! as ReturnType<typeof createXRUI>,
+    id: null! as string | UserId
+  }
+})
 
-interface UserMenuState {
-  id: UserId
+export function createAvatarContextMenuView() {
+  return createXRUI(AvatarContextMenu)
 }
 
 const AvatarContextMenu = () => {
-  const detailState = useXRUIState<UserMenuState>()
+  const detailState = useHookstate(getMutableState(AvatarUIContextMenuState))
   const engineState = useEngineState()
   const userState = useNetworkUserState()
   const partyState = usePartyState()

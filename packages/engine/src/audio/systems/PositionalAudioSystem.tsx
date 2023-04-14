@@ -36,63 +36,11 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioSettingAction, AudioState } from '../AudioState'
 import { PositionalAudioComponent, PositionalAudioInterface } from '../components/PositionalAudioComponent'
+import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
 import { getMediaSceneMetadataState } from './MediaSystem'
 
-export const addPannerNode = (audioNodes: AudioNodeGroup, opts: PositionalAudioInterface) => {
-  const panner = getState(AudioState).audioContext.createPanner()
-  panner.refDistance = opts.refDistance
-  panner.rolloffFactor = opts.rolloffFactor
-  panner.maxDistance = opts.maxDistance
-  panner.distanceModel = opts.distanceModel
-  panner.coneInnerAngle = opts.coneInnerAngle
-  panner.coneOuterAngle = opts.coneOuterAngle
-  panner.coneOuterGain = opts.coneOuterGain
-
-  audioNodes.source.disconnect()
-  audioNodes.source.connect(panner)
-  panner.connect(audioNodes.gain)
-  audioNodes.panner = panner
-
-  return panner
-}
-
-const _rot = new Vector3()
-
-const updateAudioPanner = (
-  panner: PannerNode,
-  position: Vector3,
-  rotation: Quaternion,
-  endTime: number,
-  settings: PositionalAudioInterface
-) => {
-  if (isNaN(position.x)) return
-  _rot.set(0, 0, 1).applyQuaternion(rotation)
-  if (isNaN(_rot.x)) return
-  panner.positionX.linearRampToValueAtTime(position.x, endTime)
-  panner.positionY.linearRampToValueAtTime(position.y, endTime)
-  panner.positionZ.linearRampToValueAtTime(position.z, endTime)
-  panner.orientationX.linearRampToValueAtTime(_rot.x, endTime)
-  panner.orientationY.linearRampToValueAtTime(_rot.y, endTime)
-  panner.orientationZ.linearRampToValueAtTime(_rot.z, endTime)
-  panner.refDistance = settings.refDistance
-  panner.rolloffFactor = settings.rolloffFactor
-  panner.maxDistance = settings.maxDistance
-  panner.distanceModel = settings.distanceModel
-  panner.coneInnerAngle = settings.coneInnerAngle
-  panner.coneOuterAngle = settings.coneOuterAngle
-  panner.coneOuterGain = settings.coneOuterGain
-}
-
-export const removePannerNode = (audioNodes: AudioNodeGroup) => {
-  audioNodes.source.disconnect()
-  audioNodes.source.connect(audioNodes.gain)
-  audioNodes.panner?.disconnect()
-  audioNodes.panner = undefined
-}
-
-/** System class which provides methods for Positional Audio system. */
-
 const _vec3 = new Vector3()
+const _rot = new Vector3()
 
 /**
  * Scene Objects

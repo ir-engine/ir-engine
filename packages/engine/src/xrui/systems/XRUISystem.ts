@@ -16,7 +16,7 @@ import {
   Vector3
 } from 'three'
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D, WebLayerManager } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -28,14 +28,7 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { ReferenceSpace } from '../../xr/XRState'
 import { XRUIComponent, XRUIInteractableComponent } from '../components/XRUIComponent'
-
-export const XRUIState = defineState({
-  name: 'XRUIState',
-  initial: () => ({
-    pointerActive: false,
-    interactionRays: [] as Array<Ray | Object3D>
-  })
-})
+import { XRUIState } from '../XRUIState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -246,12 +239,6 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    const renderer = EngineRenderer.instance.renderer
-    if (!renderer) throw new Error('EngineRenderer.instance.renderer must exist before initializing XRUISystem')
-
-    WebLayerManager.initialize(renderer)
-    WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
-
     // @ts-ignore
     // console.log(JSON.stringify(xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig))
     // xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig = {
@@ -263,7 +250,7 @@ const reactor = () => {
     //   pvrtcSupported: false
     // }
 
-    xrui.interactionRays = [Engine.instance.pointerScreenRaycaster.ray]
+    getMutableState(XRUIState).interactionRays.set([Engine.instance.pointerScreenRaycaster.ray])
 
     return () => {
       document.body.removeEventListener('click', redirectDOMEvent)

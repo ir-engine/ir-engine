@@ -52,6 +52,7 @@ ReactorReconciler.injectIntoDevTools({
 export interface ReactorRoot {
   fiber: any
   isRunning: boolean
+  promise: Promise<void>
   run: () => Promise<void>
   stop: () => Promise<void>
 }
@@ -83,6 +84,7 @@ export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.
     fiber: fiberRoot,
     isRunning: false,
     Reactor,
+    promise: null! as Promise<void>,
     run() {
       if (reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
@@ -103,7 +105,7 @@ export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.
     }
   }
 
-  reactorRoot.run()
+  reactorRoot.promise = reactorRoot.run()
 
   return reactorRoot
 }

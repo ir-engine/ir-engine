@@ -8,5 +8,6 @@ const execute = () => {
 
 export const IncomingActionSystem = defineSystem({
   uuid: 'ee.engine.IncomingActionSystem',
-  execute
+  execute,
+  enabled: true
 })

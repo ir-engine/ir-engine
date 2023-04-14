@@ -97,9 +97,9 @@ function AvatarAnimationReactor() {
   const state = useHookstate(getMutableState(AvatarAnimationState))
 
   useEffect(() => {
-    const { priorityQueue } = getState(AvatarAnimationState)
-    priorityQueue.accumulationBudget = state.accumulationBudget.value
-  }, [state.accumulationBudget])
+    if (!state.priorityQueue?.value) return
+    getState(AvatarAnimationState).priorityQueue.accumulationBudget = state.accumulationBudget.value
+  }, [state.accumulationBudget, state.priorityQueue])
 
   return null
 }

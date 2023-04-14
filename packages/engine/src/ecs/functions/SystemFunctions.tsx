@@ -2,18 +2,12 @@ import React, { Suspense } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { IncomingActionSystem } from '../../networking/systems/IncomingActionSystem'
-import { OutgoingActionSystem } from '../../networking/systems/OutgoingActionSystem'
-import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
-import { EngineState } from '../classes/EngineState'
-import { Entity } from '../classes/Entity'
-import { defineQuery, EntityRemovedComponent, QueryComponents, useQuery } from './ComponentFunctions'
-import { EntityReactorProps, removeEntity } from './EntityFunctions'
-import { executeFixedPipeline } from './FixedPipelineSystem'
+import { QueryComponents, useQuery } from './ComponentFunctions'
+import { EntityReactorProps } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
@@ -31,11 +25,13 @@ export interface System {
 
 export const SystemDefintions = new Map<SystemUUID, System>()
 
-const wrapExecute = (system: System) => {
+const wrapExecute = (system: System, execute: () => void) => {
   let lastWarningTime = 0
   const warningCooldownDuration = 1000 * 10 // 10 seconds
 
   return () => {
+    if (!system.enabled) return
+
     for (const preSystem of system.preSystems) {
       const preSystemInstance = SystemDefintions.get(preSystem)
       if (preSystemInstance) {
@@ -44,7 +40,7 @@ const wrapExecute = (system: System) => {
     }
     const startTime = nowMilliseconds()
     try {
-      system.execute()
+      execute()
     } catch (e) {
       logger.error(`Failed to execute system ${system.uuid}`)
       logger.error(e)
@@ -78,15 +74,15 @@ export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
   const system = {
     uuid: systemConfig.uuid as SystemUUID,
     reactor: systemConfig.reactor ?? null,
-    enabled: false,
+    enabled: systemConfig.enabled ?? false,
     preSystems: systemConfig.preSystems ?? [],
-    execute: systemConfig.execute ?? (() => {}),
+    execute: null!,
     subSystems: systemConfig.subSystems ?? [],
     postSystems: systemConfig.postSystems ?? [],
     sceneSystem: false
   } as Required<System>
 
-  if (systemConfig.execute) system.execute = wrapExecute(system)
+  system.execute = wrapExecute(system, systemConfig.execute ?? (() => {}))
 
   SystemDefintions.set(systemConfig.uuid as SystemUUID, system)
 
@@ -94,7 +90,7 @@ export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
 }
 
 export function insertSystem(
-  systemUUID,
+  systemUUID: SystemUUID,
   insert: {
     before?: SystemUUID
     with?: SystemUUID
@@ -112,10 +108,7 @@ export function insertSystem(
         `System ${insert.before} does not exist. You may have a circular dependency in your system definitions.`
       )
     referenceSystem.preSystems.push(systemUUID)
-    referenceSystem.enabled = true
-    if (referenceSystem.reactor) {
-      Engine.instance.activeSystemReactors.add(startReactor(referenceSystem.reactor))
-    }
+    enableSystem(systemUUID)
   }
 
   if (insert.with) {
@@ -125,10 +118,7 @@ export function insertSystem(
         `System ${insert.with} does not exist. You may have a circular dependency in your system definitions.`
       )
     referenceSystem.subSystems.push(systemUUID)
-    referenceSystem.enabled = true
-    if (referenceSystem.reactor) {
-      Engine.instance.activeSystemReactors.add(startReactor(referenceSystem.reactor))
-    }
+    enableSystem(systemUUID)
   }
 
   if (insert.after) {
@@ -138,10 +128,7 @@ export function insertSystem(
         `System ${insert.after} does not exist. You may have a circular dependency in your system definitions.`
       )
     referenceSystem.postSystems.push(systemUUID)
-    referenceSystem.enabled = true
-    if (referenceSystem.reactor) {
-      Engine.instance.activeSystemReactors.add(startReactor(referenceSystem.reactor))
-    }
+    enableSystem(systemUUID)
   }
 }
 
@@ -161,14 +148,26 @@ export const insertSystems = (
 export const enableSystem = (systemUUID: SystemUUID) => {
   const system = SystemDefintions.get(systemUUID)
   if (system) {
-    system.enabled = true
+    if (system.reactor) {
+      console.log(systemUUID, 'reactor starting')
+      startReactor(system.reactor).promise.then(() => {
+        console.log(systemUUID, 'reactor started')
+        system.enabled = true
+      })
+    } else {
+      system.enabled = true
+    }
   }
 }
 
-export const disableSystems = async (systemUUID: SystemUUID) => {
+export const disableSystem = async (systemUUID: SystemUUID) => {
   const system = SystemDefintions.get(systemUUID)
   if (system) {
     system.enabled = false
+    if (system.reactor) {
+      const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
+      await reactor.stop()
+    }
   }
 }
 
@@ -195,8 +194,6 @@ export const unloadSystem = (uuid: string) => {
   // delete Engine.instance.systemsByUUID[systemToUnload.uuid]
   // return systemToUnload.cleanup()
 }
-
-// todo, move to client only somehow maybe??
 
 function QueryReactor(props: {
   root: ReactorRoot
