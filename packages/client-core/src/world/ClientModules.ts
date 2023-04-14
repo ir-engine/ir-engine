@@ -9,12 +9,11 @@ import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/De
 import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
   AnimationSystemGroup,
-  defineSystem,
   InputSystemGroup,
-  insertSystems,
   PresentationSystemGroup,
   SimulationSystemGroup
-} from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+} from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { insertSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ButtonCleanupSystem } from '@etherealengine/engine/src/input/systems/ButtonCleanupSystem'
 import { ClientInputSystem } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'

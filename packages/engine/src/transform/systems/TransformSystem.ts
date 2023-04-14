@@ -16,7 +16,7 @@ import {
   hasComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem, PostAvatarUpdateSystemGroup } from '../../ecs/functions/SystemFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
@@ -432,6 +432,5 @@ const reactor = () => {
 export const TransformSystem = defineSystem({
   uuid: 'ee.engine.TransformSystem',
   execute,
-  reactor,
-  before: PostAvatarUpdateSystemGroup
+  reactor
 })

@@ -28,7 +28,7 @@ import {
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem, PostAvatarUpdateSystemGroup } from '../../ecs/functions/SystemFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'

@@ -17,7 +17,7 @@ import {
   State,
   useHookstate
 } from '@etherealengine/hyperflux'
-import { getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
+import { getSystemsFromSceneData, SystemImportType } from '@etherealengine/projects/loadSystemInjection'
 
 import {
   AppLoadingAction,
@@ -48,7 +48,14 @@ import {
   removeEntityNode,
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
-import { defineSystem, initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
+import {
+  defineSystem,
+  insertSystem,
+  System,
+  SystemDefintions,
+  SystemUUID,
+  unloadSystems
+} from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -227,27 +234,22 @@ export const updateSceneFromJSON = async () => {
 
   getMutableState(EngineState).sceneLoading.set(true)
 
-  const systemsToLoad = [] as SystemModuleType<any>[]
+  const systemsToLoad = [] as SystemImportType[]
 
   if (!getMutableState(EngineState).isEditor.value) {
     /** get systems that have changed */
-    const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
+    const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
       ...sceneSystems.filter(
-        (systemToLoad) =>
-          !Object.values(Engine.instance.pipelines)
-            .flat()
-            .find((s) => s.uuid === systemToLoad.uuid)
+        (systemToLoad) => !Array.from(SystemDefintions.keys()).find((uuid) => uuid === systemToLoad.systemUUID)
       )
     )
-    const systemsToUnload = Object.keys(Engine.instance.pipelines).map((p) =>
-      Engine.instance.pipelines[p].filter(
-        (loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid)
-      )
-    )
+    const systemsToUnload = Array.from(SystemDefintions.entries())
+      .filter(([systemUUID, system]) => system.sceneSystem && !sceneSystems.find((s) => s.systemUUID === systemUUID))
+      .map((s) => s[0])
 
     /** 1. unload old systems */
-    await unloadSystems(systemsToUnload.flat().map((s) => s.uuid))
+    await unloadSystems(systemsToUnload)
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
@@ -264,7 +266,9 @@ export const updateSceneFromJSON = async () => {
 
   /** 3. load new systems */
   if (!getMutableState(EngineState).isEditor.value) {
-    await initSystems(systemsToLoad)
+    for (const system of systemsToLoad) {
+      insertSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
+    }
   }
 
   if (sceneData.scene.metadata) {
@@ -374,8 +378,6 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
-addActionReceptor(AppLoadingServiceReceptor)
-
 let totalPendingAssets = 0
 
 const onComplete = (pendingAssets: number) => {
@@ -415,6 +417,7 @@ const reactor = () => {
   }, [sceneData, isEngineInitialized])
 
   useEffect(() => {
+    addActionReceptor(AppLoadingServiceReceptor)
     return () => {
       removeActionReceptor(AppLoadingServiceReceptor)
       removeQuery(sceneAssetPendingTagQuery)

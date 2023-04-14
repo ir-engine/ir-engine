@@ -22,7 +22,7 @@ import {
   removeQuery,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createQueryReactor, defineSystem, PresentationSystemGroup } from '../../ecs/functions/SystemFunctions'
+import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
@@ -284,6 +284,5 @@ const reactor = ({ root }: ReactorProps) => {
 export const PositionalAudioSystem = defineSystem({
   uuid: 'ee.engine.PositionalAudioSystem',
   execute,
-  reactor,
-  after: PresentationSystemGroup
+  reactor
 })

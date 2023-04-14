@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Object3D } from 'three'
 
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../scene/components/GroupComponent'
 import { HighlightComponent } from './components/HighlightComponent'
 import { EngineRenderer } from './WebGLRendererSystem'
@@ -36,6 +36,5 @@ const reactor = () => {
 export const HighlightSystem = defineSystem({
   uuid: 'ee.engine.HighlightSystem',
   execute,
-  reactor,
-  before: PresentationSystemGroup
+  reactor
 })

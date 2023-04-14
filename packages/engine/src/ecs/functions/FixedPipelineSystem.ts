@@ -3,7 +3,8 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { defineSystem, SimulationSystemGroup } from './SystemFunctions'
+import { SimulationSystemGroup } from './EngineFunctions'
+import { SystemDefintions } from './SystemFunctions'
 
 // const logger = multiLogger.child({ component: 'engine:ecs:FixedPipelineSystem' })
 /**
@@ -37,7 +38,7 @@ export const executeFixedPipeline = () => {
     engineState.fixedTick.set(engineState.fixedTick.value + 1)
     engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
 
-    const s = Engine.instance.systemDefinitions.get(SimulationSystemGroup)!
+    const s = SystemDefintions.get(SimulationSystemGroup)!
     if (s.enabled) s.execute()
 
     accumulator -= timestep

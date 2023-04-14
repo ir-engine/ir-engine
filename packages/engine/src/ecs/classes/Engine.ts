@@ -29,7 +29,6 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { ButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
-import { SerializationSchema } from '../../networking/serialization/Utils'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -256,8 +255,6 @@ export class Engine {
 
   // @todo move to EngineState
   activePortal = null as ComponentType<typeof PortalComponent> | null
-
-  systemDefinitions = new Map<string, Required<System>>()
 
   systemGroups = {} as {
     input: SystemUUID

@@ -17,7 +17,7 @@ import {
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { Entity, UndefinedEntity } from './classes/Entity'
 import { entityExists } from './functions/EntityFunctions'
-import { defineSystem, PresentationSystemGroup } from './functions/SystemFunctions'
+import { defineSystem } from './functions/SystemFunctions'
 
 export type SerializedChunk = {
   startTimecode: number
@@ -230,6 +230,5 @@ const execute = () => {
 }
 export const ECSSerializerSystem = defineSystem({
   uuid: 'ee.engine.ecs.ECSSerializerSystem',
-  execute,
-  after: PresentationSystemGroup
+  execute
 })

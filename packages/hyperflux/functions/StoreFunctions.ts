@@ -2,7 +2,13 @@ import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
-import { ActionReceptor, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
+import {
+  ActionQueueDefinition,
+  ActionReceptor,
+  addOutgoingTopicIfNecessary,
+  ResolvedActionType,
+  Topic
+} from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
@@ -38,8 +44,9 @@ export interface HyperStore {
   valueMap: { [type: string]: any }
 
   actions: {
+    queueDefinitions: Map<Validator<any, any>, Array<ActionQueueDefinition>>
     /** */
-    queues: Map<Validator<any, any>, Array<Array<ResolvedActionType>>>
+    queues: Map<ActionQueueDefinition, Array<ResolvedActionType>>
     /** Cached actions */
     cached: Array<Required<ResolvedActionType>>
     /** Incoming actions */
@@ -87,6 +94,7 @@ export function createHyperStore(options: {
     stateMap: {},
     valueMap: {},
     actions: {
+      queueDefinitions: new Map(),
       queues: new Map(),
       cached: [],
       incoming: [],

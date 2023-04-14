@@ -26,6 +26,7 @@ export interface System {
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
   enabled: boolean
+  sceneSystem?: boolean
 }
 
 export const SystemDefintions = new Map<SystemUUID, System>()
@@ -81,7 +82,8 @@ export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
     preSystems: systemConfig.preSystems ?? [],
     execute: systemConfig.execute ?? (() => {}),
     subSystems: systemConfig.subSystems ?? [],
-    postSystems: systemConfig.postSystems ?? []
+    postSystems: systemConfig.postSystems ?? [],
+    sceneSystem: false
   } as Required<System>
 
   if (systemConfig.execute) system.execute = wrapExecute(system)
@@ -189,84 +191,6 @@ export const unloadSystem = (uuid: string) => {
 }
 
 // todo, move to client only somehow maybe??
-
-export const InputSystemGroup = defineSystem({
-  uuid: 'ee.engine.input-group'
-})
-
-/** Run inside of fixed pipeline */
-export const SimulationSystemGroup = defineSystem({
-  uuid: 'ee.engine.simulation-group',
-  preSystems: [IncomingActionSystem],
-  postSystems: [OutgoingActionSystem]
-})
-
-export const AnimationSystemGroup = defineSystem({
-  uuid: 'ee.engine.animation-group'
-})
-
-export const PresentationSystemGroup = defineSystem({
-  uuid: 'ee.engine.presentation-group'
-})
-
-/**
- * 1. input group
- * 2. fixed pipeline (simulation group)
- * 3. animation group
- * 4. transform system
- * 5. presentation group
- */
-export const RootSystemGroup = defineSystem({
-  uuid: 'ee.engine.root-group',
-  preSystems: [InputSystemGroup],
-  execute: executeFixedPipeline,
-  subSystems: [AnimationSystemGroup, TransformSystem],
-  postSystems: [PresentationSystemGroup]
-})
-
-const TimerConfig = {
-  MAX_DELTA_SECONDS: 1 / 10
-}
-
-const entityRemovedQuery = defineQuery([EntityRemovedComponent])
-
-/**
- * Execute systems on this world
- *
- * @param frameTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
- */
-export const executeSystems = (frameTime: number) => {
-  const engineState = getMutableState(EngineState)
-  engineState.frameTime.set(frameTime)
-
-  const start = nowMilliseconds()
-  const incomingActions = [...Engine.instance.store.actions.incoming]
-
-  const worldElapsedSeconds = (frameTime - Engine.instance.startTime) / 1000
-  engineState.deltaSeconds.set(
-    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - Engine.instance.elapsedSeconds))
-  )
-  engineState.elapsedSeconds.set(worldElapsedSeconds)
-
-  const rootSystem = SystemDefintions.get(RootSystemGroup)!
-  rootSystem.execute()
-
-  for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)
-
-  for (const { query, result } of Engine.instance.reactiveQueryStates) {
-    const entitiesAdded = query.enter().length
-    const entitiesRemoved = query.exit().length
-    if (entitiesAdded || entitiesRemoved) {
-      result.set(query())
-    }
-  }
-
-  const end = nowMilliseconds()
-  const duration = end - start
-  if (duration > 150) {
-    logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
-  }
-}
 
 function QueryReactor(props: {
   root: ReactorRoot
