@@ -5,34 +5,38 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, ReactorProps, ReactorRoot } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { IncomingActionSystem } from '../../networking/systems/IncomingActionSystem'
+import { OutgoingActionSystem } from '../../networking/systems/OutgoingActionSystem'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import { defineQuery, EntityRemovedComponent, QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityReactorProps, removeEntity } from './EntityFunctions'
+import { executeFixedPipeline } from './FixedPipelineSystem'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
 export type SystemUUID = OpaqueType<'SystemUUID'> & string
 export interface System {
-  uuid: string | SystemUUID
-  reactor?: React.FC<ReactorProps> | null
-  enabled?: boolean
-  preSystems?: SystemUUID[]
+  uuid: SystemUUID | string
   execute: () => void // runs after preSystems, and before subSystems
-  subSystems?: SystemUUID[]
-  postSystems?: SystemUUID[]
+  reactor: React.FC<ReactorProps> | null
+  preSystems: SystemUUID[]
+  subSystems: SystemUUID[]
+  postSystems: SystemUUID[]
+  enabled: boolean
 }
 
-export type SystemInsertOrder = 'before' | 'with' | 'after'
+export const SystemDefintions = new Map<SystemUUID, System>()
 
-const wrapExecute = (system: Required<System>) => {
+const wrapExecute = (system: System) => {
   let lastWarningTime = 0
   const warningCooldownDuration = 1000 * 10 // 10 seconds
 
   return () => {
     for (const preSystem of system.preSystems) {
-      const preSystemInstance = Engine.instance.systemDefinitions.get(preSystem)
+      const preSystemInstance = SystemDefintions.get(preSystem)
       if (preSystemInstance) {
         preSystemInstance.execute()
       }
@@ -51,13 +55,13 @@ const wrapExecute = (system: Required<System>) => {
       logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
     }
     for (const subSystem of system.subSystems) {
-      const subSystemInstance = Engine.instance.systemDefinitions.get(subSystem)
+      const subSystemInstance = SystemDefintions.get(subSystem)
       if (subSystemInstance) {
         subSystemInstance.execute()
       }
     }
     for (const postSystem of system.postSystems) {
-      const postSystemInstance = Engine.instance.systemDefinitions.get(postSystem)
+      const postSystemInstance = SystemDefintions.get(postSystem)
       if (postSystemInstance) {
         postSystemInstance.execute()
       }
@@ -65,46 +69,101 @@ const wrapExecute = (system: Required<System>) => {
   }
 }
 
-export function defineSystem(systemConfig: Omit<System, 'preSystems' | 'postSystems'>) {
-  if (Engine.instance.systemDefinitions.has(systemConfig.uuid)) {
+export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
+  if (SystemDefintions.has(systemConfig.uuid as SystemUUID)) {
     throw new Error(`System ${systemConfig.uuid} already exists.`)
   }
 
   const system = {
     uuid: systemConfig.uuid as SystemUUID,
     reactor: systemConfig.reactor ?? null,
-    enabled: true,
-    preSystems: [],
-    execute: undefined!,
-    subSystems: [],
-    postSystems: []
+    enabled: false,
+    preSystems: systemConfig.preSystems ?? [],
+    execute: systemConfig.execute ?? (() => {}),
+    subSystems: systemConfig.subSystems ?? [],
+    postSystems: systemConfig.postSystems ?? []
   } as Required<System>
 
-  system.execute = wrapExecute(system)
+  if (systemConfig.execute) system.execute = wrapExecute(system)
 
-  Engine.instance.systemDefinitions.set(systemConfig.uuid, system)
+  SystemDefintions.set(systemConfig.uuid as SystemUUID, system)
 
   return systemConfig.uuid as SystemUUID
 }
 
-export function insertSystems(referenceUUIDs: SystemUUID[], insertOrder: SystemInsertOrder, systemUUID: SystemUUID) {
-  for (const referenceUUID of referenceUUIDs) {
-    const system = Engine.instance.systemDefinitions.get(referenceUUID)
-    if (system) {
-      if (insertOrder === 'before') {
-        system.preSystems.push(systemUUID)
-      } else if (insertOrder === 'after') {
-        system.postSystems.push(systemUUID)
-      } else if (insertOrder === 'with') {
-        system.subSystems.push(systemUUID)
-      }
-    } else {
+export function insertSystem(
+  systemUUID,
+  insert: {
+    before?: SystemUUID
+    with?: SystemUUID
+    after?: SystemUUID
+  }
+) {
+  const referenceSystem = SystemDefintions.get(systemUUID)
+  if (!referenceSystem) throw new Error(`System ${systemUUID} does not exist.`)
+
+  if (insert.before) {
+    const referenceSystem = SystemDefintions.get(insert.before)
+    if (!referenceSystem)
       throw new Error(
-        `System ${referenceUUID} does not exist. You may have a circular dependency in your system definitions.`
+        `System ${insert.before} does not exist. You may have a circular dependency in your system definitions.`
       )
+    referenceSystem.preSystems.push(systemUUID)
+    referenceSystem.enabled = true
+  }
+
+  if (insert.with) {
+    const referenceSystem = SystemDefintions.get(insert.with)
+    if (!referenceSystem)
+      throw new Error(
+        `System ${insert.with} does not exist. You may have a circular dependency in your system definitions.`
+      )
+    referenceSystem.subSystems.push(systemUUID)
+    referenceSystem.enabled = true
+  }
+
+  if (insert.after) {
+    const referenceSystem = SystemDefintions.get(insert.after)
+    if (!referenceSystem)
+      throw new Error(
+        `System ${insert.after} does not exist. You may have a circular dependency in your system definitions.`
+      )
+    referenceSystem.postSystems.push(systemUUID)
+    referenceSystem.enabled = true
+  }
+}
+
+export const insertSystems = (
+  systems: SystemUUID[],
+  insert: {
+    before?: SystemUUID
+    with?: SystemUUID
+    after?: SystemUUID
+  }
+) => {
+  for (const system of systems) {
+    insertSystem(system, insert)
+  }
+}
+
+export const enableSystems = (systemUUIDs: SystemUUID[]) => {
+  for (const systemUUID of systemUUIDs) {
+    const system = SystemDefintions.get(systemUUID)
+    if (system) {
+      system.enabled = true
     }
   }
 }
+
+export const disableSystems = (systemUUIDs: SystemUUID[]) => {
+  for (const systemUUID of systemUUIDs) {
+    const system = SystemDefintions.get(systemUUID)
+    if (system) {
+      system.enabled = false
+    }
+  }
+}
+
 export const unloadAllSystems = () => {}
 
 export const unloadSystems = (uuids: string[]) => {
@@ -129,38 +188,41 @@ export const unloadSystem = (uuid: string) => {
   // return systemToUnload.cleanup()
 }
 
+// todo, move to client only somehow maybe??
+
 export const InputSystemGroup = defineSystem({
-  uuid: 'ee.engine.input-group',
-  execute: () => {}
-  // subSystems: [] //'ee.engine.input']
+  uuid: 'ee.engine.input-group'
 })
 
+/** Run inside of fixed pipeline */
 export const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
-  execute: () => {}
-  // subSystems: [] //'ee.engine.avatar', 'ee.engine.physics']
+  preSystems: [IncomingActionSystem],
+  postSystems: [OutgoingActionSystem]
+})
+
+export const AnimationSystemGroup = defineSystem({
+  uuid: 'ee.engine.animation-group'
 })
 
 export const PresentationSystemGroup = defineSystem({
-  uuid: 'ee.engine.presentation-group',
-  execute: () => {}
-  // subSystems: [] //'ee.engine.render']
+  uuid: 'ee.engine.presentation-group'
 })
 
+/**
+ * 1. input group
+ * 2. fixed pipeline (simulation group)
+ * 3. animation group
+ * 4. transform system
+ * 5. presentation group
+ */
 export const RootSystemGroup = defineSystem({
   uuid: 'ee.engine.root-group',
-  execute: () => {}
-  // subSystems: [InputSystemGroup, SimulationSystemGroup]
+  preSystems: [InputSystemGroup],
+  execute: executeFixedPipeline,
+  subSystems: [AnimationSystemGroup, TransformSystem],
+  postSystems: [PresentationSystemGroup]
 })
-
-// todo, move to client only somehow maybe??
-export const PostAvatarUpdateSystemGroup = defineSystem(
-  {
-    uuid: 'ee.engine.post-avatar-update-group',
-    execute: () => {}
-  }
-  // { after: [AvatarSpawnSystem, SimulationSystemGroup] }
-)
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
@@ -186,7 +248,7 @@ export const executeSystems = (frameTime: number) => {
   )
   engineState.elapsedSeconds.set(worldElapsedSeconds)
 
-  const rootSystem = Engine.instance.systemDefinitions.get(RootSystemGroup)!
+  const rootSystem = SystemDefintions.get(RootSystemGroup)!
   rootSystem.execute()
 
   for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)

@@ -7,6 +7,7 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XREstimatedLight } from './XREstimatedLight'
 import { XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 /**
  * https://github.com/mrdoob/three.js/blob/master/examples/webxr_ar_lighting.html

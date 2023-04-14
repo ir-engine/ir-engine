@@ -261,11 +261,8 @@ const reactor = () => {
   return null
 }
 
-export const ClientInputSystem = defineSystem(
-  {
-    uuid: 'ee.engine.input.ClientInputSystem',
-    execute,
-    reactor
-  },
-  { with: [InputSystemGroup] }
-)
+export const ClientInputSystem = defineSystem({
+  uuid: 'ee.engine.input.ClientInputSystem',
+  execute,
+  reactor
+})

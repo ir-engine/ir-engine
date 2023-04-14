@@ -1,6 +1,7 @@
 import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ReferenceSpace } from './XRState'
+import { XRSystem } from './XRSystem'
 
 const targetRaySpace = {} as XRSpace
 

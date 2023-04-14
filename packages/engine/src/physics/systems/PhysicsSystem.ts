@@ -23,7 +23,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { defineSystem, SimulationSystemGroup } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -33,6 +33,7 @@ import {
 } from '../../scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
+import { TriggerSystem } from '../../scene/systems/TriggerSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
@@ -296,5 +297,6 @@ const reactor = () => {
 export const PhysicsSystem = defineSystem({
   uuid: 'ee.engine.PhysicsSystem',
   execute,
-  reactor
+  reactor,
+  subSystems: [TriggerSystem]
 })

@@ -18,9 +18,7 @@ import {
 } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { initSystems, SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
@@ -31,14 +29,7 @@ import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/
 import { PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
-import {
-  addActionReceptor,
-  addOutgoingTopicIfNecessary,
-  dispatchAction,
-  getMutableState,
-  getState,
-  removeActionReceptor
-} from '@etherealengine/hyperflux'
+import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { API } from '../../API'
@@ -46,30 +37,25 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { ClientModules } from '../../world/ClientModules'
+import { ClientSystems } from '../../world/ClientModules'
 import { loadSceneJsonOffline } from '../../world/utils'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
-type LoadEngineProps = {
-  injectedSystems?: SystemModuleType<any>[]
-}
-
-export const initClient = async (injectedSystems: SystemModuleType<any>[] = []) => {
+export const initClient = async () => {
   if (getMutableState(EngineState).isEngineInitialized.value) return
 
   const projects = API.instance.client.service('projects').find()
 
-  await ClientModules()
-  await initSystems(injectedSystems)
+  ClientSystems()
   await loadEngineInjection(await projects)
 
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+  // dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
-export const useLoadEngine = ({ injectedSystems }: LoadEngineProps) => {
+export const useLoadEngine = () => {
   useEffect(() => {
-    initClient(injectedSystems)
+    initClient()
   }, [])
 }
 
@@ -174,15 +160,14 @@ export const usePortalTeleport = () => {
 }
 
 type Props = {
-  injectedSystems?: SystemModuleType<any>[]
   spectate?: boolean
 }
 
-export const useLoadEngineWithScene = ({ injectedSystems, spectate }: Props) => {
+export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const appState = useHookstate(getMutableState(AppLoadingState).state)
 
-  useLoadEngine({ injectedSystems })
+  useLoadEngine()
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
 

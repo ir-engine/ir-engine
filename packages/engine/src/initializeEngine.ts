@@ -5,13 +5,9 @@ import { addActionReceptor, dispatchAction, getMutableState } from '@etherealeng
 
 import { AudioState } from './audio/AudioState'
 import { Timer } from './common/functions/Timer'
-import { destroyEngine, Engine } from './ecs/classes/Engine'
+import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
-import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
-import { executeSystems, initSystemSync } from './ecs/functions/SystemFunctions'
-import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import IncomingActionSystem from './networking/systems/IncomingActionSystem'
-import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
+import { executeSystems } from './ecs/functions/SystemFunctions'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { FontManager } from './xrui/classes/FontManager'
@@ -29,24 +25,6 @@ export const createEngine = () => {
   EngineRenderer.instance = new EngineRenderer()
   addActionReceptor(EngineEventReceptor)
   Engine.instance.engineTimer = Timer(executeSystems, Engine.instance.tickRate)
-}
-
-export const setupEngineActionSystems = () => {
-  initSystemSync({
-    uuid: 'xre.engine.FixedPipelineSystem',
-    type: SystemUpdateType.UPDATE,
-    systemFunction: FixedPipelineSystem
-  })
-  initSystemSync({
-    uuid: 'xre.engine.IncomingActionSystem',
-    type: SystemUpdateType.FIXED_EARLY,
-    systemFunction: IncomingActionSystem
-  })
-  initSystemSync({
-    uuid: 'xre.engine.OutgoingActionSystem',
-    type: SystemUpdateType.FIXED_LATE,
-    systemFunction: OutgoingActionSystem
-  })
 }
 
 /**

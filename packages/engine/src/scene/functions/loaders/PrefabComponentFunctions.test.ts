@@ -30,9 +30,9 @@ import { XRELoader } from '../../../assets/classes/XRELoader'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { SceneState } from '../../../ecs/classes/Scene'
 import { initSystems } from '../../../ecs/functions/SystemFunctions'
-import { TransformModule } from '../../../transform/TransformModule'
+import { TransformModule } from '../../../transform/TransformSystems'
 import { SceneClientModule } from '../../SceneClientModule'
-import { SceneCommonModule } from '../../SceneCommonModule'
+import { SceneCommonModule } from '../../SceneCommonSystems'
 
 describe('PrefabComponentFunctions', async () => {
   let entity: Entity

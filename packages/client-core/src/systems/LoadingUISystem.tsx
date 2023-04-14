@@ -195,11 +195,8 @@ const reactor = () => {
   )
 }
 
-export const LoadingUISystem = defineSystem(
-  {
-    uuid: 'ee.client.LoadingUISystem',
-    execute,
-    reactor
-  },
-  { before: [PresentationSystemGroup] }
-)
+export const LoadingUISystem = defineSystem({
+  uuid: 'ee.client.LoadingUISystem',
+  execute,
+  reactor
+})

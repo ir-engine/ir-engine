@@ -32,6 +32,7 @@ import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRPlaneComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 /** https://github.com/immersive-web/webxr-samples/blob/main/proposals/plane-detection.html */
 

@@ -10,10 +10,7 @@ const execute = () => {
   }
 }
 
-export const ButtonInputSystem = defineSystem(
-  {
-    uuid: 'ee.engine.input.ButtonInputSystem',
-    execute
-  },
-  { with: [InputSystemGroup] }
-)
+export const ButtonCleanupSystem = defineSystem({
+  uuid: 'ee.engine.input.ButtonCleanupSystem',
+  execute
+})

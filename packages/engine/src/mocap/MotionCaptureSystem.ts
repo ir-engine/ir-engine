@@ -17,7 +17,7 @@ import {
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { defineSystem, InputSystemGroup } from '../ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../networking/NetworkState'
@@ -217,5 +217,6 @@ const reactor = () => {
 export const MotionCaptureSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureSystem',
   execute,
-  reactor
+  reactor,
+  before: InputSystemGroup
 })

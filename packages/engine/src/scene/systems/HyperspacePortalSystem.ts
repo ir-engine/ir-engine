@@ -32,9 +32,6 @@ const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
 let sceneVisible = true
 
 const hyperspaceEffect = new PortalEffect()
-AssetLoader.loadAsync('/hdr/galaxyTexture.jpg').then((texture) => {
-  hyperspaceEffect.texture = texture
-})
 hyperspaceEffect.scale.set(10, 10, 10)
 setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
@@ -121,6 +118,10 @@ const reactor = () => {
 
     getMutableState(HyperspacePortalSystemState).set({
       transition
+    })
+
+    AssetLoader.loadAsync('/hdr/galaxyTexture.jpg').then((texture) => {
+      hyperspaceEffect.texture = texture
     })
 
     return () => {

@@ -9,7 +9,7 @@ import { defineSystem, SimulationSystemGroup } from './SystemFunctions'
 /**
  * System for running simulation logic with fixed time intervals
  */
-const execute = () => {
+export const executeFixedPipeline = () => {
   const start = nowMilliseconds()
   let timeUsed = 0
 
@@ -55,8 +55,3 @@ const execute = () => {
     }
   }
 }
-
-export const FixedPipelineSystem = defineSystem({
-  uuid: 'ee.engine.FixedPipelineSystem',
-  execute
-})

@@ -114,7 +114,7 @@ const reactor = () => {
 }
 
 export const LODSystem = defineSystem({
-  uuid: 'ee.engine.LODSystem',
+  uuid: 'ee.engine.scene.LODSystem',
   execute,
   reactor
 })

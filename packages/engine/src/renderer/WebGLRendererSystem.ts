@@ -48,7 +48,7 @@ import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlug
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { SceneMetadata, SceneState } from '../ecs/classes/Scene'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { defineSystem, PresentationSystemGroup } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
@@ -406,5 +406,6 @@ const reactor = () => {
 export const WebGLRendererSystem = defineSystem({
   uuid: 'ee.engine.WebGLRendererSystem',
   execute,
-  reactor
+  reactor,
+  with: PresentationSystemGroup
 })

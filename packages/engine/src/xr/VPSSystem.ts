@@ -11,6 +11,7 @@ import {
   PersistentAnchorComponent,
   SCENE_COMPONENT_PERSISTENT_ANCHOR
 } from './XRAnchorComponents'
+import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
 
 const vpsAnchorQuery = defineQuery([PersistentAnchorComponent])
 const vpsAnchorFoundQueue = createActionQueue(PersistentAnchorActions.anchorFound.matches)

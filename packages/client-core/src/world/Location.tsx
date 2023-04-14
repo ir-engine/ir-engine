@@ -5,27 +5,16 @@ import { useParams } from 'react-router-dom'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
-import ClientNetworkingSystem from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { LocationAction, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { WarningUIService } from '@etherealengine/client-core/src/systems/WarningUISystem'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { DefaultLocationSystems } from '@etherealengine/client-core/src/world/DefaultLocationSystems'
+import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/DefaultLocationSystems'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
-import { SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useLoadEngineWithScene, useOfflineScene } from '../components/World/EngineHooks'
-
-const networkingSystems = [
-  {
-    uuid: 'ee.client.core.ClientNetworkingSystem',
-    type: SystemUpdateType.POST_RENDER,
-    systemLoader: () => Promise.resolve({ default: ClientNetworkingSystem })
-  }
-] as SystemModuleType<any>[]
 
 const useOnlineLocationHooks = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
@@ -90,12 +79,8 @@ const LocationPage = () => {
   AuthService.useAPIListeners()
   SceneService.useAPIListeners()
 
-  const injectedSystems = [...DefaultLocationSystems]
-  if (online) {
-    injectedSystems.push(...networkingSystems)
-  }
-
-  useLoadEngineWithScene({ injectedSystems })
+  useLoadEngineWithScene()
+  useDefaultLocationSystems(online)
 
   return (
     <>

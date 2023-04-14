@@ -69,7 +69,7 @@ const reactor = () => {
 }
 
 export const SceneObjectDynamicLoadSystem = defineSystem({
-  uuid: 'ee.engine.SceneObjectDynamicLoadSystem',
+  uuid: 'ee.engine.scene.SceneObjectDynamicLoadSystem',
   execute,
   reactor
 })

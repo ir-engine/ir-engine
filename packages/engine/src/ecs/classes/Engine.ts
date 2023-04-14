@@ -53,7 +53,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { System, unloadAllSystems } from '../functions/SystemFunctions'
+import { defineSystem, System, SystemUUID, unloadAllSystems } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -258,6 +258,12 @@ export class Engine {
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
   systemDefinitions = new Map<string, Required<System>>()
+
+  systemGroups = {} as {
+    input: SystemUUID
+    simulation: SystemUUID
+    presentation: SystemUUID
+  }
 
   /**
    * Network object query

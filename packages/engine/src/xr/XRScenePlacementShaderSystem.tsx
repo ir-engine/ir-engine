@@ -8,6 +8,7 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createGroupQueryReactor, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 type ScenePlacementMaterialType = {
   userData: {

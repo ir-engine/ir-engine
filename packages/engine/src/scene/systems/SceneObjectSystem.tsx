@@ -28,7 +28,7 @@ import {
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { defineSystem, PostAvatarUpdateSystemGroup } from '../../ecs/functions/SystemFunctions'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -167,12 +167,9 @@ const reactor = ({ root }: ReactorProps) => {
   return <GroupReactor root={root} />
 }
 
-const subsystems = [FogSystem, EnvironmentSystem]
-
-if (isClient) subsystems.push(ShadowSystem)
-
 export const SceneObjectSystem = defineSystem({
   uuid: 'ee.engine.SceneObjectSystem',
   execute,
-  reactor
+  reactor,
+  subSystems: [FogSystem, EnvironmentSystem, ShadowSystem]
 })

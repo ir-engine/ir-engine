@@ -32,7 +32,7 @@ const reactor = () => {
 }
 
 export const MaterialLibrarySystem = defineSystem({
-  uuid: 'ee.engine.MaterialLibrarySystem',
+  uuid: 'ee.engine.scene.MaterialLibrarySystem',
   execute,
   reactor
 })
