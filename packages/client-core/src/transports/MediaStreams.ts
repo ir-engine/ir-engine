@@ -1,20 +1,9 @@
-import { Producer } from 'mediasoup-client/lib/Producer'
-
-import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   localAudioConstraints,
   localVideoConstraints
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
-import {
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
-} from '@etherealengine/engine/src/networking/NetworkState'
-import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
@@ -51,16 +40,6 @@ export const MediaStreamState = defineState({
     screenShareAudioPaused: false
   }
 })
-
-export class MediaStreamActions {
-  static triggerUpdateConsumers = defineAction({
-    type: 'ee.client.MediaStreams.NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS' as const
-  })
-  static closeConsumer = defineAction({
-    type: 'ee.client.MediaStreams.NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER' as const,
-    consumer: matches.any
-  })
-}
 
 export const MediaStreamService = {
   /**

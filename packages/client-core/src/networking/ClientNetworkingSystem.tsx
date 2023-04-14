@@ -23,19 +23,16 @@ import {
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
-import { PeerMedia } from '../media/PeerMedia'
-import { MediaServiceReceptor, MediaStreamService } from '../media/services/MediaStreamService'
+import { PeerConsumers } from '../media/PeerMedia'
 import { ChatServiceReceptor, ChatState } from '../social/services/ChatService'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import { LocationState } from '../social/services/LocationService'
 import { WarningUIService } from '../systems/WarningUISystem'
-import { MediaStreamActions } from '../transports/MediaStreams'
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
 import { NetworkUserServiceReceptor } from '../user/services/NetworkUserService'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
-const triggerUpdateConsumersQueue = createActionQueue(MediaStreamActions.triggerUpdateConsumers.matches)
 const noWorldServersAvailableQueue = createActionQueue(NetworkConnectionService.actions.noWorldServersAvailable.matches)
 const noMediaServersAvailableQueue = createActionQueue(NetworkConnectionService.actions.noMediaServersAvailable.matches)
 const worldInstanceDisconnectedQueue = createActionQueue(
@@ -52,13 +49,18 @@ const mediaInstanceReconnectedQueue = createActionQueue(
   NetworkConnectionService.actions.mediaInstanceReconnected.matches
 )
 
+// todo replace with subsystems
+addActionReceptor(LocationInstanceConnectionServiceReceptor)
+addActionReceptor(MediaInstanceConnectionServiceReceptor)
+addActionReceptor(NetworkUserServiceReceptor)
+addActionReceptor(FriendServiceReceptor)
+addActionReceptor(ChatServiceReceptor)
+
 const execute = () => {
   const locationState = getState(LocationState)
   const chatState = getState(ChatState)
   const authState = getState(AuthState)
   const engineState = getState(EngineState)
-
-  for (const action of triggerUpdateConsumersQueue()) MediaStreamService.triggerUpdateConsumers()
 
   for (const action of noWorldServersAvailableQueue()) {
     const currentLocationID = locationState.currentLocation.location.id
@@ -140,13 +142,11 @@ const reactor = () => {
   useEffect(() => {
     addActionReceptor(LocationInstanceConnectionServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
-    addActionReceptor(MediaServiceReceptor)
     addActionReceptor(NetworkUserServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
     addActionReceptor(ChatServiceReceptor)
 
     return () => {
-      removeActionQueue(triggerUpdateConsumersQueue)
       removeActionQueue(noWorldServersAvailableQueue)
       removeActionQueue(noMediaServersAvailableQueue)
       removeActionQueue(worldInstanceDisconnectedQueue)
@@ -158,7 +158,6 @@ const reactor = () => {
       // todo replace with subsystems
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
       removeActionReceptor(MediaInstanceConnectionServiceReceptor)
-      removeActionReceptor(MediaServiceReceptor)
       removeActionReceptor(NetworkUserServiceReceptor)
       removeActionReceptor(FriendServiceReceptor)
       removeActionReceptor(ChatServiceReceptor)
@@ -168,7 +167,7 @@ const reactor = () => {
   return (
     <>
       <DataChannels />
-      <PeerMedia />
+      <PeerConsumers />
       <InstanceProvisioning />
     </>
   )

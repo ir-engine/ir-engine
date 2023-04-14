@@ -53,6 +53,12 @@ export const MediaInstanceState = defineState({
   })
 })
 
+export function useMediaNetwork() {
+  const mediaNetworkState = useState(getMutableState(NetworkState).networks)
+  const mediaHostId = useState(getMutableState(NetworkState).hostIds.media)
+  return mediaHostId.value ? (mediaNetworkState[mediaHostId.value] as State<SocketWebRTCClientNetwork>) : null
+}
+
 export function useMediaInstance() {
   const mediaInstanceState = useState(getMutableState(MediaInstanceState).instances)
   const mediaHostId = useState(getMutableState(NetworkState).hostIds.media)

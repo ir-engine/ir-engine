@@ -134,7 +134,8 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
     }
     const eNode = createEntity()
     const parent = eJson.parent ? UUIDComponent.entitiesByUUID[eJson.parent].value : rootEntity
-    setComponent(eNode, EntityTreeComponent, { parentEntity: parent, uuid })
+    setComponent(eNode, EntityTreeComponent, { parentEntity: parent })
+    setComponent(eNode, UUIDComponent, uuid)
     if (eJson.parent && loadedEntities[eJson.parent]) {
       addEntityNodeChild(eNode, parent)
     }
@@ -275,7 +276,8 @@ export const updateSceneFromJSON = async () => {
   }
 
   /** 4. update scene entities with new data, and load new ones */
-  setComponent(sceneState.sceneEntity.value, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
+  setComponent(sceneState.sceneEntity.value, EntityTreeComponent, { parentEntity: null! })
+  setComponent(sceneState.sceneEntity.value, UUIDComponent, sceneData.scene.root)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
   updateSceneEntitiesFromJSON(sceneData.scene.root)
 
@@ -305,7 +307,8 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
     } else {
       const entity = createEntity()
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!].value
-      setComponent(entity, EntityTreeComponent, { parentEntity, uuid })
+      setComponent(entity, EntityTreeComponent, { parentEntity })
+      setComponent(entity, UUIDComponent, uuid)
       setLocalTransformComponent(entity, parentEntity)
       addEntityNodeChild(entity, parentEntity)
       deserializeSceneEntity(entity, entityJson)
