@@ -116,7 +116,7 @@ export const executeSystems = (frameTime: number) => {
   engineState.elapsedSeconds.set(worldElapsedSeconds)
 
   const rootSystem = SystemDefintions.get(RootSystemGroup)!
-  rootSystem.execute()
+  // rootSystem.execute()
 
   for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)
 

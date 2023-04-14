@@ -14,7 +14,7 @@ import {
   removeQuery,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem, InputSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -276,11 +276,8 @@ const reactor = () => {
   return null
 }
 
-export const WebcamInputSystem = defineSystem(
-  {
-    uuid: 'ee.client.WebcamInputSystem',
-    execute,
-    reactor
-  },
-  { with: [InputSystemGroup] }
-)
+export const WebcamInputSystem = defineSystem({
+  uuid: 'ee.client.WebcamInputSystem',
+  execute,
+  reactor
+})

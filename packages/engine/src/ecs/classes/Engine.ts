@@ -262,6 +262,8 @@ export class Engine {
     presentation: SystemUUID
   }
 
+  activeSystemReactors = new Set<ReactorRoot>()
+
   /**
    * Network object query
    */

@@ -2,7 +2,7 @@ import React, { Suspense } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, ReactorProps, ReactorRoot } from '@etherealengine/hyperflux'
+import { getMutableState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { IncomingActionSystem } from '../../networking/systems/IncomingActionSystem'
@@ -101,6 +101,7 @@ export function insertSystem(
     after?: SystemUUID
   }
 ) {
+  console.log('insertSystem', systemUUID, insert)
   const referenceSystem = SystemDefintions.get(systemUUID)
   if (!referenceSystem) throw new Error(`System ${systemUUID} does not exist.`)
 
@@ -112,6 +113,9 @@ export function insertSystem(
       )
     referenceSystem.preSystems.push(systemUUID)
     referenceSystem.enabled = true
+    if (referenceSystem.reactor) {
+      Engine.instance.activeSystemReactors.add(startReactor(referenceSystem.reactor))
+    }
   }
 
   if (insert.with) {
@@ -122,6 +126,9 @@ export function insertSystem(
       )
     referenceSystem.subSystems.push(systemUUID)
     referenceSystem.enabled = true
+    if (referenceSystem.reactor) {
+      Engine.instance.activeSystemReactors.add(startReactor(referenceSystem.reactor))
+    }
   }
 
   if (insert.after) {
@@ -132,6 +139,9 @@ export function insertSystem(
       )
     referenceSystem.postSystems.push(systemUUID)
     referenceSystem.enabled = true
+    if (referenceSystem.reactor) {
+      Engine.instance.activeSystemReactors.add(startReactor(referenceSystem.reactor))
+    }
   }
 }
 
@@ -148,21 +158,17 @@ export const insertSystems = (
   }
 }
 
-export const enableSystems = (systemUUIDs: SystemUUID[]) => {
-  for (const systemUUID of systemUUIDs) {
-    const system = SystemDefintions.get(systemUUID)
-    if (system) {
-      system.enabled = true
-    }
+export const enableSystem = (systemUUID: SystemUUID) => {
+  const system = SystemDefintions.get(systemUUID)
+  if (system) {
+    system.enabled = true
   }
 }
 
-export const disableSystems = (systemUUIDs: SystemUUID[]) => {
-  for (const systemUUID of systemUUIDs) {
-    const system = SystemDefintions.get(systemUUID)
-    if (system) {
-      system.enabled = false
-    }
+export const disableSystems = async (systemUUID: SystemUUID) => {
+  const system = SystemDefintions.get(systemUUID)
+  if (system) {
+    system.enabled = false
   }
 }
 
