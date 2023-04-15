@@ -63,6 +63,11 @@ export interface CreateBotCammand {
 export interface BotPod {
   name: string
   status: string
+  ip: string
+}
+
+export interface BotService {
+  name: string
 }
 
 export interface SpawnBotPod {

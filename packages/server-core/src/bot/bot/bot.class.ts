@@ -1,7 +1,6 @@
 import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { Connect } from 'aws-sdk'
-import { BotAction } from 'ee-bot/bot/bot-action'
-import { BotManager } from 'ee-bot/bot/bot-manager'
+import { BotAction } from 'ee-bot/src/bot/bot-action'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
@@ -14,13 +13,10 @@ export type AdminBotDataType = AdminBot
 export class Bot extends Service {
   app: Application
   docs: any
-  botmanager: BotManager
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
-    this.botmanager = new BotManager({ verbose: false, headless: false })
-    botk8s.createBotService()
   }
 
   async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
@@ -67,7 +63,7 @@ export class Bot extends Service {
   async remove(id: string): Promise<AdminBotDataType | AdminBotDataType[]> {
     //make this remove pod of the bot
     // need to try and find name instead
-    botk8s.deleteBodPod(id)
+    botk8s.deleteBodPod({ id: id })
     /*console.log(`removed bot with id = ${id} from server`)
     this.botmanager.addAction(id, BotAction.disconnect())
     await this.botmanager.run()*/
