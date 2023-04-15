@@ -28,7 +28,7 @@ export const SystemDefintions = new Map<SystemUUID, System>()
 const lastWarningTime = new Map<SystemUUID, number>()
 const warningCooldownDuration = 1000 * 10 // 10 seconds
 
-export let CurrentSystemUUID = null as SystemUUID | null
+export let CurrentSystemUUID = '__null__' as SystemUUID
 
 export function executeSystem(systemUUID: SystemUUID) {
   const system = SystemDefintions.get(systemUUID)!
@@ -48,7 +48,7 @@ export function executeSystem(systemUUID: SystemUUID) {
     logger.error(`Failed to execute system ${system.uuid}`)
     logger.error(e)
   } finally {
-    CurrentSystemUUID = null
+    CurrentSystemUUID = '__null__' as SystemUUID
   }
   const endTime = nowMilliseconds()
 

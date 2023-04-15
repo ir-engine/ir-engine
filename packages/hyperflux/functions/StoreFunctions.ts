@@ -33,7 +33,7 @@ export interface HyperStore {
   /**
    * A function which returns the current reactor root context
    **/
-  getCurrentReactorRoot: () => ReactorRoot
+  getCurrentReactorRoot: () => ReactorRoot | undefined
   /**
    * The default dispatch delay (default is 0)
    */
@@ -87,7 +87,7 @@ export function createHyperStore(options: {
   forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
   getDispatchTime: () => number
-  getCurrentReactorRoot?: () => ReactorRoot
+  getCurrentReactorRoot?: () => ReactorRoot | undefined
   defaultDispatchDelay?: number
 }) {
   const store = {

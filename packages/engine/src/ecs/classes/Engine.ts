@@ -52,7 +52,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { defineSystem, System, SystemUUID, unloadAllSystems } from '../functions/SystemFunctions'
+import { CurrentSystemUUID, defineSystem, System, SystemUUID, unloadAllSystems } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -108,7 +108,8 @@ export class Engine {
     },
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => Date.now(),
-    defaultDispatchDelay: 1 / this.tickRate
+    defaultDispatchDelay: 1 / this.tickRate,
+    getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(CurrentSystemUUID)
   }) as HyperStore
 
   /**

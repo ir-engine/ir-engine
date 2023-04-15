@@ -53,7 +53,7 @@ export interface ReactorRoot {
   fiber: any
   isRunning: boolean
   promise: Promise<void>
-  cleanupFunctions: (() => void)[]
+  cleanupFunctions: Set<() => void>
   run: () => Promise<void>
   stop: () => Promise<void>
 }
@@ -101,11 +101,12 @@ export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.
           reactorRoot.isRunning = false
           store.activeReactors.delete(reactorRoot)
           reactorRoot.cleanupFunctions.forEach((fn) => fn())
+          reactorRoot.cleanupFunctions.clear()
           resolve()
         })
       })
     },
-    cleanupFunctions: []
+    cleanupFunctions: new Set()
   } as ReactorRoot
 
   reactorRoot.promise = reactorRoot.run()
