@@ -290,12 +290,6 @@ const reactor = () => {
       texture.needsUpdate = true
       plate.material.map = texture
     })
-    return () => {
-      removeQuery(effectQuery)
-      removeQuery(growQuery)
-      removeQuery(commonQuery)
-      removeQuery(dissolveQuery)
-    }
   }, [])
   return null
 }

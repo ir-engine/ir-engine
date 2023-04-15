@@ -344,11 +344,6 @@ const reactor = () => {
     })
 
     return () => {
-      removeQuery(followCameraQuery)
-      removeQuery(ownedNetworkCamera)
-      removeQuery(spectatorQuery)
-      removeActionQueue(cameraSpawnActions)
-      removeActionQueue(spectateUserActions)
       getMutableState(SceneState).sceneMetadataRegistry[CameraSceneMetadataLabel].set(none)
     }
   }, [])

@@ -163,9 +163,6 @@ const reactor = () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.chair)
       Engine.instance.sceneComponentRegistry.delete(MountPointComponent.name)
       Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
-      removeActionQueue(mountPointActionQueue)
-      removeQuery(mountPointQuery)
-      removeQuery(sittingIdleQuery)
     }
   }, [])
   return null

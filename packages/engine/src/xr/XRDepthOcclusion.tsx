@@ -288,11 +288,6 @@ const reactor = ({ root }: ReactorProps) => {
     }
   }, [xrState.sessionActive])
 
-  useEffect(() => {
-    return () => {
-      removeQuery(groupQuery)
-    }
-  }, [])
   return <DepthOcclusionReactor root={root} />
 }
 

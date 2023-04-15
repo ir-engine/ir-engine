@@ -267,10 +267,6 @@ const reactor = () => {
       audioState.gainNodeMixBuses.soundEffects.value.disconnect()
       audioState.gainNodeMixBuses.soundEffects.set(null!)
 
-      removeQuery(mediaQuery)
-      removeQuery(videoQuery)
-      removeQuery(volumetricQuery)
-
       for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
     }
   }, [])

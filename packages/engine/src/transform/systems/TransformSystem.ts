@@ -402,21 +402,6 @@ const reactor = () => {
       Engine.instance.sceneComponentRegistry.delete(TransformComponent.name)
       Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_TRANSFORM)
 
-      removeActionQueue(modifyPropertyActionQueue)
-
-      removeQuery(transformQuery)
-      removeQuery(nonDynamicLocalTransformQuery)
-      removeQuery(rigidbodyTransformQuery)
-      removeQuery(fixedRigidBodyQuery)
-      removeQuery(groupQuery)
-
-      removeQuery(staticBoundingBoxQuery)
-      removeQuery(dynamicBoundingBoxQuery)
-
-      removeQuery(distanceFromLocalClientQuery)
-      removeQuery(distanceFromCameraQuery)
-      removeQuery(frustumCulledQuery)
-
       Skeleton.prototype.update = skeletonUpdate
 
       networkState.networkSchema[TransformSerialization.ID].set(none)

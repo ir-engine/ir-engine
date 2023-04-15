@@ -158,10 +158,6 @@ const execute = () => {
 const reactor = ({ root }: ReactorProps) => {
   useEffect(() => {
     Engine.instance.gltfLoader = createGLTFLoader()
-    return () => {
-      removeQuery(groupQuery)
-      removeQuery(updatableQuery)
-    }
   }, [])
   return <GroupReactor root={root} />
 }

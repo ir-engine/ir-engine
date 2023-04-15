@@ -265,8 +265,6 @@ const reactor = () => {
     return () => {
       removeEntity(guidelineEntity)
       removeEntity(guideCursorEntity)
-      removeQuery(avatarTeleportQuery)
-
       getMutableState(AvatarTeleportSystemState).set({
         guideCursor: null!,
         transition: null!,

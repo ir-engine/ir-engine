@@ -19,7 +19,7 @@ import { WebcamInputComponent } from '@etherealengine/engine/src/input/component
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, defineActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
 
@@ -256,7 +256,7 @@ const setAvatarExpression = (entity: Entity): void => {
   }
 }
 const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
-const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
+const avatarSpawnQueue = defineActionQueue(WorldNetworkAction.spawnAvatar.matches)
 
 const execute = () => {
   for (const action of avatarSpawnQueue()) {
@@ -266,18 +266,7 @@ const execute = () => {
   for (const entity of webcamQuery()) setAvatarExpression(entity)
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(webcamQuery)
-      removeActionQueue(avatarSpawnQueue)
-    }
-  }, [])
-  return null
-}
-
 export const WebcamInputSystem = defineSystem({
   uuid: 'ee.client.WebcamInputSystem',
-  execute,
-  reactor
+  execute
 })

@@ -18,17 +18,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(gizmoQuery)
-    }
-  }, [])
-  return null
-}
-
 export const GizmoSystem = defineSystem({
   uuid: 'ee.editor.GizmoSystem',
-  execute,
-  reactor
+  execute
 })

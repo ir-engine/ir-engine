@@ -256,8 +256,6 @@ const reactor = () => {
       document.body.removeEventListener('click', redirectDOMEvent)
       document.body.removeEventListener('contextmenu', redirectDOMEvent)
       document.body.removeEventListener('dblclick', redirectDOMEvent)
-      removeQuery(visibleXruiQuery)
-      removeQuery(xruiQuery)
     }
   }, [])
   return null

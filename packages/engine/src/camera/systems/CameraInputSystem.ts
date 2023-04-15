@@ -200,17 +200,7 @@ const execute = () => {
   lastMouseMoved = !!mouseMoved
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(inputQuery)
-    }
-  }, [])
-  return null
-}
-
 export const CameraInputSystem = defineSystem({
   uuid: 'ee.engine.CameraInputSystem',
-  execute,
-  reactor
+  execute
 })

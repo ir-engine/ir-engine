@@ -24,17 +24,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(highlightedObjectQuery)
-    }
-  }, [])
-  return null
-}
-
 export const HighlightSystem = defineSystem({
   uuid: 'ee.engine.HighlightSystem',
-  execute,
-  reactor
+  execute
 })

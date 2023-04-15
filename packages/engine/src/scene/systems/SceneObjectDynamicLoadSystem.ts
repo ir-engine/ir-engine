@@ -62,7 +62,6 @@ const reactor = () => {
     return () => {
       Engine.instance.sceneComponentRegistry.delete(SceneDynamicLoadTagComponent.name)
       Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_DYNAMIC_LOAD)
-      removeQuery(sceneObjectQuery)
     }
   }, [])
   return null

@@ -56,17 +56,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(mediaQuery)
-    }
-  }, [])
-  return null
-}
-
 export const MediaControlSystem = defineSystem({
   uuid: 'ee.engine.MediaControlSystem',
-  execute,
-  reactor
+  execute
 })

@@ -53,15 +53,6 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(collisionQuery)
-    }
-  }, [])
-  return null
-}
-
 export const TriggerSystem = defineSystem({
   uuid: 'ee.engine.TriggerSystem',
   execute,

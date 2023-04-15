@@ -109,10 +109,6 @@ const reactor = () => {
     })
 
     return () => {
-      removeQuery(spawnPointQuery)
-      removeActionQueue(avatarSpawnQueue)
-      removeActionQueue(avatarDetailsQueue)
-
       networkState.networkSchema[IKSerialization.headID].set(none)
       networkState.networkSchema[IKSerialization.leftHandID].set(none)
       networkState.networkSchema[IKSerialization.rightHandID].set(none)

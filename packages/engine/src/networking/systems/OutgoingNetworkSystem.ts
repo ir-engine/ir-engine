@@ -50,18 +50,7 @@ const execute = () => {
   Engine.instance.worldNetwork && serializeAndSend(serialize)
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(networkTransformsQuery)
-      removeQuery(authoritativeNetworkTransformsQuery)
-    }
-  }, [])
-  return null
-}
-
 export const OutgoingNetworkSystem = defineSystem({
   uuid: 'ee.engine.OutgoingNetworkSystem',
-  execute,
-  reactor
+  execute
 })

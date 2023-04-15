@@ -86,11 +86,6 @@ const reactor = () => {
     Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_BEHAVE_GRAPH, {})
 
     return () => {
-      removeQuery(graphQuery)
-      removeQuery(runtimeQuery)
-      removeActionQueue(executeQueue)
-      removeActionQueue(stopQueue)
-
       Engine.instance.sceneComponentRegistry.delete(BehaveGraphComponent.name)
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)
     }

@@ -88,17 +88,8 @@ const execute = () => {
     transform.rotation.copy(camera.quaternion)
   }
 }
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(flyControlQuery)
-    }
-  }, [])
-  return null
-}
 
 export const FlyControlSystem = defineSystem({
   uuid: 'ee.engine.FlyControlSystem',
-  execute,
-  reactor
+  execute
 })

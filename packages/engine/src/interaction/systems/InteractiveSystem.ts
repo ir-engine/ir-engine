@@ -155,18 +155,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(allInteractablesQuery)
-      removeQuery(interactableQuery)
-    }
-  }, [])
-  return null
-}
-
 export const InteractiveSystem = defineSystem({
   uuid: 'ee.engine.InteractiveSystem',
-  execute,
-  reactor
+  execute
 })

@@ -104,8 +104,6 @@ const reactor = () => {
   useEffect(() => {
     addActionReceptor(AvatarInputSettingsReceptor)
     return () => {
-      removeQuery(localControllerQuery)
-      removeQuery(controllerQuery)
       removeActionReceptor(AvatarInputSettingsReceptor)
     }
   }, [])

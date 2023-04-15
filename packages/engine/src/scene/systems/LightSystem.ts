@@ -99,8 +99,6 @@ const reactor = () => {
       Engine.instance.scenePrefabRegistry.delete(LightPrefabs.ambientLight)
       Engine.instance.scenePrefabRegistry.delete(LightPrefabs.pointLight)
       Engine.instance.scenePrefabRegistry.delete(LightPrefabs.spotLight)
-
-      removeQuery(directionalLightSelectQuery)
     }
   }, [])
   return null

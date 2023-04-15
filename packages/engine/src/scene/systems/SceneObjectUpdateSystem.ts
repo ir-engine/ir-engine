@@ -386,13 +386,6 @@ const reactor = () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.particleEmitter)
       Engine.instance.sceneComponentRegistry.delete(ParticleSystemComponent.name)
       Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_SYSTEM)
-
-      removeQuery(cloudQuery)
-      removeQuery(oceanQuery)
-      removeQuery(interiorQuery)
-      removeQuery(spawnPointComponent)
-
-      removeActionQueue(modifyPropertyActionQueue)
     }
   }, [])
   return null

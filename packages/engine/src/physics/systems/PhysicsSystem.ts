@@ -278,13 +278,6 @@ const reactor = () => {
       Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
       Engine.instance.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
 
-      removeQuery(allRigidBodyQuery)
-      removeQuery(collisionQuery)
-      removeQuery(kinematicPositionBodyQuery)
-      removeQuery(kinematicVelocityBodyQuery)
-
-      removeActionQueue(teleportObjectQueue)
-
       Engine.instance.physicsWorld.free()
       Engine.instance.physicsWorld = null!
 

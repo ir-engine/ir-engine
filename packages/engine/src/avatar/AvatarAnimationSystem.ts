@@ -339,17 +339,6 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     AnimationManager.instance.loadDefaultAnimations()
-
-    return () => {
-      removeQuery(leftArmQuery)
-      removeQuery(rightArmQuery)
-      removeQuery(leftHandQuery)
-      removeQuery(rightHandQuery)
-      removeQuery(localHeadIKQuery)
-      removeQuery(headIKQuery)
-      removeQuery(armsTwistCorrectionQuery)
-      removeQuery(avatarAnimationQuery)
-    }
   }, [])
   return null
 }

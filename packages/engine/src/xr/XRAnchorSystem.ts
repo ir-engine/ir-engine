@@ -371,11 +371,6 @@ const reactor = () => {
     addObjectToGroup(scenePlacementEntity, originAxesHelper)
 
     xrAnchorSystemState.scenePlacementEntity.set(scenePlacementEntity)
-
-    return () => {
-      removeQuery(xrHitTestQuery)
-      removeActionQueue(xrSessionChangedQueue)
-    }
   }, [])
 
   return null

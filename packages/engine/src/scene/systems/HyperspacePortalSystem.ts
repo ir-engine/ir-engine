@@ -126,9 +126,6 @@ const reactor = () => {
 
     return () => {
       PortalEffects.delete(HyperspacePortalEffect)
-      removeQuery(sceneAssetPendingTagQuery)
-      removeQuery(hyperspaceTagComponent)
-
       getMutableState(HyperspacePortalSystemState).set({ transition: null! })
     }
   }, [])

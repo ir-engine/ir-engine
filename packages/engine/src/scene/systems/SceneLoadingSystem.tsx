@@ -420,7 +420,6 @@ const reactor = () => {
     addActionReceptor(AppLoadingServiceReceptor)
     return () => {
       removeActionReceptor(AppLoadingServiceReceptor)
-      removeQuery(sceneAssetPendingTagQuery)
     }
   }, [])
   return null

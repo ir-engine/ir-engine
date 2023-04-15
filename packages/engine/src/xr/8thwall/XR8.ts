@@ -366,7 +366,6 @@ const reactor = () => {
       }
       if (cameraCanvas) cameraCanvas.remove()
       revertXRSessionFunctions()
-      removeQuery(vpsQuery)
     }
   }, [])
   return null

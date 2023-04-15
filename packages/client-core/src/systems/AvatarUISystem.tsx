@@ -255,7 +255,6 @@ const reactor = () => {
 
     return () => {
       removeEntity(getState(AvatarUIContextMenuState).ui.entity)
-      removeQuery(userQuery)
       getMutableState(PopupMenuState).menus[AvatarMenus.AvatarContext].set(none)
     }
   }, [])

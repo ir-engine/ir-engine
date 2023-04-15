@@ -215,19 +215,7 @@ const PositionalAudioPanner = createQueryReactor(
 )
 
 const reactor = ({ root }: ReactorProps) => {
-  useEffect(() => {
-    return () => {
-      removeQuery(positionalAudioQuery)
-      removeQuery(networkedAvatarAudioQuery)
-      removeActionQueue(setMediaStreamVolumeActionQueue)
-    }
-  }, [])
-
-  return (
-    <>
-      <PositionalAudioPanner root={root} />
-    </>
-  )
+  return <PositionalAudioPanner root={root} />
 }
 
 export const PositionalAudioSystem = defineSystem({

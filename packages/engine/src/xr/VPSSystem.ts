@@ -60,10 +60,6 @@ const reactor = () => {
     return () => {
       Engine.instance.sceneComponentRegistry.delete(PersistentAnchorComponent.name)
       Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PERSISTENT_ANCHOR)
-      removeActionQueue(vpsAnchorFoundQueue)
-      removeActionQueue(vpsAnchorUpdatedQueue)
-      removeActionQueue(vpsAnchorLostQueue)
-      removeQuery(vpsAnchorQuery)
     }
   }, [])
   return null

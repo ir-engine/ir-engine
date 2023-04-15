@@ -40,20 +40,10 @@ const execute = () => {
   for (const entity of portalQuery.enter()) enterPortal(entity)
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(portalQuery)
-    }
-  }, [])
-  return null
-}
-
 /**
  * Loads portal metadata once the models have been loaded. Depends on API calls.
  */
 export const PortalLoadSystem = defineSystem({
   uuid: 'ee.engine.scene.PortalLoadSystem',
-  execute,
-  reactor
+  execute
 })

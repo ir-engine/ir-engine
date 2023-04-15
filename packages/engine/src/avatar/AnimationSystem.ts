@@ -55,19 +55,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeQuery(tweenQuery)
-      removeQuery(animationQuery)
-      removeActionQueue(avatarAnimationQueue)
-    }
-  }, [])
-  return null
-}
-
 export const AnimationSystem = defineSystem({
   uuid: 'ee.engine.AnimationSystem',
-  execute,
-  reactor
+  execute
 })

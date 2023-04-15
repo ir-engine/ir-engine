@@ -227,13 +227,6 @@ const reactor = () => {
     return () => {
       Engine.instance.sceneComponentRegistry.delete(EquippableComponent.name)
       Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_EQUIPPABLE)
-
-      removeActionQueue(interactedActionQueue)
-      removeActionQueue(transferAuthorityOfObjectQueue)
-      removeActionQueue(setEquippedObjectQueue)
-
-      removeQuery(equipperQuery)
-      removeQuery(equippableQuery)
     }
   }, [])
   return null
