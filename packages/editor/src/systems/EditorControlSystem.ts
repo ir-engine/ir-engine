@@ -360,6 +360,8 @@ export default async function EditorControlSystem() {
         if (isChanged || transformPivotChanged) {
           if (transformPivot === TransformPivot.Selection) {
             gizmoObj.position.copy(lastSelectedTransform.position)
+          } else if (transformPivot === TransformPivot.Origin) {
+            gizmoObj.position.set(0, 0, 0)
           } else {
             box.makeEmpty()
 
