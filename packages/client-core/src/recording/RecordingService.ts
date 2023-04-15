@@ -98,8 +98,8 @@ const reactor = () => {
   return null
 }
 
-export const WebcamInputSystem = defineSystem({
-  uuid: 'ee.client.WebcamInputSystem',
+export const RecordingServiceSystem = defineSystem({
+  uuid: 'ee.client.RecordingServiceSystem',
   execute,
   reactor
 })

@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../../ecs/functions/SystemFunctions'

@@ -50,7 +50,7 @@ import {
 } from '../../ecs/functions/EntityTree'
 import {
   defineSystem,
-  insertSystem,
+  startSystem,
   System,
   SystemDefintions,
   SystemUUID,
@@ -267,7 +267,7 @@ export const updateSceneFromJSON = async () => {
   /** 3. load new systems */
   if (!getMutableState(EngineState).isEditor.value) {
     for (const system of systemsToLoad) {
-      insertSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
+      startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
     }
   }
 

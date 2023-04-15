@@ -5,7 +5,7 @@ import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHoo
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, insertSystem, unloadSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem, startSystem, unloadSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -85,7 +85,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
 
     const systemUUID = 'xre.client.AvatarSelectRenderSystem-' + i++
 
-    insertSystem(AvatarSelectRenderSystem, { after: PresentationSystemGroup })
+    startSystem(AvatarSelectRenderSystem, { after: PresentationSystemGroup })
 
     return () => {
       unloadSystem(systemUUID)

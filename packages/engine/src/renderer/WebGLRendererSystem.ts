@@ -33,6 +33,7 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   hookstate,
   none,
   removeActionQueue,
@@ -300,7 +301,7 @@ export class EngineRenderer {
 }
 
 export const DefaultRenderSettingsState = {
-  // LODs: { ...DEFAULT_LOD_DISTANCES },
+  // LODs: { ...DEFAULT_LOD_DISTANCES },{
   csm: true,
   toneMapping: LinearToneMapping as ToneMapping,
   toneMappingExposure: 0.8,
@@ -315,18 +316,21 @@ export const DefaultPostProcessingState = {
 export const RendererSceneMetadataLabel = 'renderSettings'
 export const PostProcessingSceneMetadataLabel = 'postprocessing'
 
-export const getRendererSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[RendererSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultRenderSettingsState>
-    >
-  ).data
-export const getPostProcessingSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[PostProcessingSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultPostProcessingState>
-    >
-  ).data
+export const RenderSettingsState = defineState({
+  name: 'RenderSettingsState',
+  initial: DefaultRenderSettingsState
+})
+
+export const PostProcessingSettingsState = defineState({
+  name: 'RenderSettingsState',
+  initial: DefaultPostProcessingState
+})
+
+/** @deprecated use getMutableState(RenderSettingsState) */
+export const getRendererSceneMetadataState = () => getMutableState(RenderSettingsState)
+
+/** @deprecated use getMutableState(PostProcessingSettingsState) */
+export const getPostProcessingSceneMetadataState = () => getMutableState(PostProcessingSettingsState)
 
 const execute = () => {
   EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
@@ -335,19 +339,19 @@ const execute = () => {
 globalThis.EngineRenderer = EngineRenderer
 
 const reactor = () => {
-  const renderSettings = useHookstate(getRendererSceneMetadataState())
+  const renderSettings = useHookstate(getMutableState(RenderSettingsState))
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
-  const postprocessing = useHookstate(getPostProcessingSceneMetadataState())
+  const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
   const xrState = useHookstate(getMutableState(XRState))
 
   useEffect(() => {
     getMutableState(SceneState).sceneMetadataRegistry.merge({
       [RendererSceneMetadataLabel]: {
-        data: _.cloneDeep(DefaultRenderSettingsState),
+        data: () => getState(RenderSettingsState),
         default: DefaultRenderSettingsState
       },
       [PostProcessingSceneMetadataLabel]: {
-        data: _.cloneDeep(DefaultPostProcessingState),
+        data: () => getState(PostProcessingSettingsState),
         default: DefaultPostProcessingState
       }
     })

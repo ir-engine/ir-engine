@@ -89,7 +89,7 @@ export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
   return systemConfig.uuid as SystemUUID
 }
 
-export function insertSystem(
+export function startSystem(
   systemUUID: SystemUUID,
   insert: {
     before?: SystemUUID
@@ -132,7 +132,7 @@ export function insertSystem(
   }
 }
 
-export const insertSystems = (
+export const startSystems = (
   systems: SystemUUID[],
   insert: {
     before?: SystemUUID
@@ -141,7 +141,7 @@ export const insertSystems = (
   }
 ) => {
   for (const system of systems) {
-    insertSystem(system, insert)
+    startSystem(system, insert)
   }
 }
 

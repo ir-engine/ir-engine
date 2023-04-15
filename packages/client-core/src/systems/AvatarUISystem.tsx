@@ -249,17 +249,12 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    const AvatarContextMenuUI = createAvatarContextMenuView()
-    getMutableState(AvatarUIContextMenuState).ui.set(AvatarContextMenuUI)
-    removeComponent(AvatarContextMenuUI.entity, VisibleComponent)
-    setComponent(AvatarContextMenuUI.entity, XRUIInteractableComponent)
-
     getMutableState(PopupMenuState).menus.merge({
       [AvatarMenus.AvatarContext]: AvatarContextMenu
     })
 
     return () => {
-      removeEntity(AvatarContextMenuUI.entity)
+      removeEntity(getState(AvatarUIContextMenuState).ui.entity)
       removeQuery(userQuery)
       getMutableState(PopupMenuState).menus[AvatarMenus.AvatarContext].set(none)
     }

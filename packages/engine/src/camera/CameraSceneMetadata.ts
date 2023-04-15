@@ -1,6 +1,5 @@
-import { getMutableState, State } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { SceneMetadata, SceneState } from '../ecs/classes/Scene'
 import { CameraMode } from './types/CameraMode'
 import { ProjectionType } from './types/ProjectionType'
 
@@ -21,9 +20,9 @@ export const DefaultCameraState = {
 
 export const CameraSceneMetadataLabel = 'camera'
 
-export const getCameraSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[CameraSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultCameraState>
-    >
-  ).data
+export const CameraSettingsState = defineState({
+  name: 'CameraSettingsState',
+  initial: DefaultCameraState
+})
+
+export const getCameraSceneMetadataState = () => getMutableState(CameraSettingsState)

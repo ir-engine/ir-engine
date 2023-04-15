@@ -3,6 +3,7 @@ import { PositionalAudioSystem } from '@etherealengine/engine/src/audio/systems/
 import { AnimationSystem } from '@etherealengine/engine/src/avatar/AnimationSystem'
 import { AvatarAnimationSystem } from '@etherealengine/engine/src/avatar/AvatarAnimationSystem'
 import { AvatarInputGroup, AvatarSimulationGroup } from '@etherealengine/engine/src/avatar/AvatarClientSystems'
+import { AvatarSpawnSystem } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
 import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/CameraInputSystem'
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
@@ -13,16 +14,17 @@ import {
   PresentationSystemGroup,
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { insertSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ButtonCleanupSystem } from '@etherealengine/engine/src/input/systems/ButtonCleanupSystem'
 import { ClientInputSystem } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MediaControlSystem } from '@etherealengine/engine/src/interaction/systems/MediaControlSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
-import { OutgoingActionSystem } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { WorldNetworkActionSystem } from '@etherealengine/engine/src/networking/systems/WorldNetworkActionSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { HighlightSystem } from '@etherealengine/engine/src/renderer/HighlightSystem'
+import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 import { SceneObjectSystem } from '@etherealengine/engine/src/scene/systems/SceneObjectSystem'
 import { ReferenceSpaceTransformSystem } from '@etherealengine/engine/src/transform/systems/ReferenceSpaceTransformSystem'
@@ -33,29 +35,43 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const ClientSystems = () => {
   /** Input */
-  insertSystems(
+  startSystems(
     [IncomingNetworkSystem, XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputGroup, CameraInputSystem],
     { with: InputSystemGroup }
   )
 
   /** Fixed */
-  insertSystems([AvatarSimulationGroup, PhysicsSystem, OutgoingActionSystem], { with: SimulationSystemGroup })
+  startSystems([WorldNetworkActionSystem, AvatarSimulationGroup, PhysicsSystem], { with: SimulationSystemGroup })
 
   /** Avatar / Pre Transform */
-  insertSystems([ReferenceSpaceTransformSystem, XRAnchorSystem, AnimationSystem, CameraSystem, AvatarAnimationSystem], {
-    with: AnimationSystemGroup
-  })
+  startSystems(
+    [
+      ReferenceSpaceTransformSystem,
+      XRAnchorSystem,
+      AnimationSystem,
+      CameraSystem,
+      AvatarSpawnSystem,
+      AvatarAnimationSystem
+    ],
+    {
+      with: AnimationSystemGroup
+    }
+  )
 
   /** Post Animation / Pre Transform */
-  insertSystems([XRUISystem, InteractiveSystem, MediaControlSystem], { before: TransformSystem })
+  startSystems([XRUISystem, InteractiveSystem, MediaControlSystem], { before: TransformSystem })
 
   /** Post Transform / Pre Render */
-  insertSystems([HighlightSystem, MediaSystem, SceneObjectSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
+  startSystems([HighlightSystem, MediaSystem, SceneObjectSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
     before: PresentationSystemGroup
   })
 
+  startSystems([WebGLRendererSystem], {
+    with: PresentationSystemGroup
+  })
+
   /** Post Render */
-  insertSystems([ButtonCleanupSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup], {
+  startSystems([ButtonCleanupSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup], {
     after: PresentationSystemGroup
   })
 }

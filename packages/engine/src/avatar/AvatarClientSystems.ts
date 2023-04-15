@@ -4,7 +4,6 @@ import { AvatarControllerSystem } from './AvatarControllerSystem'
 import { AvatarInputSystem } from './AvatarInputSystem'
 import { AvatarLoadingSystem } from './AvatarLoadingSystem'
 import { AvatarMovementSystem } from './AvatarMovementSystem'
-import { AvatarSpawnSystem } from './AvatarSpawnSystem'
 import { AvatarTeleportSystem } from './AvatarTeleportSystem'
 import { FlyControlSystem } from './FlyControlSystem'
 
@@ -15,5 +14,5 @@ export const AvatarInputGroup = defineSystem({
 
 export const AvatarSimulationGroup = defineSystem({
   uuid: 'ee.engine.avatar-simulation-group',
-  subSystems: [AvatarSpawnSystem, AvatarMovementSystem, AvatarAutopilotSystem]
+  subSystems: [AvatarMovementSystem, AvatarAutopilotSystem]
 })

@@ -4,7 +4,9 @@ import React, { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
 import {
+  defineState,
   getMutableState,
+  getState,
   hookstate,
   none,
   ReactorProps,
@@ -53,12 +55,12 @@ export type FogState = State<typeof DefaultFogState>
 
 export const FogSceneMetadataLabel = 'fog'
 
-export const getFogSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[FogSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultFogState>
-    >
-  ).data
+export const FogSettingState = defineState({
+  name: 'FogSettingState',
+  initial: DefaultFogState
+})
+
+export const getFogSceneMetadataState = () => getMutableState(FogSettingState)
 
 function addFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
   if (!obj.material || !obj.material.fog || obj.material.userData.fogPlugin) return
@@ -102,11 +104,10 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
 const FogGroupQueryReactor = createGroupQueryReactor(FogGroupReactor, [Not(SceneTagComponent), VisibleComponent])
 
 const reactor = ({ root }: ReactorProps) => {
-  const fog = useHookstate(getFogSceneMetadataState())
+  const fog = useHookstate(getMutableState(FogSettingState))
   const scene = Engine.instance.scene
 
   useEffect(() => {
-    if (!fog?.value) return
     const fogData = fog.value
     switch (fogData.type) {
       case FogType.Linear:
@@ -137,38 +138,32 @@ const reactor = ({ root }: ReactorProps) => {
   }, [fog.type])
 
   useEffect(() => {
-    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog) scene.fog.color.set(fogData.color)
   }, [fog.color])
 
   useEffect(() => {
-    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && fogData.type !== FogType.Linear) (scene.fog as FogExp2).density = fogData.density
   }, [fog.density])
 
   useEffect(() => {
-    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).near = fogData.near
   }, [fog.near])
 
   useEffect(() => {
-    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).far = fogData.far
   }, [fog.far])
 
   useEffect(() => {
-    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && (fogData.type === FogType.Brownian || fogData.type === FogType.Height))
       for (const s of FogShaders) s.uniforms.heightFactor.value = fogData.height
   }, [fog.timeScale])
 
   useEffect(() => {
-    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && fogData.type === FogType.Brownian)
       for (const s of FogShaders) {
@@ -180,7 +175,7 @@ const reactor = ({ root }: ReactorProps) => {
   useEffect(() => {
     getMutableState(SceneState).sceneMetadataRegistry.merge({
       [FogSceneMetadataLabel]: {
-        data: _.cloneDeep(DefaultFogState),
+        data: () => getState(FogSettingState),
         default: DefaultFogState
       }
     })

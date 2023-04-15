@@ -2,13 +2,13 @@ import _ from 'lodash'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
-import { addActionReceptor, getMutableState, getState, State } from '@etherealengine/hyperflux'
+import { addActionReceptor, defineState, getMutableState, getState, State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
+import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
@@ -108,12 +108,12 @@ export const DefaultMediaState = {
 
 export const MediaSceneMetadataLabel = 'mediaSettings'
 
-export const getMediaSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[MediaSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultMediaState>
-    >
-  ).data
+export const MediaSettingsState = defineState({
+  name: 'MediaSettingsState',
+  initial: DefaultMediaState
+})
+
+export const getMediaSceneMetadataState = () => getMutableState(MediaSettingsState)
 
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
@@ -164,7 +164,7 @@ const reactor = () => {
 
     getMutableState(SceneState).sceneMetadataRegistry.merge({
       [MediaSceneMetadataLabel]: {
-        data: _.cloneDeep(DefaultMediaState),
+        data: () => getState(MediaSettingsState),
         default: DefaultMediaState
       }
     })

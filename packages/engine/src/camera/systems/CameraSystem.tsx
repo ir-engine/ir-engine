@@ -9,6 +9,7 @@ import {
   createActionQueue,
   dispatchAction,
   getMutableState,
+  getState,
   hookstate,
   none,
   removeActionQueue,
@@ -45,7 +46,12 @@ import {
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraSceneMetadataLabel, DefaultCameraState, getCameraSceneMetadataState } from '../CameraSceneMetadata'
+import {
+  CameraSceneMetadataLabel,
+  CameraSettingsState,
+  DefaultCameraState,
+  getCameraSceneMetadataState
+} from '../CameraSceneMetadata'
 import { CameraComponent } from '../components/CameraComponent'
 import { coneDebugHelpers, debugRays, FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
@@ -332,7 +338,7 @@ const reactor = () => {
   useEffect(() => {
     getMutableState(SceneState).sceneMetadataRegistry.merge({
       [CameraSceneMetadataLabel]: {
-        data: _.cloneDeep(DefaultCameraState),
+        data: () => getState(CameraSettingsState),
         default: DefaultCameraState
       }
     })

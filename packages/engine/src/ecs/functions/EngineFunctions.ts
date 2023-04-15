@@ -103,7 +103,7 @@ export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
   for (const preSystem of system.preSystems) {
     getDAG(preSystem, depth + 1)
   }
-  console.log('-'.repeat(depth), system.uuid)
+  console.log('-'.repeat(depth), system.uuid, system.enabled)
   for (const subSystem of system.subSystems) {
     getDAG(subSystem, depth + 1)
   }

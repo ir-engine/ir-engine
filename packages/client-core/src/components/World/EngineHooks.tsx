@@ -37,7 +37,9 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { ClientSystems } from '../../world/ClientModules'
+
+import '../../world/ClientModules'
+
 import { loadSceneJsonOffline } from '../../world/utils'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
@@ -47,10 +49,10 @@ export const initClient = async () => {
 
   const projects = API.instance.client.service('projects').find()
 
-  ClientSystems()
+  // ClientSystems()
   await loadEngineInjection(await projects)
 
-  // dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
 export const useLoadEngine = () => {
