@@ -10,8 +10,8 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 
 const packageName = 'ee-bot'
 const packageUrl = 'https://github.com/EtherealEngine/ee-bot'
-const serviceIp = `${packageName}-service.default.svc.cluster.local`
-const servicePort = 8080
+const servicePort = 4000
+let serviceIp = `${packageName}-service.default.svc.cluster.local`
 
 export const getBotPodBody = (botid: string) => {
   const podSpec: V1PodSpec = {
@@ -19,7 +19,7 @@ export const getBotPodBody = (botid: string) => {
       {
         name: 'npm-container',
         image: 'node:latest',
-        command: ['bash', '-c', `git clone ${packageUrl} && cd ${packageName} && npm install`]
+        command: ['bash', '-c', `git clone ${packageUrl} && cd ${packageName} && npm install && npm run dev`]
       }
     ]
   }
@@ -68,10 +68,12 @@ export const createBotService = async () => {
       const currservice = await getBotService(serviceName)
       if (currservice.length != 0) {
         console.log('service aleady exists skippping creation')
+        serviceIp = currservice.spec?.clusterIP as string
         return
       }
       const deployService = await k8DefaultClient.createNamespacedService('default', service)
-      logger.info(`${packageName} Service created!`)
+      serviceIp = deployService.body.spec?.clusterIP as string
+      serverLogger.info(`${packageName} Service created! ip = ${serviceIp}`)
     } catch (e) {
       serverLogger.error(`${packageName} service creation failed`)
       serverLogger.error(e)
@@ -164,7 +166,8 @@ export const getBotService = async (query = `${packageName}`) => {
       const services: BotService[] = []
       for (const service of serviceResult.body.items) {
         services.push({
-          name: service.metadata!.name!
+          name: service.metadata?.name!,
+          ip: service.spec?.clusterIP as string
         })
       }
       logger.info(services)
@@ -211,7 +214,7 @@ export const getBotPod = async (query = `${packageName}`) => {
   }
 }
 
-export const RunBotcode = async (data) => {
+export const callBotApi = async (data) => {
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   const pod = getBotPodBody(data.id)
   const podName = pod.metadata!.name!
@@ -219,9 +222,29 @@ export const RunBotcode = async (data) => {
     try {
       const currPod = await getBotPod(podName)
       if (currPod.length == 0) {
-        console.log(`pod for id ${data.id} doesnt exist skipping run code`)
+        console.log(`pod for id ${data.id} doesnt exist skipping API call`)
         return
       }
+      const endpoint: string = data.endpoint
+      const method: string = data.method.toUpperCase()
+      const requestBody = data.json
+      const options = {
+        url: `http://${serviceIp}:${servicePort}${endpoint}`,
+        method: method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        json: requestBody
+      }
+
+      request(options, (error, response, body) => {
+        if (error) {
+          serverLogger.error(error)
+        } else {
+          serverLogger.info(options.url, body)
+          return response
+        }
+      })
     } catch (e) {
       serverLogger.error(`${packageName} run code failed`)
       serverLogger.error(e)

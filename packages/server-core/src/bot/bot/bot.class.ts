@@ -41,32 +41,59 @@ export class Bot extends Service {
     // make it create bot pod with a specific name
     data.instanceId = data.instanceId ? data.instanceId : null
     const result = await super.create(data)
-    botk8s.createBotPod(result)
-    /*this.botmanager.addBot(result.id, result.name)
-    console.log(`added bot id = ${result.id}and name = ${result.name} to server`)
-    this.botmanager.addAction(result.id, BotAction.connect())
-    // convert location if to location name
-    // domain stays the same 90% of the time
-    this.botmanager.addAction(result.id, BotAction.enterRoom('localhost:3000', 'default'))
-    await this.botmanager.run()
-    console.log(`finished adding bot to server`)*/
+    const locationName = result.locationName // showed up in intellisense, lets see, hunting for the function which converts location id to location name
+    await botk8s.createBotService()
+    await botk8s.createBotPod(result)
+
+    const createBotParams = {
+      id: result.id,
+      endpoint: `/bots/${result.id}/create`,
+      method: 'get',
+      json: { name: result.name }
+    }
+    const connectBotParams = {
+      id: result.id,
+      endpoint: `/bots/${result.id}/actions/add`,
+      method: 'put',
+      json: JSON.stringify(BotAction.connect())
+    }
+    const enterRoomBotParams = {
+      id: result.id,
+      endpoint: `/bots/${result.id}/actions/add`,
+      method: 'post',
+      json: JSON.stringify(BotAction.enterRoom('localhost:3000', 'default'))
+    }
+    const runBotParams = {
+      id: result.id,
+      endpoint: `/bots/run`,
+      method: 'post',
+      json: {}
+    }
+    const response = await botk8s.callBotApi(createBotParams)
+    await botk8s.callBotApi(connectBotParams)
+    await botk8s.callBotApi(enterRoomBotParams)
+    await botk8s.callBotApi(runBotParams) // might use a queue for this or use a action consumer structure, excited :)
     //createBotCommands(this.app, result, data.command!)
 
     return result
   }
 
   async patch(id: NullableId, data: any): Promise<AdminBotDataType | AdminBotDataType[]> {
-    // lets see, might need seperate functions to work for this
+    //logically best suited to hand action additons and bot updates, will check later
     return super.patch(id, data)
   }
 
   async remove(id: string): Promise<AdminBotDataType | AdminBotDataType[]> {
     //make this remove pod of the bot
     // need to try and find name instead
-    botk8s.deleteBodPod({ id: id })
-    /*console.log(`removed bot with id = ${id} from server`)
-    this.botmanager.addAction(id, BotAction.disconnect())
-    await this.botmanager.run()*/
+    const deleteBotParams = {
+      id: id,
+      endpoint: `/bots/${id}/delete`,
+      method: 'delete',
+      json: {}
+    }
+    await botk8s.callBotApi(deleteBotParams)
+    await botk8s.deleteBodPod({ id: id })
     return super.remove(id)
   }
 }

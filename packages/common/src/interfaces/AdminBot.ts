@@ -68,6 +68,7 @@ export interface BotPod {
 
 export interface BotService {
   name: string
+  ip: string
 }
 
 export interface SpawnBotPod {
