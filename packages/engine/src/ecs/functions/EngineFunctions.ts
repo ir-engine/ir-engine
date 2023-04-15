@@ -17,7 +17,7 @@ import { removeEntityNodeRecursively } from '../functions/EntityTree'
 import { defineQuery, EntityRemovedComponent } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
 import { executeFixedPipeline } from './FixedPipelineSystem'
-import { defineSystem, SystemDefintions, unloadAllSystems } from './SystemFunctions'
+import { defineSystem, executeSystem, SystemDefintions, SystemUUID, unloadAllSystems } from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 
@@ -138,8 +138,7 @@ export const executeSystems = (frameTime: number) => {
   )
   engineState.elapsedSeconds.set(worldElapsedSeconds)
 
-  const rootSystem = SystemDefintions.get(RootSystemGroup)!
-  rootSystem.execute()
+  executeSystem(RootSystemGroup)
 
   for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)
 

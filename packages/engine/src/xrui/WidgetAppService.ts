@@ -127,21 +127,7 @@ export const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(showWidgetMenuActionQueue)
-      removeActionQueue(registerWidgetActionQueue)
-      removeActionQueue(unregisterWidgetActionQueue)
-      removeActionQueue(enableWidgetActionQueue)
-      removeActionQueue(showWidgetActionQueue)
-    }
-  }, [])
-  return null
-}
-
 export const WidgetAppServiceReceptorSystem = defineSystem({
   uuid: 'ee.engine.widgets.WidgetAppServiceReceptorSystem',
-  execute,
-  reactor
+  execute
 })

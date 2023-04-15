@@ -15,7 +15,7 @@ export type SystemUUID = OpaqueType<'SystemUUID'> & string
 export interface System {
   uuid: SystemUUID | string
   execute: () => void // runs after preSystems, and before subSystems
-  reactor: React.FC<ReactorProps> | null
+  reactor: React.FC<ReactorProps>
   preSystems: SystemUUID[]
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
@@ -25,45 +25,41 @@ export interface System {
 
 export const SystemDefintions = new Map<SystemUUID, System>()
 
-const wrapExecute = (system: System, execute: () => void) => {
-  let lastWarningTime = 0
-  const warningCooldownDuration = 1000 * 10 // 10 seconds
+const lastWarningTime = new Map<SystemUUID, number>()
+const warningCooldownDuration = 1000 * 10 // 10 seconds
 
-  return () => {
-    if (!system.enabled) return
+export let CurrentSystemUUID = null as SystemUUID | null
 
-    for (const preSystem of system.preSystems) {
-      const preSystemInstance = SystemDefintions.get(preSystem)
-      if (preSystemInstance) {
-        preSystemInstance.execute()
-      }
-    }
-    const startTime = nowMilliseconds()
-    try {
-      execute()
-    } catch (e) {
-      logger.error(`Failed to execute system ${system.uuid}`)
-      logger.error(e)
-    }
-    const endTime = nowMilliseconds()
-    const systemDuration = endTime - startTime
-    if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
-      lastWarningTime = endTime
-      logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
-    }
-    for (const subSystem of system.subSystems) {
-      const subSystemInstance = SystemDefintions.get(subSystem)
-      if (subSystemInstance) {
-        subSystemInstance.execute()
-      }
-    }
-    for (const postSystem of system.postSystems) {
-      const postSystemInstance = SystemDefintions.get(postSystem)
-      if (postSystemInstance) {
-        postSystemInstance.execute()
-      }
-    }
+export function executeSystem(systemUUID: SystemUUID) {
+  const system = SystemDefintions.get(systemUUID)!
+  if (!system) {
+    console.warn(`System ${systemUUID} does not exist.`)
+    return
   }
+  if (!system.enabled) return
+
+  system.preSystems.forEach(executeSystem)
+
+  const startTime = nowMilliseconds()
+  try {
+    CurrentSystemUUID = systemUUID
+    system.execute()
+  } catch (e) {
+    logger.error(`Failed to execute system ${system.uuid}`)
+    logger.error(e)
+  } finally {
+    CurrentSystemUUID = null
+  }
+  const endTime = nowMilliseconds()
+
+  const systemDuration = endTime - startTime
+  if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
+    lastWarningTime.set(systemUUID, endTime)
+    logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
+  }
+
+  system.subSystems.forEach(executeSystem)
+  system.postSystems.forEach(executeSystem)
 }
 
 export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
@@ -76,13 +72,11 @@ export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
     reactor: systemConfig.reactor ?? null,
     enabled: systemConfig.enabled ?? false,
     preSystems: systemConfig.preSystems ?? [],
-    execute: null!,
+    execute: systemConfig.execute ?? (() => {}),
     subSystems: systemConfig.subSystems ?? [],
     postSystems: systemConfig.postSystems ?? [],
     sceneSystem: false
   } as Required<System>
-
-  system.execute = wrapExecute(system, systemConfig.execute ?? (() => {}))
 
   SystemDefintions.set(systemConfig.uuid as SystemUUID, system)
 
@@ -148,10 +142,9 @@ export const startSystems = (
 export const enableSystem = (systemUUID: SystemUUID) => {
   const system = SystemDefintions.get(systemUUID)
   if (system) {
-    if (system.reactor) {
-      const reactor = startReactor(system.reactor)
-      Engine.instance.activeSystemReactors.set(system.uuid as SystemUUID, reactor)
-    }
+    // shouldn't this be an error if the system doesn't exist?
+    const reactor = startReactor(system.reactor)
+    Engine.instance.activeSystemReactors.set(system.uuid as SystemUUID, reactor)
     for (const preSystem of system.preSystems) {
       enableSystem(preSystem)
     }
@@ -169,10 +162,8 @@ export const disableSystem = async (systemUUID: SystemUUID) => {
   const system = SystemDefintions.get(systemUUID)
   if (system) {
     system.enabled = false
-    if (system.reactor) {
-      const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
-      await reactor.stop()
-    }
+    const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
+    await reactor.stop()
   }
 }
 

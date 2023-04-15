@@ -451,8 +451,12 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(sha
     if (!store.actions.queueDefinitions.get(shape)!.includes(actionQueueDefinition))
       store.actions.queueDefinitions.get(shape)!.push(actionQueueDefinition)
 
-    if (!store.actions.queues.has(actionQueueDefinition))
+    if (!store.actions.queues.has(actionQueueDefinition)) {
       store.actions.queues.set(actionQueueDefinition, store.actions.history.filter(shape.test))
+      store.getCurrentReactorRoot()?.cleanupFunctions.push(() => {
+        removeActionQueue(actionQueueDefinition, store)
+      })
+    }
 
     const queue = store.actions.queues.get(actionQueueDefinition)!
     const result = [...queue]

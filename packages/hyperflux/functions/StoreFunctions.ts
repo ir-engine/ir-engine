@@ -31,6 +31,10 @@ export interface HyperStore {
    */
   getDispatchTime: () => number
   /**
+   * A function which returns the current reactor root context
+   **/
+  getCurrentReactorRoot: () => ReactorRoot
+  /**
    * The default dispatch delay (default is 0)
    */
   defaultDispatchDelay: number
@@ -83,6 +87,7 @@ export function createHyperStore(options: {
   forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
   getDispatchTime: () => number
+  getCurrentReactorRoot?: () => ReactorRoot
   defaultDispatchDelay?: number
 }) {
   const store = {
@@ -90,7 +95,9 @@ export function createHyperStore(options: {
     forwardIncomingActions: options.forwardIncomingActions ?? (() => false),
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
+    getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => null),
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
+
     stateMap: {},
     valueMap: {},
     actions: {
@@ -103,7 +110,6 @@ export function createHyperStore(options: {
       outgoing: {}
     },
     receptors: [],
-    reactors: new WeakMap(),
     activeReactors: new Set(),
     toJSON: () => {
       const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
