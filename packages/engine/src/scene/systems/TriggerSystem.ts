@@ -55,6 +55,5 @@ const execute = () => {
 
 export const TriggerSystem = defineSystem({
   uuid: 'ee.engine.TriggerSystem',
-  execute,
-  reactor
+  execute
 })
