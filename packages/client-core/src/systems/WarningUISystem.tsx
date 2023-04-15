@@ -118,23 +118,28 @@ const WarningSystemXRUI = function () {
 export const WarningUISystemState = defineState({
   name: 'WarningUISystemState',
   initial: () => {
+    const transitionPeriodSeconds = 0.2
+    const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
+
+    const ui = createXRUI(WarningSystemXRUI)
+    removeComponent(ui.entity, VisibleComponent)
+    addComponent(ui.entity, NameComponent, 'Warning XRUI')
+
     return {
-      ui: null! as ReturnType<typeof createXRUI>,
-      transition: null! as ReturnType<typeof createTransitionState>
+      ui,
+      transition
     }
   }
 })
 
-const transitionPeriodSeconds = 0.2
 function TransitionReactor() {
   const state = useHookstate(getMutableState(WarningUIState))
-  const transition = useHookstate(getMutableState(WarningUISystemState).transition).value
 
   useEffect(() => {
     if (state.open.value) {
-      transition.setState('IN')
+      getState(WarningUISystemState).transition.setState('IN')
     } else {
-      transition.setState('OUT')
+      getState(WarningUISystemState).transition.setState('OUT')
     }
   }, [state.open])
 
@@ -190,18 +195,8 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
-
-    const ui = createXRUI(WarningSystemXRUI)
-    removeComponent(ui.entity, VisibleComponent)
-    addComponent(ui.entity, NameComponent, 'Warning XRUI')
-
-    getMutableState(WarningUISystemState).set({
-      ui,
-      transition
-    })
-
     return () => {
+      const ui = getState(WarningUISystemState).ui
       removeEntity(ui.entity)
     }
   }, [])

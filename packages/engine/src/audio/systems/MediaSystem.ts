@@ -2,23 +2,15 @@ import _ from 'lodash'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
-import {
-  addActionReceptor,
-  createActionQueue,
-  getMutableState,
-  getState,
-  hookstate,
-  removeActionQueue,
-  State
-} from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, getState, State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem, PresentationSystemGroup } from '../../ecs/functions/SystemFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
@@ -150,7 +142,7 @@ const reactor = () => {
       if (audioContext.state === 'suspended') audioContext.resume()
     }
 
-    if (isClient && !getMutableState(EngineState).isEditor.value) {
+    if (isClient && !getState(EngineState).isEditor) {
       // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
       // in order to ensure media will play programmatically
       const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])

@@ -85,7 +85,7 @@ const UpdateCSMFromActiveDirectionalLight = (props: { activeLightEntity: Entity;
   const activeLightFromEntity = useOptionalComponent(activeLightEntity, DirectionalLightComponent)?.value.light
   if (!activeLight) activeLight = activeLightFromEntity
 
-  const csmEnabled = useHookstate(getRendererSceneMetadataState().csm).value
+  const csmEnabled = useHookstate(getRendererSceneMetadataState())?.csm?.value
 
   const shadowsEnabled = useShadowsEnabled()
   const useCSM = shadowsEnabled && csmEnabled

@@ -80,7 +80,7 @@ const LocationPage = () => {
   SceneService.useAPIListeners()
 
   useLoadEngineWithScene()
-  // useDefaultLocationSystems(online)
+  useDefaultLocationSystems(online)
 
   return (
     <>

@@ -149,13 +149,18 @@ export const enableSystem = (systemUUID: SystemUUID) => {
   const system = SystemDefintions.get(systemUUID)
   if (system) {
     if (system.reactor) {
-      console.log(systemUUID, 'reactor starting')
-      startReactor(system.reactor).promise.then(() => {
-        console.log(systemUUID, 'reactor started')
-        system.enabled = true
-      })
-    } else {
-      system.enabled = true
+      const reactor = startReactor(system.reactor)
+      Engine.instance.activeSystemReactors.set(system.uuid as SystemUUID, reactor)
+    }
+    for (const preSystem of system.preSystems) {
+      enableSystem(preSystem)
+    }
+    system.enabled = true
+    for (const subSystem of system.subSystems) {
+      enableSystem(subSystem)
+    }
+    for (const postSystem of system.postSystems) {
+      enableSystem(postSystem)
     }
   }
 }

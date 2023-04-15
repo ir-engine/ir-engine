@@ -106,6 +106,7 @@ const reactor = ({ root }: ReactorProps) => {
   const scene = Engine.instance.scene
 
   useEffect(() => {
+    if (!fog?.value) return
     const fogData = fog.value
     switch (fogData.type) {
       case FogType.Linear:
@@ -136,32 +137,38 @@ const reactor = ({ root }: ReactorProps) => {
   }, [fog.type])
 
   useEffect(() => {
+    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog) scene.fog.color.set(fogData.color)
   }, [fog.color])
 
   useEffect(() => {
+    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && fogData.type !== FogType.Linear) (scene.fog as FogExp2).density = fogData.density
   }, [fog.density])
 
   useEffect(() => {
+    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).near = fogData.near
   }, [fog.near])
 
   useEffect(() => {
+    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && fogData.type === FogType.Linear) (scene.fog as Fog).far = fogData.far
   }, [fog.far])
 
   useEffect(() => {
+    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && (fogData.type === FogType.Brownian || fogData.type === FogType.Height))
       for (const s of FogShaders) s.uniforms.heightFactor.value = fogData.height
   }, [fog.timeScale])
 
   useEffect(() => {
+    if (!fog?.value) return
     const fogData = fog.value
     if (scene.fog && fogData.type === FogType.Brownian)
       for (const s of FogShaders) {

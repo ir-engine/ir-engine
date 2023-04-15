@@ -63,7 +63,8 @@ const execute = () => {
   const audioContext = audioState.audioContext
   const network = Engine.instance.mediaNetwork
   const immersiveMedia = shouldUseImmersiveMedia()
-  const positionalAudioSettings = getMediaSceneMetadataState().value
+  const positionalAudioSettings = getMediaSceneMetadataState()?.value
+  if (!positionalAudioSettings) return
 
   /**
    * Scene Objects

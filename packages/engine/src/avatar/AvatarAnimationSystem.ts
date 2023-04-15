@@ -60,10 +60,18 @@ import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePos
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
-  initial: {
-    accumulationBudget: isMobileXRHeadset ? 3 : 6,
-    priorityQueue: null! as ReturnType<typeof createPriorityQueue>,
-    sortedTransformEntities: [] as Entity[]
+  initial: () => {
+    const accumulationBudget = isMobileXRHeadset ? 3 : 6
+
+    const priorityQueue = createPriorityQueue({
+      accumulationBudget
+    })
+    Engine.instance.priorityAvatarEntities = priorityQueue.priorityEntities
+
+    return {
+      priorityQueue,
+      sortedTransformEntities: [] as Entity[]
+    }
   }
 })
 
@@ -92,17 +100,6 @@ const loopAnimationQuery = defineQuery([
   AvatarRigComponent
 ])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
-
-function AvatarAnimationReactor() {
-  const state = useHookstate(getMutableState(AvatarAnimationState))
-
-  useEffect(() => {
-    if (!state.priorityQueue?.value) return
-    getState(AvatarAnimationState).priorityQueue.accumulationBudget = state.accumulationBudget.value
-  }, [state.accumulationBudget, state.priorityQueue])
-
-  return null
-}
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
@@ -342,13 +339,6 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     AnimationManager.instance.loadDefaultAnimations()
-    const state = getMutableState(AvatarAnimationState)
-
-    const priorityQueue = createPriorityQueue({
-      accumulationBudget: state.accumulationBudget.value
-    })
-    state.priorityQueue.set(priorityQueue)
-    Engine.instance.priorityAvatarEntities = priorityQueue.priorityEntities
 
     return () => {
       removeQuery(leftArmQuery)
@@ -361,7 +351,7 @@ const reactor = () => {
       removeQuery(avatarAnimationQuery)
     }
   }, [])
-  return <AvatarAnimationReactor />
+  return null
 }
 
 export const AvatarAnimationSystem = defineSystem({

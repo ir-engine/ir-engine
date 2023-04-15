@@ -45,10 +45,26 @@ const transitionPeriodSeconds = 1
 const LoadingUISystemState = defineState({
   name: 'LoadingUISystemState',
   initial: () => {
+    const transition = createTransitionState(transitionPeriodSeconds, 'IN')
+    const ui = createLoaderDetailView(transition)
+    addComponent(ui.entity, NameComponent, 'Loading XRUI')
+
+    const mesh = new Mesh(
+      new SphereGeometry(10),
+      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
+    )
+    mesh.visible = false
+
+    // flip inside out
+    mesh.scale.set(-1, 1, 1)
+    mesh.renderOrder = 1
+    Engine.instance.camera.add(mesh)
+    setObjectLayers(mesh, ObjectLayers.UI)
+
     return {
-      ui: null! as ReturnType<typeof createLoaderDetailView>,
-      mesh: null! as Mesh<SphereGeometry, MeshBasicMaterial>,
-      transition: null! as ReturnType<typeof createTransitionState>
+      ui,
+      mesh,
+      transition
     }
   }
 })
@@ -90,6 +106,8 @@ function LoadingReactor() {
 
 const execute = () => {
   const { transition, ui, mesh } = getState(LoadingUISystemState)
+  if (!transition) return
+
   const appLoadingState = getState(AppLoadingState)
   const engineState = getState(EngineState)
 
@@ -150,29 +168,9 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    const transition = createTransitionState(transitionPeriodSeconds, 'IN')
-    const ui = createLoaderDetailView(transition)
-    addComponent(ui.entity, NameComponent, 'Loading XRUI')
-
-    const mesh = new Mesh(
-      new SphereGeometry(10),
-      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
-    )
-    mesh.visible = false
-
-    // flip inside out
-    mesh.scale.set(-1, 1, 1)
-    mesh.renderOrder = 1
-    Engine.instance.camera.add(mesh)
-    setObjectLayers(mesh, ObjectLayers.UI)
-
-    getMutableState(LoadingUISystemState).set({
-      ui,
-      mesh,
-      transition
-    })
-
     return () => {
+      const { ui, mesh } = getState(LoadingUISystemState)
+
       removeActionQueue(avatarModelChangedQueue)
       removeActionQueue(spectateUserQueue)
       removeEntity(ui.entity)

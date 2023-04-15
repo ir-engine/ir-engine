@@ -32,7 +32,7 @@ import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/compo
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
   WidgetAppActions,
-  WidgetAppServiceReceptor,
+  WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import {
@@ -77,8 +77,17 @@ const widgetRightRotation = new Quaternion()
 const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
+    const widgetMenuUI = createWidgetButtonsView()
+    setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
+    removeComponent(widgetMenuUI.entity, VisibleComponent)
+
+    addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
+    const helper = new AxesHelper(0.1)
+    setObjectLayers(helper, ObjectLayers.Gizmos)
+    addObjectToGroup(widgetMenuUI.entity, helper)
+
     return {
-      widgetMenuUI: null! as ReturnType<typeof createWidgetButtonsView>
+      widgetMenuUI
     }
   }
 })
@@ -193,6 +202,7 @@ const execute = () => {
   setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
   for (const [id, widget] of Engine.instance.widgets) {
+    if (!widgetState.widgets[id]) continue
     const widgetEnabled = widgetState.widgets[id].enabled
     if (widgetEnabled && typeof widget.system === 'function') {
       widget.system()
@@ -202,23 +212,8 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    const widgetMenuUI = createWidgetButtonsView()
-    setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
-    removeComponent(widgetMenuUI.entity, VisibleComponent)
-
-    addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
-    const helper = new AxesHelper(0.1)
-    setObjectLayers(helper, ObjectLayers.Gizmos)
-    addObjectToGroup(widgetMenuUI.entity, helper)
-
-    getMutableState(WidgetUISystemState).set({
-      widgetMenuUI
-    })
-
-    addActionReceptor(WidgetAppServiceReceptor)
-
     return () => {
-      removeActionReceptor(WidgetAppServiceReceptor)
+      const { widgetMenuUI } = getState(WidgetUISystemState)
       removeActionQueue(showWidgetQueue)
       removeEntity(widgetMenuUI.entity)
     }
@@ -229,5 +224,6 @@ const reactor = () => {
 export const WidgetUISystem = defineSystem({
   uuid: 'ee.client.WidgetUISystem',
   execute,
-  reactor
+  reactor,
+  preSystems: [WidgetAppServiceReceptorSystem]
 })

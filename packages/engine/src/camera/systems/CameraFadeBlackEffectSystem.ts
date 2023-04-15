@@ -20,9 +20,27 @@ const fadeActionQueue = createActionQueue(CameraActions.fadeToBlack.matches)
 const CameraFadeBlackEffectSystemState = defineState({
   name: 'CameraFadeBlackEffectSystemState',
   initial: () => {
+    const geometry = new PlaneGeometry(1, 1)
+    const material = new ShaderMaterial({
+      vertexShader: VERTEX_SHADER,
+      fragmentShader: FRAGMENT_SHADER,
+      transparent: true,
+      depthTest: false,
+      uniforms: {
+        color: { value: new Color('black') },
+        intensity: { value: 0 }
+      }
+    })
+    const mesh = new Mesh(geometry, material)
+    mesh.name = 'Camera Fade Transition'
+    addObjectToGroup(Engine.instance.cameraEntity, mesh)
+    mesh.visible = false
+    mesh.layers.set(ObjectLayers.Camera)
+    const transition = createTransitionState(0.25, 'OUT')
+
     return {
-      transition: null! as ReturnType<typeof createTransitionState>,
-      mesh: null! as Mesh<PlaneGeometry, ShaderMaterial>
+      transition,
+      mesh
     }
   }
 })
@@ -39,29 +57,6 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const geometry = new PlaneGeometry(1, 1)
-  const material = new ShaderMaterial({
-    vertexShader: VERTEX_SHADER,
-    fragmentShader: FRAGMENT_SHADER,
-    transparent: true,
-    depthTest: false,
-    uniforms: {
-      color: { value: new Color('black') },
-      intensity: { value: 0 }
-    }
-  })
-  const mesh = new Mesh(geometry, material)
-  mesh.name = 'Camera Fade Transition'
-  addObjectToGroup(Engine.instance.cameraEntity, mesh)
-  mesh.visible = false
-  mesh.layers.set(ObjectLayers.Camera)
-  const transition = createTransitionState(0.25, 'OUT')
-
-  getMutableState(CameraFadeBlackEffectSystemState).set({
-    transition,
-    mesh
-  })
-
   useEffect(() => {
     return () => {
       removeActionQueue(fadeActionQueue)
