@@ -9,7 +9,7 @@ import serverLogger, { logger } from '@etherealengine/server-core/src/ServerLogg
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 
 const packageName = 'ee-bot'
-const packageUrl = 'https://github.com/EtherealEngine/ee-bot'
+const packageUrl = 'https://github.com/SYBIOTE/ee-bot' // to be changed after PR
 const servicePort = 4000
 let serviceIp = `${packageName}-service.default.svc.cluster.local`
 
