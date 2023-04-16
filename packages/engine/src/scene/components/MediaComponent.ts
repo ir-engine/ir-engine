@@ -132,6 +132,7 @@ export const MediaElementComponent = defineComponent({
 
 export const MediaComponent = defineComponent({
   name: 'EE_media',
+  jsonID: 'media',
 
   onInit: (entity) => {
     return {
@@ -436,8 +437,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   return null
 }
-
-export const SCENE_COMPONENT_MEDIA = 'media'
 
 export const setupHLS = (entity: Entity, url: string): Hls => {
   const hls = new Hls()

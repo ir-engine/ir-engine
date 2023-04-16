@@ -16,6 +16,7 @@ const GLTF_PATH = '/static/editor/spawn-point.glb'
 
 export const SpawnPointComponent = defineComponent({
   name: 'SpawnPointComponent',
+  jsonID: 'spawn-point',
 
   onInit: (entity) => {
     return {
@@ -67,5 +68,3 @@ export const SpawnPointComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_SPAWN_POINT = 'spawn-point'

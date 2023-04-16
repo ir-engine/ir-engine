@@ -8,6 +8,7 @@ export type SplineComponentType = {
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
+  jsonID: 'spline',
 
   onInit: () => {
     return {
@@ -27,5 +28,3 @@ export const SplineComponent = defineComponent({
     }
   }
 })
-
-export const SCENE_COMPONENT_SPLINE = 'spline'

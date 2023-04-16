@@ -14,14 +14,11 @@ import {
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { GroupComponent, SCENE_COMPONENT_GROUP } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { SCENE_COMPONENT_VISIBLE } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import {
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
 import { registerEditorReceptors } from '../services/EditorServicesReceptor'
@@ -132,12 +129,10 @@ describe('EditorControlFunctions', () => {
       const world = getState(SceneState)
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
-        { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-        { name: SCENE_COMPONENT_VISIBLE, props: true },
-        { name: SCENE_COMPONENT_GROUP, props: [] }
+        { name: TransformComponent.jsonID, props: {} },
+        { name: VisibleComponent.jsonID, props: true },
+        { name: GroupComponent.jsonID, props: [] }
       ])
-
-      Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
 
       rootNode = world.sceneEntity
     })
@@ -239,11 +234,10 @@ describe('EditorControlFunctions', () => {
       const world = getState(SceneState)
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
-        { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-        { name: SCENE_COMPONENT_VISIBLE, props: true },
-        { name: SCENE_COMPONENT_GROUP, props: [] }
+        { name: TransformComponent.jsonID, props: {} },
+        { name: VisibleComponent.jsonID, props: true },
+        { name: GroupComponent.jsonID, props: [] }
       ])
-      Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
 
       const rootNode = world.sceneEntity
       nodes = [createEntity(), createEntity()]

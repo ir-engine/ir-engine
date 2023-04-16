@@ -23,6 +23,7 @@ export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
+  jsonID: 'group',
 
   onInit: (entity: Entity) => {
     return [] as Object3DWithEntity[]
@@ -91,8 +92,6 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
 
   object.removeFromParent()
 }
-
-export const SCENE_COMPONENT_GROUP = 'group'
 
 export type GroupReactorProps = {
   entity: Entity

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
+  ComponentJSONIDMap,
   ComponentMap,
   hasComponent,
   setComponent,
@@ -67,7 +68,7 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
-  const registeredComponents = Array.from(Engine.instance.sceneComponentRegistry.entries())
+  const registeredComponents = Array.from(ComponentJSONIDMap.entries())
 
   return (
     <PropertiesHeader>
@@ -90,7 +91,7 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
             commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
               name: component.name,
               action: () => {
-                const comp = registeredComponents.find(([comp, prefab]) => comp === component.name)!
+                const comp = registeredComponents.find(([componentName, prefab]) => componentName === component.name)!
                 if (!comp) return console.warn('could not find component name', component.name)
                 const [sceneComponentID] = comp
                 if (!sceneComponentID) return console.warn('could not find component name', sceneComponentID)

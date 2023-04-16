@@ -14,21 +14,15 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
-import { MediaComponent, MediaElementComponent, SCENE_COMPONENT_MEDIA } from '../../scene/components/MediaComponent'
-import { SCENE_COMPONENT_VIDEO, VideoComponent } from '../../scene/components/VideoComponent'
-import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
-import { SCENE_COMPONENT_VOLUMETRIC, VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { VideoComponent } from '../../scene/components/VideoComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { defaultSpatialComponents } from '../../scene/systems/SceneObjectUpdateSystem'
-import {
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
-} from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { accessAudioState, AudioSettingReceptor, AudioState } from '../AudioState'
-import {
-  PositionalAudioComponent,
-  SCENE_COMPONENT_AUDIO as SCENE_COMPONENT_POSITIONAL_AUDIO
-} from '../components/PositionalAudioComponent'
+import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
 export class AudioEffectPlayer {
   static instance = new AudioEffectPlayer()
@@ -170,33 +164,25 @@ const reactor = () => {
     })
 
     Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
-      { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-      { name: SCENE_COMPONENT_VISIBLE, props: true },
-      { name: SCENE_COMPONENT_MEDIA, props: { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] } },
-      { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} }
+      { name: TransformComponent.jsonID, props: {} },
+      { name: VisibleComponent.jsonID, props: true },
+      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] } },
+      { name: PositionalAudioComponent.jsonID, props: {} }
     ])
 
     Engine.instance.scenePrefabRegistry.set(MediaPrefabs.video, [
       ...defaultSpatialComponents,
-      { name: SCENE_COMPONENT_MEDIA, props: { paths: ['__$project$__/default-project/assets/SampleVideo.mp4'] } },
-      { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} },
-      { name: SCENE_COMPONENT_VIDEO, props: {} }
+      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleVideo.mp4'] } },
+      { name: PositionalAudioComponent.jsonID, props: {} },
+      { name: VideoComponent.jsonID, props: {} }
     ])
 
     Engine.instance.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
       ...defaultSpatialComponents,
-      { name: SCENE_COMPONENT_MEDIA, props: {} },
-      { name: SCENE_COMPONENT_POSITIONAL_AUDIO, props: {} },
-      { name: SCENE_COMPONENT_VOLUMETRIC, props: {} }
+      { name: MediaComponent.jsonID, props: {} },
+      { name: PositionalAudioComponent.jsonID, props: {} },
+      { name: VolumetricComponent.jsonID, props: {} }
     ])
-
-    Engine.instance.sceneComponentRegistry.set(PositionalAudioComponent.name, SCENE_COMPONENT_POSITIONAL_AUDIO)
-
-    Engine.instance.sceneComponentRegistry.set(VideoComponent.name, SCENE_COMPONENT_VIDEO)
-
-    Engine.instance.sceneComponentRegistry.set(MediaComponent.name, SCENE_COMPONENT_MEDIA)
-
-    Engine.instance.sceneComponentRegistry.set(VolumetricComponent.name, SCENE_COMPONENT_VOLUMETRIC)
 
     const audioState = getMutableState(AudioState)
     const currentTime = audioState.audioContext.currentTime.value
@@ -245,10 +231,6 @@ const reactor = () => {
       Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.audio)
       Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.video)
       Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.volumetric)
-      Engine.instance.sceneComponentRegistry.delete(PositionalAudioComponent.name)
-      Engine.instance.sceneComponentRegistry.delete(VideoComponent.name)
-      Engine.instance.sceneComponentRegistry.delete(MediaComponent.name)
-      Engine.instance.sceneComponentRegistry.delete(VolumetricComponent.name)
 
       audioState.gainNodeMixBuses.mediaStreams.value.disconnect()
       audioState.gainNodeMixBuses.mediaStreams.set(null!)

@@ -3,6 +3,7 @@ import { SystemUUID } from '../../ecs/functions/SystemFunctions'
 
 export const SystemComponent = defineComponent({
   name: 'SystemComponent',
+  jsonID: 'system',
 
   onInit(entity) {
     return {
@@ -37,5 +38,3 @@ export const SystemComponent = defineComponent({
     }
   }
 })
-
-export const SCENE_COMPONENT_SYSTEM = 'system'

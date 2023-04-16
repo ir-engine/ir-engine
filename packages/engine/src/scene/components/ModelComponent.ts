@@ -43,6 +43,7 @@ export type ModelResource = {
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
+  jsonID: 'gltf-model',
 
   onInit: (entity) => {
     return {
@@ -194,5 +195,3 @@ function ModelReactor({ root }: EntityReactorProps) {
 
   return null
 }
-
-export const SCENE_COMPONENT_MODEL = 'gltf-model'

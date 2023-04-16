@@ -12,18 +12,10 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NetworkState } from '../../networking/NetworkState'
-import {
-  ColliderComponent,
-  SCENE_COMPONENT_COLLIDER,
-  SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
-} from '../../scene/components/ColliderComponent'
-import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
+import { ColliderComponent } from '../../scene/components/ColliderComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TriggerSystem } from '../../scene/systems/TriggerSystem'
-import {
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -231,14 +223,11 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    Engine.instance.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
-
     Engine.instance.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
-      { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-      { name: SCENE_COMPONENT_VISIBLE, props: true },
-      { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
+      { name: TransformComponent.jsonID },
+      { name: VisibleComponent.jsonID },
+      { name: ColliderComponent.jsonID }
     ])
-
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[PhysicsSerialization.ID].set({
@@ -258,7 +247,6 @@ const reactor = () => {
     })
 
     return () => {
-      Engine.instance.sceneComponentRegistry.delete(ColliderComponent.name)
       Engine.instance.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
 
       Engine.instance.physicsWorld.free()

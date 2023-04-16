@@ -16,7 +16,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
-import { BehaveGraphComponent, GraphDomainID, SCENE_COMPONENT_BEHAVE_GRAPH } from '../components/BehaveGraphComponent'
+import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
 import { RuntimeGraphComponent } from '../components/RuntimeGraphComponent'
 
 export type BehaveGraphDomainType = {
@@ -79,13 +79,11 @@ function execute() {
 
 const reactor = () => {
   useEffect(() => {
-    Engine.instance.sceneComponentRegistry.set(BehaveGraphComponent.name, SCENE_COMPONENT_BEHAVE_GRAPH)
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [
-      { name: SCENE_COMPONENT_BEHAVE_GRAPH, props: {} }
+      { name: BehaveGraphComponent.jsonID, props: {} }
     ])
 
     return () => {
-      Engine.instance.sceneComponentRegistry.delete(BehaveGraphComponent.name)
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)
     }
   }, [])

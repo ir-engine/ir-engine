@@ -30,6 +30,7 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
 import {
+  ComponentJSONIDMap,
   ComponentMap,
   defineQuery,
   getAllComponents,
@@ -61,7 +62,7 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
-import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
@@ -91,7 +92,8 @@ export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
   const entityLoadQueue = {} as { [uuid: string]: EntityJson }
   const entityDynamicQueue = {} as { [uuid: string]: EntityJson }
   for (const [uuid, entity] of Object.entries(json.entities)) {
-    if (entity.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)) entityDynamicQueue[uuid] = entity
+    if (entity.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID))
+      entityDynamicQueue[uuid] = entity
     else entityLoadQueue[uuid] = entity
   }
   return {
@@ -200,7 +202,9 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
   ) as [EntityUUID, EntityJson][]
   for (const [uuid, entityJson] of entitiesToLoad) {
     updateSceneEntity(uuid, entityJson)
-    const JSONEntityIsDynamic = !!entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)
+    const JSONEntityIsDynamic = !!entityJson.components.find(
+      (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
+    )
 
     if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) {
       const existingEntity = UUIDComponent.entitiesByUUID[uuid].value
@@ -335,8 +339,7 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson):
   /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */
   const componentsToRemove = getAllComponents(entity).filter(
     (C) =>
-      Engine.instance.sceneComponentRegistry.has(C.name) &&
-      !sceneEntity.components.find((json) => Engine.instance.sceneComponentRegistry.get(C.name) === json.name)
+      C.jsonID && ComponentJSONIDMap.has(C.jsonID) && !sceneEntity.components.find((json) => C.jsonID === json.name)
   )
   for (const C of componentsToRemove) {
     if (entity === getState(SceneState).sceneEntity) if (C === VisibleComponent) continue
@@ -357,11 +360,10 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson):
 }
 
 export const deserializeComponent = (entity: Entity, component: ComponentJson): void => {
-  const Component = Array.from(Engine.instance.sceneComponentRegistry).find(([_, prefab]) => prefab === component.name)!
-  if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
-  if (!ComponentMap.get(Component[0])) return console.warn('[ SceneLoading] could not find component', Component[0])
+  const Component = ComponentJSONIDMap.get(component.name)
+  if (!Component) return console.warn('[ SceneLoading] could not find component name', component.name)
 
-  setComponent(entity, ComponentMap.get(Component[0])!, component.props)
+  setComponent(entity, Component, component.props)
 }
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])

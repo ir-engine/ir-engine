@@ -3,18 +3,14 @@ import { useEffect } from 'react'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import {
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
-import { AmbientLightComponent, SCENE_COMPONENT_AMBIENT_LIGHT } from '../components/AmbientLightComponent'
-import { DirectionalLightComponent, SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '../components/DirectionalLightComponent'
-import { HemisphereLightComponent, SCENE_COMPONENT_HEMISPHERE_LIGHT } from '../components/HemisphereLightComponent'
-import { PointLightComponent, SCENE_COMPONENT_POINT_LIGHT } from '../components/PointLightComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AmbientLightComponent } from '../components/AmbientLightComponent'
+import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
+import { HemisphereLightComponent } from '../components/HemisphereLightComponent'
+import { PointLightComponent } from '../components/PointLightComponent'
 import { SelectTagComponent } from '../components/SelectTagComponent'
-import { SCENE_COMPONENT_SPOT_LIGHT, SpotLightComponent } from '../components/SpotLightComponent'
-import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
+import { SpotLightComponent } from '../components/SpotLightComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
 
 export const LightPrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -36,46 +32,34 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    Engine.instance.sceneComponentRegistry.set(DirectionalLightComponent.name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
-    Engine.instance.sceneComponentRegistry.set(HemisphereLightComponent.name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
-    Engine.instance.sceneComponentRegistry.set(AmbientLightComponent.name, SCENE_COMPONENT_AMBIENT_LIGHT)
-    Engine.instance.sceneComponentRegistry.set(PointLightComponent.name, SCENE_COMPONENT_POINT_LIGHT)
-    Engine.instance.sceneComponentRegistry.set(SpotLightComponent.name, SCENE_COMPONENT_SPOT_LIGHT)
-
     Engine.instance.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
-      { name: SCENE_COMPONENT_VISIBLE, props: true },
-      { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-      { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: {} }
+      { name: VisibleComponent.jsonID },
+      { name: TransformComponent.jsonID },
+      { name: DirectionalLightComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(LightPrefabs.hemisphereLight, [
-      { name: SCENE_COMPONENT_VISIBLE, props: true },
-      { name: SCENE_COMPONENT_HEMISPHERE_LIGHT, props: {} }
+      { name: VisibleComponent.jsonID },
+      { name: HemisphereLightComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(LightPrefabs.ambientLight, [
-      { name: SCENE_COMPONENT_VISIBLE, props: true },
-      { name: SCENE_COMPONENT_AMBIENT_LIGHT, props: {} }
+      { name: VisibleComponent.jsonID },
+      { name: AmbientLightComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(LightPrefabs.pointLight, [
-      { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-      { name: SCENE_COMPONENT_VISIBLE, props: true },
-      { name: SCENE_COMPONENT_POINT_LIGHT, props: {} }
+      { name: TransformComponent.jsonID },
+      { name: VisibleComponent.jsonID },
+      { name: PointLightComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(LightPrefabs.spotLight, [
-      { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-      { name: SCENE_COMPONENT_VISIBLE, props: true },
-      { name: SCENE_COMPONENT_SPOT_LIGHT, props: {} }
+      { name: TransformComponent.jsonID },
+      { name: VisibleComponent.jsonID },
+      { name: SpotLightComponent.jsonID }
     ])
     return () => {
-      Engine.instance.sceneComponentRegistry.delete(DirectionalLightComponent.name)
-      Engine.instance.sceneComponentRegistry.delete(HemisphereLightComponent.name)
-      Engine.instance.sceneComponentRegistry.delete(AmbientLightComponent.name)
-      Engine.instance.sceneComponentRegistry.delete(PointLightComponent.name)
-      Engine.instance.sceneComponentRegistry.delete(SpotLightComponent.name)
-
       Engine.instance.scenePrefabRegistry.delete(LightPrefabs.directionalLight)
       Engine.instance.scenePrefabRegistry.delete(LightPrefabs.hemisphereLight)
       Engine.instance.scenePrefabRegistry.delete(LightPrefabs.ambientLight)

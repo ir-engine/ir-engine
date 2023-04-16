@@ -1,15 +1,13 @@
-import { useEffect } from 'react'
-
 import { getState } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { updateSceneEntitiesFromJSON } from '../systems/SceneLoadingSystem'
 
@@ -54,18 +52,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    Engine.instance.sceneComponentRegistry.set(SceneDynamicLoadTagComponent.name, SCENE_COMPONENT_DYNAMIC_LOAD)
-    return () => {
-      Engine.instance.sceneComponentRegistry.delete(SceneDynamicLoadTagComponent.name)
-    }
-  }, [])
-  return null
-}
-
 export const SceneObjectDynamicLoadSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneObjectDynamicLoadSystem',
-  execute,
-  reactor
+  execute
 })

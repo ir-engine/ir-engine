@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Mesh, Vector3 } from 'three'
 
 import { NO_PROXY, State } from '@etherealengine/hyperflux'
@@ -9,7 +8,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { LODComponent, LODComponentType, LODLevel, SCENE_COMPONENT_LOD } from '../components/LODComponent'
+import { LODComponent, LODComponentType, LODLevel } from '../components/LODComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { objectFromLodPath, processLoadedLODLevel } from '../functions/loaders/LODFunctions'
 import getFirstMesh from '../util/getFirstMesh'
@@ -101,18 +100,7 @@ function execute() {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    Engine.instance.sceneComponentRegistry.set(LODComponent.name, SCENE_COMPONENT_LOD)
-    return () => {
-      Engine.instance.sceneComponentRegistry.delete(LODComponent.name)
-    }
-  }, [])
-  return null
-}
-
 export const LODSystem = defineSystem({
   uuid: 'ee.engine.scene.LODSystem',
-  execute,
-  reactor
+  execute
 })

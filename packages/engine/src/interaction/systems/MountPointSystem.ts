@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import { Box3, Object3D, Vector3 } from 'three'
+import { Box3, Vector3 } from 'three'
 
-import { createActionQueue, getMutableState, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getState } from '@etherealengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
 import { AvatarStates } from '../../avatar/animation/Util'
@@ -12,12 +12,10 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import {
   addComponent,
-  ComponentType,
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent,
-  removeQuery
+  removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { Physics } from '../../physics/classes/Physics'
@@ -25,19 +23,11 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
-import {
-  MountPoint,
-  MountPointComponent,
-  SCENE_COMPONENT_MOUNT_POINT
-} from '../../scene/components/MountPointComponent'
+import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
-import {
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI } from './InteractiveSystem'
@@ -152,15 +142,13 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.chair, [
-      { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-      { name: SCENE_COMPONENT_VISIBLE, props: true },
-      { name: SCENE_COMPONENT_MOUNT_POINT, props: {} }
+      { name: TransformComponent.jsonID, props: {} },
+      { name: VisibleComponent.jsonID, props: true },
+      { name: MountPointComponent.jsonID, props: {} }
     ])
-    Engine.instance.sceneComponentRegistry.set(MountPointComponent.name, SCENE_COMPONENT_MOUNT_POINT)
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.chair)
-      Engine.instance.sceneComponentRegistry.delete(MountPointComponent.name)
     }
   }, [])
   return null

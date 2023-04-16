@@ -34,12 +34,7 @@ import {
   DistanceFromLocalClientComponent,
   FrustumCullCameraComponent
 } from '../components/DistanceComponents'
-import {
-  LocalTransformComponent,
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
-} from '../components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../components/TransformComponent'
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
@@ -388,7 +383,6 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    Engine.instance.sceneComponentRegistry.set(TransformComponent.name, SCENE_COMPONENT_TRANSFORM)
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[TransformSerialization.ID].set({
@@ -397,8 +391,6 @@ const reactor = () => {
     })
 
     return () => {
-      Engine.instance.sceneComponentRegistry.delete(TransformComponent.name)
-
       Skeleton.prototype.update = skeletonUpdate
 
       networkState.networkSchema[TransformSerialization.ID].set(none)

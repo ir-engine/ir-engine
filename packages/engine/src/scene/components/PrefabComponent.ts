@@ -13,10 +13,9 @@ export enum LoadState {
   LOADED = 'loaded'
 }
 
-export const SCENE_COMPONENT_PREFAB = 'prefab'
-
 export const PrefabComponent = defineComponent({
   name: 'PrefabComponent',
+  jsonID: 'prefab',
 
   onInit: (entity) => ({
     src: '',

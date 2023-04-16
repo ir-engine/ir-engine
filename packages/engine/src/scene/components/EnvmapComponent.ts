@@ -39,6 +39,7 @@ const tempColor = new Color()
 
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
+  jsonID: 'envmap',
   onInit: (entity) => {
     return {
       type: EnvMapSourceType.None as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType],
@@ -186,8 +187,6 @@ export const EnvmapComponent = defineComponent({
 
   errors: ['MISSING_FILE']
 })
-
-export const SCENE_COMPONENT_ENVMAP = 'envmap'
 
 function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
   if (!obj3ds?.length) return

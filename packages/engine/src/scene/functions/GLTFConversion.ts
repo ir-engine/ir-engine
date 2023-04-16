@@ -196,7 +196,7 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity) => {
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = Engine.instance.sceneComponentRegistry.get(component.name)!
+    const sceneComponentID = component.jsonID
     if (sceneComponentID) {
       const data = serializeComponent(entity, component)
       if (data)

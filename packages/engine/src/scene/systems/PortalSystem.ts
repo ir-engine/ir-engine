@@ -5,7 +5,7 @@ import { createActionQueue, getMutableState, removeActionQueue } from '@ethereal
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PortalComponent, SCENE_COMPONENT_PORTAL } from '../components/PortalComponent'
+import { PortalComponent } from '../components/PortalComponent'
 import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
 import { HyperspacePortalSystem } from './HyperspacePortalSystem'
 import { PortalLoadSystem } from './PortalLoadSystem'
@@ -22,13 +22,11 @@ const reactor = () => {
   useEffect(() => {
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.portal, [
       ...defaultSpatialComponents,
-      { name: SCENE_COMPONENT_PORTAL, props: {} }
+      { name: PortalComponent.jsonID, props: {} }
     ])
-    Engine.instance.sceneComponentRegistry.set(PortalComponent.name, SCENE_COMPONENT_PORTAL)
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.portal)
-      Engine.instance.sceneComponentRegistry.delete(PortalComponent.name)
       removeActionQueue(sceneLoadedQueue)
     }
   }, [])

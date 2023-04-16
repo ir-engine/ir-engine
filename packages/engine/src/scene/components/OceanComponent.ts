@@ -6,58 +6,34 @@ import { setCallback } from './CallbackComponent'
 import { addObjectToGroup } from './GroupComponent'
 import { UpdatableCallback } from './UpdatableComponent'
 
-export type OceanComponentType = {
-  normalMap: string
-  distortionMap: string
-  envMap: string
-  color: Color
-  opacityRange: Vector2
-  opacityFadeDistance: number
-  shallowToDeepDistance: number
-  shallowWaterColor: Color
-  waveScale: Vector2
-  waveSpeed: Vector2
-  waveTiling: number
-  waveDistortionTiling: number
-  waveDistortionSpeed: Vector2
-  shininess: number
-  reflectivity: number
-  bigWaveHeight: number
-  bigWaveTiling: Vector2
-  bigWaveSpeed: Vector2
-  foamSpeed: Vector2
-  foamTiling: number
-  foamColor: Color
-  ocean?: Ocean
-}
-
 export const OceanComponent = defineComponent({
   name: 'OceanComponent',
+  jsonID: 'ocean',
   onInit: () => {
     return {
       ocean: null! as Ocean,
-      normalMap: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.normalMap,
-      distortionMap: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.distortionMap,
-      envMap: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.envMap,
-      color: new Color(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.color),
-      opacityRange: new Vector2().copy(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.opacityRange),
-      opacityFadeDistance: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.opacityFadeDistance,
-      shallowToDeepDistance: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shallowToDeepDistance,
-      shallowWaterColor: new Color(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shallowWaterColor),
-      waveScale: new Vector2().copy(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveScale),
-      waveSpeed: new Vector2().copy(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveSpeed),
-      waveTiling: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveTiling,
-      waveDistortionTiling: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveDistortionTiling,
-      waveDistortionSpeed: new Vector2().copy(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveDistortionSpeed),
-      shininess: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shininess,
-      reflectivity: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.reflectivity,
-      bigWaveHeight: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveHeight,
-      bigWaveTiling: new Vector2().copy(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveTiling),
-      bigWaveSpeed: new Vector2().copy(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveSpeed),
-      foamSpeed: new Vector2().copy(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamSpeed),
-      foamTiling: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamTiling,
-      foamColor: new Color(SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamColor)
-    } as OceanComponentType
+      normalMap: '',
+      distortionMap: '',
+      envMap: '',
+      color: new Color(0x2876dd),
+      opacityRange: new Vector2(0.6, 0.9),
+      opacityFadeDistance: 0.12,
+      shallowToDeepDistance: 0.1,
+      shallowWaterColor: new Color(0x30c3dd),
+      waveScale: new Vector2(0.25, 0.25),
+      waveSpeed: new Vector2(0.08, 0.0),
+      waveTiling: 12.0,
+      waveDistortionTiling: 7.0,
+      waveDistortionSpeed: new Vector2(0.08, 0.08),
+      shininess: 40,
+      reflectivity: 0.25,
+      bigWaveHeight: 0.7,
+      bigWaveTiling: new Vector2(1.5, 1.5),
+      bigWaveSpeed: new Vector2(0.02, 0.0),
+      foamSpeed: new Vector2(0.05, 0.0),
+      foamTiling: 2.0,
+      foamColor: new Color(0xffffff)
+    }
   },
   onSet: (entity, component, json) => {
     if (!json) return
@@ -122,28 +98,3 @@ export const OceanComponent = defineComponent({
   },
   errors: ['DISTORTION_MAP_ERROR', 'ENVIRONMENT_MAP_ERROR', 'NORMAL_MAP_ERROR']
 })
-
-export const SCENE_COMPONENT_OCEAN = 'ocean'
-export const SCENE_COMPONENT_OCEAN_DEFAULT_VALUES = {
-  normalMap: '',
-  distortionMap: '',
-  envMap: '',
-  color: 0x2876dd,
-  opacityRange: { x: 0.6, y: 0.9 } as Vector2,
-  opacityFadeDistance: 0.12,
-  shallowToDeepDistance: 0.1,
-  shallowWaterColor: 0x30c3dd,
-  waveScale: { x: 0.25, y: 0.25 } as Vector2,
-  waveSpeed: { x: 0.08, y: 0.0 } as Vector2,
-  waveTiling: 12.0,
-  waveDistortionTiling: 7.0,
-  waveDistortionSpeed: { x: 0.08, y: 0.08 } as Vector2,
-  shininess: 40,
-  reflectivity: 0.25,
-  bigWaveHeight: 0.7,
-  bigWaveTiling: { x: 1.5, y: 1.5 } as Vector2,
-  bigWaveSpeed: { x: 0.02, y: 0.0 } as Vector2,
-  foamSpeed: { x: 0.05, y: 0.0 } as Vector2,
-  foamTiling: 2.0,
-  foamColor: 0xffffff
-}

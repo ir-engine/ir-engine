@@ -35,7 +35,7 @@ import {
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { EquippableComponent, SCENE_COMPONENT_EQUIPPABLE } from '../components/EquippableComponent'
+import { EquippableComponent } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { changeHand, equipEntity, unequipEntity } from '../functions/equippableFunctions'
@@ -219,19 +219,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    Engine.instance.sceneComponentRegistry.set(EquippableComponent.name, SCENE_COMPONENT_EQUIPPABLE)
-
-    return () => {
-      Engine.instance.sceneComponentRegistry.delete(EquippableComponent.name)
-    }
-  }, [])
-  return null
-}
-
 export const EquippableSystem = defineSystem({
   uuid: 'ee.engine.EquippableSystem',
-  execute,
-  reactor
+  execute
 })

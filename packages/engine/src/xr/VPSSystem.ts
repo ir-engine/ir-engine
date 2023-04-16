@@ -1,17 +1,9 @@
-import { useEffect } from 'react'
+import { createActionQueue } from '@etherealengine/hyperflux'
 
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
-
-import { Engine } from '../ecs/classes/Engine'
-import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { LocalTransformComponent } from '../transform/components/TransformComponent'
-import {
-  PersistentAnchorActions,
-  PersistentAnchorComponent,
-  SCENE_COMPONENT_PERSISTENT_ANCHOR
-} from './XRAnchorComponents'
-import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
+import { PersistentAnchorActions, PersistentAnchorComponent } from './XRAnchorComponents'
 
 const vpsAnchorQuery = defineQuery([PersistentAnchorComponent])
 const vpsAnchorFoundQueue = createActionQueue(PersistentAnchorActions.anchorFound.matches)
@@ -52,19 +44,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    Engine.instance.sceneComponentRegistry.set(PersistentAnchorComponent.name, SCENE_COMPONENT_PERSISTENT_ANCHOR)
-
-    return () => {
-      Engine.instance.sceneComponentRegistry.delete(PersistentAnchorComponent.name)
-    }
-  }, [])
-  return null
-}
-
 export const VPSSystem = defineSystem({
   uuid: 'ee.engine.VPSSystem',
-  execute,
-  reactor
+  execute
 })

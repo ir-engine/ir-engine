@@ -23,7 +23,9 @@ export const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 :
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()
+export const ComponentJSONIDMap = new Map<string, Component<any, any, any>>() // <jsonID, Component>
 globalThis.ComponentMap = ComponentMap
+globalThis.ComponentJSONIDMap = ComponentJSONIDMap
 
 type PartialIfObject<T> = T extends object ? Partial<T> : T
 
@@ -42,6 +44,7 @@ export interface ComponentPartial<
   ErrorTypes = never
 > {
   name: string
+  jsonID?: string
   schema?: Schema
   onInit?: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
@@ -59,6 +62,7 @@ export interface Component<
 > {
   isComponent: true
   name: string
+  jsonID?: string
   schema?: Schema
   onInit: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
@@ -107,6 +111,7 @@ export const defineComponent = <
   Component.existenceMap = createExistenceMap()
   Component.stateMap = {}
   Component.valueMap = {}
+  if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
   ComponentMap.set(Component.name, Component)
   return Component
 }

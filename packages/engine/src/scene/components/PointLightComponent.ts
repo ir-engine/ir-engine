@@ -13,6 +13,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
+  jsonID: 'point-light',
 
   onInit: (entity) => {
     const light = new PointLight()
@@ -134,5 +135,3 @@ export const PointLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_POINT_LIGHT = 'point-light'

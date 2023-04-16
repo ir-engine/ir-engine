@@ -270,9 +270,6 @@ export class Engine {
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
 
-  /** Scene component of scene loader components  */
-  sceneComponentRegistry = new Map<string, string>()
-
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()
 

@@ -598,10 +598,9 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   worldSpace: true
 }
 
-export const SCENE_COMPONENT_PARTICLE_SYSTEM = 'particle-system'
-
 export const ParticleSystemComponent = defineComponent({
   name: 'EE_ParticleSystem',
+  jsonID: 'particle-system',
   onInit: (entity) => {
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
