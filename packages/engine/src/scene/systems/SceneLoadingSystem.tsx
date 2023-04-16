@@ -273,9 +273,9 @@ export const updateSceneFromJSON = async () => {
 
   if (sceneData.scene.metadata) {
     for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
-      const metadata = sceneState.sceneMetadataRegistry[key] as State<SceneMetadata<unknown>>
+      const metadata = sceneState.sceneMetadataRegistry[key] as State<SceneMetadata<any>>
       if (!metadata.value) continue
-      metadata.data.set(merge({}, metadata.data.value, val))
+      // metadata.data.set(merge({}, metadata.data.value, val))
     }
   }
 
@@ -357,23 +357,11 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson):
 }
 
 export const deserializeComponent = (entity: Entity, component: ComponentJson): void => {
-  const sceneComponent = Engine.instance.sceneLoadingRegistry.get(component.name)
+  const Component = Array.from(Engine.instance.sceneComponentRegistry).find(([_, prefab]) => prefab === component.name)!
+  if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
+  if (!ComponentMap.get(Component[0])) return console.warn('[ SceneLoading] could not find component', Component[0])
 
-  if (!sceneComponent) return
-
-  const deserializer = sceneComponent.deserialize
-
-  if (deserializer) {
-    deserializer(entity, component.props)
-  } else {
-    const Component = Array.from(Engine.instance.sceneComponentRegistry).find(
-      ([_, prefab]) => prefab === component.name
-    )!
-    if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
-    if (!ComponentMap.get(Component[0])) return console.warn('[ SceneLoading] could not find component', Component[0])
-
-    setComponent(entity, ComponentMap.get(Component[0])!, component.props)
-  }
+  setComponent(entity, ComponentMap.get(Component[0])!, component.props)
 }
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])

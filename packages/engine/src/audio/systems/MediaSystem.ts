@@ -191,16 +191,12 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(PositionalAudioComponent.name, SCENE_COMPONENT_POSITIONAL_AUDIO)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_POSITIONAL_AUDIO, {})
 
     Engine.instance.sceneComponentRegistry.set(VideoComponent.name, SCENE_COMPONENT_VIDEO)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {})
 
     Engine.instance.sceneComponentRegistry.set(MediaComponent.name, SCENE_COMPONENT_MEDIA)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {})
 
     Engine.instance.sceneComponentRegistry.set(VolumetricComponent.name, SCENE_COMPONENT_VOLUMETRIC)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {})
 
     const audioState = getMutableState(AudioState)
     const currentTime = audioState.audioContext.currentTime.value
@@ -250,13 +246,9 @@ const reactor = () => {
       Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.video)
       Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.volumetric)
       Engine.instance.sceneComponentRegistry.delete(PositionalAudioComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_POSITIONAL_AUDIO)
       Engine.instance.sceneComponentRegistry.delete(VideoComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_VIDEO)
       Engine.instance.sceneComponentRegistry.delete(MediaComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_MEDIA)
       Engine.instance.sceneComponentRegistry.delete(VolumetricComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_VOLUMETRIC)
 
       audioState.gainNodeMixBuses.mediaStreams.value.disconnect()
       audioState.gainNodeMixBuses.mediaStreams.set(null!)

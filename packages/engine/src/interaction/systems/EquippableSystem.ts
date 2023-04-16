@@ -222,11 +222,9 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     Engine.instance.sceneComponentRegistry.set(EquippableComponent.name, SCENE_COMPONENT_EQUIPPABLE)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {})
 
     return () => {
       Engine.instance.sceneComponentRegistry.delete(EquippableComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_EQUIPPABLE)
     }
   }, [])
   return null

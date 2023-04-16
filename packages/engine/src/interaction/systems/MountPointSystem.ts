@@ -157,12 +157,10 @@ const reactor = () => {
       { name: SCENE_COMPONENT_MOUNT_POINT, props: {} }
     ])
     Engine.instance.sceneComponentRegistry.set(MountPointComponent.name, SCENE_COMPONENT_MOUNT_POINT)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {})
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.chair)
       Engine.instance.sceneComponentRegistry.delete(MountPointComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_MOUNT_POINT)
     }
   }, [])
   return null

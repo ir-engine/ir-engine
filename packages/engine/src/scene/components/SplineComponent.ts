@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 
-import { createMappedComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type SplineComponentType = {
   splinePositions: Vector3[]
@@ -17,7 +17,8 @@ export const SplineComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.splinePositions !== 'undefined') component.splinePositions.set(json.splinePositions as Vector3[])
+    if (typeof json.splinePositions !== 'undefined')
+      component.splinePositions.set(json.splinePositions.map((pos) => new Vector3(pos.x, pos.y, pos.z)))
   },
 
   toJSON(entity, component) {

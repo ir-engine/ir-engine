@@ -14,7 +14,7 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { RootSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { RootSystemGroup, SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { System, SystemDefintions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -32,6 +32,7 @@ type DesiredType =
   | {
       enabled?: boolean
       preSystems?: Record<SystemUUID, DesiredType>
+      simulation?: DesiredType
       subSystems?: Record<SystemUUID, DesiredType>
       postSystems?: Record<SystemUUID, DesiredType>
     }
@@ -50,6 +51,9 @@ const convertSystemTypeToDesiredType = (system: System): DesiredType => {
       acc[uuid] = convertSystemTypeToDesiredType(SystemDefintions.get(uuid)!)
       return acc
     }, {} as Record<SystemUUID, DesiredType>)
+  }
+  if (system.uuid === RootSystemGroup) {
+    desired.simulation = convertSystemTypeToDesiredType(SystemDefintions.get(SimulationSystemGroup)!)
   }
   if (subSystems.length > 0) {
     desired.subSystems = subSystems.reduce((acc, uuid) => {
@@ -224,6 +228,7 @@ export const Debug = ({ showingStateRef }) => {
           labelRenderer={(raw, ...keyPath) => {
             const label = raw[0]
             if (label === 'preSystems') return <span style={{ color: 'red' }}>{t('common:debug.preSystems')}</span>
+            if (label === 'simulation') return <span style={{ color: 'green' }}>{t('common:debug.simulation')}</span>
             if (label === 'subSystems') return <span style={{ color: 'red' }}>{t('common:debug.subSystems')}</span>
             if (label === 'postSystems') return <span style={{ color: 'red' }}>{t('common:debug.postSystems')}</span>
             return <span style={{ color: 'black' }}>{label}</span>
@@ -243,7 +248,6 @@ export const Debug = ({ showingStateRef }) => {
             )
           }}
           shouldExpandNode={() => true}
-          // shouldExpandNode={(keyPath, data, level) => level > 0}
         />
       </div>
       <div className={styles.jsonPanel}>

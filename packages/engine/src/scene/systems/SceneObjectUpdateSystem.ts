@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue } from '@etherealengine/hyperflux'
 
 import { LoopAnimationComponent, SCENE_COMPONENT_LOOP_ANIMATION } from '../../avatar/components/LoopAnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -48,13 +48,9 @@ import { SCENE_COMPONENT_SPLINE, SplineComponent } from '../components/SplineCom
 import { SCENE_COMPONENT_SYSTEM, SystemComponent } from '../components/SystemComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
-import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
+import { updateCloud } from '../functions/loaders/CloudFunctions'
 import { SCENE_COMPONENT_INSTANCING } from '../functions/loaders/InstancingFunctions'
-import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
-import { deserializeModel } from '../functions/loaders/ModelFunctions'
-import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
-import { deserializePrefab } from '../functions/loaders/PrefabComponentFunctions'
-import { deserializeSpline, serializeSpline } from '../functions/loaders/SplineFunctions'
+import { updateOcean } from '../functions/loaders/OceanFunctions'
 
 export const defaultSpatialComponents: ComponentJson[] = [
   { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -98,13 +94,11 @@ const execute = () => {
     for (const entity of action.entities) {
       if (hasComponent(entity, CloudComponent)) updateCloud(entity)
       if (hasComponent(entity, OceanComponent)) updateOcean(entity)
-      if (hasComponent(entity, InteriorComponent)) updateInterior(entity)
     }
   }
 
   for (const entity of cloudQuery.enter()) updateCloud(entity)
   for (const entity of oceanQuery.enter()) updateOcean(entity)
-  for (const entity of interiorQuery.enter()) updateInterior(entity)
   for (const entity of spawnPointComponent()) getComponent(entity, SpawnPointComponent).helperBox?.update()
 }
 
@@ -115,10 +109,8 @@ const reactor = () => {
      */
 
     Engine.instance.sceneComponentRegistry.set(VisibleComponent.name, SCENE_COMPONENT_VISIBLE)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {})
 
     Engine.instance.sceneComponentRegistry.set(ShadowComponent.name, SCENE_COMPONENT_SHADOW)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {})
 
     /**
      * Metadata
@@ -131,12 +123,10 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(ScenePreviewCameraComponent.name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.system, [{ name: SCENE_COMPONENT_SYSTEM, props: {} }])
 
     Engine.instance.sceneComponentRegistry.set(SystemComponent.name, SCENE_COMPONENT_SYSTEM)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SYSTEM, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.spawnPoint, [
       { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -145,7 +135,6 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(SpawnPointComponent.name, SCENE_COMPONENT_SPAWN_POINT)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {})
 
     /**
      * Assets
@@ -158,9 +147,6 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(PrefabComponent.name, SCENE_COMPONENT_PREFAB)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PREFAB, {
-      deserialize: deserializePrefab
-    })
 
     /**
      * Objects
@@ -174,12 +160,8 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(ModelComponent.name, SCENE_COMPONENT_MODEL)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
-      deserialize: deserializeModel
-    })
 
     Engine.instance.sceneComponentRegistry.set(InstancingComponent.name, SCENE_COMPONENT_INSTANCING)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.instancing, [
       { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -190,10 +172,7 @@ const reactor = () => {
     Engine.instance.sceneComponentRegistry.set(LoadVolumeComponent.name, SCENE_COMPONENT_LOAD_VOLUME)
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.loadVolume, [{ name: SCENE_COMPONENT_LOAD_VOLUME, props: {} }])
 
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOAD_VOLUME, {})
-
     Engine.instance.sceneComponentRegistry.set(ScreenshareTargetComponent.name, SCENE_COMPONENT_SCREENSHARETARGET)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SCREENSHARETARGET, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
       { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -202,7 +181,6 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.groundPlane, [
       { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -212,7 +190,6 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(GroundPlaneComponent.name, SCENE_COMPONENT_GROUND_PLANE)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.image, [
       ...defaultSpatialComponents,
@@ -223,10 +200,8 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(ImageComponent.name, SCENE_COMPONENT_IMAGE)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {})
 
     Engine.instance.sceneComponentRegistry.set(LoopAnimationComponent.name, SCENE_COMPONENT_LOOP_ANIMATION)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.cloud, [
       ...defaultSpatialComponents,
@@ -234,27 +209,18 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(CloudComponent.name, SCENE_COMPONENT_CLOUD)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_CLOUD, {
-      deserialize: deserializeCloud,
-      serialize: serializeCloud
-    })
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.ocean, [
       ...defaultSpatialComponents,
       { name: SCENE_COMPONENT_OCEAN, props: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES }
     ])
 
     Engine.instance.sceneComponentRegistry.set(OceanComponent.name, SCENE_COMPONENT_OCEAN)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_OCEAN, {
-      deserialize: deserializeOcean,
-      serialize: serializeOcean
-    })
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.water, [
       ...defaultSpatialComponents,
       { name: SCENE_COMPONENT_WATER, props: true }
     ])
 
     Engine.instance.sceneComponentRegistry.set(WaterComponent.name, SCENE_COMPONENT_WATER)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_WATER, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.interior, [
       ...defaultSpatialComponents,
@@ -262,10 +228,6 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(InteriorComponent.name, SCENE_COMPONENT_INTERIOR)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERIOR, {
-      deserialize: deserializeInterior,
-      serialize: serializeInterior
-    })
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.spline, [
       ...defaultSpatialComponents,
@@ -273,10 +235,6 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(SplineComponent.name, SCENE_COMPONENT_SPLINE)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SPLINE, {
-      deserialize: deserializeSpline,
-      serialize: serializeSpline
-    })
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [
       ...defaultSpatialComponents,
@@ -285,14 +243,10 @@ const reactor = () => {
 
     Engine.instance.sceneComponentRegistry.set(ParticleSystemComponent.name, SCENE_COMPONENT_PARTICLE_SYSTEM)
 
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_SYSTEM, {})
-
     return () => {
       Engine.instance.sceneComponentRegistry.delete(VisibleComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_VISIBLE)
 
       Engine.instance.sceneComponentRegistry.delete(ShadowComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SHADOW)
 
       /**
        * Metadata
@@ -301,17 +255,14 @@ const reactor = () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.previewCamera)
 
       Engine.instance.sceneComponentRegistry.delete(ScenePreviewCameraComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.system)
 
       Engine.instance.sceneComponentRegistry.delete(SystemComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SYSTEM)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.spawnPoint)
 
       Engine.instance.sceneComponentRegistry.delete(SpawnPointComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPAWN_POINT)
 
       /**
        * Assets
@@ -320,7 +271,6 @@ const reactor = () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.prefab)
 
       Engine.instance.sceneComponentRegistry.delete(PrefabComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PREFAB)
 
       /**
        * Objects
@@ -329,63 +279,49 @@ const reactor = () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.model)
 
       Engine.instance.sceneComponentRegistry.delete(ModelComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_MODEL)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.instancing)
       Engine.instance.sceneComponentRegistry.delete(InstancingComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_INSTANCING)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.loadVolume)
       Engine.instance.sceneComponentRegistry.delete(LoadVolumeComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_LOAD_VOLUME)
 
       Engine.instance.sceneComponentRegistry.delete(ScreenshareTargetComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SCREENSHARETARGET)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.group)
 
       Engine.instance.sceneComponentRegistry.delete(GroupComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_GROUP)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.groundPlane)
 
       Engine.instance.sceneComponentRegistry.delete(GroundPlaneComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_GROUND_PLANE)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.image)
 
       Engine.instance.sceneComponentRegistry.delete(ImageComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_IMAGE)
 
       Engine.instance.sceneComponentRegistry.delete(LoopAnimationComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_LOOP_ANIMATION)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.cloud)
 
       Engine.instance.sceneComponentRegistry.delete(CloudComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_CLOUD)
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.ocean)
 
       Engine.instance.sceneComponentRegistry.delete(OceanComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_OCEAN)
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.water)
 
       Engine.instance.sceneComponentRegistry.delete(WaterComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_WATER)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.interior)
 
       Engine.instance.sceneComponentRegistry.delete(InteriorComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_INTERIOR)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.spline)
 
       Engine.instance.sceneComponentRegistry.delete(SplineComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPLINE)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.particleEmitter)
       Engine.instance.sceneComponentRegistry.delete(ParticleSystemComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PARTICLE_SYSTEM)
     }
   }, [])
   return null

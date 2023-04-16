@@ -3,27 +3,13 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import {
-  createActionQueue,
-  defineState,
-  getMutableState,
-  getState,
-  none,
-  removeActionQueue
-} from '@etherealengine/hyperflux'
+import { createActionQueue, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeQuery,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineSystem, SimulationSystemGroup } from '../../ecs/functions/SystemFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -31,7 +17,6 @@ import {
   SCENE_COMPONENT_COLLIDER,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../scene/components/ColliderComponent'
-import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { TriggerSystem } from '../../scene/systems/TriggerSystem'
 import {
@@ -247,7 +232,6 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     Engine.instance.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {})
 
     Engine.instance.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
       { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -275,7 +259,6 @@ const reactor = () => {
 
     return () => {
       Engine.instance.sceneComponentRegistry.delete(ColliderComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
       Engine.instance.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
 
       Engine.instance.physicsWorld.free()

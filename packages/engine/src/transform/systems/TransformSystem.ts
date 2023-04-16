@@ -389,8 +389,6 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     Engine.instance.sceneComponentRegistry.set(TransformComponent.name, SCENE_COMPONENT_TRANSFORM)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {})
-
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[TransformSerialization.ID].set({
@@ -400,7 +398,6 @@ const reactor = () => {
 
     return () => {
       Engine.instance.sceneComponentRegistry.delete(TransformComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_TRANSFORM)
 
       Skeleton.prototype.update = skeletonUpdate
 

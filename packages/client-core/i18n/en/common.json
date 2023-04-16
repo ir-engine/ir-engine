@@ -52,6 +52,7 @@
     "debugOptions": "Debug Options",
     "debug": "Debug Helpers",
     "preSystems": "Pre Systems",
+    "simulation": "Simulation Group",
     "subSystems": "Sub System",
     "postSystems": "Post Systems",
     "nodeHelperDebug": "Node Helper",

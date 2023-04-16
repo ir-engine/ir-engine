@@ -52,14 +52,7 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      const componentId = Engine.instance.sceneComponentRegistry.get(key)
-      if (typeof componentId === 'string') {
-        const deserialize = Engine.instance.sceneLoadingRegistry.get(componentId)?.deserialize
-        if (typeof deserialize === 'function') deserialize(entity, value)
-        else addComponent(entity, component, value)
-      } else {
-        addComponent(entity, component, value)
-      }
+      addComponent(entity, component, value)
       getComponent(entity, GLTFLoadedComponent).push(component)
     }
   }

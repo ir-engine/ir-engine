@@ -53,7 +53,7 @@ export const initClient = async () => {
   ClientSystems()
   await loadEngineInjection(await projects)
 
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+  // dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
 export const useLoadEngine = () => {
@@ -146,7 +146,7 @@ export const usePortalTeleport = () => {
       }
 
       route('/location/' + Engine.instance.activePortal!.location)
-      LocationService.getLocationByName(Engine.instance.activePortal!.location, authState.user.id.value)
+      LocationService.getLocationByName(Engine.instance.activePortal!.location)
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too

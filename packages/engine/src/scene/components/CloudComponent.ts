@@ -29,6 +29,22 @@ export const CloudComponent = defineComponent({
       fogRange: new Vector2().copy(SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogRange)
     } as CloudComponentType
   },
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (typeof json.texture === 'string') component.texture.set(json.texture)
+    if (typeof json.worldScale === 'object')
+      component.worldScale.set(new Vector3(json.worldScale.x, json.worldScale.y, json.worldScale.z))
+    if (typeof json.dimensions === 'object')
+      component.dimensions.set(new Vector3(json.dimensions.x, json.dimensions.y, json.dimensions.z))
+    if (typeof json.noiseZoom === 'object')
+      component.noiseZoom.set(new Vector3(json.noiseZoom.x, json.noiseZoom.y, json.noiseZoom.z))
+    if (typeof json.noiseOffset === 'object')
+      component.noiseOffset.set(new Vector3(json.noiseOffset.x, json.noiseOffset.y, json.noiseOffset.z))
+    if (typeof json.spriteScaleRange === 'object')
+      component.spriteScaleRange.set(new Vector2(json.spriteScaleRange.x, json.spriteScaleRange.y))
+    if (typeof json.fogColor === 'number') component.fogColor.set(new Color(json.fogColor))
+    if (typeof json.fogRange === 'object') component.fogRange.set(new Vector2(json.fogRange.x, json.fogRange.y))
+  },
   toJSON(entity, component) {
     return {
       texture: component.texture.value,
@@ -37,7 +53,7 @@ export const CloudComponent = defineComponent({
       noiseZoom: component.noiseZoom.value,
       noiseOffset: component.noiseOffset.value,
       spriteScaleRange: component.spriteScaleRange.value,
-      fogColor: component.fogColor.value,
+      fogColor: component.fogColor.value.getHex(),
       fogRange: component.fogRange.value
     }
   },

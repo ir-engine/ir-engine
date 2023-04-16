@@ -104,10 +104,8 @@ function execute() {
 const reactor = () => {
   useEffect(() => {
     Engine.instance.sceneComponentRegistry.set(LODComponent.name, SCENE_COMPONENT_LOD)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_LOD, {})
     return () => {
       Engine.instance.sceneComponentRegistry.delete(LODComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_LOD)
     }
   }, [])
   return null

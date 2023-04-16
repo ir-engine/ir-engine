@@ -31,7 +31,6 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(SkyboxComponent.name, SCENE_COMPONENT_SKYBOX)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {})
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
       { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -40,24 +39,19 @@ const reactor = () => {
     ])
 
     Engine.instance.sceneComponentRegistry.set(EnvMapBakeComponent.name, SCENE_COMPONENT_ENVMAP_BAKE)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {})
 
     Engine.instance.sceneComponentRegistry.set(EnvmapComponent.name, SCENE_COMPONENT_ENVMAP)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {})
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.skybox)
 
       Engine.instance.sceneComponentRegistry.delete(SkyboxComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_SKYBOX)
 
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.envMapbake)
 
       Engine.instance.sceneComponentRegistry.delete(EnvMapBakeComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_ENVMAP_BAKE)
 
       Engine.instance.sceneComponentRegistry.delete(EnvmapComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_ENVMAP)
     }
   }, [])
   return null

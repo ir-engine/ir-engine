@@ -57,11 +57,8 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     Engine.instance.sceneComponentRegistry.set(SceneDynamicLoadTagComponent.name, SCENE_COMPONENT_DYNAMIC_LOAD)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {})
-
     return () => {
       Engine.instance.sceneComponentRegistry.delete(SceneDynamicLoadTagComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_DYNAMIC_LOAD)
     }
   }, [])
   return null

@@ -5,7 +5,7 @@ import { matchesEntity } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
-import { unloadPrefab } from '../functions/loaders/PrefabComponentFunctions'
+import { loadPrefab, unloadPrefab } from '../functions/loaders/PrefabComponentFunctions'
 
 export enum LoadState {
   UNLOADED = 'unloaded',
@@ -31,6 +31,11 @@ export const PrefabComponent = defineComponent({
     ;(matches.string as Validator<unknown, LoadState>).test(json.loaded) && component.loaded.set(json.loaded)
     matches.arrayOf(matchesEntity).test(json.roots) && component.roots.set(json.roots)
     matches.string.test(json.src) && component.src.set(json.src)
+
+    if (json.loaded === LoadState.LOADED) {
+      component.loaded.set(LoadState.UNLOADED)
+      loadPrefab(entity)
+    }
   },
 
   toJSON: (entity, component) => {

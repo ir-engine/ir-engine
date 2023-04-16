@@ -29,13 +29,8 @@ export const serializeEntity = (entity: Entity) => {
 
   for (const component of components) {
     const sceneComponentID = Engine.instance.sceneComponentRegistry.get(component.name)!
-    if (
-      sceneComponentID &&
-      !ignoreComponents?.includes(component.name) &&
-      Engine.instance.sceneLoadingRegistry.has(sceneComponentID)
-    ) {
-      const serialize = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)?.serialize
-      const data = serialize ? serialize(entity) : serializeComponent(entity, component)
+    if (sceneComponentID && !ignoreComponents?.includes(component.name)) {
+      const data = serializeComponent(entity, component)
       if (data) {
         jsonComponents.push({
           name: sceneComponentID,

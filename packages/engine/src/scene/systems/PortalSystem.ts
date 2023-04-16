@@ -24,16 +24,11 @@ const reactor = () => {
       ...defaultSpatialComponents,
       { name: SCENE_COMPONENT_PORTAL, props: {} }
     ])
-
     Engine.instance.sceneComponentRegistry.set(PortalComponent.name, SCENE_COMPONENT_PORTAL)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {})
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.portal)
-
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PORTAL)
       Engine.instance.sceneComponentRegistry.delete(PortalComponent.name)
-
       removeActionQueue(sceneLoadedQueue)
     }
   }, [])

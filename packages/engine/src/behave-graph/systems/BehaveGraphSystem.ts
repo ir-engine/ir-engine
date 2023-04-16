@@ -83,7 +83,6 @@ const reactor = () => {
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [
       { name: SCENE_COMPONENT_BEHAVE_GRAPH, props: {} }
     ])
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_BEHAVE_GRAPH, {})
 
     return () => {
       Engine.instance.sceneComponentRegistry.delete(BehaveGraphComponent.name)

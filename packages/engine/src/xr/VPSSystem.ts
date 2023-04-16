@@ -55,11 +55,9 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     Engine.instance.sceneComponentRegistry.set(PersistentAnchorComponent.name, SCENE_COMPONENT_PERSISTENT_ANCHOR)
-    Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSISTENT_ANCHOR, {})
 
     return () => {
       Engine.instance.sceneComponentRegistry.delete(PersistentAnchorComponent.name)
-      Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PERSISTENT_ANCHOR)
     }
   }, [])
   return null

@@ -138,7 +138,6 @@ describe('EditorControlFunctions', () => {
       ])
 
       Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
       rootNode = world.sceneEntity
     })
@@ -245,7 +244,6 @@ describe('EditorControlFunctions', () => {
         { name: SCENE_COMPONENT_GROUP, props: [] }
       ])
       Engine.instance.sceneComponentRegistry.set(GroupComponent.name, SCENE_COMPONENT_GROUP)
-      Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {})
 
       const rootNode = world.sceneEntity
       nodes = [createEntity(), createEntity()]

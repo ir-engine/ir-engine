@@ -72,7 +72,6 @@ const raycasterPosition = new Vector3()
 
 const csmGroup = new Group()
 csmGroup.name = 'CSM-group'
-Engine.instance.scene.add(csmGroup)
 
 const UpdateCSMFromActiveDirectionalLight = (props: { activeLightEntity: Entity; activeLight?: DirectionalLight }) => {
   let activeLight = props.activeLight
@@ -275,7 +274,10 @@ const execute = () => {
 
 const reactor = ({ root }: ReactorProps) => {
   useEffect(() => {
-    return () => {}
+    Engine.instance.scene.add(csmGroup)
+    return () => {
+      Engine.instance.scene.remove(csmGroup)
+    }
   }, [])
   return (
     <>
