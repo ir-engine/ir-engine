@@ -52,12 +52,11 @@ const startDataProducer = async () => {
  * Start playback of a recording
  * - If we are streaming data, close the data producer
  */
-const startPlayback = async (recordingID: string, twin: boolean) => {
+const startPlayback = async (recordingID: string, twin = true) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
     await closeDataProducer(network, mocapDataChannelType)
   }
-  //*** TEMP VARIABLE - PUT IN UI */
   ECSRecordingFunctions.startPlayback({
     recordingID,
     targetUser: twin ? undefined : Engine.instance.userId

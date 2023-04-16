@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
 
 import { useMediaInstanceConnectionState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '@etherealengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
-  toggleFaceTracking,
   toggleMicrophonePaused,
   toggleScreenshare,
   toggleWebcamPaused
@@ -19,11 +16,11 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
+import { MediaStreamState } from '../../transports/MediaStreams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
-  const navigate = useNavigate()
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
   const { topShelfStyle } = useShelfStyles()
@@ -32,7 +29,6 @@ export const MediaIconsBox = () => {
   const channelConnectionState = useMediaInstanceConnectionState()
   const mediaHostId = Engine.instance.mediaNetwork?.hostId
   const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
-  const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
     : false
@@ -40,10 +36,12 @@ export const MediaIconsBox = () => {
     ? currentLocation?.locationSetting?.audioEnabled?.value
     : false
 
-  const isMotionCaptureEnabled = mediastream.isMotionCaptureEnabled
-  const isCamVideoEnabled = mediastream.isCamVideoEnabled
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
-  const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
+  const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
+  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isScreenVideoEnabled =
+    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
   const engineState = useEngineState()
   const xrState = useHookstate(getMutableState(XRState))
@@ -75,12 +73,12 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="UserAudio"
-          className={styles.iconContainer + ' ' + (isCamAudioEnabled.value ? styles.on : '')}
+          className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={toggleMicrophonePaused}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          <Icon type={isCamAudioEnabled.value ? 'Mic' : 'MicOff'} />
+          <Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />
         </button>
       ) : null}
       {videoEnabled &&
@@ -91,17 +89,17 @@ export const MediaIconsBox = () => {
           <button
             type="button"
             id="UserVideo"
-            className={styles.iconContainer + ' ' + (isCamVideoEnabled.value ? styles.on : '')}
+            className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
             onClick={toggleWebcamPaused}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <Icon type={isCamVideoEnabled.value ? 'Videocam' : 'VideocamOff'} />
+            <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
           </button>
           <button
             type="button"
             id="UserPoseTracking"
-            className={styles.iconContainer + ' ' + (isMotionCaptureEnabled.value ? styles.on : '')}
+            className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
             onClick={() => window.open('/capture', '_blank')}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -111,7 +109,7 @@ export const MediaIconsBox = () => {
           <button
             type="button"
             id="UserScreenSharing"
-            className={styles.iconContainer + ' ' + (isScreenVideoEnabled.value ? styles.on : '')}
+            className={styles.iconContainer + ' ' + (isScreenVideoEnabled ? styles.on : '')}
             onClick={toggleScreenshare}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}

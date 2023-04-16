@@ -3,6 +3,7 @@ import MaterialLibrarySystem from '../renderer/materials/systems/MaterialLibrary
 import HyperspacePortalSystem from './systems/HyperspacePortalSystem'
 import InstancingSystem from './systems/InstancingSystem'
 import LightSystem from './systems/LightSystem'
+import LODSystem from './systems/LODSystem'
 import ParticleSystem from './systems/ParticleSystemSystem'
 import PortalLoadSystem from './systems/PortalLoadSystem'
 import PortalSystem from './systems/PortalSystem'
@@ -29,6 +30,11 @@ export function SceneClientModule() {
       uuid: 'ee.engine.LightSystem',
       type: SystemUpdateType.UPDATE_LATE,
       systemLoader: () => Promise.resolve({ default: LightSystem })
+    },
+    {
+      uuid: 'ee.engine.LODSystem',
+      type: SystemUpdateType.POST_RENDER,
+      systemLoader: () => Promise.resolve({ default: LODSystem })
     },
     {
       uuid: 'ee.engine.InstancingSystem',

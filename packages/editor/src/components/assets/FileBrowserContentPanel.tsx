@@ -247,7 +247,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const onBackDirectory = () => {
-    const pattern = /([^\/]+)/g
+    const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
     if (!result) return
     let newPath = '/'
@@ -308,7 +308,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await onRefreshDirectory()
   }
 
-  let currentContent = null! as { item: FileDataType; isCopy: boolean }
+  const currentContent = null! as { item: FileDataType; isCopy: boolean }
   const currentContentRef = useRef(currentContent)
 
   const headGrid = {
@@ -319,7 +319,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   function handleClick(targetFolder: string) {
-    const pattern = /([^\/]+)/g
+    const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
     if (!result) return
     let newPath = '/'
