@@ -53,7 +53,7 @@ export const initClient = async () => {
   ClientSystems()
   await loadEngineInjection(await projects)
 
-  // dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
 export const useLoadEngine = () => {
