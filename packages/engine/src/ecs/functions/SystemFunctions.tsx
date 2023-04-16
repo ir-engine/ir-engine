@@ -68,14 +68,14 @@ export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
   }
 
   const system = {
-    uuid: systemConfig.uuid as SystemUUID,
-    reactor: systemConfig.reactor ?? (() => null),
-    enabled: systemConfig.enabled ?? false,
-    preSystems: systemConfig.preSystems ?? [],
-    execute: systemConfig.execute ?? (() => {}),
-    subSystems: systemConfig.subSystems ?? [],
-    postSystems: systemConfig.postSystems ?? [],
-    sceneSystem: false
+    reactor: () => null,
+    enabled: false,
+    preSystems: [],
+    execute: () => {},
+    subSystems: [],
+    postSystems: [],
+    sceneSystem: false,
+    ...systemConfig
   } as Required<System>
 
   SystemDefintions.set(systemConfig.uuid as SystemUUID, system)
