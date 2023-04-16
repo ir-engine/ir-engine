@@ -49,9 +49,9 @@ var worker = self;
 worker.onmessage = async (msg) => {
   try {
     const texture = await encodeKTX2BasisTexture(msg.data, {
-      useSRGB: true,
-      encodeUASTC: true,
-      mipmaps: true
+      useSRGB: false,
+      encodeUASTC: false,
+      mipmaps: false
     });
     const response = { texture };
     worker.postMessage(response, [texture]);
@@ -66,7 +66,7 @@ async function loadBasisEncoder(options) {
   return { BasisFile, KTX2File, BasisEncoder };
 }
 async function encodeKTX2BasisTexture(image, options = {}) {
-  const { useSRGB = false, qualityLevel = 10, encodeUASTC = false, mipmaps = false } = options;
+  const { useSRGB = false, qualityLevel = 0, encodeUASTC = false, mipmaps = false } = options;
   let basisEncoder;
   try {
     const { BasisEncoder } = await loadBasisEncoder(options);

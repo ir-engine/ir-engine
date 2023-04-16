@@ -18,7 +18,7 @@ import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser
 
 const NEW_SCENE_NAME = 'New-Scene'
 
-const sceneAssetFiles = ['.scene.json', '.thumbnail.jpeg', '.envmap.png']
+const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
 
 export const getSceneData = async (
   projectName: string,
@@ -29,7 +29,7 @@ export const getSceneData = async (
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
-  const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
+  const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
 
   const cacheDomain = getCacheDomain(storageProvider, internal)
   const thumbnailUrl = getCachedURL(thumbnailPath, cacheDomain)
@@ -234,11 +234,11 @@ export class Scene implements ServiceMethods<any> {
       })
 
       if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
-        const sceneThumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
+        const sceneThumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
         await storageProvider.putObject({
           Key: sceneThumbnailPath,
           Body: thumbnailBuffer as Buffer,
-          ContentType: 'image/jpeg'
+          ContentType: 'image/ktx2'
         })
       }
 
@@ -272,7 +272,7 @@ export class Scene implements ServiceMethods<any> {
         if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
           const sceneThumbnailPath = path.resolve(
             appRootPath.path,
-            `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+            `packages/projects/projects/${projectName}/${sceneName}.thumbnail.ktx2`
           )
           fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
         }

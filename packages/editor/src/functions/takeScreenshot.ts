@@ -1,4 +1,13 @@
-import { Camera, PerspectiveCamera } from 'three'
+import { blob } from 'stream/consumers'
+import {
+  Camera,
+  ClampToEdgeWrapping,
+  LinearFilter,
+  PerspectiveCamera,
+  RGBAFormat,
+  UnsignedByteType,
+  WebGLRenderTarget
+} from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -18,6 +27,7 @@ import {
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder.bundle'
 
 import { EditorState } from '../services/EditorServices'
 import { getCanvasBlob } from './thumbnails'
@@ -32,6 +42,8 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
 }
 
 const query = defineQuery([ScenePreviewCameraComponent])
+
+const ktx2Encoder = new KTX2Encoder()
 
 /**
  * Function takeScreenshot used for taking screenshots.
@@ -103,11 +115,23 @@ export async function takeScreenshot(
   EngineRenderer.instance.effectComposer.render()
   EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
 
-  const blob = await getCanvasBlob(
-    getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height),
-    compressed ? 'image/jpeg' : 'image/png',
-    compressed ? 0.9 : 1
-  )
+  const renderer = EngineRenderer.instance.renderer
+
+  const renderTarget = new WebGLRenderTarget(width, height, {
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    wrapS: ClampToEdgeWrapping,
+    wrapT: ClampToEdgeWrapping,
+    format: RGBAFormat,
+    type: UnsignedByteType
+  })
+
+  renderer.setRenderTarget(renderTarget)
+  renderer.render(Engine.instance.scene, scenePreviewCamera)
+  const pixels = new Uint8Array(4 * width * height)
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
 
   EngineRenderer.instance.effectComposer.setSize(originalWidth, originalHeight, true)
 
@@ -115,7 +139,11 @@ export async function takeScreenshot(
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  return blob
+  const ktx2texture = (await ktx2Encoder.encode(imageData)) as ArrayBuffer
+
+  console.log(ktx2texture)
+
+  return new Blob([ktx2texture])
 }
 
 /** @todo make size configurable */
@@ -130,7 +158,7 @@ export const downloadScreenshot = () => {
     const editorState = getState(EditorState)
 
     link.href = blobUrl
-    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
+    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.ktx2'
 
     document.body.appendChild(link)
 
