@@ -18,6 +18,7 @@ import { ECSSerializationModule } from '@etherealengine/engine/src/ecs/ECSSerial
 import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
@@ -714,6 +715,20 @@ export default (app: Application): void => {
 
     createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
+
+  const kickCreatedListener = async (data) => {
+    // data contains is the user-kick entry created in the database
+    console.log('a user was kicked --->', data)
+    // this should fire a message type KICK to all connected clients
+    const network = getServerNetwork(app)
+    console.log('the network peers were', network.peers)
+
+    console.log('engine instance peers were', Engine.instance.worldNetwork.peers)
+  }
+
+  app.service('user-kick').on('created', kickCreatedListener)
+
+  logger.info('registered kickCreatedListener')
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

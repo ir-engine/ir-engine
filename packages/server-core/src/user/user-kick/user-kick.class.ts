@@ -1,3 +1,4 @@
+import { Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { UserKick as UserKickInterface } from '@etherealengine/common/src/interfaces/User'
@@ -14,5 +15,9 @@ export class UserKick<T = UserKickInterface> extends Service<T> {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+  }
+
+  async create(data: any, params?: Params) {
+    return super.create(data, params)
   }
 }
