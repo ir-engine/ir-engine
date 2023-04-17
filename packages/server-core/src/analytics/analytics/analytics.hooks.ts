@@ -5,7 +5,8 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import {
   analyticsDataSchema,
   analyticsPatchSchema,
-  analyticsQuerySchema
+  analyticsQuerySchema,
+  analyticsSchema
 } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
@@ -19,6 +20,8 @@ import {
   analyticsResolver
 } from './analytics.resolvers'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const analyticsValidator = getValidator(analyticsSchema, dataValidator)
 const analyticsDataValidator = getValidator(analyticsDataSchema, dataValidator)
 const analyticsPatchValidator = getValidator(analyticsPatchSchema, dataValidator)
 const analyticsQueryValidator = getValidator(analyticsQuerySchema, queryValidator)
@@ -31,7 +34,7 @@ export default {
   before: {
     all: [
       authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       schemaHooks.validateQuery(analyticsQueryValidator),
       schemaHooks.resolveQuery(analyticsQueryResolver)
     ],
@@ -62,4 +65,4 @@ export default {
     patch: [],
     remove: []
   }
-} as any
+}
