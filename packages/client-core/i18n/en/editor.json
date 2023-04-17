@@ -237,6 +237,14 @@
       "description": "Link to a room or a website.",
       "lbl-url": "URL"
     },
+    "lod": {
+      "heuristic": "Heuristic",
+      "heuristic-distance": "Distance",
+      "heuristic-sceneScale": "Scene Scale",
+      "heuristic-manual": "Manual",
+      "distance": "Distance",
+      "src": "Source"
+    },
     "map": {
       "description": "3D geospatial map of e.g. a city."
     },
@@ -272,6 +280,10 @@
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
         "textureFormat": "Image Format"
+      },
+      "lods": {
+        "serialize": "Serialize",
+        "generate": "Generate LODs"
       }
     },
     "materialAssignment": {

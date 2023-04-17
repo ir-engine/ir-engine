@@ -2,12 +2,10 @@ import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/
 import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
-import { accessEditorState } from '../services/EditorServices'
 
 export default async function ModelHandlingSystem() {
   const beginModelExportQueue = createActionQueue(BufferHandlerExtension.beginModelExport.matches)
   const saveBufferQueue = createActionQueue(BufferHandlerExtension.saveBuffer.matches)
-  const editorState = accessEditorState()
 
   const executionPromises = new Map<string, Promise<void>>()
   const executionPromiseKey = ({ projectName, modelName }) => `${projectName}-${modelName}`

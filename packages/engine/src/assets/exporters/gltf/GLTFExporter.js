@@ -451,7 +451,7 @@ function getToBlobPromise( canvas, mimeType ) {
 /**
  * Writer
  */
-class GLTFWriter {
+export class GLTFWriter {
 
 	constructor() {
 
@@ -537,8 +537,6 @@ class GLTFWriter {
 		const extensionsUsed = writer.extensionsUsed;
 		const extensionsRequired = writer.extensionsRequired;
 
-		// Merge buffers.
-		const blob = new Blob( buffers, { type: 'application/octet-stream' } );
 
 		// Declare extensions.
 		const extensionsUsedList = Object.keys( extensionsUsed );
@@ -548,10 +546,13 @@ class GLTFWriter {
 		if ( extensionsRequiredList.length > 0 ) json.extensionsRequired = extensionsRequiredList;
 
 		// Update bytelength of the single buffer.
-		if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
+		
 
 		if ( options.binary === true ) {
-
+			const blob = new Blob( buffers, { type: 'application/octet-stream' } );
+			if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
+			// Merge buffers.
+			
 			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#glb-file-format-specification
 
 			const reader = new FileReader();
@@ -1245,7 +1246,7 @@ class GLTFWriter {
 
 				}
 
-						data = new Uint8ClampedArray( image.height * image.width * 4 );
+						const data = new Uint8ClampedArray( image.height * image.width * 4 );
 
 				for ( let i = 0; i < data.length; i += 4 ) {
 
@@ -2076,7 +2077,7 @@ class GLTFWriter {
 	 * @param {THREE.Object3D} object
 	 * @return {number|null}
 	 */
-	 processSkin( object ) {
+	processSkin( object ) {
 
 		const json = this.json;
 		const nodeMap = this.nodeMap;
@@ -2736,8 +2737,8 @@ class GLTFMaterialsSpecularExtension {
 	writeMaterial( material, materialDef ) {
 
 		if ( ! material.isMeshPhysicalMaterial || ( material.specularIntensity === 1.0 &&
-		       material.specularColor.equals( DEFAULT_SPECULAR_COLOR ) &&
-		     ! material.specularIntensityMap && ! material.specularColorTexture ) ) return;
+			material.specularColor.equals( DEFAULT_SPECULAR_COLOR ) &&
+			! material.specularIntensityMap && ! material.specularColorTexture ) ) return;
 
 		const writer = this.writer;
 		const extensionsUsed = writer.extensionsUsed;

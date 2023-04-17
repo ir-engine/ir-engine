@@ -25,7 +25,7 @@ import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
-import { useEditorErrorState } from '../services/EditorErrorServices'
+import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
@@ -135,8 +135,7 @@ const EditorContainer = () => {
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
   const sceneLoading = useHookstate(getMutableState(EngineState)).sceneLoading
 
-  const errorState = useEditorErrorState()
-  const editorError = errorState.error
+  const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
@@ -464,10 +463,10 @@ const EditorContainer = () => {
   }, [sceneLoaded])
 
   useEffect(() => {
-    if (editorError) {
-      onEditorError(editorError.value)
+    if (errorState.value) {
+      onEditorError(errorState.value)
     }
-  }, [editorError])
+  }, [errorState])
 
   const generateToolbarMenu = () => {
     return [

@@ -22,6 +22,7 @@ import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '@etherealengine/engine/src/networking/MediaSettingsState'
+import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { Physics, RaycastArgs } from '@etherealengine/engine/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/engine/src/physics/functions/getInteractionGroups'
@@ -204,7 +205,7 @@ export default async function AvatarUISystem() {
           const consumer = Engine.instance.mediaNetwork!.consumers.find(
             (consumer) =>
               consumer.appData.peerID === Engine.instance.mediaNetwork.peerID &&
-              consumer.appData.mediaTag === 'cam-video'
+              consumer.appData.mediaTag === webcamVideoDataChannelType
           ) as Consumer
           const paused = consumer && (consumer as any).producerPaused
           if (videoPreviewMesh.material.map) {

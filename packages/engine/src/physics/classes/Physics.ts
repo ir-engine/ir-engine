@@ -48,7 +48,6 @@ import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from
 export type PhysicsWorld = World
 
 function load() {
-  // eslint-disable-next-line import/no-named-as-default-member
   return RAPIER.init()
 }
 
@@ -139,7 +138,8 @@ function applyDescToCollider(
 function createColliderDesc(
   mesh: Mesh,
   colliderDescOptions: ColliderDescOptions,
-  isRoot = false
+  isRoot = false,
+  overrideShapeType = false
 ): ColliderDesc | undefined {
   // @todo - check this works in all scenes
   // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'BoxGeometry')
@@ -151,7 +151,7 @@ function createColliderDesc(
   // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'CylinderGeometry')
   //   colliderDescOptions.shapeType = ShapeType.Cylinder
 
-  if (typeof colliderDescOptions.shapeType === 'undefined') return
+  if (!overrideShapeType && typeof colliderDescOptions.shapeType === 'undefined') return
 
   let shapeType =
     typeof colliderDescOptions.shapeType === 'string'
@@ -248,7 +248,12 @@ function createColliderDesc(
   return colliderDesc
 }
 
-function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptions: ColliderDescOptions): RigidBody {
+function createRigidBodyForGroup(
+  entity: Entity,
+  world: World,
+  colliderDescOptions: ColliderDescOptions,
+  overrideShapeType = false
+): RigidBody {
   const group = getComponent(entity, GroupComponent) as any as Mesh[]
   if (!group) return undefined!
 
@@ -259,18 +264,21 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
   for (const obj of group) {
     obj.updateMatrixWorld(true)
     obj.traverse((mesh: Mesh) => {
-      if (!mesh.userData || mesh.userData.type === 'glb') return //console.error(mesh)
-      if (!mesh.isMesh && !mesh.userData.type) return //console.error(mesh)
+      if (
+        (!overrideShapeType && (!mesh.userData || mesh.userData.type === 'glb')) ||
+        (!mesh.isMesh && !mesh.userData.type)
+      )
+        return
 
       // backwards support for deprecated `type` property
       if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
 
       // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['EE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-      const colliderDesc = createColliderDesc(mesh, args, obj === mesh)
+      const colliderDesc = createColliderDesc(mesh, args, obj === mesh, overrideShapeType)
 
       if (colliderDesc) {
-        if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)
+        ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
         colliderDescs.push(colliderDesc)
       }
     })
@@ -380,7 +388,7 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
   const flags = raycastQuery.flags
 
   const hits = [] as RaycastHit[]
-  let hitWithNormal = world.castRayAndGetNormal(
+  const hitWithNormal = world.castRayAndGetNormal(
     ray,
     maxToi,
     solid,
@@ -439,7 +447,7 @@ function castShape(world: World, shapecastQuery: ShapecastArgs) {
   const collider = shapecastQuery.collider
 
   shapecastQuery.hits = []
-  let hitWithNormal = world.castShape(
+  const hitWithNormal = world.castShape(
     collider.translation(),
     collider.rotation(),
     shapecastQuery.direction,

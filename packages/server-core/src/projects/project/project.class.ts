@@ -113,7 +113,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string, s
       ])
     }
   } catch (e) {
-    logger.info('[ERROR deleteProjectFilesInStorageProvider]:', e)
+    logger.error(e, '[ERROR deleteProjectFilesInStorageProvider]:')
   }
 }
 
