@@ -93,8 +93,6 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
     }
   }, [fog.type])
 
-  useEffect(() => {}, [])
-
   return null
 }
 
