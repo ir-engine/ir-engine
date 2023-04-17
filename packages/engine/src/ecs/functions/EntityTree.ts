@@ -135,6 +135,7 @@ export function initializeSceneEntity(): void {
   getMutableState(SceneState).sceneEntity.set(sceneEntity)
   setComponent(sceneEntity, NameComponent, 'scene')
   setComponent(sceneEntity, VisibleComponent, true)
+  setComponent(sceneEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
   setComponent(sceneEntity, SceneTagComponent, true)
   setTransformComponent(sceneEntity)
   setComponent(sceneEntity, EntityTreeComponent, { parentEntity: null })
@@ -173,7 +174,8 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
     !hasComponent(entity, EntityTreeComponent) ||
     parentEntity !== getComponent(entity, EntityTreeComponent).parentEntity
   ) {
-    setComponent(entity, EntityTreeComponent, { parentEntity, uuid })
+    setComponent(entity, EntityTreeComponent, { parentEntity })
+    setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
   }
 
   const parentTransform = getComponent(parentEntity, TransformComponent)
@@ -292,33 +294,34 @@ export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: n
  * @param pred Predicate function which will not process a node or its children if return false
  * @param snubChildren If true, will not traverse children of a node if pred returns false
  */
-export function iterateEntityNode(
+export function iterateEntityNode<R>(
   entity: Entity,
-  cb: (entity: Entity, index: number) => void,
+  cb: (entity: Entity, index: number) => R,
   pred: (entity: Entity) => boolean = (x) => true,
-  snubChildren: boolean = false
-): void {
+  snubChildren = false
+): R[] {
   const frontier = [[entity]]
+  const result: R[] = []
   while (frontier.length > 0) {
     const items = frontier.pop()!
     let idx = 0
-    for (let i = 0; i < items.length; i += 1) {
+    for (let i = 0; i < items.length; i++) {
       const item = items[i]
       if (pred(item)) {
-        cb(item, idx)
+        result.push(cb(item, idx))
         idx += 1
-        if (snubChildren)
+        snubChildren &&
           frontier.push(
             getComponent(item, EntityTreeComponent).children?.filter((x) => hasComponent(x, EntityTreeComponent)) ?? []
           )
       }
-      if (!snubChildren) {
+      !snubChildren &&
         frontier.push(
           getComponent(item, EntityTreeComponent).children?.filter((x) => hasComponent(x, EntityTreeComponent)) ?? []
         )
-      }
     }
   }
+  return result
 }
 
 /**

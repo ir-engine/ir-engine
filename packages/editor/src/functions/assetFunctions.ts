@@ -9,9 +9,10 @@ import {
 } from '@etherealengine/client-core/src/util/upload'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   addObjectToGroup,
   GroupComponent,
@@ -20,13 +21,14 @@ import {
 } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessEditorState } from '../services/EditorServices'
+import { EditorState } from '../services/EditorServices'
 
 export const exportPrefab = async (entity: Entity) => {
   const node = getComponent(entity, EntityTreeComponent)
   const asset = getComponent(entity, PrefabComponent)
-  const projectName = accessEditorState().projectName.value!
+  const projectName = getState(EditorState).projectName ?? ''
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }
@@ -105,7 +107,7 @@ const processEntry = async (
   onProgress
 ) => {
   if (item.isDirectory) {
-    let directoryReader = item.createReader()
+    const directoryReader = item.createReader()
     const entries = await getEntries(directoryReader)
     for (let index = 0; index < entries.length; index++) {
       await processEntry(entries[index], projectName, item.fullPath, promises, onProgress)
@@ -149,8 +151,8 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
 export const extractZip = async (path: string): Promise<any> => {
   try {
     const parms = { path: path }
-    await API.instance.client.service('asset-library').create(parms)
+    await Engine.instance.api.service('asset-library').create(parms)
   } catch (err) {
-    throw err
+    console.error('error extracting zip: ', err)
   }
 }

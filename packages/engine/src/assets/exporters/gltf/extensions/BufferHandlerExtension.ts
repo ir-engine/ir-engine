@@ -1,3 +1,4 @@
+import { sha3_256 } from 'js-sha3'
 import { Event, LoaderUtils, Object3D } from 'three'
 import { generateUUID } from 'three/src/math/MathUtils'
 import matches, { Validator } from 'ts-matches'
@@ -5,7 +6,7 @@ import matches, { Validator } from 'ts-matches'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../classes/AssetLoader'
-import { getFileName, getProjectName, modelResourcesPath } from '../../../functions/pathResolver'
+import { getFileName, getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -35,13 +36,23 @@ export default class BufferHandlerExtension extends ExporterExtension implements
 
   projectName: string
   modelName: string
+  resourceURI: string | null
+
+  comparisonCanvas: HTMLCanvasElement
+  bufferCache: Record<string, string>
+
+  constructor(writer: GLTFWriter) {
+    super(writer)
+    this.bufferCache = {}
+    this.comparisonCanvas = document.createElement('canvas')
+  }
 
   beforeParse(input: Object3D<Event> | Object3D<Event>[]) {
     const writer = this.writer
     if (writer.options.embedImages) return
     this.projectName = getProjectName(writer.options.path!)
-    this.modelName = getFileName(writer.options.path!)
-
+    this.modelName = getRelativeURI(writer.options.path!)
+    this.resourceURI = writer.options.resourceURI ?? null
     dispatchAction(
       BufferHandlerExtension.beginModelExport({
         projectName: this.projectName,
@@ -63,7 +74,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
       if (typeof image.toBlob !== 'function') {
         console.error('trying to serialize unprocessed canvas')
       }
-      uri = `${modelResourcesPath(modelName)}/images/${name}.png`
+      uri = `${this.resourceURI ?? modelResourcesPath(modelName)}/images/${name}.png`
       bufferPromise = new Promise<void>(async (resolve) => {
         buffer = await new Promise<ArrayBuffer>((resolve) => {
           image.toBlob((blob) => blob!.arrayBuffer().then(resolve))
@@ -75,12 +86,15 @@ export default class BufferHandlerExtension extends ExporterExtension implements
         console.error('trying to serialize unprocessed image')
       }
       if (!/^blob:/.test(image.src)) return
-      uri = `${modelResourcesPath(modelName)}/images/${name}.png`
-      bufferPromise = new Promise<void>(async (resolve) => {
-        buffer = await fetch(image.src)
+      uri = `${this.resourceURI ?? modelResourcesPath(modelName)}/images/${name}.png`
+      bufferPromise = new Promise<void>((resolve) => {
+        fetch(image.src)
           .then((response) => response.blob())
           .then((blob) => blob.arrayBuffer())
-        resolve()
+          .then((arrayBuf) => {
+            buffer = arrayBuf
+            resolve()
+          })
       })
     }
     this.writer.pending.push(
@@ -102,29 +116,47 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     const writer = this.writer
     const projectName = this.projectName
     const modelName = this.modelName
+
     const json = writer.json
     const buffers = writer.buffers
     const options = writer.options
 
     if (!options?.binary) {
       writer.buffers.map((buffer, index) => {
-        const name = generateUUID()
+        const hash = sha3_256.create()
+        const view = new DataView(buffer)
+        for (let i = 0; i < buffer.byteLength; i++) {
+          hash.update(String.fromCharCode(view.getUint8(i)))
+        }
+        const name = hash.hex()
+        const uri = `${this.resourceURI ?? modelResourcesPath(modelName)}/buffers/${name}.bin`
+        const projectSpaceModelName = this.resourceURI
+          ? LoaderUtils.resolveURL(uri, LoaderUtils.extractUrlBase(modelName))
+          : modelName
         const bufferDef: BufferJson = {
           name,
           byteLength: buffer.byteLength,
-          uri: `${modelResourcesPath(modelName)}/buffers/${name}.bin`
+          uri
         }
         json.buffers[index] = bufferDef
-        dispatchAction(
-          BufferHandlerExtension.saveBuffer({
-            projectName,
-            modelName,
-            saveParms: {
-              ...bufferDef,
-              buffer: buffers[index]
-            }
-          })
-        )
+
+        const saveParms = {
+          ...bufferDef,
+          uri: this.resourceURI ? projectSpaceModelName.replace(/^assets\//, '') : uri,
+          buffer: buffers[index]
+        }
+        if (!this.bufferCache[name]) {
+          dispatchAction(
+            BufferHandlerExtension.saveBuffer({
+              projectName,
+              modelName: projectSpaceModelName,
+              saveParms
+            })
+          )
+          this.bufferCache[name] = uri
+        } else {
+          bufferDef.uri = this.bufferCache[name]
+        }
       })
     }
   }

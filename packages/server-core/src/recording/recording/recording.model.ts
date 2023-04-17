@@ -31,6 +31,7 @@ export default (app: Application) => {
       allowNull: false,
       onDelete: 'cascade'
     })
+    ;(Recording as any).belongsToMany(models.static_resource, { through: 'recording_resource' })
   }
   return Recording
 }

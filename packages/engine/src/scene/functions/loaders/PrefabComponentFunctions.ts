@@ -24,7 +24,7 @@ export const unloadPrefab = (entity: Entity) => {
     }
     prefabComponent.roots.map((node) => {
       if (node) {
-        const children = new Array()
+        const children: Entity[] = []
         iterateEntityNode(node, (child, idx) => {
           children.push(child)
         })
