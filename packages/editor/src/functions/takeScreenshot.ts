@@ -139,9 +139,7 @@ export async function takeScreenshot(
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  const ktx2texture = (await ktx2Encoder.encode(imageData)) as ArrayBuffer
-
-  console.log(ktx2texture)
+  const ktx2texture = (await ktx2Encoder.encode(imageData, false, 10, false, false)) as ArrayBuffer
 
   return new Blob([ktx2texture])
 }
