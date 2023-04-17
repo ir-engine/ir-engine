@@ -39,7 +39,7 @@ import { defineState, getMutableState, getState, none, startReactor, useHookstat
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
-import { AvatarUIContextMenuState, createAvatarContextMenuView } from './ui/UserMenuView'
+import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
 const logger = multiLogger.child({ component: 'client-core:systems' })
 
@@ -131,36 +131,37 @@ const execute = () => {
   const engineState = getMutableState(EngineState)
   if (!engineState.isEngineInitialized.value) return
 
-  const keys = Engine.instance.buttons
+  // const keys = Engine.instance.buttons
 
-  if (keys.PrimaryClick?.down) onPrimaryClick()
-  if (keys.SecondaryClick?.down) onSecondaryClick()
+  // if (keys.PrimaryClick?.down) onPrimaryClick()
+  // if (keys.SecondaryClick?.down) onSecondaryClick()
 
   videoPreviewTimer += Engine.instance.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
-  const immersiveMedia = shouldUseImmersiveMedia()
-
-  for (const userEntity of userQuery.enter()) {
-    if (AvatarUI.has(userEntity)) {
-      logger.info({ userEntity }, 'Entity already exists.')
-      continue
-    }
-    const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
-    const ui = createAvatarDetailView(userId)
-    const transition = createTransitionState(1, 'IN')
-    AvatarUITransitions.set(userEntity, transition)
-    const root = new Group()
-    root.name = `avatar-ui-root-${userEntity}`
-    ui.state.videoPreviewMesh.value.position.y += 0.3
-    ui.state.videoPreviewMesh.value.visible = false
-    root.add(ui.state.videoPreviewMesh.value)
-    addObjectToGroup(ui.entity, root)
-    AvatarUI.set(userEntity, ui)
-  }
+  // for (const userEntity of userQuery.enter()) {
+  //   if (AvatarUI.has(userEntity)) {
+  //     logger.info({ userEntity }, 'Entity already exists.')
+  //     continue
+  //   }
+  //   const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
+  //   const ui = createAvatarDetailView(userId)
+  //   const transition = createTransitionState(1, 'IN')
+  //   AvatarUITransitions.set(userEntity, transition)
+  //   const root = new Group()
+  //   root.name = `avatar-ui-root-${userEntity}`
+  //   ui.state.videoPreviewMesh.value.position.y += 0.3
+  //   ui.state.videoPreviewMesh.value.visible = false
+  //   root.add(ui.state.videoPreviewMesh.value)
+  //   addObjectToGroup(ui.entity, root)
+  //   AvatarUI.set(userEntity, ui)
+  // }
 
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
+  const immersiveMedia = shouldUseImmersiveMedia()
+
+  /** Render immersive media bubbles */
   for (const userEntity of userQuery()) {
     const ui = AvatarUI.get(userEntity)!
     const transition = AvatarUITransitions.get(userEntity)!
@@ -241,10 +242,10 @@ const execute = () => {
     AvatarUITransitions.delete(userEntity)
   }
 
-  const state = getState(AvatarUIContextMenuState)
-  if (state.id !== '') {
-    renderAvatarContextMenu(state.id as UserId, state.ui.entity)
-  }
+  // const state = getState(AvatarUIContextMenuState)
+  // if (state.id !== '') {
+  //   renderAvatarContextMenu(state.id as UserId, state.ui.entity)
+  // }
 }
 
 const reactor = () => {

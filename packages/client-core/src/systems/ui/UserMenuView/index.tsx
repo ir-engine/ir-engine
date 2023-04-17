@@ -37,10 +37,6 @@ export const AvatarUIContextMenuState = defineState({
   }
 })
 
-export function createAvatarContextMenuView() {
-  return
-}
-
 const AvatarContextMenu = () => {
   const detailState = useHookstate(getMutableState(AvatarUIContextMenuState))
   const engineState = useEngineState()
