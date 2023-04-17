@@ -4,9 +4,11 @@ import { BotAction } from 'ee-bot/src/bot/bot-action'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
+import serverLogger, { logger } from '@etherealengine/server-core/src/ServerLogger'
 
 import { Application } from '../../../declarations'
 import * as botk8s from './bot-helper'
+import { createBotCommands } from './bot.functions'
 
 export type AdminBotDataType = AdminBot
 
@@ -37,13 +39,14 @@ export class Bot extends Service {
     return { data: bots } as Paginated<AdminBotDataType>
   }
 
-  async create(data: CreateBotAsAdmin): Promise<AdminBotDataType> {
+  async create(app: Application, data: CreateBotAsAdmin): Promise<AdminBotDataType> {
     // make it create bot pod with a specific name
     data.instanceId = data.instanceId ? data.instanceId : null
+    console.log(data)
     const result = await super.create(data)
-    const locationName = result.locationName // showed up in intellisense, lets see, hunting for the function which converts location id to location name
-    await botk8s.createBotService()
-    await botk8s.createBotPod(result)
+    const location = await app.service('location').get(result.locationId)
+    const locationName = location.name
+    const botPod = await botk8s.createBotPod(result)
 
     const createBotParams = {
       id: result.id,
@@ -61,7 +64,7 @@ export class Bot extends Service {
       id: result.id,
       endpoint: `/bots/${result.id}/actions/add`,
       method: 'post',
-      json: JSON.stringify(BotAction.enterRoom('localhost:3000', 'default'))
+      json: JSON.stringify(BotAction.enterRoom('localhost:3000', locationName)) // change domains later, use a flag
     }
     const runBotParams = {
       id: result.id,
@@ -69,12 +72,23 @@ export class Bot extends Service {
       method: 'post',
       json: {}
     }
-    const response = await botk8s.callBotApi(createBotParams)
+
+    const podName = botPod.metadata.name
+    let status = await botk8s.findBotPod(podName)[0].status
+
+    while (status !== 'Running' && status == 'Succeeded' && status !== 'Failed') {
+      await new Promise((resolve) => setTimeout(resolve, 10000))
+      serverLogger.info('checking if creation finished')
+      status = await botk8s.findBotPod(podName)[0].status
+    }
+
+    const bot = await botk8s.callBotApi(createBotParams)
     await botk8s.callBotApi(connectBotParams)
     await botk8s.callBotApi(enterRoomBotParams)
-    await botk8s.callBotApi(runBotParams) // might use a queue for this or use a action consumer structure, excited :)
-    //createBotCommands(this.app, result, data.command!)
+    await botk8s.callBotApi(runBotParams)
+    // might use a queue for this or use producer-consumer structure, excited :)
 
+    createBotCommands(this.app, result, data.command!) // should next design the bot-command class to work with existing actions in the bot_actions, file in ee-bot
     return result
   }
 
@@ -92,8 +106,8 @@ export class Bot extends Service {
       method: 'delete',
       json: {}
     }
-    await botk8s.callBotApi(deleteBotParams)
-    await botk8s.deleteBodPod({ id: id })
+    //await botk8s.callBotApi(deleteBotParams)
+    //await botk8s.deleteBodPod({ id: id })
     return super.remove(id)
   }
 }

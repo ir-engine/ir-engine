@@ -13,13 +13,17 @@ const packageUrl = 'https://github.com/SYBIOTE/ee-bot' // to be changed after PR
 const servicePort = 4000
 let serviceIp = `${packageName}-service.default.svc.cluster.local`
 
-export const getBotPodBody = (botid: string) => {
+const getBotPodBody = (botid: string) => {
   const podSpec: V1PodSpec = {
     containers: [
       {
         name: 'npm-container',
         image: 'node:latest',
-        command: ['bash', '-c', `git clone ${packageUrl} && cd ${packageName} && npm install && npm run dev`]
+        command: [
+          'bash',
+          '-c',
+          `git clone ${packageUrl}; cd ${packageName};echo "installing now";npm install;echo"running server";npm run dev`
+        ]
       }
     ]
   }
@@ -36,7 +40,7 @@ export const getBotPodBody = (botid: string) => {
   return pod
 }
 
-export const getBotServiceBody = () => {
+const getBotServiceBody = () => {
   const serviceSpec: V1ServiceSpec = {
     type: 'ClusterIP',
     ports: [
@@ -65,10 +69,10 @@ export const createBotService = async () => {
   const serviceName = service.metadata?.name!
   if (k8DefaultClient) {
     try {
-      const currservice = await getBotService(serviceName)
+      const currservice = await findBotService(serviceName)
       if (currservice.length != 0) {
-        console.log('service aleady exists skippping creation')
-        serviceIp = currservice.spec?.clusterIP as string
+        serverLogger.info('service aleady exists skippping creation')
+        serviceIp = currservice[0].ip as string
         return
       }
       const deployService = await k8DefaultClient.createNamespacedService('default', service)
@@ -80,28 +84,7 @@ export const createBotService = async () => {
       return e
     }
   } else {
-    console.log('k8s client not available!')
-  }
-}
-
-export const deleteBotService = async () => {
-  const k8DefaultClient = getState(ServerState).k8DefaultClient
-  if (k8DefaultClient) {
-    try {
-      const currservice = await getBotService(`${packageName}-service`)
-      if (currservice.length == 0) {
-        console.log('service does not exist skippping deletion')
-        return
-      }
-      const destroyService = await k8DefaultClient.deleteNamespacedService(`${packageName}-service`, 'default')
-      logger.info(`${packageName} Service destroyed!`)
-    } catch (e) {
-      serverLogger.error(`${packageName} service deletion failed`)
-      serverLogger.error(e)
-      return e
-    }
-  } else {
-    console.log('k8s client not available!')
+    serverLogger.info('k8s client not available!')
   }
 }
 
@@ -112,46 +95,25 @@ export const createBotPod = async (data: any) => {
   logger.info(`trying to create bot pod with name ${podName}`)
   if (k8DefaultClient) {
     try {
-      const currPod = await getBotPod(podName)
+      const currPod = await findBotPod(podName)
       if (currPod.length != 0) {
-        console.log(`pod for id ${data.id} already exists skippping creation`)
+        serverLogger.info(`pod for id ${data.id} already exists skippping creation`)
         return
       }
       const deployPod = await k8DefaultClient.createNamespacedPod('default', pod)
       logger.info(`${packageName} Pod created!`)
+      return deployPod
     } catch (e) {
       serverLogger.error(`${packageName} pod creation failed`)
       serverLogger.error(e)
       return e
     }
   } else {
-    console.log('k8s client not available!')
+    serverLogger.info('k8s client not available!')
   }
 }
 
-export const deleteBodPod = async (data: any) => {
-  logger.info(`trying to delete bot pod`)
-  const k8DefaultClient = getState(ServerState).k8DefaultClient
-  if (k8DefaultClient) {
-    try {
-      const currPod = await getBotPod(`${packageName}-pod-${data.id}`)
-      if (currPod.length == 0) {
-        console.log(`pod for ${data.id} does not exists skippping creation`)
-        return
-      }
-      const destroyPod = await k8DefaultClient.deleteNamespacedPod(`${packageName}-pod-${data.id}`, 'default')
-      logger.info(`${packageName} Pod deleted!`)
-    } catch (e) {
-      serverLogger.error(`${packageName} pod deletion failed`)
-      serverLogger.error(e)
-      return e
-    }
-  } else {
-    console.log('k8s client not available!')
-  }
-}
-
-export const getBotService = async (query = `${packageName}`) => {
+export const findBotService = async (query = `${packageName}`) => {
   logger.info(`trying to get Service with query ${query}`)
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   if (k8DefaultClient) {
@@ -178,11 +140,11 @@ export const getBotService = async (query = `${packageName}`) => {
       return e
     }
   } else {
-    console.log('k8s client not available!')
+    serverLogger.info('k8s client not available!')
   }
 }
 
-export const getBotPod = async (query = `${packageName}`) => {
+export const findBotPod = async (query = `${packageName}`) => {
   logger.info(`trying to get Pod with query ${query}`)
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   if (k8DefaultClient) {
@@ -210,7 +172,7 @@ export const getBotPod = async (query = `${packageName}`) => {
       return e
     }
   } else {
-    console.log('k8s client not available!')
+    serverLogger.info('k8s client not available!')
   }
 }
 
@@ -220,10 +182,15 @@ export const callBotApi = async (data) => {
   const podName = pod.metadata!.name!
   if (k8DefaultClient) {
     try {
-      const currPod = await getBotPod(podName)
+      const currPod = await findBotPod(podName)
       if (currPod.length == 0) {
-        console.log(`pod for id ${data.id} doesnt exist skipping API call`)
+        serverLogger.info(`pod for id ${data.id} doesnt exist skipping API call`)
         return
+      }
+      const currService = await findBotService(podName)
+      if (currService.length == 0) {
+        serverLogger.info(`${packageUrl}-service doesnt exist, creating service first`)
+        await createBotService()
       }
       const endpoint: string = data.endpoint
       const method: string = data.method.toUpperCase()
@@ -250,5 +217,50 @@ export const callBotApi = async (data) => {
       serverLogger.error(e)
       return e
     }
+  }
+}
+
+export const deleteBotService = async () => {
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
+  if (k8DefaultClient) {
+    try {
+      const currservice = await findBotService(`${packageName}-service`)
+      if (currservice.length == 0) {
+        serverLogger.info('service does not exist skippping deletion')
+        return
+      }
+      const destroyService = await k8DefaultClient.deleteNamespacedService(`${packageName}-service`, 'default')
+      logger.info(`${packageName} Service destroyed!`)
+      return destroyService
+    } catch (e) {
+      serverLogger.error(`${packageName} service deletion failed`)
+      serverLogger.error(e)
+      return e
+    }
+  } else {
+    serverLogger.info('k8s client not available!')
+  }
+}
+
+export const deleteBodPod = async (data: any) => {
+  logger.info(`trying to delete bot pod`)
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
+  if (k8DefaultClient) {
+    try {
+      const currPod = await findBotPod(`${packageName}-pod-${data.id}`)
+      if (currPod.length == 0) {
+        serverLogger.info(`pod for ${data.id} does not exists skippping creation`)
+        return
+      }
+      const destroyPod = await k8DefaultClient.deleteNamespacedPod(`${packageName}-pod-${data.id}`, 'default')
+      logger.info(`${packageName} Pod deleted!`)
+      return destroyPod
+    } catch (e) {
+      serverLogger.error(`${packageName} pod deletion failed`)
+      serverLogger.error(e)
+      return e
+    }
+  } else {
+    serverLogger.info('k8s client not available!')
   }
 }
