@@ -47,7 +47,7 @@ const execute = () => {
   if (keys.SecondaryClick?.up) onSecondaryReleased()
 }
 
-export const FlyControlSystem = defineSystem({
-  uuid: 'ee.editor.FlyControlSystem',
+export const EditorFlyControlSystem = defineSystem({
+  uuid: 'ee.editor.EditorFlyControlSystem',
   execute
 })

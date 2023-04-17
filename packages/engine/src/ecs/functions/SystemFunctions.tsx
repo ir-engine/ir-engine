@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -95,12 +95,15 @@ export function startSystem(
   const referenceSystem = SystemDefintions.get(systemUUID)
   if (!referenceSystem) throw new Error(`System ${systemUUID} does not exist.`)
 
+  if (referenceSystem.enabled) return
+
   if (insert.before) {
     const referenceSystem = SystemDefintions.get(insert.before)
     if (!referenceSystem)
       throw new Error(
         `System ${insert.before} does not exist. You may have a circular dependency in your system definitions.`
       )
+    if (referenceSystem.preSystems.includes(systemUUID)) return
     referenceSystem.preSystems.push(systemUUID)
     enableSystem(systemUUID)
   }
@@ -111,6 +114,7 @@ export function startSystem(
       throw new Error(
         `System ${insert.with} does not exist. You may have a circular dependency in your system definitions.`
       )
+    if (referenceSystem.subSystems.includes(systemUUID)) return
     referenceSystem.subSystems.push(systemUUID)
     enableSystem(systemUUID)
   }
@@ -121,6 +125,7 @@ export function startSystem(
       throw new Error(
         `System ${insert.after} does not exist. You may have a circular dependency in your system definitions.`
       )
+    if (referenceSystem.postSystems.includes(systemUUID)) return
     referenceSystem.postSystems.push(systemUUID)
     enableSystem(systemUUID)
   }
@@ -137,6 +142,22 @@ export const startSystems = (
   for (const system of systems) {
     startSystem(system, insert)
   }
+}
+
+export const useSystems = (
+  systems: SystemUUID[],
+  insert: {
+    before?: SystemUUID
+    with?: SystemUUID
+    after?: SystemUUID
+  }
+) => {
+  useEffect(() => {
+    startSystems(systems, insert)
+    return () => {
+      disableSystems(systems)
+    }
+  }, [])
 }
 
 export const enableSystem = (systemUUID: SystemUUID) => {
@@ -158,11 +179,19 @@ export const enableSystem = (systemUUID: SystemUUID) => {
   }
 }
 
+export const disableSystems = async (systemUUIDs: SystemUUID[]) => {
+  for (const systemUUID of systemUUIDs) {
+    // maybe return async
+    disableSystem(systemUUID)
+  }
+}
+
 export const disableSystem = async (systemUUID: SystemUUID) => {
   const system = SystemDefintions.get(systemUUID)
   if (system) {
     system.enabled = false
     const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
+    Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
     await reactor.stop()
   }
 }

@@ -40,7 +40,7 @@ import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFu
 
 import '../../world/ClientModules'
 
-import { ClientSystems } from '../../world/ClientModules'
+import { ClientSystems } from '../../world/ClientSystems'
 import { loadSceneJsonOffline } from '../../world/utils'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
