@@ -156,16 +156,11 @@ export default async function FogSystem() {
       const customShader = fog.type.value === FogType.Brownian || fog.type.value === FogType.Height
       if (customShader) {
         obj.traverse(addFogShaderPlugin)
-      } else {
-        obj.traverse(removeFogShaderPlugin)
+        return () => {
+          obj.traverse(removeFogShaderPlugin)
+        }
       }
     }, [fog.type])
-
-    useEffect(() => {
-      return () => {
-        obj.traverse(removeFogShaderPlugin)
-      }
-    }, [])
 
     return null
   }
