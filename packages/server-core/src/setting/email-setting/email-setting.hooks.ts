@@ -3,11 +3,14 @@ import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  emailAuthSchema,
   // emailSettingDatabaseSchema,
   emailSettingDataSchema,
   emailSettingPatchSchema,
   emailSettingQuerySchema,
-  emailSettingSchema
+  emailSettingSchema,
+  emailSmtpSchema,
+  emailSubjectSchema
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
@@ -21,6 +24,13 @@ import {
   emailSettingResolver
 } from './email-setting.resolvers'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emailSubjectValidator = getValidator(emailSubjectSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emailAuthValidator = getValidator(emailAuthSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emailSmtpValidator = getValidator(emailSmtpSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emailSettingValidator = getValidator(emailSettingSchema, dataValidator)
 const emailSettingDataValidator = getValidator(emailSettingDataSchema, dataValidator)
 const emailSettingPatchValidator = getValidator(emailSettingPatchSchema, dataValidator)
@@ -34,24 +44,24 @@ export default {
   before: {
     all: [
       authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       schemaHooks.validateQuery(emailSettingQueryValidator),
       schemaHooks.resolveQuery(emailSettingQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScope('settings', 'read') as any)],
-    get: [iff(isProvider('external'), verifyScope('settings', 'read') as any)],
+    find: [iff(isProvider('external'), verifyScope('settings', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('settings', 'read'))],
     create: [
-      iff(isProvider('external'), verifyScope('settings', 'write') as any),
+      iff(isProvider('external'), verifyScope('settings', 'write')),
       schemaHooks.validateData(emailSettingDataValidator),
       schemaHooks.resolveData(emailSettingDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('settings', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('settings', 'write'))],
     patch: [
-      iff(isProvider('external'), verifyScope('settings', 'write') as any),
+      iff(isProvider('external'), verifyScope('settings', 'write')),
       schemaHooks.validateData(emailSettingPatchValidator),
       schemaHooks.resolveData(emailSettingPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('settings', 'write') as any)]
+    remove: [iff(isProvider('external'), verifyScope('settings', 'write'))]
   },
 
   after: {
@@ -73,4 +83,4 @@ export default {
     patch: [],
     remove: []
   }
-} as any
+}

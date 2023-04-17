@@ -4,11 +4,7 @@ import { DataTypes, Sequelize } from 'sequelize'
 
 import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import { CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
-import {
-  EmailSettingDatabaseType,
-  EmailSmtpType,
-  EmailSubjectType
-} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import { EmailSettingDatabaseType } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
 import appConfig from './appconfig'
@@ -328,11 +324,8 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<EmailSettingDatabaseType>('emailSetting')
     .then(([dbEmail]) => {
-      let smtp: EmailSmtpType = dbEmail.smtp
-      let subject: EmailSubjectType = dbEmail.subject
-
-      if (typeof smtp === 'string') smtp = JSON.parse(smtp)
-      if (typeof subject === 'string') subject = JSON.parse(subject)
+      const smtp = JSON.parse(dbEmail.smtp)
+      const subject = JSON.parse(dbEmail.subject)
 
       const dbEmailConfig = dbEmail && {
         from: dbEmail.from,

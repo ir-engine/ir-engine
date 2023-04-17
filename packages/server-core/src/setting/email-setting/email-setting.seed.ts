@@ -18,10 +18,10 @@ export async function seed(knex: Knex): Promise<void> {
           host: process.env.SMTP_HOST || 'test',
           port: parseInt(process.env.SMTP_PORT!) || 'test',
           secure: process.env.SMTP_SECURE === 'true' || true,
-          auth: JSON.stringify({
+          auth: {
             user: process.env.SMTP_USER || 'test',
             pass: process.env.SMTP_PASS || 'test'
-          })
+          }
         }),
         // Name and email of default sender (for login emails, etc)
         from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>` || 'test',

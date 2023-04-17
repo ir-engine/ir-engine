@@ -80,7 +80,7 @@ export const emailSettingQueryProperties = Type.Pick(emailSettingSchema, [
   'id',
   // 'smtp', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
   'from',
-  'subject',
+  // 'subject',
   'smsNameCharacterLimit'
 ])
 export const emailSettingQuerySchema = Type.Intersect(
