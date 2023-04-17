@@ -144,6 +144,22 @@ export const startSystems = (
   }
 }
 
+export const useSystem = (
+  system: SystemUUID,
+  insert: {
+    before?: SystemUUID
+    with?: SystemUUID
+    after?: SystemUUID
+  }
+) => {
+  useEffect(() => {
+    startSystem(system, insert)
+    return () => {
+      disableSystem(system)
+    }
+  }, [])
+}
+
 export const useSystems = (
   systems: SystemUUID[],
   insert: {

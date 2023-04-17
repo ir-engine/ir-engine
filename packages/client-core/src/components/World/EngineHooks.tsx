@@ -37,9 +37,6 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-
-import '../../world/ClientModules'
-
 import { ClientSystems } from '../../world/ClientSystems'
 import { loadSceneJsonOffline } from '../../world/utils'
 

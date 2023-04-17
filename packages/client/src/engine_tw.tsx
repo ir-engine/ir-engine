@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createEngine, initializeBrowser } from '@etherealengine/engine/src/initializeEngine'
+import { initializeBrowser } from '@etherealengine/engine/src/initializeBrowser'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 

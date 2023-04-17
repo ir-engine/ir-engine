@@ -15,7 +15,7 @@ import getFirstMesh from '../util/getFirstMesh'
 
 const lodQuery = defineQuery([LODComponent])
 const updateFrequency = 0.5
-let lastUpdate = Engine.instance.elapsedSeconds
+let lastUpdate = 0
 
 function updateLOD(entity, currentLevel, lodComponent: State<LODComponentType>, lodDistances, position) {
   const heuristic = lodComponent.lodHeuristic.value

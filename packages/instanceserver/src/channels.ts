@@ -5,24 +5,16 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { ECSSerializationModule } from '@etherealengine/engine/src/ecs/ECSSerializationModule'
-import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
-import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
-import { TransformModule } from '@etherealengine/engine/src/transform/TransformModule'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -33,10 +25,10 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { InstanceServerState } from './InstanceServerState'
+import { startMediaServerSystems, startWorldServerSystems } from './InstanceServerSystems'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { RecordingSystems, WorldHostModule } from './WorldHostModule'
+import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -251,7 +243,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId as UserId)
-    await initSystems([...RealtimeNetworkingModule(true, false), ...RecordingSystems()])
+    startMediaServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
@@ -262,16 +254,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
-    await initSystems([
-      ...TransformModule(),
-      ...MotionCaptureModule(),
-      ...ECSSerializationModule(),
-      ...RealtimeNetworkingModule(false, true),
-      ...SceneCommonModule(),
-      ...AvatarCommonModule(),
-      ...WorldHostModule(),
-      ...RecordingSystems()
-    ])
+    startWorldServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 

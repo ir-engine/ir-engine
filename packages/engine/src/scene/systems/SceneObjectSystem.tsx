@@ -166,5 +166,5 @@ export const SceneObjectSystem = defineSystem({
   uuid: 'ee.engine.SceneObjectSystem',
   execute,
   reactor,
-  subSystems: [FogSystem, EnvironmentSystem, ShadowSystem]
+  subSystems: isClient ? [FogSystem, EnvironmentSystem, ShadowSystem] : []
 })

@@ -21,6 +21,7 @@ import { InteractiveSystem } from '@etherealengine/engine/src/interaction/system
 import { MediaControlSystem } from '@etherealengine/engine/src/interaction/systems/MediaControlSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
+import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
 import { WorldNetworkActionSystem } from '@etherealengine/engine/src/networking/systems/WorldNetworkActionSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { HighlightSystem } from '@etherealengine/engine/src/renderer/HighlightSystem'
@@ -43,7 +44,7 @@ export const ClientSystems = () => {
   /** Fixed */
   startSystems([WorldNetworkActionSystem, AvatarSimulationGroup, PhysicsSystem], { with: SimulationSystemGroup })
 
-  /** Avatar / Pre Transform */
+  /** Avatar / Animation */
   startSystems(
     [
       ReferenceSpaceTransformSystem,
@@ -66,12 +67,16 @@ export const ClientSystems = () => {
     before: PresentationSystemGroup
   })
 
+  /** Render */
   startSystems([WebGLRendererSystem], {
     with: PresentationSystemGroup
   })
 
   /** Post Render */
-  startSystems([ButtonCleanupSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup], {
-    after: PresentationSystemGroup
-  })
+  startSystems(
+    [ButtonCleanupSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup, OutgoingNetworkSystem],
+    {
+      after: PresentationSystemGroup
+    }
+  )
 }

@@ -167,17 +167,9 @@ const shadowMaterial = new MeshBasicMaterial({
 
 const shadowState = hookstate(null as MeshBasicMaterial | null)
 
-AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/public/drop-shadow.png`).then(
-  (texture: Texture) => {
-    shadowMaterial.map = texture
-    shadowMaterial.needsUpdate = true
-    shadowState.set(shadowMaterial)
-  }
-)
-
 const dropShadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
-let sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
+let sceneObjects = [] as Object3D<any>[]
 
 const minRadius = 0.15
 const sphere = new Sphere()
@@ -275,6 +267,15 @@ const execute = () => {
 const reactor = ({ root }: ReactorProps) => {
   useEffect(() => {
     Engine.instance.scene.add(csmGroup)
+
+    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/public/drop-shadow.png`).then(
+      (texture: Texture) => {
+        shadowMaterial.map = texture
+        shadowMaterial.needsUpdate = true
+        shadowState.set(shadowMaterial)
+      }
+    )
+
     return () => {
       Engine.instance.scene.remove(csmGroup)
     }
