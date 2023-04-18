@@ -1,6 +1,6 @@
 /** Functions to provide system level functionalities. */
 
-import React, { Suspense } from 'react'
+import React, { Suspense, useMemo } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
@@ -322,29 +322,38 @@ export const unloadSystem = (uuid: string) => {
   return systemToUnload.cleanup()
 }
 
-function QueryReactor(props: {
-  root: ReactorRoot
-  query: QueryComponents
-  ChildEntityReactor: React.FC<EntityReactorProps>
-}) {
-  const entities = useQuery(props.query)
-  return (
-    <>
-      {entities.map((entity) => (
-        <QueryReactorErrorBoundary key={entity}>
+const QueryReactor = React.memo(
+  (props: { root: ReactorRoot; entity: Entity; ChildEntityReactor: React.FC<EntityReactorProps> }) => {
+    const entityRoot = useMemo(() => {
+      return {
+        ...props.root,
+        entity: props.entity
+      }
+    }, [props.root, props.entity])
+    return (
+      <>
+        <QueryReactorErrorBoundary>
           <Suspense fallback={null}>
-            <props.ChildEntityReactor root={{ ...props.root, entity }} />
+            <props.ChildEntityReactor root={entityRoot} />
           </Suspense>
         </QueryReactorErrorBoundary>
-      ))}
-    </>
-  )
-}
+      </>
+    )
+  }
+)
 
 export const startQueryReactor = (Components: QueryComponents, ChildEntityReactor: React.FC<EntityReactorProps>) => {
   if (!ChildEntityReactor.name) Object.defineProperty(ChildEntityReactor, 'name', { value: 'ChildEntityReactor' })
+  const MemoChildEntityReactor = React.memo(ChildEntityReactor)
   return startReactor(function HyperfluxQueryReactor({ root }: ReactorProps) {
-    return <QueryReactor query={Components} ChildEntityReactor={ChildEntityReactor} root={root} />
+    const entities = useQuery(Components)
+    return (
+      <>
+        {entities.map((entity) => (
+          <QueryReactor root={root} key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} />
+        ))}
+      </>
+    )
   })
 }
 
