@@ -2,7 +2,6 @@ import { t } from 'i18next'
 import React, { lazy, Suspense, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { useRegisterSW } from 'virtual:pwa-register/react'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
@@ -38,11 +37,6 @@ const options = {
 }
 
 const App = () => {
-  const {
-    offlineReady: [offlineReady, setOfflineReady],
-    needRefresh: [needRefresh, setNeedRefresh]
-  } = useRegisterSW(options)
-
   return (
     <ErrorBoundary>
       <BrowserRouter>

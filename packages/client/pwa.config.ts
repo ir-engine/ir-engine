@@ -25,15 +25,18 @@ const PWA = (clientSetting) =>
     injectRegister: 'inline',
     devOptions: {
       enabled: process.env.APP_ENV === 'development',
-      navigateFallback: '/index.html',
-      navigateFallbackAllowlist: [/^\/.*/, /^\/*/]
+      navigateFallback: '/index.html'
+      // navigateFallbackAllowlist: [/^\/.*/, /^\/*/]
     },
     workbox: {
       navigateFallback: '/index.html',
-      navigateFallbackAllowlist: [/^\/.*/, /^\/*/],
+      // navigateFallbackAllowlist: [/^\/.*/, /^\/*/],
       swDest: 'public/sw.js',
-      globDirectory: 'public',
-      globPatterns: ['**/*.{js,css,html,png,svg,ico,txt,xml,json,woff2,woff,ttf,eot,map}'],
+      globDirectory: './dist',
+      globPatterns: [
+        '**/*.{br,wasm,js,css,html,png,svg,ico,txt,xml,json,woff2,woff,ttf,eot,map}',
+        '**/*.{png,br,jpg,glb,wasm,map,ttf,svg,mp3,ico,js,html,css,webmanifest,txt,xml}'
+      ],
       additionalManifestEntries: [
         { url: '/manifest.webmanifest', revision: packageJson.version },
         { url: '/sw.js', revision: packageJson.version },
