@@ -20,7 +20,7 @@ export const getSystemsFromSceneData = (project: string, sceneData: SceneJson): 
       if (component.name === 'system') {
         const data: ComponentType<typeof SystemComponent> = component.props
         if ((isClient && data.enableClient) || (!isClient && data.enableServer)) {
-          systems.push({ ...importSystem(project, data, uuid as EntityUUID) })
+          systems.push(importSystem(project, data, uuid as EntityUUID))
         }
       }
     }
