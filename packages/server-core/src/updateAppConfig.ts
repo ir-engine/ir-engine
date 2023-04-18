@@ -5,6 +5,7 @@ import { DataTypes, Sequelize } from 'sequelize'
 import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import { CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import { RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
 import appConfig from './appconfig'
@@ -416,26 +417,9 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(instanceServerSettingPromise)
 
-  const redisSetting = sequelizeClient.define('redisSetting', {
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    address: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const redisSettingPromise = redisSetting
-    .findAll()
+  const redisSettingPromise = knexClient
+    .select()
+    .from<RedisSettingType>('redisSetting')
     .then(([dbRedis]) => {
       const dbRedisConfig = dbRedis && {
         enabled: dbRedis.enabled,

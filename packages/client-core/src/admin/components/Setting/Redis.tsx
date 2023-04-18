@@ -9,7 +9,7 @@ import Grid from '@etherealengine/ui/src/Grid'
 import Typography from '@etherealengine/ui/src/Typography'
 
 import { AuthState } from '../../../user/services/AuthService'
-import { AdminRedisSettingService, AdminRedisSettingsState } from '../../services/Setting/AdminRedisSettingService'
+import { AdminRedisSettingsState, RedisSettingService } from '../../services/Setting/RedisSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Redis = () => {
@@ -22,7 +22,7 @@ const Redis = () => {
 
   useEffect(() => {
     if (user?.id?.value != null && redisSettingState?.updateNeeded?.value) {
-      AdminRedisSettingService.fetchRedisSetting()
+      RedisSettingService.fetchRedisSetting()
     }
   }, [user?.id?.value, redisSettingState?.updateNeeded?.value])
 
