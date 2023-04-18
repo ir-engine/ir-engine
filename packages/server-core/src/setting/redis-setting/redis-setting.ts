@@ -14,8 +14,7 @@ declare module '@etherealengine/common/declarations' {
 
 export default (app: Application): void => {
   const options = {
-    //TODO: Ideally we should use `redisSettingPath` variable, but since our table name is not `redis-setting` therefore hardcoded string is used.
-    name: 'redisSetting', // redisSettingPath,
+    name: redisSettingPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
