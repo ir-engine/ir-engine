@@ -34,7 +34,7 @@ import { XRAnchorSystem } from '@etherealengine/engine/src/xr/XRAnchorSystem'
 import { XRSystem } from '@etherealengine/engine/src/xr/XRSystem'
 import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
-export const ClientSystems = () => {
+export const startClientSystems = () => {
   /** Input */
   startSystems(
     [IncomingNetworkSystem, XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputGroup, CameraInputSystem],

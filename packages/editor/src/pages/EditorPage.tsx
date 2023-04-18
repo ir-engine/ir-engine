@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ClientSystems } from '@etherealengine/client-core/src/world/ClientSystems'
+import { startClientSystems } from '@etherealengine/client-core/src/world/startClientSystems'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
@@ -54,7 +54,7 @@ export const EditorPage = () => {
     if (isEditor.value) return
     isEditor.set(true)
     const projects = Engine.instance.api.service('projects').find()
-    ClientSystems()
+    startClientSystems()
 
     editorSystems()
     projects.then((proj) => {
