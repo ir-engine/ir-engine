@@ -238,15 +238,18 @@ export const updateSceneFromJSON = async () => {
     const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
       ...sceneSystems.filter(
-        (systemToLoad) => !Array.from(SystemDefinitions.keys()).find((uuid) => uuid === systemToLoad.systemUUID)
+        (systemToLoad) => !Array.from(Engine.instance.activeSystems).find((uuid) => uuid === systemToLoad.systemUUID)
       )
     )
-    const systemsToUnload = Array.from(SystemDefinitions.entries())
-      .filter(([systemUUID, system]) => system.sceneSystem && !sceneSystems.find((s) => s.systemUUID === systemUUID))
-      .map((s) => s[0])
+    const systemsToUnload = Array.from(Engine.instance.activeSystems)
+      .filter(
+        (systemUUID) =>
+          SystemDefinitions.get(systemUUID)?.sceneSystem && !sceneSystems.find((s) => s.systemUUID === systemUUID)
+      )
+      .map((s) => s)
 
     /** 1. unload old systems */
-    await disableSystems(systemsToUnload)
+    disableSystems(systemsToUnload)
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */

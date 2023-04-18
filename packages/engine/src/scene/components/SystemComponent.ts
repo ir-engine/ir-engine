@@ -1,4 +1,4 @@
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup, PresentationSystemGroup, SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { SystemUUID } from '../../ecs/functions/SystemFunctions'
 
@@ -28,46 +28,7 @@ export const SystemComponent = defineComponent({
     if (typeof json.args === 'object') component.args.set(json.args)
 
     // backwards compat
-    if (typeof (json as any).systemUpdateType === 'string') {
-      switch ((json as any).systemUpdateType) {
-        case 'UPDATE_EARLY':
-          component.insertOrder.set('before')
-          component.insertUUID.set(InputSystemGroup)
-          break
-        case 'UPDATE':
-          component.insertOrder.set('with')
-          component.insertUUID.set(InputSystemGroup)
-          break
-        case 'UPDATE_LATE':
-          component.insertOrder.set('after')
-          component.insertUUID.set(InputSystemGroup)
-          break
-        case 'FIXED_EARLY':
-          component.insertOrder.set('before')
-          component.insertUUID.set(SimulationSystemGroup)
-          break
-        case 'FIXED':
-          component.insertOrder.set('with')
-          component.insertUUID.set(SimulationSystemGroup)
-          break
-        case 'FIXED_LATE':
-          component.insertOrder.set('after')
-          component.insertUUID.set(SimulationSystemGroup)
-          break
-        case 'PRE_RENDER':
-          component.insertOrder.set('before')
-          component.insertUUID.set(PresentationSystemGroup)
-          break
-        case 'RENDER':
-          component.insertOrder.set('with')
-          component.insertUUID.set(PresentationSystemGroup)
-          break
-        case 'POST_RENDER':
-          component.insertOrder.set('after')
-          component.insertUUID.set(PresentationSystemGroup)
-          break
-      }
-    }
+    convertSystemComponentJSON(json as any)
   },
 
   toJSON(entity, component) {
@@ -81,3 +42,54 @@ export const SystemComponent = defineComponent({
     }
   }
 })
+
+/**
+ * Converts old system update types to new insert order and insert uuid
+ * @param json
+ * @returns
+ */
+export const convertSystemComponentJSON = (
+  json: ComponentType<typeof SystemComponent> & { systemUpdateType: string }
+) => {
+  if (typeof json.systemUpdateType === 'string') {
+    switch (json.systemUpdateType) {
+      case 'UPDATE_EARLY':
+        json.insertOrder = 'before'
+        json.insertUUID = InputSystemGroup
+        break
+      case 'UPDATE':
+        json.insertOrder = 'with'
+        json.insertUUID = InputSystemGroup
+        break
+      case 'UPDATE_LATE':
+        json.insertOrder = 'after'
+        json.insertUUID = InputSystemGroup
+        break
+      case 'FIXED_EARLY':
+        json.insertOrder = 'before'
+        json.insertUUID = SimulationSystemGroup
+        break
+      case 'FIXED':
+        json.insertOrder = 'with'
+        json.insertUUID = SimulationSystemGroup
+        break
+      case 'FIXED_LATE':
+        json.insertOrder = 'after'
+        json.insertUUID = SimulationSystemGroup
+        break
+      case 'PRE_RENDER':
+        json.insertOrder = 'before'
+        json.insertUUID = PresentationSystemGroup
+        break
+      case 'RENDER':
+        json.insertOrder = 'with'
+        json.insertUUID = PresentationSystemGroup
+        break
+      case 'POST_RENDER':
+        json.insertOrder = 'after'
+        json.insertUUID = PresentationSystemGroup
+        break
+    }
+  }
+  return json
+}

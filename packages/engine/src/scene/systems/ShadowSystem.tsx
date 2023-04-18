@@ -129,14 +129,14 @@ const UpdateCSMFromActiveDirectionalLight = (props: { activeLightEntity: Entity;
 
 function CSMReactor() {
   const xrState = getMutableState(XRState)
-  const lightEstimator = useHookstate(xrState.isEstimatingLight)
+  const isEstimatingLight = useHookstate(xrState.isEstimatingLight)
   const directionalLights = useQuery([DirectionalLightComponent])
 
   let activeLight: DirectionalLight | undefined
 
   // TODO: convert light estimator to an entity to simplify all this logic
   let activeLightEntity = UndefinedEntity
-  if (lightEstimator.value) activeLight = xrState.lightEstimator.value!.directionalLight
+  if (isEstimatingLight.value) activeLight = xrState.lightEstimator.value?.directionalLight
   else
     for (const entity of directionalLights) {
       const component = getComponent(entity, DirectionalLightComponent)

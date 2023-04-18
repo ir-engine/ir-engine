@@ -2,8 +2,11 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import type { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { isClient } from '@etherealengine/engine/src/common/functions/isClient'
 import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import type { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import {
+  convertSystemComponentJSON,
+  SystemComponent
+} from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 export type SystemImportType = {
   systemUUID: SystemUUID
@@ -18,7 +21,7 @@ export const getSystemsFromSceneData = (project: string, sceneData: SceneJson): 
   for (const [uuid, entity] of Object.entries(sceneData.entities)) {
     for (const component of entity.components) {
       if (component.name === 'system') {
-        const data: ComponentType<typeof SystemComponent> = component.props
+        const data = convertSystemComponentJSON(component.props)
         if ((isClient && data.enableClient) || (!isClient && data.enableServer)) {
           systems.push(importSystem(project, data, uuid as EntityUUID))
         }
@@ -48,6 +51,13 @@ export const importSystem = async (
     console.error(`[ProjectLoader]: System not found at ${filePathRelative}`)
     return null!
   }
+
+  const system = SystemDefinitions.get(systemUUID)
+  if (!system) {
+    console.error(`[ProjectLoader]: System not found at ${filePathRelative}`)
+    return null!
+  }
+  system.sceneSystem = true
 
   return { systemUUID, insertUUID, insertOrder, args, entityUUID }
 }
