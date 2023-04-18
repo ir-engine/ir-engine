@@ -15,7 +15,6 @@ import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
-import { CurrentSystemUUID, SystemDefinitions } from './SystemFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -348,15 +347,15 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   const _removeExit = () => bitECS.removeQuery(Engine.instance, wrappedQuery._exitQuery)
 
   const wrappedQuery = () => {
-    Engine.instance.activeSystemReactors.get(CurrentSystemUUID)?.cleanupFunctions.add(_remove)
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_remove)
     return query(Engine.instance) as Entity[]
   }
   wrappedQuery.enter = () => {
-    Engine.instance.activeSystemReactors.get(CurrentSystemUUID)?.cleanupFunctions.add(_removeEnter)
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
     return enterQuery(Engine.instance) as Entity[]
   }
   wrappedQuery.exit = () => {
-    Engine.instance.activeSystemReactors.get(CurrentSystemUUID)?.cleanupFunctions.add(_removeExit)
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
     return exitQuery(Engine.instance) as Entity[]
   }
 

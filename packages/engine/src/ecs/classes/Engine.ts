@@ -52,7 +52,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { CurrentSystemUUID, disableAllSystems, SystemUUID } from '../functions/SystemFunctions'
+import { disableAllSystems, SystemUUID } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -109,7 +109,7 @@ export class Engine {
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate,
-    getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(CurrentSystemUUID)
+    getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)
   }) as HyperStore
 
   /**
@@ -264,6 +264,7 @@ export class Engine {
   }
 
   activeSystems = new Set<SystemUUID>()
+  currentSystemUUID = '__null__' as SystemUUID
   activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
 
   /**
