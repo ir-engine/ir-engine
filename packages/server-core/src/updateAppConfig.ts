@@ -8,7 +8,10 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
-import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+import {
+  taskServerSettingPath,
+  TaskServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
 import appConfig from './appconfig'
 import logger from './ServerLogger'
@@ -54,7 +57,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const taskServerSettingPromise = knexClient
     .select()
-    .from<TaskServerSettingType>('taskServerSetting')
+    .from<TaskServerSettingType>(taskServerSettingPath)
     .then(([dbTaskServer]) => {
       const dbTaskServerConfig = dbTaskServer && {
         port: dbTaskServer.port,
