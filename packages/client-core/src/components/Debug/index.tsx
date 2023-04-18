@@ -41,10 +41,10 @@ type DesiredType =
 const convertSystemTypeToDesiredType = (system: System): DesiredType => {
   const { preSystems, subSystems, postSystems } = system
   if (preSystems.length === 0 && subSystems.length === 0 && postSystems.length === 0) {
-    return system.enabled
+    return Engine.instance.activeSystems.has(system.uuid)
   }
   const desired: DesiredType = {
-    enabled: system.enabled
+    enabled: Engine.instance.activeSystems.has(system.uuid)
   }
   if (preSystems.length > 0) {
     desired.preSystems = preSystems.reduce((acc, uuid) => {
@@ -241,7 +241,11 @@ export const Debug = ({ showingStateRef }) => {
                   type="checkbox"
                   checked={value}
                   onChange={() => {
-                    system.enabled = !system.enabled
+                    if (Engine.instance.activeSystems.has(system.uuid)) {
+                      Engine.instance.activeSystems.delete(system.uuid)
+                    } else {
+                      Engine.instance.activeSystems.add(system.uuid)
+                    }
                   }}
                 ></input>
               </>
