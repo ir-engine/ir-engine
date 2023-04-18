@@ -17,7 +17,7 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import CaptureUI from '@etherealengine/ui/src/components/tailwind/Capture'
 
-const injectCaptureSystems = () => {
+const startCaptureSystems = () => {
   startSystem(MotionCaptureSystem, { with: InputSystemGroup })
   startSystem(MediaSystem, { before: PresentationSystemGroup })
   startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
@@ -28,7 +28,7 @@ export const initializeEngineForRecorder = async () => {
 
   const projects = API.instance.client.service('projects').find()
 
-  injectCaptureSystems()
+  startCaptureSystems()
   await loadEngineInjection(await projects)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
