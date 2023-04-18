@@ -17,8 +17,7 @@ declare module '@etherealengine/common/declarations' {
 
 export default (app: Application): void => {
   const options = {
-    //TODO: Ideally we should use `taskServerSettingPath` variable, but since our table name is not `task-server-setting` therefore hardcoded string is used.
-    name: 'taskServerSetting', // taskServerSettingPath,
+    name: taskServerSettingPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true

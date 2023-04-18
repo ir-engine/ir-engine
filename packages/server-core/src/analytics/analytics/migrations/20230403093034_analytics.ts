@@ -1,16 +1,16 @@
 import type { Knex } from 'knex'
 
-const TABLE_NAME = 'analytics'
+import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(analyticsPath)
 
   if (tableExists === false) {
-    await knex.schema.createTable(TABLE_NAME, (table) => {
+    await knex.schema.createTable(analyticsPath, (table) => {
       table.string('id', 36).primary()
       table.integer('count').nullable()
       table.string('type', 255).nullable()
@@ -25,9 +25,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(analyticsPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(TABLE_NAME)
+    await knex.schema.dropTable(analyticsPath)
   }
 }

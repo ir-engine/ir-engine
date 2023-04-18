@@ -1,16 +1,23 @@
 import type { Knex } from 'knex'
 
-const TABLE_NAME = 'chargebeeSetting'
+import { chargebeeSettingPath } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const oldTableName = 'chargebeeSetting'
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, chargebeeSettingPath)
+  }
+
+  const tableExists = await knex.schema.hasTable(chargebeeSettingPath)
 
   if (tableExists === false) {
-    await knex.schema.createTable(TABLE_NAME, (table) => {
+    await knex.schema.createTable(chargebeeSettingPath, (table) => {
       table.string('id', 36).primary()
       table.string('url', 255).nullable()
       table.string('apiKey', 255).nullable()
@@ -25,9 +32,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(chargebeeSettingPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(TABLE_NAME)
+    await knex.schema.dropTable(chargebeeSettingPath)
   }
 }

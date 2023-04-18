@@ -104,15 +104,17 @@ export type GroupReactorProps = {
 export const startGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
   Components: QueryComponents = []
-) =>
-  startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
+) => {
+  const MemoGroupChildReactor = React.memo(GroupChildReactor)
+  return startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
     const entity = props.root.entity
     const groupComponent = useComponent(entity, GroupComponent)
     return (
       <>
         {groupComponent.value.map((obj, i) => (
-          <GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+          <MemoGroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
         ))}
       </>
     )
   })
+}
