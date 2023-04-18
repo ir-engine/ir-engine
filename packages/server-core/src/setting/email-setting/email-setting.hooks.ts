@@ -4,7 +4,6 @@ import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
   emailAuthSchema,
-  // emailSettingDatabaseSchema,
   emailSettingDataSchema,
   emailSettingPatchSchema,
   emailSettingQuerySchema,

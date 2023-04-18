@@ -2,7 +2,7 @@ import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 
 import { authenticationSeed } from './authentication-setting/authentication.seed'
-import { awsSeed } from './aws-setting/aws-setting.seed'
+import * as awsSeed from './aws-setting/aws-setting.seed'
 import * as chargebeeSeed from './chargebee-setting/chargebee-setting.seed'
 import { clientSeed } from './client-setting/client-setting.seed'
 import * as coilSeed from './coil-setting/coil-setting.seed'
@@ -17,10 +17,9 @@ export const settingSequelizeSeeds: Array<ServicesSeedConfig> = [
   clientSeed,
   instanceServerSeed,
   authenticationSeed,
-  awsSeed,
   redisSeed
 ]
 
 export default settingSequelizeSeeds
 
-export const settingSeeds: Array<KnexSeed> = [chargebeeSeed, taskServerSeed, coilSeed, emailSeed]
+export const settingSeeds: Array<KnexSeed> = [chargebeeSeed, taskServerSeed, coilSeed, emailSeed, awsSeed]
