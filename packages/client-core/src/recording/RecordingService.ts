@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { IKSerialization } from '@etherealengine/engine/src/avatar/IKSerialization'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -8,7 +6,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
-import { createActionQueue, defineState, getMutableState, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../common/services/NotificationService'
 
@@ -86,20 +84,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(startRecordingQueue)
-      removeActionQueue(recordingStartedQueue)
-      removeActionQueue(stopRecordingQueue)
-      removeActionQueue(playbackChangedQueue)
-    }
-  }, [])
-  return null
-}
-
 export const RecordingServiceSystem = defineSystem({
   uuid: 'ee.client.RecordingServiceSystem',
-  execute,
-  reactor
+  execute
 })

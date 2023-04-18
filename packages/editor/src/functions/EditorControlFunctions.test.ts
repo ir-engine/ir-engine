@@ -129,9 +129,9 @@ describe('EditorControlFunctions', () => {
       const world = getState(SceneState)
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
-        { name: TransformComponent.jsonID, props: {} },
-        { name: VisibleComponent.jsonID, props: true },
-        { name: GroupComponent.jsonID, props: [] }
+        { name: TransformComponent.jsonID },
+        { name: VisibleComponent.jsonID },
+        { name: GroupComponent.jsonID }
       ])
 
       rootNode = world.sceneEntity
@@ -234,9 +234,9 @@ describe('EditorControlFunctions', () => {
       const world = getState(SceneState)
 
       Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
-        { name: TransformComponent.jsonID, props: {} },
-        { name: VisibleComponent.jsonID, props: true },
-        { name: GroupComponent.jsonID, props: [] }
+        { name: TransformComponent.jsonID },
+        { name: VisibleComponent.jsonID },
+        { name: GroupComponent.jsonID }
       ])
 
       const rootNode = world.sceneEntity

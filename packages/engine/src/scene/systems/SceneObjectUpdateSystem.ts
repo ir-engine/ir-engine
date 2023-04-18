@@ -92,16 +92,16 @@ const reactor = () => {
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.previewCamera, [
       { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID, props: true },
-      { name: ScenePreviewCameraComponent.jsonID, props: true }
+      { name: VisibleComponent.jsonID },
+      { name: ScenePreviewCameraComponent.jsonID }
     ])
 
-    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.system, [{ name: SystemComponent.jsonID, props: {} }])
+    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.system, [{ name: SystemComponent.jsonID }])
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.spawnPoint, [
       { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID, props: true },
-      { name: SpawnPointComponent.jsonID, props: true }
+      { name: VisibleComponent.jsonID },
+      { name: SpawnPointComponent.jsonID }
     ])
 
     /**
@@ -110,8 +110,8 @@ const reactor = () => {
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.prefab, [
       { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID, props: true },
-      { name: PrefabComponent.jsonID, props: {} }
+      { name: VisibleComponent.jsonID },
+      { name: PrefabComponent.jsonID }
     ])
 
     /**
@@ -120,30 +120,30 @@ const reactor = () => {
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.model, [
       ...defaultSpatialComponents,
-      { name: ModelComponent.jsonID, props: {} },
-      { name: EnvmapComponent.jsonID, props: {} },
-      { name: LoopAnimationComponent.jsonID, props: {} }
+      { name: ModelComponent.jsonID },
+      { name: EnvmapComponent.jsonID },
+      { name: LoopAnimationComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.instancing, [
       { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID, props: true },
-      { name: InstancingComponent.jsonID, props: {} }
+      { name: VisibleComponent.jsonID },
+      { name: InstancingComponent.jsonID }
     ])
 
-    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.loadVolume, [{ name: LoadVolumeComponent.jsonID, props: {} }])
+    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.loadVolume, [{ name: LoadVolumeComponent.jsonID }])
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
       { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID, props: true },
-      { name: GroupComponent.jsonID, props: [] }
+      { name: VisibleComponent.jsonID },
+      { name: GroupComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.groundPlane, [
       { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID, props: true },
+      { name: VisibleComponent.jsonID },
       { name: ShadowComponent.jsonID, props: { receive: true, cast: false } },
-      { name: GroundPlaneComponent.jsonID, props: {} }
+      { name: GroundPlaneComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.image, [
@@ -166,7 +166,7 @@ const reactor = () => {
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.water, [
       ...defaultSpatialComponents,
-      { name: WaterComponent.jsonID, props: true }
+      { name: WaterComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.interior, [
@@ -176,12 +176,12 @@ const reactor = () => {
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.spline, [
       ...defaultSpatialComponents,
-      { name: SplineComponent.jsonID, props: {} }
+      { name: SplineComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [
       ...defaultSpatialComponents,
-      { name: ParticleSystemComponent.jsonID, props: {} }
+      { name: ParticleSystemComponent.jsonID }
     ])
 
     return () => {

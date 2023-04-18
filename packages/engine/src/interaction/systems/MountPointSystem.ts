@@ -142,9 +142,9 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.chair, [
-      { name: TransformComponent.jsonID, props: {} },
-      { name: VisibleComponent.jsonID, props: true },
-      { name: MountPointComponent.jsonID, props: {} }
+      { name: TransformComponent.jsonID },
+      { name: VisibleComponent.jsonID },
+      { name: MountPointComponent.jsonID }
     ])
 
     return () => {

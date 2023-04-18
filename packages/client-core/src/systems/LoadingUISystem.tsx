@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import React from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -9,8 +9,7 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   getComponent,
-  removeComponent,
-  setComponent
+  removeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -26,15 +25,7 @@ import {
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import {
-  createActionQueue,
-  defineState,
-  getMutableState,
-  getState,
-  removeActionQueue,
-  startReactor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { createActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { LoadingSystemState } from './state/LoadingState'
@@ -170,8 +161,6 @@ const reactor = () => {
     return () => {
       const { ui, mesh } = getState(LoadingUISystemState)
 
-      removeActionQueue(avatarModelChangedQueue)
-      removeActionQueue(spectateUserQueue)
       removeEntity(ui.entity)
       mesh.removeFromParent()
 

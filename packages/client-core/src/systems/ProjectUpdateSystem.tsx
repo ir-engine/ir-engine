@@ -1,7 +1,5 @@
-import { useEffect } from 'react'
-
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue } from '@etherealengine/hyperflux'
 
 import { ProjectUpdateActions, ProjectUpdateReceptors } from '../admin/services/ProjectUpdateService'
 
@@ -17,20 +15,7 @@ const execute = () => {
   for (const action of mergeProjectUpdateFieldQueue()) ProjectUpdateReceptors.mergeProjectUpdateFieldReceptor(action)
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(initializeProjectUpdateQueue)
-      removeActionQueue(clearProjectUpdateQueue)
-      removeActionQueue(setProjectUpdateFieldQueue)
-      removeActionQueue(mergeProjectUpdateFieldQueue)
-    }
-  }, [])
-  return null
-}
-
 export const ProjectUpdateSystem = defineSystem({
   uuid: 'ee.client.ProjectUpdateSystem',
-  execute,
-  reactor
+  execute
 })

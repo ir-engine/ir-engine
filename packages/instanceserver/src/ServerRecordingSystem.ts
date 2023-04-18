@@ -1,5 +1,4 @@
 import { decode, encode } from 'msgpackr'
-import { useEffect } from 'react'
 import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -12,7 +11,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
@@ -29,7 +27,7 @@ import {
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
@@ -529,20 +527,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(startRecordingActionQueue)
-      removeActionQueue(stopRecordingActionQueue)
-      removeActionQueue(startPlaybackActionQueue)
-      removeActionQueue(stopPlaybackActionQueue)
-    }
-  }, [])
-  return null
-}
-
 export const ServerRecordingSystem = defineSystem({
   uuid: 'ee.engine.ServerRecordingSystem',
-  execute,
-  reactor
+  execute
 })

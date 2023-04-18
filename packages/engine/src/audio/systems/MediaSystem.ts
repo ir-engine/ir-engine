@@ -164,24 +164,24 @@ const reactor = () => {
     })
 
     Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
-      { name: TransformComponent.jsonID, props: {} },
-      { name: VisibleComponent.jsonID, props: true },
+      { name: TransformComponent.jsonID },
+      { name: VisibleComponent.jsonID },
       { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] } },
-      { name: PositionalAudioComponent.jsonID, props: {} }
+      { name: PositionalAudioComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(MediaPrefabs.video, [
       ...defaultSpatialComponents,
       { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleVideo.mp4'] } },
-      { name: PositionalAudioComponent.jsonID, props: {} },
-      { name: VideoComponent.jsonID, props: {} }
+      { name: PositionalAudioComponent.jsonID },
+      { name: VideoComponent.jsonID }
     ])
 
     Engine.instance.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
       ...defaultSpatialComponents,
-      { name: MediaComponent.jsonID, props: {} },
-      { name: PositionalAudioComponent.jsonID, props: {} },
-      { name: VolumetricComponent.jsonID, props: {} }
+      { name: MediaComponent.jsonID },
+      { name: PositionalAudioComponent.jsonID },
+      { name: VolumetricComponent.jsonID }
     ])
 
     const audioState = getMutableState(AudioState)

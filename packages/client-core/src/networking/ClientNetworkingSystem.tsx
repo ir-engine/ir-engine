@@ -4,14 +4,7 @@ import React, { useEffect } from 'react'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  addActionReceptor,
-  createActionQueue,
-  getState,
-  removeActionQueue,
-  removeActionReceptor,
-  startReactor
-} from '@etherealengine/hyperflux'
+import { addActionReceptor, createActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import {
   LocationInstanceConnectionService,
@@ -147,14 +140,6 @@ const reactor = () => {
     addActionReceptor(ChatServiceReceptor)
 
     return () => {
-      removeActionQueue(noWorldServersAvailableQueue)
-      removeActionQueue(noMediaServersAvailableQueue)
-      removeActionQueue(worldInstanceDisconnectedQueue)
-      removeActionQueue(worldInstanceKickedQueue)
-      removeActionQueue(mediaInstanceDisconnectedQueue)
-      removeActionQueue(worldInstanceReconnectedQueue)
-      removeActionQueue(mediaInstanceReconnectedQueue)
-
       // todo replace with subsystems
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
       removeActionReceptor(MediaInstanceConnectionServiceReceptor)

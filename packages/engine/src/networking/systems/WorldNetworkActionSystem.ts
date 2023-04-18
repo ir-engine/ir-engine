@@ -26,23 +26,7 @@ const execute = () => {
   for (const action of setUserTypingQueue()) WorldNetworkActionReceptor.receiveSetUserTyping(action)
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(spawnObjectQueue)
-      removeActionQueue(registerSceneObjectQueue)
-      removeActionQueue(spawnDebugPhysicsObjectQueue)
-      removeActionQueue(destroyObjectQueue)
-      removeActionQueue(requestAuthorityOverObjectQueue)
-      removeActionQueue(transferAuthorityOfObjectQueue)
-      removeActionQueue(setUserTypingQueue)
-    }
-  }, [])
-  return null
-}
-
 export const WorldNetworkActionSystem = defineSystem({
   uuid: 'ee.engine.WorldNetworkActionSystem',
-  execute,
-  reactor
+  execute
 })

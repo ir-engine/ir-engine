@@ -2,7 +2,7 @@ import { EntityUUID } from './EntityUUID'
 
 export interface ComponentJson<T extends any = any> {
   name: string
-  props?: T
+  props?: Partial<T> | T
 }
 
 export interface EntityJson {

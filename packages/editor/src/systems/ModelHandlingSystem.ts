@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue } from '@etherealengine/hyperflux'
 
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 
@@ -43,13 +43,12 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     return () => {
-      removeActionQueue(beginModelExportQueue)
-      removeActionQueue(saveBufferQueue)
       executionPromises.clear()
     }
   }, [])
   return null
 }
+
 export const ModelHandlingSystem = defineSystem({
   uuid: 'ee.editor.ModelHandlingSystem',
   execute,

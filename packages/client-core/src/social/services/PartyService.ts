@@ -16,7 +16,6 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
-  removeActionQueue,
   useState
 } from '@etherealengine/hyperflux'
 
@@ -430,27 +429,9 @@ const execute = () => {
   for (const action of resetUpdateNeededActionQueue()) PartyServiceReceptors.resetUpdateNeededReceptor(action)
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(loadedPartyQueue)
-      removeActionQueue(createdPartyQueue)
-      removeActionQueue(removedPartyQueue)
-      removeActionQueue(invitedPartyUserQueue)
-      removeActionQueue(createdPartyUserQueue)
-      removeActionQueue(patchedPartyUserQueue)
-      removeActionQueue(removedPartyUserQueue)
-      removeActionQueue(changedPartyActionQueue)
-      removeActionQueue(resetUpdateNeededActionQueue)
-    }
-  }, [])
-  return null
-}
-
 export const PartyServiceReceptorSystem = defineSystem({
   uuid: 'ee.client.PartyServiceReceptorSystem',
-  execute,
-  reactor
+  execute
 })
 
 export const PartyServiceReceptors = {

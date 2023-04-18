@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { XR8System } from './8thwall/XR8'
@@ -51,9 +51,6 @@ const reactor = () => {
 
     return () => {
       navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
-      removeActionQueue(xrRequestSessionQueue)
-      removeActionQueue(xrEndSessionQueue)
-      removeActionQueue(xrSessionChangedQueue)
     }
   }, [])
   return null

@@ -79,9 +79,7 @@ function execute() {
 
 const reactor = () => {
   useEffect(() => {
-    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [
-      { name: BehaveGraphComponent.jsonID, props: {} }
-    ])
+    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [{ name: BehaveGraphComponent.jsonID }])
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)

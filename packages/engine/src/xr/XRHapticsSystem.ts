@@ -1,11 +1,8 @@
-import { useEffect } from 'react'
-
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { XRAction } from './XRState'
-import { XRSystem } from './XRSystem'
 
 /** haptic typings are currently incomplete */
 type Haptic = {
@@ -29,17 +26,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(vibrateControllerQueue)
-    }
-  }, [])
-  return null
-}
-
 export const XRHapticsSystem = defineSystem({
   uuid: 'ee.engine.XRHapticsSystem',
-  execute,
-  reactor
+  execute
 })

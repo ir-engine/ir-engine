@@ -1,38 +1,20 @@
 import { useEffect } from 'react'
-import {
-  BoxGeometry,
-  BufferAttribute,
-  BufferGeometry,
-  GeometryUtils,
-  Mesh,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
-  ShadowMaterial
-} from 'three'
-import matches from 'ts-matches'
+import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
 
-import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import {
-  defineComponent,
-  defineQuery,
-  getComponent,
-  getMutableComponent,
-  setComponent
-} from '../ecs/functions/ComponentFunctions'
+import { getComponent, getMutableComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRPlaneComponent } from './XRComponents'
-import { ReferenceSpace, XRAction, XRState } from './XRState'
-import { XRSystem } from './XRSystem'
+import { ReferenceSpace, XRAction } from './XRState'
 
 /** https://github.com/immersive-web/webxr-samples/blob/main/proposals/plane-detection.html */
 
@@ -186,7 +168,6 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     return () => {
-      removeActionQueue(xrSessionChangedQueue)
       detectedPlanesMap.clear()
       planesLastChangedTimes.clear()
       planesQueue.reset()

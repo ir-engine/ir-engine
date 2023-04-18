@@ -22,12 +22,11 @@ const reactor = () => {
   useEffect(() => {
     Engine.instance.scenePrefabRegistry.set(ScenePrefabs.portal, [
       ...defaultSpatialComponents,
-      { name: PortalComponent.jsonID, props: {} }
+      { name: PortalComponent.jsonID }
     ])
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.portal)
-      removeActionQueue(sceneLoadedQueue)
     }
   }, [])
   return null

@@ -1,7 +1,5 @@
-import { useEffect } from 'react'
-
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { createActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
@@ -222,93 +220,7 @@ const execute = () => {
   for (const action of buildStatusRetrievedQueue()) AdminBuildStatusReceptors.fetchBuildStatusReceptor(action)
 }
 
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-      removeActionQueue(fetchedTaskServersQueue)
-      removeActionQueue(fetchServerInfoRequestedQueue)
-      removeActionQueue(fetchServerInfoRetrievedQueue)
-      removeActionQueue(redisSettingRetrievedQueue)
-      removeActionQueue(awsSettingRetrievedQueue)
-      removeActionQueue(awsSettingPatchedQueue)
-      removeActionQueue(fetchedCoilQueue)
-      removeActionQueue(fetchedEmailQueue)
-      removeActionQueue(emailSettingPatchedQueue)
-      removeActionQueue(patchInstanceserverQueue)
-      removeActionQueue(patchedInstanceserverQueue)
-      removeActionQueue(projectSettingFetchedQueue)
-      removeActionQueue(fetchedSeverInfoQueue)
-      removeActionQueue(serverSettingPatchedQueue)
-      removeActionQueue(getScopeTypesQueue)
-      removeActionQueue(instancesRetrievedQueue)
-      removeActionQueue(instanceRemovedQueue)
-      removeActionQueue(avatarsFetchedQueue)
-      removeActionQueue(avatarCreatedQueue)
-      removeActionQueue(avatarRemovedQueue)
-      removeActionQueue(avatarUpdatedQueue)
-      removeActionQueue(resourceFiltersFetchedQueue)
-      removeActionQueue(resourcesFetchedQueue)
-      removeActionQueue(setSelectedMimeTypesQueue)
-      removeActionQueue(setSelectedResourceTypesQueue)
-      removeActionQueue(resourceNeedsUpdateQueue)
-      removeActionQueue(resourcesResetFilterQueue)
-      removeActionQueue(scenesFetchedQueue)
-      removeActionQueue(sceneFetchedQueue)
-      removeActionQueue(locationsRetrievedQueue)
-      removeActionQueue(locationCreatedQueue)
-      removeActionQueue(locationPatchedQueue)
-      removeActionQueue(locationRemovedQueue)
-      removeActionQueue(locationTypesRetrievedQueue)
-      removeActionQueue(partyRetrievedQueue)
-      removeActionQueue(partyAdminCreatedQueue)
-      removeActionQueue(partyRemovedQueue)
-      removeActionQueue(partyPatchedQueue)
-      removeActionQueue(activeInstancesFetchedQueue)
-      removeActionQueue(activePartiesFetchedQueue)
-      removeActionQueue(activeLocationsFetchedQueue)
-      removeActionQueue(activeScenesFetchedQueue)
-      removeActionQueue(channelUsersFetchedQueue)
-      removeActionQueue(instanceUsersFetchedQueue)
-      removeActionQueue(dailyNewUsersFetchedQueue)
-      removeActionQueue(dailyUsersFetchedQueue)
-      removeActionQueue(fetchedTestBotsQueue)
-      removeActionQueue(spawnBotsQueue)
-      removeActionQueue(spawnedBotsQueue)
-      removeActionQueue(botCommandCreatedQueue)
-      removeActionQueue(botCommandRemovedQueue)
-      removeActionQueue(fetchedBotQueue)
-      removeActionQueue(botCreatedQueue)
-      removeActionQueue(botPatchedQueue)
-      removeActionQueue(botRemovedQueue)
-      removeActionQueue(fetchingGroupQueue)
-      removeActionQueue(setAdminGroupQueue)
-      removeActionQueue(updateGroupQueue)
-      removeActionQueue(removeGroupActionQueue)
-      removeActionQueue(addAdminGroupQueue)
-      removeActionQueue(installedRoutesRetrievedQueue)
-      removeActionQueue(activeRoutesRetrievedQueue)
-      removeActionQueue(fetchedSingleUserQueue)
-      removeActionQueue(loadedUsersQueue)
-      removeActionQueue(userAdminRemovedQueue)
-      removeActionQueue(userCreatedQueue)
-      removeActionQueue(userPatchedQueue)
-      removeActionQueue(searchedUserQueue)
-      removeActionQueue(setSkipGuestsQueue)
-      removeActionQueue(resetFilterQueue)
-      removeActionQueue(fetchedInstanceServerQueue)
-      removeActionQueue(chargebeeSettingRetrievedQueue)
-      removeActionQueue(invitesRetrievedQueue)
-      removeActionQueue(inviteCreatedQueue)
-      removeActionQueue(invitePatchedQueue)
-      removeActionQueue(inviteRemovedQueue)
-      removeActionQueue(buildStatusRetrievedQueue)
-    }
-  }, [])
-  return null
-}
-
 export const AdminSystem = defineSystem({
   uuid: 'ee.client.AdminSystem',
-  execute,
-  reactor
+  execute
 })
