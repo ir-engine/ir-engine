@@ -11,8 +11,8 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
-  createActionQueue,
   defineAction,
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
@@ -407,15 +407,15 @@ export class PartyActions {
   })
 }
 
-const loadedPartyQueue = createActionQueue(PartyActions.loadedPartyAction.matches)
-const createdPartyQueue = createActionQueue(PartyActions.createdPartyAction.matches)
-const removedPartyQueue = createActionQueue(PartyActions.removedPartyAction.matches)
-const invitedPartyUserQueue = createActionQueue(PartyActions.invitedPartyUserAction.matches)
-const createdPartyUserQueue = createActionQueue(PartyActions.createdPartyUserAction.matches)
-const patchedPartyUserQueue = createActionQueue(PartyActions.patchedPartyUserAction.matches)
-const removedPartyUserQueue = createActionQueue(PartyActions.removedPartyUserAction.matches)
-const changedPartyActionQueue = createActionQueue(PartyActions.changedPartyAction.matches)
-const resetUpdateNeededActionQueue = createActionQueue(PartyActions.resetUpdateNeededAction.matches)
+const loadedPartyQueue = defineActionQueue(PartyActions.loadedPartyAction.matches)
+const createdPartyQueue = defineActionQueue(PartyActions.createdPartyAction.matches)
+const removedPartyQueue = defineActionQueue(PartyActions.removedPartyAction.matches)
+const invitedPartyUserQueue = defineActionQueue(PartyActions.invitedPartyUserAction.matches)
+const createdPartyUserQueue = defineActionQueue(PartyActions.createdPartyUserAction.matches)
+const patchedPartyUserQueue = defineActionQueue(PartyActions.patchedPartyUserAction.matches)
+const removedPartyUserQueue = defineActionQueue(PartyActions.removedPartyUserAction.matches)
+const changedPartyActionQueue = defineActionQueue(PartyActions.changedPartyAction.matches)
+const resetUpdateNeededActionQueue = defineActionQueue(PartyActions.resetUpdateNeededAction.matches)
 
 const execute = () => {
   for (const action of loadedPartyQueue()) PartyServiceReceptors.loadedPartyReceptor(action)

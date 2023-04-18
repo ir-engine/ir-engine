@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { createActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -162,7 +162,7 @@ const _frustum = new Frustum()
 const _projScreenMatrix = new Matrix4()
 
 /** @deprecated */
-const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+const modifyPropertyActionQueue = defineActionQueue(EngineActions.sceneObjectUpdate.matches)
 
 const originChildEntities = new Set<Entity>()
 

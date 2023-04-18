@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import {
-  createActionQueue,
+  defineActionQueue,
   getMutableState,
   getState,
   ReactorProps,
@@ -52,7 +52,7 @@ const positionalAudioQuery = defineQuery([PositionalAudioComponent, MediaElement
  */
 const networkedAvatarAudioQuery = defineQuery([AvatarComponent, NetworkObjectComponent, Not(LocalAvatarTagComponent)])
 
-const setMediaStreamVolumeActionQueue = createActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
+const setMediaStreamVolumeActionQueue = defineActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
 
 /** Weak map entry is automatically GC'd when network object is removed */
 const avatarAudioStreams: WeakMap<ComponentType<typeof NetworkObjectComponent>, MediaStream> = new WeakMap()

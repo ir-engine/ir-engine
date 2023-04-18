@@ -311,7 +311,7 @@ function removeActionsForTopic(topic: string, store = HyperFlux.store) {
  * Adds an action receptor to the store
  * @param store
  * @param receptor
- * @deprecated use createActionQueue instead
+ * @deprecated use defineActionQueue instead
  */
 function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   logger.info(`Added Receptor ${receptor.name}`)
@@ -322,7 +322,7 @@ function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
  * Removes an action receptor from the store
  * @param store
  * @param receptor
- * @deprecated use createActionQueue instead
+ * @deprecated use defineActionQueue instead
  */
 function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   const idx = store.receptors.indexOf(receptor)
@@ -489,8 +489,8 @@ export {
   dispatchAction,
   addActionReceptor,
   removeActionReceptor,
-  defineActionQueue,
   createActionQueue,
+  defineActionQueue,
   removeActionQueue,
   addOutgoingTopicIfNecessary,
   removeActionsForTopic,

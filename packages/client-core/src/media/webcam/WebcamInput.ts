@@ -19,7 +19,7 @@ import { WebcamInputComponent } from '@etherealengine/engine/src/input/component
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { createActionQueue, defineActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
 

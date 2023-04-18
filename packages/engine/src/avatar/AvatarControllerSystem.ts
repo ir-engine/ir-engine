@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { addActionReceptor, createActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
+import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { Engine } from '../ecs/classes/Engine'
@@ -28,7 +28,7 @@ import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([AvatarControllerComponent])
-const sessionChangedActions = createActionQueue(XRAction.sessionChanged.matches)
+const sessionChangedActions = defineActionQueue(XRAction.sessionChanged.matches)
 
 const execute = () => {
   for (const action of sessionChangedActions()) {

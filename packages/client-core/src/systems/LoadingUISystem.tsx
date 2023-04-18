@@ -25,7 +25,7 @@ import {
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 import { LoadingSystemState } from './state/LoadingState'
@@ -79,8 +79,8 @@ function SceneDataReactor() {
   return null
 }
 
-const avatarModelChangedQueue = createActionQueue(EngineActions.avatarModelChanged.matches)
-const spectateUserQueue = createActionQueue(EngineActions.spectateUser.matches)
+const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
+const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
 
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))

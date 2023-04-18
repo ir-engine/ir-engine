@@ -1,12 +1,12 @@
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { createActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { ProjectUpdateActions, ProjectUpdateReceptors } from '../admin/services/ProjectUpdateService'
 
-const initializeProjectUpdateQueue = createActionQueue(ProjectUpdateActions.initializeProjectUpdate.matches)
-const clearProjectUpdateQueue = createActionQueue(ProjectUpdateActions.clearProjectUpdates.matches)
-const setProjectUpdateFieldQueue = createActionQueue(ProjectUpdateActions.setProjectUpdateField.matches)
-const mergeProjectUpdateFieldQueue = createActionQueue(ProjectUpdateActions.mergeProjectUpdateField.matches)
+const initializeProjectUpdateQueue = defineActionQueue(ProjectUpdateActions.initializeProjectUpdate.matches)
+const clearProjectUpdateQueue = defineActionQueue(ProjectUpdateActions.clearProjectUpdates.matches)
+const setProjectUpdateFieldQueue = defineActionQueue(ProjectUpdateActions.setProjectUpdateField.matches)
+const mergeProjectUpdateFieldQueue = defineActionQueue(ProjectUpdateActions.mergeProjectUpdateField.matches)
 
 const execute = () => {
   for (const action of initializeProjectUpdateQueue()) ProjectUpdateReceptors.initializeProjectUpdateReceptor(action)

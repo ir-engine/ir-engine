@@ -18,7 +18,7 @@ import {
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import {
-  createActionQueue,
+  defineActionQueue,
   defineState,
   getMutableState,
   getState,
@@ -225,7 +225,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // xrState.sceneRotation.value.slerp(targetRotation, lerpAlpha)
 }
 
-const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const scenePlacementRingMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
 scenePlacementRingMesh.geometry.rotateX(-Math.PI / 2)

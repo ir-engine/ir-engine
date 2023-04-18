@@ -6,7 +6,7 @@ import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import {
-  createActionQueue,
+  defineActionQueue,
   dispatchAction,
   getMutableState,
   getState,
@@ -259,9 +259,9 @@ export function cameraSpawnReceptor(spawnAction: ReturnType<typeof WorldNetworkA
 const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
 const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
 const spectatorQuery = defineQuery([SpectatorComponent])
-const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
-const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
-const exitSpectateActions = createActionQueue(EngineActions.exitSpectate.matches)
+const cameraSpawnActions = defineActionQueue(WorldNetworkAction.spawnCamera.matches)
+const spectateUserActions = defineActionQueue(EngineActions.spectateUser.matches)
+const exitSpectateActions = defineActionQueue(EngineActions.exitSpectate.matches)
 
 function CameraReactor() {
   const cameraSettings = useHookstate(getCameraSceneMetadataState())

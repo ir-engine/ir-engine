@@ -8,7 +8,7 @@ import React from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
 import {
-  createActionQueue,
+  defineActionQueue,
   getMutableState,
   getState,
   ReactorProps,

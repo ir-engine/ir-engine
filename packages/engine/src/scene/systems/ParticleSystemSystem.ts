@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BatchedParticleRenderer } from 'three.quarks'
 
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -13,7 +13,7 @@ export function getBatchRenderer() {
   return batchRenderer
 }
 
-const sceneLoadListener = createActionQueue(EngineActions.sceneLoaded.matches)
+const sceneLoadListener = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const execute = () => {
   for (const action of sceneLoadListener()) {

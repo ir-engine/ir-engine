@@ -6,7 +6,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
-import { createActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../common/services/NotificationService'
 
@@ -57,10 +57,10 @@ export const RecordingFunctions = {
   }
 }
 
-const startRecordingQueue = createActionQueue(ECSRecordingActions.startRecording.matches)
-const recordingStartedQueue = createActionQueue(ECSRecordingActions.recordingStarted.matches)
-const stopRecordingQueue = createActionQueue(ECSRecordingActions.stopRecording.matches)
-const playbackChangedQueue = createActionQueue(ECSRecordingActions.playbackChanged.matches)
+const startRecordingQueue = defineActionQueue(ECSRecordingActions.startRecording.matches)
+const recordingStartedQueue = defineActionQueue(ECSRecordingActions.recordingStarted.matches)
+const stopRecordingQueue = defineActionQueue(ECSRecordingActions.stopRecording.matches)
+const playbackChangedQueue = defineActionQueue(ECSRecordingActions.playbackChanged.matches)
 
 const execute = () => {
   const recordingState = getMutableState(RecordingState)

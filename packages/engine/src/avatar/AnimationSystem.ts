@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Euler } from 'three'
 
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
@@ -35,7 +35,7 @@ export function animationActionReceptor(action: ReturnType<typeof WorldNetworkAc
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
+const avatarAnimationQueue = defineActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
 const execute = () => {
   const { deltaSeconds } = Engine.instance

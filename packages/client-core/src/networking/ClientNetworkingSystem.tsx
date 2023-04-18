@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { addActionReceptor, createActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
+import { addActionReceptor, defineActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import {
   LocationInstanceConnectionService,
@@ -26,19 +26,19 @@ import { AuthState } from '../user/services/AuthService'
 import { NetworkUserServiceReceptor } from '../user/services/NetworkUserService'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
-const noWorldServersAvailableQueue = createActionQueue(NetworkConnectionService.actions.noWorldServersAvailable.matches)
-const noMediaServersAvailableQueue = createActionQueue(NetworkConnectionService.actions.noMediaServersAvailable.matches)
-const worldInstanceDisconnectedQueue = createActionQueue(
+const noWorldServersAvailableQueue = defineActionQueue(NetworkConnectionService.actions.noWorldServersAvailable.matches)
+const noMediaServersAvailableQueue = defineActionQueue(NetworkConnectionService.actions.noMediaServersAvailable.matches)
+const worldInstanceDisconnectedQueue = defineActionQueue(
   NetworkConnectionService.actions.worldInstanceDisconnected.matches
 )
-const worldInstanceKickedQueue = createActionQueue(NetworkConnectionService.actions.worldInstanceKicked.matches)
-const mediaInstanceDisconnectedQueue = createActionQueue(
+const worldInstanceKickedQueue = defineActionQueue(NetworkConnectionService.actions.worldInstanceKicked.matches)
+const mediaInstanceDisconnectedQueue = defineActionQueue(
   NetworkConnectionService.actions.mediaInstanceDisconnected.matches
 )
-const worldInstanceReconnectedQueue = createActionQueue(
+const worldInstanceReconnectedQueue = defineActionQueue(
   NetworkConnectionService.actions.worldInstanceReconnected.matches
 )
-const mediaInstanceReconnectedQueue = createActionQueue(
+const mediaInstanceReconnectedQueue = defineActionQueue(
   NetworkConnectionService.actions.mediaInstanceReconnected.matches
 )
 

@@ -4,7 +4,7 @@ import { Bone, MathUtils, Object3D, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import {
-  createActionQueue,
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,

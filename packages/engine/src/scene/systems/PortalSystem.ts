@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -11,7 +11,7 @@ import { HyperspacePortalSystem } from './HyperspacePortalSystem'
 import { PortalLoadSystem } from './PortalLoadSystem'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
-const sceneLoadedQueue = createActionQueue(EngineActions.sceneLoaded.matches)
+const sceneLoadedQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const execute = () => {
   if (sceneLoadedQueue().length && getMutableState(EngineState).isTeleporting.value)

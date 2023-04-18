@@ -237,7 +237,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
       assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), true)
 
-      const transferAuthorityOfObjectQueue = ActionFunctions.createActionQueue(
+      const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
         WorldNetworkAction.transferAuthorityOfObject.matches
       )
 
@@ -310,7 +310,7 @@ describe('WorldNetworkActionReceptors', () => {
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
     assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), false)
 
-    const transferAuthorityOfObjectQueue = ActionFunctions.createActionQueue(
+    const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
       WorldNetworkAction.transferAuthorityOfObject.matches
     )
 

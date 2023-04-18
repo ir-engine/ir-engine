@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 
-import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../../../ecs/functions/SystemFunctions'
 import { registerMaterial, registerMaterialPrototype } from '../functions/MaterialLibraryFunctions'
 import { initializeMaterialLibrary, MaterialLibraryActions, MaterialLibraryState } from '../MaterialLibrary'
 
-const registerMaterialQueue = createActionQueue(MaterialLibraryActions.RegisterMaterial.matches)
-const registerPrototypeQueue = createActionQueue(MaterialLibraryActions.RegisterPrototype.matches)
+const registerMaterialQueue = defineActionQueue(MaterialLibraryActions.RegisterMaterial.matches)
+const registerPrototypeQueue = defineActionQueue(MaterialLibraryActions.RegisterPrototype.matches)
 
 const execute = () => {
   for (const action of registerPrototypeQueue()) {

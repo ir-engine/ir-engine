@@ -4,7 +4,7 @@ import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments,
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
 import {
-  createActionQueue,
+  defineActionQueue,
   getMutableState,
   getState,
   ReactorProps,
@@ -38,7 +38,7 @@ const debugLineLifetime = 1000 // 1 second
 const lineMaterial = new LineBasicMaterial({ vertexColors: true })
 const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
 _lineSegments.frustumCulled = false
-const sceneLoadQueue = createActionQueue(EngineActions.sceneLoaded.matches)
+const sceneLoadQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const visualizers = [] as MeshBVHVisualizer[]
 

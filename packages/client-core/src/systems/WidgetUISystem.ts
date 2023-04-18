@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import {
   addActionReceptor,
-  createActionQueue,
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
@@ -136,9 +136,9 @@ const toggleWidgetsMenu = (handedness?: 'left' | 'right') => {
   }
 }
 
-const showWidgetQueue = createActionQueue(WidgetAppActions.showWidget.matches)
-const registerWidgetQueue = createActionQueue(WidgetAppActions.registerWidget.matches)
-const unregisterWidgetQueue = createActionQueue(WidgetAppActions.unregisterWidget.matches)
+const showWidgetQueue = defineActionQueue(WidgetAppActions.showWidget.matches)
+const registerWidgetQueue = defineActionQueue(WidgetAppActions.registerWidget.matches)
+const unregisterWidgetQueue = defineActionQueue(WidgetAppActions.unregisterWidget.matches)
 
 const execute = () => {
   const widgetState = getState(WidgetAppState)

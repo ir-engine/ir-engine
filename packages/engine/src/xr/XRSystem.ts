@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { XR8System } from './8thwall/XR8'
@@ -32,9 +32,9 @@ const updateSessionSupport = () => {
   updateSessionSupportForMode('immersive-vr')
 }
 
-const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
-const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
-const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+const xrRequestSessionQueue = defineActionQueue(XRAction.requestSession.matches)
+const xrEndSessionQueue = defineActionQueue(XRAction.endSession.matches)
+const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const execute = () => {
   const xrRequestSessionAction = xrRequestSessionQueue().pop()

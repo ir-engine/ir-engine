@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import {
-  createActionQueue,
+  defineActionQueue,
   dispatchAction,
   getMutableState,
   removeActionQueue,
@@ -151,9 +151,9 @@ const vec3 = new Vector3()
  */
 export const equippableInteractMessage = 'Equip'
 
-const interactedActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
-const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
-const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
+const interactedActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
+const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
+const setEquippedObjectQueue = defineActionQueue(WorldNetworkAction.setEquippedObject.matches)
 
 const equipperQuery = defineQuery([EquipperComponent])
 const equipperInputQuery = defineQuery([LocalInputTagComponent, EquipperComponent])

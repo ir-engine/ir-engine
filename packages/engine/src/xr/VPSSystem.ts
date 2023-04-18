@@ -1,4 +1,4 @@
-import { createActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { defineQuery, getComponent, getMutableComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -6,9 +6,9 @@ import { LocalTransformComponent } from '../transform/components/TransformCompon
 import { PersistentAnchorActions, PersistentAnchorComponent } from './XRAnchorComponents'
 
 const vpsAnchorQuery = defineQuery([PersistentAnchorComponent])
-const vpsAnchorFoundQueue = createActionQueue(PersistentAnchorActions.anchorFound.matches)
-const vpsAnchorUpdatedQueue = createActionQueue(PersistentAnchorActions.anchorUpdated.matches)
-const vpsAnchorLostQueue = createActionQueue(PersistentAnchorActions.anchorLost.matches)
+const vpsAnchorFoundQueue = defineActionQueue(PersistentAnchorActions.anchorFound.matches)
+const vpsAnchorUpdatedQueue = defineActionQueue(PersistentAnchorActions.anchorUpdated.matches)
+const vpsAnchorLostQueue = defineActionQueue(PersistentAnchorActions.anchorLost.matches)
 
 const execute = () => {
   const anchors = vpsAnchorQuery()

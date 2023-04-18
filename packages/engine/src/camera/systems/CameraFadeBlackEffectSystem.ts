@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Color, Mesh, PlaneGeometry, ShaderMaterial } from 'three'
 
-import { createActionQueue, defineState, getMutableState, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -15,7 +15,7 @@ const VERTEX_SHADER = 'void main() { vec3 newPosition = position * 2.0; gl_Posit
 const FRAGMENT_SHADER =
   'uniform vec3 color; uniform float intensity; void main() { gl_FragColor = vec4(color, intensity); }'
 
-const fadeActionQueue = createActionQueue(CameraActions.fadeToBlack.matches)
+const fadeActionQueue = defineActionQueue(CameraActions.fadeToBlack.matches)
 
 const CameraFadeBlackEffectSystemState = defineState({
   name: 'CameraFadeBlackEffectSystemState',

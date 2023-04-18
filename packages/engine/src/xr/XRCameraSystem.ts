@@ -1,6 +1,6 @@
 import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three'
 
-import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'
@@ -222,7 +222,7 @@ export function updateXRCamera() {
   updateProjectionFromCameraArrayUnion(camera)
 }
 
-const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const execute = () => {
   for (const action of xrSessionChangedQueue()) {

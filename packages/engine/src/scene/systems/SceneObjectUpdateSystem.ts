@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { createActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -65,7 +65,7 @@ const cloudQuery = defineQuery([CloudComponent])
 const oceanQuery = defineQuery([OceanComponent])
 const spawnPointComponent = defineQuery([SpawnPointComponent])
 
-const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+const modifyPropertyActionQueue = defineActionQueue(EngineActions.sceneObjectUpdate.matches)
 
 const execute = () => {
   for (const action of modifyPropertyActionQueue()) {

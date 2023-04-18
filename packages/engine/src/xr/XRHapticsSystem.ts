@@ -1,4 +1,4 @@
-import { createActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -14,7 +14,7 @@ type Haptic = {
   pulse: (value: number, duration: number) => void
 }
 
-const vibrateControllerQueue = createActionQueue(XRAction.vibrateController.matches)
+const vibrateControllerQueue = defineActionQueue(XRAction.vibrateController.matches)
 
 const execute = () => {
   for (const action of vibrateControllerQueue()) {

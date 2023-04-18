@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
 import { AvatarStates } from '../../avatar/animation/Util'
@@ -39,7 +39,7 @@ const mountPointInteractMessages = {
   [MountPoint.seat]: 'Press E to Sit'
 }
 
-const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
+const mountPointActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
 const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
 

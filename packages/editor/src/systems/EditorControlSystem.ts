@@ -52,7 +52,7 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { createActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -317,7 +317,7 @@ const editorCameraState = getMutableState(EditorCameraState)
 const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
 const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
-const changedTransformMode = createActionQueue(EditorHelperAction.changedTransformMode.matches)
+const changedTransformMode = defineActionQueue(EditorHelperAction.changedTransformMode.matches)
 
 const execute = () => {
   for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)

@@ -27,7 +27,7 @@ import {
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { createActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
@@ -494,10 +494,10 @@ export const removeDataChannelToReplay = (userId: UserId) => {
   dataChannelToReplay.delete(userId)
 }
 
-const startRecordingActionQueue = createActionQueue(ECSRecordingActions.startRecording.matches)
-const stopRecordingActionQueue = createActionQueue(ECSRecordingActions.stopRecording.matches)
-const startPlaybackActionQueue = createActionQueue(ECSRecordingActions.startPlayback.matches)
-const stopPlaybackActionQueue = createActionQueue(ECSRecordingActions.stopPlayback.matches)
+const startRecordingActionQueue = defineActionQueue(ECSRecordingActions.startRecording.matches)
+const stopRecordingActionQueue = defineActionQueue(ECSRecordingActions.stopRecording.matches)
+const startPlaybackActionQueue = defineActionQueue(ECSRecordingActions.startPlayback.matches)
+const stopPlaybackActionQueue = defineActionQueue(ECSRecordingActions.stopPlayback.matches)
 
 const execute = () => {
   for (const action of startRecordingActionQueue()) onStartRecording(action)

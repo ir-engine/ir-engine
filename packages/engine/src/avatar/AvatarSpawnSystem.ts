@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
@@ -73,8 +73,8 @@ export function avatarDetailsReceptor(action: ReturnType<typeof WorldNetworkActi
 
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
-const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
-const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
+const avatarSpawnQueue = defineActionQueue(WorldNetworkAction.spawnAvatar.matches)
+const avatarDetailsQueue = defineActionQueue(WorldNetworkAction.avatarDetails.matches)
 
 const execute = () => {
   for (const action of avatarSpawnQueue()) spawnAvatarReceptor(action)

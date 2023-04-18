@@ -2,7 +2,7 @@ import { ILifecycleEventEmitter, ILogger, Registry } from 'behave-graph'
 import { useEffect } from 'react'
 import { matches, Validator } from 'ts-matches'
 
-import { createActionQueue, defineAction, defineState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineAction, defineActionQueue, defineState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -48,8 +48,8 @@ export const BehaveGraphActions = {
 const graphQuery = defineQuery([BehaveGraphComponent])
 const runtimeQuery = defineQuery([RuntimeGraphComponent])
 
-const executeQueue = createActionQueue(BehaveGraphActions.execute.matches)
-const stopQueue = createActionQueue(BehaveGraphActions.stop.matches)
+const executeQueue = defineActionQueue(BehaveGraphActions.execute.matches)
+const stopQueue = defineActionQueue(BehaveGraphActions.stop.matches)
 function execute() {
   for (const entity of runtimeQuery.enter()) {
     const runtimeComponent = getComponent(entity, RuntimeGraphComponent)

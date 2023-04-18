@@ -2,12 +2,12 @@ import { useEffect } from 'react'
 
 import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { createActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 
-const beginModelExportQueue = createActionQueue(BufferHandlerExtension.beginModelExport.matches)
-const saveBufferQueue = createActionQueue(BufferHandlerExtension.saveBuffer.matches)
+const beginModelExportQueue = defineActionQueue(BufferHandlerExtension.beginModelExport.matches)
+const saveBufferQueue = defineActionQueue(BufferHandlerExtension.saveBuffer.matches)
 
 const executionPromises = new Map<string, Promise<void>>()
 const executionPromiseKey = ({ projectName, modelName }) => `${projectName}-${modelName}`

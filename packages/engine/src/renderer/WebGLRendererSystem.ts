@@ -29,7 +29,7 @@ import {
 } from 'three'
 
 import {
-  createActionQueue,
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,

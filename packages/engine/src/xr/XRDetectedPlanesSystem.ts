@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
 
-import { createActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -111,7 +111,7 @@ export const lostPlane = (plane: XRPlane, entity: Entity) => {
 export const detectedPlanesMap = new Map<XRPlane, Entity>()
 export const planesLastChangedTimes = new Map<XRPlane, number>()
 
-const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 // detected planes should have significantly different poses very infrequently, so we can afford to run this at a low priority
 const planesQueue = createPriorityQueue({

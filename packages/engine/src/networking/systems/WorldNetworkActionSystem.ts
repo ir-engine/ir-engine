@@ -1,18 +1,18 @@
 import { useEffect } from 'react'
 
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../functions/WorldNetworkActionReceptor'
 
-const spawnObjectQueue = createActionQueue(WorldNetworkAction.spawnObject.matches)
-const registerSceneObjectQueue = createActionQueue(WorldNetworkAction.registerSceneObject.matches)
-const spawnDebugPhysicsObjectQueue = createActionQueue(WorldNetworkAction.spawnDebugPhysicsObject.matches)
-const destroyObjectQueue = createActionQueue(WorldNetworkAction.destroyObject.matches)
-const requestAuthorityOverObjectQueue = createActionQueue(WorldNetworkAction.requestAuthorityOverObject.matches)
-const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
-const setUserTypingQueue = createActionQueue(WorldNetworkAction.setUserTyping.matches)
+const spawnObjectQueue = defineActionQueue(WorldNetworkAction.spawnObject.matches)
+const registerSceneObjectQueue = defineActionQueue(WorldNetworkAction.registerSceneObject.matches)
+const spawnDebugPhysicsObjectQueue = defineActionQueue(WorldNetworkAction.spawnDebugPhysicsObject.matches)
+const destroyObjectQueue = defineActionQueue(WorldNetworkAction.destroyObject.matches)
+const requestAuthorityOverObjectQueue = defineActionQueue(WorldNetworkAction.requestAuthorityOverObject.matches)
+const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
+const setUserTypingQueue = defineActionQueue(WorldNetworkAction.setUserTyping.matches)
 
 const execute = () => {
   for (const action of spawnObjectQueue()) WorldNetworkActionReceptor.receiveSpawnObject(action)

@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { createActionQueue, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -113,7 +113,7 @@ const kinematicVelocityBodyQuery = defineQuery([
   TransformComponent
 ])
 
-const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
+const teleportObjectQueue = defineActionQueue(WorldNetworkAction.teleportObject.matches)
 
 const PhysicsSystemState = defineState({
   name: 'PhysicsSystemState',
