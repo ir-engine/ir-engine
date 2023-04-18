@@ -5,7 +5,8 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import {
   routeDataSchema,
   routePatchSchema,
-  routeQuerySchema
+  routeQuerySchema,
+  routeSchema
 } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
@@ -19,6 +20,8 @@ import {
   routeResolver
 } from './route.resolvers'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const routeValidator = getValidator(routeSchema, dataValidator)
 const routeDataValidator = getValidator(routeDataSchema, dataValidator)
 const routePatchValidator = getValidator(routePatchSchema, dataValidator)
 const routeQueryValidator = getValidator(routeQuerySchema, queryValidator)
@@ -34,18 +37,18 @@ export default {
     get: [],
     create: [
       authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       schemaHooks.validateData(routeDataValidator),
       schemaHooks.resolveData(routeDataResolver)
     ],
-    update: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    update: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
     patch: [
       authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       schemaHooks.validateData(routePatchValidator),
       schemaHooks.resolveData(routePatchResolver)
     ],
-    remove: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)]
+    remove: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))]
   },
 
   after: {
@@ -67,4 +70,4 @@ export default {
     patch: [],
     remove: []
   }
-} as any
+}

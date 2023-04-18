@@ -19,7 +19,6 @@ export default (app: Application): void => {
     multi: true
   }
 
-  //@ts-ignore
   app.use(analyticsPath, new AnalyticsService(options, app), {
     // A list of all methods this service exposes externally
     methods: analyticsMethods,
