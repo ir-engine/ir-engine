@@ -17,7 +17,7 @@ import { removeEntityNodeRecursively } from '../functions/EntityTree'
 import { defineQuery, EntityRemovedComponent } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
 import { executeFixedPipeline } from './FixedPipelineSystem'
-import { defineSystem, executeSystem, SystemDefintions, SystemUUID, unloadAllSystems } from './SystemFunctions'
+import { defineSystem, disableAllSystems, enableSystems, executeSystem, SystemDefinitions } from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 
@@ -53,31 +53,27 @@ export const unloadScene = async () => {
   for (const o of sceneObjectsToRemove) Engine.instance.scene.remove(o)
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
-  await unloadAllSystems()
+  await disableAllSystems()
   dispatchAction(EngineActions.sceneUnloaded({}))
 }
 
 export const InputSystemGroup = defineSystem({
-  uuid: 'ee.engine.input-group',
-  enabled: true
+  uuid: 'ee.engine.input-group'
 })
 
 /** Run inside of fixed pipeline */
 export const SimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.simulation-group',
   preSystems: [IncomingActionSystem],
-  postSystems: [OutgoingActionSystem],
-  enabled: true
+  postSystems: [OutgoingActionSystem]
 })
 
 export const AnimationSystemGroup = defineSystem({
-  uuid: 'ee.engine.animation-group',
-  enabled: true
+  uuid: 'ee.engine.animation-group'
 })
 
 export const PresentationSystemGroup = defineSystem({
-  uuid: 'ee.engine.presentation-group',
-  enabled: true
+  uuid: 'ee.engine.presentation-group'
 })
 
 /**
@@ -92,12 +88,24 @@ export const RootSystemGroup = defineSystem({
   preSystems: [InputSystemGroup],
   execute: executeFixedPipeline,
   subSystems: [AnimationSystemGroup, TransformSystem],
-  postSystems: [PresentationSystemGroup],
-  enabled: true
+  postSystems: [PresentationSystemGroup]
 })
 
+export const startCoreSystems = () => {
+  enableSystems([
+    RootSystemGroup,
+    IncomingActionSystem,
+    OutgoingActionSystem,
+    InputSystemGroup,
+    SimulationSystemGroup,
+    AnimationSystemGroup,
+    TransformSystem,
+    PresentationSystemGroup
+  ])
+}
+
 export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
-  const system = SystemDefintions.get(systemUUID)
+  const system = SystemDefinitions.get(systemUUID)
   if (!system) return
 
   for (const preSystem of system.preSystems) {

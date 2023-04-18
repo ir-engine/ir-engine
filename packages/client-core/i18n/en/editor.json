@@ -602,7 +602,8 @@
     "systemnode": {
       "description": "Attach script.",
       "lbl-filePath": "Url",
-      "lbl-systemUpdateType": "Injection Point",
+      "lbl-insertUUID": "Insertion Point",
+      "lbl-insertOrder": "Insertion Order",
       "lbl-enableClient": "Client",
       "lbl-enableServer": "Server",
       "lbl-args": "Args",

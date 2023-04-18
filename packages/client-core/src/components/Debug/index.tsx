@@ -17,7 +17,7 @@ import {
 import { RootSystemGroup, SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { System, SystemDefintions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -48,22 +48,22 @@ const convertSystemTypeToDesiredType = (system: System): DesiredType => {
   }
   if (preSystems.length > 0) {
     desired.preSystems = preSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefintions.get(uuid)!)
+      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
       return acc
     }, {} as Record<SystemUUID, DesiredType>)
   }
   if (system.uuid === RootSystemGroup) {
-    desired.simulation = convertSystemTypeToDesiredType(SystemDefintions.get(SimulationSystemGroup)!)
+    desired.simulation = convertSystemTypeToDesiredType(SystemDefinitions.get(SimulationSystemGroup)!)
   }
   if (subSystems.length > 0) {
     desired.subSystems = subSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefintions.get(uuid)!)
+      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
       return acc
     }, {} as Record<SystemUUID, DesiredType>)
   }
   if (postSystems.length > 0) {
     desired.postSystems = postSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefintions.get(uuid)!)
+      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
       return acc
     }, {} as Record<SystemUUID, DesiredType>)
   }
@@ -170,7 +170,7 @@ export const Debug = ({ showingStateRef }) => {
   const namedEntities = useHookstate({})
   const entityTree = useHookstate({} as any)
 
-  const dag = convertSystemTypeToDesiredType(SystemDefintions.get(RootSystemGroup)!)
+  const dag = convertSystemTypeToDesiredType(SystemDefinitions.get(RootSystemGroup)!)
 
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
@@ -234,7 +234,7 @@ export const Debug = ({ showingStateRef }) => {
             return <span style={{ color: 'black' }}>{label}</span>
           }}
           valueRenderer={(raw, value, ...keyPath) => {
-            const system = SystemDefintions.get((keyPath[0] === 'enabled' ? keyPath[1] : keyPath[0]) as SystemUUID)!
+            const system = SystemDefinitions.get((keyPath[0] === 'enabled' ? keyPath[1] : keyPath[0]) as SystemUUID)!
             return (
               <>
                 <input

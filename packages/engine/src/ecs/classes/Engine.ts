@@ -52,7 +52,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { CurrentSystemUUID, defineSystem, System, SystemUUID, unloadAllSystems } from '../functions/SystemFunctions'
+import { CurrentSystemUUID, disableAllSystems, SystemUUID } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -358,7 +358,7 @@ export async function destroyEngine() {
   }
 
   /** Unload and clean up all systems */
-  await unloadAllSystems()
+  await disableAllSystems()
 
   const activeReactors = [] as Promise<void>[]
 

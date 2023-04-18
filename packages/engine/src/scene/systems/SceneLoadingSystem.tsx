@@ -49,14 +49,7 @@ import {
   removeEntityNode,
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
-import {
-  defineSystem,
-  startSystem,
-  System,
-  SystemDefintions,
-  SystemUUID,
-  unloadSystems
-} from '../../ecs/functions/SystemFunctions'
+import { defineSystem, disableSystems, startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -245,15 +238,15 @@ export const updateSceneFromJSON = async () => {
     const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
       ...sceneSystems.filter(
-        (systemToLoad) => !Array.from(SystemDefintions.keys()).find((uuid) => uuid === systemToLoad.systemUUID)
+        (systemToLoad) => !Array.from(SystemDefinitions.keys()).find((uuid) => uuid === systemToLoad.systemUUID)
       )
     )
-    const systemsToUnload = Array.from(SystemDefintions.entries())
+    const systemsToUnload = Array.from(SystemDefinitions.entries())
       .filter(([systemUUID, system]) => system.sceneSystem && !sceneSystems.find((s) => s.systemUUID === systemUUID))
       .map((s) => s[0])
 
     /** 1. unload old systems */
-    await unloadSystems(systemsToUnload)
+    await disableSystems(systemsToUnload)
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */

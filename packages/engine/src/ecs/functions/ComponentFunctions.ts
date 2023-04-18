@@ -15,7 +15,7 @@ import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
-import { CurrentSystemUUID, SystemDefintions } from './SystemFunctions'
+import { CurrentSystemUUID, SystemDefinitions } from './SystemFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 

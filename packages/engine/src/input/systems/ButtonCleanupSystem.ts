@@ -1,5 +1,5 @@
 import { Engine } from '../../ecs/classes/Engine'
-import { defineSystem, InputSystemGroup } from '../../ecs/functions/SystemFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 
 const execute = () => {
   const hasFocus = document.hasFocus()

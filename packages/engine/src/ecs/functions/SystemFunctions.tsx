@@ -23,7 +23,7 @@ export interface System {
   sceneSystem?: boolean
 }
 
-export const SystemDefintions = new Map<SystemUUID, System>()
+export const SystemDefinitions = new Map<SystemUUID, System>()
 
 const lastWarningTime = new Map<SystemUUID, number>()
 const warningCooldownDuration = 1000 * 10 // 10 seconds
@@ -31,7 +31,7 @@ const warningCooldownDuration = 1000 * 10 // 10 seconds
 export let CurrentSystemUUID = '__null__' as SystemUUID
 
 export function executeSystem(systemUUID: SystemUUID) {
-  const system = SystemDefintions.get(systemUUID)!
+  const system = SystemDefinitions.get(systemUUID)!
   if (!system) {
     console.warn(`System ${systemUUID} does not exist.`)
     return
@@ -62,27 +62,38 @@ export function executeSystem(systemUUID: SystemUUID) {
   system.postSystems.forEach(executeSystem)
 }
 
-export function defineSystem(systemConfig: Partial<System> & { uuid: string }) {
-  if (SystemDefintions.has(systemConfig.uuid as SystemUUID)) {
+/**
+ * Defines a system
+ * @param systemConfig
+ * @returns
+ */
+export function defineSystem(systemConfig: Partial<Omit<System, 'enabled'>> & { uuid: string }) {
+  if (SystemDefinitions.has(systemConfig.uuid as SystemUUID)) {
     throw new Error(`System ${systemConfig.uuid} already exists.`)
   }
 
   const system = {
     reactor: () => null,
-    enabled: false,
     preSystems: [],
     execute: () => {},
     subSystems: [],
     postSystems: [],
     sceneSystem: false,
-    ...systemConfig
+    ...systemConfig,
+    enabled: false
   } as Required<System>
 
-  SystemDefintions.set(systemConfig.uuid as SystemUUID, system)
+  SystemDefinitions.set(systemConfig.uuid as SystemUUID, system)
 
   return systemConfig.uuid as SystemUUID
 }
 
+/**
+ * Inserts a system into the DAG, enabling it if it is not already enabled.
+ * @param systemUUID
+ * @param insert
+ * @returns
+ */
 export function startSystem(
   systemUUID: SystemUUID,
   insert: {
@@ -92,45 +103,47 @@ export function startSystem(
   }
 ) {
   console.log('insertSystem', systemUUID, insert)
-  const referenceSystem = SystemDefintions.get(systemUUID)
+  const referenceSystem = SystemDefinitions.get(systemUUID)
   if (!referenceSystem) throw new Error(`System ${systemUUID} does not exist.`)
 
   if (referenceSystem.enabled) return
 
   if (insert.before) {
-    const referenceSystem = SystemDefintions.get(insert.before)
+    const referenceSystem = SystemDefinitions.get(insert.before)
     if (!referenceSystem)
       throw new Error(
         `System ${insert.before} does not exist. You may have a circular dependency in your system definitions.`
       )
-    if (referenceSystem.preSystems.includes(systemUUID)) return
-    referenceSystem.preSystems.push(systemUUID)
+    if (!referenceSystem.preSystems.includes(systemUUID)) referenceSystem.preSystems.push(systemUUID)
     enableSystem(systemUUID)
   }
 
   if (insert.with) {
-    const referenceSystem = SystemDefintions.get(insert.with)
+    const referenceSystem = SystemDefinitions.get(insert.with)
     if (!referenceSystem)
       throw new Error(
         `System ${insert.with} does not exist. You may have a circular dependency in your system definitions.`
       )
-    if (referenceSystem.subSystems.includes(systemUUID)) return
-    referenceSystem.subSystems.push(systemUUID)
+    if (!referenceSystem.subSystems.includes(systemUUID)) referenceSystem.subSystems.push(systemUUID)
     enableSystem(systemUUID)
   }
 
   if (insert.after) {
-    const referenceSystem = SystemDefintions.get(insert.after)
+    const referenceSystem = SystemDefinitions.get(insert.after)
     if (!referenceSystem)
       throw new Error(
         `System ${insert.after} does not exist. You may have a circular dependency in your system definitions.`
       )
-    if (referenceSystem.postSystems.includes(systemUUID)) return
-    referenceSystem.postSystems.push(systemUUID)
+    if (!referenceSystem.postSystems.includes(systemUUID)) referenceSystem.postSystems.push(systemUUID)
     enableSystem(systemUUID)
   }
 }
 
+/**
+ * Insert a multiple system into the DAG at the same place, enabling them if they are not already enabled.
+ * @param systems
+ * @param insert
+ */
 export const startSystems = (
   systems: SystemUUID[],
   insert: {
@@ -144,6 +157,11 @@ export const startSystems = (
   }
 }
 
+/**
+ * Starts a system and disables it when the component unmounts.
+ * @param system
+ * @param insert
+ */
 export const useSystem = (
   system: SystemUUID,
   insert: {
@@ -160,6 +178,11 @@ export const useSystem = (
   }, [])
 }
 
+/**
+ * Start systems and disables them when the component unmounts.
+ * @param systems
+ * @param insert
+ */
 export const useSystems = (
   systems: SystemUUID[],
   insert: {
@@ -176,25 +199,43 @@ export const useSystems = (
   }, [])
 }
 
+/**
+ * Enables systems
+ * @param systems
+ */
+export const enableSystems = (systems: SystemUUID[]) => {
+  for (const system of systems) {
+    enableSystem(system)
+  }
+}
+
+/**
+ * Enables a system
+ * @param systemUUID
+ */
 export const enableSystem = (systemUUID: SystemUUID) => {
-  const system = SystemDefintions.get(systemUUID)
+  const system = SystemDefinitions.get(systemUUID)
   if (system) {
     // shouldn't this be an error if the system doesn't exist?
     const reactor = startReactor(system.reactor)
     Engine.instance.activeSystemReactors.set(system.uuid as SystemUUID, reactor)
-    for (const preSystem of system.preSystems) {
-      enableSystem(preSystem)
-    }
     system.enabled = true
-    for (const subSystem of system.subSystems) {
-      enableSystem(subSystem)
-    }
-    for (const postSystem of system.postSystems) {
-      enableSystem(postSystem)
-    }
   }
 }
 
+/**
+ * Disables all systems
+ */
+export const disableAllSystems = () => {
+  for (const systemUUID of SystemDefinitions.keys()) {
+    disableSystem(systemUUID)
+  }
+}
+
+/**
+ * Disables systems
+ * @param systemUUIDs
+ */
 export const disableSystems = async (systemUUIDs: SystemUUID[]) => {
   for (const systemUUID of systemUUIDs) {
     // maybe return async
@@ -202,38 +243,18 @@ export const disableSystems = async (systemUUIDs: SystemUUID[]) => {
   }
 }
 
+/**
+ * Disables a system
+ * @param systemUUID
+ */
 export const disableSystem = async (systemUUID: SystemUUID) => {
-  const system = SystemDefintions.get(systemUUID)
+  const system = SystemDefinitions.get(systemUUID)
   if (system) {
     system.enabled = false
     const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
     Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
     await reactor.stop()
   }
-}
-
-export const unloadAllSystems = () => {}
-
-export const unloadSystems = (uuids: string[]) => {
-  // const systemsToUnload = uuids.map((uuid) => Engine.instance.systemsByUUID[uuid])
-  // const promises = [] as Promise<void>[]
-  // for (const system of systemsToUnload) {
-  //   const pipeline = Engine.instance.pipelines[system.type]
-  //   const i = pipeline.indexOf(system)
-  //   pipeline.splice(i, 1)
-  //   delete Engine.instance.systemsByUUID[system.uuid]
-  //   promises.push(system.cleanup())
-  // }
-  // return promises
-}
-
-export const unloadSystem = (uuid: string) => {
-  // const systemToUnload = Engine.instance.systemsByUUID[uuid]
-  // const pipeline = Engine.instance.pipelines[systemToUnload.type]
-  // const i = pipeline.indexOf(systemToUnload)
-  // pipeline.splice(i, 1)
-  // delete Engine.instance.systemsByUUID[systemToUnload.uuid]
-  // return systemToUnload.cleanup()
 }
 
 function QueryReactor(props: {

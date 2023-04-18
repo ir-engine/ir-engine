@@ -68,8 +68,8 @@ import {
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
-import EditorHistoryReceptor, { EditorHistoryAction } from '../services/EditorHistory'
-import EditorSelectionReceptor, { accessSelectionState, SelectionState } from '../services/SelectionServices'
+import { EditorHistoryAction, EditorHistoryReceptorSystem } from '../services/EditorHistory'
+import { accessSelectionState, EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -672,8 +672,6 @@ const reactor = () => {
     return () => {
       window.removeEventListener('copy', copy)
       window.removeEventListener('paste', paste)
-
-      removeActionQueue(changedTransformMode)
     }
   }, [])
   return null
@@ -683,5 +681,5 @@ export const EditorControlSystem = defineSystem({
   uuid: 'ee.editor.EditorControlSystem',
   execute,
   reactor,
-  subsystems: [EditorSelectionReceptor, EditorHistoryReceptor]
+  subSystems: [EditorSelectionReceptorSystem, EditorHistoryReceptorSystem]
 })

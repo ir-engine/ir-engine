@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineSystem, InputSystemGroup } from '../../ecs/functions/SystemFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'

@@ -19,7 +19,7 @@ import {
   destroyEntityTree,
   EntityTreeComponent
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
@@ -29,10 +29,8 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { SceneState } from '../../../ecs/classes/Scene'
-import { initSystems } from '../../../ecs/functions/SystemFunctions'
-import { TransformModule } from '../../../transform/TransformSystems'
-import { SceneClientModule } from '../../SceneClientModule'
-import { SceneCommonModule } from '../../SceneCommonSystems'
+import { SimulationSystemGroup } from '../../../ecs/functions/EngineFunctions'
+import { defineSystem, startSystem, SystemDefinitions, SystemUUID } from '../../../ecs/functions/SystemFunctions'
 
 describe('PrefabComponentFunctions', async () => {
   let entity: Entity
@@ -44,35 +42,23 @@ describe('PrefabComponentFunctions', async () => {
   const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {
     createEngine()
-    setupEngineActionSystems()
     initEntity()
     Engine.instance.engineTimer.start()
 
     getMutableState(EngineState).publicPath.set('')
 
-    await initSystems([
-      ...TransformModule(),
-      ...SceneCommonModule(),
-      ...SceneClientModule(),
-      {
-        uuid: 'Asset',
-        type: 'FIXED_LATE',
-        systemLoader: () =>
-          Promise.resolve({
-            default: async () => {
-              let resolve: () => void
-              nextFixedStep = new Promise<void>((r) => (resolve = r))
-              return {
-                execute: () => {
-                  resolve()
-                  nextFixedStep = new Promise<void>((r) => (resolve = r))
-                },
-                cleanup: async () => {}
-              }
-            }
-          })
+    let resolve: () => void
+    nextFixedStep = new Promise<void>((r) => (resolve = r))
+
+    SystemDefinitions.delete('test.system' as SystemUUID)
+    const system = defineSystem({
+      uuid: 'test.system',
+      execute: () => {
+        resolve()
+        nextFixedStep = new Promise<void>((r) => (resolve = r))
       }
-    ])
+    })
+    startSystem(system, { after: SimulationSystemGroup })
   })
 
   afterEach(() => {
