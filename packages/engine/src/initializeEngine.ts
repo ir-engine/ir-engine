@@ -2,7 +2,6 @@ import _ from 'lodash'
 
 import { addActionReceptor } from '@etherealengine/hyperflux'
 
-import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEventReceptor } from './ecs/classes/EngineState'
@@ -22,14 +21,4 @@ export const createEngine = () => {
   EngineRenderer.instance = new EngineRenderer()
   addActionReceptor(EngineEventReceptor)
   Engine.instance.engineTimer = Timer(executeSystems, Engine.instance.tickRate)
-}
-
-/**
- * initializeNode
- *
- * initializes everything for the node context
- */
-export const initializeNode = () => {
-  loadDRACODecoderNode()
-  Engine.instance.engineTimer.start()
 }
