@@ -2,7 +2,10 @@ import dotenv from 'dotenv'
 import knex from 'knex'
 import { DataTypes, Sequelize } from 'sequelize'
 
-import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import {
+  chargebeeSettingPath,
+  ChargebeeSettingType
+} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import { CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
@@ -217,7 +220,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const chargebeeSettingPromise = knexClient
     .select()
-    .from<ChargebeeSettingType>('chargebeeSetting')
+    .from<ChargebeeSettingType>(chargebeeSettingPath)
     .then(([dbChargebee]) => {
       const dbChargebeeConfig = dbChargebee && {
         url: dbChargebee.url,
