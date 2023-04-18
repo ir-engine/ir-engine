@@ -14,7 +14,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
@@ -73,6 +73,7 @@ const WarningSystemXRUI = function () {
           borderRadius: '20px',
           padding: '12px'
         }}
+        onClick={onClose}
       >
         <div
           xr-layer="true"
@@ -87,7 +88,7 @@ const WarningSystemXRUI = function () {
           <div xr-layer="true" className={'font-size 24px'} style={{ fontSize: '24px' }}>
             {title}
           </div>
-          <IconButton
+          {/* <IconButton
             xr-layer="true"
             aria-label="close"
             className={'bg lightgrey'}
@@ -95,7 +96,7 @@ const WarningSystemXRUI = function () {
             onClick={onClose}
             size="large"
             icon={<Icon type="Close" />}
-          />
+          /> */}
         </div>
         <div xr-layer="true" className={'font-size 16px center'} style={{ fontSize: '16px', textAlign: 'center' }}>
           {body}
@@ -124,6 +125,7 @@ export const WarningUISystemState = defineState({
     const ui = createXRUI(WarningSystemXRUI)
     removeComponent(ui.entity, VisibleComponent)
     addComponent(ui.entity, NameComponent, 'Warning XRUI')
+    setComponent(ui.entity, XRUIInteractableComponent)
 
     return {
       ui,
