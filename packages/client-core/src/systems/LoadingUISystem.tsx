@@ -93,11 +93,10 @@ const spectateUserQueue = createActionQueue(EngineActions.spectateUser.matches)
 
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
-  const transition = useHookstate(getMutableState(LoadingUISystemState).transition).value
 
   useEffect(() => {
     if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
-      transition.setState('IN')
+      getState(LoadingUISystemState).transition.setState('IN')
     }
   }, [loadingState.state])
 
