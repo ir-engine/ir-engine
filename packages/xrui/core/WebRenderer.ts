@@ -1,5 +1,7 @@
 import { ResizeObserver as Polyfill } from '@juggle/resize-observer'
 
+import { isClient } from '@etherealengine/engine/src/common/functions/isClient'
+
 import { EventCallback, WebLayer } from './WebLayer'
 import { WebLayerManagerBase } from './WebLayerManagerBase'
 
@@ -86,8 +88,8 @@ export class WebRenderer {
     return this.ATTRIBUTE_PREFIX + '-rendering-document'
   }
 
-  static serializer = new XMLSerializer()
-  static textEncoder = new TextEncoder()
+  static serializer = isClient ? new XMLSerializer() : null!
+  static textEncoder = isClient ? new TextEncoder() : null!
 
   // static containsHover(element: Element) {
   //   for (const t of this.virtualHoverElements) {

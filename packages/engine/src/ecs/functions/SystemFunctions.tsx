@@ -252,8 +252,10 @@ export const disableSystem = async (systemUUID: SystemUUID) => {
   if (system) {
     system.enabled = false
     const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
-    Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
-    await reactor.stop()
+    if (reactor) {
+      Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
+      await reactor.stop()
+    }
   }
 }
 

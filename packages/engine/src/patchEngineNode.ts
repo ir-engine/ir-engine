@@ -25,10 +25,6 @@ if (isNode) {
       }
     } as Storage
 
-  // patches for XRUI
-  globalThis.XMLSerializer = class {} as any
-  globalThis.TextEncoder = class {} as any
-
   // patches for headless-gl - currently unused
 
   /*
