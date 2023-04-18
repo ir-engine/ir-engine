@@ -2,11 +2,20 @@ import dotenv from 'dotenv'
 import knex from 'knex'
 import { DataTypes, Sequelize } from 'sequelize'
 
-import { ChargebeeSettingType } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
-import { CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
-import { EmailSettingDatabaseType } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import {
+  chargebeeSettingPath,
+  ChargebeeSettingType
+} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import {
+  EmailSettingDatabaseType,
+  emailSettingPath
+} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { redisSettingPath, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
-import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+import {
+  taskServerSettingPath,
+  TaskServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
 import appConfig from './appconfig'
 import logger from './ServerLogger'
@@ -52,7 +61,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const taskServerSettingPromise = knexClient
     .select()
-    .from<TaskServerSettingType>('taskServerSetting')
+    .from<TaskServerSettingType>(taskServerSettingPath)
     .then(([dbTaskServer]) => {
       const dbTaskServerConfig = dbTaskServer && {
         port: dbTaskServer.port,
@@ -218,7 +227,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const chargebeeSettingPromise = knexClient
     .select()
-    .from<ChargebeeSettingType>('chargebeeSetting')
+    .from<ChargebeeSettingType>(chargebeeSettingPath)
     .then(([dbChargebee]) => {
       const dbChargebeeConfig = dbChargebee && {
         url: dbChargebee.url,
@@ -238,7 +247,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const coilSettingPromise = knexClient
     .select()
-    .from<CoilSettingType>('coilSetting')
+    .from<CoilSettingType>(coilSettingPath)
     .then(([dbCoil]) => {
       const dbCoilConfig = dbCoil && {
         paymentPointer: dbCoil.paymentPointer,
@@ -323,7 +332,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const emailSettingPromise = knexClient
     .select()
-    .from<EmailSettingDatabaseType>('emailSetting')
+    .from<EmailSettingDatabaseType>(emailSettingPath)
     .then(([dbEmail]) => {
       const smtp = JSON.parse(dbEmail.smtp)
       const subject = JSON.parse(dbEmail.subject)
