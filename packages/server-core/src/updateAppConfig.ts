@@ -6,7 +6,7 @@ import {
   chargebeeSettingPath,
   ChargebeeSettingType
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
-import { CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import { EmailSettingDatabaseType } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { TaskServerSettingType } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
@@ -240,7 +240,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const coilSettingPromise = knexClient
     .select()
-    .from<CoilSettingType>('coilSetting')
+    .from<CoilSettingType>(coilSettingPath)
     .then(([dbCoil]) => {
       const dbCoilConfig = dbCoil && {
         paymentPointer: dbCoil.paymentPointer,
