@@ -7,7 +7,10 @@ import {
   ChargebeeSettingType
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
-import { EmailSettingDatabaseType } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import {
+  EmailSettingDatabaseType,
+  emailSettingPath
+} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import {
   taskServerSettingPath,
   TaskServerSettingType
@@ -328,7 +331,7 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const emailSettingPromise = knexClient
     .select()
-    .from<EmailSettingDatabaseType>('emailSetting')
+    .from<EmailSettingDatabaseType>(emailSettingPath)
     .then(([dbEmail]) => {
       const smtp = JSON.parse(dbEmail.smtp)
       const subject = JSON.parse(dbEmail.subject)

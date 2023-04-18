@@ -1,11 +1,10 @@
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
+import { emailSettingPath } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
-
-const TABLE_NAME = 'emailSetting'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -42,18 +41,18 @@ export async function seed(knex: Knex): Promise<void> {
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
-    await knex(TABLE_NAME).del()
+    await knex(emailSettingPath).del()
 
     // Inserts seed entries
-    await knex(TABLE_NAME).insert(seedData)
+    await knex(emailSettingPath).insert(seedData)
   } else {
     for (const item of seedData) {
-      const existingData = await knex(TABLE_NAME)
+      const existingData = await knex(emailSettingPath)
         .where('smtp', item.smtp)
         .andWhere('from', item.from)
         .andWhere('subject', item.subject)
       if (existingData.length === 0) {
-        await knex(TABLE_NAME).insert(item)
+        await knex(emailSettingPath).insert(item)
       }
     }
   }
