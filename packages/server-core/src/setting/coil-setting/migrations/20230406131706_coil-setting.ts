@@ -1,16 +1,23 @@
 import type { Knex } from 'knex'
 
-const TABLE_NAME = 'coilSetting'
+import { coilSettingPath } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const oldTableName = 'coilSetting'
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, coilSettingPath)
+  }
+
+  const tableExists = await knex.schema.hasTable(coilSettingPath)
 
   if (tableExists === false) {
-    await knex.schema.createTable(TABLE_NAME, (table) => {
+    await knex.schema.createTable(coilSettingPath, (table) => {
       table.string('id', 36).primary()
       table.string('paymentPointer', 255).nullable()
       table.string('clientId', 255).nullable()
@@ -26,9 +33,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(coilSettingPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(TABLE_NAME)
+    await knex.schema.dropTable(coilSettingPath)
   }
 }
