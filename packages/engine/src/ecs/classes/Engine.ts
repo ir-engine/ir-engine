@@ -263,6 +263,7 @@ export class Engine {
     presentation: SystemUUID
   }
 
+  activeSystems = new Set<SystemUUID>()
   activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
 
   /**

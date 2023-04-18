@@ -45,7 +45,7 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 export const initClient = async () => {
   if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  const projects = API.instance.client.service('projects').find()
+  const projects = Engine.instance.api.service('projects').find()
 
   ClientSystems()
   await loadEngineInjection(await projects)

@@ -17,7 +17,14 @@ import { removeEntityNodeRecursively } from '../functions/EntityTree'
 import { defineQuery, EntityRemovedComponent } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
 import { executeFixedPipeline } from './FixedPipelineSystem'
-import { defineSystem, disableAllSystems, enableSystems, executeSystem, SystemDefinitions } from './SystemFunctions'
+import {
+  defineSystem,
+  disableAllSystems,
+  enableSystems,
+  executeSystem,
+  SystemDefinitions,
+  SystemUUID
+} from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 
@@ -111,7 +118,7 @@ export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
   for (const preSystem of system.preSystems) {
     getDAG(preSystem, depth + 1)
   }
-  console.log('-'.repeat(depth), system.uuid, system.enabled)
+  console.log('-'.repeat(depth), system.uuid, Engine.instance.activeSystems.has(system.uuid))
   for (const subSystem of system.subSystems) {
     getDAG(subSystem, depth + 1)
   }

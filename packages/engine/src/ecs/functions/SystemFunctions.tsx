@@ -13,13 +13,12 @@ const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
 export type SystemUUID = OpaqueType<'SystemUUID'> & string
 export interface System {
-  uuid: SystemUUID | string
+  uuid: SystemUUID
   execute: () => void // runs after preSystems, and before subSystems
   reactor: React.FC<ReactorProps>
   preSystems: SystemUUID[]
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
-  enabled: boolean
   sceneSystem?: boolean
 }
 
@@ -36,7 +35,8 @@ export function executeSystem(systemUUID: SystemUUID) {
     console.warn(`System ${systemUUID} does not exist.`)
     return
   }
-  if (!system.enabled) return
+
+  if (!Engine.instance.activeSystems.has(systemUUID)) return
 
   system.preSystems.forEach(executeSystem)
 
@@ -67,7 +67,7 @@ export function executeSystem(systemUUID: SystemUUID) {
  * @param systemConfig
  * @returns
  */
-export function defineSystem(systemConfig: Partial<Omit<System, 'enabled'>> & { uuid: string }) {
+export function defineSystem(systemConfig: Partial<Omit<System, 'enabled' | 'uuid'>> & { uuid: string }) {
   if (SystemDefinitions.has(systemConfig.uuid as SystemUUID)) {
     throw new Error(`System ${systemConfig.uuid} already exists.`)
   }
@@ -80,6 +80,7 @@ export function defineSystem(systemConfig: Partial<Omit<System, 'enabled'>> & { 
     postSystems: [],
     sceneSystem: false,
     ...systemConfig,
+    uuid: systemConfig.uuid as SystemUUID, // make typescript happy
     enabled: false
   } as Required<System>
 
@@ -106,7 +107,7 @@ export function startSystem(
   const referenceSystem = SystemDefinitions.get(systemUUID)
   if (!referenceSystem) throw new Error(`System ${systemUUID} does not exist.`)
 
-  if (referenceSystem.enabled) return
+  if (Engine.instance.activeSystems.has(systemUUID)) return
 
   if (insert.before) {
     const referenceSystem = SystemDefinitions.get(insert.before)
@@ -215,11 +216,23 @@ export const enableSystems = (systems: SystemUUID[]) => {
  */
 export const enableSystem = (systemUUID: SystemUUID) => {
   const system = SystemDefinitions.get(systemUUID)
-  if (system) {
-    // shouldn't this be an error if the system doesn't exist?
-    const reactor = startReactor(system.reactor)
-    Engine.instance.activeSystemReactors.set(system.uuid as SystemUUID, reactor)
-    system.enabled = true
+  if (!system) throw new Error(`System ${systemUUID} does not exist.`)
+
+  for (const preSystem of system.preSystems) {
+    enableSystem(preSystem)
+  }
+
+  Engine.instance.activeSystems.add(systemUUID)
+
+  const reactor = startReactor(system.reactor)
+  Engine.instance.activeSystemReactors.set(system.uuid as SystemUUID, reactor)
+
+  for (const subSystem of system.subSystems) {
+    enableSystem(subSystem)
+  }
+
+  for (const postSystem of system.postSystems) {
+    enableSystem(postSystem)
   }
 }
 
@@ -236,9 +249,8 @@ export const disableAllSystems = () => {
  * Disables systems
  * @param systemUUIDs
  */
-export const disableSystems = async (systemUUIDs: SystemUUID[]) => {
+export const disableSystems = (systemUUIDs: SystemUUID[]) => {
   for (const systemUUID of systemUUIDs) {
-    // maybe return async
     disableSystem(systemUUID)
   }
 }
@@ -246,16 +258,29 @@ export const disableSystems = async (systemUUIDs: SystemUUID[]) => {
 /**
  * Disables a system
  * @param systemUUID
+ * @todo Should this be async?
  */
-export const disableSystem = async (systemUUID: SystemUUID) => {
+export const disableSystem = (systemUUID: SystemUUID) => {
   const system = SystemDefinitions.get(systemUUID)
-  if (system) {
-    system.enabled = false
-    const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
-    if (reactor) {
-      Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
-      await reactor.stop()
-    }
+  if (!system) throw new Error(`System ${systemUUID} does not exist.`)
+
+  for (const subSystem of system.subSystems) {
+    disableSystem(subSystem)
+  }
+
+  Engine.instance.activeSystems.delete(systemUUID)
+  const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
+  if (reactor) {
+    Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
+    reactor.stop()
+  }
+
+  for (const postSystem of system.postSystems) {
+    disableSystem(postSystem)
+  }
+
+  for (const preSystem of system.preSystems) {
+    disableSystem(preSystem)
   }
 }
 
