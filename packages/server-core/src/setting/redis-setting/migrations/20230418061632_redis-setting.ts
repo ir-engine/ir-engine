@@ -28,7 +28,7 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 }
-
+// test
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
