@@ -1,6 +1,6 @@
 /** Functions to provide system level functionalities. */
 
-import React, { Suspense, useEffect, useMemo } from 'react'
+import React, { Component, ErrorInfo, FC, memo, Suspense, useEffect, useMemo } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -18,7 +18,7 @@ export type SystemUUID = OpaqueType<'SystemUUID'> & string
 export interface System {
   uuid: SystemUUID
   execute: () => void // runs after preSystems, and before subSystems
-  reactor: React.FC<ReactorProps>
+  reactor: FC<ReactorProps>
   preSystems: SystemUUID[]
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
@@ -285,8 +285,8 @@ export const disableSystem = (systemUUID: SystemUUID) => {
   }
 }
 
-const QueryReactor = React.memo(
-  (props: { root: ReactorRoot; entity: Entity; ChildEntityReactor: React.FC<EntityReactorProps> }) => {
+const QueryReactor = memo(
+  (props: { root: ReactorRoot; entity: Entity; ChildEntityReactor: FC<EntityReactorProps> }) => {
     const entityRoot = useMemo(() => {
       return {
         ...props.root,
@@ -305,9 +305,9 @@ const QueryReactor = React.memo(
   }
 )
 
-export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: React.FC<EntityReactorProps>) => {
+export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: FC<EntityReactorProps>) => {
   if (!ChildEntityReactor.name) Object.defineProperty(ChildEntityReactor, 'name', { value: 'ChildEntityReactor' })
-  const MemoChildEntityReactor = React.memo(ChildEntityReactor)
+  const MemoChildEntityReactor = memo(ChildEntityReactor)
   return function HyperfluxQueryReactor({ root }: ReactorProps) {
     const entities = useQuery(Components)
     return (
@@ -324,7 +324,7 @@ interface ErrorState {
   error: Error | null
 }
 
-class QueryReactorErrorBoundary extends React.Component<any, ErrorState> {
+class QueryReactorErrorBoundary extends Component<any, ErrorState> {
   public state: ErrorState = {
     error: null
   }
@@ -334,7 +334,7 @@ class QueryReactorErrorBoundary extends React.Component<any, ErrorState> {
     return { error }
   }
 
-  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo)
   }
 
