@@ -18,8 +18,10 @@ import {
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import {
-  createActionQueue,
+  defineActionQueue,
+  defineState,
   getMutableState,
+  getState,
   removeActionQueue,
   startReactor,
   useState
@@ -41,6 +43,7 @@ import {
   useOptionalComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -222,150 +225,159 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // xrState.sceneRotation.value.slerp(targetRotation, lerpAlpha)
 }
 
-/**
- * Updates materials with XR depth map uniforms
- * @param world
- * @returns
- */
-export default async function XRAnchorSystem() {
+const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
+
+const scenePlacementRingMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
+scenePlacementRingMesh.geometry.rotateX(-Math.PI / 2)
+scenePlacementRingMesh.geometry.translate(0, 0.01, 0)
+
+const pinSphereMesh = new Mesh(new SphereGeometry(0.025, 16, 16), new MeshBasicMaterial({ color: 'white' }))
+pinSphereMesh.position.setY(0.1125)
+const pinConeMesh = new Mesh(new ConeGeometry(0.01, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
+pinConeMesh.position.setY(0.05)
+pinConeMesh.rotateX(Math.PI)
+
+const worldOriginPinpointAnchor = new Group()
+worldOriginPinpointAnchor.name = 'world-origin-pinpoint-anchor'
+worldOriginPinpointAnchor.add(pinSphereMesh, pinConeMesh)
+worldOriginPinpointAnchor.add(scenePlacementRingMesh)
+worldOriginPinpointAnchor.updateMatrixWorld(true)
+
+const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
+const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
+
+const XRAnchorSystemState = defineState({
+  name: 'XRAnchorSystemState',
+  initial: () => {
+    return {
+      scenePlacementEntity: null! as Entity
+    }
+  }
+})
+
+const execute = () => {
   const xrState = getMutableState(XRState)
 
-  const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
+  const { scenePlacementEntity } = getState(XRAnchorSystemState)
 
-  const scenePlacementRingMesh = new Mesh(new RingGeometry(0.08, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
-  scenePlacementRingMesh.geometry.rotateX(-Math.PI / 2)
-  scenePlacementRingMesh.geometry.translate(0, 0.01, 0)
-
-  const pinSphereMesh = new Mesh(new SphereGeometry(0.025, 16, 16), new MeshBasicMaterial({ color: 'white' }))
-  pinSphereMesh.position.setY(0.1125)
-  const pinConeMesh = new Mesh(new ConeGeometry(0.01, 0.1, 16), new MeshBasicMaterial({ color: 'white' }))
-  pinConeMesh.position.setY(0.05)
-  pinConeMesh.rotateX(Math.PI)
-
-  const worldOriginPinpointAnchor = new Group()
-  worldOriginPinpointAnchor.name = 'world-origin-pinpoint-anchor'
-  worldOriginPinpointAnchor.add(pinSphereMesh, pinConeMesh)
-  worldOriginPinpointAnchor.add(scenePlacementRingMesh)
-  worldOriginPinpointAnchor.updateMatrixWorld(true)
-
-  const scenePlacementEntity = createEntity()
-  setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-  setLocalTransformComponent(scenePlacementEntity, Engine.instance.originEntity)
-  setComponent(scenePlacementEntity, VisibleComponent, true)
-
-  const originAxesHelper = new AxesHelper(10000)
-  setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
-  addObjectToGroup(scenePlacementEntity, originAxesHelper)
-
-  const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
-  const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
-
-  const scenePlacementReactor = startReactor(function ScenePlancementReactor() {
-    const scenePlacementMode = useState(xrState.scenePlacementMode)
-    const xrSession = useState(xrState.session)
-    const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
-
-    useEffect(() => {
-      if (!xrSession.value) return
-
-      let active = true
-
-      if (scenePlacementMode.value === 'unplaced') {
-        removeComponent(scenePlacementEntity, XRHitTestComponent)
-        removeComponent(scenePlacementEntity, XRAnchorComponent)
-        worldOriginPinpointAnchor.removeFromParent()
-        return
-      }
-
-      if (scenePlacementMode.value === 'placing') {
-        // create a hit test source for the viewer when the interaction mode is 'screen-space'
-        if (xrSession.value.interactionMode === 'screen-space') {
-          Engine.instance.scene.add(worldOriginPinpointAnchor)
-          setComponent(scenePlacementEntity, XRHitTestComponent, {
-            space: ReferenceSpace.viewer!,
-            entityTypes: ['plane', 'point', 'mesh']
-          })
-        }
-
-        // for scene placement in 'world-space', we should request a hit test source when an input source is gripped,
-        // and assign it to the scene placement entity
-        if (xrSession.value.interactionMode === 'world-space') {
-          // @todo: handle world-space scene placement
-        }
-        return
-      }
-
-      if (scenePlacementMode.value === 'placed') {
-        worldOriginPinpointAnchor.removeFromParent()
-        const hitTestResult = hitTest?.results?.value?.[0]
-        if (hitTestResult) {
-          if (!hitTestResult.createAnchor) {
-            const xrFrame = Engine.instance.xrFrame
-            const hitPose = ReferenceSpace.localFloor && hitTestResult.getPose(ReferenceSpace.localFloor)
-            hitPose &&
-              xrFrame?.createAnchor?.(hitPose.transform, ReferenceSpace.localFloor!)?.then((anchor) => {
-                if (!active) {
-                  anchor.delete()
-                  return
-                }
-                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
-              })
-            removeComponent(scenePlacementEntity, XRHitTestComponent)
-            return
-          }
-          // @ts-ignore createAnchor function is not typed correctly
-          const anchorPromise = hitTestResult.createAnchor()
-          if (anchorPromise)
-            anchorPromise
-              .then((anchor) => {
-                if (!active) {
-                  anchor.delete()
-                  return
-                }
-                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
-                removeComponent(scenePlacementEntity, XRHitTestComponent)
-              })
-              .catch(() => {
-                removeComponent(scenePlacementEntity, XRHitTestComponent)
-              })
-          else removeComponent(scenePlacementEntity, XRHitTestComponent)
-        }
-      }
-
-      return () => {
-        active = false
-      }
-    }, [scenePlacementMode, xrSession, hitTest])
-
-    return null
-  })
-
-  const cleanup = async () => {
-    removeQuery(xrHitTestQuery)
-    removeActionQueue(xrSessionChangedQueue)
-    await scenePlacementReactor.stop()
-  }
-
-  const execute = () => {
-    for (const action of xrSessionChangedQueue()) {
-      if (!action.active) {
-        setTransformComponent(Engine.instance.originEntity) // reset world origin
-        xrState.scenePlacementMode.set('unplaced')
-        for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
-        for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
-      }
-    }
-
-    if (!Engine.instance.xrFrame) return
-
-    for (const entity of xrAnchorQuery()) updateAnchor(entity)
-    for (const entity of xrHitTestQuery()) updateHitTest(entity)
-
-    if (xrState.scenePlacementMode.value !== 'unplaced') {
-      updateScenePlacement(scenePlacementEntity)
-      updateWorldOriginFromScenePlacement()
+  for (const action of xrSessionChangedQueue()) {
+    if (!action.active) {
+      setTransformComponent(Engine.instance.originEntity) // reset world origin
+      xrState.scenePlacementMode.set('unplaced')
+      for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
+      for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
     }
   }
 
-  return { execute, cleanup }
+  if (!Engine.instance.xrFrame) return
+
+  for (const entity of xrAnchorQuery()) updateAnchor(entity)
+  for (const entity of xrHitTestQuery()) updateHitTest(entity)
+
+  if (xrState.scenePlacementMode.value !== 'unplaced') {
+    updateScenePlacement(scenePlacementEntity)
+    updateWorldOriginFromScenePlacement()
+  }
 }
+
+const reactor = () => {
+  const xrState = getMutableState(XRState)
+  const xrAnchorSystemState = getMutableState(XRAnchorSystemState)
+  const scenePlacementEntity = xrAnchorSystemState.scenePlacementEntity.value
+  const scenePlacementMode = useState(xrState.scenePlacementMode)
+  const xrSession = useState(xrState.session)
+  const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
+
+  useEffect(() => {
+    if (!xrSession.value) return
+
+    let active = true
+
+    if (scenePlacementMode.value === 'unplaced') {
+      removeComponent(scenePlacementEntity, XRHitTestComponent)
+      removeComponent(scenePlacementEntity, XRAnchorComponent)
+      worldOriginPinpointAnchor.removeFromParent()
+      return
+    }
+
+    if (scenePlacementMode.value === 'placing') {
+      // create a hit test source for the viewer when the interaction mode is 'screen-space'
+      if (xrSession.value.interactionMode === 'screen-space') {
+        Engine.instance.scene.add(worldOriginPinpointAnchor)
+        setComponent(scenePlacementEntity, XRHitTestComponent, {
+          space: ReferenceSpace.viewer!,
+          entityTypes: ['plane', 'point', 'mesh']
+        })
+      }
+
+      // for scene placement in 'world-space', we should request a hit test source when an input source is gripped,
+      // and assign it to the scene placement entity
+      if (xrSession.value.interactionMode === 'world-space') {
+        // @todo: handle world-space scene placement
+      }
+      return
+    }
+
+    if (scenePlacementMode.value === 'placed') {
+      worldOriginPinpointAnchor.removeFromParent()
+      const hitTestResult = hitTest?.results?.value?.[0]
+      if (hitTestResult) {
+        if (!hitTestResult.createAnchor) {
+          const xrFrame = Engine.instance.xrFrame
+          const hitPose = ReferenceSpace.localFloor && hitTestResult.getPose(ReferenceSpace.localFloor)
+          hitPose &&
+            xrFrame?.createAnchor?.(hitPose.transform, ReferenceSpace.localFloor!)?.then((anchor) => {
+              if (!active) {
+                anchor.delete()
+                return
+              }
+              setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
+            })
+          removeComponent(scenePlacementEntity, XRHitTestComponent)
+          return
+        }
+        // @ts-ignore createAnchor function is not typed correctly
+        const anchorPromise = hitTestResult.createAnchor()
+        if (anchorPromise)
+          anchorPromise
+            .then((anchor) => {
+              if (!active) {
+                anchor.delete()
+                return
+              }
+              setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
+              removeComponent(scenePlacementEntity, XRHitTestComponent)
+            })
+            .catch(() => {
+              removeComponent(scenePlacementEntity, XRHitTestComponent)
+            })
+        else removeComponent(scenePlacementEntity, XRHitTestComponent)
+      }
+    }
+
+    return () => {
+      active = false
+    }
+  }, [scenePlacementMode, xrSession, hitTest])
+
+  useEffect(() => {
+    const scenePlacementEntity = createEntity()
+    setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
+    setLocalTransformComponent(scenePlacementEntity, Engine.instance.originEntity)
+    setComponent(scenePlacementEntity, VisibleComponent, true)
+
+    const originAxesHelper = new AxesHelper(10000)
+    setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
+    addObjectToGroup(scenePlacementEntity, originAxesHelper)
+
+    xrAnchorSystemState.scenePlacementEntity.set(scenePlacementEntity)
+  }, [])
+
+  return null
+}
+
+export const XRAnchorSystem = defineSystem({
+  uuid: 'ee.engine.XRAnchorSystem',
+  execute,
+  reactor
+})

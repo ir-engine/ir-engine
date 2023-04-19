@@ -8,7 +8,7 @@ import { UndefinedEntity } from './Entity'
 /** @todo support multiple scenes */
 
 export type SceneMetadata<T> = {
-  data: T
+  data: () => T
   default: any
 }
 

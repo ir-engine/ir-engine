@@ -7,10 +7,10 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
+import { SimulationSystemGroup } from '../../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { initSystems } from '../../../ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
-import { createEngine, setupEngineActionSystems } from '../../../initializeEngine'
+import { defineSystem, startSystem, SystemDefinitions, SystemUUID } from '../../../ecs/functions/SystemFunctions'
+import { createEngine } from '../../../initializeEngine'
 import {
   GrassProperties,
   SampleMode,
@@ -30,33 +30,24 @@ describe('InstancingFunctions', async () => {
   beforeEach(async () => {
     sandbox = createSandbox()
     createEngine()
-    setupEngineActionSystems()
     initEntity()
     Engine.instance.engineTimer.start()
 
     getMutableState(EngineState).publicPath.set('')
     await Promise.all([])
 
-    await initSystems([
-      {
-        uuid: 'Instance',
-        type: SystemUpdateType.FIXED_LATE,
-        systemLoader: () =>
-          Promise.resolve({
-            default: async () => {
-              let resolve: () => void
-              nextFixedStep = new Promise<void>((r) => (resolve = r))
-              return {
-                execute: () => {
-                  resolve()
-                  nextFixedStep = new Promise<void>((r) => (resolve = r))
-                },
-                cleanup: async () => {}
-              }
-            }
-          })
+    let resolve: () => void
+    nextFixedStep = new Promise<void>((r) => (resolve = r))
+
+    SystemDefinitions.delete('test.system' as SystemUUID)
+    const system = defineSystem({
+      uuid: 'test.system',
+      execute: () => {
+        resolve()
+        nextFixedStep = new Promise<void>((r) => (resolve = r))
       }
-    ])
+    })
+    startSystem(system, { after: SimulationSystemGroup })
   })
   afterEach(async () => {
     sandbox.restore()

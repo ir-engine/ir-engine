@@ -15,7 +15,7 @@ export default createSwaggerServiceOptions({
     coilSettingSchema
   },
   docs: {
-    description: 'Coil service description',
+    description: 'Coil setting service description',
     securities: ['all']
   }
 })

@@ -28,6 +28,7 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './Group
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
+  jsonID: 'envmapbake',
 
   onInit: (entity) => {
     return {
@@ -106,8 +107,6 @@ export const EnvMapBakeComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_ENVMAP_BAKE = 'envmapbake'
 
 export const prepareSceneForBake = (): Scene => {
   const scene = Engine.instance.scene.clone(false)

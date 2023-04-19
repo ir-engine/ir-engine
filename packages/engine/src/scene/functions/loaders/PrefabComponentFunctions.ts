@@ -64,14 +64,3 @@ export const loadPrefab = async (entity: Entity, loader = AssetLoader) => {
     throw e
   }
 }
-
-export const deserializePrefab: ComponentDeserializeFunction = async (
-  entity: Entity,
-  data: ComponentType<typeof PrefabComponent>
-) => {
-  setComponent(entity, PrefabComponent, data)
-  if (data.loaded === LoadState.LOADED) {
-    getMutableComponent(entity, PrefabComponent).loaded.set(LoadState.UNLOADED)
-    await loadPrefab(entity)
-  }
-}

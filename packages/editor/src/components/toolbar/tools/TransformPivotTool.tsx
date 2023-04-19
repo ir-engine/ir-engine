@@ -13,7 +13,8 @@ import * as styles from '../styles.module.scss'
 const transformPivotOptions = [
   { label: 'Selection', value: TransformPivot.Selection },
   { label: 'Center', value: TransformPivot.Center },
-  { label: 'Bottom', value: TransformPivot.Bottom }
+  { label: 'Bottom', value: TransformPivot.Bottom },
+  { label: 'Origin', value: TransformPivot.Origin }
 ]
 
 const TransformPivotTool = () => {
