@@ -63,16 +63,11 @@ const ScenePlacementReactor = createGroupQueryReactor(
       const useShader = xrState.sessionActive.value && xrState.scenePlacementMode.value === 'placing'
       if (useShader) {
         obj.traverse(addShaderToObject)
-      } else {
-        obj.traverse(removeShaderFromObject)
+        return () => {
+          obj.traverse(removeShaderFromObject)
+        }
       }
     }, [scenePlacementMode, sessionActive])
-
-    useEffect(() => {
-      return () => {
-        obj.traverse(removeShaderFromObject)
-      }
-    }, [])
 
     return null
   },

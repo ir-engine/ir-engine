@@ -92,7 +92,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
 
     return () => {
       disableSystem(AvatarSelectRenderSystem)
-      SystemDefinitions.delete(AvatarSelectRenderSystem)
+      // todo - do we need to remove the system defintion?
       removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
     }
