@@ -42,7 +42,10 @@ export const startClientSystems = () => {
   )
 
   /** Fixed */
-  startSystems([WorldNetworkActionSystem, AvatarSimulationGroup, PhysicsSystem], { with: SimulationSystemGroup })
+  startSystems([WorldNetworkActionSystem, AvatarSimulationGroup], { with: SimulationSystemGroup })
+
+  /** Physics */
+  startSystems([PhysicsSystem], { after: SimulationSystemGroup })
 
   /** Avatar / Animation */
   startSystems(
