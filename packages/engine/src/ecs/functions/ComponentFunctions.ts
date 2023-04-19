@@ -270,7 +270,7 @@ export const addComponent = <C extends Component>(
   Component: C,
   args: SetComponentType<C> | undefined = undefined
 ) => {
-  // if (hasComponent(entity, Component)) throw new Error(`${Component.name} already exists on entity ${entity}`)
+  if (hasComponent(entity, Component)) throw new Error(`${Component.name} already exists on entity ${entity}`)
   setComponent(entity, Component, args)
 }
 
