@@ -28,6 +28,7 @@ export type LoadVolumeComponentType = {
 
 export const LoadVolumeComponent = defineComponent({
   name: 'EE_load_volume',
+  jsonID: 'load-volume',
   onInit: (entity) => ({ targets: {} } as LoadVolumeComponentType),
   toJSON: (entity, component) => {
     return component.value
@@ -79,5 +80,3 @@ export const LoadVolumeComponent = defineComponent({
     setCallback(entity, 'doUnload', doUnload)
   }
 })
-
-export const SCENE_COMPONENT_LOAD_VOLUME = 'load-volume'

@@ -21,6 +21,7 @@ import { GroupComponent } from './GroupComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
+  jsonID: 'collider',
 
   onInit(entity) {
     return {
@@ -233,15 +234,4 @@ export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3
     case ShapeType.Cylinder:
       return ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
   }
-}
-
-export const SCENE_COMPONENT_COLLIDER = 'collider'
-export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {
-  bodyType: RigidBodyType.Fixed,
-  shapeType: ShapeType.Cuboid,
-  isTrigger: false,
-  removeMesh: false,
-  restitution: 0.5,
-  collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
 }

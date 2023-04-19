@@ -1,12 +1,12 @@
 import { Engine } from '../ecs/classes/Engine'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { applyAutopilotInput } from './functions/moveAvatar'
 
-export default async function AvatarAutopilotSystem() {
-  const execute = () => {
-    applyAutopilotInput(Engine.instance.localClientEntity)
-  }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+const execute = () => {
+  applyAutopilotInput(Engine.instance.localClientEntity)
 }
+
+export const AvatarAutopilotSystem = defineSystem({
+  uuid: 'ee.engine.AvatarAutopilotSystem',
+  execute
+})

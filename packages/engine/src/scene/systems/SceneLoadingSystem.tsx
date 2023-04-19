@@ -17,7 +17,7 @@ import {
   State,
   useHookstate
 } from '@etherealengine/hyperflux'
-import { getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
+import { getSystemsFromSceneData, SystemImportType } from '@etherealengine/projects/loadSystemInjection'
 
 import {
   AppLoadingAction,
@@ -30,6 +30,7 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
 import {
+  ComponentJSONIDMap,
   ComponentMap,
   defineQuery,
   getAllComponents,
@@ -48,13 +49,13 @@ import {
   removeEntityNode,
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
-import { initSystems, SystemModuleType, unloadSystems } from '../../ecs/functions/SystemFunctions'
+import { defineSystem, disableSystems, startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
-import { SCENE_COMPONENT_DYNAMIC_LOAD, SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
@@ -84,7 +85,8 @@ export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
   const entityLoadQueue = {} as { [uuid: string]: EntityJson }
   const entityDynamicQueue = {} as { [uuid: string]: EntityJson }
   for (const [uuid, entity] of Object.entries(json.entities)) {
-    if (entity.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)) entityDynamicQueue[uuid] = entity
+    if (entity.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID))
+      entityDynamicQueue[uuid] = entity
     else entityLoadQueue[uuid] = entity
   }
   return {
@@ -193,7 +195,9 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
   ) as [EntityUUID, EntityJson][]
   for (const [uuid, entityJson] of entitiesToLoad) {
     updateSceneEntity(uuid, entityJson)
-    const JSONEntityIsDynamic = !!entityJson.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)
+    const JSONEntityIsDynamic = !!entityJson.components.find(
+      (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
+    )
 
     if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) {
       const existingEntity = UUIDComponent.entitiesByUUID[uuid].value
@@ -227,27 +231,25 @@ export const updateSceneFromJSON = async () => {
 
   getMutableState(EngineState).sceneLoading.set(true)
 
-  const systemsToLoad = [] as SystemModuleType<any>[]
+  const systemsToLoad = [] as SystemImportType[]
 
   if (!getMutableState(EngineState).isEditor.value) {
     /** get systems that have changed */
-    const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene)
+    const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
       ...sceneSystems.filter(
-        (systemToLoad) =>
-          !Object.values(Engine.instance.pipelines)
-            .flat()
-            .find((s) => s.uuid === systemToLoad.uuid)
+        (systemToLoad) => !Array.from(Engine.instance.activeSystems).find((uuid) => uuid === systemToLoad.systemUUID)
       )
     )
-    const systemsToUnload = Object.keys(Engine.instance.pipelines).map((p) =>
-      Engine.instance.pipelines[p].filter(
-        (loaded) => loaded.sceneSystem && !sceneSystems.find((s) => s.uuid === loaded.uuid)
+    const systemsToUnload = Array.from(Engine.instance.activeSystems)
+      .filter(
+        (systemUUID) =>
+          SystemDefinitions.get(systemUUID)?.sceneSystem && !sceneSystems.find((s) => s.systemUUID === systemUUID)
       )
-    )
+      .map((s) => s)
 
     /** 1. unload old systems */
-    await unloadSystems(systemsToUnload.flat().map((s) => s.uuid))
+    disableSystems(systemsToUnload)
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
@@ -264,14 +266,16 @@ export const updateSceneFromJSON = async () => {
 
   /** 3. load new systems */
   if (!getMutableState(EngineState).isEditor.value) {
-    await initSystems(systemsToLoad)
+    for (const system of systemsToLoad) {
+      startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
+    }
   }
 
   if (sceneData.scene.metadata) {
     for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
-      const metadata = sceneState.sceneMetadataRegistry[key] as State<SceneMetadata<unknown>>
+      const metadata = sceneState.sceneMetadataRegistry[key] as State<SceneMetadata<any>>
       if (!metadata.value) continue
-      metadata.data.set(merge({}, metadata.data.value, val))
+      // metadata.data.set(merge({}, metadata.data.value, val))
     }
   }
 
@@ -331,8 +335,7 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson):
   /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */
   const componentsToRemove = getAllComponents(entity).filter(
     (C) =>
-      Engine.instance.sceneComponentRegistry.has(C.name) &&
-      !sceneEntity.components.find((json) => Engine.instance.sceneComponentRegistry.get(C.name) === json.name)
+      C.jsonID && ComponentJSONIDMap.has(C.jsonID) && !sceneEntity.components.find((json) => C.jsonID === json.name)
   )
   for (const C of componentsToRemove) {
     if (entity === getState(SceneState).sceneEntity) if (C === VisibleComponent) continue
@@ -353,76 +356,63 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson):
 }
 
 export const deserializeComponent = (entity: Entity, component: ComponentJson): void => {
-  const sceneComponent = Engine.instance.sceneLoadingRegistry.get(component.name)
+  const Component = ComponentJSONIDMap.get(component.name)
+  if (!Component) return console.warn('[ SceneLoading] could not find component name', component.name)
 
-  if (!sceneComponent) return
-
-  const deserializer = sceneComponent.deserialize
-
-  if (deserializer) {
-    deserializer(entity, component.props)
-  } else {
-    const Component = Array.from(Engine.instance.sceneComponentRegistry).find(
-      ([_, prefab]) => prefab === component.name
-    )!
-    if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
-    if (!ComponentMap.get(Component[0])) return console.warn('[ SceneLoading] could not find component', Component[0])
-
-    setComponent(entity, ComponentMap.get(Component[0])!, component.props)
-  }
+  setComponent(entity, Component, component.props)
 }
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
-export default async function SceneLoadingSystem() {
-  addActionReceptor(AppLoadingServiceReceptor)
+let totalPendingAssets = 0
 
-  let totalPendingAssets = 0
-
-  const sceneDataReactor = startReactor(() => {
-    const sceneData = useHookstate(getMutableState(SceneState).sceneData)
-    const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
-
-    useEffect(() => {
-      if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
-    }, [sceneData, isEngineInitialized])
-
-    return null
-  })
-
-  const onComplete = (pendingAssets: number) => {
-    const promisesCompleted = totalPendingAssets - pendingAssets
-    dispatchAction(
-      EngineActions.sceneLoadingProgress({
-        progress:
-          promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
-      })
-    )
-  }
-
-  const execute = () => {
-    if (!getMutableState(EngineState).sceneLoading.value) return
-
-    const pendingAssets = sceneAssetPendingTagQuery().length
-
-    for (const entity of sceneAssetPendingTagQuery.enter()) {
-      totalPendingAssets++
-    }
-
-    if (sceneAssetPendingTagQuery.exit().length) {
-      onComplete(pendingAssets)
-      if (pendingAssets === 0) {
-        totalPendingAssets = 0
-        dispatchAction(EngineActions.sceneLoaded({}))
-      }
-    }
-  }
-
-  const cleanup = async () => {
-    removeActionReceptor(AppLoadingServiceReceptor)
-    removeQuery(sceneAssetPendingTagQuery)
-    await sceneDataReactor.stop()
-  }
-
-  return { execute, cleanup }
+const onComplete = (pendingAssets: number) => {
+  const promisesCompleted = totalPendingAssets - pendingAssets
+  dispatchAction(
+    EngineActions.sceneLoadingProgress({
+      progress:
+        promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
+    })
+  )
 }
+
+const execute = () => {
+  if (!getMutableState(EngineState).sceneLoading.value) return
+
+  const pendingAssets = sceneAssetPendingTagQuery().length
+
+  for (const entity of sceneAssetPendingTagQuery.enter()) {
+    totalPendingAssets++
+  }
+
+  if (sceneAssetPendingTagQuery.exit().length) {
+    onComplete(pendingAssets)
+    if (pendingAssets === 0) {
+      totalPendingAssets = 0
+      dispatchAction(EngineActions.sceneLoaded({}))
+    }
+  }
+}
+
+const reactor = () => {
+  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
+
+  useEffect(() => {
+    if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
+  }, [sceneData, isEngineInitialized])
+
+  useEffect(() => {
+    addActionReceptor(AppLoadingServiceReceptor)
+    return () => {
+      removeActionReceptor(AppLoadingServiceReceptor)
+    }
+  }, [])
+  return null
+}
+
+export const SceneLoadingSystem = defineSystem({
+  uuid: 'ee.engine.scene.SceneLoadingSystem',
+  execute,
+  reactor
+})

@@ -3,7 +3,8 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'
 
-import type { WebContainer3D } from '@etherealengine/xrui'
+import { WebContainer3D } from '@etherealengine/xrui/core/three/WebContainer3D'
+import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager'
 
 import { isNode } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
@@ -17,12 +18,6 @@ import { DistanceFromCameraComponent } from '../../transform/components/Distance
 import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
-
-let Ethereal: typeof import('@etherealengine/xrui')
-
-export async function loadXRUIDeps() {
-  Ethereal = await import('@etherealengine/xrui')
-}
 
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
   if (isNode) throw new Error('XRUI is not supported in nodejs')
@@ -41,7 +36,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     </XRUIStateContext.Provider>
   )
 
-  const container = new Ethereal.WebContainer3D(containerElement, { manager: Ethereal.WebLayerManager.instance })
+  const container = new WebContainer3D(containerElement, { manager: WebLayerManager.instance })
 
   container.raycaster.layers.enableAll()
 

@@ -1,12 +1,12 @@
 import { Engine } from '../ecs/classes/Engine'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { applyGamepadInput } from './functions/moveAvatar'
 
-export default async function AvatarMovementSystem() {
-  const execute = () => {
-    applyGamepadInput(Engine.instance.localClientEntity)
-  }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+const execute = () => {
+  applyGamepadInput(Engine.instance.localClientEntity)
 }
+
+export const AvatarMovementSystem = defineSystem({
+  uuid: 'ee.engine.AvatarMovementSystem',
+  execute
+})
