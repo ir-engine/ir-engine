@@ -15,7 +15,7 @@ export default createSwaggerServiceOptions({
     emailSettingSchema
   },
   docs: {
-    description: 'Email service description',
+    description: 'Email setting service description',
     securities: ['all']
   }
 })

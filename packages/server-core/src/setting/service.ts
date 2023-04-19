@@ -6,7 +6,7 @@ import Coil from './coil-setting/coil-setting'
 import Email from './email-setting/email-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting.service'
 import ProjectSetting from './project-setting/project-setting.service'
-import RedisSetting from './redis-setting/redis-setting.service'
+import RedisSetting from './redis-setting/redis-setting'
 import ServerSetting from './server-setting/server-setting.service'
 import TaskServer from './task-server-setting/task-server-setting'
 
