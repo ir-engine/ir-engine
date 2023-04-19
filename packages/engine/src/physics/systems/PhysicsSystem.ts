@@ -115,15 +115,8 @@ const kinematicVelocityBodyQuery = defineQuery([
 
 const teleportObjectQueue = defineActionQueue(WorldNetworkAction.teleportObject.matches)
 
-const PhysicsSystemState = defineState({
-  name: 'PhysicsSystemState',
-  initial: () => {
-    return {
-      drainCollisions: null! as ReturnType<typeof Physics.drainCollisionEventQueue>,
-      drainContacts: null! as ReturnType<typeof Physics.drainContactEventQueue>
-    }
-  }
-})
+let drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
+let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 
 const execute = () => {
   if (!Engine.instance.physicsWorld) return
@@ -158,7 +151,6 @@ const execute = () => {
   }
 
   const engineState = getState(EngineState)
-  const { drainCollisions, drainContacts } = getState(PhysicsSystemState)
 
   // step physics world
   const substeps = engineState.physicsSubsteps
@@ -238,12 +230,8 @@ const reactor = () => {
     Physics.load().then(() => {
       Engine.instance.physicsWorld = Physics.createWorld()
       Engine.instance.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
-      const drainCollisions = Physics.drainCollisionEventQueue(Engine.instance.physicsWorld)
-      const drainContacts = Physics.drainContactEventQueue(Engine.instance.physicsWorld)
-      getMutableState(PhysicsSystemState).set({
-        drainCollisions,
-        drainContacts
-      })
+      drainCollisions = Physics.drainCollisionEventQueue(Engine.instance.physicsWorld)
+      drainContacts = Physics.drainContactEventQueue(Engine.instance.physicsWorld)
     })
 
     return () => {
@@ -251,6 +239,8 @@ const reactor = () => {
 
       Engine.instance.physicsWorld.free()
       Engine.instance.physicsWorld = null!
+      drainCollisions = null!
+      drainContacts = null!
 
       networkState.networkSchema[PhysicsSerialization.ID].set(none)
     }

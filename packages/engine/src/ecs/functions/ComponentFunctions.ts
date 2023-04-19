@@ -263,13 +263,14 @@ export const updateComponent = <C extends Component>(
  * @param Component
  * @param args
  * @returns
+ * @deprecated - use setComponent instead
  */
 export const addComponent = <C extends Component>(
   entity: Entity,
   Component: C,
   args: SetComponentType<C> | undefined = undefined
 ) => {
-  if (hasComponent(entity, Component)) throw new Error(`${Component.name} already exists on entity ${entity}`)
+  // if (hasComponent(entity, Component)) throw new Error(`${Component.name} already exists on entity ${entity}`)
   setComponent(entity, Component, args)
 }
 
