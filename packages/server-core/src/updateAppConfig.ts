@@ -12,6 +12,7 @@ import {
   EmailSettingDatabaseType,
   emailSettingPath
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import { redisSettingPath, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import {
   taskServerSettingPath,
   TaskServerSettingType
@@ -362,26 +363,9 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(instanceServerSettingPromise)
 
-  const redisSetting = sequelizeClient.define('redisSetting', {
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    address: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const redisSettingPromise = redisSetting
-    .findAll()
+  const redisSettingPromise = knexClient
+    .select()
+    .from<RedisSettingType>(redisSettingPath)
     .then(([dbRedis]) => {
       const dbRedisConfig = dbRedis && {
         enabled: dbRedis.enabled,

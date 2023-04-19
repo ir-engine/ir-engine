@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -29,41 +28,33 @@ export const RenderInfoState = defineState({
   }
 })
 
-async function RenderInfoSystem() {
-  const state = getMutableState(RenderInfoState)
+const execute = () => {
+  const state = getState(RenderInfoState)
+  if (state.visible) {
+    const info = EngineRenderer.instance.renderer.info
 
-  const execute = () => {
-    if (state.visible.value) {
-      const info = EngineRenderer.instance.renderer.info
+    const fps = 1 / Engine.instance.deltaSeconds
+    const frameTime = Engine.instance.deltaSeconds * 1000
 
-      const fps = 1 / Engine.instance.deltaSeconds
-      const frameTime = Engine.instance.deltaSeconds * 1000
+    getMutableState(RenderInfoState).info.set({
+      geometries: info.memory.geometries,
+      textures: info.memory.textures,
+      fps,
+      frameTime,
+      calls: info.render.calls,
+      triangles: info.render.triangles,
+      points: info.render.points,
+      lines: info.render.lines
+    })
 
-      state.info.set({
-        geometries: info.memory.geometries,
-        textures: info.memory.textures,
-        fps,
-        frameTime,
-        calls: info.render.calls,
-        triangles: info.render.triangles,
-        points: info.render.points,
-        lines: info.render.lines
-      })
-
-      info.reset()
-    }
+    info.reset()
   }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
 }
 
-const RenderInfoSystemDefintion = {
-  uuid: 'xre.engine.RenderInfoSystem',
-  type: SystemUpdateType.POST_RENDER,
-  systemLoader: () => Promise.resolve({ default: RenderInfoSystem })
-}
+export const RenderInfoSystem = defineSystem({
+  uuid: 'ee.editor.RenderInfoSystem',
+  execute
+})
 
 /**
  * Stats used to show stats of  memory and  render.
@@ -76,8 +67,6 @@ const StatsTool = () => {
   const isVisible = renderInfoState.visible.value
 
   const { t } = useTranslation()
-
-  useSystems([RenderInfoSystemDefintion])
 
   const toggleStats = () => {
     renderInfoState.visible.set(!isVisible)

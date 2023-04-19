@@ -2,6 +2,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const SceneDynamicLoadTagComponent = defineComponent({
   name: 'SceneDynamicLoadTagComponent',
+  jsonID: 'dynamic-load',
 
   onInit(entity) {
     return {
@@ -24,8 +25,3 @@ export const SceneDynamicLoadTagComponent = defineComponent({
     }
   }
 })
-
-export const SCENE_COMPONENT_DYNAMIC_LOAD = 'dynamic-load'
-export const SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES = {
-  distance: 20
-}

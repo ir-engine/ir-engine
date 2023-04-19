@@ -15,7 +15,7 @@ export default createSwaggerServiceOptions({
     taskServerSettingSchema
   },
   docs: {
-    description: 'Task server service description',
+    description: 'Task server setting service description',
     securities: ['all']
   }
 })

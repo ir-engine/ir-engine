@@ -28,10 +28,9 @@ export type LODComponentType = {
   instanceLevels: InstancedBufferAttribute
 }
 
-export const SCENE_COMPONENT_LOD = 'lod'
-
 export const LODComponent = defineComponent({
   name: 'EE_LOD',
+  jsonID: 'lod',
   onInit: (entity) =>
     ({
       target: 0,

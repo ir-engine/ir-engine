@@ -29,14 +29,15 @@ import {
   Uint8BufferAttribute
 } from 'three'
 
+import draco from 'draco3dgltf'
+
 let DRACO_DECODER
 let DRACO_ENCODER
 
-export const loadDRACODecoder = async () => {
+export const loadDRACODecoderNode = async () => {
   if (typeof DRACO_DECODER === 'undefined') {
-    const { default: draco3dgltf } = await import('draco3dgltf')
-    DRACO_DECODER = await draco3dgltf.createDecoderModule()
-    DRACO_ENCODER = await draco3dgltf.createEncoderModule()
+    DRACO_DECODER = await draco.createDecoderModule()
+    DRACO_ENCODER = await draco.createEncoderModule()
   }
 }
 

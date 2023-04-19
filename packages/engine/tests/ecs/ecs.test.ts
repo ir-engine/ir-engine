@@ -15,9 +15,9 @@ import {
   hasComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup, executeSystems } from '../../src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
-import { executeSystems, initSystems } from '../../src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
+import { defineSystem, startSystem } from '../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../src/initializeEngine'
 
 const mockDeltaMillis = 1000 / 60
@@ -39,46 +39,32 @@ const MockComponent = defineComponent({
   }
 })
 
-const MocksystemLoader = async () => {
-  return {
-    default: MockSystemInitialiser
-  }
-}
-
 const MockSystemState = new Map<Entity, Array<number>>()
 
-async function MockSystemInitialiser(args: {}) {
-  const mockQuery = defineQuery([MockComponent])
-  MockSystemState.set(getState(SceneState).sceneEntity, [])
+const mockQuery = defineQuery([MockComponent])
 
-  const execute = () => {
-    const mockState = MockSystemState.get(getState(SceneState).sceneEntity)!
+const execute = () => {
+  const mockState = MockSystemState.get(getState(SceneState).sceneEntity)!
 
-    for (const entity of mockQuery.enter()) {
-      mockState.push(entity)
-    }
-
-    for (const entity of mockQuery.exit()) {
-      mockState.splice(mockState.indexOf(entity))
-    }
+  for (const entity of mockQuery.enter()) {
+    mockState.push(entity)
   }
 
-  return {
-    execute,
-    cleanup: async () => {}
+  for (const entity of mockQuery.exit()) {
+    mockState.splice(mockState.indexOf(entity))
   }
 }
+
+const MockSystem = defineSystem({
+  uuid: 'MockSystem',
+  execute
+})
 
 describe('ECS', () => {
   beforeEach(async () => {
     createEngine()
-    await initSystems([
-      {
-        uuid: 'Mock',
-        type: SystemUpdateType.UPDATE,
-        systemLoader: () => MocksystemLoader()
-      }
-    ])
+    startSystem(MockSystem, { with: AnimationSystemGroup })
+    MockSystemState.set(getState(SceneState).sceneEntity, [])
   })
 
   afterEach(() => {
@@ -89,10 +75,6 @@ describe('ECS', () => {
     const entities = Engine.instance.entityQuery()
     assert(entities.includes(getState(SceneState).sceneEntity))
     assert(entities.includes(Engine.instance.cameraEntity))
-  })
-
-  it('should add systems', async () => {
-    assert.strictEqual(Engine.instance.pipelines[SystemUpdateType.UPDATE].length, 1)
   })
 
   it('should add entity', async () => {
