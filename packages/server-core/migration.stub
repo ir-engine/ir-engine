@@ -1,7 +1,5 @@
 import type { Knex } from 'knex'
 
-const TABLE_NAME = 'TABLE_NAME'
-
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }

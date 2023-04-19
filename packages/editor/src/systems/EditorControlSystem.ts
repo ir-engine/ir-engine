@@ -356,6 +356,8 @@ const execute = () => {
       if (isChanged || transformPivotChanged) {
         if (transformPivot === TransformPivot.Selection) {
           gizmoObj.position.copy(lastSelectedTransform.position)
+        } else if (transformPivot === TransformPivot.Origin) {
+          gizmoObj.position.set(0, 0, 0)
         } else {
           box.makeEmpty()
 
@@ -368,7 +370,6 @@ const execute = () => {
               box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
             }
           }
-
           box.getCenter(gizmoObj.position)
           if (transformPivot === TransformPivot.Bottom) {
             gizmoObj.position.y = box.min.y
