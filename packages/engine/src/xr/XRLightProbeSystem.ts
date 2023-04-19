@@ -1,14 +1,14 @@
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XREstimatedLight } from './XREstimatedLight'
 import { XRState } from './XRState'
 
-/**
- * https://github.com/mrdoob/three.js/blob/master/examples/webxr_ar_lighting.html
- */
-export default async function XRLightProbeSystem() {
+const initializeLight = () => {
   const xrLight = new XREstimatedLight(EngineRenderer.instance.renderer)
   xrLight.castShadow = true
   xrLight.directionalLight.shadow.bias = -0.000001
@@ -16,12 +16,10 @@ export default async function XRLightProbeSystem() {
   xrLight.directionalLight.shadow.camera.far = 2000
   xrLight.directionalLight.castShadow = true
 
-  const xrState = getMutableState(XRState)
-  xrState.lightEstimator.set(xrLight)
-
   let previousEnvironment = Engine.instance.scene.environment
 
   xrLight.addEventListener('estimationstart', () => {
+    const xrState = getMutableState(XRState)
     if (xrState.sessionMode.value !== 'immersive-ar') return
     // Swap the default light out for the estimated one one we start getting some estimated values.
     Engine.instance.origin.add(xrLight)
@@ -36,20 +34,46 @@ export default async function XRLightProbeSystem() {
   })
 
   xrLight.addEventListener('estimationend', () => {
+    const xrState = getMutableState(XRState)
     if (xrState.sessionMode.value !== 'immersive-ar') return
     xrLight.removeFromParent()
     Engine.instance.scene.environment = previousEnvironment
     xrState.isEstimatingLight.set(false)
   })
 
-  const execute = () => {
-    if (EngineRenderer.instance.csm && xrState.isEstimatingLight.value) {
-      // maybe use -1 * pos
-      xrLight.directionalLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
-    }
+  const xrState = getMutableState(XRState)
+  xrState.lightEstimator.set(xrLight)
+}
+
+/**
+ * https://github.com/mrdoob/three.js/blob/master/examples/webxr_ar_lighting.html
+ */
+const execute = () => {
+  const xrState = getState(XRState)
+
+  // TODO initializeLight is implemented on threejs' impl and not on our custom WebXRManager
+  if (EngineRenderer.instance.renderer.xr && !xrState.lightEstimator) {
+    // initializeLight()
   }
 
-  const cleanup = async () => {}
-
-  return { execute, cleanup, subsystems: [] }
+  if (EngineRenderer.instance.csm && xrState.isEstimatingLight) {
+    // maybe use -1 * pos
+    xrState.lightEstimator.directionalLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
+  }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    return () => {
+      getMutableState(XRState).lightEstimator.set(null!)
+    }
+  }, [])
+
+  return null
+}
+
+export const XRLightProbeSystem = defineSystem({
+  uuid: 'ee.engine.XRLightProbeSystem',
+  execute,
+  reactor
+})

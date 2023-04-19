@@ -16,7 +16,8 @@ import { isDev } from '@etherealengine/common/src/config'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createEngine, initializeNode, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { initializeNode } from '@etherealengine/engine/src/initializeNode'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { Application } from '../declarations'
@@ -149,7 +150,6 @@ export const createFeathersExpressApp = (
   createEngine()
   getMutableState(EngineState).publicPath.set(config.client.dist)
   if (!appConfig.db.forceRefresh) {
-    setupEngineActionSystems()
     initializeNode()
   }
 

@@ -4,6 +4,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const VolumetricComponent = defineComponent({
   name: 'EE_volumetric',
+  jsonID: 'volumetric',
 
   onInit: (entity) => {
     return {
@@ -28,4 +29,3 @@ export const VolumetricComponent = defineComponent({
 })
 
 export const VolumetricsExtensions = ['drcs', 'uvol', 'manifest']
-export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'

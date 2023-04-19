@@ -29,11 +29,13 @@ import {
 } from 'three'
 
 import {
-  createActionQueue,
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   hookstate,
+  none,
   removeActionQueue,
   startReactor,
   State,
@@ -47,6 +49,7 @@ import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlug
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { SceneMetadata, SceneState } from '../ecs/classes/Scene'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
@@ -298,7 +301,7 @@ export class EngineRenderer {
 }
 
 export const DefaultRenderSettingsState = {
-  // LODs: { ...DEFAULT_LOD_DISTANCES },
+  // LODs: { ...DEFAULT_LOD_DISTANCES },{
   csm: true,
   toneMapping: LinearToneMapping as ToneMapping,
   toneMappingExposure: 0.8,
@@ -313,94 +316,99 @@ export const DefaultPostProcessingState = {
 export const RendererSceneMetadataLabel = 'renderSettings'
 export const PostProcessingSceneMetadataLabel = 'postprocessing'
 
-export const getRendererSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[RendererSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultRenderSettingsState>
-    >
-  ).data
-export const getPostProcessingSceneMetadataState = () =>
-  (
-    getMutableState(SceneState).sceneMetadataRegistry[PostProcessingSceneMetadataLabel] as State<
-      SceneMetadata<typeof DefaultPostProcessingState>
-    >
-  ).data
+export const RenderSettingsState = defineState({
+  name: 'RenderSettingsState',
+  initial: DefaultRenderSettingsState
+})
 
-export default async function WebGLRendererSystem() {
-  getMutableState(SceneState).sceneMetadataRegistry.merge({
-    [RendererSceneMetadataLabel]: {
-      data: _.cloneDeep(DefaultRenderSettingsState),
-      default: DefaultRenderSettingsState
-    },
-    [PostProcessingSceneMetadataLabel]: {
-      data: _.cloneDeep(DefaultPostProcessingState),
-      default: DefaultPostProcessingState
-    }
-  })
+export const PostProcessingSettingsState = defineState({
+  name: 'RenderSettingsState',
+  initial: DefaultPostProcessingState
+})
 
-  const rendererState = getMutableState(RendererState)
+/** @deprecated use getMutableState(RenderSettingsState) */
+export const getRendererSceneMetadataState = () => getMutableState(RenderSettingsState)
 
-  const reactor = startReactor(function RendererReactor() {
-    const renderSettings = useHookstate(getRendererSceneMetadataState())
-    const engineRendererSettings = useHookstate(rendererState)
-    const postprocessing = useHookstate(getPostProcessingSceneMetadataState())
-    const xrState = useHookstate(getMutableState(XRState))
+/** @deprecated use getMutableState(PostProcessingSettingsState) */
+export const getPostProcessingSceneMetadataState = () => getMutableState(PostProcessingSettingsState)
 
-    useEffect(() => {
-      EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
-    }, [renderSettings.toneMapping])
-
-    useEffect(() => {
-      EngineRenderer.instance.renderer.toneMappingExposure = renderSettings.toneMappingExposure.value
-    }, [renderSettings.toneMappingExposure])
-
-    useEffect(() => {
-      updateShadowMap()
-    }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
-
-    useEffect(() => {
-      configureEffectComposer()
-    }, [postprocessing, engineRendererSettings.usePostProcessing])
-
-    useEffect(() => {
-      EngineRenderer.instance.scaleFactor =
-        engineRendererSettings.qualityLevel.value / EngineRenderer.instance.maxQualityLevel
-      EngineRenderer.instance.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
-      EngineRenderer.instance.needsResize = true
-    }, [engineRendererSettings.qualityLevel])
-
-    useEffect(() => {
-      changeRenderMode()
-    }, [engineRendererSettings.renderMode])
-
-    useEffect(() => {
-      if (engineRendererSettings.debugEnable.value) Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
-      else Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
-    }, [engineRendererSettings.debugEnable])
-
-    useEffect(() => {
-      if (engineRendererSettings.gridVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
-      else Engine.instance.camera.layers.disable(ObjectLayers.Gizmos)
-    }, [engineRendererSettings.gridVisibility])
-
-    useEffect(() => {
-      if (engineRendererSettings.nodeHelperVisibility.value)
-        Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
-      else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
-    }, [engineRendererSettings.nodeHelperVisibility])
-
-    return null
-  })
-
-  const execute = () => {
-    EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
-  }
-
-  const cleanup = async () => {
-    await reactor.stop()
-  }
-
-  return { execute, cleanup }
+const execute = () => {
+  EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
 }
 
 globalThis.EngineRenderer = EngineRenderer
+
+const reactor = () => {
+  const renderSettings = useHookstate(getMutableState(RenderSettingsState))
+  const engineRendererSettings = useHookstate(getMutableState(RendererState))
+  const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
+  const xrState = useHookstate(getMutableState(XRState))
+
+  useEffect(() => {
+    getMutableState(SceneState).sceneMetadataRegistry.merge({
+      [RendererSceneMetadataLabel]: {
+        data: () => getState(RenderSettingsState),
+        default: DefaultRenderSettingsState
+      },
+      [PostProcessingSceneMetadataLabel]: {
+        data: () => getState(PostProcessingSettingsState),
+        default: DefaultPostProcessingState
+      }
+    })
+
+    return () => {
+      getMutableState(SceneState).sceneMetadataRegistry[RendererSceneMetadataLabel].set(none)
+      getMutableState(SceneState).sceneMetadataRegistry[PostProcessingSceneMetadataLabel].set(none)
+    }
+  }, [])
+
+  useEffect(() => {
+    EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
+  }, [renderSettings.toneMapping])
+
+  useEffect(() => {
+    EngineRenderer.instance.renderer.toneMappingExposure = renderSettings.toneMappingExposure.value
+  }, [renderSettings.toneMappingExposure])
+
+  useEffect(() => {
+    updateShadowMap()
+  }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
+
+  useEffect(() => {
+    configureEffectComposer()
+  }, [postprocessing, engineRendererSettings.usePostProcessing])
+
+  useEffect(() => {
+    EngineRenderer.instance.scaleFactor =
+      engineRendererSettings.qualityLevel.value / EngineRenderer.instance.maxQualityLevel
+    EngineRenderer.instance.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
+    EngineRenderer.instance.needsResize = true
+  }, [engineRendererSettings.qualityLevel])
+
+  useEffect(() => {
+    changeRenderMode()
+  }, [engineRendererSettings.renderMode])
+
+  useEffect(() => {
+    if (engineRendererSettings.debugEnable.value) Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
+    else Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
+  }, [engineRendererSettings.debugEnable])
+
+  useEffect(() => {
+    if (engineRendererSettings.gridVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
+    else Engine.instance.camera.layers.disable(ObjectLayers.Gizmos)
+  }, [engineRendererSettings.gridVisibility])
+
+  useEffect(() => {
+    if (engineRendererSettings.nodeHelperVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
+    else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
+  }, [engineRendererSettings.nodeHelperVisibility])
+
+  return null
+}
+
+export const WebGLRendererSystem = defineSystem({
+  uuid: 'ee.engine.WebGLRendererSystem',
+  execute,
+  reactor
+})

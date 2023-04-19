@@ -23,7 +23,8 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import {
   getPostProcessingSceneMetadataState,
-  PostProcessingSceneMetadataLabel
+  PostProcessingSceneMetadataLabel,
+  PostProcessingSettingsState
 } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -62,11 +63,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const selectedTab = useHookstate('general')
   const engineState = useHookstate(getMutableState(EngineState))
 
-  const postProcessingSceneMetadataState = getMutableState(SceneState).sceneMetadataRegistry[
-    PostProcessingSceneMetadataLabel
-  ]
-    ? getPostProcessingSceneMetadataState()
-    : undefined
+  const postProcessingSceneMetadataState = getMutableState(PostProcessingSettingsState)
   const postprocessingSettings = postProcessingSceneMetadataState?.enabled
     ? useHookstate(postProcessingSceneMetadataState.enabled)
     : { value: undefined }

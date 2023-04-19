@@ -12,7 +12,7 @@ import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectI
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createActionQueue, getState, startReactor } from '@etherealengine/hyperflux'
+import { defineActionQueue, getState, startReactor } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'

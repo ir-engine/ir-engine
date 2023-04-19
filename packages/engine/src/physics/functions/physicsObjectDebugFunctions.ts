@@ -27,6 +27,7 @@ import {
 import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { getEngineState } from '../../ecs/classes/EngineState'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
@@ -62,14 +63,15 @@ function getUUID() {
 }
 
 let simulationObjectsGenerated = false
-export default async function PhysicsSimulationTestSystem() {
-  return () => {
+export const PhysicsSimulationTestSystem = defineSystem({
+  uuid: 'ee.test.PhysicsSimulationTestSystem',
+  execute: () => {
     const isInitialized = getEngineState().isEngineInitialized.value
     if (!isInitialized || !Engine.instance.physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }
-}
+})
 
 export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,

@@ -1,10 +1,13 @@
+import { useEffect } from 'react'
 import { Euler, Texture } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PortalComponent } from '../components/PortalComponent'
 
 export const enterPortal = async (entity: Entity) => {
@@ -30,19 +33,17 @@ export const enterPortal = async (entity: Entity) => {
   }
 }
 
+const portalQuery = defineQuery([PortalComponent])
+
+const execute = () => {
+  if (!isClient) return
+  for (const entity of portalQuery.enter()) enterPortal(entity)
+}
+
 /**
  * Loads portal metadata once the models have been loaded. Depends on API calls.
  */
-export default async function PortalLoadSystem() {
-  const portalQuery = defineQuery([PortalComponent])
-
-  const execute = () => {
-    for (const entity of portalQuery.enter()) enterPortal(entity)
-  }
-
-  const cleanup = async () => {
-    removeQuery(portalQuery)
-  }
-
-  return { execute, cleanup }
-}
+export const PortalLoadSystem = defineSystem({
+  uuid: 'ee.engine.scene.PortalLoadSystem',
+  execute
+})

@@ -7,19 +7,11 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import UserUISystem from '@etherealengine/client-core/src/user/UserUISystem'
+import { UserUISystem } from '@etherealengine/client-core/src/user/UserUISystem'
 import { EditorPage } from '@etherealengine/editor/src/pages/EditorPage'
 import { ProjectPage } from '@etherealengine/editor/src/pages/ProjectPage'
-import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
-
-const SystemInjection = [
-  {
-    uuid: 'ee.client.core.UserUISystem',
-    type: SystemUpdateType.POST_RENDER,
-    systemLoader: () => Promise.resolve({ default: UserUISystem })
-  }
-]
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 
 const EditorProtectedRoutes = () => {
   const authState = useAuthState()
@@ -27,9 +19,7 @@ const EditorProtectedRoutes = () => {
   const user = authState.user
   const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
 
-  useEffect(() => {
-    initSystems(SystemInjection)
-  }, [])
+  useSystems([UserUISystem], { after: PresentationSystemGroup })
 
   useEffect(() => {
     if (user.scopes.value) {
