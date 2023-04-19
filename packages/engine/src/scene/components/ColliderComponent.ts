@@ -60,8 +60,10 @@ export const ColliderComponent = defineComponent({
 
     if (typeof json.bodyType === 'number') component.bodyType.set(json.bodyType)
     if (typeof json.shapeType === 'number') component.shapeType.set(json.shapeType)
-    if (typeof json.isTrigger === 'boolean') component.isTrigger.set(json.isTrigger)
-    if (typeof json.removeMesh === 'boolean') component.removeMesh.set(json.removeMesh)
+    if (typeof json.isTrigger === 'boolean' || typeof json.isTrigger === 'number')
+      component.isTrigger.set(Boolean(json.isTrigger))
+    if (typeof json.removeMesh === 'boolean' || typeof json.removeMesh === 'number')
+      component.removeMesh.set(Boolean(json.removeMesh))
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
