@@ -181,7 +181,6 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
   const shadowMaterial = useHookstate(shadowState)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const shadow = useComponent(entity, ShadowComponent)
-  const hasDropShadow = useOptionalComponent(entity, DropShadowComponent)
 
   useEffect(() => {
     if (
@@ -191,7 +190,7 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
       useShadows ||
       !groupComponent ||
       groupComponent.value.length === 0 ||
-      hasDropShadow?.value
+      hasComponent(entity, DropShadowComponent)
     )
       return
 
