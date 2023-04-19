@@ -42,10 +42,10 @@ export class Bot extends Service {
   async create(app: Application, data: CreateBotAsAdmin): Promise<AdminBotDataType> {
     // make it create bot pod with a specific name
     data.instanceId = data.instanceId ? data.instanceId : null
-    console.log(data)
     const result = await super.create(data)
-    const location = await app.service('location').get(result.locationId)
-    const locationName = location.name
+    //const location = await app.service('location').get(result.locationId)
+    //console.log(location)
+    const locationName = 'default'
     const botPod = await botk8s.createBotPod(result)
 
     const createBotParams = {
@@ -72,23 +72,17 @@ export class Bot extends Service {
       method: 'post',
       json: {}
     }
-
+    serverLogger.info('starting wait')
     const podName = botPod.metadata.name
-    let status = await botk8s.findBotPod(podName)[0].status
-
-    while (status !== 'Running' && status == 'Succeeded' && status !== 'Failed') {
-      await new Promise((resolve) => setTimeout(resolve, 10000))
-      serverLogger.info('checking if creation finished')
-      status = await botk8s.findBotPod(podName)[0].status
-    }
-
+    await botk8s.waitBotPodReady(podName)
+    serverLogger.info('calling API')
     const bot = await botk8s.callBotApi(createBotParams)
     await botk8s.callBotApi(connectBotParams)
     await botk8s.callBotApi(enterRoomBotParams)
     await botk8s.callBotApi(runBotParams)
     // might use a queue for this or use producer-consumer structure, excited :)
 
-    createBotCommands(this.app, result, data.command!) // should next design the bot-command class to work with existing actions in the bot_actions, file in ee-bot
+    //createBotCommands(this.app, result, data.command!) // should next design the bot-command class to work with existing actions in the bot_actions, file in ee-bot
     return result
   }
 
@@ -106,8 +100,8 @@ export class Bot extends Service {
       method: 'delete',
       json: {}
     }
-    //await botk8s.callBotApi(deleteBotParams)
-    //await botk8s.deleteBodPod({ id: id })
+    await botk8s.callBotApi(deleteBotParams)
+    await botk8s.deleteBodPod({ id: id })
     return super.remove(id)
   }
 }
