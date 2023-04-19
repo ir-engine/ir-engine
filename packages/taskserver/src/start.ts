@@ -6,6 +6,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 import collectAnalytics from './collect-analytics'
+import { getCronJobBody } from './cron-tempfile-deletion'
 
 const logger = multiLogger.child({ component: 'taskserver' })
 
@@ -21,6 +22,7 @@ export const start = async (): Promise<Application> => {
   app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
   app.set('port', config.server.port)
 
+  getCronJobBody
   collectAnalytics(app)
   logger.info('Task server running.')
 
