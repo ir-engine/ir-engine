@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
@@ -62,7 +62,7 @@ export interface ReactorProps {
   root: ReactorRoot
 }
 
-export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.store): ReactorRoot {
+export function startReactor(Reactor: FC<ReactorProps>, store = HyperFlux.store): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''

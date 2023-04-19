@@ -7,8 +7,10 @@ import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { defineConfig, loadEnv, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
+import { createHtmlPlugin } from 'vite-plugin-html'
 import PkgConfig from 'vite-plugin-package-config'
 
+import manifest from './manifest.default.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
 
@@ -153,6 +155,26 @@ export default defineConfig(async () => {
       mediapipe_workaround(),
       PkgConfig(),
       PWA(clientSetting),
+      createHtmlPlugin({
+        inject: {
+          data: {
+            ...manifest,
+            title: clientSetting.title || 'Ethereal Engine',
+            description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
+            short_name: clientSetting?.shortName || 'EE',
+            theme_color: clientSetting?.themeColor || '#ffffff',
+            background_color: clientSetting?.backgroundColor || '#000000',
+            appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
+            favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
+            favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
+            icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
+            icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
+            webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
+            swScriptLink: clientSetting.swscriptLink || process.env.APP_ENV === 'production' ? '/sw.js' : '',
+            paymentPointer: clientSetting.paymentPointer || ''
+          }
+        }
+      }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,
         algorithm: 'brotliCompress',
