@@ -8,6 +8,8 @@ import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerS
 
 import { getCronJobBody } from '/home/utsav/open/etherealengine/packages/taskserver/src/cron-tempfile-deletion'
 
+//replace path with @etherealengine/packages...
+
 dotenv.config({
   path: appRootPath.path,
   silent: true
