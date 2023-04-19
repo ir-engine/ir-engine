@@ -11,15 +11,12 @@ import { getMutableState, getState, none, useHookstate } from '@etherealengine/h
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { AudioState } from '../../audio/AudioState'
-import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
+import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
-  getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
@@ -135,6 +132,7 @@ export const MediaElementComponent = defineComponent({
 
 export const MediaComponent = defineComponent({
   name: 'EE_media',
+  jsonID: 'media',
 
   onInit: (entity) => {
     return {
@@ -439,8 +437,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
 
   return null
 }
-
-export const SCENE_COMPONENT_MEDIA = 'media'
 
 export const setupHLS = (entity: Entity, url: string): Hls => {
   const hls = new Hls()

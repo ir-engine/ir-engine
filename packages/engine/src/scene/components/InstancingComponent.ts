@@ -114,6 +114,7 @@ export type InstancingComponentType = {
 
 export const InstancingComponent = defineComponent({
   name: 'InstancingComponent',
+  jsonID: 'instancing',
 
   onInit: (entity) => {
     return {

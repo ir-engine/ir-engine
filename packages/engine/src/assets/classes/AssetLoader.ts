@@ -257,7 +257,7 @@ const ktx2Loader = () => ({
     ktxLoader.load(
       src,
       (texture) => {
-        console.log('KTX2Loader loaded texture', texture)
+        // console.log('KTX2Loader loaded texture', texture)
         texture.source.data.src = src
         onLoad(texture)
       },

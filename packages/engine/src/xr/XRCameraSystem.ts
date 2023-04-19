@@ -1,14 +1,16 @@
 import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three'
 
-import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { XRSystem } from './XRSystem'
 
 const cameraLPos = new Vector3()
 const cameraRPos = new Vector3()
@@ -220,24 +222,21 @@ export function updateXRCamera() {
   updateProjectionFromCameraArrayUnion(camera)
 }
 
-export default async function XRCameraSystem() {
-  const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
-  const xrState = getMutableState(XRState)
+const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
-  const execute = () => {
-    for (const action of xrSessionChangedQueue()) {
-      if (!action.active) {
-        _currentDepthNear = null
-        _currentDepthFar = null
-      }
+const execute = () => {
+  for (const action of xrSessionChangedQueue()) {
+    if (!action.active) {
+      _currentDepthNear = null
+      _currentDepthFar = null
     }
-
-    xrState.viewerPose.set(
-      ReferenceSpace.localFloor && Engine.instance.xrFrame?.getViewerPose(ReferenceSpace.localFloor)
-    )
   }
 
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+  const xrState = getMutableState(XRState)
+  xrState.viewerPose.set(ReferenceSpace.localFloor && Engine.instance.xrFrame?.getViewerPose(ReferenceSpace.localFloor))
 }
+
+export const XRCameraSystem = defineSystem({
+  uuid: 'ee.engine.XRCameraSystem',
+  execute
+})

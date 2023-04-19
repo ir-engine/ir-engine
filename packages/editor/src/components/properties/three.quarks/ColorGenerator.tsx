@@ -12,9 +12,14 @@ import {
   RandomColorJSON
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import Typography from '@etherealengine/ui/src/Typography'
 
+import { Grid } from '@mui/material'
+
+import { Button } from '../../inputs/Button'
 import ColorInput from '../../inputs/ColorInput'
 import InputGroup from '../../inputs/InputGroup'
+import NumericInput from '../../inputs/NumericInput'
 import NumericInputGroup from '../../inputs/NumericInputGroup'
 import SelectInput from '../../inputs/SelectInput'
 
@@ -92,6 +97,90 @@ export default function ColorGenerator({
             <ColorJSONInput value={value.b} onChange={onChange('b')} />
           </InputGroup>
         </>
+      )}
+      {value.type === 'Gradient' && (
+        <div>
+          <Button
+            onClick={() => {
+              const gradientState = scope as State<ColorGradientJSON>
+              gradientState.functions.set([
+                ...JSON.parse(JSON.stringify(value.functions)),
+                {
+                  start: 0,
+                  function: {
+                    type: 'ColorRange',
+                    a: { r: 1, g: 1, b: 1, a: 1 },
+                    b: { r: 1, g: 1, b: 1, a: 1 }
+                  }
+                }
+              ])
+            }}
+          >
+            +
+          </Button>
+
+          {value.functions.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                border: '1px solid white',
+                borderRadius: '0.5rem',
+                margin: '1rem',
+                padding: '1.5rem',
+                overflow: 'auto'
+              }}
+            >
+              <Grid
+                container
+                spacing={1}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Grid item xs={2}>
+                  <Typography>Start</Typography>
+                </Grid>
+                <Grid item xs={10}>
+                  <NumericInput
+                    value={item.start}
+                    onChange={(start) => {
+                      const gradientState = scope as State<ColorGradientJSON>
+                      gradientState.functions[index].start.set(start)
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography>A</Typography>
+                </Grid>
+                <Grid item xs={10}>
+                  <ColorJSONInput
+                    value={item.function.a}
+                    onChange={(color) => {
+                      const gradientState = scope as State<ColorGradientJSON>
+                      gradientState.functions[index].function.a.set(color)
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography>B</Typography>
+                </Grid>
+                <Grid item xs={10}>
+                  <ColorJSONInput
+                    value={item.function.b}
+                    onChange={(color) => {
+                      const gradientState = scope as State<ColorGradientJSON>
+                      gradientState.functions[index].function.b.set(color)
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   )

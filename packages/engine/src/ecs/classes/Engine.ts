@@ -29,7 +29,6 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { ButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
-import { SerializationSchema } from '../../networking/serialization/Utils'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -53,8 +52,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
-import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { disableAllSystems, SystemUUID } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -110,7 +108,8 @@ export class Engine {
     },
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => Date.now(),
-    defaultDispatchDelay: 1 / this.tickRate
+    defaultDispatchDelay: 1 / this.tickRate,
+    getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)
   }) as HyperStore
 
   /**
@@ -258,38 +257,20 @@ export class Engine {
   // @todo move to EngineState
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
-  /**
-   * Custom systems injected into this world
-   */
-  pipelines = {
-    [SystemUpdateType.UPDATE_EARLY]: [],
-    [SystemUpdateType.UPDATE]: [],
-    [SystemUpdateType.FIXED_EARLY]: [],
-    [SystemUpdateType.FIXED]: [],
-    [SystemUpdateType.FIXED_LATE]: [],
-    [SystemUpdateType.UPDATE_LATE]: [],
-    [SystemUpdateType.PRE_RENDER]: [],
-    [SystemUpdateType.RENDER]: [],
-    [SystemUpdateType.POST_RENDER]: []
-  } as { [pipeline: string]: SystemInstance[] }
+  systemGroups = {} as {
+    input: SystemUUID
+    simulation: SystemUUID
+    presentation: SystemUUID
+  }
 
-  systemsByUUID = {} as Record<string, SystemInstance>
+  activeSystems = new Set<SystemUUID>()
+  currentSystemUUID = '__null__' as SystemUUID
+  activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
 
   /**
    * Network object query
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
-
-  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use EE_ extension names*/
-
-  /**
-   * Registry map of scene loader components
-   * @todo replace with a Set once SceneLoaderType is removed
-   * */
-  sceneLoadingRegistry = new Map<string, SceneLoaderType>()
-
-  /** Scene component of scene loader components  */
-  sceneComponentRegistry = new Map<string, string>()
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()
@@ -379,7 +360,7 @@ export async function destroyEngine() {
   }
 
   /** Unload and clean up all systems */
-  await unloadAllSystems()
+  await disableAllSystems()
 
   const activeReactors = [] as Promise<void>[]
 

@@ -1,5 +1,8 @@
+import { useEffect } from 'react'
+
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'
@@ -231,27 +234,35 @@ export function updateGamepadInput(source: XRInputSource) {
   }
 }
 
-export default async function ClientInputSystem() {
-  addClientInputListeners()
-  Engine.instance.pointerScreenRaycaster.layers.enableAll()
+const execute = () => {
+  for (const source of Engine.instance.inputSources) updateGamepadInput(source)
 
-  const execute = () => {
-    for (const source of Engine.instance.inputSources) updateGamepadInput(source)
+  Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
 
-    Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
+  Engine.instance.pointerState.movement.subVectors(
+    Engine.instance.pointerState.position,
+    Engine.instance.pointerState.lastPosition
+  )
+  Engine.instance.pointerState.lastPosition.copy(Engine.instance.pointerState.position)
 
-    Engine.instance.pointerState.movement.subVectors(
-      Engine.instance.pointerState.position,
-      Engine.instance.pointerState.lastPosition
-    )
-    Engine.instance.pointerState.lastPosition.copy(Engine.instance.pointerState.position)
-
-    Engine.instance.pointerState.lastScroll.copy(Engine.instance.pointerState.scroll)
-  }
-
-  const cleanup = async () => {
-    removeClientInputListeners()
-  }
-
-  return { execute, cleanup }
+  Engine.instance.pointerState.lastScroll.copy(Engine.instance.pointerState.scroll)
 }
+
+const reactor = () => {
+  useEffect(() => {
+    addClientInputListeners()
+    Engine.instance.pointerScreenRaycaster.layers.enableAll()
+
+    return () => {
+      removeClientInputListeners()
+    }
+  }, [])
+
+  return null
+}
+
+export const ClientInputSystem = defineSystem({
+  uuid: 'ee.engine.input.ClientInputSystem',
+  execute,
+  reactor
+})

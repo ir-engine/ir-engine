@@ -176,7 +176,7 @@ export default defineConfig(async () => {
         warnOnError: true
       },
       rollupOptions: {
-        external: ['dotenv-flow', 'fs'],
+        external: ['dotenv-flow'],
         output: {
           dir: 'dist',
           format: 'es'

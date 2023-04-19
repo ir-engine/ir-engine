@@ -1,7 +1,7 @@
 import { t } from 'i18next'
 import React from 'react'
 
-import { getCameraSceneMetadataState } from '@etherealengine/engine/src/camera/systems/CameraSystem'
+import { getCameraSceneMetadataState } from '@etherealengine/engine/src/camera/CameraSceneMetadata'
 import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
 import { ProjectionType } from '@etherealengine/engine/src/camera/types/ProjectionType'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'

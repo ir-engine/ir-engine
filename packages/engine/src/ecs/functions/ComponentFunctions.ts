@@ -22,7 +22,9 @@ export const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 :
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()
+export const ComponentJSONIDMap = new Map<string, Component<any, any, any>>() // <jsonID, Component>
 globalThis.ComponentMap = ComponentMap
+globalThis.ComponentJSONIDMap = ComponentJSONIDMap
 
 type PartialIfObject<T> = T extends object ? Partial<T> : T
 
@@ -41,6 +43,7 @@ export interface ComponentPartial<
   ErrorTypes = never
 > {
   name: string
+  jsonID?: string
   schema?: Schema
   onInit?: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
@@ -58,6 +61,7 @@ export interface Component<
 > {
   isComponent: true
   name: string
+  jsonID?: string
   schema?: Schema
   onInit: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
@@ -106,6 +110,7 @@ export const defineComponent = <
   Component.existenceMap = createExistenceMap()
   Component.stateMap = {}
   Component.valueMap = {}
+  if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
   ComponentMap.set(Component.name, Component)
   return Component
 }
@@ -258,6 +263,7 @@ export const updateComponent = <C extends Component>(
  * @param Component
  * @param args
  * @returns
+ * @deprecated - use setComponent instead
  */
 export const addComponent = <C extends Component>(
   entity: Entity,
@@ -336,9 +342,24 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   const query = bitECS.defineQuery([...components, bitECS.Not(EntityRemovedComponent)]) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
-  const wrappedQuery = () => query(Engine.instance) as Entity[]
-  wrappedQuery.enter = () => enterQuery(Engine.instance) as Entity[]
-  wrappedQuery.exit = () => exitQuery(Engine.instance) as Entity[]
+
+  const _remove = () => bitECS.removeQuery(Engine.instance, wrappedQuery._query)
+  const _removeEnter = () => bitECS.removeQuery(Engine.instance, wrappedQuery._enterQuery)
+  const _removeExit = () => bitECS.removeQuery(Engine.instance, wrappedQuery._exitQuery)
+
+  const wrappedQuery = () => {
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_remove)
+    return query(Engine.instance) as Entity[]
+  }
+  wrappedQuery.enter = () => {
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
+    return enterQuery(Engine.instance) as Entity[]
+  }
+  wrappedQuery.exit = () => {
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
+    return exitQuery(Engine.instance) as Entity[]
+  }
+
   wrappedQuery._query = query
   wrappedQuery._enterQuery = enterQuery
   wrappedQuery._exitQuery = exitQuery
