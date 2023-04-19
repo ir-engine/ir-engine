@@ -54,7 +54,6 @@
     "@kubernetes/client-node": "0.18.1",
     "@swc/core": "^1.3.41",
     "@types/koa-compress": "^4.0.3",
-    "aws-sdk": "2.1339.0",
     "cli": "1.0.1",
     "cross-env": "7.0.3",
     "feathers-sync": "3.0.2",
