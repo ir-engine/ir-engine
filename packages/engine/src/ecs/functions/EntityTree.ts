@@ -159,6 +159,7 @@ export function initializeSceneEntity(): void {
   getMutableState(SceneState).sceneEntity.set(sceneEntity as any)
   setComponent(sceneEntity, NameComponent, 'scene')
   setComponent(sceneEntity, VisibleComponent, true)
+  setComponent(sceneEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
   setComponent(sceneEntity, SceneTagComponent, true)
   setTransformComponent(sceneEntity)
   setComponent(sceneEntity, EntityTreeComponent, { parentEntity: null })
@@ -201,7 +202,8 @@ export function addEntityNodeChild(
     !hasComponent(entity, EntityTreeComponent) ||
     parentEntity !== getComponent(entity, EntityTreeComponent).parentEntity
   ) {
-    setComponent(entity, EntityTreeComponent, { parentEntity, uuid })
+    setComponent(entity, EntityTreeComponent, { parentEntity })
+    setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
   }
 
   const parentTransform = getComponent(parentEntity, TransformComponent)

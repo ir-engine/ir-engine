@@ -13,6 +13,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
+  jsonID: 'scene-preview-camera',
 
   onInit: (entity) => {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
@@ -58,5 +59,3 @@ export const ScenePreviewCameraComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_SCENE_PREVIEW_CAMERA = 'scene-preview-camera'

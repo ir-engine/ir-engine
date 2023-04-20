@@ -3,6 +3,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
+  jsonID: 'shadow',
 
   onInit: (entity) => {
     return {
@@ -24,9 +25,3 @@ export const ShadowComponent = defineComponent({
     if (matches.boolean.test(json.receive)) component.receive.set(json.receive)
   }
 })
-
-export const SCENE_COMPONENT_SHADOW = 'shadow'
-export const SCENE_COMPONENT_SHADOW_DEFAULT_VALUES = {
-  cast: true,
-  receive: true
-}

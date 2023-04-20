@@ -2,6 +2,7 @@ import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { Action, clearOutgoingActions, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { Network } from '../classes/Network'
 import { MessageTypes } from '../enums/MessageTypes'
 import { WorldState } from '../interfaces/WorldState'
@@ -78,12 +79,11 @@ export const sendOutgoingActions = () => {
   }
 }
 
-export default function OutgoingActionSystem() {
-  const execute = () => {
-    sendOutgoingActions()
-  }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+const execute = () => {
+  sendOutgoingActions()
 }
+
+export const OutgoingActionSystem = defineSystem({
+  uuid: 'ee.engine.OutgoingActionSystem',
+  execute
+})

@@ -42,7 +42,12 @@ export const createPriorityQueue = (args: { accumulationBudget: number }) => {
       totalAccumulation = 0
     },
     priorityEntities: priorityEntities as ReadonlySet<Entity>,
-    accumulationBudget: args.accumulationBudget
+    accumulationBudget: args.accumulationBudget,
+    reset: () => {
+      totalAccumulation = 0
+      accumulatingPriorities.clear()
+      priorityEntities.clear()
+    }
   }
 
   return queue

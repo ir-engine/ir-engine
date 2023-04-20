@@ -17,7 +17,6 @@ import { Physics } from '../../physics/classes/Physics'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
-import WorldNetworkActionSystem from '../systems/WorldNetworkActionSystem'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 import { WorldNetworkAction } from './WorldNetworkAction'
 import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
@@ -238,7 +237,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
       assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), true)
 
-      const transferAuthorityOfObjectQueue = ActionFunctions.createActionQueue(
+      const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
         WorldNetworkAction.transferAuthorityOfObject.matches
       )
 
@@ -311,7 +310,7 @@ describe('WorldNetworkActionReceptors', () => {
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
     assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), false)
 
-    const transferAuthorityOfObjectQueue = ActionFunctions.createActionQueue(
+    const transferAuthorityOfObjectQueue = ActionFunctions.defineActionQueue(
       WorldNetworkAction.transferAuthorityOfObject.matches
     )
 

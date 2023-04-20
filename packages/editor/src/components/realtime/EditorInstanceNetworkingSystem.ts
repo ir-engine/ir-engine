@@ -1,38 +1,47 @@
+import { useEffect } from 'react'
+
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { addActionReceptor, getMutableState, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { EditorState } from '../../services/EditorServices'
 import { EditorActiveInstanceService, EditorActiveInstanceServiceReceptor } from './EditorActiveInstanceService'
 
-export default async function EditorInstanceNetworkingSystem() {
-  getMutableState(NetworkState).config.set({
-    world: true,
-    media: false,
-    friends: false,
-    instanceID: false,
-    roomID: false
-  })
+let accumulator = 0
 
-  addActionReceptor(EditorActiveInstanceServiceReceptor)
-
+const execute = () => {
   const editorState = getState(EditorState)
+  accumulator += Engine.instance.deltaSeconds
 
-  let accumulator = 0
-
-  const execute = () => {
-    accumulator += Engine.instance.deltaSeconds
-
-    if (accumulator > 5) {
-      accumulator = 0
-      const sceneId = `${editorState.projectName}/${editorState.sceneName}`
-      EditorActiveInstanceService.getActiveInstances(sceneId)
-    }
+  if (accumulator > 5) {
+    accumulator = 0
+    const sceneId = `${editorState.projectName}/${editorState.sceneName}`
+    EditorActiveInstanceService.getActiveInstances(sceneId)
   }
-
-  const cleanup = async () => {
-    removeActionReceptor(EditorActiveInstanceServiceReceptor)
-  }
-
-  return { execute, cleanup }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    getMutableState(NetworkState).config.set({
+      world: true,
+      media: false,
+      friends: false,
+      instanceID: false,
+      roomID: false
+    })
+
+    addActionReceptor(EditorActiveInstanceServiceReceptor)
+
+    return () => {
+      removeActionReceptor(EditorActiveInstanceServiceReceptor)
+    }
+  }, [])
+  return null
+}
+
+export const EditorInstanceNetworkingSystem = defineSystem({
+  uuid: 'ee.editor.EditorInstanceNetworkingSystem',
+  execute,
+  reactor
+})

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC, memo } from 'react'
 import { Camera, Material, Mesh, Object3D } from 'three'
 
 import { none } from '@etherealengine/hyperflux'
@@ -14,16 +14,16 @@ import {
   hasComponent,
   QueryComponents,
   removeComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
+import { createQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
+  jsonID: 'group',
 
   onInit: (entity: Entity) => {
     return [] as Object3DWithEntity[]
@@ -32,14 +32,15 @@ export const GroupComponent = defineComponent({
   onRemove: (entity, component) => {
     for (const obj of component.value) {
       obj.removeFromParent()
-      obj.traverse((mesh: Mesh) => {
-        if (Array.isArray(mesh.material)) {
-          mesh.material.forEach((material: Material) => material.dispose())
-        } else {
-          mesh.material?.dispose()
-        }
-        mesh.geometry?.dispose()
-      })
+      // obj.traverse((mesh: Mesh) => {
+      //   if (Array.isArray(mesh.material)) {
+      //     mesh.material.forEach((material: Material) => material.dispose())
+      //   } else {
+      //     mesh.material?.dispose()
+      //   }
+      //   mesh.geometry?.dispose()
+      // })
+      // TODO: only dispose geometries/materials when no other entities are using them...
     }
   }
 })
@@ -93,26 +94,26 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   object.removeFromParent()
 }
 
-export const SCENE_COMPONENT_GROUP = 'group'
-
 export type GroupReactorProps<C extends QueryComponents> = {
   entity: Entity<C>
   obj: Object3DWithEntity
 }
 
-export function startGroupQueryReactor<QC extends QueryComponents>(
-  GroupChildReactor: React.FC<GroupReactorProps<[typeof GroupComponent, ...QC]>>,
+export const createGroupQueryReactor = <QC extends QueryComponents>(
+  GroupChildReactor: FC<GroupReactorProps<[typeof GroupComponent, ...QC]>>,
   Components: QC
-) {
-  startQueryReactor(
+) => {
+  const MemoGroupChildReactor = memo(GroupChildReactor)
+  return createQueryReactor(
     [GroupComponent, ...Components] as [typeof GroupComponent, ...QC],
     function GroupQueryReactor(props) {
       const entity = props.root.entity
+
       const groupComponent = useComponent(entity as any, GroupComponent)
       return (
         <>
           {groupComponent.value.map((obj, i) => (
-            <GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+            <MemoGroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
           ))}
         </>
       )

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import React from 'react'
 import {
   Color,
   DoubleSide,
@@ -11,9 +12,10 @@ import {
   MeshStandardMaterial
 } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
 
-import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
+import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
+import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -26,19 +28,20 @@ import {
   removeQuery,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../components/GroupComponent'
+import { createGroupQueryReactor, GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import EnvironmentSystem from './EnvironmentSystem'
-import FogSystem from './FogSystem'
-import ShadowSystem from './ShadowSystem'
+import { EnvironmentSystem } from './EnvironmentSystem'
+import { FogSystem } from './FogSystem'
+import { ShadowSystem } from './ShadowSystem'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
@@ -85,93 +88,83 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
   })
 }
 
-export default async function SceneObjectSystem() {
-  if (isNode) {
-    await loadDRACODecoder()
-  }
+const groupQuery = defineQuery([GroupComponent])
+const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  const groupQuery = defineQuery([GroupComponent])
-  const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
+function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
+  const { entity, obj } = props
 
-  function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
-    const { entity, obj } = props
+  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
+  const forceBasicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
 
-    const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-    const forceBasicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
-
-    useEffect(() => {
-      return () => {
-        const layers = Object.values(Engine.instance.objectLayerList)
-        for (const layer of layers) {
-          if (layer.has(obj)) layer.delete(obj)
-        }
+  useEffect(() => {
+    return () => {
+      const layers = Object.values(Engine.instance.objectLayerList)
+      for (const layer of layers) {
+        if (layer.has(obj)) layer.delete(obj)
       }
-    }, [])
-
-    useEffect(() => {
-      setupObject(obj, forceBasicMaterials.value)
-    }, [forceBasicMaterials])
-
-    useEffect(() => {
-      const shadow = shadowComponent?.value
-      obj.traverse((child: Mesh<any, Material>) => {
-        if (!child.isMesh) return
-        child.castShadow = !!shadow?.cast
-        child.receiveShadow = !!shadow?.receive
-        if (child.material && child.receiveShadow) {
-          /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
-          EngineRenderer.instance.csm?.setupMaterial(child)
-        }
-      })
-    }, [shadowComponent])
-
-    return null
-  }
-
-  /**
-   * Group Reactor - responds to any changes in the
-   */
-  const groupReactor = startGroupQueryReactor(SceneObjectReactor)
-
-  const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
-
-  const execute = () => {
-    const delta = getMutableState(EngineState).deltaSeconds.value
-    for (const entity of updatableQuery()) {
-      const callbacks = getComponent(entity, CallbackComponent)
-      callbacks.get(UpdatableCallback)?.(delta)
     }
+  }, [])
 
-    for (const entity of groupQuery()) {
-      const group = getComponent(entity, GroupComponent)
-      /**
-       * do frustum culling here, but only if the object is more than 5 units away
-       */
-      const visible =
-        hasComponent(entity, VisibleComponent) &&
-        !(
-          FrustumCullCameraComponent.isCulled[entity] &&
-          DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
-        )
-      for (const obj of group) obj.visible = visible
-    }
+  useEffect(() => {
+    setupObject(obj, forceBasicMaterials.value)
+  }, [forceBasicMaterials])
+
+  useEffect(() => {
+    const shadow = shadowComponent?.value
+    obj.traverse((child: Mesh<any, Material>) => {
+      if (!child.isMesh) return
+      child.castShadow = !!shadow?.cast
+      child.receiveShadow = !!shadow?.receive
+      if (child.material && child.receiveShadow) {
+        /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
+        EngineRenderer.instance.csm?.setupMaterial(child)
+      }
+    })
+  }, [shadowComponent])
+
+  return null
+}
+
+/**
+ * Group Reactor - responds to any changes in the
+ */
+const GroupReactor = createGroupQueryReactor(SceneObjectReactor)
+
+const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
+
+const execute = () => {
+  const delta = getMutableState(EngineState).deltaSeconds.value
+  for (const entity of updatableQuery()) {
+    const callbacks = getComponent(entity, CallbackComponent)
+    callbacks.get(UpdatableCallback)?.(delta)
   }
 
-  const cleanup = async () => {
-    removeQuery(groupQuery)
-    removeQuery(updatableQuery)
-    await groupReactor.stop()
-  }
-
-  const subsystems = [
-    () => Promise.resolve({ default: FogSystem }),
-    () => Promise.resolve({ default: EnvironmentSystem })
-  ]
-  if (isClient) subsystems.push(() => Promise.resolve({ default: ShadowSystem }))
-
-  return {
-    execute,
-    cleanup,
-    subsystems
+  for (const entity of groupQuery()) {
+    const group = getComponent(entity, GroupComponent)
+    /**
+     * do frustum culling here, but only if the object is more than 5 units away
+     */
+    const visible =
+      hasComponent(entity, VisibleComponent) &&
+      !(
+        FrustumCullCameraComponent.isCulled[entity] &&
+        DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
+      )
+    for (const obj of group) obj.visible = visible
   }
 }
+
+const reactor = ({ root }: ReactorProps) => {
+  useEffect(() => {
+    Engine.instance.gltfLoader = createGLTFLoader()
+  }, [])
+  return <GroupReactor root={root} />
+}
+
+export const SceneObjectSystem = defineSystem({
+  uuid: 'ee.engine.SceneObjectSystem',
+  execute,
+  reactor,
+  subSystems: isClient ? [FogSystem, EnvironmentSystem, ShadowSystem] : []
+})
