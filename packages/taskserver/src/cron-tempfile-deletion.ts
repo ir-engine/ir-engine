@@ -2,8 +2,6 @@ import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectI
 
 export const getCronJobBody = (project: ProjectInterface, image: string): object => {
   return {
-    apiVersion: 'cronjob-2',
-    kind: 'CronJob-tempfile-deletion',
     metadata: {
       name: `${process.env.RELEASE_NAME}`,
       labels: {
