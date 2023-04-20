@@ -1,5 +1,5 @@
 import { command } from 'cli'
-import { Euler, Material, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -203,6 +203,7 @@ const createObjectFromPrefab = (
     }
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
+  setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
 
   createNewEditorNode(newEntity, prefab)
 

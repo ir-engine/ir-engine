@@ -10,10 +10,11 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
@@ -72,6 +73,7 @@ const WarningSystemXRUI = function () {
           borderRadius: '20px',
           padding: '12px'
         }}
+        onClick={onClose}
       >
         <div
           xr-layer="true"
@@ -86,7 +88,7 @@ const WarningSystemXRUI = function () {
           <div xr-layer="true" className={'font-size 24px'} style={{ fontSize: '24px' }}>
             {title}
           </div>
-          <IconButton
+          {/* <IconButton
             xr-layer="true"
             aria-label="close"
             className={'bg lightgrey'}
@@ -94,7 +96,7 @@ const WarningSystemXRUI = function () {
             onClick={onClose}
             size="large"
             icon={<Icon type="Close" />}
-          />
+          /> */}
         </div>
         <div xr-layer="true" className={'font-size 16px center'} style={{ fontSize: '16px', textAlign: 'center' }}>
           {body}
@@ -114,79 +116,97 @@ const WarningSystemXRUI = function () {
   )
 }
 
-export default async function WarningUISystem() {
-  const transitionPeriodSeconds = 0.2
-  const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
+export const WarningUISystemState = defineState({
+  name: 'WarningUISystemState',
+  initial: () => {
+    const transitionPeriodSeconds = 0.2
+    const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
 
-  const ui = createXRUI(WarningSystemXRUI)
-  removeComponent(ui.entity, VisibleComponent)
+    const ui = createXRUI(WarningSystemXRUI)
+    removeComponent(ui.entity, VisibleComponent)
+    addComponent(ui.entity, NameComponent, 'Warning XRUI')
+    setComponent(ui.entity, XRUIInteractableComponent)
 
-  const reactor = startReactor(function () {
-    const state = useHookstate(getMutableState(WarningUIState))
+    return {
+      ui,
+      transition
+    }
+  }
+})
 
-    useEffect(() => {
-      if (state.open.value) {
-        transition.setState('IN')
-      } else {
-        transition.setState('OUT')
-      }
-    }, [state.open])
+function TransitionReactor() {
+  const state = useHookstate(getMutableState(WarningUIState))
 
-    return null
-  })
+  useEffect(() => {
+    if (state.open.value) {
+      getState(WarningUISystemState).transition.setState('IN')
+    } else {
+      getState(WarningUISystemState).transition.setState('OUT')
+    }
+  }, [state.open])
 
+  return null
+}
+
+let accumulator = 0
+
+const execute = () => {
   const state = getState(WarningUIState)
+  const { transition, ui } = getState(WarningUISystemState)
 
-  addComponent(ui.entity, NameComponent, 'Warning XRUI')
-
-  let accumulator = 0
-
-  const execute = () => {
-    if (state.timeRemaining > 0) {
-      accumulator += Engine.instance.deltaSeconds
-      if (state.open && accumulator > 1) {
-        const timeRemaining = Math.max(0, state.timeRemaining - 1)
-        getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
-        if (timeRemaining === 0) {
-          const action = state.action
-          if (action) action()
-          WarningUIService.closeWarning()
-        }
-        accumulator = 0
+  if (state.timeRemaining > 0) {
+    accumulator += Engine.instance.deltaSeconds
+    if (state.open && accumulator > 1) {
+      const timeRemaining = Math.max(0, state.timeRemaining - 1)
+      getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
+      if (timeRemaining === 0) {
+        const action = state.action
+        if (action) action()
+        WarningUIService.closeWarning()
       }
+      accumulator = 0
     }
+  }
 
-    if (transition.state === 'OUT' && transition.alpha === 0) {
-      removeComponent(ui.entity, ComputedTransformComponent)
-      return
-    }
+  if (transition.state === 'OUT' && transition.alpha === 0) {
+    removeComponent(ui.entity, ComputedTransformComponent)
+    return
+  }
 
-    const xrui = getComponent(ui.entity, XRUIComponent)
+  const xrui = getComponent(ui.entity, XRUIComponent)
 
-    if (transition.state === 'IN') {
-      setComponent(ui.entity, ComputedTransformComponent, {
-        referenceEntity: Engine.instance.cameraEntity,
-        computeFunction: () => {
-          ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, 0.3, 0.2)
-        }
-      })
-    }
-
-    transition.update(Engine.instance.deltaSeconds, (opacity) => {
-      xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-        const mat = layer.contentMesh.material as MeshBasicMaterial
-        mat.opacity = opacity
-        mat.visible = opacity > 0
-        layer.visible = opacity > 0
-      })
-      setVisibleComponent(ui.entity, opacity > 0)
+  if (transition.state === 'IN') {
+    setComponent(ui.entity, ComputedTransformComponent, {
+      referenceEntity: Engine.instance.cameraEntity,
+      computeFunction: () => {
+        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, 0.3, 0.2)
+      }
     })
   }
 
-  const cleanup = async () => {
-    removeEntity(ui.entity)
-    await reactor.stop()
-  }
-
-  return { execute, cleanup }
+  transition.update(Engine.instance.deltaSeconds, (opacity) => {
+    xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+      const mat = layer.contentMesh.material as MeshBasicMaterial
+      mat.opacity = opacity
+      mat.visible = opacity > 0
+      layer.visible = opacity > 0
+    })
+    setVisibleComponent(ui.entity, opacity > 0)
+  })
 }
+
+const reactor = () => {
+  useEffect(() => {
+    return () => {
+      const ui = getState(WarningUISystemState).ui
+      removeEntity(ui.entity)
+    }
+  }, [])
+  return <TransitionReactor />
+}
+
+export const WarningUISystem = defineSystem({
+  uuid: 'ee.client.WarningUISystem',
+  execute,
+  reactor
+})

@@ -20,6 +20,8 @@ import { AvatarAnimationComponent } from './AvatarAnimationComponent'
 
 export const LoopAnimationComponent = defineComponent({
   name: 'LoopAnimationComponent',
+  jsonID: 'loop-animation',
+
   onInit: (entity) => {
     return {
       activeClipIndex: -1,
@@ -123,8 +125,6 @@ export const LoopAnimationComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
 
 export const playAnimationClip = (
   animationComponent: ComponentType<typeof AnimationComponent>,

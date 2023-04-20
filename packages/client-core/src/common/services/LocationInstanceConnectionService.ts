@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@hookstate/core'
+import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
@@ -52,6 +52,12 @@ export const LocationInstanceState = defineState({
     instances: {} as { [id: string]: InstanceState }
   })
 })
+
+export function useWorldNetwork() {
+  const worldNetworkState = useState(getMutableState(NetworkState).networks)
+  const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
+  return worldHostId.value ? (worldNetworkState[worldHostId.value] as State<SocketWebRTCClientNetwork>) : null
+}
 
 export function useWorldInstance() {
   const worldInstanceState = useState(getMutableState(LocationInstanceState).instances)

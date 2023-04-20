@@ -11,8 +11,8 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
+import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
@@ -66,8 +66,9 @@ const WidgetButtons = () => {
 
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
   const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
-  const mediastream = useMediaStreamState()
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
+
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
 
   // TODO: add a notification hint function to the widget wrapper and move unread messages there
   // useEffect(() => {
@@ -123,9 +124,9 @@ const WidgetButtons = () => {
         <WidgetButton icon="Refresh" toggle={handleRespawnAvatar} label={'Respawn'} />
         {mediaInstanceState?.value && (
           <WidgetButton
-            icon={isCamAudioEnabled.value ? 'Mic' : 'MicOff'}
+            icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}
             toggle={toggleMicrophonePaused}
-            label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
+            label={isCamAudioEnabled ? 'Audio on' : 'Audio Off'}
           />
         )}
         {/* <WidgetButton

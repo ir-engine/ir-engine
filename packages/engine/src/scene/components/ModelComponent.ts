@@ -3,8 +3,10 @@ import { Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
@@ -14,7 +16,8 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { entityExists, EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -24,6 +27,8 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { LODComponent } from './LODComponent'
+import { LODComponentType } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -38,14 +43,15 @@ export type ModelResource = {
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
+  jsonID: 'gltf-model',
 
   onInit: (entity) => {
     return {
       src: '',
-      resource: null as unknown as ModelResource,
+      resource: null as ModelResource | null,
       generateBVH: true,
       avoidCameraOcclusion: false,
-      scene: undefined as undefined | Scene
+      scene: null as Scene | null
     }
   },
 
@@ -67,12 +73,17 @@ export const ModelComponent = defineComponent({
     }
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(EngineState).sceneLoaded) setComponent(entity, SceneAssetPendingTagComponent, true)
   },
 
   onRemove: (entity, component) => {
     if (component.scene.value) {
       removeObjectFromGroup(entity, component.scene.value)
-      component.scene.set(undefined)
+      component.scene.set(null)
     }
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
@@ -184,5 +195,3 @@ function ModelReactor({ root }: EntityReactorProps) {
 
   return null
 }
-
-export const SCENE_COMPONENT_MODEL = 'gltf-model'

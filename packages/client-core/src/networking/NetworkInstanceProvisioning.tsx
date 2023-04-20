@@ -9,7 +9,6 @@ import {
   MediaInstanceConnectionService,
   useMediaInstance
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { MediaStreamService } from '@etherealengine/client-core/src/media/services/MediaStreamService'
 import { ChatAction, ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { NetworkUserService, NetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
@@ -164,10 +163,6 @@ export const MediaInstanceProvisioning = () => {
         mediaNetworkHostId,
         currentChannelInstanceConnection.channelId.value
       )
-      MediaStreamService.updateCamVideoState()
-      MediaStreamService.updateCamAudioState()
-      MediaStreamService.updateScreenAudioState()
-      MediaStreamService.updateScreenVideoState()
     }
   }, [
     currentChannelInstanceConnection?.connected,

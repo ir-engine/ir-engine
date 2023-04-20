@@ -14,16 +14,16 @@ import {
   hasComponent,
   QueryComponents,
   removeComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
+import { createQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
+  jsonID: 'group',
 
   onInit: (entity: Entity) => {
     return [] as Object3DWithEntity[]
@@ -32,14 +32,15 @@ export const GroupComponent = defineComponent({
   onRemove: (entity, component) => {
     for (const obj of component.value) {
       obj.removeFromParent()
-      obj.traverse((mesh: Mesh) => {
-        if (Array.isArray(mesh.material)) {
-          mesh.material.forEach((material: Material) => material.dispose())
-        } else {
-          mesh.material?.dispose()
-        }
-        mesh.geometry?.dispose()
-      })
+      // obj.traverse((mesh: Mesh) => {
+      //   if (Array.isArray(mesh.material)) {
+      //     mesh.material.forEach((material: Material) => material.dispose())
+      //   } else {
+      //     mesh.material?.dispose()
+      //   }
+      //   mesh.geometry?.dispose()
+      // })
+      // TODO: only dispose geometries/materials when no other entities are using them...
     }
   }
 })
@@ -93,18 +94,16 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   object.removeFromParent()
 }
 
-export const SCENE_COMPONENT_GROUP = 'group'
-
 export type GroupReactorProps = {
   entity: Entity
   obj: Object3DWithEntity
 }
 
-export const startGroupQueryReactor = (
+export const createGroupQueryReactor = (
   GroupChildReactor: React.FC<GroupReactorProps>,
   Components: QueryComponents = []
 ) =>
-  startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
+  createQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
     const entity = props.root.entity
     const groupComponent = useComponent(entity, GroupComponent)
     return (

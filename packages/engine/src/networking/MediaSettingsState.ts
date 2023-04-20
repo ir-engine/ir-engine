@@ -41,6 +41,6 @@ export const shouldUseImmersiveMedia = () => {
   const mediaSettingState = getMutableState(MediaSettingsState)
   const immersiveMedia =
     mediaSettingState.immersiveMediaMode.value === 'on' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && mediaState.immersiveMedia.value)
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && mediaState?.immersiveMedia?.value)
   return immersiveMedia || getPositionalMedia() || xrSessionActive
 }

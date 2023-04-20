@@ -21,6 +21,7 @@ import { GroupComponent } from './GroupComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
+  jsonID: 'collider',
 
   onInit(entity) {
     return {
@@ -108,8 +109,9 @@ export const ColliderComponent = defineComponent({
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
+    const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
     useEffect(() => {
-      if (!!isLoadedFromGLTF?.value) {
+      if (isLoadedFromGLTF?.value || isMeshCollider) {
         const colliderComponent = getComponent(entity, ColliderComponent)
 
         if (hasComponent(entity, RigidBodyComponent)) {
@@ -121,15 +123,20 @@ export const ColliderComponent = defineComponent({
           updateGroupChildren(entity)
         }
 
-        Physics.createRigidBodyForGroup(entity, Engine.instance.physicsWorld, {
-          bodyType: colliderComponent.bodyType,
-          shapeType: colliderComponent.shapeType,
-          isTrigger: colliderComponent.isTrigger,
-          removeMesh: colliderComponent.removeMesh,
-          collisionLayer: colliderComponent.collisionLayer,
-          collisionMask: colliderComponent.collisionMask,
-          restitution: colliderComponent.restitution
-        })
+        Physics.createRigidBodyForGroup(
+          entity,
+          Engine.instance.physicsWorld,
+          {
+            bodyType: colliderComponent.bodyType,
+            shapeType: colliderComponent.shapeType,
+            isTrigger: colliderComponent.isTrigger,
+            removeMesh: colliderComponent.removeMesh,
+            collisionLayer: colliderComponent.collisionLayer,
+            collisionMask: colliderComponent.collisionMask,
+            restitution: colliderComponent.restitution
+          },
+          isMeshCollider
+        )
       } else {
         const rigidbodyTypeChanged =
           !hasComponent(entity, RigidBodyComponent) ||
@@ -207,7 +214,13 @@ export const ColliderComponent = defineComponent({
 /**
  * A lot of rapier's colliders don't make sense in this context, so create a list of simple primitives to allow
  */
-export const supportedColliderShapes = [ShapeType.Cuboid, ShapeType.Ball, ShapeType.Capsule, ShapeType.Cylinder]
+export const supportedColliderShapes = [
+  ShapeType.Cuboid,
+  ShapeType.Ball,
+  ShapeType.Capsule,
+  ShapeType.Cylinder,
+  ShapeType.TriMesh
+]
 
 export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3) => {
   switch (shapeType as ShapeType) {
@@ -221,15 +234,4 @@ export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3
     case ShapeType.Cylinder:
       return ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
   }
-}
-
-export const SCENE_COMPONENT_COLLIDER = 'collider'
-export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {
-  bodyType: RigidBodyType.Fixed,
-  shapeType: ShapeType.Cuboid,
-  isTrigger: false,
-  removeMesh: false,
-  restitution: 0.5,
-  collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
 }

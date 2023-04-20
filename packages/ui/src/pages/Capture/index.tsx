@@ -6,11 +6,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
-import {
-  RecordingFunctions,
-  RecordingState,
-  RecordingStateReceptorSystem
-} from '@etherealengine/client-core/src/recording/RecordingService'
+import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   closeDataProducer,
@@ -19,7 +15,6 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
@@ -52,12 +47,11 @@ const startDataProducer = async () => {
  * Start playback of a recording
  * - If we are streaming data, close the data producer
  */
-const startPlayback = async (recordingID: string, twin: boolean) => {
+const startPlayback = async (recordingID: string, twin = true) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
     await closeDataProducer(network, mocapDataChannelType)
   }
-  //*** TEMP VARIABLE - PUT IN UI */
   ECSRecordingFunctions.startPlayback({
     recordingID,
     targetUser: twin ? undefined : Engine.instance.userId
@@ -77,12 +71,6 @@ const sendResults = (results: NormalizedLandmarkList) => {
     dataProducer.send(data)
   }
 }
-
-const MotionCaptureReceptorSystemInjection = {
-  uuid: 'ee.client.MotionCaptureReceptorSystem',
-  type: 'POST_RENDER',
-  systemLoader: () => Promise.resolve({ default: RecordingStateReceptorSystem })
-} as const
 
 const CaptureDashboard = () => {
   const poseDetectorRef = useRef<Pose>()
@@ -138,8 +126,6 @@ const CaptureDashboard = () => {
       })
     }
   }
-
-  useSystems([MotionCaptureReceptorSystemInjection])
 
   const mediapipe = useHookstate(null as Pose | null)
 

@@ -5,7 +5,7 @@ import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/compo
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
-import { createActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 import AnchorIcon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
@@ -19,7 +19,7 @@ export function createAnchorWidget() {
 
   const widgetMutableState = getMutableState(WidgetAppState)
 
-  const xrSessionQueue = createActionQueue(XRAction.sessionChanged.matches)
+  const xrSessionQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
   const widget: Widget = {
     ui,

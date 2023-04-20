@@ -1,12 +1,13 @@
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { IKSerialization } from '@etherealengine/engine/src/avatar/IKSerialization'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
-import { createActionQueue, defineState, getMutableState, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { API } from '../API'
 import { NotificationService } from '../common/services/NotificationService'
 
 export const RecordingState = defineState({
@@ -41,7 +42,7 @@ export const RecordingFunctions = {
       if (state.config.video) {
         schema.push(webcamVideoDataChannelType)
       }
-      const recording = (await API.instance.client.service('recording').create({
+      const recording = (await Engine.instance.api.service('recording').create({
         schema: JSON.stringify(schema)
       })) as RecordingResult
       return recording.id
@@ -50,46 +51,40 @@ export const RecordingFunctions = {
     }
   },
   getRecordings: async () => {
-    const recordings = (await API.instance.client.service('recording').find()).data as RecordingResult[]
+    const recordings = (await Engine.instance.api.service('recording').find()).data as RecordingResult[]
     const recordingState = getMutableState(RecordingState)
     recordingState.recordings.set(recordings)
   }
 }
 
-export async function RecordingStateReceptorSystem() {
+const startRecordingQueue = defineActionQueue(ECSRecordingActions.startRecording.matches)
+const recordingStartedQueue = defineActionQueue(ECSRecordingActions.recordingStarted.matches)
+const stopRecordingQueue = defineActionQueue(ECSRecordingActions.stopRecording.matches)
+const playbackChangedQueue = defineActionQueue(ECSRecordingActions.playbackChanged.matches)
+
+const execute = () => {
   const recordingState = getMutableState(RecordingState)
 
-  const startRecordingQueue = createActionQueue(ECSRecordingActions.startRecording.matches)
-  const recordingStartedQueue = createActionQueue(ECSRecordingActions.recordingStarted.matches)
-  const stopRecordingQueue = createActionQueue(ECSRecordingActions.stopRecording.matches)
-  const playbackChangedQueue = createActionQueue(ECSRecordingActions.playbackChanged.matches)
-
-  const execute = () => {
-    for (const action of recordingStartedQueue()) {
-      recordingState.started.set(true)
-      recordingState.recordingID.set(action.recordingID)
-    }
-
-    for (const action of startRecordingQueue()) {
-      recordingState.started.set(true)
-    }
-
-    for (const action of stopRecordingQueue()) {
-      recordingState.started.set(false)
-      recordingState.recordingID.set(null)
-    }
-
-    for (const action of playbackChangedQueue()) {
-      recordingState.playback.set(action.playing ? action.recordingID : null)
-    }
+  for (const action of recordingStartedQueue()) {
+    recordingState.started.set(true)
+    recordingState.recordingID.set(action.recordingID)
   }
 
-  const cleanup = async () => {
-    removeActionQueue(startRecordingQueue)
-    removeActionQueue(recordingStartedQueue)
-    removeActionQueue(stopRecordingQueue)
-    removeActionQueue(playbackChangedQueue)
+  for (const action of startRecordingQueue()) {
+    recordingState.started.set(true)
   }
 
-  return { execute, cleanup }
+  for (const action of stopRecordingQueue()) {
+    recordingState.started.set(false)
+    recordingState.recordingID.set(null)
+  }
+
+  for (const action of playbackChangedQueue()) {
+    recordingState.playback.set(action.playing ? action.recordingID : null)
+  }
 }
+
+export const RecordingServiceSystem = defineSystem({
+  uuid: 'ee.client.RecordingServiceSystem',
+  execute
+})

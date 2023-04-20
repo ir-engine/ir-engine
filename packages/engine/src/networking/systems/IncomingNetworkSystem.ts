@@ -1,8 +1,11 @@
+import { useEffect } from 'react'
+
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getMutableState, none } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState, getEngineState } from '../../ecs/classes/EngineState'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '../classes/Network'
 import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../NetworkState'
 import { createDataReader } from '../serialization/DataReader'
@@ -33,40 +36,46 @@ const toArrayBuffer = (buf) => {
 
 export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
 
-export default async function IncomingNetworkSystem() {
-  const deserialize = createDataReader()
-  const applyIncomingNetworkState = applyUnreliableQueueFast(deserialize)
+const deserialize = createDataReader()
+const applyIncomingNetworkState = applyUnreliableQueueFast(deserialize)
 
-  const handleNetworkdata = (
-    network: Network,
-    dataChannel: DataChannelType,
-    fromPeerID: PeerID,
-    message: ArrayBufferLike
-  ) => {
-    if (network.isHosting) {
-      network.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
-      network.incomingMessageQueueUnreliableIDs.add(fromPeerID)
-      // forward data to clients in world immediately
-      // TODO: need to include the userId (or index), so consumers can validate
-      network.transport.bufferToAll(ecsDataChannelType, message)
-    } else {
-      network.incomingMessageQueueUnreliable.add(message)
-      network.incomingMessageQueueUnreliableIDs.add(fromPeerID) // todo, assume it
-    }
+const handleNetworkdata = (
+  network: Network,
+  dataChannel: DataChannelType,
+  fromPeerID: PeerID,
+  message: ArrayBufferLike
+) => {
+  if (network.isHosting) {
+    network.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
+    network.incomingMessageQueueUnreliableIDs.add(fromPeerID)
+    // forward data to clients in world immediately
+    // TODO: need to include the userId (or index), so consumers can validate
+    network.transport.bufferToAll(ecsDataChannelType, message)
+  } else {
+    network.incomingMessageQueueUnreliable.add(message)
+    network.incomingMessageQueueUnreliableIDs.add(fromPeerID) // todo, assume it
   }
-
-  addDataChannelHandler(ecsDataChannelType, handleNetworkdata)
-
-  const engineState = getEngineState()
-
-  const execute = () => {
-    if (!engineState.isEngineInitialized.value) return
-    applyIncomingNetworkState()
-  }
-
-  const cleanup = async () => {
-    removeDataChannelHandler(ecsDataChannelType, handleNetworkdata)
-  }
-
-  return { execute, cleanup }
 }
+
+const execute = () => {
+  const engineState = getState(EngineState)
+  if (!engineState.isEngineInitialized) return
+
+  applyIncomingNetworkState()
+}
+
+const reactor = () => {
+  useEffect(() => {
+    addDataChannelHandler(ecsDataChannelType, handleNetworkdata)
+    return () => {
+      removeDataChannelHandler(ecsDataChannelType, handleNetworkdata)
+    }
+  }, [])
+  return null
+}
+
+export const IncomingNetworkSystem = defineSystem({
+  uuid: 'ee.engine.IncomingNetworkSystem',
+  execute,
+  reactor
+})

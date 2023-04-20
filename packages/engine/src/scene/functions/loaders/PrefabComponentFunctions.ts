@@ -24,7 +24,7 @@ export const unloadPrefab = (entity: Entity) => {
     }
     prefabComponent.roots.map((node) => {
       if (node) {
-        const children = new Array()
+        const children: Entity[] = []
         iterateEntityNode(node, (child, idx) => {
           children.push(child)
         })
@@ -62,16 +62,5 @@ export const loadPrefab = async (entity: Entity, loader = AssetLoader) => {
   } catch (e) {
     prefabState.loaded.set(LoadState.UNLOADED)
     throw e
-  }
-}
-
-export const deserializePrefab: ComponentDeserializeFunction = async (
-  entity: Entity,
-  data: ComponentType<typeof PrefabComponent>
-) => {
-  setComponent(entity, PrefabComponent, data)
-  if (data.loaded === LoadState.LOADED) {
-    getMutableComponent(entity, PrefabComponent).loaded.set(LoadState.UNLOADED)
-    await loadPrefab(entity)
   }
 }

@@ -1,7 +1,7 @@
 import { Quaternion } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -13,6 +13,7 @@ import {
   removeComponent,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
@@ -78,108 +79,106 @@ export const AvatarAxesControlSchemeBehavior = {
   }
 }
 
-export default async function AvatarInputSystem() {
-  const interactState = getMutableState(InteractState)
-  const avatarInputSettings = getMutableState(AvatarInputSettingsState).value
-
-  const onShiftLeft = () => {
-    const controller = getMutableComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
-    controller.isWalking.set(!controller.isWalking.value)
-  }
-
-  const onKeyE = () => {
-    dispatchAction(
-      EngineActions.interactedWithObject({
-        targetEntity: interactState.available[0].value,
-        handedness: 'none'
-      })
-    )
-  }
-
-  const onLeftTrigger = () => {
-    dispatchAction(
-      EngineActions.interactedWithObject({
-        targetEntity: interactState.available[0].value,
-        handedness: 'left'
-      })
-    )
-  }
-
-  const onRightTrigger = () => {
-    dispatchAction(
-      EngineActions.interactedWithObject({
-        targetEntity: interactState.available[0].value,
-        handedness: 'right'
-      })
-    )
-  }
-
-  const onKeyO = () => {
-    dispatchAction(
-      WorldNetworkAction.spawnDebugPhysicsObject({
-        config: boxDynamicConfig
-      })
-    )
-  }
-
-  const onKeyP = () => {
-    getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
-  }
-
-  let mouseMovedDuringPrimaryClick = false
-  const execute = () => {
-    const { inputSources, localClientEntity } = Engine.instance
-    if (!localClientEntity) return
-
-    const controller = getComponent(localClientEntity, AvatarControllerComponent)
-    const buttons = Engine.instance.buttons
-
-    if (buttons.PrimaryClick?.touched) {
-      let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
-      if (mouseMoved) mouseMovedDuringPrimaryClick = true
-
-      if (buttons.PrimaryClick.up) {
-        if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(Engine.instance.localClientEntity)
-        else mouseMovedDuringPrimaryClick = false
-      }
-    }
-
-    if (buttons.ShiftLeft?.down) onShiftLeft()
-    if (buttons.KeyE?.down) onKeyE()
-    if (buttons.LeftTrigger?.down) onLeftTrigger()
-    if (buttons.RightTrigger?.down) onRightTrigger()
-
-    if (isDev) {
-      if (buttons.KeyO?.down) onKeyO()
-      if (buttons.KeyP?.down) onKeyP()
-    }
-
-    if (!hasMovementControls()) return
-
-    /** keyboard input */
-    const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
-    const keyDeltaZ =
-      (buttons.KeyW?.pressed ? -1 : 0) +
-      (buttons.KeyS?.pressed ? 1 : 0) +
-      (buttons.ArrowUp?.pressed ? -1 : 0) +
-      (buttons.ArrowDown?.pressed ? 1 : 0)
-
-    controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ)
-
-    controller.gamepadJumpActive = !!buttons.Space?.pressed
-
-    for (const inputSource of inputSources) {
-      const controlScheme =
-        inputSource.handedness === 'none'
-          ? AvatarAxesControlScheme.Move
-          : inputSource.handedness === avatarInputSettings.preferredHand
-          ? avatarInputSettings.rightAxesControlScheme
-          : avatarInputSettings.leftAxesControlScheme
-      AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
-    }
-  }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+const onShiftLeft = () => {
+  const controller = getMutableComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
+  controller.isWalking.set(!controller.isWalking.value)
 }
+
+const onKeyE = () => {
+  dispatchAction(
+    EngineActions.interactedWithObject({
+      targetEntity: getState(InteractState).available[0],
+      handedness: 'none'
+    })
+  )
+}
+
+const onLeftTrigger = () => {
+  dispatchAction(
+    EngineActions.interactedWithObject({
+      targetEntity: getState(InteractState).available[0],
+      handedness: 'left'
+    })
+  )
+}
+
+const onRightTrigger = () => {
+  dispatchAction(
+    EngineActions.interactedWithObject({
+      targetEntity: getState(InteractState).available[0],
+      handedness: 'right'
+    })
+  )
+}
+
+const onKeyO = () => {
+  dispatchAction(
+    WorldNetworkAction.spawnDebugPhysicsObject({
+      config: boxDynamicConfig
+    })
+  )
+}
+
+const onKeyP = () => {
+  getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
+}
+
+let mouseMovedDuringPrimaryClick = false
+const execute = () => {
+  const { inputSources, localClientEntity } = Engine.instance
+  if (!localClientEntity) return
+
+  const avatarInputSettings = getState(AvatarInputSettingsState)
+
+  const controller = getComponent(localClientEntity, AvatarControllerComponent)
+  const buttons = Engine.instance.buttons
+
+  if (buttons.PrimaryClick?.touched) {
+    let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
+    if (mouseMoved) mouseMovedDuringPrimaryClick = true
+
+    if (buttons.PrimaryClick.up) {
+      if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(Engine.instance.localClientEntity)
+      else mouseMovedDuringPrimaryClick = false
+    }
+  }
+
+  if (buttons.ShiftLeft?.down) onShiftLeft()
+  if (buttons.KeyE?.down) onKeyE()
+  if (buttons.LeftTrigger?.down) onLeftTrigger()
+  if (buttons.RightTrigger?.down) onRightTrigger()
+
+  if (isDev) {
+    if (buttons.KeyO?.down) onKeyO()
+    if (buttons.KeyP?.down) onKeyP()
+  }
+
+  if (!hasMovementControls()) return
+
+  /** keyboard input */
+  const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
+  const keyDeltaZ =
+    (buttons.KeyW?.pressed ? -1 : 0) +
+    (buttons.KeyS?.pressed ? 1 : 0) +
+    (buttons.ArrowUp?.pressed ? -1 : 0) +
+    (buttons.ArrowDown?.pressed ? 1 : 0)
+
+  controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ)
+
+  controller.gamepadJumpActive = !!buttons.Space?.pressed
+
+  for (const inputSource of inputSources) {
+    const controlScheme =
+      inputSource.handedness === 'none'
+        ? AvatarAxesControlScheme.Move
+        : inputSource.handedness === avatarInputSettings.preferredHand
+        ? avatarInputSettings.rightAxesControlScheme
+        : avatarInputSettings.leftAxesControlScheme
+    AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
+  }
+}
+
+export const AvatarInputSystem = defineSystem({
+  uuid: 'ee.engine.AvatarInputSystem',
+  execute
+})

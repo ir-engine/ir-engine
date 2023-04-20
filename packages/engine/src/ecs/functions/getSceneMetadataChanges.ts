@@ -10,7 +10,7 @@ export const getSceneMetadataChanges = () => {
   const difference = {} as any
 
   for (const key of keys) {
-    const changes = diff(scene.sceneMetadataRegistry[key].default, scene.sceneMetadataRegistry[key].data)
+    const changes = diff(scene.sceneMetadataRegistry[key].default, scene.sceneMetadataRegistry[key].data())
     if (Object.keys(changes).length) difference[key] = changes
   }
 

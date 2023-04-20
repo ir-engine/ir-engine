@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>My Awesome App</title>
-    <meta name="description" content="My Awesome App description">
-    <link rel="icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
-    <link rel="mask-icon" href="/mask-icon.svg" color="#FFFFFF">
-    <meta name="theme-color" content="#ffffff">
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
+
+    <meta name="description" content="<%- description %>" />
+    <title><%- title %></title>
+    
+    <meta name="monetization" content="<%- paymentPointer %>" />
+
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" crossorigin="anonymous" href="https://fonts.googleapis.com">
+    <link rel="preconnect" crossorigin="anonymous" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css?family=Lato:300,400,700|PT+Sans:400,400italic,700,700italic|Quicksand:400,300|Raleway:400|Roboto:300,400,700|Source+Sans+Pro:300,400,700|Khula:300,400,700&display=swap" />
+
+    <link rel="manifest" href="<%- webmanifestLink %>" />
+    <script type="text/javascript" src="<%- swScriptLink %>" ></script>
     <script>
       var global = globalThis
       var exports = { __esModule: true }
     </script>
-    <script type="module" src="/sw.js"></script>
-    <link rel="manifest" href="/manifest.webmanifest" />
-  </head>
-
+</head>
   <body>
     <div id="root"  style='z-index: 0; width: 100%; height: 100%; position: absolute; pointer-events: none;'></div>
     <script type="module" src="/src/main.tsx"></script>
