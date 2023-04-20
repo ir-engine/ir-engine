@@ -8,7 +8,12 @@ import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/Bo
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
 import { AdminInstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
-import { AdminInstanceActions, AdminInstanceReceptors } from '../admin/services/InstanceService'
+import {
+  AdminInstanceActions,
+  AdminInstanceReceptors,
+  AdminInstanceUserActions,
+  AdminInstanceUserReceptors
+} from '../admin/services/InstanceService'
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
@@ -62,6 +67,7 @@ export default async function AdminSystem() {
   const getScopeTypesQueue = createActionQueue(AdminScopeTypeActions.getScopeTypes.matches)
   const instancesRetrievedQueue = createActionQueue(AdminInstanceActions.instancesRetrieved.matches)
   const instanceRemovedQueue = createActionQueue(AdminInstanceActions.instanceRemoved.matches)
+  const instanceUsersRetrievedQueue = createActionQueue(AdminInstanceUserActions.instanceUsersRetrieved.matches)
   const avatarsFetchedQueue = createActionQueue(AdminAvatarActions.avatarsFetched.matches)
   const avatarCreatedQueue = createActionQueue(AdminAvatarActions.avatarCreated.matches)
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
@@ -155,6 +161,7 @@ export default async function AdminSystem() {
     for (const action of getScopeTypesQueue()) AdminScopeTypeReceptor.getScopeTypesReceptor(action)
     for (const action of instancesRetrievedQueue()) AdminInstanceReceptors.instancesRetrievedReceptor(action)
     for (const action of instanceRemovedQueue()) AdminInstanceReceptors.instanceRemovedReceptor(action)
+    for (const action of instanceUsersRetrievedQueue()) AdminInstanceUserReceptors.userInstancesReceivedReceptor(action)
     for (const action of avatarsFetchedQueue()) AdminAvatarReceptors.avatarsFetchedReceptor(action)
     for (const action of avatarCreatedQueue()) AdminAvatarReceptors.avatarCreatedReceptor(action)
     for (const action of avatarRemovedQueue()) AdminAvatarReceptors.avatarRemovedReceptor(action)
@@ -242,6 +249,7 @@ export default async function AdminSystem() {
     removeActionQueue(getScopeTypesQueue)
     removeActionQueue(instancesRetrievedQueue)
     removeActionQueue(instanceRemovedQueue)
+    removeActionQueue(instanceUsersRetrievedQueue)
     removeActionQueue(avatarsFetchedQueue)
     removeActionQueue(avatarCreatedQueue)
     removeActionQueue(avatarRemovedQueue)
