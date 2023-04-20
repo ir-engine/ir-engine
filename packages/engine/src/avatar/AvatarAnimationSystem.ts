@@ -37,6 +37,7 @@ import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
 import { getCameraMode, isMobileXRHeadset, ReferenceSpace, XRState } from '../xr/XRState'
@@ -103,7 +104,7 @@ const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationCom
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
-const filterPriorityEntities = (entity: Entity) =>
+const filterPriorityEntities = (entity: Entity<any>) =>
   Engine.instance.priorityAvatarEntities.has(entity) || entity === Engine.instance.localClientEntity
 
 const filterFrustumCulledEntities = (entity: Entity) =>
@@ -273,6 +274,7 @@ const execute = () => {
     const { rig } = getComponent(entity, AvatarRigComponent)
 
     const ik = getComponent(entity, AvatarLeftArmIKComponent)
+    ik.target.updateMatrixWorld(true)
 
     // If data is zeroed out, assume there is no input and do not run IK
     if (!ik.target.position.equals(V_000)) {
@@ -328,7 +330,7 @@ const execute = () => {
   for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
   for (const entity of Engine.instance.priorityAvatarEntities) {
-    const avatarRig = getComponent(entity, AvatarRigComponent)
+    const avatarRig = getComponent(entity as Entity<[typeof AvatarRigComponent]>, AvatarRigComponent)
     if (avatarRig) {
       avatarRig.rig.Hips.updateWorldMatrix(true, true)
       avatarRig.helper?.updateMatrixWorld(true)

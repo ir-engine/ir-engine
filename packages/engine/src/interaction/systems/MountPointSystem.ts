@@ -14,6 +14,7 @@ import {
   addComponent,
   defineQuery,
   getComponent,
+  getOptionalComponentState,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -40,8 +41,15 @@ const mountPointInteractMessages = {
 }
 
 const mountPointActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
-const mountPointQuery = defineQuery([MountPointComponent])
-const sittingIdleQuery = defineQuery([SittingComponent])
+const mountPointQuery = defineQuery([MountPointComponent, TransformComponent])
+const sittingIdleQuery = defineQuery([
+  SittingComponent,
+  TransformComponent,
+  AvatarControllerComponent,
+  AvatarAnimationComponent,
+  AvatarComponent,
+  RigidBodyComponent
+])
 
 const execute = () => {
   if (getState(EngineState).isEditor) return
@@ -68,7 +76,7 @@ const execute = () => {
 
       if (hasComponent(avatarEntity, SittingComponent)) continue
 
-      const transform = getComponent(action.targetEntity!, TransformComponent)
+      const transform = getComponent(action.targetEntity, TransformComponent)
       const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
       rigidBody.body.setTranslation(
         {
@@ -134,7 +142,7 @@ const execute = () => {
 
       changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
       removeComponent(entity, SittingComponent)
-      getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
+      getOptionalComponentState(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
     }
   }
 }

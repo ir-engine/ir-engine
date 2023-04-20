@@ -1,11 +1,6 @@
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  Component,
-  ComponentType,
-  SerializedComponentType
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component, SerializedComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -58,7 +53,7 @@ export const updateProperties = <C extends Component>(
 export function traverseScene<T>(
   callback: (node: Entity) => T,
   predicate: (node: Entity) => boolean = () => true,
-  snubChildren: boolean = false
+  snubChildren = false
 ): T[] {
   const result: T[] = []
   iterateEntityNode(getState(SceneState).sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)

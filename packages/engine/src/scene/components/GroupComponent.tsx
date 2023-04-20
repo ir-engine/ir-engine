@@ -50,12 +50,12 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.entity = entity
 
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
-  if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
+  if (getComponent(entity as any, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
-  getMutableComponent(entity, GroupComponent).merge([obj])
+  getMutableComponent(entity as any, GroupComponent).merge([obj])
 
-  const transform = getComponent(entity, TransformComponent)
+  const transform = getComponent(entity as any, TransformComponent)
   obj.position.copy(transform.position)
   obj.quaternion.copy(transform.rotation)
   obj.scale.copy(transform.scale)
@@ -94,22 +94,29 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   object.removeFromParent()
 }
 
-export type GroupReactorProps = {
-  entity: Entity
+export type GroupReactorProps<C extends QueryComponents> = {
+  entity: Entity<C>
   obj: Object3DWithEntity
 }
 
-export const createGroupQueryReactor = (GroupChildReactor: FC<GroupReactorProps>, Components: QueryComponents = []) => {
+export const createGroupQueryReactor = <QC extends QueryComponents>(
+  GroupChildReactor: FC<GroupReactorProps<[typeof GroupComponent, ...QC]>>,
+  Components: QC
+) => {
   const MemoGroupChildReactor = memo(GroupChildReactor)
-  return createQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
-    const entity = props.root.entity
-    const groupComponent = useComponent(entity, GroupComponent)
-    return (
-      <>
-        {groupComponent.value.map((obj, i) => (
-          <MemoGroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
-        ))}
-      </>
-    )
-  })
+  return createQueryReactor(
+    [GroupComponent, ...Components] as [typeof GroupComponent, ...QC],
+    function GroupQueryReactor(props) {
+      const entity = props.root.entity
+
+      const groupComponent = useComponent(entity as any, GroupComponent)
+      return (
+        <>
+          {groupComponent.value.map((obj, i) => (
+            <MemoGroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+          ))}
+        </>
+      )
+    }
+  )
 }

@@ -58,7 +58,7 @@ const vec3 = new Vector3()
 
 export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const transform = getComponent(xrui.entity, TransformComponent)
-  if (!transform || !getComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
   transform.position.copy(getComponent(entity, TransformComponent).position)
   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
   transform.position.y += 1

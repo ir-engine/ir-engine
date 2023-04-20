@@ -38,7 +38,11 @@ import { LocalTransformComponent, TransformComponent } from '../components/Trans
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
-const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
+const nonDynamicLocalTransformQuery = defineQuery([
+  TransformComponent,
+  LocalTransformComponent,
+  Not(RigidBodyDynamicTagComponent)
+] as const)
 const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const fixedRigidBodyQuery = defineQuery([TransformComponent, RigidBodyComponent, RigidBodyFixedTagComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
@@ -50,12 +54,12 @@ const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFr
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
-export const computeLocalTransformMatrix = (entity: Entity) => {
+export const computeLocalTransformMatrix = (entity: Entity<[typeof LocalTransformComponent]>) => {
   const localTransform = getComponent(entity, LocalTransformComponent)
   localTransform.matrix.compose(localTransform.position, localTransform.rotation, localTransform.scale)
 }
 
-export const computeTransformMatrix = (entity: Entity) => {
+export const computeTransformMatrix = (entity: Entity<[typeof TransformComponent]>) => {
   const transform = getComponent(entity, TransformComponent)
   updateTransformFromComputedTransform(entity)
   updateTransformFromLocalTransform(entity)
@@ -63,7 +67,7 @@ export const computeTransformMatrix = (entity: Entity) => {
   transform.matrixInverse.copy(transform.matrix).invert()
 }
 
-export const teleportRigidbody = (entity: Entity) => {
+export const teleportRigidbody = (entity: Entity<[typeof TransformComponent, typeof RigidBodyComponent]>) => {
   const transform = getComponent(entity, TransformComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const isAwake = !rigidBody.body.isSleeping()
@@ -110,7 +114,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   TransformComponent.dirtyTransforms[entity] = true
 }
 
-export const copyTransformToRigidBody = (entity: Entity) => {
+export const copyTransformToRigidBody = (entity: Entity<[typeof RigidBodyComponent]>) => {
   RigidBodyComponent.position.x[entity] = TransformComponent.position.x[entity]
   RigidBodyComponent.position.y[entity] = TransformComponent.position.y[entity]
   RigidBodyComponent.position.z[entity] = TransformComponent.position.z[entity]
@@ -123,7 +127,7 @@ export const copyTransformToRigidBody = (entity: Entity) => {
   rigidbody.body.setRotation(rigidbody.rotation, false)
 }
 
-const updateTransformFromLocalTransform = (entity: Entity) => {
+const updateTransformFromLocalTransform = (entity: Entity<[typeof TransformComponent]>) => {
   const localTransform = getOptionalComponent(entity, LocalTransformComponent)
   const isDynamicRigidbody = hasComponent(entity, RigidBodyDynamicTagComponent)
   const parentTransform = localTransform?.parentEntity
@@ -143,7 +147,7 @@ const updateTransformFromComputedTransform = (entity: Entity) => {
   return true
 }
 
-export const updateGroupChildren = (entity: Entity) => {
+export const updateGroupChildren = (entity: Entity<[typeof GroupComponent]>) => {
   const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
   // drop down one level and update children
   for (const root of group) {
@@ -154,7 +158,7 @@ export const updateGroupChildren = (entity: Entity) => {
   }
 }
 
-const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
+const getDistanceSquaredFromTarget = (entity: Entity<[typeof TransformComponent]>, targetPosition: Vector3) => {
   return getComponent(entity, TransformComponent).position.distanceToSquared(targetPosition)
 }
 
@@ -203,7 +207,7 @@ const traverseComputeBoundingBox = (mesh: Mesh) => {
   if (mesh.isMesh) mesh.geometry.computeBoundingBox()
 }
 
-const computeBoundingBox = (entity: Entity) => {
+const computeBoundingBox = (entity: Entity<[typeof BoundingBoxComponent, typeof GroupComponent]>) => {
   const box = getComponent(entity, BoundingBoxComponent).box
   const group = getComponent(entity, GroupComponent)
 
@@ -215,7 +219,7 @@ const computeBoundingBox = (entity: Entity) => {
   }
 }
 
-const updateBoundingBox = (entity: Entity) => {
+const updateBoundingBox = (entity: Entity<[typeof BoundingBoxComponent, typeof GroupComponent]>) => {
   const box = getComponent(entity, BoundingBoxComponent).box
   const group = getComponent(entity, GroupComponent)
   box.makeEmpty()
@@ -228,11 +232,13 @@ const isDirtyNonKinematic = (entity: Entity) =>
   !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
   !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
-const filterAwakeRigidbodies = (entity: Entity) => !getComponent(entity, RigidBodyComponent).body.isSleeping()
+const filterAwakeRigidbodies = (entity: Entity<[typeof RigidBodyComponent]>) =>
+  !getComponent(entity, RigidBodyComponent).body.isSleeping()
 
-const filterSleepingRigidbodies = (entity: Entity) => getComponent(entity, RigidBodyComponent).body.isSleeping()
+const filterSleepingRigidbodies = (entity: Entity<[typeof RigidBodyComponent]>) =>
+  getComponent(entity, RigidBodyComponent).body.isSleeping()
 
-let sortedTransformEntities = [] as Entity[]
+let sortedTransformEntities = [] as Entity<[typeof TransformComponent]>[]
 
 /** override Skeleton.update, as it is called inside  */
 const skeletonUpdate = Skeleton.prototype.update

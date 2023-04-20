@@ -20,7 +20,9 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
+import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
@@ -30,6 +32,7 @@ import { ButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { PhysicsWorld } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
@@ -40,7 +43,6 @@ import { setTransformComponent, TransformComponent } from '../../transform/compo
 import { Widget } from '../../xrui/Widgets'
 import {
   Component,
-  ComponentType,
   defineQuery,
   EntityRemovedComponent,
   getComponent,
@@ -206,7 +208,7 @@ export class Engine {
   /**
    * The xr origin reference space entity
    */
-  originEntity: Entity = UndefinedEntity
+  originEntity: Entity<[typeof TransformComponent]>
 
   /**
    * The xr origin group
@@ -216,7 +218,7 @@ export class Engine {
   /**
    * The camera entity
    */
-  cameraEntity: Entity = UndefinedEntity
+  cameraEntity: Entity<[typeof TransformComponent, typeof CameraComponent]>
 
   /**
    * Reference to the three.js camera object.
@@ -249,13 +251,13 @@ export class Engine {
 
   buttons = {} as Readonly<ButtonInputStateType>
 
-  reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
+  reactiveQueryStates = new Set<{ query: Query<any>; result: State<Entity[]>; components: QueryComponents }>()
 
   #entityQuery = defineQuery([Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery() as Entity[]
 
   // @todo move to EngineState
-  activePortal = null as ComponentType<typeof PortalComponent> | null
+  activePortal = null as typeof PortalComponent._TYPE | null
 
   systemGroups = {} as {
     input: SystemUUID
@@ -307,7 +309,15 @@ export class Engine {
   getUserAvatarEntity(userId: UserId) {
     return this.getOwnedNetworkObjectsWithComponent(userId, AvatarComponent).find((eid) => {
       return getComponent(eid, AvatarComponent).primary
-    })!
+    })! as Entity<
+      [
+        typeof NetworkObjectComponent,
+        typeof AvatarComponent,
+        typeof AvatarControllerComponent,
+        typeof AvatarAnimationComponent,
+        typeof RigidBodyComponent
+      ]
+    >
   }
 
   /**
@@ -316,12 +326,10 @@ export class Engine {
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
-    return (
-      this.getOwnedNetworkObjects(userId).find((eid) => {
-        return hasComponent(eid, component)
-      }) || UndefinedEntity
-    )
+  getOwnedNetworkObjectWithComponent<C extends Component>(userId: UserId, component: C) {
+    return (this.getOwnedNetworkObjects(userId).find((eid) => {
+      return hasComponent(eid, component)
+    }) || UndefinedEntity) as Entity<[C, typeof NetworkObjectComponent]>
   }
 
   /**
@@ -330,10 +338,10 @@ export class Engine {
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+  getOwnedNetworkObjectsWithComponent<C extends Component>(userId: UserId, component: C) {
     return this.getOwnedNetworkObjects(userId).filter((eid) => {
       return hasComponent(eid, component)
-    })
+    }) as any as Entity<[typeof NetworkObjectComponent, C]>[]
   }
 
   /** ID of last network created. */

@@ -6,6 +6,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -46,8 +47,8 @@ describe('moveAvatar function tests', () => {
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
-    const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
-    const avatar = getComponent(entity, AvatarControllerComponent)
+    const velocity = getComponent(entity as Entity<any>, RigidBodyComponent).linearVelocity
+    const avatar = getComponent(entity as Entity<any>, AvatarControllerComponent)
 
     avatar.gamepadWorldMovement.setZ(-1)
 
@@ -79,7 +80,7 @@ describe('moveAvatar function tests', () => {
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
-    const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
+    const velocity = getComponent(entity as Entity<any>, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
     strictEqual(velocity.x, 0)
@@ -114,7 +115,7 @@ describe('moveAvatar function tests', () => {
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
-    const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
+    const velocity = getComponent(entity as Entity<any>, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
     strictEqual(velocity.x, 0)
@@ -146,7 +147,7 @@ describe('moveAvatar function tests', () => {
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
 
-    const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
+    const velocity = getComponent(entity as Entity<any>, RigidBodyComponent).linearVelocity
 
     // velocity starts at 0
     strictEqual(velocity.x, 0)

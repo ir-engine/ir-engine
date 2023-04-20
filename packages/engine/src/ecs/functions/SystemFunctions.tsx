@@ -286,7 +286,11 @@ export const disableSystem = (systemUUID: SystemUUID) => {
 }
 
 const QueryReactor = memo(
-  (props: { root: ReactorRoot; entity: Entity; ChildEntityReactor: FC<EntityReactorProps> }) => {
+  <QC extends QueryComponents>(props: {
+    root: ReactorRoot
+    entity: Entity<QC>
+    ChildEntityReactor: FC<EntityReactorProps<QC>>
+  }) => {
     const entityRoot = useMemo(() => {
       return {
         ...props.root,
@@ -305,7 +309,10 @@ const QueryReactor = memo(
   }
 )
 
-export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: FC<EntityReactorProps>) => {
+export const createQueryReactor = <QC extends QueryComponents>(
+  Components: QC,
+  ChildEntityReactor: FC<EntityReactorProps<QC>>
+) => {
   if (!ChildEntityReactor.name) Object.defineProperty(ChildEntityReactor, 'name', { value: 'ChildEntityReactor' })
   const MemoChildEntityReactor = memo(ChildEntityReactor)
   return function HyperfluxQueryReactor({ root }: ReactorProps) {

@@ -19,7 +19,7 @@ import {
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { Entity, UndefinedEntity } from '../classes/Entity'
+import { Entity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import {
   defineComponent,
@@ -33,10 +33,18 @@ import {
 import { createEntity, entityExists, removeEntity } from '../functions/EntityFunctions'
 
 type EntityTreeSetType = {
-  parentEntity: Entity | null
+  parentEntity: Entity<[{ name: 'EntityTreeComponent' }, typeof UUIDComponent, typeof TransformComponent]> | null
   uuid?: EntityUUID
   childIndex?: number
 }
+
+export type EntityTreeNode = [
+  typeof EntityTreeComponent,
+  typeof UUIDComponent,
+  typeof NameComponent,
+  typeof TransformComponent,
+  typeof LocalTransformComponent
+]
 
 /**
  * EntityTreeComponent describes parent-child relationship between entities.
@@ -46,19 +54,35 @@ type EntityTreeSetType = {
  * @param {Readonly<Entity[]>} children
  */
 export const EntityTreeComponent = defineComponent({
-  name: 'EntityTreeComponent',
+  name: 'EntityTreeComponent' as const,
 
   onInit: (entity) => {
     return {
       // api
-      parentEntity: null as Entity | null,
+      parentEntity: null as Entity<
+        [{ name: 'EntityTreeComponent' }, typeof UUIDComponent, typeof TransformComponent]
+      > | null,
+
       // internal
-      children: [] as Entity[],
-      rootEntity: null as Entity | null
+      children: [] as Entity<
+        [
+          { name: 'EntityTreeComponent' },
+          typeof UUIDComponent,
+          typeof TransformComponent,
+          typeof LocalTransformComponent
+        ]
+      >[],
+      rootEntity: null as Entity<[{ name: 'EntityTreeComponent' }, typeof UUIDComponent]> | null
     }
   },
 
-  onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {
+  onSet: (
+    entity: Entity<
+      [{ name: 'EntityTreeComponent' }, typeof UUIDComponent, typeof TransformComponent, typeof LocalTransformComponent]
+    >,
+    component,
+    json?: Readonly<EntityTreeSetType>
+  ) => {
     if (!json) return
 
     // If a previous parentEntity, remove this entity from its children
@@ -102,7 +126,7 @@ export const EntityTreeComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    if (entity === Engine.instance.originEntity) return
+    if (entity === (Engine.instance.originEntity as Entity<any>)) return // TODO: this logic should be elsewhere
 
     if (component.parentEntity.value && entityExists(component.parentEntity.value)) {
       const parent = getMutableComponent(component.parentEntity.value, EntityTreeComponent)
@@ -132,7 +156,7 @@ export function initializeSceneEntity(): void {
   if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity, true)
 
   const sceneEntity = createEntity()
-  getMutableState(SceneState).sceneEntity.set(sceneEntity)
+  getMutableState(SceneState).sceneEntity.set(sceneEntity as any)
   setComponent(sceneEntity, NameComponent, 'scene')
   setComponent(sceneEntity, VisibleComponent, true)
   setComponent(sceneEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -144,7 +168,7 @@ export function initializeSceneEntity(): void {
 /**
  * Recursively destroys all the children entities of the passed entity
  */
-export function destroyEntityTree(rootEntity: Entity): void {
+export function destroyEntityTree(rootEntity: Entity<[typeof EntityTreeComponent]>): void {
   const children = getComponent(rootEntity, EntityTreeComponent).children.slice()
   for (const child of children) {
     destroyEntityTree(child)
@@ -155,7 +179,7 @@ export function destroyEntityTree(rootEntity: Entity): void {
 /**
  * Recursively removes all the children from the entity tree
  */
-export function removeFromEntityTree(rootEntity: Entity): void {
+export function removeFromEntityTree(rootEntity: Entity<[typeof EntityTreeComponent]>): void {
   const children = getComponent(rootEntity, EntityTreeComponent).children.slice()
   for (const child of children) {
     removeFromEntityTree(child)
@@ -169,7 +193,11 @@ export function removeFromEntityTree(rootEntity: Entity): void {
  * @param node Child node to be added
  * @param index Index at which child node will be added
  */
-export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: EntityUUID): void {
+export function addEntityNodeChild(
+  entity: Entity<[typeof TransformComponent, typeof LocalTransformComponent]>,
+  parentEntity: Entity<[typeof EntityTreeComponent, typeof TransformComponent, typeof UUIDComponent]>,
+  uuid?: EntityUUID
+): void {
   if (
     !hasComponent(entity, EntityTreeComponent) ||
     parentEntity !== getComponent(entity, EntityTreeComponent).parentEntity
@@ -200,7 +228,7 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
   // }
 }
 
-export function serializeNodeToWorld(entity: Entity) {
+export function serializeNodeToWorld(entity: Entity<[typeof EntityTreeComponent, typeof UUIDComponent]>) {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   const nodeUUID = getComponent(entity, UUIDComponent)
   const jsonEntity = getState(SceneState).sceneData!.scene.entities[nodeUUID] as EntityJson
@@ -218,7 +246,10 @@ export function serializeNodeToWorld(entity: Entity) {
  * @param node
  * @param tree
  */
-export function removeEntityNodeRecursively(entity: Entity, serialize = false) {
+export function removeEntityNodeRecursively(
+  entity: Entity<[typeof EntityTreeComponent, typeof UUIDComponent]>,
+  serialize = false
+) {
   traverseEntityNode(entity, (childEntity) => {
     if (serialize) serializeNodeToWorld(childEntity)
     removeEntity(childEntity)
@@ -230,7 +261,10 @@ export function removeEntityNodeRecursively(entity: Entity, serialize = false) {
  * @param entity
  * @param tree
  */
-export function removeEntityNode(entity: Entity, serialize = false) {
+export function removeEntityNode(
+  entity: Entity<[typeof EntityTreeComponent, typeof UUIDComponent]>,
+  serialize = false
+) {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
 
   for (const childEntity of entityTreeNode.children) {
@@ -246,7 +280,11 @@ export function removeEntityNode(entity: Entity, serialize = false) {
  * @param newParent Parent node
  * @param index Index at which passed node will be set as child in parent node's children arrays
  */
-export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, index?: number): void {
+export function reparentEntityNode(
+  entity: Entity<[typeof TransformComponent, typeof LocalTransformComponent, typeof EntityTreeComponent]>,
+  parentEntity: Entity<[typeof EntityTreeComponent, typeof TransformComponent, typeof UUIDComponent]> | null,
+  index?: number
+): void {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   if (entityTreeNode.parentEntity === parentEntity) return
   if (parentEntity) addEntityNodeChild(entity, parentEntity)
@@ -256,7 +294,7 @@ export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, 
 /**
  * Returns all entities in the tree
  */
-export function getAllEntitiesInTree(entity: Entity) {
+export function getAllEntitiesInTree(entity: Entity<[typeof EntityTreeComponent, typeof UUIDComponent]>) {
   const entities = [] as Entity[]
   traverseEntityNode(entity, (childEntity) => {
     entities.push(childEntity)
@@ -272,7 +310,11 @@ export function getAllEntitiesInTree(entity: Entity) {
  * @param index index of the curren node in it's parent
  * @param tree Entity Tree
  */
-export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: number) => void, index = 0): void {
+export function traverseEntityNode(
+  entity: Entity<[typeof EntityTreeComponent, typeof UUIDComponent]>,
+  cb: (entity: Entity<[typeof EntityTreeComponent, typeof UUIDComponent]>, index: number) => void,
+  index = 0
+): void {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
 
   if (!entityTreeNode) return
@@ -295,7 +337,7 @@ export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: n
  * @param snubChildren If true, will not traverse children of a node if pred returns false
  */
 export function iterateEntityNode<R>(
-  entity: Entity,
+  entity: Entity<[typeof EntityTreeComponent]>,
   cb: (entity: Entity, index: number) => R,
   pred: (entity: Entity) => boolean = (x) => true,
   snubChildren = false
@@ -330,7 +372,10 @@ export function iterateEntityNode<R>(
  * @param cb Callback function which will be called for every traverse
  * @param tree Entity Tree
  */
-export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) => void): void {
+export function traverseEntityNodeParent(
+  entity: Entity<[typeof EntityTreeComponent]>,
+  cb: (parent: Entity) => void
+): void {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   if (entityTreeNode.parentEntity) {
     const parent = entityTreeNode.parentEntity
