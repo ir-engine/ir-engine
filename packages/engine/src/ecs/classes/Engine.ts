@@ -233,9 +233,7 @@ export class Engine {
   /**
    * The local client entity
    */
-  get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
-  }
+  localClientEntity = UndefinedEntity
 
   inputSources: Readonly<XRInputSourceArray> = []
 
