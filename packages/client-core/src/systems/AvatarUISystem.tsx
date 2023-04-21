@@ -163,7 +163,8 @@ const execute = () => {
 
   /** Render immersive media bubbles */
   for (const userEntity of userQuery()) {
-    const ui = AvatarUI.get(userEntity)!
+    const ui = AvatarUI.get(userEntity)
+    if (!ui) continue
     const transition = AvatarUITransitions.get(userEntity)!
     const { avatarHeight } = getComponent(userEntity, AvatarComponent)
     const userTransform = getComponent(userEntity, TransformComponent)

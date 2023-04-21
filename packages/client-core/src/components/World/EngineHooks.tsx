@@ -184,11 +184,11 @@ export const useOfflineScene = (props: { projectName: string; sceneName: string;
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName: `${props.projectName}/${props.sceneName}` }))
     loadSceneJsonOffline(props.projectName, props.sceneName)
+    dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
   }, [])
 
   /** OFFLINE */
   useEffect(() => {
-    if (props.spectate) return
     if (engineState.sceneLoaded.value) {
       const userId = Engine.instance.userId
       const userIndex = 1
@@ -208,6 +208,8 @@ export const useOfflineScene = (props: { projectName: string; sceneName: string;
         userIndex,
         authState.user.name.value
       )
+
+      if (props.spectate) return
 
       receiveJoinWorld({
         highResTimeOrigin: performance.timeOrigin,
