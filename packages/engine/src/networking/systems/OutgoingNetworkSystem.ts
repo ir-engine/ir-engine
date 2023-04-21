@@ -1,10 +1,8 @@
-import { useEffect } from 'react'
-
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
@@ -25,9 +23,7 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 ])
 
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
-  const ents = getMutableState(EngineState).isEditor.value
-    ? networkTransformsQuery()
-    : authoritativeNetworkTransformsQuery()
+  const ents = getState(EngineState).isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId
     const network = Engine.instance.worldNetwork as Network

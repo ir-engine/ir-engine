@@ -19,8 +19,6 @@ import {
   PCFSoftShadowMap,
   PerspectiveCamera,
   ShadowMapType,
-  Skeleton,
-  SkinnedMesh,
   sRGBEncoding,
   ToneMapping,
   WebGL1Renderer,
@@ -28,27 +26,15 @@ import {
   WebGLRendererParameters
 } from 'three'
 
-import {
-  defineActionQueue,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  hookstate,
-  none,
-  removeActionQueue,
-  startReactor,
-  State,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
-import { SceneMetadata, SceneState } from '../ecs/classes/Scene'
+import { EngineActions, EngineState } from '../ecs/classes/EngineState'
+import { SceneState } from '../ecs/classes/Scene'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
@@ -236,10 +222,9 @@ export class EngineRenderer {
 
       this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
-      const state = getMutableState(RendererState)
-      const engineState = getEngineState()
-      if (!engineState.isEditor.value && state.automatic.value && engineState.joinedWorld.value)
-        this.changeQualityLevel()
+      const state = getState(RendererState)
+      const engineState = getState(EngineState)
+      if (!engineState.isEditor && state.automatic && engineState.joinedWorld) this.changeQualityLevel()
       if (this.needsResize) {
         const curPixelRatio = this.renderer.getPixelRatio()
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
@@ -255,7 +240,7 @@ export class EngineRenderer {
           cam.updateProjectionMatrix()
         }
 
-        state.qualityLevel.value > 0 && this.csm?.updateFrustums()
+        state.qualityLevel > 0 && this.csm?.updateFrustums()
         // Effect composer calls renderer.setSize internally
         this.effectComposer.setSize(width, height, true)
         this.needsResize = false
@@ -265,7 +250,7 @@ export class EngineRenderer {
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
        */
-      if (state.usePostProcessing.value || engineState.isEditor.value) {
+      if (state.usePostProcessing || engineState.isEditor) {
         this.effectComposer.render(delta)
       } else {
         this.renderer.autoClear = true
@@ -282,20 +267,20 @@ export class EngineRenderer {
     const delta = time - lastRenderTime
     lastRenderTime = time
 
-    const state = getMutableState(RendererState)
-    let qualityLevel = state.qualityLevel.value
+    const { qualityLevel } = getState(RendererState)
+    let newQualityLevel = qualityLevel
 
     this.movingAverage.update(Math.min(delta, 50))
     const averageDelta = this.movingAverage.mean
 
-    if (averageDelta > this.maxRenderDelta && qualityLevel > 1) {
-      qualityLevel--
-    } else if (averageDelta < this.minRenderDelta && qualityLevel < this.maxQualityLevel) {
-      qualityLevel++
+    if (averageDelta > this.maxRenderDelta && newQualityLevel > 1) {
+      newQualityLevel--
+    } else if (averageDelta < this.minRenderDelta && newQualityLevel < this.maxQualityLevel) {
+      newQualityLevel++
     }
 
-    if (qualityLevel !== state.qualityLevel.value) {
-      state.qualityLevel.set(qualityLevel)
+    if (newQualityLevel !== qualityLevel) {
+      getMutableState(RendererState).qualityLevel.set(newQualityLevel)
     }
   }
 }

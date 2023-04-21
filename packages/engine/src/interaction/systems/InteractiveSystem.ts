@@ -1,8 +1,7 @@
 import { Not } from 'bitecs'
-import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -15,16 +14,13 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
   DistanceFromCameraComponent,
-  DistanceFromLocalClientComponent,
-  setDistanceFromCameraComponent,
-  setDistanceFromLocalClientComponent
+  setDistanceFromCameraComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
@@ -139,7 +135,7 @@ const execute = () => {
 
     if (gatherAvailableInteractablesTimer === 0) {
       gatherAvailableInteractables(interactables)
-      const closestInteractable = getMutableState(InteractState).available.value[0]
+      const closestInteractable = getState(InteractState).available[0]
       for (const interactiveEntity of interactables) {
         if (interactiveEntity === closestInteractable) {
           if (!hasComponent(interactiveEntity, HighlightComponent)) {

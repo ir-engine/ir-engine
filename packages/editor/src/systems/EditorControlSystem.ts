@@ -52,7 +52,13 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  dispatchAction,
+  getMutableState,
+  getState,
+  removeActionQueue
+} from '@etherealengine/hyperflux'
 
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -82,9 +88,6 @@ export const createTransformGizmo = () => {
   setTransformMode(TransformMode.Translate)
   return gizmoEntity
 }
-
-const selectionState = getMutableState(SelectionState)
-const editorHelperState = getMutableState(EditorHelperState)
 
 const gizmoEntity = createTransformGizmo()
 
@@ -132,23 +135,25 @@ let transformSpaceChanged = false
 let dragging = false
 
 const onKeyQ = () => {
-  const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+  const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
+  const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
     nodes,
     V_010,
-    editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+    editorHelperState.rotationSnap * MathUtils.DEG2RAD,
     gizmoTransform.position
   )
 }
 
 const onKeyE = () => {
-  const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+  const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
+  const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
     nodes,
     V_010,
-    -editorHelperState.rotationSnap.value * MathUtils.DEG2RAD,
+    -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
     gizmoTransform.position
   )
 }
@@ -169,6 +174,7 @@ const onEscape = () => {
 }
 
 const onKeyF = () => {
+  const editorCameraState = getMutableState(EditorCameraState)
   editorCameraState.focusedObjects.set(getEntityNodeArrayFromEntities(selectedEntities))
   editorCameraState.refocus.set(true)
 }
@@ -214,9 +220,7 @@ const onMinus = () => {
 }
 
 const onDelete = () => {
-  EditorControlFunctions.removeObject(
-    getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
-  )
+  EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities))
 }
 
 function copy(event) {
@@ -280,7 +284,8 @@ const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number
   const scene = Engine.instance.scene
 
   const excludeObjects = [] as Object3D[]
-  for (const e of selectionState.selectedParentEntities.value) {
+  const selectionState = getState(SelectionState)
+  for (const e of selectionState.selectedParentEntities) {
     if (typeof e === 'string') {
       const obj = scene.getObjectByProperty('uuid', e)
       if (obj) excludeObjects.push(obj)
@@ -309,10 +314,8 @@ const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number
 const doZoom = (zoom) => {
   const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
   lastZoom = zoom
-  editorCameraState.zoomDelta.set(zoomDelta)
+  getMutableState(EditorCameraState).zoomDelta.set(zoomDelta)
 }
-
-const editorCameraState = getMutableState(EditorCameraState)
 
 const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
@@ -323,17 +326,20 @@ const execute = () => {
   for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
   if (Engine.instance.localClientEntity) return
 
-  selectedParentEntities = selectionState.selectedParentEntities.value
-  selectedEntities = selectionState.selectedEntities.value
+  const selectionState = getState(SelectionState)
+  const editorHelperState = getState(EditorHelperState)
 
-  transformModeChanged = transformMode !== editorHelperState.transformMode.value
-  transformMode = editorHelperState.transformMode.value
+  selectedParentEntities = selectionState.selectedParentEntities
+  selectedEntities = selectionState.selectedEntities
 
-  transformPivotChanged = transformPivot !== editorHelperState.transformPivot.value
-  transformPivot = editorHelperState.transformPivot.value
+  transformModeChanged = transformMode !== editorHelperState.transformMode
+  transformMode = editorHelperState.transformMode
 
-  transformSpaceChanged = transformSpace !== editorHelperState.transformSpace.value
-  transformSpace = editorHelperState.transformSpace.value
+  transformPivotChanged = transformPivot !== editorHelperState.transformPivot
+  transformPivot = editorHelperState.transformPivot
+
+  transformSpaceChanged = transformSpace !== editorHelperState.transformSpace
+  transformSpace = editorHelperState.transformSpace
 
   const inputState = Engine.instance.buttons
 
@@ -349,9 +355,9 @@ const execute = () => {
 
     if (lastSelectedTransform) {
       const isChanged =
-        selectionCounter !== selectionState.selectionCounter.value ||
+        selectionCounter !== selectionState.selectionCounter ||
         transformModeChanged ||
-        selectionState.transformPropertyChanged.value
+        selectionState.transformPropertyChanged
 
       if (isChanged || transformPivotChanged) {
         if (transformPivot === TransformPivot.Selection) {
@@ -423,15 +429,15 @@ const execute = () => {
   }
 
   const modifier = isMacOS ? inputState.MetaLeft?.pressed : inputState.ControlLeft?.pressed
-  const shouldSnap = (editorHelperState.snapMode.value === SnapMode.Grid) === !modifier
+  const shouldSnap = (editorHelperState.snapMode === SnapMode.Grid) === !modifier
 
   if (dragging || isGrabbing) {
     let constraint
     if (isGrabbing) {
       getRaycastPosition(
-        editorHelperState.isFlyModeEnabled.value ? centerViewportPosition : cursorPosition,
+        editorHelperState.isFlyModeEnabled ? centerViewportPosition : cursorPosition,
         planeIntersection,
-        shouldSnap ? editorHelperState.translationSnap.value : 0
+        shouldSnap ? editorHelperState.translationSnap : 0
       )
       constraint = TransformAxisConstraints.XYZ
     } else {
@@ -470,7 +476,7 @@ const execute = () => {
         prevPos.copy(gizmoObj.position)
         constraintVector.copy(constraint).applyQuaternion(gizmoObj.quaternion)
 
-        const snapValue = editorHelperState.translationSnap.value
+        const snapValue = editorHelperState.translationSnap
         gizmoObj.position.set(
           constraintVector.x !== 0 ? Math.round(gizmoObj.position.x / snapValue) * snapValue : gizmoObj.position.x,
           constraintVector.y !== 0 ? Math.round(gizmoObj.position.y / snapValue) * snapValue : gizmoObj.position.y,
@@ -484,7 +490,7 @@ const execute = () => {
         )
       }
 
-      const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
       EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
 
       // if (isGrabbing && transformMode === TransformMode.Grab) {
@@ -502,14 +508,14 @@ const execute = () => {
       rotationAngle *= normalizedInitRotationDrag.cross(normalizedCurRotationDrag).dot(planeNormal) > 0 ? 1 : -1
 
       if (shouldSnap) {
-        const rotationSnapAngle = MathUtils.DEG2RAD * editorHelperState.rotationSnap.value
+        const rotationSnapAngle = MathUtils.DEG2RAD * editorHelperState.rotationSnap
         rotationAngle = Math.round(rotationAngle / rotationSnapAngle) * rotationSnapAngle
       }
 
       const relativeRotationAngle = rotationAngle - prevRotationAngle
       prevRotationAngle = rotationAngle
 
-      const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
       EditorControlFunctions.rotateAround(nodes, planeNormal, relativeRotationAngle, gizmoObj.position)
 
       const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
@@ -572,10 +578,7 @@ const execute = () => {
       )
 
       if (shouldSnap) {
-        curScale
-          .divideScalar(editorHelperState.scaleSnap.value)
-          .round()
-          .multiplyScalar(editorHelperState.scaleSnap.value)
+        curScale.divideScalar(editorHelperState.scaleSnap).round().multiplyScalar(editorHelperState.scaleSnap)
       }
 
       curScale.set(
@@ -586,22 +589,22 @@ const execute = () => {
       scaleVector.copy(curScale).divide(prevScale)
       prevScale.copy(curScale)
 
-      const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
+      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
       EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
     }
   }
 
-  selectionCounter = selectionState.selectionCounter.value
+  selectionCounter = selectionState.selectionCounter
   const shift = inputState.ShiftLeft?.pressed
 
   if (isPrimaryClickUp) {
     if (transformMode === TransformMode.Grab) {
-      setTransformMode(shift ? TransformMode.Placement : editorHelperState.transformModeOnCancel.value)
+      setTransformMode(shift ? TransformMode.Placement : editorHelperState.transformModeOnCancel)
     } else if (transformMode === TransformMode.Placement) {
       if (shift) {
         EditorControlFunctions.duplicateObject([])
       } else {
-        setTransformMode(editorHelperState.transformModeOnCancel.value)
+        setTransformMode(editorHelperState.transformModeOnCancel)
       }
     } else {
       if (selectStartPosition.distanceTo(cursorPosition) < SELECT_SENSITIVITY) {
@@ -624,7 +627,7 @@ const execute = () => {
     }
   }
 
-  if (editorHelperState.isFlyModeEnabled.value) return
+  if (editorHelperState.isFlyModeEnabled) return
 
   if (inputState.KeyQ?.down) onKeyQ()
   if (inputState.KeyE?.down) onKeyE()
@@ -646,6 +649,7 @@ const execute = () => {
   const panning = inputState.AuxiliaryClick?.pressed
 
   if (selecting) {
+    const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.isOrbiting.set(true)
     const mouseMovement = Engine.instance.pointerState.movement
     if (mouseMovement) {
@@ -653,6 +657,7 @@ const execute = () => {
       editorCameraState.cursorDeltaY.set(mouseMovement.y)
     }
   } else if (panning) {
+    const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.isPanning.set(true)
     const mouseMovement = Engine.instance.pointerState.movement
     if (mouseMovement) {

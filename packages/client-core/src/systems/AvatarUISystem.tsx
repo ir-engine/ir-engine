@@ -128,8 +128,8 @@ const onSecondaryClick = () => {
 }
 
 const execute = () => {
-  const engineState = getMutableState(EngineState)
-  if (!engineState.isEngineInitialized.value) return
+  const engineState = getState(EngineState)
+  if (!engineState.isEngineInitialized) return
 
   // const keys = Engine.instance.buttons
 

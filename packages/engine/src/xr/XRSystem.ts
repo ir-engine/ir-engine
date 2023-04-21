@@ -20,10 +20,10 @@ import { XRAction, XRState } from './XRState'
  * System for XR session and input handling
  */
 
-const xrState = getMutableState(XRState)
-
 const updateSessionSupportForMode = (mode: XRSessionMode) => {
-  navigator.xr?.isSessionSupported(mode).then((supported) => xrState.supportedSessionModes[mode].set(supported))
+  navigator.xr
+    ?.isSessionSupported(mode)
+    .then((supported) => getMutableState(XRState).supportedSessionModes[mode].set(supported))
 }
 
 const updateSessionSupport = () => {

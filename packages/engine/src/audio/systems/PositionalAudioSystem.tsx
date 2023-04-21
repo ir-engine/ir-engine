@@ -1,41 +1,22 @@
 import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import {
-  defineActionQueue,
-  getMutableState,
-  getState,
-  ReactorProps,
-  removeActionQueue,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, getState, ReactorProps } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
-import {
-  ComponentType,
-  defineQuery,
-  getComponent,
-  removeQuery,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
 import { webcamAudioDataChannelType } from '../../networking/NetworkState'
-import {
-  AudioNodeGroup,
-  AudioNodeGroups,
-  createAudioNodeGroup,
-  MediaElementComponent
-} from '../../scene/components/MediaComponent'
+import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioSettingAction, AudioState } from '../AudioState'
-import { PositionalAudioComponent, PositionalAudioInterface } from '../components/PositionalAudioComponent'
+import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
 import { getMediaSceneMetadataState } from './MediaSystem'
 

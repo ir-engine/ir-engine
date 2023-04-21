@@ -60,7 +60,7 @@ export class AudioEffectPlayer {
     }
   }
 
-  play = async (sound: string, volumeMultiplier = getMutableState(AudioState).notificationVolume.value) => {
+  play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume) => {
     await Promise.resolve()
 
     if (!this.#els.length) return
@@ -107,6 +107,7 @@ export const MediaSettingsState = defineState({
   initial: DefaultMediaState
 })
 
+/** @deprecated */
 export const getMediaSceneMetadataState = () => getMutableState(MediaSettingsState)
 
 const mediaQuery = defineQuery([MediaComponent])

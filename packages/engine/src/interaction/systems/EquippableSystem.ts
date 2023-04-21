@@ -1,15 +1,7 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
-import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import {
-  defineActionQueue,
-  dispatchAction,
-  getMutableState,
-  removeActionQueue,
-  startReactor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { isClient } from '../../common/functions/isClient'
@@ -21,8 +13,7 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent,
-  removeQuery
+  removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'

@@ -222,7 +222,7 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
  * @param sceneData
  */
 export const updateSceneFromJSON = async () => {
-  const sceneState = getMutableState(SceneState)
+  const sceneState = getState(SceneState)
 
   if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
     dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
@@ -233,7 +233,7 @@ export const updateSceneFromJSON = async () => {
 
   const systemsToLoad = [] as SystemImportType[]
 
-  if (!getMutableState(EngineState).isEditor.value) {
+  if (!getState(EngineState).isEditor) {
     /** get systems that have changed */
     const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
@@ -253,19 +253,19 @@ export const updateSceneFromJSON = async () => {
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
-  const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity.value).filter(
+  const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
     (entity) =>
       !sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
       !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity')
   )
   /** @todo this will not  */
   for (const node of oldLoadedEntityNodesToRemove) {
-    if (node === sceneState.sceneEntity.value) continue
+    if (node === sceneState.sceneEntity) continue
     removeEntityNodeRecursively(node, false)
   }
 
   /** 3. load new systems */
-  if (!getMutableState(EngineState).isEditor.value) {
+  if (!getState(EngineState).isEditor) {
     for (const system of systemsToLoad) {
       startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
     }
@@ -273,20 +273,20 @@ export const updateSceneFromJSON = async () => {
 
   if (sceneData.scene.metadata) {
     for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
-      const metadata = sceneState.sceneMetadataRegistry[key] as State<SceneMetadata<any>>
-      if (!metadata.value) continue
+      const metadata = sceneState.sceneMetadataRegistry[key] as SceneMetadata<any>
+      if (!metadata) continue
       // metadata.data.set(merge({}, metadata.data.value, val))
     }
   }
 
   /** 4. update scene entities with new data, and load new ones */
-  setComponent(sceneState.sceneEntity.value, EntityTreeComponent, { parentEntity: null! })
-  setComponent(sceneState.sceneEntity.value, UUIDComponent, sceneData.scene.root)
+  setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null! })
+  setComponent(sceneState.sceneEntity, UUIDComponent, sceneData.scene.root)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
   updateSceneEntitiesFromJSON(sceneData.scene.root)
 
   if (!sceneAssetPendingTagQuery().length) {
-    if (getMutableState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
+    if (getState(EngineState).sceneLoading) dispatchAction(EngineActions.sceneLoaded({}))
   }
 
   if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
@@ -377,7 +377,7 @@ const onComplete = (pendingAssets: number) => {
 }
 
 const execute = () => {
-  if (!getMutableState(EngineState).sceneLoading.value) return
+  if (!getState(EngineState).sceneLoading) return
 
   const pendingAssets = sceneAssetPendingTagQuery().length
 

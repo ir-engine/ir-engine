@@ -184,7 +184,7 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
 
   useEffect(() => {
     if (
-      getMutableState(EngineState).isEditor.value ||
+      getState(EngineState).isEditor ||
       !shadow.cast.value ||
       !shadowMaterial.value ||
       useShadows ||
@@ -226,7 +226,7 @@ const execute = () => {
   sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
   const useShadows = getShadowsEnabled()
-  if (!useShadows && !getMutableState(EngineState).isEditor.value) {
+  if (!useShadows && !getState(EngineState).isEditor) {
     for (const entity of dropShadowComponentQuery()) {
       const dropShadow = getComponent(entity, DropShadowComponent)
       const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)

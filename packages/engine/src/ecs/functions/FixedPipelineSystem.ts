@@ -1,4 +1,4 @@
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
@@ -16,9 +16,9 @@ export const executeFixedPipeline = () => {
 
   let accumulator = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
 
+  const { fixedDeltaSeconds: timestep, elapsedSeconds, fixedTick } = getState(EngineState)
   const engineState = getMutableState(EngineState)
 
-  const timestep = engineState.fixedDeltaSeconds.value
   const maxMilliseconds = 8
 
   // If the difference between fixedElapsedTime and elapsedTime becomes too large,
@@ -26,8 +26,8 @@ export const executeFixedPipeline = () => {
   const maxFixedFrameDelay = Math.max(1, Engine.instance.deltaSeconds / timestep)
 
   if (accumulator < 0) {
-    engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
-    engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+    engineState.fixedTick.set(Math.floor(elapsedSeconds / timestep))
+    engineState.fixedElapsedSeconds.set(fixedTick * timestep)
   }
 
   let accumulatorDepleted = accumulator < timestep
@@ -35,8 +35,8 @@ export const executeFixedPipeline = () => {
   let updatesLimitReached = false
 
   while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-    engineState.fixedTick.set(engineState.fixedTick.value + 1)
-    engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+    engineState.fixedTick.set(fixedTick + 1)
+    engineState.fixedElapsedSeconds.set(fixedTick * timestep)
 
     executeSystem(SimulationSystemGroup)
 
@@ -49,8 +49,8 @@ export const executeFixedPipeline = () => {
     timeout = timeUsed > maxMilliseconds
 
     if (frameDelay >= maxFixedFrameDelay) {
-      engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
-      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+      engineState.fixedTick.set(Math.floor(elapsedSeconds / timestep))
+      engineState.fixedElapsedSeconds.set(fixedTick * timestep)
       break
     }
   }
