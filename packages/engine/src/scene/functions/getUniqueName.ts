@@ -22,7 +22,7 @@ export function getUniqueName(node: Entity, templateName = 'New Object') {
 
   while (!empty) {
     const name = nameWithoutIndex + (counter > 0 ? ' ' + (counter + 1) : '')
-    if (!NameComponent.entitiesByNameState.value[name]?.length) {
+    if (!NameComponent.entitiesByName[name]?.length) {
       empty = true
       break
     }

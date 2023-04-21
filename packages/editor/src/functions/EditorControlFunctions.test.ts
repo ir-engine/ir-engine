@@ -177,7 +177,7 @@ describe('EditorControlFunctions', () => {
     })
 
     afterEach(() => {
-      NameComponent.entitiesByName.set({})
+      NameComponent.entitiesByNameState.set({})
     })
   })
 
