@@ -116,7 +116,7 @@ export class Engine {
    * Current frame timestamp, relative to performance.timeOrigin
    */
   get frameTime() {
-    return getMutableState(EngineState).frameTime.value
+    return getState(EngineState).frameTime
   }
 
   engineTimer = null! as ReturnType<typeof Timer>
@@ -161,32 +161,32 @@ export class Engine {
    * The seconds since the last world execution
    */
   get deltaSeconds() {
-    return getMutableState(EngineState).deltaSeconds.value
+    return getState(EngineState).deltaSeconds
   }
 
   /**
    * The elapsed seconds since `startTime`
    */
   get elapsedSeconds() {
-    return getMutableState(EngineState).elapsedSeconds.value
+    return getState(EngineState).elapsedSeconds
   }
 
   /**
    * The elapsed seconds since `startTime`, in fixed time steps.
    */
   get fixedElapsedSeconds() {
-    return getMutableState(EngineState).fixedElapsedSeconds.value
+    return getState(EngineState).fixedElapsedSeconds
   }
 
   /**
    * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   get fixedTick() {
-    return getMutableState(EngineState).fixedTick.value
+    return getState(EngineState).fixedTick
   }
 
   get fixedDeltaSeconds() {
-    return getMutableState(EngineState).fixedDeltaSeconds.value
+    return getState(EngineState).fixedDeltaSeconds
   }
 
   physicsWorld: PhysicsWorld
