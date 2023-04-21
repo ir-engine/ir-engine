@@ -9,7 +9,6 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { updateXRCamera } from '../../xr/XRCameraSystem'
-import { TransformComponent } from '../components/TransformComponent'
 import { computeTransformMatrix } from './TransformSystem'
 
 /**
@@ -56,8 +55,9 @@ const execute = () => {
 
   /**
    * For whatever reason, this must run at the start of the transform system, before the transform system.
+   * @todo - disabled as this doesnt seem necessary anymore
    */
-  applyInputSourcePoseToIKTargets()
+  // applyInputSourcePoseToIKTargets()
 }
 
 export const ReferenceSpaceTransformSystem = defineSystem({

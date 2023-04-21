@@ -116,16 +116,18 @@ export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
   if (!system) return
 
   for (const preSystem of system.preSystems) {
-    console.log('-'.repeat(depth), 'before')
     getDAG(preSystem, depth + 1)
   }
+
   if (systemUUID === RootSystemGroup) getDAG(SimulationSystemGroup, depth + 1)
+
   console.log('-'.repeat(depth), system.uuid.split('.').pop(), Engine.instance.activeSystems.has(system.uuid))
+
   for (const subSystem of system.subSystems) {
     getDAG(subSystem, depth + 1)
   }
+
   for (const postSystem of system.postSystems) {
-    console.log('-'.repeat(depth), 'after')
     getDAG(postSystem, depth + 1)
   }
 }

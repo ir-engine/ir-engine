@@ -289,9 +289,9 @@ const execute = () => {
     const { rig } = getComponent(entity, AvatarRigComponent)
 
     const ik = getComponent(entity, AvatarRightArmIKComponent)
-    ik.target.updateMatrixWorld(true)
 
     if (!ik.target.position.equals(V_000)) {
+      ik.target.updateMatrixWorld(true)
       rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
       /** @todo see if this is still necessary */
       rig.RightForeArm.updateWorldMatrix(false, true)
