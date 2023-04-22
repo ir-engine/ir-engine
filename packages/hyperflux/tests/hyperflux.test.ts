@@ -413,7 +413,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to define state and register it to a store', () => {
     const HospitalityState = defineState({
-      name: 'hospitality',
+      name: 'test.hospitality.0',
       initial: () => ({
         greetingCount: 0,
         lastGreeting: null as string | null
@@ -421,12 +421,12 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(HospitalityState, store)
-    assert(store.stateMap.hospitality)
+    assert(store.stateMap['test.hospitality.0'])
   })
 
   it('should be able to optionally have an onCreate callback', () => {
     const HospitalityState = defineState({
-      name: 'hospitality',
+      name: 'test.hospitality.1',
       initial: () => ({
         create: false
       }),
@@ -443,7 +443,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to get immutable registered state', () => {
     const HospitalityState = defineState({
-      name: 'hospitality',
+      name: 'test.hospitality.2',
       initial: () => ({
         greetingCount: 0,
         lastGreeting: null as string | null
@@ -451,14 +451,14 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(HospitalityState, store)
-    assert(store.stateMap.hospitality)
+    assert(store.stateMap['test.hospitality.2'])
     const hospitality = getMutableState(HospitalityState, store).value
     assert.equal(hospitality.greetingCount, 0)
   })
 
   it('should be able to mutate registered state inside a receptor', () => {
     const HospitalityState = defineState({
-      name: 'hospitality',
+      name: 'test.hospitality.3',
       initial: () => ({
         greetingCount: 0,
         lastGreeting: null as string | null
@@ -472,7 +472,7 @@ describe('Hyperflux Unit Tests', () => {
 
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(HospitalityState, store)
-    assert(store.stateMap.hospitality)
+    assert(store.stateMap['test.hospitality.3'])
 
     addActionReceptor((action) => {
       matches(action).when(greet.matches, () => {})
