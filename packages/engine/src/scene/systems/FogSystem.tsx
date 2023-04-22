@@ -171,6 +171,7 @@ const reactor = ({ root }: ReactorProps) => {
     getMutableState(SceneState).sceneMetadataRegistry.merge({
       [FogSceneMetadataLabel]: {
         data: () => getState(FogSettingState),
+        dataState: () => getMutableState(FogSettingState),
         default: DefaultFogState
       }
     })

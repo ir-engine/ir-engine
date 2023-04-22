@@ -275,7 +275,7 @@ export const updateSceneFromJSON = async () => {
     for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
       const metadata = sceneState.sceneMetadataRegistry[key] as SceneMetadata<any>
       if (!metadata) continue
-      // metadata.data.set(merge({}, metadata.data.value, val))
+      metadata.dataState().set(merge({}, metadata.data().value, val))
     }
   }
 
@@ -340,7 +340,6 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson):
   for (const C of componentsToRemove) {
     if (entity === getState(SceneState).sceneEntity) if (C === VisibleComponent) continue
     if (C === GroupComponent || C === TransformComponent) continue
-    console.log('removing component', C.name, C, entity)
     removeComponent(entity, C)
   }
   for (const component of sceneEntity.components) {
