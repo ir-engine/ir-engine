@@ -223,7 +223,6 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 
       matrix.multiply(offsetmat)
 
-      const rot = new Quaternion()
       matrix.decompose(emptyVec, bone.quaternion, emptyVec)
 
       /*
@@ -291,6 +290,7 @@ export const applyInputSourcePoseToIKTargets = () => {
             if (jointPose) {
               ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
               ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
+              ik.target.quaternion.multiply(new Quaternion().setFromEuler(new Euler(0, 0, -Math.PI / 2.5)))
             }
           }
           applyHandPose(inputSource, localClientEntity)
