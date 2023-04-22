@@ -104,10 +104,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
-  const mediaState = getMediaSceneMetadataState()
-  const rendered =
-    mediaSettingState.immersiveMediaMode.value === 'off' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)
+  const rendered = mediaSettingState.immersiveMedia.value
 
   useEffect(() => {
     if (peerMediaChannelState.videoStream.value?.track)

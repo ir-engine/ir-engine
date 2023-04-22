@@ -4,10 +4,11 @@ import React, { Component, ErrorInfo, FC, memo, Suspense, useEffect, useMemo } f
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { getState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
+import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import { QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityReactorProps } from './EntityFunctions'
@@ -41,22 +42,36 @@ export function executeSystem(systemUUID: SystemUUID) {
 
   system.preSystems.forEach(executeSystem)
 
-  const startTime = nowMilliseconds()
-  try {
-    Engine.instance.currentSystemUUID = systemUUID
-    system.execute()
-  } catch (e) {
-    logger.error(`Failed to execute system ${system.uuid}`)
-    logger.error(e)
-  } finally {
-    Engine.instance.currentSystemUUID = '__null__' as SystemUUID
-  }
-  const endTime = nowMilliseconds()
+  if (getState(EngineState).systemPerformanceProfilingEnabled) {
+    const startTime = nowMilliseconds()
 
-  const systemDuration = endTime - startTime
-  if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
-    lastWarningTime.set(systemUUID, endTime)
-    logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
+    try {
+      Engine.instance.currentSystemUUID = systemUUID
+      system.execute()
+    } catch (e) {
+      logger.error(`Failed to execute system ${system.uuid}`)
+      logger.error(e)
+    } finally {
+      Engine.instance.currentSystemUUID = '__null__' as SystemUUID
+    }
+
+    const endTime = nowMilliseconds()
+
+    const systemDuration = endTime - startTime
+    if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
+      lastWarningTime.set(systemUUID, endTime)
+      logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
+    }
+  } else {
+    try {
+      Engine.instance.currentSystemUUID = systemUUID
+      system.execute()
+    } catch (e) {
+      logger.error(`Failed to execute system ${system.uuid}`)
+      logger.error(e)
+    } finally {
+      Engine.instance.currentSystemUUID = '__null__' as SystemUUID
+    }
   }
 
   system.subSystems.forEach(executeSystem)

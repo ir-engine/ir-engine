@@ -19,7 +19,7 @@ export type StateDefinition<S> = {
 }
 
 export function defineState<S>(definition: StateDefinition<S>) {
-  return definition
+  return definition as StateDefinition<S> & { _TYPE: S }
 }
 
 export function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
