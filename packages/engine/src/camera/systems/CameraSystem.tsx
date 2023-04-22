@@ -339,6 +339,7 @@ const reactor = () => {
     getMutableState(SceneState).sceneMetadataRegistry.merge({
       [CameraSceneMetadataLabel]: {
         data: () => getState(CameraSettingsState),
+        dataState: () => getMutableState(CameraSettingsState),
         default: DefaultCameraState
       }
     })

@@ -160,6 +160,7 @@ const reactor = () => {
     getMutableState(SceneState).sceneMetadataRegistry.merge({
       [MediaSceneMetadataLabel]: {
         data: () => getState(MediaSettingsState),
+        dataState: () => getMutableState(MediaSettingsState),
         default: DefaultMediaState
       }
     })

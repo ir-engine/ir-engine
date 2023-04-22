@@ -333,10 +333,12 @@ const reactor = () => {
     getMutableState(SceneState).sceneMetadataRegistry.merge({
       [RendererSceneMetadataLabel]: {
         data: () => getState(RenderSettingsState),
+        dataState: () => getMutableState(RenderSettingsState),
         default: DefaultRenderSettingsState
       },
       [PostProcessingSceneMetadataLabel]: {
         data: () => getState(PostProcessingSettingsState),
+        dataState: () => getMutableState(PostProcessingSettingsState),
         default: DefaultPostProcessingState
       }
     })
