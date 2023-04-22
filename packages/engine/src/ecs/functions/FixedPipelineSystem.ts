@@ -35,8 +35,8 @@ export const executeFixedPipeline = () => {
   let updatesLimitReached = false
 
   while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-    engineState.fixedTick.set(fixedTick + 1)
-    engineState.fixedElapsedSeconds.set(fixedTick * timestep)
+    engineState.fixedTick.set(engineState.fixedTick.value + 1)
+    engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
 
     executeSystem(SimulationSystemGroup)
 
@@ -50,7 +50,7 @@ export const executeFixedPipeline = () => {
 
     if (frameDelay >= maxFixedFrameDelay) {
       engineState.fixedTick.set(Math.floor(elapsedSeconds / timestep))
-      engineState.fixedElapsedSeconds.set(fixedTick * timestep)
+      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
       break
     }
   }
