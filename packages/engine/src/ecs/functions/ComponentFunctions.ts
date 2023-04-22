@@ -326,13 +326,15 @@ export const getAllComponentsOfType = <C extends Component<any>>(component: C): 
 }
 
 export const removeAllComponents = (entity: Entity) => {
+  const promises = [] as Promise<void>[]
   try {
     for (const component of bitECS.getEntityComponents(Engine.instance, entity)) {
-      removeComponent(entity, component as Component)
+      promises.push(removeComponent(entity, component as Component))
     }
   } catch (_) {
     logger.warn('Components of entity already removed')
   }
+  return promises
 }
 
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {

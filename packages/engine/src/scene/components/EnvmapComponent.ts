@@ -52,7 +52,6 @@ export const EnvmapComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    if (entity === getState(SceneState).sceneEntity) removeComponent(entity, EnvmapComponent)
     if (typeof json?.type === 'string') component.type.set(json.type)
     if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
     if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(new Color(json.envMapSourceColor))
@@ -64,7 +63,7 @@ export const EnvmapComponent = defineComponent({
     return {
       type: component.type.value,
       envMapTextureType: component.envMapTextureType.value,
-      envMapSourceColor: component.envMapSourceColor.value.getHex(),
+      envMapSourceColor: component.envMapSourceColor.value,
       envMapSourceURL: component.envMapSourceURL.value,
       envMapIntensity: component.envMapIntensity.value
     }

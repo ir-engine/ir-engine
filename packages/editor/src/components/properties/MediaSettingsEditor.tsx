@@ -2,9 +2,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -12,11 +11,12 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
+import { EditorComponentType } from './Util'
 
-export const MediaSettingsEditor = () => {
+export const MediaSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const mediaState = useHookstate(getMutableState(MediaSettingsState))
-  const media = mediaState.get({ noproxy: true })
+
+  const mediaState = useComponent(props.entity, MediaSettingsComponent)
 
   return (
     <PropertyGroup
@@ -30,7 +30,7 @@ export const MediaSettingsEditor = () => {
       >
         <SelectInput
           options={DistanceModelOptions}
-          value={media.distanceModel}
+          value={mediaState.distanceModel.value}
           onChange={(val: DistanceModelType) => mediaState.distanceModel.set(val)}
         />
       </InputGroup>
@@ -39,10 +39,10 @@ export const MediaSettingsEditor = () => {
         label={t('editor:properties.mediaSettings.lbl-immersiveMedia')}
         info={t('editor:properties.mediaSettings.info-immersiveMedia')}
       >
-        <BooleanInput value={media.immersiveMedia} onChange={(val) => mediaState.immersiveMedia.set(val)} />
+        <BooleanInput value={mediaState.immersiveMedia.value} onChange={(val) => mediaState.immersiveMedia.set(val)} />
       </InputGroup>
 
-      {media.distanceModel === DistanceModel.Linear ? (
+      {mediaState.distanceModel.value === DistanceModel.Linear ? (
         <InputGroup
           name="Media Rolloff Factor"
           label={t('editor:properties.mediaSettings.lbl-mediaRolloffFactor')}
@@ -54,7 +54,7 @@ export const MediaSettingsEditor = () => {
             smallStep={0.001}
             mediumStep={0.01}
             largeStep={0.1}
-            value={media.rolloffFactor}
+            value={mediaState.rolloffFactor.value}
             onChange={(val) => mediaState.rolloffFactor.set(val)}
           />
         </InputGroup>
@@ -67,7 +67,7 @@ export const MediaSettingsEditor = () => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={media.rolloffFactor}
+          value={mediaState.rolloffFactor.value}
           onChange={(val) => mediaState.rolloffFactor.set(val)}
         />
       )}
@@ -79,7 +79,7 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={media.refDistance}
+        value={mediaState.refDistance.value}
         onChange={(val) => mediaState.refDistance.set(val)}
         unit="m"
       />
@@ -91,7 +91,7 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={media.maxDistance}
+        value={mediaState.maxDistance.value}
         onChange={(val) => mediaState.maxDistance.set(val)}
         unit="m"
       />
@@ -104,7 +104,7 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={media.coneInnerAngle}
+        value={mediaState.coneInnerAngle.value}
         onChange={(val) => mediaState.coneInnerAngle.set(val)}
         unit="°"
       />
@@ -117,7 +117,7 @@ export const MediaSettingsEditor = () => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={media.coneOuterAngle}
+        value={mediaState.coneOuterAngle.value}
         onChange={(val) => mediaState.coneOuterAngle.set(val)}
         unit="°"
       />
@@ -130,7 +130,7 @@ export const MediaSettingsEditor = () => {
           min={0}
           max={1}
           step={0.01}
-          value={media.coneOuterGain}
+          value={mediaState.coneOuterGain.value}
           onChange={(val) => mediaState.coneOuterGain.set(val)}
         />
       </InputGroup>

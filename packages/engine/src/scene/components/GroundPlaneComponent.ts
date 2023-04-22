@@ -35,7 +35,7 @@ export const GroundPlaneComponent = defineComponent({
 
   toJSON(entity, component) {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       visible: component.visible.value
     }
   },

@@ -3,22 +3,11 @@ import _ from 'lodash'
 import React, { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
-import {
-  defineState,
-  getMutableState,
-  getState,
-  hookstate,
-  none,
-  ReactorProps,
-  startReactor,
-  State,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, ReactorProps, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
-import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { createGroupQueryReactor, GroupReactorProps } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
@@ -36,7 +25,7 @@ const getFogPlugin = (): PluginType => {
       FogShaders.push(shader)
       shader.uniforms.fogTime = { value: 0.0 }
       shader.uniforms.fogTimeScale = { value: 1 }
-      shader.uniforms.heightFactor = { value: getFogSceneMetadataState().height.value }
+      shader.uniforms.heightFactor = { value: getState(FogSettingState).height }
     }
   }
 }
@@ -53,14 +42,10 @@ export const DefaultFogState = {
 
 export type FogState = State<typeof DefaultFogState>
 
-export const FogSceneMetadataLabel = 'fog'
-
 export const FogSettingState = defineState({
   name: 'FogSettingState',
   initial: DefaultFogState
 })
-
-export const getFogSceneMetadataState = () => getMutableState(FogSettingState)
 
 function addFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
   if (!obj.material || !obj.material.fog || obj.material.userData.fogPlugin) return
@@ -81,7 +66,7 @@ function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
 }
 
 function FogGroupReactor({ obj }: GroupReactorProps) {
-  const fog = useHookstate(getFogSceneMetadataState())
+  const fog = useHookstate(getMutableState(FogSettingState))
 
   useEffect(() => {
     const customShader = fog.type.value === FogType.Brownian || fog.type.value === FogType.Height
@@ -167,18 +152,6 @@ const reactor = ({ root }: ReactorProps) => {
       }
   }, [fog.height])
 
-  useEffect(() => {
-    getMutableState(SceneState).sceneMetadataRegistry.merge({
-      [FogSceneMetadataLabel]: {
-        data: () => getState(FogSettingState),
-        dataState: () => getMutableState(FogSettingState),
-        default: DefaultFogState
-      }
-    })
-    return () => {
-      getMutableState(SceneState).sceneMetadataRegistry[FogSceneMetadataLabel].set(none)
-    }
-  }, [])
   return <FogGroupQueryReactor root={root} />
 }
 

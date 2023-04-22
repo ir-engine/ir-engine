@@ -3,14 +3,10 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
-import {
-  getPostProcessingSceneMetadataState,
-  PostProcessingSettingsState
-} from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -24,8 +20,8 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
-import NodeEditor from './NodeEditor'
 import PropertyGroup from './PropertyGroup'
+import { EditorComponentType } from './Util'
 
 enum PropertyTypes {
   BlendFunction,
@@ -234,11 +230,11 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
-export const PostProcessingSettingsEditor = () => {
+export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const [openSettings, setOpenSettings] = useState(false)
-  const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
+  const postprocessing = useComponent(props.entity, PostProcessingComponent)
 
   const getPropertyValue = (keys: string[]): any => {
     if (keys.length < 1) return null

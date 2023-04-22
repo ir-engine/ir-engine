@@ -1,4 +1,4 @@
-import { cloneDeep, merge } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
 
@@ -13,8 +13,6 @@ import {
   getState,
   NO_PROXY,
   removeActionReceptor,
-  startReactor,
-  State,
   useHookstate
 } from '@etherealengine/hyperflux'
 import { getSystemsFromSceneData, SystemImportType } from '@etherealengine/projects/loadSystemInjection'
@@ -28,17 +26,15 @@ import {
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
-  ComponentMap,
   defineQuery,
   getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -51,9 +47,13 @@ import {
 } from '../../ecs/functions/EntityTree'
 import { defineSystem, disableSystems, startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
+import { MediaSettingsComponent } from '../components/MediaSettingsComponent'
 import { NameComponent } from '../components/NameComponent'
+import { PostProcessingComponent } from '../components/PostProcessingComponent'
+import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
@@ -271,19 +271,31 @@ export const updateSceneFromJSON = async () => {
     }
   }
 
-  if (sceneData.scene.metadata) {
-    for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
-      const metadata = sceneState.sceneMetadataRegistry[key] as SceneMetadata<any>
-      if (!metadata) continue
-      metadata.dataState().set(merge({}, metadata.data().value, val))
-    }
-  }
-
   /** 4. update scene entities with new data, and load new ones */
   setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null! })
   setComponent(sceneState.sceneEntity, UUIDComponent, sceneData.scene.root)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
   updateSceneEntitiesFromJSON(sceneData.scene.root)
+
+  // backwards compatibility
+  if ((sceneData.scene as any).metadata) {
+    for (const [key, val] of Object.entries((sceneData.scene as any).metadata) as any) {
+      switch (key) {
+        case 'renderSettings':
+          setComponent(sceneState.sceneEntity, RenderSettingsComponent, val)
+          break
+        case 'postprocessing':
+          setComponent(sceneState.sceneEntity, PostProcessingComponent, val)
+          break
+        case 'mediaSettings':
+          setComponent(sceneState.sceneEntity, MediaSettingsComponent, val)
+          break
+        case 'fog':
+          setComponent(sceneState.sceneEntity, FogSettingsComponent, val)
+          break
+      }
+    }
+  }
 
   if (!sceneAssetPendingTagQuery().length) {
     if (getState(EngineState).sceneLoading) dispatchAction(EngineActions.sceneLoaded({}))

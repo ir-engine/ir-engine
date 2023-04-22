@@ -53,7 +53,7 @@ export const DirectionalLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       cameraFar: component.cameraFar.value,
       castShadow: component.castShadow.value,
