@@ -1,5 +1,6 @@
-import express from 'express'
-import multer from 'multer'
+import koaMulter from '@koa/multer'
+import Koa from 'koa'
+import Router from 'koa-router'
 
 import { Application } from '../../../declarations'
 import { UploadParams } from '../upload-asset/upload-asset.service'
@@ -32,26 +33,31 @@ export const uploadFile = (app: Application) => async (data: any, params: Upload
   return result
 }
 
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
+const router = new Router()
+const multipartMiddleware = koaMulter({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application): any => {
   const fileBrowser = new FileBrowserService(app)
   // fileBrowser.docs = projectDocs
 
-  app.use(
+  router.post(
     'file-browser/upload',
     multipartMiddleware.any(),
-    (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (req?.feathers && req.method !== 'GET') {
-        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
+    async (ctx: Koa.Context, next: Koa.Next) => {
+      if (ctx?.feathers && ctx.method !== 'GET') {
+        ;(ctx as any).feathers.files = (ctx as any).request.files.media
+          ? (ctx as any).request.files.media
+          : ctx.request.files
       }
 
-      next()
+      await next()
     },
-    {
-      create: uploadFile(app)
+    async (ctx: Koa.Context) => {
+      ctx.body = await uploadFile(app)(ctx.request.body, ctx.feathers as any)
     }
   )
+
+  app.use(router.routes())
 
   /**
    * Initialize our service with any options it requires and docs

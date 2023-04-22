@@ -1,6 +1,7 @@
 import { Params } from '@feathersjs/feathers'
-import express from 'express'
-import multer from 'multer'
+import koaMulter from '@koa/multer'
+import Koa from 'koa'
+import Router from 'koa-router'
 
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getState } from '@etherealengine/hyperflux'
@@ -121,7 +122,8 @@ export const getAllScenes = (app: Application) => {
   }
 }
 
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
+const router = new Router()
+const multipartMiddleware = koaMulter({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application) => {
   /**
@@ -132,20 +134,24 @@ export default (app: Application) => {
 
   app.use('scene', event)
 
-  app.use(
+  router.post(
     'scene/upload',
     multipartMiddleware.any(),
-    (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (req?.feathers && req.method !== 'GET') {
-        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
+    async (ctx: Koa.Context, next: Koa.Next) => {
+      if (ctx?.feathers && ctx.method !== 'GET') {
+        ;(ctx as any).feathers.files = (ctx as any).request.files.media
+          ? (ctx as any).request.files.media
+          : ctx.request.files
       }
 
-      next()
+      await next()
     },
-    {
-      create: uploadScene(app)
+    async (ctx: Koa.Context) => {
+      ctx.body = await uploadScene(app)(ctx.request.body, ctx.feathers as any)
     }
   )
+
+  router.get('/cubemap/:entityId', (ctx) => (ctx.body = getEnvMapBake(app)))
 
   app.use('scene-data', {
     get: getScenesForProject(app),
@@ -156,11 +162,12 @@ export default (app: Application) => {
     get: getPortal(app),
     find: getAllPortals(app)
   })
-  app.use('/cubemap/:entityId', getEnvMapBake(app))
 
   /**
    * Get our initialized service so that we can register hooks
    */
+  app.use(router.routes())
+
   const service = app.service('scene')
 
   service.hooks(hooks)
