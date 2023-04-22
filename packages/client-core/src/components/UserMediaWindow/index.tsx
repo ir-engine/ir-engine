@@ -21,7 +21,6 @@ import { useAuthState } from '@etherealengine/client-core/src/user/services/Auth
 import { useNetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { AudioSettingAction, AudioState, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
-import { getMediaSceneMetadataState } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
