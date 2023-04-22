@@ -20,15 +20,15 @@ export const SystemComponent = defineComponent({
   onSet(entity, component, json) {
     if (!json) return
 
+    // backwards compat
+    convertSystemComponentJSON(json as any)
+
     if (typeof json.filePath === 'string') component.filePath.set(json.filePath)
     if (typeof json.insertUUID === 'string') component.insertUUID.set(json.insertUUID)
     if (typeof json.insertOrder === 'string') component.insertOrder.set(json.insertOrder)
     if (typeof json.enableClient === 'boolean') component.enableClient.set(json.enableClient)
     if (typeof json.enableServer === 'boolean') component.enableServer.set(json.enableServer)
     if (typeof json.args === 'object') component.args.set(json.args)
-
-    // backwards compat
-    convertSystemComponentJSON(json as any)
   },
 
   toJSON(entity, component) {
