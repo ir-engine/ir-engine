@@ -1,7 +1,7 @@
 import { Color, Texture } from 'three'
 
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { defineState } from '@etherealengine/hyperflux'
+import { defineState, State } from '@etherealengine/hyperflux'
 
 import { UndefinedEntity } from './Entity'
 
@@ -9,6 +9,7 @@ import { UndefinedEntity } from './Entity'
 
 export type SceneMetadata<T> = {
   data: () => T
+  dataState: () => State<T>
   default: any
 }
 
