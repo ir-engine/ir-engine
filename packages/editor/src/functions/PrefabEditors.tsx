@@ -3,11 +3,13 @@ import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSyst
 import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
+import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { CloudComponent } from '@etherealengine/engine/src/scene/components/CloudComponent'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
+import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
@@ -16,13 +18,16 @@ import { InstancingComponent } from '@etherealengine/engine/src/scene/components
 import { InteriorComponent } from '@etherealengine/engine/src/scene/components/InteriorComponent'
 import { LODComponent } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { OceanComponent } from '@etherealengine/engine/src/scene/components/OceanComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
@@ -41,11 +46,13 @@ import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAncho
 import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
+import { CameraPropertiesNodeEditor } from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import EnvMapEditor from '../components/properties/EnvMapEditor'
+import { FogSettingsEditor } from '../components/properties/FogSettingsEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
@@ -54,6 +61,7 @@ import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import { LODProperties } from '../components/properties/LODProperties'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
+import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
@@ -62,7 +70,9 @@ import PersistentAnchorNodeEditor from '../components/properties/PersistentAncho
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
+import { PostProcessingSettingsEditor } from '../components/properties/PostProcessingSettingsEditor'
 import { PrefabNodeEditor } from '../components/properties/PrefabNodeEditor'
+import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
@@ -78,6 +88,11 @@ import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 
 export const EntityNodeEditor = new Map<Component, EditorComponentType>()
 EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
+EntityNodeEditor.set(PostProcessingComponent, PostProcessingSettingsEditor)
+EntityNodeEditor.set(MediaSettingsComponent, MediaSettingsEditor)
+EntityNodeEditor.set(RenderSettingsComponent, RenderSettingsEditor)
+EntityNodeEditor.set(FogSettingsComponent, FogSettingsEditor)
+EntityNodeEditor.set(CameraSettingsComponent, CameraPropertiesNodeEditor)
 EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
 EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
 EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)

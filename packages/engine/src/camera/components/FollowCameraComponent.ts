@@ -1,11 +1,13 @@
 import { ArrowHelper, Clock, Vector3 } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { getCameraSceneMetadataState } from '../CameraSceneMetadata'
+import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraMode } from '../types/CameraMode'
 
 //const cameraRayCount = 1
@@ -17,7 +19,7 @@ export const FollowCameraComponent = defineComponent({
   name: 'FollowCameraComponent',
   onInit: (entity) => {
     /** @todo add a reactor to dynamically update to these values */
-    const cameraSettings = getCameraSceneMetadataState().value
+    const cameraSettings = getState(CameraSettingsState)
 
     // if (cameraSettings.projectionType === ProjectionType.Orthographic) {
     //   camera.camera = new OrthographicCamera(

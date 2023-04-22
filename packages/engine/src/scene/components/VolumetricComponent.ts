@@ -1,5 +1,3 @@
-import { StateMethodsDestroy } from '@etherealengine/hyperflux/functions/StateFunctions'
-
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const VolumetricComponent = defineComponent({
@@ -21,10 +19,6 @@ export const VolumetricComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (typeof json?.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value)
       component.useLoadingEffect.set(json.useLoadingEffect)
-  },
-
-  onRemove: (entity, component) => {
-    ;(component as typeof component & StateMethodsDestroy).destroy()
   }
 })
 

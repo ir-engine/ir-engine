@@ -27,13 +27,13 @@ if (isNode) {
 
   // patches for headless-gl - currently unused
 
-  /*
   // patch navigator
   if (!globalThis.navigator)
     (globalThis as any).navigator = {
       product: 'NativeScript', // patch axios so it doesnt complain,
       userAgent: 'node'
     }
+  /*
   
   // todo: move this out of module scope
   function addEventListener(event, func, bind_) {}

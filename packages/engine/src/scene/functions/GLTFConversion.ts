@@ -14,7 +14,6 @@ import {
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
@@ -40,8 +39,7 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
   const result: SceneJson = {
     entities: {},
     root: rootUuid,
-    version: 2.0,
-    metadata: getSceneMetadataChanges()
+    version: 2.0
   }
   result.entities[rootUuid] = nodeToEntityJson(rootGL)
   const lookupNode = (idx) => gltf.nodes[idx]

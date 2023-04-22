@@ -5,11 +5,7 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { addComponent, defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
-import {
-  EngineRenderer,
-  getPostProcessingSceneMetadataState
-} from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'

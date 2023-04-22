@@ -43,7 +43,7 @@ export const SkyboxComponent = defineComponent({
   },
   toJSON: (entity, component) => {
     return {
-      backgroundColor: component.backgroundColor.value.getHexString() as any as Color,
+      backgroundColor: component.backgroundColor.value,
       equirectangularPath: component.equirectangularPath.value,
       cubemapPath: component.cubemapPath.value,
       backgroundType: component.backgroundType.value,

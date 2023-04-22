@@ -31,8 +31,8 @@ export const HemisphereLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      skyColor: component.skyColor.value.getHex(),
-      groundColor: component.groundColor.value.getHex(),
+      skyColor: component.skyColor.value,
+      groundColor: component.groundColor.value,
       intensity: component.intensity.value
     }
   },

@@ -54,7 +54,7 @@ export const CloudComponent = defineComponent({
       noiseZoom: component.noiseZoom.value,
       noiseOffset: component.noiseOffset.value,
       spriteScaleRange: component.spriteScaleRange.value,
-      fogColor: component.fogColor.value.getHex(),
+      fogColor: component.fogColor.value,
       fogRange: component.fogRange.value
     }
   },

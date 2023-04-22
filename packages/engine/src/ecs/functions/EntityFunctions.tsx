@@ -15,12 +15,14 @@ export const createEntity = (): Entity => {
 export const removeEntity = (entity: Entity, immediately = false) => {
   if (!entity || !entityExists(entity)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
-  removeAllComponents(entity)
+  const promise = removeAllComponents(entity)
   setComponent(entity, EntityRemovedComponent, true)
 
   if (immediately) {
     bitECS.removeEntity(Engine.instance, entity)
   }
+
+  return promise
 }
 
 export const entityExists = (entity: Entity) => {

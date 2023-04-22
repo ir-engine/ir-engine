@@ -2,16 +2,14 @@ import _ from 'lodash'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
-import { addActionReceptor, defineState, getMutableState, getState, State } from '@etherealengine/hyperflux'
+import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { SceneState } from '../../ecs/classes/Scene'
-import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { DefaultMediaState, MediaSettingsState } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
@@ -89,8 +87,6 @@ export const MediaPrefabs = {
   volumetric: 'Volumetric' as const
 }
 
-export const MediaSceneMetadataLabel = 'mediaSettings'
-
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
 const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
@@ -137,14 +133,6 @@ const reactor = () => {
       EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
       EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
     }
-
-    getMutableState(SceneState).sceneMetadataRegistry.merge({
-      [MediaSceneMetadataLabel]: {
-        data: () => getState(MediaSettingsState),
-        dataState: () => getMutableState(MediaSettingsState),
-        default: DefaultMediaState
-      }
-    })
 
     Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
       { name: TransformComponent.jsonID },
