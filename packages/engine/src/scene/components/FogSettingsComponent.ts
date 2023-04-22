@@ -41,12 +41,10 @@ export const FogSettingsComponent = defineComponent({
     const component = useComponent(root.entity, FogSettingsComponent)
 
     for (const prop of Object.keys(getState(FogSettingState))) {
-      console.log('FogSettingsComponent: ', prop, component[prop].value, getState(FogSettingState)[prop])
       useEffect(() => {
-        console.log('FogSettingsComponent: ', prop, component[prop].value, getState(FogSettingState)[prop])
         if (component[prop].value !== getState(FogSettingState)[prop])
           getMutableState(FogSettingState)[prop].set(component[prop].value)
-      }, component[prop])
+      }, [component[prop]])
     }
 
     return null

@@ -38,7 +38,7 @@ export const RenderSettingsComponent = defineComponent({
       useEffect(() => {
         if (component[prop].value !== getState(RenderSettingsState)[prop])
           getMutableState(RenderSettingsState)[prop].set(component[prop].value)
-      }, component[prop])
+      }, [component[prop]])
     }
 
     return null

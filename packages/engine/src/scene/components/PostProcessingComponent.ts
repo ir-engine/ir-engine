@@ -34,7 +34,7 @@ export const PostProcessingComponent = defineComponent({
       useEffect(() => {
         if (component[prop].value !== getState(PostProcessingSettingsState)[prop])
           getMutableState(PostProcessingSettingsState)[prop].set(component[prop].value)
-      }, component[prop])
+      }, [component[prop]])
     }
 
     return null
