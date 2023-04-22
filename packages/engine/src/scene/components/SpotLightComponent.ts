@@ -59,7 +59,7 @@ export const SpotLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,

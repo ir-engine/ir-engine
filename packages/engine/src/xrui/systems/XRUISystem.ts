@@ -134,11 +134,6 @@ const updateClickEventsForController = (controller: PointerObject) => {
   }
 }
 
-// const canvas = EngineRenderer.instance.renderer.getContext().canvas
-document.body.addEventListener('click', redirectDOMEvent)
-document.body.addEventListener('contextmenu', redirectDOMEvent)
-document.body.addEventListener('dblclick', redirectDOMEvent)
-
 const pointers = new Map<XRInputSource, PointerObject>()
 
 const execute = () => {
@@ -249,6 +244,11 @@ const reactor = () => {
     //   bptcSupported: renderer.extensions.has( 'EXT_texture_compression_bptc' ),
     //   pvrtcSupported: false
     // }
+
+    // const canvas = EngineRenderer.instance.renderer.getContext().canvas
+    document.body.addEventListener('click', redirectDOMEvent)
+    document.body.addEventListener('contextmenu', redirectDOMEvent)
+    document.body.addEventListener('dblclick', redirectDOMEvent)
 
     getMutableState(XRUIState).interactionRays.set([Engine.instance.pointerScreenRaycaster.ray])
 

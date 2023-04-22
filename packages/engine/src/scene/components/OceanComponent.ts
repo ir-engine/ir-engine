@@ -76,11 +76,11 @@ export const OceanComponent = defineComponent({
       normalMap: component.normalMap.value,
       distortionMap: component.distortionMap.value,
       envMap: component.envMap.value,
-      color: component.color.value.getHex(),
+      color: component.color.value,
       opacityRange: component.opacityRange.value,
       opacityFadeDistance: component.opacityFadeDistance.value,
       shallowToDeepDistance: component.shallowToDeepDistance.value,
-      shallowWaterColor: component.shallowWaterColor.value.getHex(),
+      shallowWaterColor: component.shallowWaterColor.value,
       waveScale: component.waveScale.value,
       waveSpeed: component.waveSpeed.value,
       waveTiling: component.waveTiling.value,
@@ -93,7 +93,7 @@ export const OceanComponent = defineComponent({
       bigWaveSpeed: component.bigWaveSpeed.value,
       foamSpeed: component.foamSpeed.value,
       foamTiling: component.foamTiling.value,
-      foamColor: component.foamColor.value.getHex()
+      foamColor: component.foamColor.value
     }
   },
   errors: ['DISTORTION_MAP_ERROR', 'ENVIRONMENT_MAP_ERROR', 'NORMAL_MAP_ERROR']

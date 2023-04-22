@@ -1,11 +1,11 @@
 import { t } from 'i18next'
 import React from 'react'
 
-import { getCameraSceneMetadataState } from '@etherealengine/engine/src/camera/CameraSceneMetadata'
+import { CameraSettings } from '@etherealengine/engine/src/camera/CameraState'
 import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
 import { ProjectionType } from '@etherealengine/engine/src/camera/types/ProjectionType'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
@@ -55,7 +55,7 @@ const projectionTypeSelect = [
 ]
 
 export const CameraPropertiesNodeEditor = () => {
-  const cameraSettings = useHookstate(getCameraSceneMetadataState())
+  const cameraSettings = useHookstate(getMutableState(CameraSettings))
   if (!cameraSettings.value) return null
 
   return (

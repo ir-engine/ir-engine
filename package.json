@@ -81,6 +81,7 @@
     "delete-old-s3-files": "cross-env APP_ENV=production ts-node --swc scripts/delete-old-s3-files.ts",
     "push-client-dist-to-s3": "cross-env APP_ENV=production ts-node --swc scripts/push-client-to-s3.ts",
     "copy-client-to-localstorage": "cross-env APP_ENV=production ts-node --swc scripts/copy-client-to-localstorage.ts",
+    "resave-all-scenes": "ts-node --swc scripts/resave-all-scenes.ts",
     "start": "npm run dev",
     "test": "cross-env TEST=true lerna run test",
     "test-e2e": "ts-node --swc scripts/run_e2e_tests.ts",

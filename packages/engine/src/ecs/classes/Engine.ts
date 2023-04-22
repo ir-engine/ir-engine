@@ -351,7 +351,12 @@ export async function destroyEngine() {
 
   /** Remove all entities */
   const entities = Engine.instance.entityQuery()
-  for (const entity of entities) if (entity) removeEntity(entity, true)
+
+  const entityPromises = [] as Promise<void>[]
+
+  for (const entity of entities) if (entity) entityPromises.push(...removeEntity(entity, true))
+
+  await Promise.all(entityPromises)
 
   for (const query of Engine.instance.reactiveQueryStates) {
     removeQuery(query.query)

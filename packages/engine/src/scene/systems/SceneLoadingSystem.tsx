@@ -51,9 +51,13 @@ import {
 } from '../../ecs/functions/EntityTree'
 import { defineSystem, disableSystems, startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
+import { MediaSettingsComponent } from '../components/MediaSettingsComponent'
 import { NameComponent } from '../components/NameComponent'
+import { PostProcessingComponent } from '../components/PostProcessingComponent'
+import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
@@ -271,19 +275,31 @@ export const updateSceneFromJSON = async () => {
     }
   }
 
-  if (sceneData.scene.metadata) {
-    for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
-      const metadata = sceneState.sceneMetadataRegistry[key] as SceneMetadata<any>
-      if (!metadata) continue
-      metadata.dataState().set(merge({}, metadata.data().value, val))
-    }
-  }
-
   /** 4. update scene entities with new data, and load new ones */
   setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null! })
   setComponent(sceneState.sceneEntity, UUIDComponent, sceneData.scene.root)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
   updateSceneEntitiesFromJSON(sceneData.scene.root)
+
+  // backwards compatibility
+  if ((sceneData.scene as any).metadata) {
+    for (const [key, val] of Object.entries((sceneData.scene as any).metadata) as any) {
+      switch (key) {
+        case 'renderSettings':
+          setComponent(sceneState.sceneEntity, RenderSettingsComponent, val)
+          break
+        case 'postprocessing':
+          setComponent(sceneState.sceneEntity, PostProcessingComponent, val)
+          break
+        case 'mediaSettings':
+          setComponent(sceneState.sceneEntity, MediaSettingsComponent, val)
+          break
+        case 'fog':
+          setComponent(sceneState.sceneEntity, FogSettingsComponent, val)
+          break
+      }
+    }
+  }
 
   if (!sceneAssetPendingTagQuery().length) {
     if (getState(EngineState).sceneLoading) dispatchAction(EngineActions.sceneLoaded({}))
