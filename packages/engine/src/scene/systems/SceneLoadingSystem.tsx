@@ -1,4 +1,4 @@
-import { cloneDeep, merge } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
 
@@ -13,8 +13,6 @@ import {
   getState,
   NO_PROXY,
   removeActionReceptor,
-  startReactor,
-  State,
   useHookstate
 } from '@etherealengine/hyperflux'
 import { getSystemsFromSceneData, SystemImportType } from '@etherealengine/projects/loadSystemInjection'
@@ -28,17 +26,15 @@ import {
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
-  ComponentMap,
   defineQuery,
   getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'

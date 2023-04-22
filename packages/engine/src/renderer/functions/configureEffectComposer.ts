@@ -2,12 +2,12 @@ import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPas
 import { VelocityDepthNormalPass } from 'realism-effects'
 import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
 
-import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
-import { EngineRenderer, getPostProcessingSceneMetadataState } from '../WebGLRendererSystem'
+import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
@@ -30,7 +30,7 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
     return
   }
 
-  const postprocessing = getPostProcessingSceneMetadataState().get(NO_PROXY)
+  const postprocessing = getState(PostProcessingSettingsState)
   if (!postprocessing.enabled) return
 
   const postProcessingEffects = postprocessing.effects as EffectPropsSchema

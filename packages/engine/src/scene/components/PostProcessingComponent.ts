@@ -32,8 +32,7 @@ export const PostProcessingComponent = defineComponent({
 
     for (const prop of Object.keys(getState(PostProcessingSettingsState))) {
       useEffect(() => {
-        if (prop! in component) return
-        if (component[prop].value !== getState(PostProcessingSettingsState)[prop].value)
+        if (component[prop].value !== getState(PostProcessingSettingsState)[prop])
           getMutableState(PostProcessingSettingsState)[prop].set(component[prop].value)
       }, component[prop])
     }

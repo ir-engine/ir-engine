@@ -44,8 +44,7 @@ export const MediaSettingsComponent = defineComponent({
 
     for (const prop of Object.keys(getState(MediaSettingsState))) {
       useEffect(() => {
-        if (prop! in component) return
-        if (component[prop].value !== getState(MediaSettingsState)[prop].value)
+        if (component[prop].value !== getState(MediaSettingsState)[prop])
           getMutableState(MediaSettingsState)[prop].set(component[prop].value)
       }, component[prop])
     }

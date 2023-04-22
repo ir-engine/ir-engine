@@ -1,18 +1,16 @@
 import { t } from 'i18next'
 import React from 'react'
 
-import { CameraSettings } from '@etherealengine/engine/src/camera/CameraState'
 import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
 import { ProjectionType } from '@etherealengine/engine/src/camera/types/ProjectionType'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 
 import { InputGroup } from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
+import { EditorComponentType } from './Util'
 
 /** Types copied from Camera Modes of engine. */
 const cameraModeSelect = [
@@ -54,10 +52,8 @@ const projectionTypeSelect = [
   }
 ]
 
-export const CameraPropertiesNodeEditor = () => {
-  const cameraSettings = useHookstate(getMutableState(CameraSettings))
-  if (!cameraSettings.value) return null
-
+export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
+  const cameraSettings = useComponent(props.entity, CameraSettingsComponent)
   return (
     <PropertyGroup
       name={t('editor:properties.cameraSettings.name')}

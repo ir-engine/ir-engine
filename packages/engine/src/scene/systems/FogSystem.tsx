@@ -3,7 +3,7 @@ import _ from 'lodash'
 import React, { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
-import { defineState, getMutableState, ReactorProps, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, ReactorProps, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
@@ -25,7 +25,7 @@ const getFogPlugin = (): PluginType => {
       FogShaders.push(shader)
       shader.uniforms.fogTime = { value: 0.0 }
       shader.uniforms.fogTimeScale = { value: 1 }
-      shader.uniforms.heightFactor = { value: getFogSceneMetadataState().height.value }
+      shader.uniforms.heightFactor = { value: getState(FogSettingState).height }
     }
   }
 }
@@ -47,8 +47,6 @@ export const FogSettingState = defineState({
   initial: DefaultFogState
 })
 
-export const getFogSceneMetadataState = () => getMutableState(FogSettingState)
-
 function addFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
   if (!obj.material || !obj.material.fog || obj.material.userData.fogPlugin) return
   obj.material.userData.fogPlugin = getFogPlugin()
@@ -68,7 +66,7 @@ function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
 }
 
 function FogGroupReactor({ obj }: GroupReactorProps) {
-  const fog = useHookstate(getFogSceneMetadataState())
+  const fog = useHookstate(getMutableState(FogSettingState))
 
   useEffect(() => {
     const customShader = fog.type.value === FogType.Brownian || fog.type.value === FogType.Height

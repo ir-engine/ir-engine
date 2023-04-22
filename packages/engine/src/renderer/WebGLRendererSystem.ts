@@ -298,12 +298,6 @@ export const PostProcessingSettingsState = defineState({
   }
 })
 
-/** @deprecated use getMutableState(RenderSettingsState) */
-export const getRendererSceneMetadataState = () => getMutableState(RenderSettingsState)
-
-/** @deprecated use getMutableState(PostProcessingSettingsState) */
-export const getPostProcessingSceneMetadataState = () => getMutableState(PostProcessingSettingsState)
-
 const execute = () => {
   EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
 }
