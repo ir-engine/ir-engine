@@ -11,7 +11,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
+import { DefaultMediaState, MediaSettingsState } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
@@ -89,26 +89,7 @@ export const MediaPrefabs = {
   volumetric: 'Volumetric' as const
 }
 
-export const DefaultMediaState = {
-  immersiveMedia: false,
-  refDistance: 20,
-  rolloffFactor: 1,
-  maxDistance: 10000,
-  distanceModel: 'linear' as DistanceModelType,
-  coneInnerAngle: 360,
-  coneOuterAngle: 0,
-  coneOuterGain: 0
-}
-
 export const MediaSceneMetadataLabel = 'mediaSettings'
-
-export const MediaSettingsState = defineState({
-  name: 'MediaSettingsState',
-  initial: DefaultMediaState
-})
-
-/** @deprecated */
-export const getMediaSceneMetadataState = () => getMutableState(MediaSettingsState)
 
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
@@ -226,7 +207,6 @@ const reactor = () => {
     Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
 
     addActionReceptor(AudioSettingReceptor)
-    addActionReceptor(MediaSettingReceptor)
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.audio)

@@ -2,8 +2,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
-import { getMediaSceneMetadataState } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import BooleanInput from '../inputs/BooleanInput'
@@ -15,7 +15,7 @@ import PropertyGroup from './PropertyGroup'
 
 export const MediaSettingsEditor = () => {
   const { t } = useTranslation()
-  const mediaState = useHookstate(getMediaSceneMetadataState())
+  const mediaState = useHookstate(getMutableState(MediaSettingsState))
   const media = mediaState.get({ noproxy: true })
 
   return (

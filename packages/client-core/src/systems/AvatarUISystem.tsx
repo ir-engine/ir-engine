@@ -22,7 +22,7 @@ import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { shouldUseImmersiveMedia } from '@etherealengine/engine/src/networking/MediaSettingsState'
+import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { Physics, RaycastArgs } from '@etherealengine/engine/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/CollisionGroups'
@@ -159,7 +159,7 @@ const execute = () => {
 
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
-  const immersiveMedia = shouldUseImmersiveMedia()
+  const immersiveMedia = getState(MediaSettingsState).immersiveMedia
 
   /** Render immersive media bubbles */
   for (const userEntity of userQuery()) {

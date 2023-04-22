@@ -289,6 +289,7 @@ export const DebugToggle = () => {
       if (keyCode === 192) {
         showingStateRef.current = !showingStateRef.current
         setShowing(showingStateRef.current)
+        getMutableState(EngineState).systemPerformanceProfilingEnabled.set(showingStateRef.current)
       }
     }
     window.addEventListener('keydown', downHandler)
