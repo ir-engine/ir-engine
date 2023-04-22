@@ -250,12 +250,7 @@ export class EngineRenderer {
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
        */
-      if (state.usePostProcessing || engineState.isEditor) {
-        this.effectComposer.render(delta)
-      } else {
-        this.renderer.autoClear = true
-        this.renderer.render(Engine.instance.scene, Engine.instance.camera)
-      }
+      this.effectComposer.render(delta)
     }
   }
 
@@ -307,7 +302,7 @@ export const RenderSettingsState = defineState({
 })
 
 export const PostProcessingSettingsState = defineState({
-  name: 'RenderSettingsState',
+  name: 'PostProcessingSettingsState',
   initial: DefaultPostProcessingState
 })
 

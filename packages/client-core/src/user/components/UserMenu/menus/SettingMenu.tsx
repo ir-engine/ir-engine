@@ -456,8 +456,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               <Grid item xs={12} sm={4}>
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-pp')}
-                  checked={postprocessingSettings.value && rendererState.usePostProcessing.value}
-                  disabled={!postprocessingSettings.value}
+                  checked={rendererState.usePostProcessing.value}
                   onChange={handlePostProcessingCheckbox}
                 />
               </Grid>

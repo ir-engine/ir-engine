@@ -18,17 +18,17 @@ export type StateDefinition<S> = {
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
+const StateDefinitions = new Set<string>()
+
 export function defineState<S>(definition: StateDefinition<S>) {
+  if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
+  StateDefinitions.add(definition.name)
   return definition as StateDefinition<S> & { _TYPE: S }
 }
 
 export function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
   logger.info(`registerState ${StateDefinition.name}`)
-  if (StateDefinition.name in store.stateMap) {
-    const err = new Error(`State ${StateDefinition.name} has already been registered in Store`)
-    logger.error(err)
-    throw err
-  }
+
   const initial =
     typeof StateDefinition.initial === 'function'
       ? (StateDefinition.initial as Function)()

@@ -5,9 +5,12 @@ import { Color } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
-import { getPostProcessingSceneMetadataState } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import {
+  getPostProcessingSceneMetadataState,
+  PostProcessingSettingsState
+} from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -235,8 +238,7 @@ export const PostProcessingSettingsEditor = () => {
   const { t } = useTranslation()
 
   const [openSettings, setOpenSettings] = useState(false)
-  const postprocessing = useHookstate(getPostProcessingSceneMetadataState())
-  if (!postprocessing.value) return null
+  const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
 
   const getPropertyValue = (keys: string[]): any => {
     if (keys.length < 1) return null
@@ -377,7 +379,7 @@ export const PostProcessingSettingsEditor = () => {
             checked={postprocessing.effects[effect]?.isActive?.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
-          {postprocessing.effects[effect].isActive.value && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect]?.isActive?.value && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )
     })
