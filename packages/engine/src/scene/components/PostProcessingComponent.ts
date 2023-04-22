@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
 
 export const PostProcessingComponent = defineComponent({
@@ -33,7 +33,9 @@ export const PostProcessingComponent = defineComponent({
     for (const prop of Object.keys(getState(PostProcessingSettingsState))) {
       useEffect(() => {
         if (component[prop].value !== getState(PostProcessingSettingsState)[prop])
-          getMutableState(PostProcessingSettingsState)[prop].set(component[prop].value)
+          getMutableState(PostProcessingSettingsState)[prop].set(
+            JSON.parse(JSON.stringify(getComponent(root.entity, PostProcessingComponent)[prop]))
+          )
       }, [component[prop]])
     }
 
