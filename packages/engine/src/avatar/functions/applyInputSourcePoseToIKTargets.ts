@@ -219,29 +219,21 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
       const matrix = new Matrix4()
       matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), matrixWorld)
 
-      const offsetmat = new Matrix4().makeRotationX(-Math.PI / 2)
-
-      matrix.multiply(offsetmat)
+      //Needs branching code to account for joint offsets / misalignment in the current avatar rig :)
+      if (
+        joint != 'thumb-metacarpal' &&
+        joint != 'thumb-phalanx-distal' &&
+        joint != 'thumb-phalanx-proximal' &&
+        joint != 'thumb-tip'
+      ) {
+        const offsetMatrix = new Matrix4().makeRotationX(-Math.PI / 2)
+        matrix.multiply(offsetMatrix)
+      } else {
+        const offsetMatrix = new Matrix4().makeRotationY(-Math.PI / 2)
+        matrix.multiply(offsetMatrix)
+      }
 
       matrix.decompose(emptyVec, bone.quaternion, emptyVec)
-
-      /*
-      const worldPos = new Vector3()
-      bone.getWorldPosition(worldPos)
-
-      const worldDir = new Vector3()
-      bone.getWorldDirection(worldDir)
-
-
-      const args = {
-        type: SceneQueryType.Closest,
-        origin: worldPos,
-        direction: worldDir,
-        maxDistance: 0.05,
-        groups: 0
-      }
-      Physics.castRay(Engine.instance.physicsWorld, args)
-      */
     }
   }
 }
@@ -290,7 +282,9 @@ export const applyInputSourcePoseToIKTargets = () => {
             if (jointPose) {
               ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
               ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
-              ik.target.quaternion.multiply(new Quaternion().setFromEuler(new Euler(0, 0, -Math.PI / 2.5)))
+              ik.target.quaternion.multiply(
+                new Quaternion().setFromEuler(new Euler(0, 0, handedness == 'right' ? Math.PI / 2.5 : -Math.PI / 2.5))
+              )
             }
           }
           applyHandPose(inputSource, localClientEntity)
