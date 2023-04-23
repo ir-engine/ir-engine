@@ -1,11 +1,10 @@
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
+import { chargebeeSettingPath } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
-
-const TABLE_NAME = 'chargebeeSetting'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -22,15 +21,15 @@ export async function seed(knex: Knex): Promise<void> {
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
-    await knex(TABLE_NAME).del()
+    await knex(chargebeeSettingPath).del()
 
     // Inserts seed entries
-    await knex(TABLE_NAME).insert(seedData)
+    await knex(chargebeeSettingPath).insert(seedData)
   } else {
     for (const item of seedData) {
-      const existingData = await knex(TABLE_NAME).where('url', item.url).andWhere('apiKey', item.apiKey)
+      const existingData = await knex(chargebeeSettingPath).where('url', item.url).andWhere('apiKey', item.apiKey)
       if (existingData.length === 0) {
-        await knex(TABLE_NAME).insert(item)
+        await knex(chargebeeSettingPath).insert(item)
       }
     }
   }

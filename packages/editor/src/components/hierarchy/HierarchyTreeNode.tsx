@@ -6,6 +6,7 @@ import { Object3D } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   getAllComponents,
   getComponent,
@@ -20,6 +21,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { ErrorComponent, ErrorComponentType } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -73,8 +75,8 @@ export type HierarchyTreeNodeProps = {
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
-  const engineState = useEngineState()
   const selectionState = useSelectionState()
+  useComponent(getMutableState(SceneState).sceneEntity.value, EntityTreeComponent)
 
   const nodeName = node.obj3d
     ? node.obj3d.name ?? node.obj3d.uuid

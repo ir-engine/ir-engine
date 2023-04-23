@@ -9,13 +9,13 @@ import { PartyUser } from '@etherealengine/common/src/interfaces/PartyUser'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
-  createActionQueue,
   defineAction,
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
-  removeActionQueue,
   useState
 } from '@etherealengine/hyperflux'
 
@@ -121,55 +121,6 @@ const removedPartyUserReceptor = (action: typeof PartyActions.removedPartyUserAc
   }
 }
 
-export default async function PartyReceptorSystem() {
-  const loadedPartyQueue = createActionQueue(PartyActions.loadedPartyAction.matches)
-  const createdPartyQueue = createActionQueue(PartyActions.createdPartyAction.matches)
-  const removedPartyQueue = createActionQueue(PartyActions.removedPartyAction.matches)
-  const invitedPartyUserQueue = createActionQueue(PartyActions.invitedPartyUserAction.matches)
-  const createdPartyUserQueue = createActionQueue(PartyActions.createdPartyUserAction.matches)
-  const patchedPartyUserQueue = createActionQueue(PartyActions.patchedPartyUserAction.matches)
-  const removedPartyUserQueue = createActionQueue(PartyActions.removedPartyUserAction.matches)
-  const changedPartyActionQueue = createActionQueue(PartyActions.changedPartyAction.matches)
-  const resetUpdateNeededActionQueue = createActionQueue(PartyActions.resetUpdateNeededAction.matches)
-
-  const execute = () => {
-    for (const action of loadedPartyQueue()) PartyServiceReceptors.loadedPartyReceptor(action)
-    for (const action of createdPartyQueue()) PartyServiceReceptors.createdPartyReceptor(action)
-    for (const action of removedPartyQueue()) PartyServiceReceptors.removedPartyReceptor(action)
-    for (const action of invitedPartyUserQueue()) PartyServiceReceptors.invitedPartyUserReceptor(action)
-    for (const action of createdPartyUserQueue()) PartyServiceReceptors.createdPartyUserReceptor(action)
-    for (const action of patchedPartyUserQueue()) PartyServiceReceptors.patchedPartyUserReceptor(action)
-    for (const action of removedPartyUserQueue()) PartyServiceReceptors.removedPartyUserReceptor(action)
-    for (const action of changedPartyActionQueue()) PartyServiceReceptors.changedPartyReceptor(action)
-    for (const action of resetUpdateNeededActionQueue()) PartyServiceReceptors.resetUpdateNeededReceptor(action)
-  }
-
-  const cleanup = async () => {
-    removeActionQueue(loadedPartyQueue)
-    removeActionQueue(createdPartyQueue)
-    removeActionQueue(removedPartyQueue)
-    removeActionQueue(invitedPartyUserQueue)
-    removeActionQueue(createdPartyUserQueue)
-    removeActionQueue(patchedPartyUserQueue)
-    removeActionQueue(removedPartyUserQueue)
-    removeActionQueue(changedPartyActionQueue)
-    removeActionQueue(resetUpdateNeededActionQueue)
-  }
-
-  return { execute, cleanup }
-}
-
-export const PartyServiceReceptors = {
-  loadedPartyReceptor,
-  createdPartyReceptor,
-  removedPartyReceptor,
-  invitedPartyUserReceptor,
-  createdPartyUserReceptor,
-  patchedPartyUserReceptor,
-  removedPartyUserReceptor,
-  changedPartyReceptor,
-  resetUpdateNeededReceptor
-}
 /**@deprecated use getMutableState directly instead */
 export const accessPartyState = () => getMutableState(PartyState)
 /**@deprecated use useHookstate(getMutableState(...) directly instead */
@@ -454,4 +405,43 @@ export class PartyActions {
   static resetUpdateNeededAction = defineAction({
     type: 'ee.client.Party.RESET_UPDATE_NEEDED' as const
   })
+}
+
+const loadedPartyQueue = defineActionQueue(PartyActions.loadedPartyAction.matches)
+const createdPartyQueue = defineActionQueue(PartyActions.createdPartyAction.matches)
+const removedPartyQueue = defineActionQueue(PartyActions.removedPartyAction.matches)
+const invitedPartyUserQueue = defineActionQueue(PartyActions.invitedPartyUserAction.matches)
+const createdPartyUserQueue = defineActionQueue(PartyActions.createdPartyUserAction.matches)
+const patchedPartyUserQueue = defineActionQueue(PartyActions.patchedPartyUserAction.matches)
+const removedPartyUserQueue = defineActionQueue(PartyActions.removedPartyUserAction.matches)
+const changedPartyActionQueue = defineActionQueue(PartyActions.changedPartyAction.matches)
+const resetUpdateNeededActionQueue = defineActionQueue(PartyActions.resetUpdateNeededAction.matches)
+
+const execute = () => {
+  for (const action of loadedPartyQueue()) PartyServiceReceptors.loadedPartyReceptor(action)
+  for (const action of createdPartyQueue()) PartyServiceReceptors.createdPartyReceptor(action)
+  for (const action of removedPartyQueue()) PartyServiceReceptors.removedPartyReceptor(action)
+  for (const action of invitedPartyUserQueue()) PartyServiceReceptors.invitedPartyUserReceptor(action)
+  for (const action of createdPartyUserQueue()) PartyServiceReceptors.createdPartyUserReceptor(action)
+  for (const action of patchedPartyUserQueue()) PartyServiceReceptors.patchedPartyUserReceptor(action)
+  for (const action of removedPartyUserQueue()) PartyServiceReceptors.removedPartyUserReceptor(action)
+  for (const action of changedPartyActionQueue()) PartyServiceReceptors.changedPartyReceptor(action)
+  for (const action of resetUpdateNeededActionQueue()) PartyServiceReceptors.resetUpdateNeededReceptor(action)
+}
+
+export const PartyServiceReceptorSystem = defineSystem({
+  uuid: 'ee.client.PartyServiceReceptorSystem',
+  execute
+})
+
+export const PartyServiceReceptors = {
+  loadedPartyReceptor,
+  createdPartyReceptor,
+  removedPartyReceptor,
+  invitedPartyUserReceptor,
+  createdPartyUserReceptor,
+  patchedPartyUserReceptor,
+  removedPartyUserReceptor,
+  changedPartyReceptor,
+  resetUpdateNeededReceptor
 }

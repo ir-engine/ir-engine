@@ -33,7 +33,7 @@ export const useLoadLocationScene = () => {
       locationState.locationName.value &&
       authState.isLoggedIn.value
     ) {
-      LocationService.getLocationByName(locationState.locationName.value, selfUser.id.value)
+      LocationService.getLocationByName(locationState.locationName.value)
     }
   }, [authState.isLoggedIn.value, locationState.locationName.value])
 

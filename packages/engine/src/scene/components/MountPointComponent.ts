@@ -18,6 +18,7 @@ export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
+  jsonID: 'mount-point',
 
   onInit: (entity) => {
     return {
@@ -65,5 +66,3 @@ export const MountPointComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_MOUNT_POINT = 'mount-point'

@@ -14,6 +14,7 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './Group
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
+  jsonID: 'ground-plane',
 
   onInit(entity) {
     return {
@@ -34,7 +35,7 @@ export const GroundPlaneComponent = defineComponent({
 
   toJSON(entity, component) {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       visible: component.visible.value
     }
   },
@@ -81,5 +82,3 @@ export const GroundPlaneComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_GROUND_PLANE = 'ground-plane'

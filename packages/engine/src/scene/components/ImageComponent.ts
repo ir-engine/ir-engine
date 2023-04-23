@@ -47,6 +47,7 @@ export type ImageResource = {
 
 export const ImageComponent = defineComponent({
   name: 'EE_image',
+  jsonID: 'image',
 
   onInit: (entity) => {
     return {
@@ -129,8 +130,6 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
   }
   return geometry
 }
-
-export const SCENE_COMPONENT_IMAGE = 'image'
 
 export function ImageReactor({ root }: EntityReactorProps) {
   const entity = root.entity

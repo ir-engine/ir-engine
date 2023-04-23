@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC, memo } from 'react'
 import { Camera, Material, Mesh, Object3D } from 'three'
 
 import { none } from '@etherealengine/hyperflux'
@@ -14,16 +14,16 @@ import {
   hasComponent,
   QueryComponents,
   removeComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
+import { createQueryReactor } from '../../ecs/functions/SystemFunctions'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
+  jsonID: 'group',
 
   onInit: (entity: Entity) => {
     return [] as Object3DWithEntity[]
@@ -94,25 +94,22 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
   object.removeFromParent()
 }
 
-export const SCENE_COMPONENT_GROUP = 'group'
-
 export type GroupReactorProps = {
   entity: Entity
   obj: Object3DWithEntity
 }
 
-export const startGroupQueryReactor = (
-  GroupChildReactor: React.FC<GroupReactorProps>,
-  Components: QueryComponents = []
-) =>
-  startQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
+export const createGroupQueryReactor = (GroupChildReactor: FC<GroupReactorProps>, Components: QueryComponents = []) => {
+  const MemoGroupChildReactor = memo(GroupChildReactor)
+  return createQueryReactor([GroupComponent, ...Components], function GroupQueryReactor(props) {
     const entity = props.root.entity
     const groupComponent = useComponent(entity, GroupComponent)
     return (
       <>
         {groupComponent.value.map((obj, i) => (
-          <GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+          <MemoGroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
         ))}
       </>
     )
   })
+}

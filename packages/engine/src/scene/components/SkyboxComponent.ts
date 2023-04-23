@@ -15,6 +15,7 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
+  jsonID: 'skybox',
   onInit: (entity) => {
     return {
       backgroundColor: new Color(0x000000),
@@ -42,7 +43,7 @@ export const SkyboxComponent = defineComponent({
   },
   toJSON: (entity, component) => {
     return {
-      backgroundColor: component.backgroundColor.value.getHexString() as any as Color,
+      backgroundColor: component.backgroundColor.value,
       equirectangularPath: component.equirectangularPath.value,
       cubemapPath: component.cubemapPath.value,
       backgroundType: component.backgroundType.value,
@@ -132,5 +133,3 @@ export const SkyboxComponent = defineComponent({
 
   errors: ['FILE_ERROR']
 })
-
-export const SCENE_COMPONENT_SKYBOX = 'skybox'

@@ -154,7 +154,10 @@ export default defineConfig(async () => {
     server: {
       hmr: false,
       host: process.env['VITE_APP_HOST'],
-      port: process.env['VITE_APP_PORT']
+      port: process.env['VITE_APP_PORT'],
+      headers: {
+        'Origin-Agent-Cluster': '?1'
+      }
     },
     resolve: {
       alias: {
@@ -170,7 +173,7 @@ export default defineConfig(async () => {
         warnOnError: true
       },
       rollupOptions: {
-        external: ['dotenv-flow', 'fs'],
+        external: ['dotenv-flow'],
         output: {
           dir: 'dist',
           format: 'es'

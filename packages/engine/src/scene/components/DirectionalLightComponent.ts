@@ -13,6 +13,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
+  jsonID: 'directional-light',
 
   onInit: (entity) => {
     const light = new DirectionalLight()
@@ -52,7 +53,7 @@ export const DirectionalLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       cameraFar: component.cameraFar.value,
       castShadow: component.castShadow.value,
@@ -130,5 +131,3 @@ export const DirectionalLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'

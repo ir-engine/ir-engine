@@ -1,4 +1,4 @@
-import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -189,8 +189,11 @@ type XRFrameWithFillPoses = XRFrame & {
 }
 
 const emptyVec = new Vector3()
-
 const mat4 = new Matrix4()
+
+const offsetMatrix = new Matrix4()
+const matrixWorld = new Matrix4()
+const matrix = new Matrix4()
 
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const hand = inputSource.hand as any as XRHand
@@ -201,16 +204,38 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const radii1 = new Float32Array(25)
 
   xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
+  xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
+
   // xrFrame.fillJointRadii!(hand.values(), radii1)
+
+  const rightHandPos = new Vector3()
+  rig.rig.RightHand.getWorldPosition(rightHandPos)
 
   for (let i = 0; i < XRJointBones.length; i++) {
     const joint = XRJointBones[i]
+
     if (joint === 'wrist') continue
     const bone = getBoneNameFromXRHand(inputSource.handedness, joint, rig.rig)
     if (bone) {
-      bone.matrixWorld.fromArray(poses1, i * 16) //.multiply(webxrJointRotation)
-      bone.matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), bone.matrixWorld)
-      bone.matrix.decompose(bone.position, bone.quaternion, emptyVec)
+      matrixWorld.fromArray(poses1, i * 16)
+
+      matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), matrixWorld)
+
+      //Needs branching code to account for joint offsets / misalignment in the current avatar rig
+      if (
+        joint != 'thumb-metacarpal' &&
+        joint != 'thumb-phalanx-distal' &&
+        joint != 'thumb-phalanx-proximal' &&
+        joint != 'thumb-tip'
+      ) {
+        offsetMatrix.makeRotationX(-Math.PI / 2)
+        matrix.multiply(offsetMatrix)
+      } else {
+        offsetMatrix.makeRotationY(-Math.PI / 2)
+        matrix.multiply(offsetMatrix)
+      }
+
+      matrix.decompose(emptyVec, bone.quaternion, emptyVec)
     }
   }
 }
@@ -235,14 +260,23 @@ export const applyInputSourcePoseToIKTargets = () => {
     }
 
     for (const inputSource of Engine.instance.inputSources) {
-      /** Left Hand */
-      if (inputSource.handedness === 'left' && hasComponent(localClientEntity, AvatarLeftArmIKComponent)) {
-        const ik = getComponent(localClientEntity, AvatarLeftArmIKComponent)
+      const handedness = inputSource.handedness
+
+      let AvatarArmIKComponent = AvatarLeftArmIKComponent
+      let XRHandComponent = XRLeftHandComponent
+
+      if (handedness === 'right') {
+        AvatarArmIKComponent = AvatarRightArmIKComponent
+        XRHandComponent = XRRightHandComponent
+      }
+
+      if (hasComponent(localClientEntity, AvatarArmIKComponent)) {
+        const ik = getComponent(localClientEntity, AvatarArmIKComponent)
         const hand = inputSource.hand as XRHand | undefined
         /** detect hand joint pose support */
         if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {
-          if (!hasComponent(localClientEntity, XRLeftHandComponent)) {
-            setComponent(localClientEntity, XRLeftHandComponent, { hand })
+          if (!hasComponent(localClientEntity, XRHandComponent)) {
+            setComponent(localClientEntity, XRHandComponent, { hand })
           }
           const wrist = hand.get('wrist')
           if (wrist) {
@@ -250,48 +284,14 @@ export const applyInputSourcePoseToIKTargets = () => {
             if (jointPose) {
               ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
               ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
+              ik.target.quaternion.multiply(
+                new Quaternion().setFromEuler(new Euler(0, 0, handedness == 'right' ? Math.PI / 2.5 : -Math.PI / 2.5))
+              )
             }
           }
-          // applyHandPose(inputSource, localClientEntity)
+          applyHandPose(inputSource, localClientEntity)
         } else {
-          if (hasComponent(localClientEntity, XRLeftHandComponent))
-            removeComponent(localClientEntity, XRLeftHandComponent)
-          if (inputSource.gripSpace) {
-            const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
-            if (pose) {
-              ik.target.position.copy(pose.transform.position as any as Vector3)
-              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
-            }
-          } else {
-            const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
-            if (pose) {
-              ik.target.position.copy(pose.transform.position as any as Vector3)
-              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
-            }
-          }
-        }
-      }
-
-      /** Right Hand */
-      if (inputSource.handedness === 'right' && hasComponent(localClientEntity, AvatarRightArmIKComponent)) {
-        const ik = getComponent(localClientEntity, AvatarRightArmIKComponent)
-        const hand = inputSource.hand as XRHand | undefined
-        if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {
-          if (!hasComponent(localClientEntity, XRRightHandComponent)) {
-            setComponent(localClientEntity, XRRightHandComponent, { hand })
-          }
-          const wrist = hand.get('wrist')
-          if (wrist) {
-            const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
-            if (jointPose) {
-              ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
-              ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
-            }
-          }
-          // applyHandPose(inputSource, localClientEntity)
-        } else {
-          if (hasComponent(localClientEntity, XRRightHandComponent))
-            removeComponent(localClientEntity, XRRightHandComponent)
+          if (hasComponent(localClientEntity, XRHandComponent)) removeComponent(localClientEntity, XRHandComponent)
           if (inputSource.gripSpace) {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
             if (pose) {
