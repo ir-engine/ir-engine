@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { defineActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -14,8 +14,7 @@ import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSyste
 const sceneLoadedQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const execute = () => {
-  if (sceneLoadedQueue().length && getMutableState(EngineState).isTeleporting.value)
-    revertAvatarToMovingStateFromTeleport()
+  if (sceneLoadedQueue().length && getState(EngineState).isTeleporting) revertAvatarToMovingStateFromTeleport()
 }
 
 const reactor = () => {

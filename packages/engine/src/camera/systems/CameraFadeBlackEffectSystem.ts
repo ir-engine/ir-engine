@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Color, Mesh, PlaneGeometry, ShaderMaterial } from 'three'
 
-import { defineActionQueue, defineState, getMutableState, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'

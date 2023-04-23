@@ -1,43 +1,23 @@
 import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import {
-  defineActionQueue,
-  getMutableState,
-  getState,
-  ReactorProps,
-  removeActionQueue,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, getState, ReactorProps } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
-import {
-  ComponentType,
-  defineQuery,
-  getComponent,
-  removeQuery,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
+import { MediaSettingsState } from '../../networking/MediaSettingsState'
 import { webcamAudioDataChannelType } from '../../networking/NetworkState'
-import {
-  AudioNodeGroup,
-  AudioNodeGroups,
-  createAudioNodeGroup,
-  MediaElementComponent
-} from '../../scene/components/MediaComponent'
+import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioSettingAction, AudioState } from '../AudioState'
-import { PositionalAudioComponent, PositionalAudioInterface } from '../components/PositionalAudioComponent'
+import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
-import { getMediaSceneMetadataState } from './MediaSystem'
 
 const _vec3 = new Vector3()
 const _rot = new Vector3()
@@ -62,9 +42,8 @@ const execute = () => {
 
   const audioContext = audioState.audioContext
   const network = Engine.instance.mediaNetwork
-  const immersiveMedia = shouldUseImmersiveMedia()
-  const positionalAudioSettings = getMediaSceneMetadataState()?.value
-  if (!positionalAudioSettings) return
+  const mediaSettings = getState(MediaSettingsState)
+  const immersiveMedia = mediaSettings.immersiveMedia
 
   /**
    * Scene Objects
@@ -103,7 +82,7 @@ const execute = () => {
       // only force positional audio for avatar media streams in XR
       const audioNodes = AudioNodeGroups.get(existingAudioObj)!
       if (audioNodes.panner && !immersiveMedia) removePannerNode(audioNodes)
-      else if (!audioNodes.panner && immersiveMedia) addPannerNode(audioNodes, positionalAudioSettings)
+      else if (!audioNodes.panner && immersiveMedia) addPannerNode(audioNodes, mediaSettings)
 
       // audio stream exists and has already been handled
       continue
@@ -131,7 +110,7 @@ const execute = () => {
     )
     audioNodes.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
 
-    if (immersiveMedia) addPannerNode(audioNodes, positionalAudioSettings)
+    if (immersiveMedia) addPannerNode(audioNodes, mediaSettings)
 
     avatarAudioStreams.set(networkObject, stream)
   }
@@ -176,7 +155,7 @@ const execute = () => {
     getAvatarBoneWorldPosition(entity, 'Head', _vec3)
     const { rotation } = getComponent(entity, TransformComponent)
 
-    updateAudioPanner(panner, _vec3, rotation, endTime, positionalAudioSettings)
+    updateAudioPanner(panner, _vec3, rotation, endTime, mediaSettings)
   }
 
   /**

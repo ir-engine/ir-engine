@@ -11,7 +11,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { editorCameraCenter, EditorCameraState } from '../classes/EditorCameraState'
 
@@ -28,8 +28,7 @@ const spherical = new Spherical()
 
 const execute = () => {
   if (Engine.instance.localClientEntity) return
-  const editorCameraState = getMutableState(EditorCameraState)
-  const editorCamera = editorCameraState.value
+  const editorCamera = getState(EditorCameraState)
   const entity = Engine.instance.cameraEntity
   const transform = getComponent(entity, TransformComponent)
   const camera = getComponent(entity, CameraComponent)
@@ -41,7 +40,7 @@ const execute = () => {
       delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
       transform.position.add(delta)
     }
-    editorCameraState.zoomDelta.set(0)
+    getMutableState(EditorCameraState).zoomDelta.set(0)
   }
 
   if (editorCamera.refocus) {
@@ -81,6 +80,7 @@ const execute = () => {
       .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
     transform.position.copy(editorCameraCenter).add(delta)
 
+    const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.focusedObjects.set(null!)
     editorCameraState.refocus.set(false)
   }
@@ -94,7 +94,7 @@ const execute = () => {
     transform.position.add(delta)
     editorCameraCenter.add(delta)
 
-    editorCameraState.isPanning.set(false)
+    getMutableState(EditorCameraState).isPanning.set(false)
   }
 
   if (editorCamera.isOrbiting) {
@@ -112,7 +112,7 @@ const execute = () => {
     transform.position.copy(camera.position)
     transform.rotation.copy(camera.quaternion)
 
-    editorCameraState.isOrbiting.set(false)
+    getMutableState(EditorCameraState).isOrbiting.set(false)
   }
 }
 

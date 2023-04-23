@@ -19,8 +19,6 @@ import {
   PCFSoftShadowMap,
   PerspectiveCamera,
   ShadowMapType,
-  Skeleton,
-  SkinnedMesh,
   sRGBEncoding,
   ToneMapping,
   WebGL1Renderer,
@@ -28,27 +26,15 @@ import {
   WebGLRendererParameters
 } from 'three'
 
-import {
-  defineActionQueue,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  hookstate,
-  none,
-  removeActionQueue,
-  startReactor,
-  State,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
-import { SceneMetadata, SceneState } from '../ecs/classes/Scene'
+import { EngineActions, EngineState } from '../ecs/classes/EngineState'
+import { SceneState } from '../ecs/classes/Scene'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
@@ -236,10 +222,9 @@ export class EngineRenderer {
 
       this.renderer.render(Engine.instance.scene, Engine.instance.camera)
     } else {
-      const state = getMutableState(RendererState)
-      const engineState = getEngineState()
-      if (!engineState.isEditor.value && state.automatic.value && engineState.joinedWorld.value)
-        this.changeQualityLevel()
+      const state = getState(RendererState)
+      const engineState = getState(EngineState)
+      if (!engineState.isEditor && state.automatic && engineState.joinedWorld) this.changeQualityLevel()
       if (this.needsResize) {
         const curPixelRatio = this.renderer.getPixelRatio()
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
@@ -255,7 +240,7 @@ export class EngineRenderer {
           cam.updateProjectionMatrix()
         }
 
-        state.qualityLevel.value > 0 && this.csm?.updateFrustums()
+        state.qualityLevel > 0 && this.csm?.updateFrustums()
         // Effect composer calls renderer.setSize internally
         this.effectComposer.setSize(width, height, true)
         this.needsResize = false
@@ -265,12 +250,7 @@ export class EngineRenderer {
        * Editor should always use post processing, even if no postprocessing schema is in the scene,
        *   it still uses post processing for effects such as outline.
        */
-      if (state.usePostProcessing.value || engineState.isEditor.value) {
-        this.effectComposer.render(delta)
-      } else {
-        this.renderer.autoClear = true
-        this.renderer.render(Engine.instance.scene, Engine.instance.camera)
-      }
+      this.effectComposer.render(delta)
     }
   }
 
@@ -282,55 +262,41 @@ export class EngineRenderer {
     const delta = time - lastRenderTime
     lastRenderTime = time
 
-    const state = getMutableState(RendererState)
-    let qualityLevel = state.qualityLevel.value
+    const { qualityLevel } = getState(RendererState)
+    let newQualityLevel = qualityLevel
 
     this.movingAverage.update(Math.min(delta, 50))
     const averageDelta = this.movingAverage.mean
 
-    if (averageDelta > this.maxRenderDelta && qualityLevel > 1) {
-      qualityLevel--
-    } else if (averageDelta < this.minRenderDelta && qualityLevel < this.maxQualityLevel) {
-      qualityLevel++
+    if (averageDelta > this.maxRenderDelta && newQualityLevel > 1) {
+      newQualityLevel--
+    } else if (averageDelta < this.minRenderDelta && newQualityLevel < this.maxQualityLevel) {
+      newQualityLevel++
     }
 
-    if (qualityLevel !== state.qualityLevel.value) {
-      state.qualityLevel.set(qualityLevel)
+    if (newQualityLevel !== qualityLevel) {
+      getMutableState(RendererState).qualityLevel.set(newQualityLevel)
     }
   }
 }
 
-export const DefaultRenderSettingsState = {
-  // LODs: { ...DEFAULT_LOD_DISTANCES },{
-  csm: true,
-  toneMapping: LinearToneMapping as ToneMapping,
-  toneMappingExposure: 0.8,
-  shadowMapType: PCFSoftShadowMap as ShadowMapType
-}
-
-export const DefaultPostProcessingState = {
-  enabled: false,
-  effects: defaultPostProcessingSchema
-}
-
-export const RendererSceneMetadataLabel = 'renderSettings'
-export const PostProcessingSceneMetadataLabel = 'postprocessing'
-
 export const RenderSettingsState = defineState({
   name: 'RenderSettingsState',
-  initial: DefaultRenderSettingsState
+  initial: {
+    csm: true,
+    toneMapping: LinearToneMapping as ToneMapping,
+    toneMappingExposure: 0.8,
+    shadowMapType: PCFSoftShadowMap as ShadowMapType
+  }
 })
 
 export const PostProcessingSettingsState = defineState({
-  name: 'RenderSettingsState',
-  initial: DefaultPostProcessingState
+  name: 'PostProcessingSettingsState',
+  initial: {
+    enabled: false,
+    effects: defaultPostProcessingSchema
+  }
 })
-
-/** @deprecated use getMutableState(RenderSettingsState) */
-export const getRendererSceneMetadataState = () => getMutableState(RenderSettingsState)
-
-/** @deprecated use getMutableState(PostProcessingSettingsState) */
-export const getPostProcessingSceneMetadataState = () => getMutableState(PostProcessingSettingsState)
 
 const execute = () => {
   EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
@@ -343,24 +309,6 @@ const reactor = () => {
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
   const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
   const xrState = useHookstate(getMutableState(XRState))
-
-  useEffect(() => {
-    getMutableState(SceneState).sceneMetadataRegistry.merge({
-      [RendererSceneMetadataLabel]: {
-        data: () => getState(RenderSettingsState),
-        default: DefaultRenderSettingsState
-      },
-      [PostProcessingSceneMetadataLabel]: {
-        data: () => getState(PostProcessingSettingsState),
-        default: DefaultPostProcessingState
-      }
-    })
-
-    return () => {
-      getMutableState(SceneState).sceneMetadataRegistry[RendererSceneMetadataLabel].set(none)
-      getMutableState(SceneState).sceneMetadataRegistry[PostProcessingSceneMetadataLabel].set(none)
-    }
-  }, [])
 
   useEffect(() => {
     EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
@@ -376,7 +324,7 @@ const reactor = () => {
 
   useEffect(() => {
     configureEffectComposer()
-  }, [postprocessing, engineRendererSettings.usePostProcessing])
+  }, [postprocessing, postprocessing.effects, engineRendererSettings.usePostProcessing])
 
   useEffect(() => {
     EngineRenderer.instance.scaleFactor =

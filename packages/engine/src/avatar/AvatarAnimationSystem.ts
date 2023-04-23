@@ -1,22 +1,11 @@
 import { useEffect } from 'react'
-import React from 'react'
-import { Bone, MathUtils, Object3D, Vector3 } from 'three'
+import { Bone, MathUtils, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import {
-  defineActionQueue,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  startReactor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
-import { isClient } from '../common/functions/isClient'
-import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import {
@@ -25,7 +14,6 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -39,7 +27,7 @@ import {
 } from '../transform/components/DistanceComponents'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
-import { getCameraMode, isMobileXRHeadset, ReferenceSpace, XRState } from '../xr/XRState'
+import { getCameraMode, isMobileXRHeadset, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -301,9 +289,9 @@ const execute = () => {
     const { rig } = getComponent(entity, AvatarRigComponent)
 
     const ik = getComponent(entity, AvatarRightArmIKComponent)
-    ik.target.updateMatrixWorld(true)
 
     if (!ik.target.position.equals(V_000)) {
+      ik.target.updateMatrixWorld(true)
       rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
       /** @todo see if this is still necessary */
       rig.RightForeArm.updateWorldMatrix(false, true)

@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '../classes/Network'
-import { addDataChannelHandler, NetworkState, removeDataChannelHandler } from '../NetworkState'
+import { addDataChannelHandler, removeDataChannelHandler } from '../NetworkState'
 import { createDataReader } from '../serialization/DataReader'
 
 export const applyUnreliableQueueFast = (deserialize: any) => () => {

@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { defineActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, getState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -255,10 +255,10 @@ const execute = () => {
   /**
    * Sort transforms if needed
    */
-  const { transformsNeedSorting } = getMutableState(EngineState)
+  const { transformsNeedSorting } = getState(EngineState)
   const xrFrame = Engine.instance.xrFrame
 
-  let needsSorting = transformsNeedSorting.value
+  let needsSorting = transformsNeedSorting
 
   for (const entity of transformQuery.enter()) {
     sortedTransformEntities.push(entity)
@@ -276,7 +276,7 @@ const execute = () => {
     for (const entity of sortedTransformEntities) updateTransformDepth(entity)
     for (const entity of sortedTransformEntities) updateOriginChildEntities(entity)
     insertionSort(sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
-    transformsNeedSorting.set(false)
+    getMutableState(EngineState).transformsNeedSorting.set(false)
   }
 
   /**
@@ -287,7 +287,7 @@ const execute = () => {
 
   // lerp awake rigidbody entities (and make their transforms dirty)
   const fixedRemainder = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
-  const alpha = Math.min(fixedRemainder / getMutableState(EngineState).fixedDeltaSeconds.value, 1)
+  const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds, 1)
   for (const entity of awakeRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty

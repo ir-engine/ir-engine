@@ -1,13 +1,10 @@
 import React, { useEffect } from 'react'
 import {
   Box3,
-  BoxGeometry,
   DirectionalLight,
   DoubleSide,
   Group,
-  InstancedMesh,
   Material,
-  Matrix4,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -21,14 +18,7 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import {
-  getMutableState,
-  getState,
-  hookstate,
-  ReactorProps,
-  startReactor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { getMutableState, getState, hookstate, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
@@ -42,19 +32,17 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent,
   useComponent,
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer, getRendererSceneMetadataState } from '../../renderer/WebGLRendererSystem'
-import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
@@ -63,7 +51,6 @@ import { NameComponent } from '../components/NameComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { enableObjectLayer } from '../functions/setObjectLayers'
 
 export const shadowDirection = new Vector3(0, -1, 0)
 const shadowRotation = new Quaternion()
@@ -84,7 +71,7 @@ const UpdateCSMFromActiveDirectionalLight = (props: { activeLightEntity: Entity;
   const activeLightFromEntity = useOptionalComponent(activeLightEntity, DirectionalLightComponent)?.value.light
   if (!activeLight) activeLight = activeLightFromEntity
 
-  const csmEnabled = useHookstate(getRendererSceneMetadataState())?.csm?.value
+  const csmEnabled = useHookstate(getMutableState(RenderSettingsState))?.csm?.value
 
   const shadowsEnabled = useShadowsEnabled()
   const useCSM = shadowsEnabled && csmEnabled
@@ -181,17 +168,16 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
   const shadowMaterial = useHookstate(shadowState)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const shadow = useComponent(entity, ShadowComponent)
-  const hasDropShadow = useOptionalComponent(entity, DropShadowComponent)
 
   useEffect(() => {
     if (
-      getMutableState(EngineState).isEditor.value ||
+      getState(EngineState).isEditor ||
       !shadow.cast.value ||
       !shadowMaterial.value ||
       useShadows ||
       !groupComponent ||
       groupComponent.value.length === 0 ||
-      hasDropShadow?.value
+      hasComponent(entity, DropShadowComponent)
     )
       return
 
@@ -227,7 +213,7 @@ const execute = () => {
   sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
 
   const useShadows = getShadowsEnabled()
-  if (!useShadows && !getMutableState(EngineState).isEditor.value) {
+  if (!useShadows && !getState(EngineState).isEditor) {
     for (const entity of dropShadowComponentQuery()) {
       const dropShadow = getComponent(entity, DropShadowComponent)
       const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)

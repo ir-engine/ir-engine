@@ -34,7 +34,8 @@ export const EngineState = defineState({
     publicPath: '',
     transformsNeedSorting: true,
     isBot: false,
-    isEditor: false
+    isEditor: false,
+    systemPerformanceProfilingEnabled: false
   }
 })
 

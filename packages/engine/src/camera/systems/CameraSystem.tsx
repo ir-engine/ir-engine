@@ -5,18 +5,7 @@ import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import {
-  defineActionQueue,
-  dispatchAction,
-  getMutableState,
-  getState,
-  hookstate,
-  none,
-  removeActionQueue,
-  startReactor,
-  State,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
@@ -26,17 +15,14 @@ import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -45,19 +31,12 @@ import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import {
-  CameraSceneMetadataLabel,
-  CameraSettingsState,
-  DefaultCameraState,
-  getCameraSceneMetadataState
-} from '../CameraSceneMetadata'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraComponent } from '../components/CameraComponent'
 import { coneDebugHelpers, debugRays, FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { CameraMode } from '../types/CameraMode'
-import { ProjectionType } from '../types/ProjectionType'
 import { CameraFadeBlackEffectSystem } from './CameraFadeBlackEffectSystem'
 
 const direction = new Vector3()
@@ -264,7 +243,7 @@ const spectateUserActions = defineActionQueue(EngineActions.spectateUser.matches
 const exitSpectateActions = defineActionQueue(EngineActions.exitSpectate.matches)
 
 function CameraReactor() {
-  const cameraSettings = useHookstate(getCameraSceneMetadataState())
+  const cameraSettings = useHookstate(getMutableState(CameraSettingsState))
 
   useEffect(() => {
     if (!cameraSettings?.cameraNearClip) return
@@ -335,19 +314,6 @@ const execute = () => {
 }
 
 const reactor = () => {
-  useEffect(() => {
-    getMutableState(SceneState).sceneMetadataRegistry.merge({
-      [CameraSceneMetadataLabel]: {
-        data: () => getState(CameraSettingsState),
-        default: DefaultCameraState
-      }
-    })
-
-    return () => {
-      getMutableState(SceneState).sceneMetadataRegistry[CameraSceneMetadataLabel].set(none)
-    }
-  }, [])
-
   return <CameraReactor />
 }
 

@@ -1,4 +1,4 @@
-import { cloneDeep, merge } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
 
@@ -13,8 +13,6 @@ import {
   getState,
   NO_PROXY,
   removeActionReceptor,
-  startReactor,
-  State,
   useHookstate
 } from '@etherealengine/hyperflux'
 import { getSystemsFromSceneData, SystemImportType } from '@etherealengine/projects/loadSystemInjection'
@@ -28,17 +26,15 @@ import {
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { SceneMetadata, SceneState } from '../../ecs/classes/Scene'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
-  ComponentMap,
   defineQuery,
   getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -51,9 +47,13 @@ import {
 } from '../../ecs/functions/EntityTree'
 import { defineSystem, disableSystems, startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
+import { MediaSettingsComponent } from '../components/MediaSettingsComponent'
 import { NameComponent } from '../components/NameComponent'
+import { PostProcessingComponent } from '../components/PostProcessingComponent'
+import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
@@ -222,7 +222,7 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
  * @param sceneData
  */
 export const updateSceneFromJSON = async () => {
-  const sceneState = getMutableState(SceneState)
+  const sceneState = getState(SceneState)
 
   if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
     dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
@@ -233,7 +233,7 @@ export const updateSceneFromJSON = async () => {
 
   const systemsToLoad = [] as SystemImportType[]
 
-  if (!getMutableState(EngineState).isEditor.value) {
+  if (!getState(EngineState).isEditor) {
     /** get systems that have changed */
     const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
@@ -253,40 +253,52 @@ export const updateSceneFromJSON = async () => {
   }
 
   /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
-  const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity.value).filter(
+  const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
     (entity) =>
       !sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
       !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity')
   )
   /** @todo this will not  */
   for (const node of oldLoadedEntityNodesToRemove) {
-    if (node === sceneState.sceneEntity.value) continue
+    if (node === sceneState.sceneEntity) continue
     removeEntityNodeRecursively(node, false)
   }
 
   /** 3. load new systems */
-  if (!getMutableState(EngineState).isEditor.value) {
+  if (!getState(EngineState).isEditor) {
     for (const system of systemsToLoad) {
       startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
     }
   }
 
-  if (sceneData.scene.metadata) {
-    for (const [key, val] of Object.entries(sceneData.scene.metadata)) {
-      const metadata = sceneState.sceneMetadataRegistry[key] as State<SceneMetadata<any>>
-      if (!metadata.value) continue
-      // metadata.data.set(merge({}, metadata.data.value, val))
-    }
-  }
-
   /** 4. update scene entities with new data, and load new ones */
-  setComponent(sceneState.sceneEntity.value, EntityTreeComponent, { parentEntity: null! })
-  setComponent(sceneState.sceneEntity.value, UUIDComponent, sceneData.scene.root)
+  setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null! })
+  setComponent(sceneState.sceneEntity, UUIDComponent, sceneData.scene.root)
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
   updateSceneEntitiesFromJSON(sceneData.scene.root)
 
+  // backwards compatibility
+  if ((sceneData.scene as any).metadata) {
+    for (const [key, val] of Object.entries((sceneData.scene as any).metadata) as any) {
+      switch (key) {
+        case 'renderSettings':
+          setComponent(sceneState.sceneEntity, RenderSettingsComponent, val)
+          break
+        case 'postprocessing':
+          setComponent(sceneState.sceneEntity, PostProcessingComponent, val)
+          break
+        case 'mediaSettings':
+          setComponent(sceneState.sceneEntity, MediaSettingsComponent, val)
+          break
+        case 'fog':
+          setComponent(sceneState.sceneEntity, FogSettingsComponent, val)
+          break
+      }
+    }
+  }
+
   if (!sceneAssetPendingTagQuery().length) {
-    if (getMutableState(EngineState).sceneLoading.value) dispatchAction(EngineActions.sceneLoaded({}))
+    if (getState(EngineState).sceneLoading) dispatchAction(EngineActions.sceneLoaded({}))
   }
 
   if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
@@ -340,7 +352,6 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson):
   for (const C of componentsToRemove) {
     if (entity === getState(SceneState).sceneEntity) if (C === VisibleComponent) continue
     if (C === GroupComponent || C === TransformComponent) continue
-    console.log('removing component', C.name, C, entity)
     removeComponent(entity, C)
   }
   for (const component of sceneEntity.components) {
@@ -377,7 +388,7 @@ const onComplete = (pendingAssets: number) => {
 }
 
 const execute = () => {
-  if (!getMutableState(EngineState).sceneLoading.value) return
+  if (!getState(EngineState).sceneLoading) return
 
   const pendingAssets = sceneAssetPendingTagQuery().length
 

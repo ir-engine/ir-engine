@@ -99,13 +99,44 @@ const stopGuidelineAtVertex = (vertex: Vector3, line: Float32Array, startIndex: 
 const AvatarTeleportSystemState = defineState({
   name: 'AvatarTeleportSystemState',
   initial: () => {
+    const lineGeometry = new BufferGeometry()
+    lineGeometryVertices.fill(0)
+    lineGeometryColors.fill(0.5)
+    lineGeometry.setAttribute('position', new BufferAttribute(lineGeometryVertices, 3))
+    lineGeometry.setAttribute('color', new BufferAttribute(lineGeometryColors, 3))
+    const lineMaterial = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
+    const guideline = new Line(lineGeometry, lineMaterial)
+    guideline.frustumCulled = false
+    guideline.name = 'teleport-guideline'
+
+    const guidelineEntity = createEntity()
+    setTransformComponent(guidelineEntity)
+    addObjectToGroup(guidelineEntity, guideline)
+    setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
+
+    // The guide cursor at the end of the line
+    const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
+    guideCursorGeometry.name = 'teleport-guide-cursor'
+    guideCursorGeometry.rotateX(-Math.PI / 2)
+    guideCursorGeometry.translate(0, 0.01, 0)
+    const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide, transparent: true })
+    const guideCursor = new Mesh(guideCursorGeometry, guideCursorMaterial)
+    guideCursor.frustumCulled = false
+
+    const guideCursorEntity = createEntity()
+    setTransformComponent(guideCursorEntity)
+    addObjectToGroup(guideCursorEntity, guideCursor)
+    setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
+
+    const transition = createTransitionState(0.5)
+
     return {
-      guideCursor: null! as Mesh<RingGeometry, MeshBasicMaterial>,
-      transition: null! as ReturnType<typeof createTransitionState>,
-      guideline: null! as Line,
-      guidelineEntity: null! as Entity,
-      guideCursorEntity: null! as Entity,
-      lineMaterial: null! as LineBasicMaterial
+      guideCursor,
+      transition,
+      guideline,
+      guidelineEntity,
+      guideCursorEntity,
+      lineMaterial
     }
   }
 })
@@ -222,47 +253,8 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    const lineGeometry = new BufferGeometry()
-    lineGeometryVertices.fill(0)
-    lineGeometryColors.fill(0.5)
-    lineGeometry.setAttribute('position', new BufferAttribute(lineGeometryVertices, 3))
-    lineGeometry.setAttribute('color', new BufferAttribute(lineGeometryColors, 3))
-    const lineMaterial = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
-    const guideline = new Line(lineGeometry, lineMaterial)
-    guideline.frustumCulled = false
-    guideline.name = 'teleport-guideline'
-
-    const guidelineEntity = createEntity()
-    setTransformComponent(guidelineEntity)
-    addObjectToGroup(guidelineEntity, guideline)
-    setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
-
-    // The guide cursor at the end of the line
-    const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
-    guideCursorGeometry.name = 'teleport-guide-cursor'
-    guideCursorGeometry.rotateX(-Math.PI / 2)
-    guideCursorGeometry.translate(0, 0.01, 0)
-    const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide, transparent: true })
-    const guideCursor = new Mesh(guideCursorGeometry, guideCursorMaterial)
-    guideCursor.frustumCulled = false
-
-    const guideCursorEntity = createEntity()
-    setTransformComponent(guideCursorEntity)
-    addObjectToGroup(guideCursorEntity, guideCursor)
-    setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
-
-    const transition = createTransitionState(0.5)
-
-    getMutableState(AvatarTeleportSystemState).set({
-      guideCursor,
-      transition,
-      guideline,
-      guidelineEntity,
-      guideCursorEntity,
-      lineMaterial
-    })
-
     return () => {
+      const { guidelineEntity, guideCursorEntity } = getState(AvatarTeleportSystemState)
       removeEntity(guidelineEntity)
       removeEntity(guideCursorEntity)
       getMutableState(AvatarTeleportSystemState).set({

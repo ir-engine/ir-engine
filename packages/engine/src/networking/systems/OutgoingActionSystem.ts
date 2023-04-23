@@ -1,5 +1,5 @@
 import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { Action, clearOutgoingActions, getMutableState, getState } from '@etherealengine/hyperflux'
+import { Action, clearOutgoingActions, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -10,14 +10,14 @@ import { NetworkState } from '../NetworkState'
 
 /** Publish to connected peers that peer information has changed */
 export const updatePeers = (network: Network) => {
-  const userNames = getMutableState(WorldState).userNames
+  const userNames = getState(WorldState).userNames
   const peers = Array.from(network.peers.values()).map((peer) => {
     return {
       peerID: peer.peerID,
       peerIndex: peer.peerIndex,
       userID: peer.userId,
       userIndex: peer.userIndex,
-      name: userNames[peer.userId].value
+      name: userNames[peer.userId]
     }
   }) as Array<PeersUpdateType>
   for (const peerID of network.transport.peers)

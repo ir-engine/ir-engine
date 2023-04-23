@@ -8,6 +8,7 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
+import { MediaSettingsState } from '../networking/MediaSettingsState'
 
 /**
  * All values ranged from 0 to 1
@@ -61,6 +62,7 @@ export function AudioSettingReceptor(action) {
     })
     .when(AudioSettingAction.setUsePositionalMedia.matches, (action) => {
       s.positionalMedia.set(action.value)
+      getMutableState(MediaSettingsState).immersiveMedia.set(action.value)
     })
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
       s.mediaStreamVolume.set(action.value)

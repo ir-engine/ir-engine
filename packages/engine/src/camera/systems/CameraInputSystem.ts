@@ -1,8 +1,7 @@
 import { clamp } from 'lodash'
-import { useEffect } from 'react'
 import { Vector2 } from 'three'
 
-import { getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
@@ -14,12 +13,10 @@ import {
   ComponentType,
   defineQuery,
   getComponent,
-  getOptionalComponent,
-  removeQuery
+  getOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { getCameraMode } from '../../xr/XRState'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'

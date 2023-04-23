@@ -12,7 +12,7 @@ import {
   MeshStandardMaterial
 } from 'three'
 
-import { getMutableState, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
 
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
@@ -134,7 +134,7 @@ const GroupReactor = createGroupQueryReactor(SceneObjectReactor)
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const execute = () => {
-  const delta = getMutableState(EngineState).deltaSeconds.value
+  const delta = getState(EngineState).deltaSeconds
   for (const entity of updatableQuery()) {
     const callbacks = getComponent(entity, CallbackComponent)
     callbacks.get(UpdatableCallback)?.(delta)

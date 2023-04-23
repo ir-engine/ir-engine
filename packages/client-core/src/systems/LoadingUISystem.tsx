@@ -140,10 +140,10 @@ const execute = () => {
   //   // todo: figure out how to make this work properly for VR #7256
   // }
 
-  const loadingState = getMutableState(LoadingSystemState).loadingScreenOpacity
+  const loadingState = getState(LoadingSystemState).loadingScreenOpacity
 
   transition.update(Engine.instance.deltaSeconds, (opacity) => {
-    if (opacity !== loadingState.value) loadingState.set(opacity)
+    if (opacity !== loadingState) getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
     mesh.material.opacity = opacity
     mesh.visible = opacity > 0
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {

@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { defineActionQueue, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'

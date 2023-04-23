@@ -184,6 +184,14 @@ export default defineConfig(async () => {
         include: ['use-sync-external-store']
       })
     ],
+    server: {
+      hmr: false,
+      host: process.env['VITE_APP_HOST'],
+      port: process.env['VITE_APP_PORT'],
+      headers: {
+        'Origin-Agent-Cluster': '?1'
+      }
+    },
     resolve: {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
