@@ -191,6 +191,10 @@ type XRFrameWithFillPoses = XRFrame & {
 const emptyVec = new Vector3()
 const mat4 = new Matrix4()
 
+const offsetMatrix = new Matrix4()
+const matrixWorld = new Matrix4()
+const matrix = new Matrix4()
+
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const hand = inputSource.hand as any as XRHand
   const rig = getComponent(entity, AvatarRigComponent)
@@ -213,23 +217,21 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
     if (joint === 'wrist') continue
     const bone = getBoneNameFromXRHand(inputSource.handedness, joint, rig.rig)
     if (bone) {
-      const matrixWorld = new Matrix4()
       matrixWorld.fromArray(poses1, i * 16)
 
-      const matrix = new Matrix4()
       matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), matrixWorld)
 
-      //Needs branching code to account for joint offsets / misalignment in the current avatar rig :)
+      //Needs branching code to account for joint offsets / misalignment in the current avatar rig
       if (
         joint != 'thumb-metacarpal' &&
         joint != 'thumb-phalanx-distal' &&
         joint != 'thumb-phalanx-proximal' &&
         joint != 'thumb-tip'
       ) {
-        const offsetMatrix = new Matrix4().makeRotationX(-Math.PI / 2)
+        offsetMatrix.makeRotationX(-Math.PI / 2)
         matrix.multiply(offsetMatrix)
       } else {
-        const offsetMatrix = new Matrix4().makeRotationY(-Math.PI / 2)
+        offsetMatrix.makeRotationY(-Math.PI / 2)
         matrix.multiply(offsetMatrix)
       }
 
