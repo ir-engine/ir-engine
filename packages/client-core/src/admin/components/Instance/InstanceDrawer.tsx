@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Container from '@etherealengine/ui/src/Container'
-import DialogActions from '@etherealengine/ui/src/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/DialogTitle'
 import Grid from '@etherealengine/ui/src/Grid'
 
-import { AuthState } from '../../../user/services/AuthService'
+import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { instanceUsersColumns } from '../../common/variables/instance'
@@ -33,12 +34,14 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('createdAt')
 
+  const openKickDialog = useHookstate(false)
+  const kickData = useHookstate({
+    userId: '' as UserInterface['id'],
+    instanceId: '',
+    duration: '8'
+  })
+
   const { t } = useTranslation()
-  const editMode = useHookstate(false)
-
-  const user = useHookstate(getMutableState(AuthState).user)
-
-  const hasWriteAccess = user.scopes.get({ noproxy: true })?.find((item) => item?.type === 'location:write')
 
   const adminInstanceUserState = useHookstate(getMutableState(AdminInstanceUserState))
 
@@ -52,15 +55,26 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
     name,
     action: (
       <>
-        <Button className={styles.actionStyle}>
-          <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
-        </Button>
-        <Button className={styles.actionStyle}>
-          <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
+        <Button
+          className={styles.actionStyle}
+          onClick={() => {
+            kickData.merge({ userId: id, instanceId: selectedInstance!.id })
+            openKickDialog.set(true)
+          }}
+        >
+          <span className={styles.spanWhite}>{t('admin:components.common.kick')}</span>
         </Button>
       </>
     )
   })
+
+  const handleSubmitKickUser = () => {
+    if (!kickData.value.duration) {
+      return
+    }
+    AdminInstanceUserService.kickUser({ ...kickData.value })
+    openKickDialog.set(false)
+  }
 
   const rows = adminInstanceUserState.value.users.map((el) => createData(el.id, el.name))
 
@@ -68,7 +82,6 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>{selectedInstance?.ipAddress}</DialogTitle>
-
         <Grid container spacing={5} className={styles.mb15px}>
           <TableComponent
             allowSort={false}
@@ -84,12 +97,22 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
             handleRowsPerPageChange={() => {}}
           />
         </Grid>
-        <DialogActions>
-          <Button className={styles.outlinedButton} onClick={() => {}}>
-            {t('admin:components.common.kick')}
-          </Button>
-        </DialogActions>
       </Container>
+      <ConfirmDialog
+        open={openKickDialog.value}
+        onSubmit={handleSubmitKickUser}
+        onClose={() => openKickDialog.set(false)}
+        description={
+          <Box>
+            <InputText
+              name="kickDuration"
+              label={t('admin:components.instance.kickDuration')}
+              value={kickData.value.duration}
+              onChange={(event) => kickData.merge({ duration: event.target.value })}
+            />
+          </Box>
+        }
+      />
     </DrawerView>
   )
 }

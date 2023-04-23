@@ -6,7 +6,7 @@ import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const userRelationship = sequelizeClient.define<Model<UserKick>>(
+  const userKick = sequelizeClient.define<Model<UserKick>>(
     'user_kick',
     {
       id: {
@@ -35,9 +35,10 @@ export default (app: Application) => {
     }
   )
 
-  ;(userRelationship as any).associate = (models: any): void => {
-    ;(userRelationship as any).belongsTo(models.user, { as: 'user', constraints: false })
+  ;(userKick as any).associate = (models: any): void => {
+    ;(userKick as any).belongsTo(models.user, { as: 'user' })
+    ;(userKick as any).belongsTo(models.instance, { as: 'instance' })
   }
 
-  return userRelationship
+  return userKick
 }

@@ -204,7 +204,8 @@
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
-      "count": "Count"
+      "count": "Count",
+      "kickDuration": "Kick Duration"
     },
     "resources": {
       "resources": "resources",

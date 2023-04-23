@@ -25,7 +25,10 @@ export interface UserKick {
   id: string
   duration: string
   userId: UserId
+  instanceId: string
 }
+
+export interface CreateUserKick extends Omit<UserKick, 'id'> {}
 
 export interface UserInterface {
   id: UserId

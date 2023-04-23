@@ -164,6 +164,12 @@ export const AdminInstanceUserService = {
     if (!('data' in users)) return
 
     dispatchAction(AdminInstanceUserActions.instanceUsersRetrieved({ users }))
+  },
+  kickUser: async (kickData: { userId: UserInterface['id']; instanceId: Instance['id']; duration: string }) => {
+    console.log('kicking user', kickData)
+    const userKick = await API.instance.client.service('user-kick').create(kickData)
+
+    console.log('kicked user', userKick)
   }
 }
 

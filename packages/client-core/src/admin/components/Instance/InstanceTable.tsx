@@ -143,24 +143,6 @@ const InstanceTable = ({ className, search }: Props) => {
     createData({ ...el }, el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
   )
 
-  const temp: any = {
-    id: 'abc',
-    ipAddress: 'some ip',
-    channelId: 'channel id',
-    podName: 'pod name'
-  }
-  rows.push(
-    createData(
-      { ...temp },
-      temp.id,
-      temp.ipAddress,
-      temp.currentUsers,
-      temp.channelId || '',
-      temp.podName || '',
-      temp.location
-    )
-  )
-
   return (
     <Box className={className}>
       <TableComponent
