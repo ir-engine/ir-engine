@@ -16,6 +16,7 @@ COPY packages/hyperflux/package.json ./packages/hyperflux/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/projects/package.json ./packages/projects/
 COPY packages/server-core/package.json ./packages/server-core/
+COPY packages/xrui/package.json ./packages/xrui/
 COPY project-package-jsons ./
 
 ARG NODE_ENV
