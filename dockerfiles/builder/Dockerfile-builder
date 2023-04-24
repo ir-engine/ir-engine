@@ -18,6 +18,7 @@ COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/projects/package.json ./packages/projects/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
+COPY packages/xrui/package.json ./packages/xrui/
 
 RUN npm install --loglevel notice --legacy-peer-deps
 
