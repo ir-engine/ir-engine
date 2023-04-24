@@ -8,6 +8,7 @@ import { AvatarStates } from '../../avatar/animation/Util'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import {
@@ -54,7 +55,9 @@ const execute = () => {
         new Vector3(0.1, 0.1, 0.1)
       )
     })
-    addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
+    if (isClient) {
+      addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
+    }
   }
 
   for (const action of mountPointActionQueue()) {
