@@ -1,8 +1,8 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { LocationAction, LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
+import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -32,13 +32,11 @@ import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { startClientSystems } from '../../world/startClientSystems'
-import { loadSceneJsonOffline } from '../../world/utils'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -177,13 +175,23 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 
-export const useOfflineScene = (props: { projectName: string; sceneName: string; spectate?: boolean }) => {
+export const useOnlineInstance = () => {
+  useEffect(() => {
+    getMutableState(NetworkState).config.set({
+      world: true,
+      media: true,
+      friends: true,
+      instanceID: true,
+      roomID: false
+    })
+  }, [])
+}
+
+export const useOfflineScene = (props?: { spectate?: boolean }) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName: `${props.projectName}/${props.sceneName}` }))
-    loadSceneJsonOffline(props.projectName, props.sceneName)
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
   }, [])
 
@@ -209,7 +217,7 @@ export const useOfflineScene = (props: { projectName: string; sceneName: string;
         authState.user.name.value
       )
 
-      if (props.spectate) return
+      if (props?.spectate) return
 
       receiveJoinWorld({
         highResTimeOrigin: performance.timeOrigin,
