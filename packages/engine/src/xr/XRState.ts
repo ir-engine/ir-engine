@@ -52,7 +52,9 @@ export const XRState = defineState({
       lightEstimator: null! as XREstimatedLight,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
-      userEyeLevel: 1.8
+      userEyeLevel: 1.8,
+      //to be moved to user_settings
+      userHeight: 0
     }
   },
 
