@@ -1,6 +1,6 @@
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import type { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { isClient } from '@etherealengine/engine/src/common/functions/isClient'
+import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {

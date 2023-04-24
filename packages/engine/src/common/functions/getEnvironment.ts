@@ -7,7 +7,8 @@ const isWebWorker =
   typeof self === 'object' && self.constructor && self.constructor.name === 'DedicatedWorkerGlobalScope'
 /* eslint-enable no-restricted-globals */
 
-const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null
+const isClient =
+  typeof process !== 'object' || typeof process.versions !== 'object' || typeof process.versions.node === 'undefined'
 
 /**
  * @see https://github.com/jsdom/jsdom/releases/tag/12.0.0
@@ -19,7 +20,7 @@ const isJsDom = () =>
   navigator.userAgent.includes('Node.js') ||
   navigator.userAgent.includes('jsdom')
 
-export { isBrowser, isWebWorker, isNode, isJsDom }
+export { isBrowser, isWebWorker, isClient, isJsDom }
 
 // ==== //
 

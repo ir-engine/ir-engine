@@ -2,7 +2,7 @@ import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'

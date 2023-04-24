@@ -4,7 +4,7 @@ import { Color, CubeTexture, sRGBEncoding } from 'three'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'

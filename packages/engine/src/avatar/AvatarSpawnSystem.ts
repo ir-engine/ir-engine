@@ -4,7 +4,7 @@ import { Quaternion, Vector3 } from 'three'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineActionQueue, getMutableState, none, removeActionQueue } from '@etherealengine/hyperflux'
 
-import { isClient } from '../common/functions/isClient'
+import { isClient } from '../common/functions/getEnvironment'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
