@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Euler, Texture } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'

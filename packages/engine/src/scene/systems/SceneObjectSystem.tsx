@@ -16,8 +16,7 @@ import { getMutableState, getState, ReactorProps, useHookstate } from '@ethereal
 
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
-import { isNode } from '../../common/functions/getEnvironment'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'

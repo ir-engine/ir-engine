@@ -7,7 +7,7 @@ import { DissolveEffect } from '@etherealengine/engine/src/avatar/DissolveEffect
 import { getMutableState } from '@etherealengine/hyperflux'
 import type VolumetricPlayer from '@etherealengine/volumetric/player'
 
-import { isClient } from '../../../common/functions/isClient'
+import { isClient } from '../../../common/functions/getEnvironment'
 import { iOS } from '../../../common/functions/isMobile'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'

@@ -5,7 +5,7 @@ import logger from '@etherealengine/common/src/logger'
 import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
