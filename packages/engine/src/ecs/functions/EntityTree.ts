@@ -218,9 +218,8 @@ export function serializeNodeToWorld(entity: Entity) {
  * @param node
  * @param tree
  */
-export function removeEntityNodeRecursively(entity: Entity, serialize = false) {
-  traverseEntityNode(entity, (childEntity) => {
-    if (serialize) serializeNodeToWorld(childEntity)
+export function removeEntityNodeRecursively(entity: Entity) {
+  traverseEntityNodeChildFirst(entity, (childEntity) => {
     removeEntity(childEntity)
   })
 }
@@ -285,6 +284,23 @@ export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: n
     const child = entityTreeNode.children[i]
     traverseEntityNode(child, cb, i)
   }
+}
+
+export function traverseEntityNodeChildFirst(
+  entity: Entity,
+  cb: (entity: Entity, index: number) => void,
+  index = 0
+): void {
+  const entityTreeNode = getComponent(entity, EntityTreeComponent)
+
+  if (!entityTreeNode) return
+
+  for (let i = 0; i < entityTreeNode.children.length; i++) {
+    const child = entityTreeNode.children[i]
+    traverseEntityNodeChildFirst(child, cb, i)
+  }
+
+  cb(entity, index)
 }
 
 /**
