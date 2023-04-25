@@ -18,7 +18,8 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists === false) {
     await knex.schema.createTable(matchInstancePath, (table) => {
-      table.string('id', 36).primary()
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('connection', 255).notNullable().unique()
       table.string('gamemode', 255).nullable()
       table.string('instanceserver', 36).nullable()

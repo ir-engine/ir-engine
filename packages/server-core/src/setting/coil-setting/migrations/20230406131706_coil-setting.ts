@@ -18,7 +18,8 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists === false) {
     await knex.schema.createTable(coilSettingPath, (table) => {
-      table.string('id', 36).primary()
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('paymentPointer', 255).nullable()
       table.string('clientId', 255).nullable()
       table.string('clientSecret', 255).nullable()
