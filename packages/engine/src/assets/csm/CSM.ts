@@ -71,6 +71,7 @@ export class CSM {
   lights: DirectionalLight[]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
+  needsUpdate: boolean = false
 
   constructor(data: CSMParams) {
     this.camera = data.camera
@@ -126,13 +127,14 @@ export class CSM {
   createLights(light?: DirectionalLight): void {
     if (light) {
       this.sourceLight = light
+      this.shadowBias = light.shadow.bias
       for (let i = 0; i < this.cascades; i++) {
         const lightClone = light.clone()
         lightClone.castShadow = true
         lightClone.visible = true
         lightClone.matrixAutoUpdate = true
         lightClone.matrixWorldAutoUpdate = true
-        this.parent.add(lightClone, lightClone.target)
+        this.parent.add(lightClone)
         this.lights.push(lightClone)
         lightClone.name = 'CSM_' + light.name
         lightClone.target.name = 'CSM_' + light.target.name
@@ -153,7 +155,7 @@ export class CSM {
       light.shadow.camera.far = this.lightFar
       light.shadow.bias = this.shadowBias
 
-      this.parent.add(light, light.target)
+      this.parent.add(light)
       this.lights.push(light)
       light.name = 'CSM_' + light.name
       light.target.name = 'CSM_' + light.target.name
@@ -261,6 +263,16 @@ export class CSM {
   }
 
   update(): void {
+    if (this.needsUpdate) {
+      for (const light of this.lights) {
+        this.updateFrustums()
+        light.shadow.map?.dispose()
+        light.shadow.map = null as any
+        light.shadow.camera.updateProjectionMatrix()
+        light.shadow.needsUpdate = true
+      }
+      this.needsUpdate = false
+    }
     const camera = this.camera
     const frustums = this.frustums
     for (let i = 0; i < frustums.length; i++) {
@@ -290,6 +302,7 @@ export class CSM {
 
       light.position.copy(_center)
       light.target.position.copy(_center).add(this.lightDirection)
+      light.target.updateMatrixWorld(true)
     }
     this.parent.updateMatrixWorld(true)
   }
@@ -312,6 +325,8 @@ export class CSM {
     const breaksVec2 = []
     const shaders = this.shaders
 
+    shaders.delete(material)
+
     material.userData.CSMPlugin = {
       id: 'CSM',
       compile: (shader: ShaderType) => {
@@ -324,12 +339,11 @@ export class CSM {
         shader.uniforms.shadowFar = { value: far }
 
         shaders.set(material, shader)
+        this.needsUpdate = true
       }
     }
 
     addOBCPlugin(material, material.userData.CSMPlugin)
-
-    shaders.delete(material)
   }
 
   updateUniforms(): void {
@@ -399,5 +413,6 @@ export class CSM {
       material.needsUpdate = true
     })
     this.shaders.clear()
+    this.remove()
   }
 }

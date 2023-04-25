@@ -1085,13 +1085,6 @@
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1
           }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
-          }
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
