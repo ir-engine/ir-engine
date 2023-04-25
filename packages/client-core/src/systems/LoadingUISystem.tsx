@@ -134,7 +134,7 @@ const execute = () => {
   mesh.quaternion.copy(Engine.instance.camera.quaternion).invert()
 
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
-  // if (!getEngineState().joinedWorld.value) {
+  // if (!getState(EngineState).joinedWorld) {
   //   Engine.instance.camera.rotateY(world.delta * 0.35)
   // } else {
   //   // todo: figure out how to make this work properly for VR #7256

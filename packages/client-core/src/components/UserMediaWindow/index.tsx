@@ -20,10 +20,9 @@ import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/compon
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useNetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { AudioSettingAction, AudioState, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
@@ -84,7 +83,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const resumeAudioOnUnhide = useRef<boolean>(false)
 
   const { t } = useTranslation()
-  const audioState = useAudioState()
+  const audioState = useHookstate(getMutableState(AudioState))
 
   const [_volume, _setVolume] = useState(1)
 

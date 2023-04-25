@@ -16,7 +16,7 @@ import {
   WebGLRenderTargetOptions
 } from 'three'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
@@ -71,7 +71,7 @@ export const XRRendererState = defineState({
 })
 
 export function createWebXRManager() {
-  const xrState = getMutableState(XRState)
+  const xrState = getState(XRState)
   const xrRendererState = getMutableState(XRRendererState)
 
   const scope = function () {}
@@ -84,7 +84,7 @@ export function createWebXRManager() {
   scope.isMultiview = false
 
   function onSessionEnd() {
-    xrState.session.value!.removeEventListener('end', onSessionEnd)
+    xrState.session!.removeEventListener('end', onSessionEnd)
 
     // restore framebuffer/rendering state
 
@@ -103,7 +103,7 @@ export function createWebXRManager() {
 
   /** this is needed by WebGLBackground */
   scope.getSession = function () {
-    return xrState.session.value
+    return xrState.session
   }
 
   scope.setSession = async function (session: XRSession, framebufferScaleFactor = 1) {

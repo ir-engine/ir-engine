@@ -2,10 +2,10 @@ import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
 import { SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   getComponent,
   getMutableComponent,
@@ -153,7 +153,7 @@ const receiveTransferAuthorityOfObject = (
 }
 
 const receiveSetUserTyping = (action: typeof WorldNetworkAction.setUserTyping.matches._TYPE) => {
-  getEngineState().usersTyping[action.$from].set(action.typing ? true : none)
+  getMutableState(EngineState).usersTyping[action.$from].set(action.typing ? true : none)
 }
 
 export const WorldNetworkActionReceptor = {

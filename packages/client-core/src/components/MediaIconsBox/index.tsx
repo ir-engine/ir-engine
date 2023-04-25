@@ -10,7 +10,7 @@ import {
 import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
@@ -43,7 +43,7 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled =
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
-  const engineState = useEngineState()
+  const spectating = useHookstate(getMutableState(EngineState).spectating)
   const xrState = useHookstate(getMutableState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
@@ -150,7 +150,7 @@ export const MediaIconsBox = () => {
           {<Icon type="ViewInAr" />}
         </button>
       )}
-      {engineState.spectating.value && (
+      {spectating.value && (
         <button
           type="button"
           id="ExitSpectator"

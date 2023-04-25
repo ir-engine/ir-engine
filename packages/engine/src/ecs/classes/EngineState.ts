@@ -60,10 +60,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
-/**@deprecated use getMutableState directly instead */
-export const getEngineState = () => getMutableState(EngineState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useEngineState = () => useState(getEngineState())
 
 export class EngineActions {
   static setTeleporting = defineAction({

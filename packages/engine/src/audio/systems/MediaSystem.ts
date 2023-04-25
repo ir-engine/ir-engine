@@ -19,7 +19,7 @@ import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { defaultSpatialComponents } from '../../scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { accessAudioState, AudioSettingReceptor, AudioState } from '../AudioState'
+import { AudioSettingReceptor, AudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
 export class AudioEffectPlayer {
@@ -71,7 +71,7 @@ export class AudioEffectPlayer {
     const source = getState(AudioState).audioContext.createBufferSource()
     source.buffer = this.bufferMap[sound]
     const el = this.#els.find((el) => el.paused) ?? this.#els[0]
-    el.volume = accessAudioState().masterVolume.value * volumeMultiplier
+    el.volume = getState(AudioState).masterVolume * volumeMultiplier
     if (el.src !== sound) el.src = sound
     el.currentTime = 0
     source.start()
