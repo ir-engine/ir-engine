@@ -1,7 +1,7 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket.schema'
+import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 
 import logger from '../ServerLogger'
 

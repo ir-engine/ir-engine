@@ -2,7 +2,9 @@ import assert from 'assert'
 import nock from 'nock'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
+import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { Application } from '../../../declarations'
@@ -147,7 +149,7 @@ describe.skip('matchmaking match-instance service', () => {
   })
 
   it('assigns players to one server', async () => {
-    const assignmentService = app.service('match-ticket-assignment')
+    const assignmentService = app.service(matchTicketAssignmentPath)
     const connection = connections[0]
     const connectionTickets = tickets.filter((t) => t.connection === connection)
 
@@ -164,7 +166,7 @@ describe.skip('matchmaking match-instance service', () => {
       })
     )
 
-    const matchInstance = await app.service('match-instance').find({
+    const matchInstance = await app.service(matchInstancePath).find({
       query: {
         connection: connection
         // ended: false
@@ -174,7 +176,7 @@ describe.skip('matchmaking match-instance service', () => {
     assert(matchInstance.length === 1)
 
     // test cleanup
-    await app.service('match-instance').remove(matchInstance[0].id)
+    await app.service(matchInstancePath).remove(matchInstance[0].id)
 
     const instanceServerInstance = await app.service('instance').get(matchInstance[0].instanceserver!)
     assert(instanceServerInstance)
@@ -191,7 +193,7 @@ describe.skip('matchmaking match-instance service', () => {
 
   // it will create null:null instance server on localhost for second match
   it('assigns two packs of players to different servers', async () => {
-    const assignmentService = app.service('match-ticket-assignment')
+    const assignmentService = app.service(matchTicketAssignmentPath)
 
     tickets.forEach((ticket) => {
       scope
@@ -206,7 +208,7 @@ describe.skip('matchmaking match-instance service', () => {
       })
     )
 
-    const matchInstance = await app.service('match-instance').find({
+    const matchInstance = await app.service(matchInstancePath).find({
       query: {
         connection: {
           $in: connections
@@ -217,12 +219,12 @@ describe.skip('matchmaking match-instance service', () => {
     assert(matchInstance.length === connections.length)
 
     // test cleanup
-    await Promise.all(matchInstance.map((mi) => app.service('match-instance').remove(mi.id)))
+    await Promise.all(matchInstance.map((mi) => app.service(matchInstancePath).remove(mi.id)))
     await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.instanceserver!)))
   })
 
   it('does not assign players if match is not found', async () => {
-    const assignmentService = app.service('match-ticket-assignment')
+    const assignmentService = app.service(matchTicketAssignmentPath)
 
     tickets.forEach((ticket) => {
       scope.get(`/tickets/${ticket.id}/assignments`).reply(200, emptyAssignmentReplyBody)
@@ -235,7 +237,7 @@ describe.skip('matchmaking match-instance service', () => {
       })
     )
 
-    const matchInstance = await app.service('match-instance').find({
+    const matchInstance = await app.service(matchInstancePath).find({
       query: {
         connection: ''
       }

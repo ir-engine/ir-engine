@@ -1,4 +1,5 @@
-import { MatchTicketAssignmentType, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
+import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
+import { MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   return new Promise<any>((resolve, reject) => {

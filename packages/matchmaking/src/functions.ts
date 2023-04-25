@@ -2,7 +2,8 @@ import AbortController from 'abort-controller'
 import axios from 'axios'
 import fetch from 'node-fetch'
 
-import { MatchTicketAssignmentType, MatchTicketType } from './match-ticket.schema'
+import { MatchTicketAssignmentType } from './match-ticket-assignment.schema'
+import { MatchTicketType } from './match-ticket.schema'
 
 export const FRONTEND_SERVICE_URL = process.env.FRONTEND_SERVICE_URL || 'http://localhost:51504/v1/frontendservice'
 const axiosInstance = axios.create({

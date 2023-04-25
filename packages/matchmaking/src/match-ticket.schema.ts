@@ -2,6 +2,8 @@
 import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 
+import { matchTicketAssignmentSchema } from './match-ticket-assignment.schema'
+
 export const matchTicketPath = 'match-ticket'
 
 export const matchTicketMethods = ['get', 'create', 'remove'] as const
@@ -25,15 +27,6 @@ export const matchSearchFieldsSchema = Type.Object(
   { $id: 'MatchSearchFields', additionalProperties: false }
 )
 export type MatchSearchFieldsType = Static<typeof matchSearchFieldsSchema>
-
-export const matchTicketAssignmentSchema = Type.Object(
-  {
-    connection: Type.String(),
-    extensions: Type.Optional(Type.Ref(matchExtensionsSchema))
-  },
-  { $id: 'MatchTicketAssignment', additionalProperties: false }
-)
-export type MatchTicketAssignmentType = Static<typeof matchTicketAssignmentSchema>
 
 // Main data model schema
 export const matchTicketSchema = Type.Object(

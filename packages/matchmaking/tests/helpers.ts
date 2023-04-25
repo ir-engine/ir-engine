@@ -1,6 +1,6 @@
 // this tests use real open match services
 import { getTicketsAssignment } from '../src/functions'
-import { MatchTicketAssignmentType } from '../src/match-ticket.schema'
+import { MatchTicketAssignmentType } from '../src/match-ticket-assignment.schema'
 
 export async function waitForTicketAssignment(
   ticketId: string,
