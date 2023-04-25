@@ -1,5 +1,6 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
+import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 import { OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
 
 import logger from '../ServerLogger'
@@ -37,7 +38,7 @@ export default (): Hook => {
       connection: result.connection
     })
 
-    let [matchServerInstance] = await app.service('match-instance').find({
+    let [matchServerInstance] = await app.service(matchInstancePath).find({
       query: {
         connection: result.connection
       }
@@ -46,12 +47,12 @@ export default (): Hook => {
     if (!matchServerInstance) {
       // try to create server instance, ignore error and try to search again, possibly someone just created same server
       try {
-        matchServerInstance = await app.service('match-instance').create({
+        matchServerInstance = await app.service(matchInstancePath).create({
           connection: result.connection,
           gamemode: matchUser.gamemode
         })
       } catch (e) {
-        logger.error('Failed to create new match-instance')
+        logger.error(`Failed to create new ${matchInstancePath}`)
         const isConnectionDuplicateError =
           e.errors?.[0]?.type === 'unique violation' && e.errors?.[0]?.path === 'connection'
         if (!isConnectionDuplicateError) {
@@ -69,7 +70,7 @@ export default (): Hook => {
         // retry search
         await new Promise((resolve) => setTimeout(resolve, 10))
         matchServerInstance = (
-          await app.service('match-instance').find({
+          await app.service(matchInstancePath).find({
             query: {
               connection: result.connection
             }

@@ -2,6 +2,7 @@ import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Location as LocationType } from '@etherealengine/common/src/interfaces/Location'
+import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
@@ -60,7 +61,7 @@ export default (): Hook => {
       }
 
       // matchInstanceId
-      await app.service('match-instance').patch(matchInstanceId, {
+      await app.service(matchInstancePath).patch(matchInstanceId, {
         instanceserver: instanceId
       })
 
