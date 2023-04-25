@@ -6,11 +6,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
-import {
-  RecordingFunctions,
-  RecordingState,
-  RecordingStateReceptorSystem
-} from '@etherealengine/client-core/src/recording/RecordingService'
+import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   closeDataProducer,
@@ -19,7 +15,6 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
@@ -77,12 +72,6 @@ const sendResults = (results: NormalizedLandmarkList) => {
   }
 }
 
-const MotionCaptureReceptorSystemInjection = {
-  uuid: 'ee.client.MotionCaptureReceptorSystem',
-  type: 'POST_RENDER',
-  systemLoader: () => Promise.resolve({ default: RecordingStateReceptorSystem })
-} as const
-
 const CaptureDashboard = () => {
   const poseDetectorRef = useRef<Pose>()
   const isDetecting = useHookstate(false)
@@ -137,8 +126,6 @@ const CaptureDashboard = () => {
       })
     }
   }
-
-  useSystems([MotionCaptureReceptorSystemInjection])
 
   const mediapipe = useHookstate(null as Pose | null)
 

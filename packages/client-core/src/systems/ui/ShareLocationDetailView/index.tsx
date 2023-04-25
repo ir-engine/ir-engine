@@ -1,11 +1,12 @@
-import { createState } from '@hookstate/core'
+import { createState, useHookstate } from '@hookstate/core'
 import { QRCodeSVG } from 'qrcode.react'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { useShareMenuHooks } from '../../../user/components/UserMenu/menus/ShareMenu'
@@ -24,7 +25,7 @@ function createShareLocationDetailState() {
 
 const ShareLocationDetailView = () => {
   const { t } = useTranslation()
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
 
   const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeToken, shareLink, token, toggleSpectatorMode } =

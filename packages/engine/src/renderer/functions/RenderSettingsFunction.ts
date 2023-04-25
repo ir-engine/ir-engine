@@ -1,22 +1,17 @@
 import { DirectionalLight } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RenderModes } from '../constants/RenderModes'
-import { EngineRenderer, getRendererSceneMetadataState } from '../WebGLRendererSystem'
+import { EngineRenderer, RenderSettingsState } from '../WebGLRendererSystem'
 
 export const getShadowsEnabled = () => {
-  const rendererState = getMutableState(RendererState)
-  return (
-    !isMobileXRHeadset &&
-    !iOS &&
-    rendererState.useShadows.value &&
-    rendererState.renderMode.value === RenderModes.SHADOW
-  )
+  const rendererState = getState(RendererState)
+  return !isMobileXRHeadset && !iOS && rendererState.useShadows && rendererState.renderMode === RenderModes.SHADOW
 }
 
 export const useShadowsEnabled = () => {
@@ -28,9 +23,11 @@ export const useShadowsEnabled = () => {
 
 export const updateShadowMap = () => {
   const enabled = getShadowsEnabled()
-  const type = getRendererSceneMetadataState().shadowMapType.value
 
   EngineRenderer.instance.renderer.shadowMap.enabled = enabled
+  if (!enabled) return
+
+  const type = getState(RenderSettingsState).shadowMapType
   EngineRenderer.instance.renderer.shadowMap.type = type
   EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
 

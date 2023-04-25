@@ -1,3 +1,5 @@
+import type { BadRequest } from '@feathersjs/errors/lib'
+
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
@@ -64,11 +66,16 @@ export const ServerLogsService = {
   fetchServerLogs: async (podName: string, containerName: string) => {
     dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName, containerName }))
 
-    const serverLogs: string = await API.instance.client
+    const serverLogs = (await API.instance.client
       .service('server-logs')
-      .find({ query: { podName, containerName } })
+      .find({ query: { podName, containerName } })) as string | BadRequest
 
-    dispatchAction(AdminServerLogsActions.fetchServerLogsRetrieved({ logs: serverLogs }))
+    if (typeof serverLogs === 'string') {
+      dispatchAction(AdminServerLogsActions.fetchServerLogsRetrieved({ logs: serverLogs }))
+    } else {
+      console.error(serverLogs)
+      dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName: '', containerName: '' }))
+    }
   },
   resetServerLogs: () => {
     dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName: '', containerName: '' }))

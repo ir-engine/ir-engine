@@ -1,6 +1,6 @@
-import { isNode } from './common/functions/getEnvironment'
+import { isClient } from './common/functions/getEnvironment'
 
-if (isNode) {
+if (!isClient) {
   const { Blob } = require('buffer')
   const fetch = require('node-fetch')
 
@@ -27,13 +27,13 @@ if (isNode) {
 
   // patches for headless-gl - currently unused
 
-  /*
   // patch navigator
   if (!globalThis.navigator)
     (globalThis as any).navigator = {
       product: 'NativeScript', // patch axios so it doesnt complain,
       userAgent: 'node'
     }
+  /*
   
   // todo: move this out of module scope
   function addEventListener(event, func, bind_) {}

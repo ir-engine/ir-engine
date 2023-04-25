@@ -8,10 +8,10 @@ import { RuntimeGraphComponent } from './RuntimeGraphComponent'
 
 export type GraphDomainID = OpaqueType<'GraphDomainID'> & string
 
-export const SCENE_COMPONENT_BEHAVE_GRAPH = 'BehaveGraph'
-
 export const BehaveGraphComponent = defineComponent({
   name: 'EE_behaveGraph',
+
+  jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
     return {

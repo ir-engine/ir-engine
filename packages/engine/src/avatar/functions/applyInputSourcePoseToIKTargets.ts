@@ -206,6 +206,9 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
   xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
 
+  const rightHandPos = new Vector3()
+  rig.rig.RightHand.getWorldPosition(rightHandPos)
+
   for (let i = 0; i < XRJointBones.length; i++) {
     const joint = XRJointBones[i]
 

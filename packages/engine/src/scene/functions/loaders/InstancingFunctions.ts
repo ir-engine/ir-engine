@@ -110,8 +110,6 @@ export const VERTEX_PROPERTIES_DEFAULT_VALUES: VertexProperties = {
   heightMapStrength: 0.5
 }
 
-export const SCENE_COMPONENT_INSTANCING = 'instancing'
-
 const grassVertexSource = `
 precision mediump float;
 attribute vec3 position;

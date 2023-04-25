@@ -1,4 +1,4 @@
-import { isClient } from './isClient'
+import { isClient } from './getEnvironment'
 
 export function isBot(window: Window) {
   if (!isClient) return false

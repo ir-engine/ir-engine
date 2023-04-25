@@ -9,7 +9,6 @@ const LocationRoutes = () => {
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
       <Routes>
-        <Route path=":projectName/:sceneName" element={<LocationPage />} />
         <Route path=":locationName" element={<LocationPage />} />
       </Routes>
     </Suspense>

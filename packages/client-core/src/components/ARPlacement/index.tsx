@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
@@ -15,7 +15,7 @@ export const ARPlacement = () => {
   const { bottomShelfStyle } = useShelfStyles()
   const { t } = useTranslation()
 
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const xrState = useHookstate(getMutableState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrSessionActive = xrState.sessionActive.value

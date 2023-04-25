@@ -14,8 +14,7 @@ declare module '@etherealengine/common/declarations' {
 
 export default (app: Application): void => {
   const options = {
-    //TODO: Ideally we should use `coilSettingPath` variable, but since our table name is not `coil-setting` therefore hardcoded string is used.
-    name: 'coilSetting', // coilSettingPath,
+    name: coilSettingPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true

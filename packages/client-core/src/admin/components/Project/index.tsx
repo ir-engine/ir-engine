@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { useSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
@@ -10,6 +11,7 @@ import CircularProgress from '@etherealengine/ui/src/CircularProgress'
 import Grid from '@etherealengine/ui/src/Grid'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
+import { ProjectUpdateSystem } from '../../../systems/ProjectUpdateSystem'
 import { useAuthState } from '../../../user/services/AuthService'
 import styles from '../../styles/admin.module.scss'
 import BuildStatusDrawer from './BuildStatusDrawer'
@@ -34,14 +36,9 @@ const Projects = () => {
     ProjectService.refreshGithubRepoAccess()
   }
 
-  const ProjectUpdateSystemInjection = {
-    uuid: 'core.admin.ProjectUpdateSystem',
-    type: 'PRE_RENDER',
-    systemLoader: () => import('../../../systems/ProjectUpdateSystem')
-  } as const
+  useSystem(ProjectUpdateSystem, { after: PresentationSystemGroup })
 
   useEffect(() => {
-    initSystems([ProjectUpdateSystemInjection])
     ProjectService.checkReloadStatus()
   }, [])
 

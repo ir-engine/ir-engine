@@ -1,6 +1,6 @@
 import { VideoTexture } from 'three'
 
-import { isClient } from '../../../common/functions/isClient'
+import { isClient } from '../../../common/functions/getEnvironment'
 import { EngineRenderer } from '../../WebGLRendererSystem'
 
 export default function loadVideoTexture(src, onLoad = (result) => {}) {

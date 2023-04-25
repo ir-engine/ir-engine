@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Bone, Object3D, Vector3 } from 'three'
 
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Entity } from '../../ecs/classes/Entity'
 import {

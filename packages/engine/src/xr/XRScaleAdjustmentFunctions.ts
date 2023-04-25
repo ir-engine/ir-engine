@@ -1,15 +1,13 @@
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { AvatarLeftArmIKComponent } from '../avatar/components/AvatarIKComponents'
 import { Engine } from '../ecs/classes/Engine'
-import { addComponent, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { XRState } from './XRState'
 
 export const getTrackingSpaceOffset = (height: number) => {
   const avatarComponent = getComponent(Engine.instance.localClientEntity, AvatarComponent)
-  return avatarComponent.avatarHeight / height
+  return height / avatarComponent.avatarHeight
 }
 
 export const setTrackingSpace = () => {

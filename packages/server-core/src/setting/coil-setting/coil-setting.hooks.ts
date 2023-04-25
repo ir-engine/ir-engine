@@ -5,7 +5,8 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import {
   coilSettingDataSchema,
   coilSettingPatchSchema,
-  coilSettingQuerySchema
+  coilSettingQuerySchema,
+  coilSettingSchema
 } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
@@ -19,6 +20,8 @@ import {
   coilSettingResolver
 } from './coil-setting.resolvers'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const coilSettingValidator = getValidator(coilSettingSchema, dataValidator)
 const coilSettingDataValidator = getValidator(coilSettingDataSchema, dataValidator)
 const coilSettingPatchValidator = getValidator(coilSettingPatchSchema, dataValidator)
 const coilSettingQueryValidator = getValidator(coilSettingQuerySchema, queryValidator)
@@ -37,19 +40,17 @@ export default {
     find: [],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('settings', 'write') as any),
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       schemaHooks.validateData(coilSettingDataValidator),
       schemaHooks.resolveData(coilSettingDataResolver)
     ],
-    update: [
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('settings', 'write') as any)
-    ],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))],
     patch: [
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('settings', 'write') as any),
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       schemaHooks.validateData(coilSettingPatchValidator),
       schemaHooks.resolveData(coilSettingPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('settings', 'write') as any)]
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))]
   },
 
   after: {
@@ -71,4 +72,4 @@ export default {
     patch: [],
     remove: []
   }
-} as any
+}

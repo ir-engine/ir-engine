@@ -6,6 +6,7 @@ import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export const WaterComponent = defineComponent({
   name: 'WaterComponent',
+  jsonID: 'water',
 
   onInit(entity) {
     const water = new Water()
@@ -21,5 +22,3 @@ export const WaterComponent = defineComponent({
     return true
   }
 })
-
-export const SCENE_COMPONENT_WATER = 'water'

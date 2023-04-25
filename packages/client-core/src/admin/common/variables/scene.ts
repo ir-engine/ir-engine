@@ -1,5 +1,3 @@
-import { SceneData, SceneMetadata } from '@etherealengine/common/src/interfaces/SceneInterface'
-
 export interface SceneColumn {
   id: 'name' | 'description' | 'type' | 'entity' | 'version' | 'action'
   label: string

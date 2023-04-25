@@ -1,12 +1,13 @@
 import { useEffect } from 'react'
 import { Color, CubeTexture, sRGBEncoding } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
@@ -15,6 +16,7 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
+  jsonID: 'skybox',
   onInit: (entity) => {
     return {
       backgroundColor: new Color(0x000000),
@@ -42,7 +44,7 @@ export const SkyboxComponent = defineComponent({
   },
   toJSON: (entity, component) => {
     return {
-      backgroundColor: component.backgroundColor.value.getHexString() as any as Color,
+      backgroundColor: component.backgroundColor.value,
       equirectangularPath: component.equirectangularPath.value,
       cubemapPath: component.cubemapPath.value,
       backgroundType: component.backgroundType.value,
@@ -121,7 +123,7 @@ export const SkyboxComponent = defineComponent({
       sky.turbidity = skyboxState.skyboxProps.value.turbidity
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
-      EngineRenderer.instance.csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
+      getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
       background.set(
         getPmremGenerator().fromCubemap(sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)).texture
       )
@@ -132,5 +134,3 @@ export const SkyboxComponent = defineComponent({
 
   errors: ['FILE_ERROR']
 })
-
-export const SCENE_COMPONENT_SKYBOX = 'skybox'
