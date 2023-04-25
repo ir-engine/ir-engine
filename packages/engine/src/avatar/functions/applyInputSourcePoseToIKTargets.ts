@@ -195,6 +195,7 @@ const matrixWorld = new Matrix4()
 const matrix = new Matrix4()
 
 const thumbOffsetRadians = -Math.PI / 2
+const offsetMatrix = new Matrix4()
 
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const hand = inputSource.hand as any as XRHand
@@ -204,10 +205,6 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const poses1 = new Float32Array(16 * 25)
 
   xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
-  xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
-
-  const rightHandPos = new Vector3()
-  rig.rig.RightHand.getWorldPosition(rightHandPos)
 
   for (let i = 0; i < XRJointBones.length; i++) {
     const joint = XRJointBones[i]
@@ -219,7 +216,7 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 
       matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), matrixWorld)
 
-      const offsetMatrix = new Matrix4()
+      offsetMatrix.identity()
       //Needs branching code to account for joint offsets / misalignment in the current avatar rig
       if (joint.startsWith('thumb-')) {
         offsetMatrix.makeRotationY(thumbOffsetRadians)
