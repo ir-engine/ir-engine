@@ -3,7 +3,7 @@ import nock from 'nock'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
-import type { OpenMatchTicket } from '@etherealengine/matchmaking/src/interfaces'
+import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -14,7 +14,7 @@ interface User {
 
 interface ticketsTestData {
   id: string
-  ticket: OpenMatchTicket
+  ticket: MatchTicketType
   connection: string
   user: User
 }
@@ -51,7 +51,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     scope = nock(FRONTEND_SERVICE_URL)
 
-    const ticketsService = app.service('match-ticket')
+    const ticketsService = app.service(matchTicketPath)
 
     scope
       .post('/tickets')
@@ -91,7 +91,7 @@ describe.skip('matchmaking match-instance service', () => {
 
         userPromise.then((user) => {
           ticketsPromises.push(
-            ticketsService.create({ gamemode, attributes: { tier } }, { user } as any).then((ticketResponse) => {
+            ticketsService.create({ gamemode, attributes: { [tier]: tier } }).then((ticketResponse) => {
               const ticket = Array.isArray(ticketResponse) ? ticketResponse[0] : ticketResponse
               return {
                 id: ticket.id,
@@ -127,7 +127,7 @@ describe.skip('matchmaking match-instance service', () => {
     tickets.forEach((ticket) => {
       if (!ticket?.id) return
       scope.delete('/tickets/' + ticket.id).reply(200, { id: ticket.id })
-      cleanupPromises.push(app.service('match-ticket').remove(ticket.id))
+      cleanupPromises.push(app.service(matchTicketPath).remove(ticket.id))
     })
     tickets.length = 0
 

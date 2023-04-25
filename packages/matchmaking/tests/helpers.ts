@@ -1,13 +1,13 @@
 // this tests use real open match services
 import { getTicketsAssignment } from '../src/functions'
-import { OpenMatchTicketAssignment } from '../src/interfaces'
+import { MatchTicketAssignmentType } from '../src/match-ticket.schema'
 
 export async function waitForTicketAssignment(
   ticketId: string,
   signal: AbortSignal,
   checkInterval: number
-): Promise<OpenMatchTicketAssignment> {
-  return new Promise<OpenMatchTicketAssignment>((resolve) => {
+): Promise<MatchTicketAssignmentType> {
+  return new Promise<MatchTicketAssignmentType>((resolve) => {
     let timeoutId: NodeJS.Timeout
     signal.addEventListener('onabort', () => {
       if (timeoutId) {

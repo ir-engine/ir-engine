@@ -1,11 +1,11 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
+import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import logger from '../ServerLogger'
 
-interface AssignmentResponse extends OpenMatchTicketAssignment {
+interface AssignmentResponse extends MatchTicketAssignmentType {
   instanceId: string
   locationName: string
 }

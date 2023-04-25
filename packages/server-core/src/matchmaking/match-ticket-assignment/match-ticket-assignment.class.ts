@@ -2,7 +2,7 @@ import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
-import { OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
+import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -31,12 +31,12 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
     return []
   }
 
-  async get(ticketId: unknown, params: Params): Promise<OpenMatchTicketAssignment> {
+  async get(ticketId: unknown, params: Params): Promise<MatchTicketAssignmentType> {
     if (typeof ticketId !== 'string' || ticketId.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
 
-    let assignment: OpenMatchTicketAssignment
+    let assignment: MatchTicketAssignmentType
     try {
       if (config.server.matchmakerEmulationMode) {
         assignment = await emulate_getTicketsAssignment(this.app, ticketId, params['identity-provider'].userId)

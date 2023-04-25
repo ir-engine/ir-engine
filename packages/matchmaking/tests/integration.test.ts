@@ -2,7 +2,7 @@ import AbortController from 'abort-controller'
 import assert from 'assert'
 
 import { createTicket, deleteTicket, getTicket, getTicketsAssignment } from '../src/functions'
-import { OpenMatchTicket } from '../src/interfaces'
+import { MatchTicketType } from '../src/match-ticket.schema'
 import { waitForTicketAssignment } from './helpers'
 
 const testGameMode = 'tournament'
@@ -26,9 +26,9 @@ describe.skip('open-match frontend service', () => {
 
     const ticket = await getTicket(result.id)
     console.log('ticket', ticket)
-    assert(ticket?.search_fields)
-    assert(ticket.search_fields.string_args)
-    assert(ticket.search_fields.string_args['attributes.tier'] === 'bronze')
+    assert(ticket?.searchFields)
+    assert(ticket.searchFields.stringArgs)
+    assert(ticket.searchFields.stringArgs['attributes.tier'] === 'bronze')
 
     // cleanup
     await deleteTicket(result.id)
@@ -57,7 +57,7 @@ describe.skip('open-match frontend service', () => {
     this.timeout(6000)
 
     // 1. create enough tickets
-    const ticketsPromises: Promise<OpenMatchTicket>[] = []
+    const ticketsPromises: Promise<MatchTicketType>[] = []
     for (let i = 0; i < 5; i++) {
       ticketsPromises.push(createTicket(testGameMode))
     }

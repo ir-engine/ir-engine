@@ -21,8 +21,6 @@ import {
   matchInstanceResolver
 } from './match-instance.resolvers'
 
-// Don't remove this comment. It's needed to format import lines nicely.
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const matchInstanceValidator = getValidator(matchInstanceSchema, dataValidator)
 const matchInstanceDataValidator = getValidator(matchInstanceDataSchema, dataValidator)

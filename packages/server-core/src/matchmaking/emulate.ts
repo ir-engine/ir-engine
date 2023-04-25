@@ -1,4 +1,4 @@
-import { OpenMatchTicket, OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
+import { MatchTicketAssignmentType, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   return new Promise<any>((resolve, reject) => {
@@ -19,11 +19,11 @@ async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   })
 }
 
-export async function emulate_createTicket(gamemode: string): Promise<OpenMatchTicket> {
-  return { id: Math.random().toString(), search_fields: { tags: [gamemode] } } as OpenMatchTicket
+export async function emulate_createTicket(gamemode: string): Promise<MatchTicketType> {
+  return { id: Math.random().toString(), search_fields: { tags: [gamemode] } } as MatchTicketType
 }
 
-export async function emulate_getTicket(app, ticketId, userId): Promise<OpenMatchTicket | void> {
+export async function emulate_getTicket(app, ticketId, userId): Promise<MatchTicketType | void> {
   const matchUserResult = await app.service('match-user').find({
     query: {
       ticketId,
@@ -37,13 +37,13 @@ export async function emulate_getTicket(app, ticketId, userId): Promise<OpenMatc
 
   return {
     id: ticketId,
-    search_fields: {
+    searchFields: {
       tags: [matchUser.gamemode]
     }
   }
 }
 
-export async function emulate_getTicketsAssignment(app, ticketId, userId): Promise<OpenMatchTicketAssignment> {
+export async function emulate_getTicketsAssignment(app, ticketId, userId): Promise<MatchTicketAssignmentType> {
   // emulate response from open-match-api
   const matchUser = await waitAndGetMatchUser(app, ticketId, userId, 50)
 
@@ -58,7 +58,7 @@ export async function emulate_getTicketsAssignment(app, ticketId, userId): Promi
     connection
   })
 
-  return new Promise<OpenMatchTicketAssignment>((resolve, reject) => {
+  return new Promise<MatchTicketAssignmentType>((resolve, reject) => {
     setTimeout(async () => {
       try {
         await app.service('match-user').get(matchUser.id)
@@ -66,10 +66,10 @@ export async function emulate_getTicketsAssignment(app, ticketId, userId): Promi
         reject({ code: 5, message: `Ticket id: ${ticketId} not found` })
       }
 
-      const assignment: OpenMatchTicketAssignment = {
+      const assignment: MatchTicketAssignmentType = {
         connection: connection,
         extensions: {
-          GameMode: { type_url: '', value: matchUser.gamemode }
+          GameMode: { typeUrl: '', value: matchUser.gamemode }
         }
       }
 
