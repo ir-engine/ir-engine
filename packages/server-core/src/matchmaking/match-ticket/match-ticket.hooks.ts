@@ -3,6 +3,7 @@ import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  matchSearchFieldsSchema,
   matchTicketDataSchema,
   matchTicketQuerySchema,
   matchTicketSchema
@@ -21,8 +22,8 @@ import {
   matchTicketResolver
 } from './match-ticket.resolvers'
 
-// Don't remove this comment. It's needed to format import lines nicely.
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const matchSearchFieldsValidator = getValidator(matchSearchFieldsSchema, dataValidator)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const matchTicketValidator = getValidator(matchTicketSchema, dataValidator)
 const matchTicketDataValidator = getValidator(matchTicketDataSchema, dataValidator)

@@ -2,8 +2,6 @@
 import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 
-import { matchExtensionsSchema } from './match-ticket.schema'
-
 export const matchTicketAssignmentPath = 'match-ticket-assignment'
 
 export const matchTicketAssignmentMethods = ['get'] as const
@@ -12,7 +10,15 @@ export const matchTicketAssignmentMethods = ['get'] as const
 export const matchTicketAssignmentSchema = Type.Object(
   {
     connection: Type.String(),
-    extensions: Type.Optional(Type.Ref(matchExtensionsSchema))
+    extensions: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Object({
+          typeUrl: Type.String(),
+          value: Type.String()
+        })
+      )
+    )
   },
   { $id: 'MatchTicketAssignment', additionalProperties: false }
 )

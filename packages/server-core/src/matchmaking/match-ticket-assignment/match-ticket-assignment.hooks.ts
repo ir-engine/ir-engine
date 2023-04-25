@@ -15,8 +15,6 @@ import {
   matchTicketAssignmentResolver
 } from './match-ticket-assignment.resolvers'
 
-// Don't remove this comment. It's needed to format import lines nicely.
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const matchTicketAssignmentValidator = getValidator(matchTicketAssignmentSchema, dataValidator)
 const matchTicketAssignmentQueryValidator = getValidator(matchTicketAssignmentQuerySchema, queryValidator)

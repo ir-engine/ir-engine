@@ -8,16 +8,6 @@ export const matchTicketPath = 'match-ticket'
 
 export const matchTicketMethods = ['get', 'create', 'remove'] as const
 
-export const matchExtensionsSchema = Type.Record(
-  Type.String(),
-  Type.Object({
-    typeUrl: Type.String(),
-    value: Type.String()
-  }),
-  { $id: 'MatchExtensions', additionalProperties: false }
-)
-export type MatchExtensionsType = Static<typeof matchExtensionsSchema>
-
 export const matchSearchFieldsSchema = Type.Object(
   {
     tags: Type.Array(Type.String()),
@@ -36,7 +26,15 @@ export const matchTicketSchema = Type.Object(
     }),
     assignment: Type.Optional(Type.Ref(matchTicketAssignmentSchema)),
     searchFields: Type.Optional(Type.Ref(matchSearchFieldsSchema)),
-    extensions: Type.Optional(Type.Ref(matchExtensionsSchema)),
+    extensions: Type.Optional(
+      Type.Record(
+        Type.String(),
+        Type.Object({
+          typeUrl: Type.String(),
+          value: Type.String()
+        })
+      )
+    ),
     createdAt: Type.Optional(Type.String({ format: 'date-time' })),
     updatedAt: Type.Optional(Type.String({ format: 'date-time' }))
   },
@@ -59,8 +57,8 @@ export type MatchTicketData = Static<typeof matchTicketDataSchema>
 // Schema for allowed query properties
 export const matchTicketQueryProperties = Type.Pick(matchTicketSchema, [
   'id',
-  'assignment',
-  'searchFields',
+  // 'assignment',
+  // 'searchFields',
   'extensions'
 ])
 export const matchTicketQuerySchema = Type.Intersect(
