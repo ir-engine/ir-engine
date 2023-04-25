@@ -9,7 +9,7 @@ export default (): Hook => {
     const loggedInUser = params.user as UserInterface
     await app.service(matchUserPath).create({
       ticketId: result.id,
-      gamemode: data.gamemode,
+      gameMode: data.gameMode,
       userId: loggedInUser.id
     })
 

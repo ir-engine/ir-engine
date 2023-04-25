@@ -26,7 +26,7 @@ describe.skip('matchmaking match-instance service', () => {
   const ticketsNumber = 3
   const users: User[] = []
   const tickets: ticketsTestData[] = []
-  const gamemode = 'test-private-test'
+  const gameMode = 'test-private-test'
   const tier = 'bronze'
 
   const commonLocationSettings = {
@@ -64,16 +64,16 @@ describe.skip('matchmaking match-instance service', () => {
 
     await app.service('location').Model.destroy({
       where: {
-        slugifiedName: `game-${gamemode}`
+        slugifiedName: `game-${gameMode}`
       }
     })
 
     location = await app.service('location').create(
       {
-        name: `game-${gamemode}`,
-        slugifiedName: `game-${gamemode}`,
+        name: `game-${gameMode}`,
+        slugifiedName: `game-${gameMode}`,
         maxUsersPerInstance: 30,
-        sceneId: `test/game-${gamemode}`,
+        sceneId: `test/game-${gameMode}`,
         location_settings: commonLocationSettings as any,
         isLobby: false,
         isFeatured: false
@@ -93,7 +93,7 @@ describe.skip('matchmaking match-instance service', () => {
 
         userPromise.then((user) => {
           ticketsPromises.push(
-            ticketsService.create({ gamemode, attributes: { [tier]: tier } }).then((ticketResponse) => {
+            ticketsService.create({ gameMode, attributes: { [tier]: tier } }).then((ticketResponse) => {
               const ticket = Array.isArray(ticketResponse) ? ticketResponse[0] : ticketResponse
               return {
                 id: ticket.id,
@@ -178,7 +178,7 @@ describe.skip('matchmaking match-instance service', () => {
     // test cleanup
     await app.service(matchInstancePath).remove(matchInstance[0].id)
 
-    const instanceServerInstance = await app.service('instance').get(matchInstance[0].instanceserver!)
+    const instanceServerInstance = await app.service('instance').get(matchInstance[0].instanceServer!)
     assert(instanceServerInstance)
     assert(!instanceServerInstance.ended)
 
@@ -220,7 +220,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     // test cleanup
     await Promise.all(matchInstance.map((mi) => app.service(matchInstancePath).remove(mi.id)))
-    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.instanceserver!)))
+    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.instanceServer!)))
   })
 
   it('does not assign players if match is not found', async () => {

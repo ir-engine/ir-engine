@@ -21,8 +21,8 @@ async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   })
 }
 
-export async function emulate_createTicket(gamemode: string): Promise<MatchTicketType> {
-  return { id: Math.random().toString(), searchFields: { tags: [gamemode] } } as MatchTicketType
+export async function emulate_createTicket(gameMode: string): Promise<MatchTicketType> {
+  return { id: Math.random().toString(), searchFields: { tags: [gameMode] } } as MatchTicketType
 }
 
 export async function emulate_getTicket(app, ticketId, userId): Promise<MatchTicketType | void> {
@@ -40,7 +40,7 @@ export async function emulate_getTicket(app, ticketId, userId): Promise<MatchTic
   return {
     id: ticketId,
     searchFields: {
-      tags: [matchUser.gamemode]
+      tags: [matchUser.gameMode]
     }
   }
 }
@@ -71,7 +71,7 @@ export async function emulate_getTicketsAssignment(app, ticketId, userId): Promi
       const assignment: MatchTicketAssignmentType = {
         connection: connection,
         extensions: {
-          GameMode: { typeUrl: '', value: matchUser.gamemode }
+          GameMode: { typeUrl: '', value: matchUser.gameMode }
         }
       }
 

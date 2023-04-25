@@ -45,7 +45,7 @@ export type MatchTicketType = Static<typeof matchTicketSchema>
 // Schema for creating new entries
 export const matchTicketDataSchema = Type.Object(
   {
-    gamemode: Type.String(),
+    gameMode: Type.String(),
     attributes: Type.Optional(Type.Record(Type.String(), Type.String()))
   },
   {

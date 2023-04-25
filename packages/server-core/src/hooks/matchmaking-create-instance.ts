@@ -13,7 +13,7 @@ export default (): Hook => {
     const { app, result } = context
     const matchInstanceId = result?.id
     const connection = result?.connection
-    const gameMode = result?.gamemode
+    const gameMode = result?.gameMode
 
     if (!connection) {
       // assignment is not found yet
@@ -62,10 +62,10 @@ export default (): Hook => {
 
       // matchInstanceId
       await app.service(matchInstancePath).patch(matchInstanceId, {
-        instanceserver: instanceId
+        instanceServer: instanceId
       })
 
-      context.result.instanceserver = instanceId
+      context.result.instanceServer = instanceId
     } catch (e) {
       logger.error(e, `Matchmaking instance create error: ${e.message || e.errors[0].message}`)
       // TODO: check error? skip?

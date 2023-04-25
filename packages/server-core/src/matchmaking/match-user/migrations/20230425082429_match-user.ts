@@ -14,6 +14,13 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.renameTable(oldTableName, matchUserPath)
   }
 
+  const oldGameModeColumnExists = await knex.schema.hasColumn(matchUserPath, 'gamemode')
+  if (oldGameModeColumnExists) {
+    await knex.schema.alterTable(matchUserPath, async (table) => {
+      table.renameColumn('gamemode', 'gameMode')
+    })
+  }
+
   const tableExists = await knex.schema.hasTable(matchUserPath)
 
   if (tableExists === false) {
@@ -22,7 +29,7 @@ export async function up(knex: Knex): Promise<void> {
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
       table.uuid('ticketId').collate('utf8mb4_bin').nullable()
-      table.string('gamemode', 255).nullable()
+      table.string('gameMode', 255).nullable()
       table.string('connection', 255).nullable()
       //@ts-ignore
       table.uuid('userId').collate('utf8mb4_bin').nullable().index()

@@ -13,8 +13,8 @@ export const matchInstanceSchema = Type.Object(
       format: 'uuid'
     }),
     connection: Type.String(),
-    gamemode: Type.Optional(Type.String()),
-    instanceserver: Type.Optional(
+    gameMode: Type.Optional(Type.String()),
+    instanceServer: Type.Optional(
       Type.String({
         format: 'uuid'
       })
@@ -27,7 +27,7 @@ export const matchInstanceSchema = Type.Object(
 export type MatchInstanceType = Static<typeof matchInstanceSchema>
 
 // Schema for creating new entries
-export const matchInstanceDataSchema = Type.Pick(matchInstanceSchema, ['connection', 'gamemode', 'instanceserver'], {
+export const matchInstanceDataSchema = Type.Pick(matchInstanceSchema, ['connection', 'gameMode', 'instanceServer'], {
   $id: 'MatchInstanceData'
 })
 export type MatchInstanceData = Static<typeof matchInstanceDataSchema>
@@ -42,8 +42,8 @@ export type MatchInstancePatch = Static<typeof matchInstancePatchSchema>
 export const matchInstanceQueryProperties = Type.Pick(matchInstanceSchema, [
   'id',
   'connection',
-  'gamemode',
-  'instanceserver'
+  'gameMode',
+  'instanceServer'
 ])
 export const matchInstanceQuerySchema = Type.Intersect(
   [

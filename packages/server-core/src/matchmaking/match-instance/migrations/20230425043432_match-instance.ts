@@ -14,6 +14,20 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.renameTable(oldTableName, matchInstancePath)
   }
 
+  const oldGameModeColumnExists = await knex.schema.hasColumn(matchInstancePath, 'gamemode')
+  if (oldGameModeColumnExists) {
+    await knex.schema.alterTable(matchInstancePath, async (table) => {
+      table.renameColumn('gamemode', 'gameMode')
+    })
+  }
+
+  const oldInstanceServerColumnExists = await knex.schema.hasColumn(matchInstancePath, 'instanceserver')
+  if (oldInstanceServerColumnExists) {
+    await knex.schema.alterTable(matchInstancePath, async (table) => {
+      table.renameColumn('instanceserver', 'instanceServer')
+    })
+  }
+
   const tableExists = await knex.schema.hasTable(matchInstancePath)
 
   if (tableExists === false) {
@@ -21,8 +35,8 @@ export async function up(knex: Knex): Promise<void> {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('connection', 255).notNullable().unique()
-      table.string('gamemode', 255).nullable()
-      table.string('instanceserver', 36).nullable()
+      table.string('gameMode', 255).nullable()
+      table.string('instanceServer', 36).nullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })

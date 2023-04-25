@@ -50,7 +50,7 @@ export default (): Hook => {
       try {
         matchServerInstance = await app.service(matchInstancePath).create({
           connection: result.connection,
-          gamemode: matchUser.gamemode
+          gameMode: matchUser.gameMode
         })
       } catch (e) {
         logger.error(`Failed to create new ${matchInstancePath}`)
@@ -66,8 +66,8 @@ export default (): Hook => {
       logger.info('Server instance probably exists but not provisioned: ' + matchServerInstance)
     }
 
-    if (!matchServerInstance?.instanceserver) {
-      for (let i = 0; i < 20 && !matchServerInstance?.instanceserver; i++) {
+    if (!matchServerInstance?.instanceServer) {
+      for (let i = 0; i < 20 && !matchServerInstance?.instanceServer; i++) {
         // retry search
         await new Promise((resolve) => setTimeout(resolve, 10))
         matchServerInstance = (
@@ -79,8 +79,8 @@ export default (): Hook => {
         )[0]
       }
     }
-    if (!matchServerInstance?.instanceserver) {
-      // say that no connection yet, on next query it will have instanceserver and same connection
+    if (!matchServerInstance?.instanceServer) {
+      // say that no connection yet, on next query it will have instanceServer and same connection
       logger.info('Failed to find provisioned server. Need to retry again.')
       result.connection = ''
       return context
@@ -90,19 +90,19 @@ export default (): Hook => {
     const existingInstanceAuthorizedUser = await app.service('instance-authorized-user').find({
       query: {
         userId: userId,
-        instanceId: matchServerInstance.instanceserver,
+        instanceId: matchServerInstance.instanceServer,
         $limit: 0
       }
     })
     if (existingInstanceAuthorizedUser.total === 0) {
       await app.service('instance-authorized-user').create({
         userId: userId,
-        instanceId: matchServerInstance.instanceserver
+        instanceId: matchServerInstance.instanceServer
       })
     }
 
-    result.instanceId = matchServerInstance.instanceserver
-    result.locationName = 'game-' + matchServerInstance.gamemode
+    result.instanceId = matchServerInstance.instanceServer
+    result.locationName = 'game-' + matchServerInstance.gameMode
 
     return context
   }

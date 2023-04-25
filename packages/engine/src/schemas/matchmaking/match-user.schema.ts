@@ -15,7 +15,7 @@ export const matchUserSchema = Type.Object(
     ticketId: Type.String({
       format: 'uuid'
     }),
-    gamemode: Type.String(),
+    gameMode: Type.String(),
     connection: Type.String(),
     userId: Type.String({
       format: 'uuid'
@@ -28,7 +28,7 @@ export const matchUserSchema = Type.Object(
 export type MatchUserType = Static<typeof matchUserSchema>
 
 // Schema for creating new entries
-export const matchUserDataSchema = Type.Pick(matchUserSchema, ['ticketId', 'gamemode', 'connection'], {
+export const matchUserDataSchema = Type.Pick(matchUserSchema, ['ticketId', 'gameMode', 'connection'], {
   $id: 'MatchUserData'
 })
 export type MatchUserData = Static<typeof matchUserDataSchema>
@@ -40,7 +40,7 @@ export const matchUserPatchSchema = Type.Partial(matchUserSchema, {
 export type MatchUserPatch = Static<typeof matchUserPatchSchema>
 
 // Schema for allowed query properties
-export const matchUserQueryProperties = Type.Pick(matchUserSchema, ['id', 'ticketId', 'gamemode', 'connection'])
+export const matchUserQueryProperties = Type.Pick(matchUserSchema, ['id', 'ticketId', 'gameMode', 'connection'])
 export const matchUserQuerySchema = Type.Intersect(
   [
     querySyntax(matchUserQueryProperties),

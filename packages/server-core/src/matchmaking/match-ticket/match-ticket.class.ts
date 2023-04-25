@@ -49,10 +49,10 @@ export class MatchTicketService<
   async create(data: MatchTicketData) {
     if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
-      return emulate_createTicket(data.gamemode)
+      return emulate_createTicket(data.gameMode)
     }
 
-    return await createTicket(data.gamemode, data.attributes)
+    return await createTicket(data.gameMode, data.attributes)
   }
 
   async remove(id: Id) {
