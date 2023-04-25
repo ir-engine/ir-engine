@@ -10,13 +10,8 @@ import { RenderModes } from '../constants/RenderModes'
 import { EngineRenderer, RenderSettingsState } from '../WebGLRendererSystem'
 
 export const getShadowsEnabled = () => {
-  const rendererState = getMutableState(RendererState)
-  return (
-    !isMobileXRHeadset &&
-    !iOS &&
-    rendererState.useShadows.value &&
-    rendererState.renderMode.value === RenderModes.SHADOW
-  )
+  const rendererState = getState(RendererState)
+  return !isMobileXRHeadset && !iOS && rendererState.useShadows && rendererState.renderMode === RenderModes.SHADOW
 }
 
 export const useShadowsEnabled = () => {
@@ -28,9 +23,11 @@ export const useShadowsEnabled = () => {
 
 export const updateShadowMap = () => {
   const enabled = getShadowsEnabled()
-  const type = getState(RenderSettingsState).shadowMapType
 
   EngineRenderer.instance.renderer.shadowMap.enabled = enabled
+  if (!enabled) return
+
+  const type = getState(RenderSettingsState).shadowMapType
   EngineRenderer.instance.renderer.shadowMap.type = type
   EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
 
