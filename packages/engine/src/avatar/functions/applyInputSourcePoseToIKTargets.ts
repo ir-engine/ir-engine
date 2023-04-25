@@ -1,19 +1,17 @@
 import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHand, XRJointBones, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
 import { getCameraMode, ReferenceSpace } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import {
-  AvatarHeadIKComponent,
-  AvatarIKTargetsComponent,
-  AvatarLeftArmIKComponent,
-  AvatarRightArmIKComponent
-} from '../components/AvatarIKComponents'
+import { xrTargetHeadSuffix, xrTargetLeftHandSuffix, xrTargetRightHandSuffix } from '../components/AvatarIKComponents'
 
 // rotate +90 around rig finger's X axis
 // rotate +90 around rig finger's Z axis
@@ -245,28 +243,31 @@ export const applyInputSourcePoseToIKTargets = () => {
   const referenceSpace = ReferenceSpace.origin
 
   /** Update controller pose input sources from WebXR into the ECS */
-  if (xrFrame && referenceSpace && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
+  if (xrFrame && referenceSpace) {
+    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
+
+    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
+    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
+    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+
     /** Head */
-    if (inAttachedControlMode && hasComponent(localClientEntity, AvatarHeadIKComponent)) {
-      const ik = getComponent(localClientEntity, AvatarHeadIKComponent)
+    if (inAttachedControlMode && ikTargetHead) {
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-      ik.target.quaternion.copy(cameraTransform.rotation)
-      ik.target.position.copy(cameraTransform.position)
+      const ikTransform = getComponent(ikTargetHead, TransformComponent)
+      ikTransform.position.copy(cameraTransform.position)
+      ikTransform.rotation.copy(cameraTransform.rotation)
     }
 
     for (const inputSource of Engine.instance.inputSources) {
       const handedness = inputSource.handedness
 
-      let AvatarArmIKComponent = AvatarLeftArmIKComponent
-      let XRHandComponent = XRLeftHandComponent
+      const entity = handedness === 'right' ? ikTargetRightHand : ikTargetLeftHand
+      const XRHandComponent = handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
 
-      if (handedness === 'right') {
-        AvatarArmIKComponent = AvatarRightArmIKComponent
-        XRHandComponent = XRRightHandComponent
-      }
-
-      if (hasComponent(localClientEntity, AvatarArmIKComponent)) {
-        const ik = getComponent(localClientEntity, AvatarArmIKComponent)
+      if (entity) {
+        const ikTransform = getComponent(entity, TransformComponent)
         const hand = inputSource.hand as XRHand | undefined
         /** detect hand joint pose support */
         if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {
@@ -277,9 +278,9 @@ export const applyInputSourcePoseToIKTargets = () => {
           if (wrist) {
             const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
             if (jointPose) {
-              ik.target.position.copy(jointPose.transform.position as unknown as Vector3)
-              ik.target.quaternion.copy(jointPose.transform.orientation as unknown as Quaternion)
-              ik.target.quaternion.multiply(handedness == 'right' ? rightHandOffset : leftHandOffset)
+              ikTransform.position.copy(jointPose.transform.position as unknown as Vector3)
+              ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
+              ikTransform.rotation.multiply(handedness == 'right' ? rightHandOffset : leftHandOffset)
             }
           }
           applyHandPose(inputSource, localClientEntity)
@@ -288,14 +289,14 @@ export const applyInputSourcePoseToIKTargets = () => {
           if (inputSource.gripSpace) {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
             if (pose) {
-              ik.target.position.copy(pose.transform.position as any as Vector3)
-              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+              ikTransform.position.copy(pose.transform.position as any as Vector3)
+              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
             }
           } else {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
             if (pose) {
-              ik.target.position.copy(pose.transform.position as any as Vector3)
-              ik.target.quaternion.copy(pose.transform.orientation as any as Quaternion)
+              ikTransform.position.copy(pose.transform.position as any as Vector3)
+              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
             }
           }
         }

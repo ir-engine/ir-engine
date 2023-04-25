@@ -66,7 +66,7 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
 }
 
 const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE) => {
-  const entity = UUIDComponent.entitiesByUUID[action.objectUuid]?.value!
+  const entity = UUIDComponent.entitiesByUUID[action.objectUuid]
 
   if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
 

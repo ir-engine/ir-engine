@@ -33,18 +33,15 @@ export function solveTwoBoneIK(
   root: Bone,
   mid: Bone,
   tip: Bone,
-  target: Object3D, // todo: convert to matrix or dual quat
-  hint: Object3D | null, // todo: in local space, should be in world space, convert to matrix or dual quat
-  targetOffset: Object3D, // todo: convert to matrix or dual quat
+  targetPosition: Vector3,
+  targetRotation: Quaternion,
+  hint: Object3D | null = null, // todo: in local space, should be in world space, convert to matrix or dual quat
   targetPosWeight: number = 1,
-  targetRotWeight: number = 0,
+  targetRotWeight: number = 1,
   hintWeight: number = 1
 ) {
-  // The bone transform chain should already be updated outside this function
-  // tip.updateWorldMatrix(true, false)
-
-  targetPos.setFromMatrixPosition(target.matrixWorld).add(targetOffset.position)
-  Object3DUtils.getWorldQuaternion(target, targetRot).multiply(targetOffset.quaternion)
+  targetPos.copy(targetPosition)
+  targetRot.copy(targetRotation)
 
   aPosition.setFromMatrixPosition(root.matrixWorld)
   bPosition.setFromMatrixPosition(mid.matrixWorld)

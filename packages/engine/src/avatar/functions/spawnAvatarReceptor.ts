@@ -33,12 +33,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import {
-  AvatarHeadIKComponent,
-  AvatarIKTargetsComponent,
-  AvatarLeftArmIKComponent,
-  AvatarRightArmIKComponent
-} from '../components/AvatarIKComponents'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const avatarRadius = 0.25
@@ -104,11 +98,6 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     },
     rootYRatio: 1,
     locomotion: new Vector3()
-  })
-  setComponent(entity, AvatarIKTargetsComponent, {
-    head: false,
-    leftHand: false,
-    rightHand: false
   })
 
   addComponent(entity, SpawnPoseComponent, {
