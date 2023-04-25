@@ -19,8 +19,8 @@ const triggerButton = (button: ButtonTypes, pressed: boolean): void => {
 }
 
 const normalizeValues = (val) => {
-  const a = 1
-  const b = -1
+  const a = 5
+  const b = -5
   const maxVal = 50
   const minVal = -50
 
@@ -36,6 +36,7 @@ const handleMove = (e) => {
       value: { x: normalizeValues(-e.x), y: normalizeValues(e.y), angleRad: 0 }
     }
   })
+
   document.dispatchEvent(event)
 }
 
