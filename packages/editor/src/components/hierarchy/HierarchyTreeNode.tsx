@@ -3,8 +3,6 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { Object3D } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
@@ -15,11 +13,10 @@ import {
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
-  EntityOrObjectUUID,
   EntityTreeComponent,
   getEntityNodeArrayFromEntities
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { ErrorComponent, ErrorComponentType } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { getMutableState } from '@etherealengine/hyperflux'
 
