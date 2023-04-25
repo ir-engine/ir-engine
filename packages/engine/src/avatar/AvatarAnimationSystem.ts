@@ -7,6 +7,7 @@ import { defineActionQueue, defineState, dispatchAction, getState } from '@ether
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
+import { proxifyQuaternion } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../ecs/functions/ComponentFunctions'
@@ -80,8 +81,6 @@ const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationCom
 const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
 
 const targetQuaternion = new Quaternion()
-const leftTargetRotationOffset = new Quaternion().setFromEuler(new Euler().set(-Math.PI * 0.5, Math.PI, 0))
-const rightTargetRotationOffset = new Quaternion().setFromEuler(new Euler().set(-Math.PI * 0.5, 0, 0))
 
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
 
@@ -280,7 +279,7 @@ const execute = () => {
         rig.LeftForeArm,
         rig.LeftHand,
         transformComponent.position,
-        targetQuaternion.copy(transformComponent.rotation).multiply(leftTargetRotationOffset)
+        targetQuaternion.copy(transformComponent.rotation)
       )
     } else if (ikComponent.handedness === 'right') {
       rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
@@ -291,7 +290,7 @@ const execute = () => {
         rig.RightForeArm,
         rig.RightHand,
         transformComponent.position,
-        targetQuaternion.copy(transformComponent.rotation).multiply(rightTargetRotationOffset)
+        targetQuaternion.copy(transformComponent.rotation)
       )
     }
   }
