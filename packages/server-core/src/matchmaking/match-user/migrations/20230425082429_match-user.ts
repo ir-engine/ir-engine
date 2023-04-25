@@ -12,13 +12,13 @@ export async function up(knex: Knex): Promise<void> {
   const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
   if (oldNamedTableExists) {
     await knex.schema.renameTable(oldTableName, matchUserPath)
-  }
 
-  const oldGameModeColumnExists = await knex.schema.hasColumn(matchUserPath, 'gamemode')
-  if (oldGameModeColumnExists) {
-    await knex.schema.alterTable(matchUserPath, async (table) => {
-      table.renameColumn('gamemode', 'gameMode')
-    })
+    const oldGameModeColumnExists = await knex.schema.hasColumn(matchUserPath, 'gamemode')
+    if (oldGameModeColumnExists) {
+      await knex.schema.alterTable(matchUserPath, async (table) => {
+        table.renameColumn('gamemode', 'gameMode')
+      })
+    }
   }
 
   const tableExists = await knex.schema.hasTable(matchUserPath)
