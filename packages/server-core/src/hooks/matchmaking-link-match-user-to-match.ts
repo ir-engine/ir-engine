@@ -1,6 +1,7 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
 import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 
 import logger from '../ServerLogger'
@@ -21,7 +22,7 @@ export default (): Hook => {
       return context
     }
 
-    const matchUserResult = await app.service('match-user').find({
+    const matchUserResult = await app.service(matchUserPath).find({
       query: {
         ticketId: context.id,
         $limit: 1
@@ -34,7 +35,7 @@ export default (): Hook => {
     }
 
     const matchUser = matchUserResult.data[0]
-    await app.service('match-user').patch(matchUser.id, {
+    await app.service(matchUserPath).patch(matchUser.id, {
       connection: result.connection
     })
 

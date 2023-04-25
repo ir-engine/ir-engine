@@ -1,23 +1,21 @@
-/**
- * An object for swagger documentation configuration
- */
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default {
-  definitions: {
-    'match-user': {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string'
-        },
-        ticketId: {
-          type: 'string'
-        },
-        connection: {
-          type: 'string'
-        }
-      }
-    }
+import {
+  matchUserDataSchema,
+  matchUserPatchSchema,
+  matchUserQuerySchema,
+  matchUserSchema
+} from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    matchUserDataSchema,
+    matchUserPatchSchema,
+    matchUserQuerySchema,
+    matchUserSchema
   },
-  overwriteTagSpec: true
-}
+  docs: {
+    description: 'Match user service description',
+    securities: ['all']
+  }
+})

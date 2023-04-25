@@ -1,10 +1,11 @@
+import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
 import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   return new Promise<any>((resolve, reject) => {
     setTimeout(async () => {
-      const matchUserResult = await app.service('match-user').find({
+      const matchUserResult = await app.service(matchUserPath).find({
         query: {
           ticketId,
           userId
@@ -21,11 +22,11 @@ async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
 }
 
 export async function emulate_createTicket(gamemode: string): Promise<MatchTicketType> {
-  return { id: Math.random().toString(), search_fields: { tags: [gamemode] } } as MatchTicketType
+  return { id: Math.random().toString(), searchFields: { tags: [gamemode] } } as MatchTicketType
 }
 
 export async function emulate_getTicket(app, ticketId, userId): Promise<MatchTicketType | void> {
-  const matchUserResult = await app.service('match-user').find({
+  const matchUserResult = await app.service(matchUserPath).find({
     query: {
       ticketId,
       userId
@@ -55,14 +56,14 @@ export async function emulate_getTicketsAssignment(app, ticketId, userId): Promi
   }
 
   const connection = Math.random().toString()
-  await app.service('match-user').patch(matchUser.id, {
+  await app.service(matchUserPath).patch(matchUser.id, {
     connection
   })
 
   return new Promise<MatchTicketAssignmentType>((resolve, reject) => {
     setTimeout(async () => {
       try {
-        await app.service('match-user').get(matchUser.id)
+        await app.service(matchUserPath).get(matchUser.id)
       } catch (e) {
         reject({ code: 5, message: `Ticket id: ${ticketId} not found` })
       }
