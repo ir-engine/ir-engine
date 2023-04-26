@@ -290,13 +290,15 @@ export const applyInputSourcePoseToIKTargets = () => {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
-              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
+              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion).invert()
+              ikTransform.rotation.multiply(new Quaternion().setFromEuler(new Euler(0, 0, Math.PI / 2)))
             }
           } else {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
-              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
+              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion).invert()
+              ikTransform.rotation.multiply(new Quaternion().setFromEuler(new Euler(0, 0, Math.PI / 2)))
             }
           }
         }
