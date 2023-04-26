@@ -6,6 +6,7 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   StateDefinition,
   useState
 } from '@etherealengine/hyperflux'
@@ -28,6 +29,7 @@ export type MaterialLibraryType = {
   prototypes: Record<string, MaterialPrototypeComponentType>
   materials: Record<string, MaterialComponentType>
   sources: Record<string, MaterialSourceComponentType>
+  initialized: boolean
 }
 
 export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = defineState({
@@ -35,7 +37,8 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
   initial: {
     prototypes: {},
     materials: {},
-    sources: {}
+    sources: {},
+    initialized: false
   } as MaterialLibraryType
 })
 /**@deprecated use getMutableState directly instead */
@@ -61,15 +64,18 @@ export const MaterialLibraryActions = {
 
 export function initializeMaterialLibrary() {
   //load default prototypes from source
-  ;[
-    MeshBasicMaterial,
-    MeshStandardMaterial,
-    MeshMatcapMaterial,
-    MeshPhysicalMaterial,
-    MeshLambertMaterial,
-    MeshPhongMaterial,
-    MeshToonMaterial,
-    ShaderMaterial,
-    ShadowMaterial
-  ].map(registerMaterialPrototype)
+  const materialLibrary = getState(MaterialLibraryState)
+  ;(!materialLibrary.initialized &&
+    [
+      MeshBasicMaterial,
+      MeshStandardMaterial,
+      MeshMatcapMaterial,
+      MeshPhysicalMaterial,
+      MeshLambertMaterial,
+      MeshPhongMaterial,
+      MeshToonMaterial,
+      ShaderMaterial,
+      ShadowMaterial
+    ].map(registerMaterialPrototype)) ||
+    getMutableState(MaterialLibraryState).initialized.set(true)
 }
