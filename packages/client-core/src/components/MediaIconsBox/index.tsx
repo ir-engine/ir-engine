@@ -16,7 +16,7 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
-import { MediaStreamState } from '../../transports/MediaStreams'
+import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
@@ -94,18 +94,18 @@ export const MediaIconsBox = () => {
           >
             <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
           </button>
-          {/* {hasVideoDevice > 1 && (
+          {isCamVideoEnabled && hasVideoDevice > 1 && (
             <button
               type="button"
               id="FlipVideo"
-              className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
-              onClick={toggleWebcamPaused}
+              className={styles.iconContainer}
+              onClick={MediaStreamService.cycleCamera}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             >
-              <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
+              <Icon type={'FlipCameraAndroid'} />
             </button>
-          )} */}
+          )}
           <button
             type="button"
             id="UserPoseTracking"
