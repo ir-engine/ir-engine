@@ -1,16 +1,20 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminAwsSetting, PatchAwsSetting } from '@etherealengine/common/src/interfaces/AdminAwsSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import {
+  AwsSettingPatch,
+  awsSettingPath,
+  AwsSettingType
+} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminAwsSettingState = defineState({
+export const AdminAwsSettingState = defineState({
   name: 'AdminAwsSettingState',
   initial: () => ({
-    awsSettings: [] as Array<AdminAwsSetting>,
+    awsSettings: [] as Array<AwsSettingType>,
     skip: 0,
     limit: 100,
     total: 0,
@@ -33,22 +37,18 @@ export const AwsSettingReceptors = {
   awsSettingPatchedReceptor
 }
 
-export const accessAdminAwsSettingState = () => getMutableState(AdminAwsSettingState)
-
-export const useAdminAwsSettingState = () => useState(accessAdminAwsSettingState())
-
 export const AwsSettingService = {
   fetchAwsSetting: async () => {
     try {
-      const awsSettings = (await API.instance.client.service('aws-setting').find()) as Paginated<AdminAwsSetting>
+      const awsSettings = (await API.instance.client.service(awsSettingPath).find()) as Paginated<AwsSettingType>
       dispatchAction(AdminAwsSettingActions.awsSettingRetrieved({ awsSettings }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  patchAwsSetting: async (data: PatchAwsSetting, id: string) => {
+  patchAwsSetting: async (data: AwsSettingPatch, id: string) => {
     try {
-      await API.instance.client.service('aws-setting').patch(id, data)
+      await API.instance.client.service(awsSettingPath).patch(id, data)
       dispatchAction(AdminAwsSettingActions.awsSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -58,10 +58,10 @@ export const AwsSettingService = {
 
 export class AdminAwsSettingActions {
   static awsSettingRetrieved = defineAction({
-    type: 'xre.client.AdminAwsSetting.ADMIN_AWS_SETTING_FETCHED' as const,
-    awsSettings: matches.object as Validator<unknown, Paginated<AdminAwsSetting>>
+    type: 'ee.client.AdminAwsSetting.ADMIN_AWS_SETTING_FETCHED' as const,
+    awsSettings: matches.object as Validator<unknown, Paginated<AwsSettingType>>
   })
   static awsSettingPatched = defineAction({
-    type: 'xre.client.AdminAwsSetting.ADMIN_AWS_SETTING_PATCHED' as const
+    type: 'ee.client.AdminAwsSetting.ADMIN_AWS_SETTING_PATCHED' as const
   })
 }

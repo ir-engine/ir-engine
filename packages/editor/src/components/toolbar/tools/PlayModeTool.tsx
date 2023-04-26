@@ -5,12 +5,12 @@ import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/AvatarSpa
 import { FollowCameraComponent } from '@etherealengine/engine/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera/components/TargetCameraRotationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getEngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -22,6 +22,7 @@ import * as styles from '../styles.module.scss'
 const PlayModeTool = () => {
   const editorHelperState = useEditorHelperState()
   const authState = useAuthState()
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
 
   const onTogglePlayMode = () => {
     if (Engine.instance.localClientEntity) {
@@ -37,20 +38,18 @@ const PlayModeTool = () => {
 
       const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userId)
 
-      if (avatarDetails.modelResource?.url)
+      if (avatarDetails.modelResource?.LOD0_url)
         spawnLocalAvatarInWorld({
           avatarSpawnPose,
           avatarDetail: {
-            avatarURL: avatarDetails.modelResource?.url!,
-            thumbnailURL: avatarDetails.thumbnailResource?.url!
+            avatarURL: avatarDetails.modelResource?.LOD0_url!,
+            thumbnailURL: avatarDetails.thumbnailResource?.LOD0_url!
           },
           name: authState.user.name.value
         })
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
     }
   }
-
-  const sceneLoaded = getEngineState().sceneLoaded.value
 
   return (
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">

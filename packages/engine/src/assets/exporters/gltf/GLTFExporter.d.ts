@@ -48,6 +48,10 @@ export interface GLTFExporterOptions {
     includeCustomExtensions?: boolean;
 
     path?: string;
+
+    resourceURI?: string;
+
+    flipY?: boolean;
 }
 
 export class GLTFExporter {
@@ -101,18 +105,20 @@ export class GLTFWriter {
         trs?: boolean,
         binary?: boolean,
         embedImages?: boolean,
+        flipY?: boolean,
         path?: string,
         onlyVisible?: boolean,
         animations?: AnimationClip[],
         includeCustomExtensions?: boolean,
         truncateDrawRange?: boolean,
         maxTextureSize?: number,
+        resourceURI?: string
 
     }
     pending: Promise<any>[]
     extensionsUsed : {[key:string] : any}
 
-    applyTextureTransform(mapDef: Object, texture: Texture)
+    applyTextureTransform(mapDef: object, texture: Texture)
 
     processTexture(map: Texture): number
 
@@ -150,8 +156,6 @@ export class GLTFWriter {
 
     processSampler(map: Texture): number
 
-    processTexture(map: Texture): number
-
     setPlugins(plugins: GLTFExporterPlugin[]): void;
 
     /**
@@ -169,7 +173,7 @@ export class GLTFWriter {
 }
 
 export interface GLTFExporterPlugin {
-    writeImage?: (image: Image, imageDef: { [key: string]: any }) => void;
+    writeImage?: (image: HTMLImageElement, imageDef: { [key: string]: any }) => void;
     writeTexture?: (map: Texture, textureDef: { [key: string]: any }) => void;
     writeMaterial?: (material: Material, materialDef: { [key: string]: any }) => void;
     writeMesh?: (mesh: Mesh, meshDef: { [key: string]: any }) => void;

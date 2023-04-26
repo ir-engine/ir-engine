@@ -9,7 +9,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
@@ -48,20 +48,24 @@ import {
 } from './ViewCursor'
 
 describe('DataWriter', () => {
-  before(() => {
+  beforeEach(() => {
     createEngine()
     createMockNetwork()
-    getMutableState(NetworkState).networkSchema['ee.core.transform'].set({
+    getMutableState(NetworkState).networkSchema[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
     })
+    const engineState = getMutableState(EngineState)
+    engineState.fixedTick.set(1)
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
     const entity = 42 as Entity
-    const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -217,8 +221,8 @@ describe('DataWriter', () => {
 
     setTransformComponent(
       entity,
-      proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-      proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      new Vector3().set(posX, posY, posZ),
+      new Quaternion().set(rotX, rotY, rotZ, rotW),
       new Vector3(1, 1, 1)
     )
 
@@ -359,8 +363,8 @@ describe('DataWriter', () => {
 
     setTransformComponent(
       entity,
-      proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-      proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      new Vector3().set(posX, posY, posZ),
+      new Quaternion().set(rotX, rotY, rotZ, rotW),
       new Vector3(1, 1, 1)
     )
 
@@ -434,8 +438,8 @@ describe('DataWriter', () => {
 
       setTransformComponent(
         entity,
-        proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-        proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        new Vector3().set(posX, posY, posZ),
+        new Quaternion().set(rotX, rotY, rotZ, rotW),
         new Vector3(1, 1, 1)
       )
 
@@ -519,8 +523,8 @@ describe('DataWriter', () => {
 
       setTransformComponent(
         entity,
-        proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-        proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        new Vector3().set(posX, posY, posZ),
+        new Quaternion().set(rotX, rotY, rotZ, rotW),
         new Vector3(1, 1, 1)
       )
 

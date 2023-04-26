@@ -8,6 +8,7 @@ import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
+import { parse, stringify } from 'flatted'
 import helmet from 'helmet'
 import path from 'path'
 
@@ -15,15 +16,18 @@ import { isDev } from '@etherealengine/common/src/config'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createEngine, initializeNode, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { initializeNode } from '@etherealengine/engine/src/initializeNode'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { Application, ServerTypeMode } from '../declarations'
+import { Application } from '../declarations'
 import appConfig from './appconfig'
 import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
+import mysql from './mysql'
 import sequelize from './sequelize'
 import { elasticOnlyLogger, logger } from './ServerLogger'
+import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
@@ -33,10 +37,11 @@ require('fix-esm').register()
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
-      docsPath: '/openapi',
-      docsJsonPath: '/openapi.json',
-      uiIndex: path.join(process.cwd() + '/openapi.html'),
-      // TODO: Relate to server config, don't hardcode this here
+      ui: swagger.swaggerUI({
+        docsPath: '/openapi'
+        // docsJsonPath: '/openapi.json',
+        // indexFile: path.join(process.cwd() + '/openapi.html')
+      }),
       specs: {
         info: {
           title: 'Ethereal Engine API Surface',
@@ -90,11 +95,14 @@ export const configurePrimus =
 
 export const configureRedis = () => (app: Application) => {
   if (appConfig.redis.enabled) {
+    // https://github.com/feathersjs-ecosystem/feathers-sync/issues/140#issuecomment-810144263
     app.configure(
       sync({
         uri: appConfig.redis.password
           ? `redis://:${appConfig.redis.password}@${appConfig.redis.address}:${appConfig.redis.port}`
-          : `redis://${appConfig.redis.address}:${appConfig.redis.port}`
+          : `redis://${appConfig.redis.address}:${appConfig.redis.port}`,
+        serialize: stringify,
+        deserialize: parse
       })
     )
     app.sync.ready.then(() => {
@@ -108,11 +116,19 @@ export const configureK8s = () => (app: Application) => {
   if (appConfig.kubernetes.enabled) {
     const kc = new k8s.KubeConfig()
     kc.loadFromDefault()
+    const serverState = getMutableState(ServerState)
 
-    app.k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
-    app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
-    app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
-    app.k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
+    const k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
+    const k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
+    const k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
+    const k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
+
+    serverState.merge({
+      k8AppsClient,
+      k8BatchClient,
+      k8DefaultClient,
+      k8AgonesClient
+    })
   }
   return app
 }
@@ -122,7 +138,7 @@ export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureR
 ) => Application
 
 export const createFeathersExpressApp = (
-  serverMode: ServerTypeMode = 'API',
+  serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
   createDefaultStorageProvider()
@@ -131,15 +147,19 @@ export const createFeathersExpressApp = (
     createIPFSStorageProvider()
   }
 
+  createEngine()
+  getMutableState(EngineState).publicPath.set(config.client.dist)
   if (!appConfig.db.forceRefresh) {
-    createEngine()
-    getMutableState(EngineState).publicPath.set(config.client.dist)
-    setupEngineActionSystems()
     initializeNode()
   }
 
   const app = express(feathers()) as Application
-  app.serverMode = serverMode
+
+  Engine.instance.api = app
+
+  const serverState = getMutableState(ServerState)
+  serverState.serverMode.set(serverMode)
+
   app.set('nextReadyEmitter', new EventEmitter())
 
   // Feathers authentication-oauth will only append the port in production, but then it will also
@@ -180,6 +200,8 @@ export const createFeathersExpressApp = (
   //   ;(req as any).feathers.res = res
   //   next()
   // })
+
+  app.configure(mysql)
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)

@@ -6,7 +6,7 @@ import ListItem from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/ListItem',
+  title: 'Primitives/MUI/ListItem',
   component: ListItem,
   parameters: {
     componentSubtitle: 'ListItem',

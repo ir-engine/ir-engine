@@ -6,7 +6,7 @@ import TextField from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/TextField',
+  title: 'Primitives/MUI/TextField',
   component: TextField,
   parameters: {
     componentSubtitle: 'TextField',

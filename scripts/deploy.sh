@@ -14,15 +14,15 @@ if [ ! -f "api-image.txt" ] || [ -z "$(grep -L "no such manifest" api-image.txt)
 then
   echo "API image was not built and uploaded properly"
   exit 1
-elif [ ! -f "api-image.txt" ] || [ -z "$(grep -L "no such manifest" client-image.txt)" ]
+elif [ ! -f "client-image.txt" ] || [ -z "$(grep -L "no such manifest" client-image.txt)" ]
 then
   echo "client image was not built and uploaded properly"
   exit 1
-elif [ ! -f "api-image.txt" ] || [ -z "$(grep -L "no such manifest" instanceserver-image.txt)" ]
+elif [ ! -f "instanceserver-image.txt" ] || [ -z "$(grep -L "no such manifest" instanceserver-image.txt)" ]
 then
   echo "Instanceserver image was not built and uploaded properly"
   exit 1
-elif [ ! -f "api-image.txt" ] || [ -z "$(grep -L "no such manifest" taskserver-image.txt)" ]
+elif [ ! -f "taskserver-image.txt" ] || [ -z "$(grep -L "no such manifest" taskserver-image.txt)" ]
 then
   echo "Taskserver image was not built and uploaded properly"
   exit 1

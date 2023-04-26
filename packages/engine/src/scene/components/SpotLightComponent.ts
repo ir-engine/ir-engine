@@ -6,20 +6,21 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { isHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
+  jsonID: 'spot-light',
 
   onInit: (entity) => {
     const light = new SpotLight()
     light.target.position.set(0, -1, 0)
     light.target.name = 'light-target'
     light.add(light.target)
-    if (!isHeadset()) addObjectToGroup(entity, light)
+    if (!isMobileXRHeadset) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 10,
@@ -58,7 +59,7 @@ export const SpotLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,
@@ -77,8 +78,6 @@ export const SpotLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, SpotLightComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, SpotLightComponent)
 
@@ -162,5 +161,3 @@ export const SpotLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_SPOT_LIGHT = 'spot-light'

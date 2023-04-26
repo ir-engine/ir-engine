@@ -4,6 +4,7 @@ export interface ProjectColumn {
     | 'projectVersion'
     | 'commitSHA'
     | 'commitDate'
+    | 'download'
     | 'update'
     | 'invalidate'
     | 'view'
@@ -21,6 +22,7 @@ export const projectsColumns: ProjectColumn[] = [
   { id: 'projectVersion', label: 'Version', minWidth: 65 },
   { id: 'commitSHA', label: 'Commit SHA', minWidth: 100 },
   { id: 'commitDate', label: 'Commit Date', minWidth: 100 },
+  { id: 'download', label: 'Download', minWidth: 65 },
   { id: 'update', label: 'Update', minWidth: 65, align: 'center' },
   { id: 'push', label: 'Push to GitHub', minWidth: 65, align: 'center' },
   { id: 'link', label: 'GitHub Repo Link', minWidth: 65, align: 'center' },

@@ -31,7 +31,7 @@
   display: flex;
   flex-grow: 1;
   align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
   height: 1.75rem;
   position: relative;
 
@@ -131,7 +131,7 @@
   position: fixed;
   inset: 0;
   background-color: #555;
-  fill-opacity: 50%;
+  fill-opacity: 0.5;
   overflow-y: auto;
   height: 100%;
   width: 100%;

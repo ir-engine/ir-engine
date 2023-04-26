@@ -1,3 +1,3 @@
-import Analytics from './analytics/analytics.service'
+import Analytics from './analytics/analytics'
 
 export default [Analytics]

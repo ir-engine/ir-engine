@@ -6,7 +6,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   ComponentType,
@@ -33,6 +33,10 @@ describe.skip('EquippableSystem Integration Tests', () => {
     Engine.instance.physicsWorld = Physics.createWorld()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   it('system test', async () => {
     const player = createEntity()
     const item = createEntity()
@@ -49,7 +53,8 @@ describe.skip('EquippableSystem Integration Tests', () => {
         $from: Engine.instance.userId,
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
-        rotation: new Quaternion()
+        rotation: new Quaternion(),
+        uuid: Engine.instance.userId
       })
     )
 
@@ -63,9 +68,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     setTransformComponent(item)
     const equippableTransform = getComponent(item, TransformComponent)
     const attachmentPoint = equippedComponent.attachmentPoint
-    const target = getHandTarget(item, attachmentPoint)!
-    const position = target.getWorldPosition(new Vector3())
-    const rotation = target.getWorldQuaternion(new Quaternion())
+    const { position, rotation } = getHandTarget(item, attachmentPoint)!
 
     equippableSystem()
 

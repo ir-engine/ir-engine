@@ -5,13 +5,16 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+
 // @ts-ignore
 
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
 const Engine = lazy(() => import('./engine'))
+
 const AppPage = lazy(() => import('./pages/_app'))
 const AdminPage = lazy(() => import('./pages/admin'))
+const TailwindPage = lazy(() => import('./pages/_app_tw'))
 
 const App = () => {
   return (
@@ -37,6 +40,15 @@ const App = () => {
                 <Engine>
                   <AdminPage />
                 </Engine>
+              </Suspense>
+            }
+          />
+          <Route
+            key={'capture'}
+            path={'/capture/*'}
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <TailwindPage />
               </Suspense>
             }
           />

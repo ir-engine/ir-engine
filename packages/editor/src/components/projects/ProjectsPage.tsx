@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
+import { ProjectUpdateSystem } from '@etherealengine/client-core/src/systems/ProjectUpdateSystem'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { startSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { dispatchAction, useHookstate } from '@etherealengine/hyperflux'
 
 import {
@@ -111,7 +112,7 @@ const OfficialProjectData = [
 const ProjectUpdateSystemInjection = {
   uuid: 'core.admin.ProjectUpdateSystem',
   type: 'PRE_RENDER',
-  systemLoader: () => import('@etherealengine/client-core/src/systems/ProjectUpdateSystem')
+  systemLoader: () => Promise.resolve({ default: ProjectUpdateSystem })
 } as const
 
 const CommunityProjectData = [] as any
@@ -215,9 +216,7 @@ const ProjectsPage = () => {
     fetchInstalledProjects()
   }
 
-  useEffect(() => {
-    initSystems([ProjectUpdateSystemInjection])
-  }, [])
+  useSystems([ProjectUpdateSystem], { before: PresentationSystemGroup })
 
   useEffect(() => {
     if (!authUser || !user) return
@@ -275,7 +274,7 @@ const ProjectsPage = () => {
     updatingProject.set(true)
     if (activeProject.value) {
       try {
-        const proj = installedProjects.value.find((proj) => proj.id === activeProject.value?.id)!
+        const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()
       } catch (err) {
@@ -352,7 +351,7 @@ const ProjectsPage = () => {
             >
               <div
                 className={styles.thumbnailContainer}
-                style={{ backgroundImage: `url(${project.thumbnail})` }}
+                style={{ backgroundImage: `url(${project.thumbnail ?? '/static/etherealengine_thumbnail.jpg'})` }}
                 id={'open-' + project.name}
               />
             </a>

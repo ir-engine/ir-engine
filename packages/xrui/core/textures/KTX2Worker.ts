@@ -3,19 +3,20 @@ import type { ImageDataType } from '@loaders.gl/images'
 import BasisEncoderModuleSRC from './basis_encoder_low_memory/basis_encoder.js.txt'
 // @ts-ignore
 import BasisEncoderWASMBinary from './basis_encoder_low_memory/basis_encoder.wasm'
-import type { EncodeResponse } from './KTX2Encoder'
+import type { EncodeRequest, EncodeResponse } from './KTX2Encoder'
 
 ;(0, eval)(BasisEncoderModuleSRC)
 declare const BASIS: any
 
 const worker: Worker = self as any
 
-worker.onmessage = async (msg: MessageEvent<ImageDataType>) => {
+worker.onmessage = async (msg: MessageEvent<EncodeRequest>) => {
   try {
-    const texture = await encodeKTX2BasisTexture(msg.data, {
-      useSRGB: true,
-      encodeUASTC: true,
-      mipmaps: true
+    const texture = await encodeKTX2BasisTexture(msg.data.image, {
+      useSRGB: msg.data.useSRGB,
+      encodeUASTC: msg.data.encodeUASTC,
+      mipmaps: msg.data.mipmaps,
+      qualityLevel: msg.data.qualityLevel
     })
     const response: EncodeResponse = { texture }
     worker.postMessage(response, [texture])

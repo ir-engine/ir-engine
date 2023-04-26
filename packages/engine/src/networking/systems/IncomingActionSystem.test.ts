@@ -1,6 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
 import {
@@ -10,7 +11,7 @@ import {
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
@@ -26,6 +27,10 @@ describe('IncomingActionSystem Unit Tests', async () => {
     createMockNetwork()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
       // fixed tick in past
@@ -38,13 +43,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         // incoming action from future
         $time: 2,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
@@ -68,13 +74,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         // incoming action from past
         $time: -1,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
@@ -94,13 +101,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,
-        $cache: true
+        $cache: true,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */

@@ -16,7 +16,7 @@ export default async function exportModelGLTF(
   }
 ) {
   const scene = getComponent(entity, ModelComponent).scene!
-  const exporter = await createGLTFExporter()
+  const exporter = createGLTFExporter()
   const gltf: ArrayBuffer = await new Promise((resolve) => {
     const rootMatrix = scene.matrix.clone()
     const inverseRoot = rootMatrix.clone().invert()
@@ -32,7 +32,8 @@ export default async function exportModelGLTF(
       },
       {
         ...options,
-        animations: scene.animations
+        animations: scene.animations ?? [],
+        flipY: scene.userData.src.endsWith('.usdz')
       }
     )
   })

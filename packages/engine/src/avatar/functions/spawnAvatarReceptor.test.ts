@@ -3,7 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -29,6 +29,10 @@ describe('spawnAvatarReceptor', () => {
     Engine.instance.physicsWorld = Physics.createWorld()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   it('check the create avatar function', () => {
     Engine.instance.userId = 'user' as UserId
 
@@ -36,9 +40,10 @@ describe('spawnAvatarReceptor', () => {
     const action = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
-    WorldNetworkActionReceptor.receiveSpawnObject(action)
+    WorldNetworkActionReceptor.receiveSpawnObject(action as any)
     spawnAvatarReceptor(action)
 
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)

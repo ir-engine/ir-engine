@@ -1,4 +1,3 @@
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { hasComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag, readCompressedRotation, readVector3 } from '../networking/serialization/DataReader'
@@ -15,7 +14,7 @@ export const readTransform = (v: ViewCursor, entity: Entity) => {
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
-  Engine.instance.dirtyTransforms[entity] = true
+  TransformComponent.dirtyTransforms[entity] = true
 }
 
 export const writePosition = writeVector3(TransformComponent.position)
@@ -36,6 +35,7 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
 }
 
 export const TransformSerialization = {
+  ID: 'ee.core.transform' as const,
   readTransform,
   writeTransform
 }

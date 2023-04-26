@@ -37,7 +37,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
             if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
             let texture = material[k] as Texture
             const mapDef = { index: this.writer.processTexture(texture) }
-            texture.repeat.y *= -1
+            this.writer.options.flipY && (texture.repeat.y *= -1)
             this.writer.applyTextureTransform(mapDef, texture)
             result[k] = mapDef
           } else result[k] = material[k]

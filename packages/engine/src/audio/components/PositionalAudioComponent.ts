@@ -27,7 +27,9 @@ export interface PositionalAudioInterface {
 }
 
 export const PositionalAudioComponent = defineComponent({
-  name: 'XRE_positionalAudio',
+  name: 'EE_positionalAudio',
+
+  jsonID: 'audio',
 
   onInit: (entity) => {
     return {
@@ -78,8 +80,6 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, PositionalAudioComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(root.entity, PositionalAudioComponent)
     const mediaElement = useComponent(root.entity, MediaElementComponent)
@@ -110,5 +110,3 @@ export const PositionalAudioComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_AUDIO = 'audio'

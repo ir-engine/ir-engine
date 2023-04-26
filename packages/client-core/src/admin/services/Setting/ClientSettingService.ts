@@ -4,7 +4,7 @@ import config from '@etherealengine/common/src/config'
 import { ClientSetting, PatchClientSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -51,10 +51,6 @@ export const ClientSettingsServiceReceptor = (action) => {
 //   clientSettingPatchedReceptor
 // }
 
-export const accessClientSettingState = () => getMutableState(AdminClientSettingsState)
-
-export const useClientSettingState = () => useState(accessClientSettingState())
-
 export const ClientSettingService = {
   fetchClientSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
@@ -82,10 +78,10 @@ export const ClientSettingService = {
 
 export class ClientSettingActions {
   static fetchedClient = defineAction({
-    type: 'xre.client.AdminClientSetting.CLIENT_SETTING_DISPLAY' as const,
+    type: 'ee.client.AdminClientSetting.CLIENT_SETTING_DISPLAY' as const,
     clientSettings: matches.object as Validator<unknown, Paginated<ClientSetting>>
   })
   static clientSettingPatched = defineAction({
-    type: 'xre.client.AdminClientSetting.CLIENT_SETTING_PATCHED' as const
+    type: 'ee.client.AdminClientSetting.CLIENT_SETTING_PATCHED' as const
   })
 }

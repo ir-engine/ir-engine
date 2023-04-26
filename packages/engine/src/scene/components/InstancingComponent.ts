@@ -1,13 +1,26 @@
-import { BufferGeometry, Color, Material, MathUtils, Mesh, Texture } from 'three'
+import { useEffect } from 'react'
+import { Color, Material, Mesh, Object3D, Texture } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { State } from '@etherealengine/hyperflux'
+import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 
-import { createMappedComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
+import { EngineState } from '../../ecs/classes/EngineState'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
-  SCATTER_PROPERTIES_DEFAULT_VALUES
+  SCATTER_PROPERTIES_DEFAULT_VALUES,
+  stageInstancing,
+  unstageInstancing
 } from '../functions/loaders/InstancingFunctions'
+import { addObjectToGroup, GroupComponent } from './GroupComponent'
+import { UUIDComponent } from './UUIDComponent'
 
 export enum SampleMode {
   SCATTER,
@@ -20,12 +33,13 @@ export enum ScatterMode {
   MESH
 }
 
-export enum ScatterState {
-  UNSTAGED,
-  STAGING,
-  STAGED,
-  SCATTERING,
-  SCATTERED
+export const ScatterState = {
+  UNSTAGED: 'unstaged' as const,
+  UNSTAGING: 'unstaging' as const,
+  STAGING: 'staging' as const,
+  STAGED: 'staged' as const,
+  SCATTERING: 'scattering' as const,
+  SCATTERED: 'scattered' as const
 }
 
 export type RandomizedProperty = { mu: number; sigma: number }
@@ -93,30 +107,34 @@ export type InstancingComponentType = {
   surface: string
   sampling: SampleMode
   mode: ScatterMode
-  state: ScatterState
+  state: (typeof ScatterState)[keyof typeof ScatterState]
   sampleProperties: ScatterProperties | VertexProperties
   sourceProperties: GrassProperties | MeshProperties
 }
 
 export const InstancingComponent = defineComponent({
   name: 'InstancingComponent',
+  jsonID: 'instancing',
+
   onInit: (entity) => {
     return {
       count: 5000,
-      surface: '',
+      surface: '' as EntityUUID,
       sampling: SampleMode.SCATTER,
       mode: ScatterMode.GRASS,
-      state: ScatterState.UNSTAGED,
       sampleProperties: SCATTER_PROPERTIES_DEFAULT_VALUES as ScatterProperties | VertexProperties,
-      sourceProperties: GRASS_PROPERTIES_DEFAULT_VALUES as GrassProperties | MeshProperties
+      sourceProperties: GRASS_PROPERTIES_DEFAULT_VALUES as GrassProperties | MeshProperties,
+      // internal
+      state: ScatterState.UNSTAGED as (typeof ScatterState)[keyof typeof ScatterState],
+      mesh: null as Mesh | null
     }
   },
+
   onSet: (entity, component, json) => {
     typeof json?.count === 'number' && component.count.set(json.count)
     typeof json?.surface === 'string' && component.surface.set(json.surface)
     typeof json?.sampling === 'number' && component.sampling.set(json.sampling)
     typeof json?.mode === 'number' && component.mode.set(json.mode)
-    typeof json?.state === 'number' && component.state.set(json.state)
     if ((json?.sampleProperties as ScatterProperties)?.isScatterProperties) {
       const scatterProps = json!.sampleProperties as ScatterProperties
       const scatterState = component.sampleProperties as State<ScatterProperties>
@@ -139,6 +157,7 @@ export const InstancingComponent = defineComponent({
       typeof vertexProps.vertexColors === 'boolean' && vertexState.vertexColors.set(vertexProps.vertexColors)
     }
   },
+
   toJSON: (entity, component) => {
     const comp = component.value
 
@@ -189,13 +208,42 @@ export const InstancingComponent = defineComponent({
       surface: comp.surface,
       sampling: comp.sampling,
       mode: comp.mode,
-      state: comp.state,
       sampleProperties: sampleJson,
       sourceProperties: sourceJson
     }
+  },
+
+  reactor: function ({ root }) {
+    const entity = root.entity
+
+    const instancingComponent = useComponent(entity, InstancingComponent)
+    const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+
+    useEffect(() => {
+      if (!sceneLoaded.value || instancingComponent.state.value !== ScatterState.UNSTAGED) return
+
+      stageInstancing(entity)
+    }, [sceneLoaded, instancingComponent.state])
+
+    useEffect(() => {
+      if (!sceneLoaded.value || instancingComponent.state.value !== ScatterState.STAGED) return
+
+      const refEntity = UUIDComponent.entitiesByUUIDState.value[instancingComponent.surface.value]
+      const groupComponent = getComponent(refEntity, GroupComponent)
+
+      for (const obj of groupComponent) {
+        obj.traverse((child: Mesh<any, Material>) => {
+          cleanupAllMeshData(child, {})
+        })
+      }
+    }, [instancingComponent.state, sceneLoaded])
+
+    useEffect(() => {
+      if (instancingComponent.state.value !== ScatterState.UNSTAGING) return
+
+      unstageInstancing(entity)
+    }, [instancingComponent.state])
+
+    return null
   }
 })
-
-export const InstancingStagingComponent = createMappedComponent('InstancingStagingComponent')
-
-export const InstancingUnstagingComponent = createMappedComponent('InstancingUnstagingComponent')

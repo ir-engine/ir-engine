@@ -2,6 +2,7 @@ import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/
 
 export const clientSeed = {
   path: 'client-setting',
+  insertSingle: true,
   templates: [
     {
       logo: process.env.APP_LOGO,
@@ -9,7 +10,7 @@ export const clientSeed = {
       shortTitle: process.env.APP_TITLE,
       startPath: '/',
       releaseName: process.env.RELEASE_NAME || 'local',
-      siteDescription: process.env.SITE_DESC,
+      siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
       url:
         process.env.APP_URL ||
         (process.env.VITE_LOCAL_BUILD

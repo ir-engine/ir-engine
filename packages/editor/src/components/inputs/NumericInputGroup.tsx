@@ -20,6 +20,7 @@ export interface NumericInputGroupProp {
   max?: number
   value: any
   onChange: (value: any) => void
+  onCommit?: (value: any) => void
   unit?: string
   convertFrom?: any
   convertTo?: any

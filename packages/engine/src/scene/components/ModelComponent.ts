@@ -1,49 +1,64 @@
 import { useEffect } from 'react'
-import { Mesh, Object3D, Scene } from 'three'
+import { Mesh, Scene } from 'three'
+
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { DependencyTree } from '../../assets/classes/DependencyTree'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
-  getComponentState,
-  hasComponent,
+  getMutableComponent,
   removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { entityExists, EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { setBoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
+import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
-import { MediaComponent } from './MediaComponent'
+import { LODComponent } from './LODComponent'
+import { LODComponentType } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 
+export type ModelResource = {
+  src?: string
+  gltfStaticResource?: StaticResourceInterface
+  glbStaticResource?: StaticResourceInterface
+  fbxStaticResource?: StaticResourceInterface
+  usdzStaticResource?: StaticResourceInterface
+  id?: EntityUUID
+}
+
 export const ModelComponent = defineComponent({
   name: 'EE_model',
+  jsonID: 'gltf-model',
 
   onInit: (entity) => {
     return {
       src: '',
+      resource: null as ModelResource | null,
       generateBVH: true,
       avoidCameraOcclusion: false,
-      scene: undefined as undefined | Scene
+      scene: null as Scene | null
     }
   },
 
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
+      resource: component.resource.value,
       generateBVH: component.generateBVH.value,
       avoidCameraOcclusion: component.avoidCameraOcclusion.value
     }
@@ -52,82 +67,91 @@ export const ModelComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
+    if (typeof json.resource === 'object') {
+      const resource = json.resource ? (json.resource as ModelResource) : ({ src: json.src } as ModelResource)
+      component.resource.set(resource)
+    }
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(EngineState).sceneLoaded) setComponent(entity, SceneAssetPendingTagComponent, true)
   },
 
   onRemove: (entity, component) => {
     if (component.scene.value) {
       removeObjectFromGroup(entity, component.scene.value)
-      component.scene.set(undefined)
+      component.scene.set(null)
     }
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
-  errors: ['LOADING_ERROR'],
+  errors: ['LOADING_ERROR', 'INVALID_URL'],
 
   reactor: ModelReactor
 })
 
 function ModelReactor({ root }: EntityReactorProps) {
   const entity = root.entity
-  if (!hasComponent(entity, ModelComponent)) throw root.stop()
-
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
+  const source =
+    model.resource?.gltfStaticResource?.LOD0_url ||
+    model.resource?.glbStaticResource?.LOD0_url ||
+    model.resource?.fbxStaticResource?.LOD0_url ||
+    model.resource?.usdzStaticResource?.LOD0_url ||
+    model.src
   // update src
   useEffect(() => {
-    if (model.src === model.scene?.userData?.src) return
+    if (source === model.scene?.userData?.src) return
 
-    const loadModel = async () => {
-      try {
-        if (model.scene && model.scene.userData.src && model.scene.userData.src !== model.src) {
-          try {
-            removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
-          } catch (e) {
-            if (e?.name === 'MaterialNotFound') {
-              console.warn('could not find material in source ' + model.scene.userData.src)
-            } else {
-              throw e
-            }
+    try {
+      if (model.scene && model.scene.userData.src && model.scene.userData.src !== model.src) {
+        try {
+          removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
+        } catch (e) {
+          if (e?.name === 'MaterialNotFound') {
+            console.warn('could not find material in source ' + model.scene.userData.src)
+          } else {
+            throw e
           }
         }
-        if (!model.src) return
-        if (!hasComponent(entity, EntityTreeComponent)) return
-
-        const uuid = getComponent(entity, UUIDComponent)
-        DependencyTree.add(uuid)
-        let scene: Scene
-        const fileExtension = /\.[\d\s\w]+$/.exec(model.src)?.[0]
-        switch (fileExtension) {
-          case '.glb':
-          case '.gltf':
-          case '.fbx':
-          case '.usdz':
-            const loadedAsset = await AssetLoader.loadAsync(model.src, {
+      }
+      if (!model.src) return
+      const uuid = getComponent(entity, UUIDComponent)
+      const fileExtension = model.src.split('.').pop()?.toLowerCase()
+      switch (fileExtension) {
+        case 'glb':
+        case 'gltf':
+        case 'fbx':
+        case 'usdz':
+          AssetLoader.load(
+            model.src,
+            {
               ignoreDisposeGeometry: model.generateBVH,
               uuid
-            })
-            scene = loadedAsset.scene
-            scene.animations = loadedAsset.animations
-            break
-          default:
-            throw new Error(`Model type '${fileExtension}' not supported`)
-        }
-
-        if (!entityExists(entity)) return
-        removeError(entity, ModelComponent, 'LOADING_ERROR')
-        scene.userData.src = model.src
-        if (scene.userData.type === 'glb') delete scene.userData.type
-        modelComponent.scene.set(scene)
-      } catch (err) {
-        console.error(err)
-        addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
+            },
+            (loadedAsset) => {
+              loadedAsset.scene.animations = loadedAsset.animations
+              if (!entityExists(entity)) return
+              removeError(entity, ModelComponent, 'LOADING_ERROR')
+              loadedAsset.scene.userData.src = model.src
+              loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
+              model.scene && removeObjectFromGroup(entity, model.scene)
+              modelComponent.scene.set(loadedAsset.scene)
+            }
+          )
+          break
+        default:
+          throw new Error(`Model type '${fileExtension}' not supported`)
       }
+    } catch (err) {
+      console.error(err)
+      addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
     }
-
-    loadModel()
   }, [modelComponent.src])
 
   useEffect(() => {
@@ -145,7 +169,7 @@ function ModelReactor({ root }: EntityReactorProps) {
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
-    setBoundingBoxComponent(entity)
+    setComponent(entity, BoundingBoxComponent)
     removeComponent(entity, SceneAssetPendingTagComponent)
 
     let active = true
@@ -158,7 +182,7 @@ function ModelReactor({ root }: EntityReactorProps) {
       // trigger group state invalidation when bvh is done
       Promise.all(bvhDone).then(() => {
         if (!active) return
-        const group = getComponentState(entity, GroupComponent)
+        const group = getMutableComponent(entity, GroupComponent)
         if (group) group.set([...group.value])
       })
     }
@@ -171,5 +195,3 @@ function ModelReactor({ root }: EntityReactorProps) {
 
   return null
 }
-
-export const SCENE_COMPONENT_MODEL = 'gltf-model'

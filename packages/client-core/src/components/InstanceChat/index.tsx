@@ -15,7 +15,7 @@ import { useAuthState } from '@etherealengine/client-core/src/user/services/Auth
 import multiLogger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
@@ -76,7 +76,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const [composingMessage, setComposingMessage] = useState('')
   const [cursorPosition, setCursorPosition] = useState(0)
   const user = useAuthState().user
-  const usersTyping = useEngineState().usersTyping[user?.id.value].value
+  const usersTyping = useHookstate(getMutableState(EngineState)).usersTyping[user?.id.value].value
   const [isMultiline, setIsMultiline] = useState(false)
 
   useEffect(() => {
@@ -225,14 +225,6 @@ export const InstanceChat = ({
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
   const chatState = useChatState()
-
-  ChatService.useAPIListeners()
-  useEffect(() => {
-    addActionReceptor(ChatServiceReceptor)
-    return () => {
-      removeActionReceptor(ChatServiceReceptor)
-    }
-  }, [])
 
   /**
    * Audio effect

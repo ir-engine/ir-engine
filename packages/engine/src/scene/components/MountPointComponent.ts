@@ -14,10 +14,11 @@ export const MountPoint = {
   seat: 'seat' as const
 }
 
-export type MountPointTypes = typeof MountPoint[keyof typeof MountPoint]
+export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
+  jsonID: 'mount-point',
 
   onInit: (entity) => {
     return {
@@ -42,8 +43,6 @@ export const MountPointComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, MountPointComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(root.entity, MountPointComponent)
 
@@ -67,5 +66,3 @@ export const MountPointComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_MOUNT_POINT = 'mount-point'

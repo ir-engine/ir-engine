@@ -52,13 +52,13 @@ export default {
       createGroupOwner(),
       async (context: HookContext): Promise<HookContext> => {
         try {
-          const data = context.arguments[0]?.scopeTypes?.map((el) => {
+          const data = context.arguments[0]?.scopes?.map((el) => {
             return {
               type: el.type,
               groupId: context.result.id
             }
           })
-          await context.app.service('scope').create(data)
+          if (data) await context.app.service('scope').create(data)
 
           return context
         } catch (err) {

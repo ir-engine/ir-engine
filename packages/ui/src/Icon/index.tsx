@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react'
 
 import {
   Accessibility,
+  AccessibilityNew,
   AccountCircle,
   Add,
   AdminPanelSettings,
@@ -16,6 +17,7 @@ import {
   BlurOff,
   CachedOutlined,
   CalendarViewDay,
+  CameraAlt,
   Cancel,
   CancelOutlined,
   Chat,
@@ -49,6 +51,7 @@ import {
   FileCopy,
   FileUpload,
   FilterList,
+  FlipCameraAndroid,
   FormatColorFill,
   FormatColorReset,
   FullscreenExit,
@@ -102,6 +105,7 @@ import {
   ScreenshotMonitor,
   Search,
   SelectAll,
+  SelfImprovement,
   Send,
   Settings,
   Shuffle,
@@ -140,6 +144,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
     default:
       console.log(`----------------Icon type not found: ${type}`)
       return <CrisisAlert {...props} />
+    case 'AccessibilityNew':
+      return <AccessibilityNew {...props} />
     case 'default':
       return <ThumbUp {...props} />
     case 'Save':
@@ -148,6 +154,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Sync {...props} />
     case 'Download':
       return <Download {...props} />
+    case 'CameraAlt':
+      return <CameraAlt {...props} />
     case 'ChevronLeft':
       return <ChevronLeft {...props} />
     case 'ChevronRight':
@@ -402,6 +410,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Toys {...props} />
     case 'Phone':
       return <Phone {...props} />
+    case 'FlipCameraAndroid':
+      return <FlipCameraAndroid {...props} />
   }
 }
 

@@ -56,9 +56,9 @@ export const ProjectServiceReceptor = (action) => {
       return s.merge({ refreshingGithubRepoAccess: action.refreshing })
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessProjectState = () => getMutableState(ProjectState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useProjectState = () => useState(accessProjectState())
 
 //Service
@@ -321,47 +321,47 @@ export const ProjectService = {
 //Action
 export class ProjectAction {
   static projectsFetched = defineAction({
-    type: 'xre.client.Project.PROJECTS_RETRIEVED' as const,
+    type: 'ee.client.Project.PROJECTS_RETRIEVED' as const,
     projectResult: matches.array as Validator<unknown, ProjectInterface[]>
   })
 
   static reloadStatusFetched = defineAction({
-    type: 'xre.client.Project.RELOAD_STATUS_RETRIEVED' as const,
+    type: 'ee.client.Project.RELOAD_STATUS_RETRIEVED' as const,
     status: matches.boolean
   })
 
   static postProject = defineAction({
-    type: 'xre.client.Project.PROJECT_POSTED' as const
+    type: 'ee.client.Project.PROJECT_POSTED' as const
   })
 
   static createdProject = defineAction({
-    type: 'xre.client.Project.PROJECT_CREATED' as const
+    type: 'ee.client.Project.PROJECT_CREATED' as const
   })
 
   static patchedProject = defineAction({
-    type: 'xre.client.Project.PROJECT_PATCHED' as const,
+    type: 'ee.client.Project.PROJECT_PATCHED' as const,
     project: matches.object as Validator<unknown, ProjectInterface>
   })
 
   static builderTagsFetched = defineAction({
-    type: 'xre.client.Project.BUILDER_TAGS_RETRIEVED' as const,
+    type: 'ee.client.Project.BUILDER_TAGS_RETRIEVED' as const,
     builderTags: matches.array as Validator<unknown, BuilderTag[]>
   })
 
   static builderInfoFetched = defineAction({
-    type: 'xre.client.project.BUILDER_INFO_FETCHED' as const,
+    type: 'ee.client.project.BUILDER_INFO_FETCHED' as const,
     builderInfo: matches.object as Validator<unknown, BuilderInfo>
   })
 
   static setGithubRepoAccessRefreshing = defineAction({
-    type: 'xre.client.project.SET_ACCESS_REFRESHING' as const,
+    type: 'ee.client.project.SET_ACCESS_REFRESHING' as const,
     refreshing: matches.boolean
   })
 
   // TODO #7254
   // buildProgress: (message: string) => {
   //   return {
-  //     type: 'xre.client.Project.PROJECT_BUILDER_UPDATE' as const,
+  //     type: 'ee.client.Project.PROJECT_BUILDER_UPDATE' as const,
   //     message
   //   }
   // }

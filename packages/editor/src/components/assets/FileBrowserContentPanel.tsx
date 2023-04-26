@@ -1,8 +1,7 @@
-import { Downgraded, useState } from '@hookstate/core'
+import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { API } from '@etherealengine/client-core/src/API'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
@@ -21,7 +20,7 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import { useState as useHFState } from '@etherealengine/hyperflux'
+import { useState } from '@etherealengine/hyperflux'
 import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -38,10 +37,6 @@ import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
-import BooleanInput from '../inputs/BooleanInput'
-import { Button } from '../inputs/Button'
-import Scrubber from '../inputs/Scrubber'
-import SelectInput from '../inputs/SelectInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import CompressionPanel from './CompressionPanel'
@@ -252,7 +247,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const onBackDirectory = () => {
-    const pattern = /([^\/]+)/g
+    const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
     if (!result) return
     let newPath = '/'
@@ -313,7 +308,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await onRefreshDirectory()
   }
 
-  let currentContent = null! as { item: FileDataType; isCopy: boolean }
+  const currentContent = null! as { item: FileDataType; isCopy: boolean }
   const currentContentRef = useRef(currentContent)
 
   const headGrid = {
@@ -324,7 +319,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   function handleClick(targetFolder: string) {
-    const pattern = /([^\/]+)/g
+    const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
     if (!result) return
     let newPath = '/'

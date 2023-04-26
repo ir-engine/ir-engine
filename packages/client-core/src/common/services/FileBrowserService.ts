@@ -48,28 +48,28 @@ export const FileBrowserServiceReceptor = (action) => {
       })
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessFileBrowserState = () => getMutableState(FileBrowserState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useFileBrowserState = () => useState(accessFileBrowserState())
 
 export class FileBrowserAction {
   static filesFetching = defineAction({
-    type: 'xre.client.FileBrowser.FILES_FETCHING' as const
+    type: 'ee.client.FileBrowser.FILES_FETCHING' as const
   })
 
   static filesFetched = defineAction({
-    type: 'xre.client.FileBrowser.FILES_FETCHED' as const,
+    type: 'ee.client.FileBrowser.FILES_FETCHED' as const,
     files: matches.object as Validator<unknown, Paginated<FileContentType>>
   })
 
   static filesDeleted = defineAction({
-    type: 'xre.client.FileBrowser.FILES_DELETED' as const,
+    type: 'ee.client.FileBrowser.FILES_DELETED' as const,
     contentPath: matches.any
   })
 
   static setUpdateNeeded = defineAction({
-    type: 'xre.editor.FileBrowser.SET_UPDATE_NEEDED' as const,
+    type: 'ee.editor.FileBrowser.SET_UPDATE_NEEDED' as const,
     updateNeeded: matches.boolean
   })
 }

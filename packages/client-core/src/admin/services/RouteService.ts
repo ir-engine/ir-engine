@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -11,7 +11,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 //State
 export const ROUTE_PAGE_LIMIT = 10000
 
-const AdminRouteState = defineState({
+export const AdminRouteState = defineState({
   name: 'AdminRouteState',
   initial: () => ({
     routes: [] as Array<InstalledRoutesInterface>,
@@ -34,10 +34,6 @@ export const AdminRouteReceptors = {
   installedRoutesRetrievedReceptor
 }
 
-export const accessRouteState = () => getMutableState(AdminRouteState)
-
-export const useRouteState = () => useState(accessRouteState())
-
 //Service
 export const RouteService = {
   fetchInstalledRoutes: async (incDec?: 'increment' | 'decrement') => {
@@ -58,7 +54,7 @@ export const RouteService = {
 //Action
 export class AdminRouteActions {
   static installedRoutesRetrieved = defineAction({
-    type: 'xre.client.AdminRoute.ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
+    type: 'ee.client.AdminRoute.ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
     data: matches.array as Validator<unknown, InstalledRoutesInterface[]>
   })
 }

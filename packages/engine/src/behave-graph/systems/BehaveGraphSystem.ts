@@ -1,7 +1,8 @@
 import { ILifecycleEventEmitter, ILogger, Registry } from 'behave-graph'
+import { useEffect } from 'react'
 import { matches, Validator } from 'ts-matches'
 
-import { createActionQueue, defineAction, defineState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineAction, defineActionQueue, defineState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -13,8 +14,9 @@ import {
   removeComponent,
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
-import { BehaveGraphComponent, GraphDomainID, SCENE_COMPONENT_BEHAVE_GRAPH } from '../components/BehaveGraphComponent'
+import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
 import { RuntimeGraphComponent } from '../components/RuntimeGraphComponent'
 
 export type BehaveGraphDomainType = {
@@ -43,54 +45,51 @@ export const BehaveGraphActions = {
   })
 }
 
-export default async function BehaveGraphSystem() {
-  Engine.instance.sceneComponentRegistry.set(BehaveGraphComponent.name, SCENE_COMPONENT_BEHAVE_GRAPH)
-  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [{ name: SCENE_COMPONENT_BEHAVE_GRAPH, props: {} }])
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_BEHAVE_GRAPH, {
-    defaultData: {}
-  })
+const graphQuery = defineQuery([BehaveGraphComponent])
+const runtimeQuery = defineQuery([RuntimeGraphComponent])
 
-  const graphQuery = defineQuery([BehaveGraphComponent])
-  const runtimeQuery = defineQuery([RuntimeGraphComponent])
+const executeQueue = defineActionQueue(BehaveGraphActions.execute.matches)
+const stopQueue = defineActionQueue(BehaveGraphActions.stop.matches)
+function execute() {
+  for (const entity of runtimeQuery.enter()) {
+    const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
+    runtimeComponent.ticker.startEvent.emit()
+    runtimeComponent.engine.executeAllSync()
+  }
 
-  const executeQueue = createActionQueue(BehaveGraphActions.execute.matches)
-  const stopQueue = createActionQueue(BehaveGraphActions.stop.matches)
-  function execute() {
-    for (const entity of runtimeQuery.enter()) {
-      const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
-      runtimeComponent.ticker.startEvent.emit()
-      runtimeComponent.engine.executeAllSync()
-    }
+  for (const entity of runtimeQuery()) {
+    const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
+    runtimeComponent.ticker.tickEvent.emit()
+    runtimeComponent.engine.executeAllSync()
+  }
 
-    for (const entity of runtimeQuery()) {
-      const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
-      runtimeComponent.ticker.tickEvent.emit()
-      runtimeComponent.engine.executeAllSync()
-    }
-
-    for (const action of executeQueue()) {
-      const entity = action.entity
-      if (hasComponent(entity, RuntimeGraphComponent)) {
-        removeComponent(entity, RuntimeGraphComponent)
-      }
-      addComponent(entity, RuntimeGraphComponent)
-    }
-
-    for (const action of stopQueue()) {
-      const entity = action.entity
+  for (const action of executeQueue()) {
+    const entity = action.entity
+    if (hasComponent(entity, RuntimeGraphComponent)) {
       removeComponent(entity, RuntimeGraphComponent)
     }
+    addComponent(entity, RuntimeGraphComponent)
   }
 
-  async function cleanup() {
-    removeQuery(graphQuery)
-    removeQuery(runtimeQuery)
-    removeActionQueue(executeQueue)
-    removeActionQueue(stopQueue)
-
-    Engine.instance.sceneComponentRegistry.delete(BehaveGraphComponent.name)
-    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)
+  for (const action of stopQueue()) {
+    const entity = action.entity
+    removeComponent(entity, RuntimeGraphComponent)
   }
-
-  return { execute, cleanup }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [{ name: BehaveGraphComponent.jsonID }])
+
+    return () => {
+      Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)
+    }
+  }, [])
+  return null
+}
+
+export const BehaveGraphSystem = defineSystem({
+  uuid: 'ee.engine.BehaveGraphSystem',
+  execute,
+  reactor
+})

@@ -6,7 +6,7 @@ import Toolbar from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Toolbar',
+  title: 'Primitives/MUI/Toolbar',
   component: Toolbar,
   parameters: {
     componentSubtitle: 'Toolbar',

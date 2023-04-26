@@ -1,5 +1,5 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const UpdatableComponent = createMappedComponent<true>('UpdatableComponent')
+export const UpdatableComponent = defineComponent({ name: 'UpdatableComponent' })
 
 export const UpdatableCallback = 'xre.update'

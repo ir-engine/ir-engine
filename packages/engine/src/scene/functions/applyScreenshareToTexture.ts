@@ -20,12 +20,13 @@ const getAspectRatioFromBufferGeometry = (mesh: Mesh<BufferGeometry>) => {
 export const applyVideoToTexture = (
   video: HTMLVideoElement,
   obj: Mesh<any, any>,
-  fit: 'fit' | 'fill' | 'stretch' = 'fit'
+  fit: 'fit' | 'fill' | 'stretch' = 'fit',
+  overwrite = true
 ) => {
   if (!obj.material)
     obj.material = new MeshStandardMaterial({ color: 0xffffff, map: new VideoTexture(video), side: DoubleSide })
 
-  if (!obj.material.map) obj.material.map = new VideoTexture(video)
+  if (!obj.material.map || overwrite) obj.material.map = new VideoTexture(video)
 
   obj.material.map.encoding = sRGBEncoding
 

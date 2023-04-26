@@ -2,6 +2,7 @@ import { HookContext } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../declarations'
 import { createFeathersExpressApp } from '../createApp'
@@ -22,6 +23,10 @@ describe('verify-scope', () => {
   before(async () => {
     app = createFeathersExpressApp()
     await app.setup()
+  })
+
+  after(() => {
+    return destroyEngine()
   })
 
   it('should fail if user does not have scope', async () => {

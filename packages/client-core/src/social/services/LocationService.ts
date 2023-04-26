@@ -3,15 +3,16 @@ import { Paginated } from '@feathersjs/feathers'
 import { Location, LocationSeed } from '@etherealengine/common/src/interfaces/Location'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
-//State
-const LocationState = defineState({
+export const LocationState = defineState({
   name: 'LocationState',
   initial: () => ({
+    offline: false,
     locationName: null! as string,
     currentLocation: {
       location: LocationSeed as Location,
@@ -94,11 +95,11 @@ export const LocationServiceReceptor = (action) => {
     })
 }
 
+/**@deprecated use getMutableState directly instead */
 export const accessLocationState = () => getMutableState(LocationState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useLocationState = () => useState(accessLocationState())
 
-//Service
 export const LocationService = {
   getLocation: async (locationId: string) => {
     try {
@@ -109,7 +110,7 @@ export const LocationService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  getLocationByName: async (locationName: string, userId: string) => {
+  getLocationByName: async (locationName: string) => {
     dispatchAction(LocationAction.fetchingCurrentSocialLocation({}))
     const locationResult = (await API.instance.client.service('location').find({
       query: {
@@ -121,7 +122,9 @@ export const LocationService = {
     if (locationResult && locationResult.total > 0) {
       if (
         locationResult.data[0].location_setting?.locationType === 'private' &&
-        !locationResult.data[0].location_authorized_users?.find((authUser) => authUser.userId === userId)
+        !locationResult.data[0].location_authorized_users?.find(
+          (authUser) => authUser.userId === Engine.instance.userId
+        )
       ) {
         dispatchAction(LocationAction.socialLocationNotAuthorized({ location: locationResult.data[0] }))
       } else dispatchAction(LocationAction.socialLocationRetrieved({ location: locationResult.data[0] }))
@@ -159,34 +162,34 @@ export const LocationService = {
 //Action
 export class LocationAction {
   static setLocationName = defineAction({
-    type: 'xre.client.Location.LOCATION_NAME_SET' as const,
+    type: 'ee.client.Location.LOCATION_NAME_SET' as const,
     locationName: matches.string
   })
 
   static socialLocationRetrieved = defineAction({
-    type: 'xre.client.Location.LOCATION_RETRIEVED' as const,
+    type: 'ee.client.Location.LOCATION_RETRIEVED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static socialLocationBanCreated = defineAction({
-    type: 'xre.client.Location.LOCATION_BAN_CREATED' as const
+    type: 'ee.client.Location.LOCATION_BAN_CREATED' as const
   })
 
   static fetchingCurrentSocialLocation = defineAction({
-    type: 'xre.client.Location.FETCH_CURRENT_LOCATION' as const
+    type: 'ee.client.Location.FETCH_CURRENT_LOCATION' as const
   })
 
   static socialLocationNotFound = defineAction({
-    type: 'xre.client.Location.LOCATION_NOT_FOUND' as const
+    type: 'ee.client.Location.LOCATION_NOT_FOUND' as const
   })
 
   static socialLocationNotAuthorized = defineAction({
-    type: 'xre.client.Location.LOCATION_NOT_AUTHORIZED' as const,
+    type: 'ee.client.Location.LOCATION_NOT_AUTHORIZED' as const,
     location: matches.object as Validator<unknown, Location>
   })
 
   static socialSelfUserBanned = defineAction({
-    type: 'xre.client.Location.LOCATION_LOCAL_USER_BANNED' as const,
+    type: 'ee.client.Location.LOCATION_LOCAL_USER_BANNED' as const,
     banned: matches.boolean
   })
 }

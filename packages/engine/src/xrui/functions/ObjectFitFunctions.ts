@@ -1,15 +1,13 @@
-import { Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import { Matrix4, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
-import { getMutableState } from '@etherealengine/hyperflux'
 import type { WebContainer3D } from '@etherealengine/xrui'
 
-import { AvatarAnimationComponent, AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRState } from '../../xr/XRState'
 
 const _size = new Vector2()
 const _vec = new Vector3()
@@ -86,7 +84,7 @@ export const ObjectFitFunctions = {
     transform.matrix.multiplyMatrices(Engine.instance.camera.matrixWorld, _mat4)
     transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
     transform.matrixInverse.copy(transform.matrix).invert()
-    Engine.instance.dirtyTransforms[entity] = false
+    TransformComponent.dirtyTransforms[entity] = false
   },
 
   attachObjectToHand: (container: WebContainer3D, scale: number) => {

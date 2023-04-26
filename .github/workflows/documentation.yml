@@ -37,6 +37,7 @@ jobs:
           npm install --legacy-peer-deps
           git clone https://github.com/etherealengine/etherealengine-docs.git docs
           cd docs
+          cp .env.local.default .env.local
           npm install --legacy-peer-deps
           npm run build
   gh-release:
@@ -57,8 +58,9 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release to GitHub Pages
+        timeout-minutes: 200
         env:
-          NODE_OPTIONS: --max_old_space_size=8192
+          NODE_OPTIONS: --max_old_space_size=16384
           USE_SSH: true
           GIT_USER: git
           DEPLOYMENT_BRANCH: gh-pages
@@ -68,5 +70,6 @@ jobs:
           npm install --legacy-peer-deps
           git clone https://github.com/etherealengine/etherealengine-docs.git docs
           cd docs
+          cp .env.local.default .env.local
           npm install --legacy-peer-deps
           npm run deploy

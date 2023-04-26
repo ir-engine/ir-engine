@@ -8,6 +8,7 @@ import {
 } from '@dimforge/rapier3d-compat'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 // import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -23,9 +24,10 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
@@ -61,14 +63,15 @@ function getUUID() {
 }
 
 let simulationObjectsGenerated = false
-export default async function PhysicsSimulationTestSystem() {
-  return () => {
-    const isInitialized = getEngineState().isEngineInitialized.value
+export const PhysicsSimulationTestSystem = defineSystem({
+  uuid: 'ee.test.PhysicsSimulationTestSystem',
+  execute: () => {
+    const isInitialized = getState(EngineState).isEngineInitialized
     if (!isInitialized || !Engine.instance.physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }
-}
+})
 
 export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,
@@ -173,7 +176,8 @@ export const generatePhysicsObject = (
         WorldNetworkAction.spawnObject({
           prefab: 'physics_debug',
           position: transform.position,
-          rotation: transform.rotation
+          rotation: transform.rotation,
+          uuid: getUUID() as EntityUUID
         })
       )
     }

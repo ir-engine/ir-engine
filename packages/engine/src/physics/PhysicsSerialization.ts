@@ -53,6 +53,7 @@ export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
 }
 
 export const PhysicsSerialization = {
+  ID: 'ee.core.physics' as const,
   readRigidBody,
   writeRigidBody
 }

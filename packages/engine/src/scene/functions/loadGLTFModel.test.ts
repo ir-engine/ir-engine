@@ -1,14 +1,18 @@
 import assert from 'assert'
 import { Group, Layers, Mesh, Scene } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   addComponent,
   createMappedComponent,
+  defineComponent,
   defineQuery,
   getComponent,
-  getComponentState
+  getMutableComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
@@ -26,16 +30,31 @@ describe('loadGLTFModel', () => {
     createMockNetwork()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const world = Engine.instance.currentScene
+    const sceneEntity = getState(SceneState).sceneEntity
 
     const mockComponentData = { src: '' } as any
-    const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
+    const CustomComponent = defineComponent({
+      name: 'CustomComponent',
+      onInit(entity) {
+        return {
+          val: 0
+        }
+      },
+      onSet(entity, component, json) {
+        if (!json) return
+        if (typeof json.val === 'number') component.val.set(json.val)
+      }
+    })
 
     const entity = createEntity()
-    addEntityNodeChild(entity, world.sceneEntity)
-    setLocalTransformComponent(entity, world.sceneEntity)
+    addEntityNodeChild(entity, sceneEntity)
+    setLocalTransformComponent(entity, sceneEntity)
     addComponent(entity, ModelComponent, {
       ...mockComponentData
     })
@@ -45,9 +64,9 @@ describe('loadGLTFModel', () => {
     mesh.userData = {
       'xrengine.entity': entityName,
       // 'xrengine.spawn-point': '',
-      'xrengine.CustomComponent.value': number
+      'xrengine.CustomComponent.val': number
     }
-    const modelComponent = getComponentState(entity, ModelComponent)
+    const modelComponent = getMutableComponent(entity, ModelComponent)
     modelComponent.scene.set(mesh)
     addObjectToGroup(entity, mesh)
     const modelQuery = defineQuery([TransformComponent, GroupComponent])
@@ -70,7 +89,7 @@ describe('loadGLTFModel', () => {
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))
 
     // assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
-    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).value, number)
+    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).val, number)
     assert.equal(getComponent(mockSpawnPointEntity, NameComponent), entityName)
     assert(getComponent(mockSpawnPointEntity, GroupComponent)[0].layers.test(expectedLayer))
   })

@@ -2,8 +2,9 @@ import assert from 'assert'
 import Sinon from 'sinon'
 import { Mesh } from 'three'
 
-import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 
+import { destroyEngine } from '../../ecs/classes/Engine'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { AssetLoader } from './AssetLoader'
@@ -14,7 +15,10 @@ import { AssetLoader } from './AssetLoader'
 describe('AssetLoader', async () => {
   beforeEach(async () => {
     createEngine()
-    setupEngineActionSystems()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   describe('processModelAsset', () => {

@@ -10,9 +10,10 @@ import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xru
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
+import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
+import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
@@ -66,8 +67,9 @@ const WidgetButtons = () => {
 
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
   const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
-  const mediastream = useMediaStreamState()
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
+
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
 
   // TODO: add a notification hint function to the widget wrapper and move unread messages there
   // useEffect(() => {
@@ -88,6 +90,10 @@ const WidgetButtons = () => {
 
   const handleRespawnAvatar = () => {
     respawnAvatar(Engine.instance.localClientEntity)
+  }
+
+  const handleHeightAdjustment = () => {
+    setTrackingSpace()
   }
 
   const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
@@ -121,11 +127,12 @@ const WidgetButtons = () => {
       <style>{styleString}</style>
       <div className="container" style={{ gridTemplateColumns }} xr-pixel-ratio="8" xr-layer="true">
         <WidgetButton icon="Refresh" toggle={handleRespawnAvatar} label={'Respawn'} />
+        <WidgetButton icon="Person" toggle={handleHeightAdjustment} label={'Reset Height'} />
         {mediaInstanceState?.value && (
           <WidgetButton
-            icon={isCamAudioEnabled.value ? 'Mic' : 'MicOff'}
+            icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}
             toggle={toggleMicrophonePaused}
-            label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
+            label={isCamAudioEnabled ? 'Audio on' : 'Audio Off'}
           />
         )}
         {/* <WidgetButton

@@ -1,43 +1,36 @@
 import assert from 'assert'
+import { afterEach } from 'mocha'
 
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
-import { Engine } from '../classes/Engine'
-import { executeSystems, initSystems } from './SystemFunctions'
-import { SystemUpdateType } from './SystemUpdateType'
+import { createEngine } from '../../initializeEngine'
+import { destroyEngine, Engine } from '../classes/Engine'
+import { executeSystems, PresentationSystemGroup, SimulationSystemGroup } from './EngineFunctions'
+import { defineSystem, startSystem } from './SystemFunctions'
 
 const MockState = defineState({
   name: 'MockState',
   initial: { count: 0 }
 })
 
-const MocksystemLoader = async () => {
-  return {
-    default: async () => {
-      return {
-        execute: () => {
-          getMutableState(MockState).count.set((c) => c + 1)
-        },
-        cleanup: async () => {}
-      }
-    }
-  }
+const execute = () => {
+  getMutableState(MockState).count.set((c) => c + 1)
 }
 
-describe('FixedPipelineSystem', () => {
-  it.skip('can run multiple fixed ticks to catch up to elapsed time', async () => {
-    createEngine()
-    setupEngineActionSystems()
+const MockSystem = defineSystem({
+  uuid: 'test.MockSystem',
+  execute
+})
 
-    const injectedSystems = [
-      {
-        uuid: 'Mock',
-        systemLoader: () => MocksystemLoader(),
-        type: SystemUpdateType.FIXED
-      }
-    ]
-    await initSystems(injectedSystems)
+describe('FixedPipelineSystem', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+  afterEach(() => {
+    return destroyEngine()
+  })
+  it('can run multiple fixed ticks to catch up to elapsed time', async () => {
+    startSystem(MockSystem, { with: SimulationSystemGroup })
 
     const mockState = getMutableState(MockState)
 
@@ -56,17 +49,7 @@ describe('FixedPipelineSystem', () => {
   })
 
   it('can skip fixed ticks to catch up to elapsed time', async () => {
-    createEngine()
-    setupEngineActionSystems()
-
-    const injectedSystems = [
-      {
-        uuid: 'Mock',
-        systemLoader: () => MocksystemLoader(),
-        type: SystemUpdateType.FIXED
-      }
-    ]
-    await initSystems(injectedSystems)
+    startSystem(MockSystem, { with: SimulationSystemGroup })
 
     const mockState = getMutableState(MockState)
 

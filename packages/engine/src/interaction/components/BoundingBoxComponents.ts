@@ -38,8 +38,6 @@ export const BoundingBoxComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, BoundingBoxComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
     const boundingBox = useComponent(root.entity, BoundingBoxComponent)
 
@@ -64,12 +62,3 @@ export const BoundingBoxComponent = defineComponent({
 })
 
 export const BoundingBoxDynamicTag = defineComponent({ name: 'BoundingBoxDynamicTag' })
-
-export function setBoundingBoxComponent(entity: Entity) {
-  if (hasComponent(entity, BoundingBoxComponent)) return getComponent(entity, BoundingBoxComponent)
-  return setComponent(entity, BoundingBoxComponent)
-}
-
-export function setBoundingBoxDynamicTag(entity: Entity) {
-  return setComponent(entity, BoundingBoxDynamicTag, true)
-}

@@ -5,31 +5,28 @@ import path from 'path'
 import { Application } from '../declarations'
 import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
-import seederConfig from './seeder-config'
+import { knexSeeds, sequelizeSeeds } from './seeder-config'
+import multiLogger from './ServerLogger'
 
-const settingsServiceNames = [
-  'authentication-setting',
-  'aws-setting',
-  'chargebee-setting',
-  'coil-setting',
-  'client-setting',
-  'email-setting',
-  'instance-server-setting',
-  'redis-setting',
-  'server-setting',
-  'task-server-setting'
-]
+const logger = multiLogger.child({ component: 'server-core:seeder' })
 
 export async function seeder(app: Application, forceRefresh: boolean, prepareDb: boolean) {
-  if (forceRefresh || prepareDb)
-    for (let config of seederConfig) {
+  if (forceRefresh || prepareDb) {
+    logger.info('Seeding or preparing database')
+
+    const knexClient = app.get('knexClient')
+    for (let seedFile of knexSeeds) {
+      seedFile.seed(knexClient)
+    }
+
+    for (let config of sequelizeSeeds) {
       if (config.path) {
         const templates = config.templates
         const service = app.service(config.path as any)
         if (templates)
           for (let template of templates) {
             let isSeeded
-            if (settingsServiceNames.indexOf(config.path) > -1) {
+            if (config.path.endsWith('-setting')) {
               const result = await service.find()
               isSeeded = result.total > 0
             } else {
@@ -50,8 +47,10 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
           }
       }
     }
+  }
 
   if (forceRefresh) {
+    logger.info('Refreshing default project')
     // for local dev clear the storage provider
     if (!config.kubernetes.enabled && !config.testEnabled) {
       const uploadPath = path.resolve(appRootPath.path, 'packages/server/upload/')
@@ -59,7 +58,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     }
     copyDefaultProject()
     await app.service('project')._seedProject('default-project')
-    await uploadLocalProjectToProvider('default-project')
-    if (!config.kubernetes.enabled) await app.service('project')._fetchDevLocalProjects()
+    await uploadLocalProjectToProvider(app, 'default-project')
+    if (!config.kubernetes.enabled && !config.testEnabled) await app.service('project')._fetchDevLocalProjects()
   }
 }

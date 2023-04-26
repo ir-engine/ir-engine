@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { resourceColumns, ResourceData } from '../../common/variables/resource'
-import { RESOURCE_PAGE_LIMIT, ResourceService, useAdminResourceState } from '../../services/ResourceService'
+import { AdminResourceState, RESOURCE_PAGE_LIMIT, ResourceService } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
 import ResourceDrawer, { ResourceDrawerMode } from './ResourceDrawer'
 
@@ -19,39 +20,39 @@ interface Props {
 
 const ResourceTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
-  const { user } = useAuthState().value
-  const adminResourceState = useAdminResourceState()
+  const user = useHookstate(getMutableState(AuthState).user).value
+  const adminResourceState = useHookstate(getMutableState(AdminResourceState))
   const adminResources = adminResourceState.resources
   const adminResourceCount = adminResourceState.total
 
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(RESOURCE_PAGE_LIMIT)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [resourceId, setResourceId] = useState('')
-  const [resourceKey, setResourceKey] = useState('')
-  const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('key')
-  const [openResourceDrawer, setOpenResourceDrawer] = useState(false)
-  const [resourceData, setResourceData] = useState<StaticResourceInterface | null>(null)
+  const page = useHookstate(0)
+  const rowsPerPage = useHookstate(RESOURCE_PAGE_LIMIT)
+  const openConfirm = useHookstate(false)
+  const resourceId = useHookstate('')
+  const resourceKey = useHookstate('')
+  const fieldOrder = useHookstate('asc')
+  const sortField = useHookstate('key')
+  const openResourceDrawer = useHookstate(false)
+  const resourceData = useHookstate<StaticResourceInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    ResourceService.fetchAdminResources(newPage, search, sortField, fieldOrder)
-    setPage(newPage)
+    ResourceService.fetchAdminResources(newPage, search, sortField.value, fieldOrder.value)
+    page.set(newPage)
   }
 
   useEffect(() => {
     if (adminResourceState.fetched.value) {
-      ResourceService.fetchAdminResources(page, search, sortField, fieldOrder)
+      ResourceService.fetchAdminResources(page.value, search, sortField.value, fieldOrder.value)
     }
-  }, [fieldOrder])
+  }, [fieldOrder.value])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
+    rowsPerPage.set(parseInt(event.target.value, 10))
+    page.set(0)
   }
 
   useEffect(() => {
-    ResourceService.fetchAdminResources(0, search, sortField, fieldOrder)
+    ResourceService.fetchAdminResources(0, search, sortField.value, fieldOrder.value)
   }, [user?.id, search, adminResourceState.updateNeeded.value])
 
   const createData = (el: StaticResourceInterface): ResourceData => {
@@ -67,8 +68,8 @@ const ResourceTable = ({ className, search }: Props) => {
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setResourceData(el)
-              setOpenResourceDrawer(true)
+              resourceData.set(el)
+              openResourceDrawer.set(true)
             }}
           >
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
@@ -77,9 +78,9 @@ const ResourceTable = ({ className, search }: Props) => {
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setResourceId(el.id)
-              setResourceKey(el.key)
-              setOpenConfirm(true)
+              resourceId.set(el.id)
+              resourceKey.set(el.key)
+              openConfirm.set(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
@@ -89,44 +90,44 @@ const ResourceTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = adminResources.value.map((el) => {
+  const rows = adminResources.get({ noproxy: true }).map((el) => {
     return createData(el)
   })
 
   const submitRemoveResource = async () => {
-    await ResourceService.removeResource(resourceId)
-    setOpenConfirm(false)
+    await ResourceService.removeResource(resourceId.value)
+    openConfirm.set(false)
   }
 
   return (
     <Box className={className}>
       <TableComponent
         allowSort={false}
-        fieldOrder={fieldOrder}
-        setSortField={setSortField}
-        setFieldOrder={setFieldOrder}
+        fieldOrder={fieldOrder.value}
+        setSortField={sortField.set}
+        setFieldOrder={fieldOrder.set}
         rows={rows}
         column={resourceColumns}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        page={page.value}
+        rowsPerPage={rowsPerPage.value}
         count={adminResourceCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
 
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.resources.confirmResourceDelete')} '${resourceKey}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.resources.confirmResourceDelete')} '${resourceKey.value}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={submitRemoveResource}
       />
 
-      {resourceData && openResourceDrawer && (
+      {resourceData.value && openResourceDrawer.value && (
         <ResourceDrawer
           open
           mode={ResourceDrawerMode.ViewEdit}
-          selectedResource={resourceData}
-          onClose={() => setOpenResourceDrawer(false)}
+          selectedResource={resourceData.value}
+          onClose={() => openResourceDrawer.set(false)}
         />
       )}
     </Box>

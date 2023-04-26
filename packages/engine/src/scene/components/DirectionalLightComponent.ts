@@ -4,12 +4,7 @@ import { Color, DirectionalLight, IcosahedronGeometry, Mesh, MeshBasicMaterial, 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import {
-  createMappedComponent,
-  defineComponent,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -18,6 +13,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
+  jsonID: 'directional-light',
 
   onInit: (entity) => {
     const light = new DirectionalLight()
@@ -42,7 +38,7 @@ export const DirectionalLightComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
-    if (matches.string.test(json.color)) component.color.value.set(json.color)
+    if (matches.string.test(json.color) || matches.number.test(json.color)) component.color.value.set(json.color)
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
@@ -53,11 +49,23 @@ export const DirectionalLightComponent = defineComponent({
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
     if (matches.number.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
+
+    /**
+     * we need to put this here in case the CSM needs to grab the values, which can sometimes happen before the component reactor hooks
+     * @todo find a better way of doing this
+     */
+    component.light.value.color.set(component.color.value)
+    component.light.value.intensity = component.intensity.value
+    component.light.value.castShadow = component.castShadow.value
+    component.light.value.shadow.camera.far = component.cameraFar.value
+    component.light.value.shadow.bias = component.shadowBias.value
+    component.light.value.shadow.radius = component.shadowRadius.value
+    component.light.value.shadow.mapSize.set(component.shadowMapResolution.value, component.shadowMapResolution.value)
   },
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       cameraFar: component.cameraFar.value,
       castShadow: component.castShadow.value,
@@ -74,8 +82,6 @@ export const DirectionalLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, DirectionalLightComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, DirectionalLightComponent)
 
@@ -137,5 +143,3 @@ export const DirectionalLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'

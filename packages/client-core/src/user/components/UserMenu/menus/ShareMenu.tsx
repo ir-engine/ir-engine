@@ -1,3 +1,4 @@
+import { useHookstate } from '@hookstate/core'
 import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +12,8 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import multiLogger from '@etherealengine/common/src/logger'
 import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
@@ -19,7 +21,7 @@ import IconButton from '@etherealengine/ui/src/IconButton'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
@@ -28,7 +30,7 @@ export const useShareMenuHooks = ({ refLink }) => {
   const [token, setToken] = React.useState('')
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
   const [shareLink, setShareLink] = useState('')
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const selfUser = useAuthState().user
 
   const copyLinkToClipboard = () => {
@@ -125,14 +127,10 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 }
 
-interface Props {
-  changeActiveMenu: (str: string) => void
-}
-
-const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const {
     copyLinkToClipboard,
     shareOnApps,
@@ -159,7 +157,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
     <Menu
       open
       title={engineState.shareTitle.value ? engineState.shareTitle.value : t('user:usermenu.share.title')}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Box className={styles.shareQuest}>
@@ -213,15 +211,6 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
             {t('user:usermenu.share.lbl-share')}
           </Button>
         )}
-
-        <Box display="flex" columnGap={2} alignItems="center">
-          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(Views.Party)}>
-            {t('user:usermenu.share.party')}
-          </Button>
-          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(Views.Friends)}>
-            {t('user:usermenu.share.friends')}
-          </Button>
-        </Box>
       </Box>
     </Menu>
   )

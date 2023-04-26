@@ -1,12 +1,10 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
-import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
-import { deserializeEnvMap } from '@etherealengine/engine/src/scene/functions/loaders/EnvMapFunctions'
 
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'

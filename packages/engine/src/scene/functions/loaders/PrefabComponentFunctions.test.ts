@@ -2,9 +2,10 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import Sinon from 'sinon'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+// import Sinon from 'sinon'
+
+import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
@@ -18,68 +19,50 @@ import {
   destroyEntityTree,
   EntityTreeComponent
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
-
-import '@etherealengine/engine/src/patchEngineNode'
-
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { LoadState, PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/functions/loaders/PrefabComponentFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'
 import { EngineState } from '../../../ecs/classes/EngineState'
-import { initSystems } from '../../../ecs/functions/SystemFunctions'
-import { TransformModule } from '../../../transform/TransformModule'
-import { SceneClientModule } from '../../SceneClientModule'
-import { SceneCommonModule } from '../../SceneCommonModule'
+import { SceneState } from '../../../ecs/classes/Scene'
+import { SimulationSystemGroup } from '../../../ecs/functions/EngineFunctions'
+import { defineSystem, startSystem, SystemDefinitions, SystemUUID } from '../../../ecs/functions/SystemFunctions'
 
 describe('PrefabComponentFunctions', async () => {
   let entity: Entity
-  let sandbox: Sinon.SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    addEntityNodeChild(entity, Engine.instance.currentScene.sceneEntity)
+    addEntityNodeChild(entity, getState(SceneState).sceneEntity)
   }
   const testDir = 'packages/engine/tests/assets'
   beforeEach(async () => {
-    sandbox = Sinon.createSandbox()
     createEngine()
-    setupEngineActionSystems()
     initEntity()
     Engine.instance.engineTimer.start()
 
     getMutableState(EngineState).publicPath.set('')
 
-    await initSystems([
-      ...TransformModule(),
-      ...SceneCommonModule(),
-      ...SceneClientModule(),
-      {
-        uuid: 'Asset',
-        type: 'FIXED_LATE',
-        systemLoader: () =>
-          Promise.resolve({
-            default: async () => {
-              let resolve: () => void
-              nextFixedStep = new Promise<void>((r) => (resolve = r))
-              return {
-                execute: () => {
-                  resolve()
-                  nextFixedStep = new Promise<void>((r) => (resolve = r))
-                },
-                cleanup: async () => {}
-              }
-            }
-          })
+    let resolve: () => void
+    nextFixedStep = new Promise<void>((r) => (resolve = r))
+
+    SystemDefinitions.delete('test.system' as SystemUUID)
+    const system = defineSystem({
+      uuid: 'test.system',
+      execute: () => {
+        resolve()
+        nextFixedStep = new Promise<void>((r) => (resolve = r))
       }
-    ])
+    })
+    startSystem(system, { after: SimulationSystemGroup })
   })
 
   afterEach(() => {
-    sandbox.restore()
+    return destroyEngine()
   })
 
   function dupeLoader(): any {

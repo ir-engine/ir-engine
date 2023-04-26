@@ -2,7 +2,7 @@ import assert from 'assert'
 
 // import { accessAuthState, AuthAction, avatarFetchedReceptor } from '../../src/user/services/AuthService' // make browser globals defined
 
-// import { createEngine, setupEngineActionSystems } from '@etherealengine/engine/src/initializeEngine'
+// import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 // import { Downgraded } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 // ;(globalThis as any).document = {}
@@ -12,7 +12,6 @@ import assert from 'assert'
 describe('Auth Service', () => {
   // beforeEach(() => {
   //   createEngine()
-  //   setupEngineActionSystems()
   // })
   // describe('Auth Receptors', () => {
   //   it('avatarFetchedReceptor', () => {

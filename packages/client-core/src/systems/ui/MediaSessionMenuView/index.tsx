@@ -1,13 +1,14 @@
-import { createState } from '@hookstate/core'
+import { createState, useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
-import { useMediaStreamState } from '../../../media/services/MediaStreamService'
+import { MediaStreamState } from '../../../transports/MediaStreams'
 import {
   toggleFaceTracking,
   toggleMicrophonePaused,
@@ -27,12 +28,13 @@ function createMediaSessionMenuState() {
 
 const MediaSessionMenuView = () => {
   const { t } = useTranslation()
-  const mediastream = useMediaStreamState()
 
-  const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
-  const isCamVideoEnabled = mediastream.isCamVideoEnabled
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
-  const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
+  const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
+  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isScreenVideoEnabled =
+    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
   const handleOpenChatMenuWidget = () => {
     WidgetAppService.setWidgetVisibility(WidgetName.CHAT, true)
@@ -44,19 +46,19 @@ const MediaSessionMenuView = () => {
       <div className="container" xr-layer="true">
         <h3 className="heading">{t('user:usermenu.mediaSession.containerHeading')}</h3>
         <XRTextButton onClick={toggleMicrophonePaused}>
-          <Icon type={isCamAudioEnabled.value ? 'Mic' : 'MicOff'} />
+          <Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />
           {t('user:usermenu.mediaSession.btn-audio')}
         </XRTextButton>
         <XRTextButton onClick={toggleWebcamPaused}>
-          <Icon type={isCamVideoEnabled.value ? 'Videocam' : 'VideocamOff'} />
+          <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
           {t('user:usermenu.mediaSession.btn-video')}
         </XRTextButton>
         <XRTextButton onClick={toggleFaceTracking}>
-          <Icon type={isFaceTrackingEnabled.value ? 'Face' : 'FaceRetouchingOff'} />
+          <Icon type={isMotionCaptureEnabled ? 'Face' : 'FaceRetouchingOff'} />
           {t('user:usermenu.mediaSession.btn-faceTracking')}
         </XRTextButton>
         <XRTextButton onClick={toggleScreenshare}>
-          <Icon type={isScreenVideoEnabled.value ? 'ScreenShare' : 'StopScreenShare'} />
+          <Icon type={isScreenVideoEnabled ? 'ScreenShare' : 'StopScreenShare'} />
           {t('user:usermenu.mediaSession.btn-screenShare')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenChatMenuWidget}>

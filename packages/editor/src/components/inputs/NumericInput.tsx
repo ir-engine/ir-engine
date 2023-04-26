@@ -92,8 +92,8 @@ export interface NumericInputProp {
   convertFrom?: any
   precision?: number
   mediumStep?: number
-  onChange?: (n: number) => void
-  onCommit?: Function
+  onChange?: (n: any) => void
+  onCommit?: (n: any) => void
   smallStep?: number
   largeStep?: number
   min?: number

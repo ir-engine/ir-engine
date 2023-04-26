@@ -231,9 +231,9 @@ export const ChatServiceReceptor = (action) => {
       return s
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessChatState = () => getMutableState(ChatState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useChatState = () => useState(accessChatState())
 
 globalThis.chatState = ChatState
@@ -447,34 +447,34 @@ export const ChatService = {
 
 export class ChatAction {
   static loadedChannelAction = defineAction({
-    type: 'xre.client.Chat.LOADED_CHANNEL' as const,
+    type: 'ee.client.Chat.LOADED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>,
     channelType: matches.string
   })
 
   static loadedChannelsAction = defineAction({
-    type: 'xre.client.Chat.LOADED_CHANNELS' as const,
+    type: 'ee.client.Chat.LOADED_CHANNELS' as const,
     channels: matches.any as Validator<unknown, Paginated<Channel>>
   })
 
   static createdMessageAction = defineAction({
-    type: 'xre.client.Chat.CREATED_MESSAGE' as const,
+    type: 'ee.client.Chat.CREATED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>,
     selfUser: matches.object as Validator<unknown, UserInterface>
   })
 
   static patchedMessageAction = defineAction({
-    type: 'xre.client.Chat.PATCHED_MESSAGE' as const,
+    type: 'ee.client.Chat.PATCHED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>
   })
 
   static removedMessageAction = defineAction({
-    type: 'xre.client.Chat.REMOVED_MESSAGE' as const,
+    type: 'ee.client.Chat.REMOVED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>
   })
 
   static loadedMessagesAction = defineAction({
-    type: 'xre.client.Chat.LOADED_MESSAGES' as const,
+    type: 'ee.client.Chat.LOADED_MESSAGES' as const,
     messages: matches.array as Validator<unknown, Message[]>,
     limit: matches.any,
     skip: matches.any,
@@ -483,50 +483,50 @@ export class ChatAction {
   })
 
   static setChatTargetAction = defineAction({
-    type: 'xre.client.Chat.CHAT_TARGET_SET' as const,
+    type: 'ee.client.Chat.CHAT_TARGET_SET' as const,
     targetObjectType: matches.any,
     targetObject: matches.any,
     targetChannelId: matches.any
   })
 
   static setMessageScrollInitAction = defineAction({
-    type: 'xre.client.Chat.SET_MESSAGE_SCROLL_INIT' as const,
+    type: 'ee.client.Chat.SET_MESSAGE_SCROLL_INIT' as const,
     value: matches.boolean
   })
 
   static createdChannelAction = defineAction({
-    type: 'xre.client.Chat.CREATED_CHANNEL' as const,
+    type: 'ee.client.Chat.CREATED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static patchedChannelAction = defineAction({
-    type: 'xre.client.Chat.PATCHED_CHANNEL' as const,
+    type: 'ee.client.Chat.PATCHED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static removedChannelAction = defineAction({
-    type: 'xre.client.Chat.REMOVED_CHANNEL' as const,
+    type: 'ee.client.Chat.REMOVED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
   })
 
   static fetchingInstanceChannelAction = defineAction({
-    type: 'xre.client.Chat.FETCHING_INSTANCE_CHANNEL' as const
+    type: 'ee.client.Chat.FETCHING_INSTANCE_CHANNEL' as const
   })
 
   static fetchingPartyChannelAction = defineAction({
-    type: 'xre.client.Chat.FETCHING_PARTY_CHANNEL' as const
+    type: 'ee.client.Chat.FETCHING_PARTY_CHANNEL' as const
   })
 
   static setUpdateMessageScrollAction = defineAction({
-    type: 'xre.client.Chat.SET_UPDATE_MESSAGE_SCROLL' as const,
+    type: 'ee.client.Chat.SET_UPDATE_MESSAGE_SCROLL' as const,
     value: matches.boolean
   })
 
   static refetchPartyChannelAction = defineAction({
-    type: 'xre.client.Chat.REFETCH_PARTY_CHANNEL' as const
+    type: 'ee.client.Chat.REFETCH_PARTY_CHANNEL' as const
   })
 
   static removePartyChannelAction = defineAction({
-    type: 'xre.client.Chat.REMOVE_PARTY_CHANNEL' as const
+    type: 'ee.client.Chat.REMOVE_PARTY_CHANNEL' as const
   })
 }

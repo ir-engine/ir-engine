@@ -1,7 +1,7 @@
 import { BotCommands, CreateBotCammand } from '@etherealengine/common/src/interfaces/AdminBot'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -10,7 +10,7 @@ const logger = multiLogger.child({ component: 'client-core:BotsCommand' })
 //State
 export const BOTS_PAGE_LIMIT = 100
 
-const AdminBotsCommandState = defineState({
+export const AdminBotsCommandState = defineState({
   name: 'AdminBotsCommandState',
   initial: () => ({
     botCommand: [] as BotCommands[],
@@ -38,10 +38,6 @@ export const AdminBotsCommandReceptors = {
   botCommandRemovedReceptor
 }
 
-export const accessAdminBotCommandState = () => getMutableState(AdminBotsCommandState)
-
-export const useAdminBotCommandState = () => useState(accessAdminBotCommandState())
-
 //Service
 export const AdminBotCommandService = {
   createBotCammand: async (data: CreateBotCammand) => {
@@ -64,11 +60,11 @@ export const AdminBotCommandService = {
 //Action
 export class AdminBotCommandActions {
   static botCommandCreated = defineAction({
-    type: 'xre.client.AdminBotCommand.BOT_COMMAND_ADMIN_CREATE' as const,
+    type: 'ee.client.AdminBotCommand.BOT_COMMAND_ADMIN_CREATE' as const,
     botCommand: matches.object as Validator<unknown, BotCommands>
   })
   static botCommandRemoved = defineAction({
-    type: 'xre.client.AdminBotCommand.BOT_COMMAND_ADMIN_REMOVE' as const,
+    type: 'ee.client.AdminBotCommand.BOT_COMMAND_ADMIN_REMOVE' as const,
     botCommand: matches.object as Validator<unknown, BotCommands>
   })
 }

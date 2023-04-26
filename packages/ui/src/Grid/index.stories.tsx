@@ -6,7 +6,7 @@ import Grid from './index'
 const argTypes = {}
 
 export default {
-  title: 'MUI/Grid',
+  title: 'Primitives/MUI/Grid',
   component: Grid,
   parameters: {
     componentSubtitle: 'Grid',

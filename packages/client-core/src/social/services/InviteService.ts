@@ -21,7 +21,7 @@ export const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 //State
 export const INVITE_PAGE_LIMIT = 100
 
-const InviteState = defineState({
+export const InviteState = defineState({
   name: 'InviteState',
   initial: () => ({
     receivedInvites: {
@@ -106,9 +106,9 @@ export const InviteServiceReceptor = (action) => {
       return s.getReceivedInvitesInProgress.set(true)
     })
 }
-
+/**@deprecated use getMutableState directly instead */
 export const accessInviteState = () => getMutableState(InviteState)
-
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
 export const useInviteState = () => useState(accessInviteState())
 
 //Service
@@ -328,7 +328,7 @@ export const InviteService = {
   useAPIListeners: () => {
     useEffect(() => {
       const inviteCreatedListener = (params) => {
-        const invite = params.invite
+        const invite = params
         const selfUser = accessAuthState().user
         if (invite.userId === selfUser.id.value) {
           dispatchAction(InviteAction.createdSentInvite({}))
@@ -338,7 +338,7 @@ export const InviteService = {
       }
 
       const inviteRemovedListener = (params) => {
-        const invite = params.invite
+        const invite = params
         const selfUser = accessAuthState().user
         if (invite.userId === selfUser.id.value) {
           dispatchAction(InviteAction.removedSentInvite({}))
@@ -361,12 +361,12 @@ export const InviteService = {
 //Action
 export class InviteAction {
   static sentInvite = defineAction({
-    type: 'xre.client.Invite.INVITE_SENT' as const,
+    type: 'ee.client.Invite.INVITE_SENT' as const,
     id: matches.string
   })
 
   static retrievedSentInvites = defineAction({
-    type: 'xre.client.Invite.SENT_INVITES_RETRIEVED' as const,
+    type: 'ee.client.Invite.SENT_INVITES_RETRIEVED' as const,
     invites: matches.array as Validator<unknown, Invite[]>,
     total: matches.number,
     limit: matches.number,
@@ -374,7 +374,7 @@ export class InviteAction {
   })
 
   static retrievedReceivedInvites = defineAction({
-    type: 'xre.client.Invite.RECEIVED_INVITES_RETRIEVED' as const,
+    type: 'ee.client.Invite.RECEIVED_INVITES_RETRIEVED' as const,
     invites: matches.array as Validator<unknown, Invite[]>,
     total: matches.number,
     limit: matches.number,
@@ -382,40 +382,40 @@ export class InviteAction {
   })
 
   static createdReceivedInvite = defineAction({
-    type: 'xre.client.Invite.CREATED_RECEIVED_INVITE' as const
+    type: 'ee.client.Invite.CREATED_RECEIVED_INVITE' as const
   })
 
   static removedReceivedInvite = defineAction({
-    type: 'xre.client.Invite.REMOVED_RECEIVED_INVITE' as const
+    type: 'ee.client.Invite.REMOVED_RECEIVED_INVITE' as const
   })
 
   static createdSentInvite = defineAction({
-    type: 'xre.client.Invite.CREATED_SENT_INVITE' as const
+    type: 'ee.client.Invite.CREATED_SENT_INVITE' as const
   })
 
   static removedSentInvite = defineAction({
-    type: 'xre.client.Invite.REMOVED_SENT_INVITE' as const
+    type: 'ee.client.Invite.REMOVED_SENT_INVITE' as const
   })
 
   static acceptedInvite = defineAction({
-    type: 'xre.client.Invite.ACCEPTED_INVITE' as const
+    type: 'ee.client.Invite.ACCEPTED_INVITE' as const
   })
 
   static declinedInvite = defineAction({
-    type: 'xre.client.Invite.DECLINED_INVITE' as const
+    type: 'ee.client.Invite.DECLINED_INVITE' as const
   })
 
   static setInviteTarget = defineAction({
-    type: 'xre.client.Invite.INVITE_TARGET_SET' as const,
+    type: 'ee.client.Invite.INVITE_TARGET_SET' as const,
     targetObjectId: matches.string,
     targetObjectType: matches.string
   })
 
   static fetchingSentInvites = defineAction({
-    type: 'xre.client.Invite.FETCHING_SENT_INVITES' as const
+    type: 'ee.client.Invite.FETCHING_SENT_INVITES' as const
   })
 
   static fetchingReceivedInvites = defineAction({
-    type: 'xre.client.Invite.FETCHING_RECEIVED_INVITES' as const
+    type: 'ee.client.Invite.FETCHING_RECEIVED_INVITES' as const
   })
 }

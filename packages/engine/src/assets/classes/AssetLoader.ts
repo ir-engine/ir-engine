@@ -3,7 +3,6 @@ import {
   AudioLoader,
   BufferAttribute,
   BufferGeometry,
-  CompressedTextureLoader,
   FileLoader,
   Group,
   LOD,
@@ -20,25 +19,24 @@ import {
   TextureLoader
 } from 'three'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
-import { DependencyTreeActions } from './DependencyTree'
 import { XRELoader } from './XRELoader'
 
 // import { instanceGLTF } from '../functions/transformGLTF'
@@ -59,45 +57,29 @@ export function disposeDracoLoaderWorkers(): void {
 
 const onUploadDropBuffer = (uuid?: string) =>
   function (this: BufferAttribute) {
-    const dropBuffer = () => {
-      // @ts-ignore
-      this.array = new this.array.constructor(1)
-    }
-    if (uuid)
-      matchActionOnce(
-        DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
-        dropBuffer
-      )
-    else dropBuffer()
+    // @ts-ignore
+    this.array = new this.array.constructor(1)
   }
 
 const onTextureUploadDropSource = (uuid?: string) =>
   function (this: Texture) {
-    const dropTexture = () => {
-      this.source.data = null
-      this.mipmaps.map((b) => delete b.data)
-      this.mipmaps = []
-    }
-    if (uuid)
-      matchActionOnce(
-        DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
-        dropTexture
-      )
-    else dropTexture()
+    this.source.data = null
+    this.mipmaps.map((b) => delete b.data)
+    this.mipmaps = []
   }
 
 export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
-  if (getMutableState(EngineState).isEditor.value || !child.isMesh) return
+  if (getState(EngineState).isEditor || !child.isMesh) return
   const geo = child.geometry as BufferGeometry
   const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
   const attributes = geo.attributes
   if (!args.ignoreDisposeGeometry) {
-    for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer(args.uuid)
-    if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer(args.uuid)
+    for (const name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer()
+    if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer()
   }
   Object.entries(mat)
     .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
-    .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource(args.uuid)))
+    .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource()))
 }
 
 const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
@@ -141,7 +123,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState(Engine.instance.currentScene).LODs.value
+  const LODState = DEFAULT_LOD_DISTANCES
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {
@@ -240,6 +222,8 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     return AssetClass.Video
   } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
     return AssetClass.Audio
+  } else if (/\.drcs|uvol|manifest$/.test(assetFileName)) {
+    return AssetClass.Volumetric
   } else {
     return AssetClass.Unknown
   }
@@ -273,7 +257,7 @@ const ktx2Loader = () => ({
     ktxLoader.load(
       src,
       (texture) => {
-        console.log('KTX2Loader loaded texture', texture)
+        // console.log('KTX2Loader loaded texture', texture)
         texture.source.data.src = src
         onLoad(texture)
       },
@@ -295,7 +279,7 @@ export const getLoader = (assetType: AssetType) => {
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
-      return Engine.instance.gltfLoader
+      return Engine.instance.gltfLoader || createGLTFLoader()
     case AssetType.USDZ:
       return usdzLoader()
     case AssetType.FBX:

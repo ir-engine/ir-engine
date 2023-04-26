@@ -10,8 +10,18 @@ module.exports = {
     'storybook-addon-designs',
     '@storybook/addon-a11y',
     '@storybook/addon-jest',
-    'storybook-addon-react-router-v6'
-    // '@react-theming/storybook-addon',
+    'storybook-addon-react-router-v6',
+    {
+      name: '@storybook/addon-postcss',
+      options: {
+        cssLoaderOptions: {
+          importLoaders: 1,
+        },
+        postcssLoaderOptions: {
+          implementation: require('postcss'),
+        },
+      },
+    },
   ],
   "framework": "@storybook/react",
   "core": {

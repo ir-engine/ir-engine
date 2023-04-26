@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Checkbox from '@etherealengine/ui/src/Checkbox'
@@ -12,29 +13,29 @@ import Popover from '@etherealengine/ui/src/Popover'
 import Typography from '@etherealengine/ui/src/Typography'
 
 import Search from '../../common/Search'
-import { ResourceService, useAdminResourceState } from '../../services/ResourceService'
+import { AdminResourceState, ResourceService } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
 import ResourceDrawer, { ResourceDrawerMode } from './ResourceDrawer'
 import ResourceTable from './ResourceTable'
 
 const Resources = () => {
   const { t } = useTranslation()
-  const [search, setSearch] = useState('')
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [openResourceDrawer, setOpenResourceDrawer] = useState(false)
+  const search = useHookstate('')
+  const anchorEl = useHookstate<null | HTMLElement>(null)
+  const openResourceDrawer = useHookstate(false)
   const openMenu = Boolean(anchorEl)
-  const adminResourceState = useAdminResourceState()
+  const adminResourceState = useHookstate(getMutableState(AdminResourceState))
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
+    anchorEl.set(event.currentTarget)
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
+    anchorEl.set(null)
   }
 
   const handleChange = (e: any) => {
-    setSearch(e.target.value)
+    search.set(e.target.value)
   }
 
   const resetFilter = () => {
@@ -57,7 +58,7 @@ const Resources = () => {
               className={styles.openModalBtn}
               type="submit"
               variant="contained"
-              onClick={() => setOpenResourceDrawer(true)}
+              onClick={() => openResourceDrawer.set(true)}
             >
               {t('user:resource.createResource')}
             </Button>
@@ -75,39 +76,41 @@ const Resources = () => {
         </Grid>
       </Grid>
 
-      <ResourceTable className={styles.rootTableWithSearch} search={search} />
+      <ResourceTable className={styles.rootTableWithSearch} search={search.value} />
 
-      {openResourceDrawer && (
-        <ResourceDrawer open mode={ResourceDrawerMode.Create} onClose={() => setOpenResourceDrawer(false)} />
+      {openResourceDrawer.value && (
+        <ResourceDrawer open mode={ResourceDrawerMode.Create} onClose={() => openResourceDrawer.set(false)} />
       )}
 
-      <Popover
-        classes={{ paper: styles.popover }}
-        open={openMenu}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-      >
-        <CheckBoxList
-          title={t('admin:components.resources.mimeType')}
-          items={adminResourceState.filters.value?.mimeTypes}
-          selected={adminResourceState.selectedMimeTypes.value}
-          setSelected={ResourceService.setSelectedMimeTypes}
-        />
-        <CheckBoxList
-          title={t('admin:components.resources.resourceType')}
-          items={adminResourceState.filters.value?.staticResourceTypes}
-          selected={adminResourceState.selectedResourceTypes.value}
-          setSelected={ResourceService.setSelectedResourceTypes}
-        />
-        <Button className={styles.gradientButton} sx={{ width: '100%' }} onClick={resetFilter}>
-          {t('admin:components.common.reset')}
-        </Button>
-      </Popover>
+      {anchorEl.value && (
+        <Popover
+          classes={{ paper: styles.popover }}
+          open={openMenu}
+          anchorEl={anchorEl.value}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        >
+          <CheckBoxList
+            title={t('admin:components.resources.mimeType')}
+            items={adminResourceState.filters.value?.mimeTypes}
+            selected={adminResourceState.selectedMimeTypes.value}
+            setSelected={ResourceService.setSelectedMimeTypes}
+          />
+          <CheckBoxList
+            title={t('admin:components.resources.resourceType')}
+            items={adminResourceState.filters.value?.staticResourceTypes}
+            selected={adminResourceState.selectedResourceTypes.value}
+            setSelected={ResourceService.setSelectedResourceTypes}
+          />
+          <Button className={styles.gradientButton} sx={{ width: '100%' }} onClick={resetFilter}>
+            {t('admin:components.common.reset')}
+          </Button>
+        </Popover>
+      )}
     </div>
   )
 }
@@ -142,7 +145,7 @@ const CheckBoxList = ({ title, items, selected, setSelected }) => {
                     className={styles.checkbox}
                     classes={{ checked: styles.checkedCheckbox }}
                     color="primary"
-                    checked={selected.includes(item) ? true : false}
+                    checked={!!selected.includes(item)}
                   />
                 }
                 label={item ?? t('admin:components.common.none')}

@@ -66,7 +66,7 @@ export const PropertiesPanelContainer = () => {
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
   let nodeEntity = lockedNode
-    ? UUIDComponent.entitiesByUUID[lockedNode].value ?? lockedNode
+    ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
   const isMaterial =
     typeof nodeEntity === 'string' &&

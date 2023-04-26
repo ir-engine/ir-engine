@@ -1,12 +1,15 @@
+import { useEffect } from 'react'
 import { Euler } from 'three'
 
-import { createActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { AnimationComponent } from './components/AnimationComponent'
@@ -30,38 +33,29 @@ export function animationActionReceptor(action: ReturnType<typeof WorldNetworkAc
   changeAvatarAnimationState(avatarEntity, action.newStateName)
 }
 
-export default async function AnimationSystem() {
-  const tweenQuery = defineQuery([TweenComponent])
-  const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-  const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
+const tweenQuery = defineQuery([TweenComponent])
+const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
+const avatarAnimationQueue = defineActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
-  const execute = () => {
-    const { deltaSeconds } = Engine.instance
+const execute = () => {
+  const { deltaSeconds } = Engine.instance
 
-    for (const action of avatarAnimationQueue()) animationActionReceptor(action)
+  for (const action of avatarAnimationQueue()) animationActionReceptor(action)
 
-    for (const entity of tweenQuery()) {
-      const tween = getComponent(entity, TweenComponent)
-      tween.tween.update()
-    }
-
-    for (const entity of animationQuery()) {
-      const animationComponent = getComponent(entity, AnimationComponent)
-      const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
-      animationComponent.mixer.update(modifiedDelta)
-      Engine.instance.dirtyTransforms[entity] = true
-    }
+  for (const entity of tweenQuery()) {
+    const tween = getComponent(entity, TweenComponent)
+    tween.update()
   }
 
-  const cleanup = async () => {
-    removeQuery(tweenQuery)
-    removeQuery(animationQuery)
-    removeActionQueue(avatarAnimationQueue)
-  }
-
-  return {
-    execute,
-    cleanup,
-    subsystems: []
+  for (const entity of animationQuery()) {
+    const animationComponent = getComponent(entity, AnimationComponent)
+    const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
+    animationComponent.mixer.update(modifiedDelta)
+    TransformComponent.dirtyTransforms[entity] = true
   }
 }
+
+export const AnimationSystem = defineSystem({
+  uuid: 'ee.engine.AnimationSystem',
+  execute
+})

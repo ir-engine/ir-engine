@@ -5,7 +5,7 @@ import { Joystick } from 'react-joystick-component'
 import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
 import { ButtonTypes } from '@etherealengine/engine/src/input/InputState'
 import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
-import { useIsHeadset } from '@etherealengine/engine/src/xr/XRState'
+import { isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
@@ -19,8 +19,8 @@ const triggerButton = (button: ButtonTypes, pressed: boolean): void => {
 }
 
 const normalizeValues = (val) => {
-  const a = 1
-  const b = -1
+  const a = 5
+  const b = -5
   const maxVal = 50
   const minVal = -50
 
@@ -36,6 +36,7 @@ const handleMove = (e) => {
       value: { x: normalizeValues(-e.x), y: normalizeValues(e.y), angleRad: 0 }
     }
   })
+
   document.dispatchEvent(event)
 }
 
@@ -57,9 +58,8 @@ export const TouchGamepad = () => {
   const interactState = useHookstate(getMutableState(InteractState))
   const availableInteractable = interactState.available.value?.[0]
   const appState = useHookstate(getMutableState(AppState))
-  const isHeadset = useIsHeadset()
 
-  if (!isTouchAvailable || isHeadset || !appState.showTouchPad.value) return <></>
+  if (!isTouchAvailable || isMobileXRHeadset || !appState.showTouchPad.value) return <></>
 
   const buttons = buttonsConfig.map((value, index) => {
     return (

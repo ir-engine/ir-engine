@@ -4,12 +4,12 @@ import hark from 'hark'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useMediaStreamState } from '@etherealengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   globalMuteProducer,
   globalUnmuteProducer,
   pauseConsumer,
+  ProducerExtension,
   resumeConsumer,
   toggleMicrophonePaused,
   toggleScreenshareAudioPaused,
@@ -20,11 +20,9 @@ import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/compon
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useNetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { AudioSettingAction, AudioState, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
-import { getMediaSceneMetadataState } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
@@ -38,7 +36,7 @@ import Tooltip from '@etherealengine/ui/src/Tooltip'
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
@@ -47,7 +45,6 @@ interface Props {
   type: 'screen' | 'cam'
 }
 
-/** @todo separate all media state from UI state and move it to hookstate record keyed to peerID */
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
@@ -76,7 +73,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const [videoTrackId, setVideoTrackId] = useState('')
   const [audioTrackId, setAudioTrackId] = useState('')
 
-  const [harkListener, setHarkListener] = useState(null)
+  const [harkListener, setHarkListener] = useState(null as ReturnType<typeof hark> | null)
   const [soundIndicatorOn, setSoundIndicatorOn] = useState(false)
   const [isPiP, setPiP] = useState(false)
   const [videoDisplayReady, setVideoDisplayReady] = useState<boolean>(false)
@@ -86,11 +83,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const resumeAudioOnUnhide = useRef<boolean>(false)
 
   const { t } = useTranslation()
-  const audioState = useAudioState()
+  const audioState = useHookstate(getMutableState(AudioState))
 
   const [_volume, _setVolume] = useState(1)
 
-  const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
   const currentLocation = useLocationState().currentLocation.location
   const enableGlobalMute =
@@ -106,28 +102,29 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
-  const mediaState = getMediaSceneMetadataState(Engine.instance.currentScene)
-  const rendered =
-    mediaSettingState.immersiveMediaMode.value === 'off' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaState.immersiveMedia.value)
+  const rendered = !mediaSettingState.immersiveMedia.value
 
   useEffect(() => {
     if (peerMediaChannelState.videoStream.value?.track)
       setVideoTrackId(peerMediaChannelState.videoStream.value.track.id)
-  }, [peerMediaChannelState.videoStream])
+  }, [peerMediaChannelState.videoStream, mediaStreamState.videoStream])
 
   useEffect(() => {
     if (peerMediaChannelState.audioStream.value?.track)
       setAudioTrackId(peerMediaChannelState.audioStream.value.track.id)
-  }, [peerMediaChannelState.audioStream])
+  }, [peerMediaChannelState.audioStream, mediaStreamState.audioStream])
 
   useEffect(() => {
-    if (userHasInteracted.value && !isSelf) {
+    function onUserInteraction() {
       videoElement?.play()
       audioElement?.play()
-      if (harkListener) (harkListener as any).resume()
+      harkListener?.resume()
     }
-  }, [userHasInteracted])
+    window.addEventListener('pointerdown', onUserInteraction)
+    return () => {
+      window.removeEventListener('pointerdown', onUserInteraction)
+    }
+  }, [videoElement, audioElement, harkListener])
 
   useEffect(() => {
     if (audioElement != null) {
@@ -432,7 +429,7 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
             [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn
+            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
           })}
         >
           {(videoStream == null ||

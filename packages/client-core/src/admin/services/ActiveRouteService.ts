@@ -1,18 +1,18 @@
-import { ActiveRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 
 //State
 export const ROUTE_PAGE_LIMIT = 10000
 
-const AdminActiveRouteState = defineState({
+export const AdminActiveRouteState = defineState({
   name: 'AdminActiveRouteState',
   initial: () => ({
-    activeRoutes: [] as Array<ActiveRoutesInterface>,
+    activeRoutes: [] as Array<RouteType>,
     skip: 0,
     limit: ROUTE_PAGE_LIMIT,
     total: 0,
@@ -32,14 +32,10 @@ export const AdminActiveRouteReceptors = {
   activeRoutesRetrievedReceptor
 }
 
-export const accessAdminActiveRouteState = () => getMutableState(AdminActiveRouteState)
-
-export const useAdminActiveRouteState = () => useState(accessAdminActiveRouteState())
-
 //Service
 export const AdminActiveRouteService = {
   setRouteActive: async (project: string, route: string, activate: boolean) => {
-    const user = accessAuthState().user
+    const user = getMutableState(AuthState).user
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         await API.instance.client.service('route-activate').create({ project, route, activate })
@@ -50,13 +46,15 @@ export const AdminActiveRouteService = {
     }
   },
   fetchActiveRoutes: async (incDec?: 'increment' | 'decrement') => {
-    const user = accessAuthState().user
+    const user = getMutableState(AuthState).user
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-        const routes = await API.instance.client.service('route').find({ paginate: false })
-        dispatchAction(
-          AdminActiveRouteActions.activeRoutesRetrieved({ data: routes.data as Array<ActiveRoutesInterface> })
-        )
+        const routes = await API.instance.client.service(routePath).find({
+          query: {
+            $limit: ROUTE_PAGE_LIMIT
+          }
+        })
+        dispatchAction(AdminActiveRouteActions.activeRoutesRetrieved({ data: routes.data }))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -67,7 +65,7 @@ export const AdminActiveRouteService = {
 //Action
 export class AdminActiveRouteActions {
   static activeRoutesRetrieved = defineAction({
-    type: 'xre.client.AdminActiveRoute.ADMIN_ROUTE_ACTIVE_RECEIVED' as const,
-    data: matches.array as Validator<unknown, ActiveRoutesInterface[]>
+    type: 'ee.client.AdminActiveRoute.ADMIN_ROUTE_ACTIVE_RECEIVED' as const,
+    data: matches.array as Validator<unknown, RouteType[]>
   })
 }

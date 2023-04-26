@@ -1,5 +1,5 @@
 import { command } from 'cli'
-import { Euler, Material, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -7,11 +7,12 @@ import logger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   Component,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -56,7 +57,7 @@ import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
@@ -187,7 +188,7 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 
 const createObjectFromPrefab = (
   prefab: string,
-  parentEntity = Engine.instance.currentScene.sceneEntity as Entity | null,
+  parentEntity = getState(SceneState).sceneEntity as Entity | null,
   beforeEntity = null as Entity | null,
   updateSelection = true
 ) => {
@@ -202,6 +203,7 @@ const createObjectFromPrefab = (
     }
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
+  setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
 
   createNewEditorNode(newEntity, prefab)
 
@@ -461,6 +463,11 @@ const scaleObject = (
         ? obj3dFromUuid(node)
         : getComponent(node, LocalTransformComponent) ?? getComponent(node, TransformComponent)
 
+    const componentType =
+      typeof node != 'string' && getComponent(node, LocalTransformComponent)
+        ? LocalTransformComponent
+        : TransformComponent
+
     if (overrideScale) {
       transformComponent.scale.copy(scale)
     } else {
@@ -473,13 +480,13 @@ const scaleObject = (
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent(node as Entity, LocalTransformComponent, { scale: transformComponent.scale })
+    updateComponent(node as Entity, componentType, { scale: transformComponent.scale })
   }
 }
 
 const reparentObject = (
   nodes: EntityOrObjectUUID[],
-  parent = Engine.instance.currentScene.sceneEntity,
+  parent = getState(SceneState).sceneEntity,
   before?: Entity | null,
   updateSelection = true
 ) => {
@@ -561,7 +568,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
     } else {
       const entityTreeComponent = getComponent(node, EntityTreeComponent)
       if (!entityTreeComponent.parentEntity) continue
-      removeEntityNodeRecursively(node, false)
+      removeEntityNodeRecursively(node)
     }
   }
 

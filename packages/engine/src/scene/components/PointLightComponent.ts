@@ -6,17 +6,18 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { isHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
+  jsonID: 'point-light',
 
   onInit: (entity) => {
     const light = new PointLight()
-    if (!isHeadset()) addObjectToGroup(entity, light)
+    if (!isMobileXRHeadset) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,
@@ -49,7 +50,7 @@ export const PointLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,
@@ -66,8 +67,6 @@ export const PointLightComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
-    if (!hasComponent(root.entity, PointLightComponent)) throw root.stop()
-
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const light = useComponent(root.entity, PointLightComponent)
 
@@ -136,5 +135,3 @@ export const PointLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_POINT_LIGHT = 'point-light'

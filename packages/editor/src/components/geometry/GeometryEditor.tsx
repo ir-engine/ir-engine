@@ -1,13 +1,18 @@
 import { useCallback, useEffect } from 'react'
 import React from 'react'
-import { BufferGeometry } from 'three'
+import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
 
 import { useHookstate } from '@etherealengine/hyperflux'
 
 import DeleteIcon from '@mui/icons-material/DeleteForeverTwoTone'
 import { Box, Grid, Stack, Typography } from '@mui/material'
 
+import { Button } from '../inputs/Button'
 import styles from '../layout/styles.module.scss'
+
+const recalculateNormals = (geometry: BufferGeometry) => {
+  geometry.computeVertexNormals()
+}
 
 export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeometry }) {
   if (geometry === undefined) return <></>
@@ -21,7 +26,7 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
         name: attribName,
         count: attrib.count,
         itemSize: attrib.itemSize,
-        normalized: attrib.normalized
+        normalized: (attrib as BufferAttribute | InterleavedBufferAttribute).normalized
       }))
     }),
     [updateGeo]
@@ -46,6 +51,9 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
         <Typography variant={'h5'}>Geometry</Typography>
       </Box>
       <div className={styles.divider} />
+      <span>
+        <Button onClick={() => recalculateNormals(geometry)}>Recalculate Normals</Button>
+      </span>
       <Box>
         <Stack>
           {geoData.attributes.map((attribData, idx) => {

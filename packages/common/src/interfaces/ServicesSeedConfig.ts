@@ -4,5 +4,6 @@ type SeedCallback = (ServicesSeedConfig) => Promise<any>
 export interface ServicesSeedConfig {
   path?: string
   templates?: any[]
+  insertSingle?: boolean
   callback?: ServicesSeedCallback
 }

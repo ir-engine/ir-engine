@@ -1,32 +1,29 @@
-import React, { useState } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Object3D } from 'three'
 
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
-  getComponent,
-  getComponentState,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
-import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
+import { useState } from '@etherealengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
+import { createLODsFromModel } from '../../functions/lodsFromModel'
+import { LODsFromModelParameters } from '../../functions/lodsFromModel'
+import { StaticResourceService } from '../../services/StaticResourceService'
 import BooleanInput from '../inputs/BooleanInput'
-import { PropertiesPanelButton } from '../inputs/Button'
+import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
@@ -44,55 +41,62 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [isEquippable, setEquippable] = useState(hasComponent(props.entity, EquippableComponent))
+  const isEquippable = useState(hasComponent(props.entity, EquippableComponent))
 
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
-  const [exporting, setExporting] = useState(false)
-  const [exportPath, setExportPath] = useState(modelComponent?.src.value)
+  const exporting = useState(false)
+  const exportPath = useState(modelComponent?.src.value)
 
   if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
-  const obj3d = modelComponent.value.scene
 
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
-  const textureOverrideEntities = [] as { label: string; value: string }[]
-  traverseEntityNode(Engine.instance.currentScene.sceneEntity, (node) => {
-    if (entity === entity) return
+  const lodParms = useState<LODsFromModelParameters>(() => ({
+    serialize: false
+  }))
 
-    textureOverrideEntities.push({
-      label: getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent),
-      value: getComponent(entity, UUIDComponent)
-    })
-  })
-
-  const onChangeEquippable = () => {
-    if (isEquippable) {
+  const onChangeEquippable = useCallback(() => {
+    if (isEquippable.value) {
       removeComponent(props.entity, EquippableComponent)
-      setEquippable(false)
+      isEquippable.set(false)
     } else {
       addComponent(props.entity, EquippableComponent, true)
-      setEquippable(true)
+      isEquippable.set(true)
     }
-  }
+  }, [entity])
 
-  const animations = loopAnimationComponent?.hasAvatarAnimations
-    ? AnimationManager.instance._animations
-    : obj3d?.animations ?? []
+  const animationOptions = useState(() => {
+    const obj3d = modelComponent.value.scene
+    const animations = loopAnimationComponent?.hasAvatarAnimations
+      ? AnimationManager.instance._animations
+      : obj3d?.animations ?? []
+    return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
+  })
 
-  const animationOptions = [{ label: 'None', value: -1 }]
-  if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
-
-  const onExportModel = async () => {
-    if (exporting) {
+  const onExportModel = useCallback(() => {
+    if (exporting.value) {
       console.warn('already exporting')
       return
     }
-    setExporting(true)
-    await exportGLTF(entity, exportPath)
-    setExporting(false)
-  }
+    exporting.set(true)
+    exportGLTF(entity, exportPath.value).then(() => exporting.set(false))
+  }, [])
+
+  const updateResources = useCallback((path: string) => {
+    clearErrors(entity, ModelComponent)
+    try {
+      StaticResourceService.uploadModel(path).then((model) => {
+        updateProperty(ModelComponent, 'resource')(model)
+        updateProperty(ModelComponent, 'src')(path)
+      })
+    } catch (err) {
+      console.log('Error getting path', path)
+      addError(entity, ModelComponent, 'INVALID_URL', path)
+      return {}
+    }
+  }, [])
 
   return (
     <NodeEditor
@@ -101,7 +105,16 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src.value} onChange={updateProperty(ModelComponent, 'src')} />
+        <ModelInput
+          value={
+            modelComponent.resource?.value?.glbStaticResource?.LOD0_url ||
+            modelComponent.resource?.value?.gltfStaticResource?.LOD0_url ||
+            modelComponent.resource?.value?.fbxStaticResource?.LOD0_url ||
+            modelComponent.resource?.value?.usdzStaticResource?.LOD0_url ||
+            modelComponent.src?.value
+          }
+          onChange={updateResources}
+        />
         {errors?.LOADING_ERROR && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
@@ -119,12 +132,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Is Equippable" label={t('editor:properties.model.lbl-isEquippable')}>
-        <BooleanInput value={isEquippable} onChange={onChangeEquippable} />
+        <BooleanInput value={isEquippable.value} onChange={onChangeEquippable} />
       </InputGroup>
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           key={props.entity}
-          options={animationOptions}
+          options={animationOptions.value}
           value={loopAnimationComponent?.activeClipIndex}
           onChange={updateProperty(LoopAnimationComponent, 'activeClipIndex')}
         />
@@ -137,14 +150,27 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
       <ShadowProperties entity={props.entity} />
+      <div className="bg-gradient-to-b from-blue-gray-400 to-cool-gray-800 rounded-lg shadow-lg">
+        <div className="px-4 py-2 border-b border-gray-300">
+          <h2 className="text-lg font-semibold text-gray-100">LODs</h2>
+        </div>
+        <InputGroup name="Serialize" label={t('editor:properties.model.lods.serialize')}>
+          <BooleanInput value={lodParms.value.serialize} onChange={lodParms.serialize.set} />
+        </InputGroup>
+        <div className="p-4">
+          <Button onClick={createLODsFromModel.bind({}, entity, lodParms.value)}>
+            {t('editor:properties.model.lods.generate')}
+          </Button>
+        </div>
+      </div>
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
-      {!exporting && modelComponent.src.value && (
+      {!exporting.value && modelComponent.src.value && (
         <Well>
-          <ModelInput value={exportPath} onChange={setExportPath} />
+          <ModelInput value={exportPath.value} onChange={exportPath.set} />
           <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
         </Well>
       )}
-      {exporting && <p>Exporting...</p>}
+      {exporting.value && <p>Exporting...</p>}
     </NodeEditor>
   )
 }

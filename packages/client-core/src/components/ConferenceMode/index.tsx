@@ -2,21 +2,23 @@ import { useState } from '@hookstate/core'
 import classNames from 'classnames'
 import React from 'react'
 
-import { useMediaInstanceConnectionState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '@etherealengine/client-core/src/media/services/MediaStreamService'
-import { accessAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { useNetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
+import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { NetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { screenshareVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { MediaStreamState } from '../../transports/MediaStreams'
+import { NearbyUsersState } from '../../transports/UpdateNearbyUsersSystem'
 import ConferenceModeParticipant from './ConferenceModeParticipant'
 import styles from './index.module.scss'
 
 const ConferenceMode = (): JSX.Element => {
-  const mediaState = useMediaStreamState()
-  const nearbyLayerUsers = mediaState.nearbyLayerUsers
-  const selfUserId = useState(accessAuthState().user.id)
-  const userState = useNetworkUserState()
-  const channelConnectionState = useMediaInstanceConnectionState()
+  const nearbyLayerUsers = useHookstate(getMutableState(NearbyUsersState).nearbyLayerUsers)
+  const selfUserId = useHookstate(getMutableState(AuthState).user.id)
+  const userState = useHookstate(getMutableState(NetworkUserState))
+  const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
   const network = Engine.instance.mediaNetwork
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
   const displayedUsers =
@@ -34,12 +36,19 @@ const ConferenceMode = (): JSX.Element => {
         : []
       : []
 
-  const consumers = mediaState.consumers.value
-  const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
+  const consumers = network.consumers
+  const screenShareConsumers =
+    consumers?.filter((consumer) => consumer.appData.mediaTag === screenshareVideoDataChannelType) || []
+
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isScreenVideoEnabled =
+    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
+  const isScreenAudioEnabled =
+    mediaStreamState.screenShareAudioPaused.value != null && !mediaStreamState.screenShareAudioPaused.value
 
   let totalScreens = 1
 
-  if (mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) {
+  if (isScreenVideoEnabled || isScreenAudioEnabled) {
     totalScreens += 1
   }
 
@@ -60,13 +69,13 @@ const ConferenceMode = (): JSX.Element => {
         [styles['multi-grid']]: totalScreens === 3 || totalScreens > 4
       })}
     >
-      {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
+      {(isScreenVideoEnabled || isScreenAudioEnabled) && (
         <ConferenceModeParticipant type={'screen'} peerID={network.peerID} key={'screen_' + network.peerID} />
       )}
       <ConferenceModeParticipant type={'cam'} peerID={network.peerID} key={'cam_' + network.peerID} />
       {consumers.map((consumer) => {
         const peerID = consumer.appData.peerID
-        const type = consumer.appData.mediaTag === 'screen-video' ? 'screen' : 'cam'
+        const type = consumer.appData.mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
         return <ConferenceModeParticipant type={type} peerID={peerID} key={type + '_' + peerID} />
       })}
     </div>

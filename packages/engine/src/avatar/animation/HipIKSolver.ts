@@ -1,4 +1,4 @@
-import { Group, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Group, MathUtils, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { V_001, V_100 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -51,7 +51,7 @@ const rightFootTargetHint = new Object3D().add(
  * @param entity
  * @param target
  */
-export function solveHipHeight(entity: Entity, target: Object3D) {
+export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const body = getComponent(entity, RigidBodyComponent)
 
@@ -73,7 +73,7 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const pivotHalfLength = rigComponent.upperLegLength * 0.5
   const pivotHalfLengthSquare = pivotHalfLength * pivotHalfLength
   const minHeadHeight = pivotHalfLength + rigComponent.lowerLegLength + rigComponent.footHeight
-  const headTargetY = target.getWorldPosition(_vec3).y - body.position.y
+  const headTargetY = headPosition.y - body.position.y
   const clampedHeadTargetY =
     Math.min(Math.max(minHeadHeight, headTargetY), headToFeetLength + rigComponent.footHeight) - rigComponent.footHeight
 
@@ -85,18 +85,24 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
 
   /** calculate internal angle of head to hip using cosine rule */
   const hipToheadInternalAngle = Math.acos(
-    (rigComponent.torsoLength * rigComponent.torsoLength +
-      pivotToHeadLength * pivotToHeadLength -
-      pivotHalfLengthSquare) /
-      (2 * rigComponent.torsoLength * pivotToHeadLength)
+    Math.min(
+      1,
+      (rigComponent.torsoLength * rigComponent.torsoLength +
+        pivotToHeadLength * pivotToHeadLength -
+        pivotHalfLengthSquare) /
+        (2 * rigComponent.torsoLength * pivotToHeadLength)
+    )
   )
 
   /** calculate internal angle of feet to knee using cosine rule */
   const kneeToFootInternalAngle = Math.acos(
-    (rigComponent.lowerLegLength * rigComponent.lowerLegLength +
-      pivotToFootLength * pivotToFootLength -
-      pivotHalfLengthSquare) /
-      (2 * rigComponent.lowerLegLength * pivotToFootLength)
+    Math.min(
+      1,
+      (rigComponent.lowerLegLength * rigComponent.lowerLegLength +
+        pivotToFootLength * pivotToFootLength -
+        pivotHalfLengthSquare) /
+        (2 * rigComponent.lowerLegLength * pivotToFootLength)
+    )
   )
 
   const hipToHeadAngle = degtoRad90 - hipToheadInternalAngle
@@ -170,7 +176,6 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   _vec3.applyQuaternion(body.rotation)
   leftFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
   leftFootTarget.position.add(_vec3)
-  leftFootTarget.updateMatrixWorld(true)
 
   /** hint is where the knees aim */
   leftFootTargetHint.position.set(kneeFlareSeparation + leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
@@ -179,7 +184,17 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
   leftFootTargetHint.updateMatrixWorld(true)
 
-  solveTwoBoneIK(rig.LeftUpLeg, rig.LeftLeg, rig.LeftFoot, leftFootTarget, leftFootTargetHint, leftFootTargetOffset)
+  solveTwoBoneIK(
+    rig.LeftUpLeg,
+    rig.LeftLeg,
+    rig.LeftFoot,
+    leftFootTarget.position,
+    leftFootTarget.quaternion,
+    leftFootTargetHint,
+    1,
+    0,
+    1
+  )
 
   /** Right Foot */
   const rightKneeFlare = -kneeFlareSeparation - kneeX * kneeFlareMultiplier
@@ -191,7 +206,6 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   _vec3.applyQuaternion(body.rotation)
   rightFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
   rightFootTarget.position.add(_vec3)
-  rightFootTarget.updateMatrixWorld(true)
 
   rightFootTargetHint.position.set(kneeFlareSeparation + rightKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   rightFootTargetHint.position.applyQuaternion(body.rotation)
@@ -203,9 +217,12 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
     rig.RightUpLeg,
     rig.RightLeg,
     rig.RightFoot,
-    rightFootTarget,
+    rightFootTarget.position,
+    rightFootTarget.quaternion,
     rightFootTargetHint,
-    rightFootTargetOffset
+    1,
+    0,
+    1
   )
 
   /** Torso */

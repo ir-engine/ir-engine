@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import config from '@etherealengine/common/src/config'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import Checkbox from '@etherealengine/ui/src/Checkbox'
 import Container from '@etherealengine/ui/src/Container'
@@ -11,10 +12,9 @@ import Grid from '@etherealengine/ui/src/Grid'
 import TextField from '@etherealengine/ui/src/TextField'
 import Typography from '@etherealengine/ui/src/Typography'
 
-import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
-import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
+import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
 
 interface Props {
@@ -33,12 +33,12 @@ const defaultState = {
 const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
 const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
-  const auth = useAuthState()
-  const [state, setState] = useState(defaultState)
+  const auth = useHookstate(getMutableState(AuthState))
+  const state = useHookstate(defaultState)
   const { t } = useTranslation()
-  const authSettingState = useAuthSettingState()
+  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [authState, setAuthState] = useState(initialAuthState)
+  const authState = useHookstate(initialAuthState)
 
   useEffect(() => {
     if (authSetting) {
@@ -48,32 +48,32 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
           temp[strategyName] = strategy
         })
       })
-      setAuthState(temp)
+      authState.set(temp)
     }
   }, [authSettingState?.updateNeeded?.value])
 
   const handleInput = (e: any): void => {
-    setState({ ...state, [e.target.name]: e.target.value })
+    state.set({ ...state.value, [e.target.name]: e.target.value })
   }
 
   const handleCheck = (e: any): void => {
-    setState({ ...state, [e.target.name]: e.target.checked })
+    state.set({ ...state.value, [e.target.name]: e.target.checked })
   }
 
   const handleSubmit = (e: any): void => {
     e.preventDefault()
     if (!isAddConnection) {
-      AuthService.createMagicLink(state.emailPhone, authState)
-      setState({ ...state, isSubmitted: true })
+      AuthService.createMagicLink(state.emailPhone.value, authState.value)
+      state.set({ ...state.value, isSubmitted: true })
       return
     }
 
     const user = auth.user
     const userId = user ? user.id.value : ''
     if (type === 'email') {
-      AuthService.addConnectionByEmail(state.emailPhone, userId as string)
+      AuthService.addConnectionByEmail(state.emailPhone.value, userId as string)
     } else {
-      AuthService.addConnectionBySms(state.emailPhone, userId as string)
+      AuthService.addConnectionBySms(state.emailPhone.value, userId as string)
     }
   }
   let descr = ''
@@ -95,10 +95,10 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
       return
     }
     // Auth config is using Sms and Email, so handle both
-    if (authState?.emailMagicLink && authState?.smsMagicLink && !type) {
+    if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink && !type) {
       descr = t('user:auth.magiklink.descriptionEmailSMS')
       label = t('user:auth.magiklink.lbl-emailPhone')
-    } else if (authState?.smsMagicLink) {
+    } else if (authState?.value?.smsMagicLink) {
       descr = t('user:auth.magiklink.descriptionSMSUS')
       label = t('user:auth.magiklink.lbl-phone')
     } else {
@@ -106,7 +106,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
       label = t('user:auth.magiklink.lbl-email')
     }
 
-    setState({ ...state, label: label, descr: descr })
+    state.set({ ...state.value, label: label, descr: descr })
   }, [])
 
   return (
@@ -117,7 +117,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
         </Typography>
 
         <Typography variant="body2" color="textSecondary" align="center">
-          {state.descr}
+          {state.descr.value}
         </Typography>
 
         <form className={styles.form} noValidate onSubmit={(e) => handleSubmit(e)}>
@@ -129,7 +129,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
                 required
                 fullWidth
                 id="emailPhone"
-                label={state.label}
+                label={state.label.value}
                 name="emailPhone"
                 // autoComplete="email"
                 autoFocus
@@ -161,7 +161,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
                 variant="contained"
                 color="primary"
                 className={styles.submit}
-                disabled={!state.isAgreedTermsOfService}
+                disabled={!state.isAgreedTermsOfService.value}
               >
                 {t('user:auth.magiklink.lbl-submit')}
               </Button>

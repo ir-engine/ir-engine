@@ -4,13 +4,13 @@ import styled from 'styled-components'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
+  ComponentJSONIDMap,
   ComponentMap,
   hasComponent,
   setComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { PreventBakeTagComponent } from '@etherealengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
@@ -60,7 +60,6 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   const editorState = useEditorState()
 
   useOptionalComponent(props.entity, VisibleComponent)
-  useOptionalComponent(props.entity, PreventBakeTagComponent)
 
   const onChangeVisible = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
@@ -69,14 +68,7 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
-  const onChangeBakeStatic = (value) => {
-    const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value).filter(
-      (n) => typeof n === 'number'
-    ) as EntityOrObjectUUID[]
-    EditorControlFunctions.addOrRemoveComponent(nodes, PreventBakeTagComponent, value)
-  }
-
-  const registeredComponents = Array.from(Engine.instance.sceneComponentRegistry.entries())
+  const registeredComponents = Array.from(ComponentJSONIDMap.entries())
 
   return (
     <PropertiesHeader>
@@ -86,9 +78,6 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
           <>
             <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
               <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={onChangeVisible} />
-            </VisibleInputGroup>
-            <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
-              <BooleanInput value={hasComponent(props.entity, PreventBakeTagComponent)} onChange={onChangeBakeStatic} />
             </VisibleInputGroup>
           </>
         )}
@@ -102,7 +91,7 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
             commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
               name: component.name,
               action: () => {
-                const comp = registeredComponents.find(([comp, prefab]) => comp === component.name)!
+                const comp = registeredComponents.find(([componentName, prefab]) => componentName === component.name)!
                 if (!comp) return console.warn('could not find component name', component.name)
                 const [sceneComponentID] = comp
                 if (!sceneComponentID) return console.warn('could not find component name', sceneComponentID)
