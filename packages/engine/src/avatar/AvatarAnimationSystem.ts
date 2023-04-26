@@ -1,33 +1,33 @@
 import { useEffect } from 'react'
-import { Bone, MathUtils, Vector3 } from 'three'
+import { AxesHelper, Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
+import { proxifyQuaternion } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { NameComponent } from '../scene/components/NameComponent'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import {
   compareDistance,
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
-import { XRLeftHandComponent, XRRightHandComponent } from '../xr/XRComponents'
-import { getCameraMode, isMobileXRHeadset, XRState } from '../xr/XRState'
+import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
@@ -35,14 +35,12 @@ import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
-import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import {
-  AvatarIKTargetsComponent,
-  AvatarLeftArmIKComponent,
-  AvatarRightArmIKComponent
+  AvatarIKTargetComponent,
+  xrTargetHeadSuffix,
+  xrTargetLeftHandSuffix,
+  xrTargetRightHandSuffix
 } from './components/AvatarIKComponents'
-import { AvatarHeadIKComponent } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePoseToIKTargets'
 
@@ -73,13 +71,6 @@ const _vec = new Vector3()
 //   RightArmTwistAmount: 0.6
 // })
 
-const leftArmQuery = defineQuery([VisibleComponent, AvatarLeftArmIKComponent, AvatarRigComponent])
-const rightArmQuery = defineQuery([VisibleComponent, AvatarRightArmIKComponent, AvatarRigComponent])
-const leftHandQuery = defineQuery([VisibleComponent, XRLeftHandComponent, AvatarRigComponent])
-const rightHandQuery = defineQuery([VisibleComponent, XRRightHandComponent, AvatarRigComponent])
-const headIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarRigComponent])
-const localHeadIKQuery = defineQuery([VisibleComponent, AvatarHeadIKComponent, AvatarControllerComponent])
-const armsTwistCorrectionQuery = defineQuery([VisibleComponent, AvatarArmsTwistCorrectionComponent, AvatarRigComponent])
 const loopAnimationQuery = defineQuery([
   VisibleComponent,
   LoopAnimationComponent,
@@ -88,6 +79,10 @@ const loopAnimationQuery = defineQuery([
   AvatarRigComponent
 ])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
+const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
+const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
+
+const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
@@ -107,24 +102,54 @@ const execute = () => {
   const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
 
-  if (xrState.sessionActive && localClientEntity && hasComponent(localClientEntity, AvatarIKTargetsComponent)) {
-    const ikTargets = getComponent(localClientEntity, AvatarIKTargetsComponent)
+  for (const action of sessionChangedQueue()) {
+    if (!localClientEntity) continue
+
+    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
+
+    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
+    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
+    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+
+    if (ikTargetHead) removeEntity(ikTargetHead)
+    if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
+    if (ikTargetRightHand) removeEntity(ikTargetRightHand)
+  }
+
+  for (const action of ikTargetSpawnQueue()) {
+    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)!
+    setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
+    setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
+    addObjectToGroup(entity, new AxesHelper(0.5))
+    setComponent(entity, VisibleComponent)
+  }
+
+  // todo - remove ik targets when session ends
+  if (xrState.sessionActive && localClientEntity) {
     const sources = Array.from(inputSources.values())
     const head = getCameraMode() === 'attached'
     const leftHand = !!sources.find((s) => s.handedness === 'left')
     const rightHand = !!sources.find((s) => s.handedness === 'right')
 
-    if (!head && ikTargets.head) removeComponent(localClientEntity, AvatarHeadIKComponent)
-    if (!leftHand && ikTargets.leftHand) removeComponent(localClientEntity, AvatarLeftArmIKComponent)
-    if (!rightHand && ikTargets.rightHand) removeComponent(localClientEntity, AvatarRightArmIKComponent)
+    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
 
-    if (head && !ikTargets.head) setComponent(localClientEntity, AvatarHeadIKComponent)
-    if (leftHand && !ikTargets.leftHand) setComponent(localClientEntity, AvatarLeftArmIKComponent)
-    if (rightHand && !ikTargets.rightHand) setComponent(localClientEntity, AvatarRightArmIKComponent)
+    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
+    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
+    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
 
-    ikTargets.head = head
-    ikTargets.leftHand = leftHand
-    ikTargets.rightHand = rightHand
+    if (!head && ikTargetHead) removeEntity(ikTargetHead)
+    if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
+    if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
+
+    if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', uuid: headUUID }))
+    if (leftHand && !ikTargetLeftHand)
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', uuid: leftHandUUID }))
+    if (rightHand && !ikTargetRightHand)
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', uuid: rightHandUUID }))
   }
 
   /**
@@ -169,10 +194,8 @@ const execute = () => {
    */
 
   const avatarAnimationEntities = avatarAnimationQuery().filter(filterPriorityEntities)
-  const headIKEntities = headIKQuery().filter(filterPriorityEntities)
-  const leftArmEntities = leftArmQuery().filter(filterPriorityEntities)
-  const rightArmEntities = rightArmQuery().filter(filterPriorityEntities)
   const loopAnimationEntities = loopAnimationQuery().filter(filterPriorityEntities)
+  const ikEntities = ikTargetQuery()
 
   for (const entity of avatarAnimationEntities) {
     /**
@@ -235,36 +258,38 @@ const execute = () => {
   }
 
   /**
-   * 3 - Apply avatar IK
+   * 3 - Get IK target pose from WebXR
    */
 
   applyInputSourcePoseToIKTargets()
 
   /**
-   * Apply head IK
+   * 4 - Apply avatar IK
    */
-  for (const entity of headIKEntities) {
-    const ik = getComponent(entity, AvatarHeadIKComponent)
-    if (!ik.target.position.equals(V_000)) {
-      ik.target.updateMatrixWorld(true)
-      const rig = getComponent(entity, AvatarRigComponent).rig
-      ik.target.getWorldDirection(_vec).multiplyScalar(-1)
-      solveHipHeight(entity, ik.target)
-      solveLookIK(rig.Head, _vec, ik.rotationClamp)
-    }
-  }
+  for (const entity of ikEntities) {
+    /** Filter by priority queue */
+    const networkObject = getComponent(entity, NetworkObjectComponent)
+    const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
+    if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
 
-  /**
-   * Apply left hand IK
-   */
-  for (const entity of leftArmEntities) {
-    const { rig } = getComponent(entity, AvatarRigComponent)
-
-    const ik = getComponent(entity, AvatarLeftArmIKComponent)
-
+    const transformComponent = getComponent(entity, TransformComponent)
     // If data is zeroed out, assume there is no input and do not run IK
-    if (!ik.target.position.equals(V_000)) {
-      ik.target.updateMatrixWorld(true)
+    if (transformComponent.position.equals(V_000)) continue
+
+    const { rig } = getComponent(ownerEntity, AvatarRigComponent)
+
+    const ikComponent = getComponent(entity, AvatarIKTargetComponent)
+    if (ikComponent.handedness === 'none') {
+      _vec
+        .set(
+          transformComponent.matrix.elements[8],
+          transformComponent.matrix.elements[9],
+          transformComponent.matrix.elements[10]
+        )
+        .normalize() // equivalent to Object3D.getWorldDirection
+      solveHipHeight(ownerEntity, transformComponent.position)
+      solveLookIK(rig.Head, _vec)
+    } else if (ikComponent.handedness === 'left') {
       rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
       /** @todo see if this is still necessary */
       rig.LeftForeArm.updateWorldMatrix(false, true)
@@ -272,26 +297,10 @@ const execute = () => {
         rig.LeftArm,
         rig.LeftForeArm,
         rig.LeftHand,
-        ik.target,
-        ik.hint,
-        ik.targetOffset,
-        ik.targetPosWeight,
-        ik.targetRotWeight,
-        ik.hintWeight
+        transformComponent.position,
+        transformComponent.rotation
       )
-    }
-  }
-
-  /**
-   * Apply right hand IK
-   */
-  for (const entity of rightArmEntities) {
-    const { rig } = getComponent(entity, AvatarRigComponent)
-
-    const ik = getComponent(entity, AvatarRightArmIKComponent)
-
-    if (!ik.target.position.equals(V_000)) {
-      ik.target.updateMatrixWorld(true)
+    } else if (ikComponent.handedness === 'right') {
       rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
       /** @todo see if this is still necessary */
       rig.RightForeArm.updateWorldMatrix(false, true)
@@ -299,28 +308,30 @@ const execute = () => {
         rig.RightArm,
         rig.RightForeArm,
         rig.RightHand,
-        ik.target,
-        ik.hint,
-        ik.targetOffset,
-        ik.targetPosWeight,
-        ik.targetRotWeight,
-        ik.hintWeight
+        transformComponent.position,
+        transformComponent.rotation
       )
     }
   }
 
   /**
-   * Since the scene does not automatically update the matricies for all objects,which updates bones,
+   * Since the scene does not automatically update the matricies for all objects, which updates bones,
    * we need to manually do it for Loop Animation Entities
    */
   for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
+  /** Run debug */
   for (const entity of Engine.instance.priorityAvatarEntities) {
     const avatarRig = getComponent(entity, AvatarRigComponent)
-    if (avatarRig) {
+    if (avatarRig?.helper) {
       avatarRig.rig.Hips.updateWorldMatrix(true, true)
       avatarRig.helper?.updateMatrixWorld(true)
     }
+  }
+
+  /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
+  for (const entity of ikEntities) {
+    delete TransformComponent.dirtyTransforms[entity]
   }
 }
 

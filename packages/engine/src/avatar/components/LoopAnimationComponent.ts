@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { AnimationAction, AnimationClip, AnimationMixer, Vector3 } from 'three'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import {
   addComponent,
   ComponentType,
@@ -45,6 +46,8 @@ export const LoopAnimationComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
+    if (!isClient) return null
+
     const entity = root.entity
 
     const modelComponent = useOptionalComponent(entity, ModelComponent)

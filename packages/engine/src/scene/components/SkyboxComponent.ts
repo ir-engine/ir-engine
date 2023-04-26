@@ -1,12 +1,13 @@
 import { useEffect } from 'react'
 import { Color, CubeTexture, sRGBEncoding } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
@@ -122,7 +123,7 @@ export const SkyboxComponent = defineComponent({
       sky.turbidity = skyboxState.skyboxProps.value.turbidity
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
-      EngineRenderer.instance.csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
+      getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
       background.set(
         getPmremGenerator().fromCubemap(sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)).texture
       )

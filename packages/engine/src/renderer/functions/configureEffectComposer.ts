@@ -2,7 +2,7 @@ import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPas
 import { VelocityDepthNormalPass } from 'realism-effects'
 import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
 
-import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -122,5 +122,5 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
     composer.addPass(new EffectPass(camera, ...effects, textureEffect))
   }
 
-  if (getMutableState(EngineState).isEditor.value) changeRenderMode()
+  if (getState(EngineState).isEditor) changeRenderMode()
 }

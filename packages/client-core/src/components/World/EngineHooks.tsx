@@ -17,7 +17,7 @@ import {
   AppLoadingStates
 } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -58,14 +58,14 @@ export const useLoadEngine = () => {
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
-  const engineState = useEngineState()
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const authState = useAuthState()
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
   useEffect(() => {
     if (spectate) {
-      if (!engineState.sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
+      if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
       dispatchAction(EngineActions.spectateUser({}))
       dispatchAction(EngineActions.joinedWorld({}))
       return
@@ -73,7 +73,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     if (
       Engine.instance.localClientEntity ||
-      !engineState.sceneLoaded.value ||
+      !sceneLoaded.value ||
       !authState.user.value ||
       !authState.user.avatar.value ||
       spectateParam
@@ -104,12 +104,12 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         { variant: 'error' }
       )
     }
-  }, [engineState.sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
+  }, [sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
 }
 
 export const usePortalTeleport = () => {
   const route = useRouter()
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useLocationState()
   const authState = useAuthState()
 
@@ -121,10 +121,7 @@ export const usePortalTeleport = () => {
       if (!activePortal) return
 
       const currentLocation = locationState.locationName.value.split('/')[1]
-      if (
-        currentLocation === activePortal.location ||
-        UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
-      ) {
+      if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
         teleportAvatar(
           Engine.instance.localClientEntity!,
           activePortal.remoteSpawnPosition

@@ -12,11 +12,9 @@ import { UUIDComponent } from '../components/UUIDComponent'
 export const triggerEnter = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!triggerComponent?.onEnter) return
-  if (triggerComponent.target && !UUIDComponent.entitiesByUUID[triggerComponent.target].value) return
+  if (triggerComponent.target && !UUIDComponent.entitiesByUUID[triggerComponent.target]) return
 
-  const targetEntity = triggerComponent.target
-    ? UUIDComponent.entitiesByUUID[triggerComponent.target].value
-    : triggerEntity
+  const targetEntity = triggerComponent.target ? UUIDComponent.entitiesByUUID[triggerComponent.target] : triggerEntity
 
   if (targetEntity) {
     const callbacks = getComponent(targetEntity, CallbackComponent)
@@ -27,10 +25,8 @@ export const triggerEnter = (entity: Entity, triggerEntity: Entity, hit: Collide
 export const triggerExit = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
   if (!triggerComponent?.onExit) return
-  if (triggerComponent.target && !UUIDComponent.entitiesByUUID[triggerComponent.target].value) return
-  const targetEntity = triggerComponent.target
-    ? UUIDComponent.entitiesByUUID[triggerComponent.target].value
-    : triggerEntity
+  if (triggerComponent.target && !UUIDComponent.entitiesByUUID[triggerComponent.target]) return
+  const targetEntity = triggerComponent.target ? UUIDComponent.entitiesByUUID[triggerComponent.target] : triggerEntity
 
   if (targetEntity) {
     const callbacks = getComponent(targetEntity, CallbackComponent)

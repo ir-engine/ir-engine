@@ -137,7 +137,7 @@ export const readEntity = (v: ViewCursor, entities: EntityUUID[], serializationS
   const entityIndex = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  let entity = UUIDComponent.entitiesByUUID.value[entities[entityIndex]] || UndefinedEntity
+  let entity = UUIDComponent.entitiesByUUID[entities[entityIndex]] || UndefinedEntity
   if (!entity || !entityExists(entity)) entity = UndefinedEntity
 
   let b = 0

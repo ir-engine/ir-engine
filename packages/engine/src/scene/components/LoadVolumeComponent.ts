@@ -57,7 +57,7 @@ export const LoadVolumeComponent = defineComponent({
     function doUnload() {
       Object.values(component.targets.value).map(({ uuid, loaded, entityJson: oldEJson }) => {
         if (!loaded) return
-        const targetEntity = UUIDComponent.entitiesByUUID[uuid].value!
+        const targetEntity = UUIDComponent.entitiesByUUID[uuid]
         const parent = getComponent(targetEntity, EntityTreeComponent)
         const parentNode = parent.parentEntity!
         const clearChildren = () => removeEntityNodeRecursively(targetEntity)

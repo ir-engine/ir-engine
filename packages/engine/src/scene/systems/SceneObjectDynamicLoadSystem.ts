@@ -4,7 +4,8 @@ import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent, serializeNodeToWorld, traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
@@ -45,7 +46,11 @@ const execute = () => {
       if (dynamicLoadComponent.loaded && distanceToAvatar > loadDistance) {
         // unload all children
         const nodes = getComponent(entity, EntityTreeComponent).children
-        for (const node of nodes) removeEntityNodeRecursively(node, true)
+        for (const node of nodes)
+          traverseEntityNode(node, (childEntity) => {
+            serializeNodeToWorld(childEntity)
+            removeEntity(childEntity)
+          })
         dynamicLoadComponent.loaded = false
       }
     }

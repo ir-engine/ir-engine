@@ -29,5 +29,5 @@ export const NameComponent = defineComponent({
   },
 
   entitiesByNameState: hookstate(entitiesByName),
-  entitiesByName
+  entitiesByName: entitiesByName as Readonly<typeof entitiesByName>
 })

@@ -2,10 +2,10 @@ import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
 import { SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   getComponent,
   getMutableComponent,
@@ -66,7 +66,7 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
 }
 
 const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE) => {
-  const entity = UUIDComponent.entitiesByUUID[action.objectUuid]?.value!
+  const entity = UUIDComponent.entitiesByUUID[action.objectUuid]
 
   if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
 
@@ -153,7 +153,7 @@ const receiveTransferAuthorityOfObject = (
 }
 
 const receiveSetUserTyping = (action: typeof WorldNetworkAction.setUserTyping.matches._TYPE) => {
-  getEngineState().usersTyping[action.$from].set(action.typing ? true : none)
+  getMutableState(EngineState).usersTyping[action.$from].set(action.typing ? true : none)
 }
 
 export const WorldNetworkActionReceptor = {

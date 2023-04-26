@@ -2,9 +2,10 @@ import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { getMutableState, getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntity, matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -190,14 +191,14 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
 
-  /** @todo networking all objects breaks portals currently - need to implement checks with connecting to instance server to ensure it's the same scene */
-  // if (Engine.instance.worldNetwork?.isHosting) {
-  //   dispatchAction(
-  //     WorldNetworkAction.registerSceneObject({
-  //       objectUuid: node.uuid
-  //     })
-  //   )
-  // }
+  if (Engine.instance.worldNetwork?.isHosting) {
+    const uuid = getComponent(entity, UUIDComponent)
+    dispatchAction(
+      WorldNetworkAction.registerSceneObject({
+        objectUuid: uuid
+      })
+    )
+  }
 }
 
 export function serializeNodeToWorld(entity: Entity) {
@@ -218,9 +219,8 @@ export function serializeNodeToWorld(entity: Entity) {
  * @param node
  * @param tree
  */
-export function removeEntityNodeRecursively(entity: Entity, serialize = false) {
-  traverseEntityNode(entity, (childEntity) => {
-    if (serialize) serializeNodeToWorld(childEntity)
+export function removeEntityNodeRecursively(entity: Entity) {
+  traverseEntityNodeChildFirst(entity, (childEntity) => {
     removeEntity(childEntity)
   })
 }
@@ -285,6 +285,23 @@ export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: n
     const child = entityTreeNode.children[i]
     traverseEntityNode(child, cb, i)
   }
+}
+
+export function traverseEntityNodeChildFirst(
+  entity: Entity,
+  cb: (entity: Entity, index: number) => void,
+  index = 0
+): void {
+  const entityTreeNode = getComponent(entity, EntityTreeComponent)
+
+  if (!entityTreeNode) return
+
+  for (let i = 0; i < entityTreeNode.children.length; i++) {
+    const child = entityTreeNode.children[i]
+    traverseEntityNodeChildFirst(child, cb, i)
+  }
+
+  cb(entity, index)
 }
 
 /**

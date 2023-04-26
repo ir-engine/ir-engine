@@ -1,6 +1,6 @@
 import { AnimationClip, AnimationMixer, Vector2, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -68,7 +68,7 @@ export function createAvatarAnimationGraph(
     walkRightAction = getDistanceAction(AvatarAnimations.WALK_STRAFE_RIGHT_ROOT, mixer),
     runRightAction = getDistanceAction(AvatarAnimations.RUN_STRAFE_RIGHT_ROOT, mixer)
 
-  const avatarMovementSettings = getMutableState(AvatarMovementSettingsState).value
+  const avatarMovementSettings = getState(AvatarMovementSettingsState)
 
   const verticalBlendSpace: BlendSpace1D = {
     minValue: -avatarMovementSettings.runSpeed,
@@ -282,7 +282,7 @@ export function createAvatarAnimationGraph(
         rule: compositeTransitionRule(
           [
             booleanTransitionRule(jumpValue, 'isInAir'),
-            thresholdTransitionRule(locomotion, 'y', -0.1 / getMutableState(EngineState).fixedDeltaSeconds.value, false)
+            thresholdTransitionRule(locomotion, 'y', -0.1 / getState(EngineState).fixedDeltaSeconds, false)
           ],
           'and'
         ),

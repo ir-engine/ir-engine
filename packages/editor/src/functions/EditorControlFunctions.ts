@@ -568,7 +568,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
     } else {
       const entityTreeComponent = getComponent(node, EntityTreeComponent)
       if (!entityTreeComponent.parentEntity) continue
-      removeEntityNodeRecursively(node, false)
+      removeEntityNodeRecursively(node)
     }
   }
 

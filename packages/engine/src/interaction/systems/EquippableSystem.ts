@@ -92,8 +92,8 @@ export function equipperQueryAll(equipperEntity: Entity) {
   const target = getHandTarget(equipperEntity, attachmentPoint ?? 'left')!
   const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
 
-  target.getWorldPosition(equippableTransform.position)
-  target.getWorldQuaternion(equippableTransform.rotation)
+  equippableTransform.position.copy(target.position)
+  equippableTransform.rotation.copy(target.rotation)
 }
 
 export function equipperQueryExit(entity: Entity) {
@@ -191,10 +191,6 @@ const execute = () => {
    */
   for (const entity of equippableQuery.enter()) {
     if (isClient) addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
-    if (Engine.instance.worldNetwork?.isHosting) {
-      const objectUuid = getComponent(entity, UUIDComponent)
-      dispatchAction(WorldNetworkAction.registerSceneObject({ objectUuid }))
-    }
   }
 
   for (const entity of equippableQuery.exit()) {

@@ -3,6 +3,7 @@ import {
   defineAction,
   defineState,
   getMutableState,
+  getState,
   syncStateWithLocalStorage,
   useState
 } from '@etherealengine/hyperflux'
@@ -45,10 +46,6 @@ export const AudioState = defineState({
     ])
   }
 })
-/**@deprecated use getMutableState directly instead */
-export const accessAudioState = () => getMutableState(AudioState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAudioState = () => useState(accessAudioState())
 
 export function AudioSettingReceptor(action) {
   const s = getMutableState(AudioState)
@@ -114,8 +111,6 @@ export class AudioSettingAction {
 }
 
 export const getPositionalMedia = () => {
-  const audioState = getMutableState(AudioState)
-  return audioState.usePositionalMedia.value === 'auto'
-    ? audioState.positionalMedia.value
-    : audioState.usePositionalMedia.value === 'on'
+  const audioState = getState(AudioState)
+  return audioState.usePositionalMedia === 'auto' ? audioState.positionalMedia : audioState.usePositionalMedia === 'on'
 }

@@ -97,7 +97,6 @@ export class EngineRenderer {
   effectComposer: EffectComposerWithSchema = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
-  csm: CSM = null!
   webGLLostContext: any = null
 
   initialize() {
@@ -240,7 +239,7 @@ export class EngineRenderer {
           cam.updateProjectionMatrix()
         }
 
-        state.qualityLevel > 0 && this.csm?.updateFrustums()
+        state.qualityLevel > 0 && state.csm?.updateFrustums()
         // Effect composer calls renderer.setSize internally
         this.effectComposer.setSize(width, height, true)
         this.needsResize = false

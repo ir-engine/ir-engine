@@ -22,6 +22,7 @@ import { getMutableState, getState, hookstate, ReactorProps, useHookstate } from
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
+import CSMHelper from '../../assets/csm/CSMHelper'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -59,7 +60,7 @@ const raycasterPosition = new Vector3()
 
 const csmGroup = new Group()
 csmGroup.name = 'CSM-group'
-
+let helper
 const UpdateCSMFromActiveDirectionalLight = (props: { activeLightEntity: Entity; activeLight?: DirectionalLight }) => {
   let activeLight = props.activeLight
   const activeLightEntity = props.activeLightEntity
@@ -78,32 +79,38 @@ const UpdateCSMFromActiveDirectionalLight = (props: { activeLightEntity: Entity;
 
   useEffect(() => {
     if (!activeLight || !useCSM) {
-      EngineRenderer.instance.csm?.remove()
-      EngineRenderer.instance.csm?.dispose()
-      EngineRenderer.instance.csm = undefined!
+      const csm = getState(RendererState).csm
+      csm?.dispose()
+      getMutableState(RendererState).csm.set(null)
       return
     }
 
-    if (!EngineRenderer.instance.csm) {
-      EngineRenderer.instance.csm = new CSM({
-        camera: Engine.instance.camera as PerspectiveCamera,
-        parent: csmGroup,
-        light: activeLight
-      })
-      // helper = new CSMHelper(EngineRenderer.instance.csm)
+    if (!getState(RendererState).csm) {
+      getMutableState(RendererState).csm.set(
+        new CSM({
+          camera: Engine.instance.camera as PerspectiveCamera,
+          parent: csmGroup,
+          light: activeLight
+        })
+      )
+      // helper = new CSMHelper(getState(RendererState).csm!)
       // Engine.instance.scene.add(helper)
     }
 
+    const csm = getState(RendererState).csm!
     const activeLightParent = activeLight.parent
     if (activeLightParent) activeLightParent.remove(activeLight)
 
-    for (const light of EngineRenderer.instance.csm.lights) {
+    for (const light of csm.lights) {
       light.color = activeLight.color
       light.intensity = activeLight.intensity
       light.shadow.bias = activeLight.shadow.bias
       light.shadow.radius = activeLight.shadow.radius
       light.shadow.mapSize = activeLight.shadow.mapSize
       light.shadow.camera.far = activeLight.shadow.camera.far
+      light.shadow.map?.dispose()
+      light.shadow.map = null as any
+      light.shadow.needsUpdate = true
     }
 
     return () => {
@@ -246,9 +253,10 @@ const execute = () => {
     return
   }
 
-  if (!EngineRenderer.instance.csm) return
-  EngineRenderer.instance.csm.sourceLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
-  if (renderState.qualityLevel > 0) EngineRenderer.instance.csm.update()
+  const csm = getState(RendererState).csm
+  if (!csm) return
+  csm.sourceLight.getWorldDirection(csm.lightDirection)
+  if (renderState.qualityLevel > 0) csm.update()
   // if (helper) helper.update()
 }
 

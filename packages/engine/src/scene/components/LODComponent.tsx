@@ -44,8 +44,7 @@ export const LODComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (['number', 'string'].includes(typeof json.target)) {
-      const targetEntity =
-        typeof json.target === 'string' ? UUIDComponent.entitiesByUUID[json.target].value : json.target
+      const targetEntity = typeof json.target === 'string' ? UUIDComponent.entitiesByUUID[json.target] : json.target
       if (targetEntity && component.target.value !== targetEntity) {
         LODComponent.lodsByEntity[targetEntity].set(
           (
