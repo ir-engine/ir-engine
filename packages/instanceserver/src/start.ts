@@ -102,7 +102,7 @@ export const start = async (): Promise<Application> => {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   } as any
-  const port = config.instanceserver.port
+  const port = Number(config.instanceserver.port)
   if (useSSL) {
     logger.info(`Starting instanceserver with HTTPS on port ${port}.`)
   } else {
