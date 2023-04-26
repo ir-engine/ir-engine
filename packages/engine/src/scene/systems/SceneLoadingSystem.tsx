@@ -261,7 +261,7 @@ export const updateSceneFromJSON = async () => {
   /** @todo this will not  */
   for (const node of oldLoadedEntityNodesToRemove) {
     if (node === sceneState.sceneEntity) continue
-    removeEntityNodeRecursively(node, false)
+    removeEntityNodeRecursively(node)
   }
 
   /** 3. load new systems */
