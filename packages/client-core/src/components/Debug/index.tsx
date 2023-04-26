@@ -270,7 +270,7 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.value} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree data={namedEntities.get({ noproxy: true })} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.networks')}</h1>

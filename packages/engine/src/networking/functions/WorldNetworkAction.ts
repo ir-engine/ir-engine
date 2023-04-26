@@ -32,7 +32,7 @@ export class WorldNetworkAction {
   static registerSceneObject = defineAction({
     type: 'xre.world.REGISTER_SCENE_OBJECT',
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
-    objectUuid: matches.string,
+    objectUuid: matchesEntityUUID,
     $cache: true,
     $topic: NetworkTopics.world
   })
