@@ -287,9 +287,8 @@ function createWebGLAnimation() {
   let requestId = null
 
   function onAnimationFrame(time, frame) {
-    animationLoop!(time, frame)
-
     requestId = context.requestAnimationFrame(onAnimationFrame)
+    animationLoop!(time, frame)
   }
 
   return {

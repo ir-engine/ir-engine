@@ -73,7 +73,7 @@ function VideoReactor({ root }: EntityReactorProps) {
 
   const video = useComponent(entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value ?? ''
-  const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID].value ?? entity
+  const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID] ?? entity
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
   // update side

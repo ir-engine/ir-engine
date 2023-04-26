@@ -68,9 +68,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     setTransformComponent(item)
     const equippableTransform = getComponent(item, TransformComponent)
     const attachmentPoint = equippedComponent.attachmentPoint
-    const target = getHandTarget(item, attachmentPoint)!
-    const position = target.getWorldPosition(new Vector3())
-    const rotation = target.getWorldQuaternion(new Quaternion())
+    const { position, rotation } = getHandTarget(item, attachmentPoint)!
 
     equippableSystem()
 

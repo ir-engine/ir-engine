@@ -5,6 +5,8 @@ import { defineAction, defineState, getState, syncStateWithLocalStorage } from '
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { Entity } from '../ecs/classes/Entity'
+import { NetworkTopics } from '../networking/classes/Network'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DepthDataTexture } from './DepthDataTexture'
 import { XREstimatedLight } from './XREstimatedLight'
 
@@ -35,7 +37,9 @@ export const XRState = defineState({
       lightEstimator: null! as XREstimatedLight,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
-      userEyeLevel: 1.8
+      userEyeLevel: 1.8,
+      //to be moved to user_settings
+      userHeight: 0
     }
   },
 
@@ -85,6 +89,16 @@ export class XRAction {
     handedness: matches.literals('left', 'right'),
     value: matches.number,
     duration: matches.number
+  })
+
+  static spawnIKTarget = defineAction({
+    ...WorldNetworkAction.spawnObject.actionShape,
+    prefab: 'ik-target',
+    handedness: matches.literals('left', 'right', 'none'),
+    $cache: {
+      removePrevious: true
+    },
+    $topic: NetworkTopics.world
   })
 }
 

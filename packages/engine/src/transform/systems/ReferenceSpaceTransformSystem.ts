@@ -1,6 +1,5 @@
 import { MeshDepthMaterial, Scene, Skeleton, SkinnedMesh, WebGLRenderTarget } from 'three'
 
-import { applyInputSourcePoseToIKTargets } from '../../avatar/functions/applyInputSourcePoseToIKTargets'
 import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -43,7 +42,9 @@ const execute = () => {
       const renderer = EngineRenderer.instance.renderer
       skeletonForceUpdateScene.children = localClientGroup
       renderer.setRenderTarget(dummyRenderTarget)
+      renderer.info.autoReset = false
       renderer.render(skeletonForceUpdateScene, Engine.instance.camera)
+      renderer.info.autoReset = true
       renderer.setRenderTarget(null)
     }
   }
