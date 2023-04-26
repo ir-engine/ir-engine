@@ -107,12 +107,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   useEffect(() => {
     if (peerMediaChannelState.videoStream.value?.track)
       setVideoTrackId(peerMediaChannelState.videoStream.value.track.id)
-  }, [peerMediaChannelState.videoStream])
+  }, [peerMediaChannelState.videoStream, mediaStreamState.videoStream])
 
   useEffect(() => {
     if (peerMediaChannelState.audioStream.value?.track)
       setAudioTrackId(peerMediaChannelState.audioStream.value.track.id)
-  }, [peerMediaChannelState.audioStream])
+  }, [peerMediaChannelState.audioStream, mediaStreamState.audioStream])
 
   useEffect(() => {
     function onUserInteraction() {
