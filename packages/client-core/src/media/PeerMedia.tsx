@@ -335,6 +335,7 @@ export const PeerConsumers = () => {
       }
     }
   }, [
+    networkState,
     nearbyUsersState.nearbyLayerUsers.length,
     networkState?.consumers?.length,
     mediaStreamState.videoStream,
