@@ -8,7 +8,7 @@ import { UserMediaWindowsWidget } from '../components/UserMediaWindows'
 
 export function createMediaWidget() {
   const ui = createXRUI(UserMediaWindowsWidget)
-  removeComponent(ui.entity, VisibleComponent)
+  // removeComponent(ui.entity, VisibleComponent)
   setComponent(ui.entity, XRUIInteractableComponent)
 
   const widget: Widget = {

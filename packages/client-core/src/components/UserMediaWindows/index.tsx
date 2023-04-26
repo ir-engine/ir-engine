@@ -6,7 +6,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import UserMediaWindow from '../UserMediaWindow'
+import { UserMediaWindow, UserMediaWindowWidget } from '../UserMediaWindow'
 import styles from './index.module.scss'
 
 export const UserMediaWindows = () => {
@@ -78,7 +78,7 @@ export const UserMediaWindowsWidget = () => {
         {windows
           .filter(({ peerID }) => peerMediaChannelState[peerID].value)
           .map(({ peerID, type }) => (
-            <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+            <UserMediaWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
           ))}
       </div>
     </div>
