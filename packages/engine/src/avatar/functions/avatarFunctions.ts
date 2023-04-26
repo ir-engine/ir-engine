@@ -1,13 +1,13 @@
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -79,9 +79,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 export const loadAvatarForUser = async (
   entity: Entity,
   avatarURL: string,
-  loadingEffect = getMutableState(EngineState).avatarLoadingEffect.value &&
-    !getMutableState(XRState).sessionActive.value &&
-    !iOS
+  loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     return

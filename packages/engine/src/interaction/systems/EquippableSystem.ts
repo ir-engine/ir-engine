@@ -4,7 +4,7 @@ import { Vector3 } from 'three'
 import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -92,8 +92,8 @@ export function equipperQueryAll(equipperEntity: Entity) {
   const target = getHandTarget(equipperEntity, attachmentPoint ?? 'left')!
   const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
 
-  target.getWorldPosition(equippableTransform.position)
-  target.getWorldQuaternion(equippableTransform.rotation)
+  equippableTransform.position.copy(target.position)
+  equippableTransform.rotation.copy(target.rotation)
 }
 
 export function equipperQueryExit(entity: Entity) {
@@ -191,10 +191,6 @@ const execute = () => {
    */
   for (const entity of equippableQuery.enter()) {
     if (isClient) addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
-    if (Engine.instance.worldNetwork?.isHosting) {
-      const objectUuid = getComponent(entity, UUIDComponent)
-      dispatchAction(WorldNetworkAction.registerSceneObject({ objectUuid }))
-    }
   }
 
   for (const entity of equippableQuery.exit()) {

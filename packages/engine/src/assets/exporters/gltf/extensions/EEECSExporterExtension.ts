@@ -33,6 +33,10 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
           break
         default:
           const component = ComponentMap.get(field)!
+          if (!component?.toJSON) {
+            console.error(`[EEECSExporter]: Component ${field} does not have a toJSON method`)
+            continue
+          }
           const compData = component.toJSON(entity, getMutableComponent(entity, component))
           for (const [field, value] of Object.entries(compData)) {
             data.push([`xrengine.${component.name}.${field}`, value])

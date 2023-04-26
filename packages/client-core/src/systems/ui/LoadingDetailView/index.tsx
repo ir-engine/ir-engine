@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
@@ -37,7 +37,7 @@ function setDefaultPalette(colors) {
 const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
   const uiState = useXRUIState<LoadingUIState>()
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const colors = useHookstate({
     main: '',

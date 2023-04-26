@@ -216,13 +216,6 @@
           }
         },
         {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
-          }
-        },
-        {
           "name": "envmap",
           "props": {
             "type": "Default",
@@ -425,13 +418,6 @@
             "resource": null,
             "generateBVH": true,
             "avoidCameraOcclusion": false
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
           }
         },
         {

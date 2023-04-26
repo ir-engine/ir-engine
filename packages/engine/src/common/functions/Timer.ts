@@ -1,6 +1,6 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { isClient } from './isClient'
+import { isClient } from './getEnvironment'
 import { nowMilliseconds } from './nowMilliseconds'
 import { ServerLoop } from './ServerLoop'
 

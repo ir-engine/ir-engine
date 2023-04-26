@@ -24,9 +24,9 @@ import {
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
@@ -66,7 +66,7 @@ let simulationObjectsGenerated = false
 export const PhysicsSimulationTestSystem = defineSystem({
   uuid: 'ee.test.PhysicsSimulationTestSystem',
   execute: () => {
-    const isInitialized = getEngineState().isEngineInitialized.value
+    const isInitialized = getState(EngineState).isEngineInitialized
     if (!isInitialized || !Engine.instance.physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)

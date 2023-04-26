@@ -3,24 +3,25 @@ import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import {
-  AvatarHeadIKComponent,
-  AvatarIKTargetsComponent,
-  AvatarLeftArmIKComponent,
-  AvatarRightArmIKComponent
-} from '../avatar/components/AvatarIKComponents'
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
-import { getComponent, hasComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '../networking/classes/Network'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRState } from '../xr/XRState'
+import { XRAction, XRState } from '../xr/XRState'
+
+export const motionCaptureHeadSuffix = '_motion_capture_head'
+export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
+export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
 
 export interface NormalizedLandmark {
   x: number
@@ -122,21 +123,27 @@ const execute = () => {
       const rightWrist = data[POSE_LANDMARKS.LEFT_WRIST]
       const leftWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
 
-      const ikTargets = getComponent(entity, AvatarIKTargetsComponent)
       const head = !!nose.visibility && nose.visibility > 0.5
       const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.5
       const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.5
 
-      if (!head && ikTargets.head) removeComponent(localClientEntity, AvatarHeadIKComponent)
-      if (!leftHand && ikTargets.leftHand) removeComponent(localClientEntity, AvatarLeftArmIKComponent)
-      if (!rightHand && ikTargets.rightHand) removeComponent(localClientEntity, AvatarRightArmIKComponent)
+      const headUUID = (Engine.instance.userId + motionCaptureHeadSuffix) as EntityUUID
+      const leftHandUUID = (Engine.instance.userId + motionCaptureLeftHandSuffix) as EntityUUID
+      const rightHandUUID = (Engine.instance.userId + motionCaptureRightHandSuffix) as EntityUUID
 
-      if (head && !ikTargets.head) setComponent(localClientEntity, AvatarHeadIKComponent)
-      if (leftHand && !ikTargets.leftHand) setComponent(localClientEntity, AvatarLeftArmIKComponent)
-      if (rightHand && !ikTargets.rightHand) setComponent(localClientEntity, AvatarRightArmIKComponent)
-      ikTargets.head = head
-      ikTargets.leftHand = leftHand
-      ikTargets.rightHand = rightHand
+      const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
+      const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
+      const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+
+      if (!head && ikTargetHead) removeEntity(ikTargetHead)
+      if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
+      if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
+
+      if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', uuid: headUUID }))
+      if (leftHand && !ikTargetLeftHand)
+        dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', uuid: leftHandUUID }))
+      if (rightHand && !ikTargetRightHand)
+        dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', uuid: rightHandUUID }))
 
       const avatarRig = getComponent(entity, AvatarRigComponent)
       const avatarTransform = getComponent(entity, TransformComponent)
@@ -156,46 +163,46 @@ const execute = () => {
           objs[i].updateMatrixWorld(true)
         }
 
-      if (hasComponent(entity, AvatarHeadIKComponent)) {
+      if (ikTargetHead) {
         if (!nose.visibility || nose.visibility < 0.5) continue
         if (!nose.x || !nose.y || !nose.z) continue
-        const ik = getComponent(entity, AvatarHeadIKComponent)
+        const ik = getComponent(ikTargetHead, TransformComponent)
         headPos
           .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
           .multiplyScalar(-1)
           .applyQuaternion(avatarTransform.rotation)
           .add(hipsPos)
-        ik.target.position.copy(headPos)
-        // ik.target.quaternion.setFromUnitVectors(
+        ik.position.copy(headPos)
+        // ik.rotation.setFromUnitVectors(
         //   new Vector3(0, 1, 0),
         //   new Vector3(nose.x, -nose.y, nose.z).sub(headPos).normalize()
         // ).multiply(avatarTransform.rotation)
       }
 
-      if (hasComponent(entity, AvatarLeftArmIKComponent)) {
+      if (ikTargetLeftHand) {
         if (!leftWrist.visibility || leftWrist.visibility < 0.5) continue
         if (!leftWrist.x || !leftWrist.y || !leftWrist.z) continue
-        const ik = getComponent(entity, AvatarLeftArmIKComponent)
+        const ik = getComponent(ikTargetLeftHand, TransformComponent)
         leftHandPos
           .set(leftWrist.x, leftWrist.y, leftWrist.z)
           .multiplyScalar(-1)
           .applyQuaternion(avatarTransform.rotation)
           .add(hipsPos)
-        ik.target.position.copy(leftHandPos)
-        // ik.target.quaternion.copy()
+        ik.position.copy(leftHandPos)
+        // ik.quaternion.copy()
       }
 
-      if (hasComponent(entity, AvatarRightArmIKComponent)) {
+      if (ikTargetRightHand) {
         if (!rightWrist.visibility || rightWrist.visibility < 0.5) continue
         if (!rightWrist.x || !rightWrist.y || !rightWrist.z) continue
-        const ik = getComponent(entity, AvatarRightArmIKComponent)
+        const ik = getComponent(ikTargetRightHand, TransformComponent)
         rightHandPos
           .set(rightWrist.x, rightWrist.y, rightWrist.z)
           .multiplyScalar(-1)
           .applyQuaternion(avatarTransform.rotation)
           .add(hipsPos)
-        ik.target.position.copy(rightHandPos)
-        // ik.target.quaternion.copy()
+        ik.position.copy(rightHandPos)
+        // ik.quaternion.copy()
       }
     }
   }

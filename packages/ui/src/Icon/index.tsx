@@ -51,6 +51,7 @@ import {
   FileCopy,
   FileUpload,
   FilterList,
+  FlipCameraAndroid,
   FormatColorFill,
   FormatColorReset,
   FullscreenExit,
@@ -409,6 +410,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Toys {...props} />
     case 'Phone':
       return <Phone {...props} />
+    case 'FlipCameraAndroid':
+      return <FlipCameraAndroid {...props} />
   }
 }
 

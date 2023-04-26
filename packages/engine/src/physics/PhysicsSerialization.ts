@@ -1,3 +1,4 @@
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { Entity } from '../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag, readCompressedRotation, readVector3 } from '../networking/serialization/DataReader'
@@ -38,16 +39,17 @@ export const writeBodyAngularVelocity = writeVector3(RigidBodyComponent.angularV
 
 export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, RigidBodyComponent)) return
+  const isAvatar = hasComponent(entity, AvatarComponent)
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeBodyPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyRotation(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyPosition(v, entity, isAvatar) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyRotation(v, entity, isAvatar) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyLinearVelocity(v, entity, isAvatar) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyAngularVelocity(v, entity, isAvatar) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }

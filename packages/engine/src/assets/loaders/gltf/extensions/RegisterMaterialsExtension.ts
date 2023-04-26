@@ -1,7 +1,7 @@
 import { Mesh, Object3D } from 'three'
 import { GLTFParser } from 'three/examples/jsm/loaders/GLTFLoader'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
 import { registerMaterial } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -10,12 +10,12 @@ import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export function registerMaterials(root: Object3D, type: SourceType = SourceType.EDITOR_SESSION, path: string = '') {
-  const materialLibrary = getMutableState(MaterialLibraryState)
+  const materialLibrary = getState(MaterialLibraryState)
   root.traverse((mesh: Mesh) => {
     if (!mesh?.isMesh) return
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     materials
-      .filter((material) => !materialLibrary.materials[material.uuid].value)
+      .filter((material) => !materialLibrary.materials[material.uuid])
       .map((material) => registerMaterial(material, { type, path }))
   })
 }

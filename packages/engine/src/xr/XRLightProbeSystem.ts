@@ -4,6 +4,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { RendererState } from '../renderer/RendererState'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XREstimatedLight } from './XREstimatedLight'
 import { XRState } from './XRState'
@@ -56,9 +57,9 @@ const execute = () => {
     // initializeLight()
   }
 
-  if (EngineRenderer.instance.csm && xrState.isEstimatingLight) {
+  if (getState(RendererState).csm && xrState.isEstimatingLight) {
     // maybe use -1 * pos
-    xrState.lightEstimator.directionalLight.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
+    xrState.lightEstimator.directionalLight.getWorldDirection(getState(RendererState).csm!.lightDirection)
   }
 }
 

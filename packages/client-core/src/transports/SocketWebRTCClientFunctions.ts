@@ -549,6 +549,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
 
   async function webRTCCloseConsumerHandler(consumerId) {
     const consumer = network.consumers.find((c) => c.id === consumerId) as ConsumerExtension
+    if (!consumer) throw new Error('Consumer not found: ' + consumerId)
     consumer.close()
     const networkState = getMutableState(NetworkState).networks[network.hostId]
     // reactively splice the consumer out of the array
