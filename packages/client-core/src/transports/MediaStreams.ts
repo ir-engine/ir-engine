@@ -71,26 +71,47 @@ export const MediaStreamService = {
 
     // find "next" device in device list
     const deviceId = await MediaStreamService.getCurrentDeviceId('video')
+    console.log({ deviceId })
     const allDevices = await navigator.mediaDevices.enumerateDevices()
+    console.log({ allDevices })
     const vidDevices = allDevices.filter((d) => d.kind === 'videoinput')
     if (!(vidDevices.length > 1)) {
       logger.info('Cannot cycle camera - only one camera')
       return false
     }
-    let index = vidDevices.findIndex((d) => d.deviceId === deviceId)
-    if (index === vidDevices.length - 1) index = 0
-    else index += 1
 
-    // get a new video stream. might as well get a new audio stream too,
-    // just in case browsers want to group audio/video streams together
-    // from the same device when possible (though they don't seem to,
-    // currently)
-    logger.info(`Getting a video stream from new device "${vidDevices[index].label}".`)
-    state.videoStream.set(
-      await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: vidDevices[index].deviceId } }
-      })
-    )
+    let tries = 0
+    let index = vidDevices.findIndex((d) => d.deviceId === deviceId)
+
+    const cycle = async () => {
+      if (index === vidDevices.length - 1) index = 0
+      else index += 1
+
+      console.log({ index })
+
+      // get a new video stream. might as well get a new audio stream too,
+      // just in case browsers want to group audio/video streams together
+      // from the same device when possible (though they don't seem to,
+      // currently)
+      logger.info(`Getting a video stream from new device "${vidDevices[index].label}".`)
+      console.log(vidDevices, vidDevices[index].deviceId)
+
+      try {
+        const newVideoStream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: { exact: vidDevices[index].deviceId } }
+        })
+        state.videoStream.set(newVideoStream)
+      } catch (e) {
+        console.error(e)
+        tries++
+        if (tries > vidDevices.length - 1) throw new Error('Could not get video stream')
+        await cycle()
+      }
+    }
+
+    await cycle()
+
+    console.log(state.videoStream.value)
 
     // replace the tracks we are sending
     await state.camVideoProducer.value.replaceTrack({
