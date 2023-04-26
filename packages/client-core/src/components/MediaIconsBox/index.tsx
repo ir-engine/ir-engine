@@ -21,8 +21,8 @@ import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
-  const [hasAudioDevice, setHasAudioDevice] = useState(false)
-  const [hasVideoDevice, setHasVideoDevice] = useState(false)
+  const [hasAudioDevice, setHasAudioDevice] = useState(0)
+  const [hasVideoDevice, setHasVideoDevice] = useState(0)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useLocationState().currentLocation.location
@@ -53,10 +53,8 @@ export const MediaIconsBox = () => {
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => {
-        devices.forEach((device) => {
-          if (device.kind === 'audioinput') setHasAudioDevice(true)
-          if (device.kind === 'videoinput') setHasVideoDevice(true)
-        })
+        setHasAudioDevice(devices.filter((device) => device.kind === 'audioinput').length)
+        setHasVideoDevice(devices.filter((device) => device.kind === 'videoinput').length)
       })
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
@@ -96,6 +94,18 @@ export const MediaIconsBox = () => {
           >
             <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
           </button>
+          {hasVideoDevice > 1 && (
+            <button
+              type="button"
+              id="FlipVideo"
+              className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
+              onClick={toggleWebcamPaused}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            >
+              <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
+            </button>
+          )}
           <button
             type="button"
             id="UserPoseTracking"
