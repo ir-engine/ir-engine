@@ -60,7 +60,7 @@ describe('EntityTreeComponent', () => {
     assert.equal(node.rootEntity, sceneEntity)
 
     assert.equal(getComponent(entity, UUIDComponent), testUUID)
-    assert.equal(UUIDComponent.entitiesByUUID.value[testUUID], entity)
+    assert.equal(UUIDComponent.entitiesByUUID[testUUID], entity)
 
     const parentNode = getComponent(node.parentEntity!, EntityTreeComponent)
     assert.equal(parentNode.children.length, 1)
@@ -100,12 +100,12 @@ describe('EntityTreeComponent', () => {
 
     const sceneNode = getComponent(sceneEntity, EntityTreeComponent)
     assert.equal(sceneNode.children.length, 6)
-    assert.equal(sceneNode.children[0], UUIDComponent.entitiesByUUID['child-0'].value)
-    assert.equal(sceneNode.children[1], UUIDComponent.entitiesByUUID['child-1'].value)
+    assert.equal(sceneNode.children[0], UUIDComponent.entitiesByUUID['child-0'])
+    assert.equal(sceneNode.children[1], UUIDComponent.entitiesByUUID['child-1'])
     assert.equal(sceneNode.children[2], entity)
-    assert.equal(sceneNode.children[3], UUIDComponent.entitiesByUUID['child-2'].value)
-    assert.equal(sceneNode.children[4], UUIDComponent.entitiesByUUID['child-3'].value)
-    assert.equal(sceneNode.children[5], UUIDComponent.entitiesByUUID['child-4'].value)
+    assert.equal(sceneNode.children[3], UUIDComponent.entitiesByUUID['child-2'])
+    assert.equal(sceneNode.children[4], UUIDComponent.entitiesByUUID['child-3'])
+    assert.equal(sceneNode.children[5], UUIDComponent.entitiesByUUID['child-4'])
     assert.equal(sceneNode.parentEntity, null)
     assert.equal(sceneNode.rootEntity, sceneEntity)
   })
@@ -118,7 +118,7 @@ describe('EntityTreeComponent', () => {
     removeComponent(entity, EntityTreeComponent)
 
     assert.equal(getComponent(entity, UUIDComponent), undefined)
-    assert.equal(UUIDComponent.entitiesByUUID['test-uuid'].value, undefined)
+    assert.equal(UUIDComponent.entitiesByUUID['test-uuid'], undefined)
 
     const parentNode = getComponent(sceneEntity, EntityTreeComponent)
     assert.equal(parentNode.children.length, 0)

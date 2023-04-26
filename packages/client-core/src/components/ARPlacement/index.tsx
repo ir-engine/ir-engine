@@ -17,9 +17,8 @@ export const ARPlacement = () => {
 
   const engineState = useHookstate(getMutableState(EngineState))
   const xrState = useHookstate(getMutableState(XRState))
-  const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
-  const xrSessionActive = xrState.sessionActive.value
-  if (!supportsAR || !engineState.sceneLoaded.value || !xrSessionActive) return <></>
+  const isARSession = xrState.sessionMode.value === 'immersive-ar'
+  if (!isARSession || !engineState.sceneLoaded.value) return <></>
 
   const inPlacingMode = xrState.scenePlacementMode.value === 'placing'
 

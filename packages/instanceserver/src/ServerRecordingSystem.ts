@@ -350,12 +350,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             // override entity ID such that it is actually unique, by appendig the recording id
             const entityID = (uuid + '_' + recording.id) as UserId
             entityChunks[chunkIndex].entities[i] = entityID
-            if (!UUIDComponent.entitiesByUUID.value[entityID]) {
+            if (!UUIDComponent.entitiesByUUID[entityID]) {
               app
                 .service('user')
                 .get(uuid)
                 .then((user) => {
-                  if (user && !UUIDComponent.entitiesByUUID.value[entityID]) {
+                  if (user && !UUIDComponent.entitiesByUUID[entityID]) {
                     dispatchAction(
                       WorldNetworkAction.spawnAvatar({
                         uuid: entityID
@@ -441,7 +441,7 @@ const playbackStopped = (userId: UserId, recordingID: string) => {
   const activePlayback = activePlaybacks.get(recordingID)!
 
   for (const entityUUID of activePlayback.entitiesSpawned) {
-    const entity = UUIDComponent.entitiesByUUID.value[entityUUID]
+    const entity = UUIDComponent.entitiesByUUID[entityUUID]
     const networkObject = getComponent(entity, NetworkObjectComponent)
     dispatchAction(
       WorldNetworkAction.destroyObject({

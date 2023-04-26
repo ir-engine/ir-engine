@@ -181,7 +181,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       anchorMeshFound(group, wireframe, meshes)
     } else {
       /** add back to the scene */
-      const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value].value
+      const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value]
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = originalParent
       TransformComponent.dirtyTransforms[entity] = true

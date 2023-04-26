@@ -1,5 +1,4 @@
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
-import { IKSerialization } from '@etherealengine/engine/src/avatar/IKSerialization'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -34,9 +33,6 @@ export const RecordingFunctions = {
         schema.push(PhysicsSerialization.ID)
       }
       if (state.config.mocap) {
-        schema.push(IKSerialization.headID)
-        schema.push(IKSerialization.leftHandID)
-        schema.push(IKSerialization.rightHandID)
         schema.push(mocapDataChannelType)
       }
       if (state.config.video) {

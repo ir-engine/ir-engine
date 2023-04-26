@@ -121,10 +121,7 @@ export const usePortalTeleport = () => {
       if (!activePortal) return
 
       const currentLocation = locationState.locationName.value.split('/')[1]
-      if (
-        currentLocation === activePortal.location ||
-        UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
-      ) {
+      if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
         teleportAvatar(
           Engine.instance.localClientEntity!,
           activePortal.remoteSpawnPosition
