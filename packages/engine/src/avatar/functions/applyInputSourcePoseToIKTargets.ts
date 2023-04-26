@@ -233,6 +233,9 @@ const handOffsetRadians = Math.PI / 2.5
 const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, handOffsetRadians))
 const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, -handOffsetRadians))
 
+const leftControllerOffset = new Quaternion().setFromEuler(new Euler(-Math.PI, Math.PI, 0))
+const rightControllerOffset = new Quaternion().setFromEuler(new Euler(-Math.PI, 0, 0))
+
 export const applyInputSourcePoseToIKTargets = () => {
   const { localClientEntity } = Engine.instance
 
@@ -280,7 +283,7 @@ export const applyInputSourcePoseToIKTargets = () => {
             if (jointPose) {
               ikTransform.position.copy(jointPose.transform.position as unknown as Vector3)
               ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
-              ikTransform.rotation.multiply(handedness == 'right' ? rightHandOffset : leftHandOffset)
+              ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
             }
           }
           applyHandPose(inputSource, localClientEntity)
@@ -290,15 +293,17 @@ export const applyInputSourcePoseToIKTargets = () => {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
-              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion).invert()
-              ikTransform.rotation.multiply(new Quaternion().setFromEuler(new Euler(0, 0, Math.PI / 2)))
+              ikTransform.rotation
+                .copy(pose.transform.orientation as any as Quaternion)
+                .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
             }
           } else {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
-              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion).invert()
-              ikTransform.rotation.multiply(new Quaternion().setFromEuler(new Euler(0, 0, Math.PI / 2)))
+              ikTransform.rotation
+                .copy(pose.transform.orientation as any as Quaternion)
+                .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
             }
           }
         }

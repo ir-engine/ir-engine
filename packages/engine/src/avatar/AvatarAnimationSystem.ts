@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -16,6 +16,7 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -81,8 +82,6 @@ const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationCom
 const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
 const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
-const targetQuaternion = new Quaternion()
-
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
@@ -123,6 +122,8 @@ const execute = () => {
     const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)!
     setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
     setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
+    addObjectToGroup(entity, new AxesHelper(0.5))
+    setComponent(entity, VisibleComponent)
   }
 
   // todo - remove ik targets when session ends
@@ -297,7 +298,7 @@ const execute = () => {
         rig.LeftForeArm,
         rig.LeftHand,
         transformComponent.position,
-        targetQuaternion.copy(transformComponent.rotation)
+        transformComponent.rotation
       )
     } else if (ikComponent.handedness === 'right') {
       rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
@@ -308,7 +309,7 @@ const execute = () => {
         rig.RightForeArm,
         rig.RightHand,
         transformComponent.position,
-        targetQuaternion.copy(transformComponent.rotation)
+        transformComponent.rotation
       )
     }
   }

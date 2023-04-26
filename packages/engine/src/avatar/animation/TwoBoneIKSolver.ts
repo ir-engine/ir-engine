@@ -33,8 +33,8 @@ export function solveTwoBoneIK(
   root: Bone,
   mid: Bone,
   tip: Bone,
-  targetPosition: Vector3,
-  targetRotation: Quaternion,
+  targetPosition: Vector3, // world space
+  targetRotation: Quaternion, // world space
   hint: Object3D | null = null, // todo: in local space, should be in world space, convert to matrix or dual quat
   targetPosWeight: number = 1,
   targetRotWeight: number = 1,
