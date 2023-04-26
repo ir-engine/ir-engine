@@ -105,14 +105,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const rendered = !mediaSettingState.immersiveMedia.value
 
   useEffect(() => {
-    if (peerMediaChannelState.videoStream.value?.track)
-      setVideoTrackId(peerMediaChannelState.videoStream.value.track.id)
-  }, [peerMediaChannelState.videoStream, mediaStreamState.videoStream])
+    if (videoStream?.track) setVideoTrackId(videoStream.track.id)
+  }, [videoStream, mediaStreamState.videoStream])
 
   useEffect(() => {
-    if (peerMediaChannelState.audioStream.value?.track)
-      setAudioTrackId(peerMediaChannelState.audioStream.value.track.id)
-  }, [peerMediaChannelState.audioStream, mediaStreamState.audioStream])
+    if (audioStream?.track) setAudioTrackId(audioStream.track.id)
+  }, [audioStream, mediaStreamState.audioStream])
 
   useEffect(() => {
     function onUserInteraction() {
