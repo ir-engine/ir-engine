@@ -176,7 +176,6 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   _vec3.applyQuaternion(body.rotation)
   leftFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
   leftFootTarget.position.add(_vec3)
-  leftFootTarget.updateMatrixWorld(true)
 
   /** hint is where the knees aim */
   leftFootTargetHint.position.set(kneeFlareSeparation + leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
@@ -207,7 +206,6 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   _vec3.applyQuaternion(body.rotation)
   rightFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
   rightFootTarget.position.add(_vec3)
-  rightFootTarget.updateMatrixWorld(true)
 
   rightFootTargetHint.position.set(kneeFlareSeparation + rightKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   rightFootTargetHint.position.applyQuaternion(body.rotation)

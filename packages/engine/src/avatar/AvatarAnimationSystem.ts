@@ -79,6 +79,7 @@ const loopAnimationQuery = defineQuery([
 ])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
+const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const targetQuaternion = new Quaternion()
 
@@ -102,12 +103,29 @@ const execute = () => {
   const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
 
+  for (const action of sessionChangedQueue()) {
+    if (!localClientEntity) continue
+
+    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
+
+    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
+    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
+    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+
+    if (ikTargetHead) removeEntity(ikTargetHead)
+    if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
+    if (ikTargetRightHand) removeEntity(ikTargetRightHand)
+  }
+
   for (const action of ikTargetSpawnQueue()) {
     const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)!
     setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
     setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
   }
 
+  // todo - remove ik targets when session ends
   if (xrState.sessionActive && localClientEntity) {
     const sources = Array.from(inputSources.values())
     const head = getCameraMode() === 'attached'
@@ -296,17 +314,23 @@ const execute = () => {
   }
 
   /**
-   * Since the scene does not automatically update the matricies for all objects,which updates bones,
+   * Since the scene does not automatically update the matricies for all objects, which updates bones,
    * we need to manually do it for Loop Animation Entities
    */
   for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
+  /** Run debug */
   for (const entity of Engine.instance.priorityAvatarEntities) {
     const avatarRig = getComponent(entity, AvatarRigComponent)
-    if (avatarRig) {
+    if (avatarRig?.helper) {
       avatarRig.rig.Hips.updateWorldMatrix(true, true)
       avatarRig.helper?.updateMatrixWorld(true)
     }
+  }
+
+  /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
+  for (const entity of ikEntities) {
+    delete TransformComponent.dirtyTransforms[entity]
   }
 }
 
