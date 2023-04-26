@@ -47,7 +47,6 @@ interface Props {
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
-  console.log('useUserMediaWindowHook', peerID, type)
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
