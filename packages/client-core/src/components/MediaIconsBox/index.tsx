@@ -94,7 +94,7 @@ export const MediaIconsBox = () => {
           >
             <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
           </button>
-          {hasVideoDevice > 1 && (
+          {/* {hasVideoDevice > 1 && (
             <button
               type="button"
               id="FlipVideo"
@@ -105,7 +105,7 @@ export const MediaIconsBox = () => {
             >
               <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
             </button>
-          )}
+          )} */}
           <button
             type="button"
             id="UserPoseTracking"
