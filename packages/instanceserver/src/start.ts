@@ -12,7 +12,7 @@ import {
   configureOpenAPI,
   configurePrimus,
   configureRedis,
-  createFeathersExpressApp
+  createFeathersKoaApp
 } from '@etherealengine/server-core/src/createApp'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
@@ -43,7 +43,7 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 ) => Application
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersExpressApp(ServerMode.Instance, instanceServerPipe)
+  const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
   const serverState = getMutableState(ServerState)
 
   const agonesSDK = new AgonesSDK()
@@ -113,13 +113,13 @@ export const start = async (): Promise<Application> => {
 
   // http redirects for development
   if (useSSL) {
-    app.use((req, res, next) => {
-      if (req.secure) {
+    app.use(async (ctx, next) => {
+      if (ctx.secure) {
         // request was via https, so do no special handling
-        next()
+        await next()
       } else {
         // request was via http, so redirect to https
-        res.redirect('https://' + req.headers.host + req.url)
+        ctx.redirect('https://' + ctx.headers.host + ctx.url)
       }
     })
   }

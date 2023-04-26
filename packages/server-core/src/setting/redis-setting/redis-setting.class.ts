@@ -9,7 +9,7 @@ import {
   RedisSettingType
 } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 
-export interface RedisSettingParams extends KnexAdapterParams<RedisSettingQuery> {}
+export type RedisSettingParams = KnexAdapterParams<RedisSettingQuery>
 
 export class RedisSettingService<
   T = RedisSettingType,

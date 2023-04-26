@@ -223,5 +223,6 @@ export default (app: Application): void => {
   )
   app.use(router.routes())
   const service = app.service('upload-asset')
-  ;(service as any).hooks(hooks)
+
+  service.hooks(hooks)
 }

@@ -1,15 +1,17 @@
 // Do not delete json and urlencoded, they are used even if some IDEs show them as unused
-import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
+
 import { feathers } from '@feathersjs/feathers'
+import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
 import * as k8s from '@kubernetes/client-node'
-import compress from 'compression'
 import cors from 'cors'
 import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import { parse, stringify } from 'flatted'
-import helmet from 'helmet'
+import compress from 'koa-compress'
+import helmet from 'koa-helmet'
+import Router from 'koa-router'
 import path from 'path'
 
 import { isDev } from '@etherealengine/common/src/config'
@@ -32,6 +34,7 @@ import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('fix-esm').register()
 
 export const configureOpenAPI = () => (app: Application) => {
@@ -137,7 +140,7 @@ export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureR
   app: Application
 ) => Application
 
-export const createFeathersExpressApp = (
+export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
@@ -153,8 +156,8 @@ export const createFeathersExpressApp = (
     initializeNode()
   }
 
-  const app = express(feathers()) as Application
-
+  const app = koa(feathers()) as Application
+  const router = new Router()
   Engine.instance.api = app
 
   const serverState = getMutableState(ServerState)
@@ -191,8 +194,7 @@ export const createFeathersExpressApp = (
   )
 
   app.use(compress())
-  app.use(json())
-  app.use(urlencoded({ extended: true }))
+  app.use(bodyParser())
 
   app.configure(rest())
   // app.use(function (req, res, next) {
@@ -209,18 +211,20 @@ export const createFeathersExpressApp = (
   // Set up our services (see `services/index.js`)
   app.configure(services)
 
-  app.use('/healthcheck', (req, res) => {
-    res.sendStatus(200)
+  router.get('/healthcheck', (ctx) => {
+    ctx.status = 200
   })
 
   // Receive client-side log events (only active when APP_ENV != 'development')
-  app.post('/api/log', (req, res) => {
-    const { msg, ...mergeObject } = req.body
-    if (!isDev) elasticOnlyLogger.info({ user: req.params?.user, ...mergeObject }, msg)
-    return res.status(204).send()
+  router.post('/api/log', (ctx) => {
+    const { msg, ...mergeObject } = ctx.body
+    if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
+    ctx.status = 204
   })
 
-  app.use(errorHandler({ logger }))
+  app.use(router.routes())
+  app.use(router.allowedMethods())
+  app.use(errorHandler()) // not passing logger here , gives error , earlier it was app.use(errorHandler({logger}))
 
   return app
 }

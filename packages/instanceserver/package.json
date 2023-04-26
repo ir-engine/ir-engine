@@ -45,7 +45,7 @@
     "@etherealengine/engine": "^1.2.1",
     "@etherealengine/projects": "^1.2.1",
     "@etherealengine/server-core": "^1.2.1",
-    "@feathersjs/express": "5.0.1",
+    "@feathersjs/koa": "5.0.1",
     "@feathersjs/feathers": "5.0.1",
     "@feathersjs/primus-client": "4.5.15",
     "@feathersjs/transport-commons": "5.0.1",
