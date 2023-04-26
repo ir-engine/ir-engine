@@ -59,14 +59,11 @@ export default class BasisuExporterExtension extends ExporterExtension implement
   writeTexture(_texture: CompressedTexture, textureDef) {
     if (!_texture?.isCompressedTexture) return
     const writer = this.writer
-
     writer.pending.push(
       new Promise((resolve) => {
         createReadableTexture(_texture, { canvas: true, flipY: true }).then((texture: Texture) => {
           textureDef.sampler = this.sampler
           const image: HTMLCanvasElement = texture.source.data
-
-          const ktx2write = new KTX2Encoder()
 
           const imageDef: any = {
             width: image.width,
@@ -85,10 +82,10 @@ export default class BasisuExporterExtension extends ExporterExtension implement
           textureDef.sampler = this.sampler
           const stagedHash = stageHash(imgId)
           const similarImages = this.lshIndex.query(stagedHash, 5)
-
+          const ktx2Encoder = new KTX2Encoder()
           similarImages.length && (imageDef.uri = this.imageIdCache[similarImages[0]])
           !similarImages.length &&
-            ktx2write.encode(imgData, false, 2, false, false).then(async (arrayBuffer) => {
+            ktx2Encoder.encode(imgData, false, 2, false, false).then(async (arrayBuffer) => {
               if (writer.options.embedImages) {
                 const bufferIdx = writer.processBuffer(arrayBuffer)
 
@@ -110,28 +107,23 @@ export default class BasisuExporterExtension extends ExporterExtension implement
                 imageDef.uri = relativeURI
                 this.imageIdCache[stagedHash] = relativeURI
                 this.lshIndex.add(stagedHash, stagedHash)
-                writer.pending.push(
-                  new Promise((resolve) => {
-                    const saveParms = {
-                      name: `${imgId}`,
-                      byteLength: arrayBuffer.byteLength,
-                      uri: `${projectSpaceURI}/${imgId}.ktx2`,
-                      buffer: arrayBuffer
-                    }
-                    dispatchAction(
-                      BufferHandlerExtension.saveBuffer({
-                        saveParms,
-                        projectName,
-                        modelName: `${imgId}`
-                      })
-                    )
-                    resolve(null)
+                const saveParms = {
+                  name: `${imgId}`,
+                  byteLength: arrayBuffer.byteLength,
+                  uri: `${projectSpaceURI}/${imgId}.ktx2`,
+                  buffer: arrayBuffer
+                }
+                dispatchAction(
+                  BufferHandlerExtension.saveBuffer({
+                    saveParms,
+                    projectName,
+                    modelName: `${imgId}`
                   })
                 )
               }
+              ktx2Encoder.pool.dispose()
               resolve(null)
             })
-          resolve(null)
         })
       })
     )

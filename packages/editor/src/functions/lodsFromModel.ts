@@ -1,4 +1,4 @@
-import { InstancedMesh, Mesh } from 'three'
+import { BufferGeometry, InstancedMesh, Mesh, MeshBasicMaterial } from 'three'
 
 import createGLTFExporter from '@etherealengine/engine/src/assets/functions/createGLTFExporter'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
@@ -19,6 +19,7 @@ import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject
 import { State } from '@etherealengine/hyperflux'
 
 import { uploadProjectFiles } from './assetFunctions'
+import exportGLTF from './exportGLTF'
 
 export type LODsFromModelParameters = {
   serialize: boolean
@@ -109,4 +110,16 @@ export async function serializeLOD(
   const file = new File([JSON.stringify(gltf)], nuNuRelativePath)
   const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
   level.src.set(urls[0][0])
+}
+
+export function convertToScaffold(entity: Entity) {
+  const modelComponent = getComponent(entity, ModelComponent)
+  modelComponent.scene &&
+    iterateObject3D(modelComponent.scene, (mesh: Mesh | InstancedMesh) => {
+      if (!mesh?.isMesh) return
+      mesh.geometry = new BufferGeometry()
+      mesh.material = new MeshBasicMaterial()
+    })
+  const scaffoldPath = modelComponent.src.replace(/(\.[^.]*$)/, '_scaffold$1')
+  exportGLTF(entity, scaffoldPath)
 }

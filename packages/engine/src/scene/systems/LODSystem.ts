@@ -17,7 +17,13 @@ const lodQuery = defineQuery([LODComponent])
 const updateFrequency = 0.5
 let lastUpdate = 0
 
-function updateLOD(entity, currentLevel, lodComponent: State<LODComponentType>, lodDistances, position) {
+function updateLOD(
+  index: number,
+  currentLevel: number,
+  lodComponent: State<LODComponentType>,
+  lodDistances: number[],
+  position: Vector3
+) {
   const heuristic = lodComponent.lodHeuristic.value
   if (['DISTANCE', 'SCENE_SCALE'].includes(heuristic)) {
     const cameraPosition = Engine.instance.camera.position
@@ -26,13 +32,13 @@ function updateLOD(entity, currentLevel, lodComponent: State<LODComponentType>, 
       if (distance < lodDistances[j] || j === lodDistances.length - 1) {
         const instanceLevels = lodComponent.instanceLevels.get(NO_PROXY)
         if (currentLevel !== j) {
-          instanceLevels.setX(entity, j)
-          return j
+          instanceLevels.setX(index, j)
         }
-        break
+        return j
       }
     }
   } else if (heuristic === 'MANUAL') {
+    return 0
     //todo: implement manual LOD setting
   } else {
     throw Error('Invalid LOD heuristic')
@@ -69,34 +75,46 @@ function execute() {
     }
     lodComponent.instanceLevels.get(NO_PROXY).needsUpdate = true
     const levelsToUnload: State<LODLevel>[] = []
+    const levelsToLoad: [number, State<LODLevel>][] = []
     for (let i = 0; i < lodComponent.levels.length; i++) {
       const level = lodComponent.levels[i]
       if (referencedLods.has(i)) {
-        if (!level.loaded.value) {
-          if (level.src.value) {
-            AssetLoader.load(level.src.value, {}, (loadedScene: GLTF) => {
-              const mesh = getFirstMesh(loadedScene.scene)
-              mesh && processLoadedLODLevel(entity, i, mesh)
-              while (levelsToUnload.length > 0) {
-                const levelToUnload = levelsToUnload.pop()
-                levelToUnload?.loaded.set(false)
-                levelToUnload?.model.get(NO_PROXY)?.removeFromParent()
-                levelToUnload?.model.set(null)
-              }
-            })
-          } else {
-            !level.src.value &&
-              processLoadedLODLevel(entity, i, objectFromLodPath(modelComponent, lodComponent.lodPath.value) as Mesh)
-          }
-          level.loaded.set(true)
-        } else {
-          if (!lodComponent.instanced.value && level.loaded.value) {
-            levelsToUnload.push(level)
-          }
+        levelsToLoad.push([i, level])
+      } else {
+        if (!lodComponent.instanced.value && level.loaded.value) {
+          levelsToUnload.push(level)
         }
       }
-      referencedLods.clear()
     }
+    const loadPromises: Promise<void>[] = []
+    while (levelsToLoad.length > 0) {
+      const [i, level] = levelsToLoad.pop()!
+      if (!level.loaded.value) {
+        if (level.src.value) {
+          loadPromises.push(
+            new Promise((resolve) => {
+              AssetLoader.load(level.src.value, {}, (loadedScene: GLTF) => {
+                const mesh = getFirstMesh(loadedScene.scene)
+                mesh && processLoadedLODLevel(entity, i, mesh)
+                resolve()
+              })
+            })
+          )
+        } else {
+          processLoadedLODLevel(entity, i, objectFromLodPath(modelComponent, lodComponent.lodPath.value) as Mesh)
+        }
+        level.loaded.set(true)
+      }
+    }
+    Promise.all(loadPromises).then(() => {
+      while (levelsToUnload.length > 0) {
+        const levelToUnload = levelsToUnload.pop()
+        levelToUnload?.loaded.set(false)
+        levelToUnload?.model.get(NO_PROXY)?.removeFromParent()
+        levelToUnload?.model.set(null)
+      }
+    })
+    referencedLods.clear()
   }
 }
 

@@ -19,7 +19,7 @@ import { useState } from '@etherealengine/hyperflux'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
-import { createLODsFromModel } from '../../functions/lodsFromModel'
+import { convertToScaffold, createLODsFromModel } from '../../functions/lodsFromModel'
 import { LODsFromModelParameters } from '../../functions/lodsFromModel'
 import { StaticResourceService } from '../../services/StaticResourceService'
 import BooleanInput from '../inputs/BooleanInput'
@@ -157,6 +157,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <InputGroup name="Serialize" label={t('editor:properties.model.lods.serialize')}>
           <BooleanInput value={lodParms.value.serialize} onChange={lodParms.serialize.set} />
         </InputGroup>
+        <div className="p-4">
+          <Button onClick={convertToScaffold.bind({}, entity)}>Convert to Scaffold</Button>
+        </div>
         <div className="p-4">
           <Button onClick={createLODsFromModel.bind({}, entity, lodParms.value)}>
             {t('editor:properties.model.lods.generate')}
