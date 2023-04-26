@@ -191,10 +191,6 @@ const execute = () => {
    */
   for (const entity of equippableQuery.enter()) {
     if (isClient) addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
-    if (Engine.instance.worldNetwork?.isHosting) {
-      const objectUuid = getComponent(entity, UUIDComponent)
-      dispatchAction(WorldNetworkAction.registerSceneObject({ objectUuid }))
-    }
   }
 
   for (const entity of equippableQuery.exit()) {

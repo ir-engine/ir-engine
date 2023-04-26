@@ -238,7 +238,19 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
   await setupSubdomain()
-  const networkPromise = initializeNetwork(app, hostId, topic)
+  const network = await initializeNetwork(app, hostId, topic)
+
+  addNetwork(network)
+
+  NetworkPeerFunctions.createPeer(
+    network,
+    'server' as PeerID,
+    network.peerIndexCount++,
+    hostId,
+    network.userIndexCount++,
+    'server-' + hostId
+  )
+
   const projects = await getProjectsList()
 
   if (instanceServerState.isMediaInstance) {
@@ -278,20 +290,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
 
-  const network = await networkPromise
-
-  addNetwork(network)
-
   network.ready = true
 
-  NetworkPeerFunctions.createPeer(
-    network,
-    'server' as PeerID,
-    network.peerIndexCount++,
-    hostId,
-    network.userIndexCount++,
-    'server-' + hostId
-  )
   dispatchAction(EngineActions.joinedWorld({}))
 }
 
