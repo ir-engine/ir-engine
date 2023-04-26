@@ -112,6 +112,7 @@ export function createWebXRManager() {
       xrRendererState.initialRenderTarget.set(renderer.getRenderTarget())
 
       session.addEventListener('end', onSessionEnd)
+      session.updateTargetFrameRate(72)
 
       const gl = renderer.getContext() as WebGLRenderingContext
       const attributes = gl.getContextAttributes()!
@@ -213,7 +214,8 @@ export function createWebXRManager() {
       xrRendererState.newRenderTarget.set(newRenderTarget)
 
       // Set foveation to maximum.
-      scope.setFoveation(1.0)
+      // scope.setFoveation(1.0)
+      scope.setFoveation(0)
 
       animation.setContext(session)
       renderer.animation.stop()
