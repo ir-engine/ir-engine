@@ -1,3 +1,4 @@
+import { spawn } from 'child_process'
 import { Sequelize } from 'sequelize'
 
 import config, { isDev } from '@etherealengine/common/src/config'
@@ -75,6 +76,37 @@ export default (app: Application): void => {
               }
             }
           }
+        }
+
+        if (forceRefresh || appConfig.testEnabled || prepareDb) {
+          // We are running our migrations here, so that tables above in db tree are create 1st using sequelize.
+          // And then knex migrations can be executed. This is because knex migrations will have foreign key dependency
+          // on ta tables that are created using sequelize.
+          // TODO: Once sequelize is removed, we should add migration as part of `dev-reinit-db` script in package.json
+          const initPromise = new Promise((resolve, reject) => {
+            const initProcess = spawn('npm', ['run', 'migrate'])
+            initProcess.once('exit', resolve)
+            initProcess.once('error', reject)
+            initProcess.once('disconnect', resolve)
+            initProcess.stdout.on('data', (data) => console.log(data.toString()))
+          })
+            .then(console.log)
+            .catch((err) => {
+              logger.error('Knex migration error')
+              logger.error(err)
+              promiseReject()
+              throw err
+            })
+
+          await Promise.race([
+            initPromise,
+            new Promise<void>((resolve) => {
+              setTimeout(() => {
+                console.log('WARNING: Knex migrations took too long to run!')
+                resolve()
+              }, 2 * 60 * 1000) // timeout after 2 minutes
+            })
+          ])
         }
 
         try {
