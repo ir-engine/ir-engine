@@ -329,7 +329,6 @@ const sceneLoaded = defineActionQueue(EngineActions.sceneLoaded.matches)
 const execute = () => {
   if (sceneLoaded().length) {
     getComponent(gizmoEntity, TransformGizmoComponent).load()
-    console.log('test')
   }
   for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
   if (Engine.instance.localClientEntity) return
