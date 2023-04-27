@@ -226,6 +226,24 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
       return false
     }
   }
+
+  // check if user is not kicked in the instance for a duration
+  const currentDate = new Date()
+  const userKick = (await app.service('user-kick').find({
+    query: {
+      userId,
+      instanceId: instance.id,
+      duration: {
+        $gt: currentDate
+      },
+      $limit: 0
+    }
+  })) as any
+  if (userKick.total > 0) {
+    logger.info(`User "${userId}" has been kicked from this server for this duration`)
+    return false
+  }
+
   return true
 }
 
