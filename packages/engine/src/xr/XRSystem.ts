@@ -16,6 +16,13 @@ import { XRScenePlacementShaderSystem } from './XRScenePlacementShaderSystem'
 import { endXRSession, requestXRSession, xrSessionChanged } from './XRSessionFunctions'
 import { XRAction, XRState } from './XRState'
 
+declare global {
+  interface XRFrame {
+    fillPoses?: (poses: Iterable<XRJointSpace>, baseSpace: XRSpace, output: Float32Array) => void
+    fillJointRadii?: (joints: Iterable<XRJointSpace>, output: Float32Array) => void
+  }
+}
+
 /**
  * System for XR session and input handling
  */

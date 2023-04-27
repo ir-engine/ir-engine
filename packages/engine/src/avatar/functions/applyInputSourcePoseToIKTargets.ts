@@ -181,11 +181,6 @@ export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, ri
   }
 }
 
-type XRFrameWithFillPoses = XRFrame & {
-  fillPoses?: (poses: Iterable<XRJointSpace>, baseSpace: XRSpace, output: Float32Array) => void
-  fillJointRadii?: (joints: Iterable<XRJointSpace>, output: Float32Array) => void
-}
-
 const emptyVec = new Vector3()
 const mat4 = new Matrix4()
 
@@ -199,7 +194,7 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const hand = inputSource.hand as any as XRHand
   const rig = getComponent(entity, AvatarRigComponent)
   const referenceSpace = ReferenceSpace.origin!
-  const xrFrame = Engine.instance.xrFrame as XRFrameWithFillPoses
+  const xrFrame = Engine.instance.xrFrame!
   const poses1 = new Float32Array(16 * 25)
 
   xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
