@@ -173,8 +173,7 @@ const execute = () => {
     const videoPreviewMesh = ui.state.videoPreviewMesh.value
     _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
 
-    const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
-    const dist = cameraPosition.distanceTo(_vector3)
+    const dist = cameraTransform.position.distanceTo(_vector3)
 
     if (dist > 25) transition.setState('OUT')
     if (dist < 20) transition.setState('IN')

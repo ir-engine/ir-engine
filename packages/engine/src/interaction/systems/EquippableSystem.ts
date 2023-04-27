@@ -5,6 +5,7 @@ import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
+import { V_000 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -123,13 +124,17 @@ export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<type
   const transform = getComponent(xrui.entity, TransformComponent)
   if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
   transform.position.copy(getComponent(entity, TransformComponent).position)
-  transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
-  const boundingBox = getComponent(entity, BoundingBoxComponent)
-  if (boundingBox) {
-    const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
-    transform.position.y += boundingBoxHeight * 2
-  } else {
-    transform.position.y += 0.5
+
+  if (hasComponent(xrui.entity, VisibleComponent)) {
+    const boundingBox = getComponent(entity, BoundingBoxComponent)
+    if (boundingBox) {
+      const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
+      transform.position.y += boundingBoxHeight * 2
+    } else {
+      transform.position.y += 0.5
+    }
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    transform.rotation.copy(cameraTransform.rotation)
   }
 
   const transition = InteractableTransitions.get(entity)!
@@ -160,8 +165,6 @@ export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<type
       mat.opacity = opacity
     })
   })
-  if (hasComponent(xrui.entity, VisibleComponent))
-    ObjectFitFunctions.lookAtCameraFromPosition(xrui.container, transform.position)
 }
 
 /**
