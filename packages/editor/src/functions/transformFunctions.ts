@@ -73,7 +73,7 @@ export const toggleTransformSpace = () => {
     EditorHelperAction.changedTransformSpaceMode({
       transformSpace:
         accessEditorHelperState().transformSpace.value === TransformSpace.World
-          ? TransformSpace.LocalSelection
+          ? TransformSpace.Local
           : TransformSpace.World
     })
   )

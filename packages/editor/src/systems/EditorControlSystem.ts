@@ -339,6 +339,7 @@ const execute = () => {
   selectedParentEntities = selectionState.selectedParentEntities
   selectedEntities = selectionState.selectedEntities
 
+  // todo refactor these changes into a reactor
   transformModeChanged = transformMode !== editorHelperState.transformMode
   transformMode = editorHelperState.transformMode
 
@@ -390,22 +391,24 @@ const execute = () => {
         }
       }
 
-      if (isChanged || transformSpaceChanged) {
-        if (transformSpace === TransformSpace.LocalSelection) {
-          gizmoObj.quaternion.copy(
-            'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
-          )
-        } else {
-          gizmoObj.rotation.set(0, 0, 0)
-        }
-
-        inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
+      if (transformMode === TransformMode.Scale && transformSpace === TransformSpace.World) {
+        getMutableState(EditorHelperState).transformSpace.set(TransformSpace.Local)
+        transformSpace = TransformSpace.Local
       }
-
       if ((transformModeChanged || transformSpaceChanged) && transformMode === TransformMode.Scale) {
-        gizmoObj.setLocalScaleHandlesVisible(transformSpace !== TransformSpace.World)
+        gizmoObj.setLocalScaleHandlesVisible(true)
       }
       if (!hasComponent(gizmoEntity, VisibleComponent)) setComponent(gizmoEntity, VisibleComponent)
+
+      if (transformSpace === TransformSpace.Local) {
+        gizmoObj.quaternion.copy(
+          'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
+        )
+      } else {
+        gizmoObj.rotation.set(0, 0, 0)
+      }
+
+      inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
     }
   }
   const cursorPosition = Engine.instance.pointerState.position
