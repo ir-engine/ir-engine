@@ -298,7 +298,7 @@ const execute = () => {
         rig.LeftForeArm,
         rig.LeftHand,
         transformComponent.position,
-        transformComponent.rotation.multiply(new Quaternion().setFromEuler(new Euler(-Math.PI, Math.PI / 2, 0))),
+        transformComponent.rotation.multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, Math.PI))),
         new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, 0))
       )
     } else if (ikComponent.handedness === 'right') {
