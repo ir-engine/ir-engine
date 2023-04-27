@@ -1,4 +1,4 @@
-import { Bone, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+import { Bone, Euler, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
@@ -35,6 +35,7 @@ export function solveTwoBoneIK(
   tip: Bone,
   targetPosition: Vector3, // world space
   targetRotation: Quaternion, // world space
+  rotationOffset: Quaternion | null = null,
   hint: Object3D | null = null, // todo: in local space, should be in world space, convert to matrix or dual quat
   targetPosWeight: number = 1,
   targetRotWeight: number = 1,
@@ -114,6 +115,7 @@ export function solveTwoBoneIK(
   Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
   tip.quaternion.slerp(targetRot, targetRotWeight)
   Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
+  if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
 }
 
 const targetPos = new Vector3(),
