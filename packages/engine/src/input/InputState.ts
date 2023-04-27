@@ -1,7 +1,3 @@
-import { defineState } from '@etherealengine/hyperflux'
-
-import { Entity } from '../ecs/classes/Entity'
-
 export type ButtonTypes =
   /** Mouse */
   | 'PrimaryClick'

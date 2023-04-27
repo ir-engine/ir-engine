@@ -14,6 +14,7 @@ import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
+import { EntityContext } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -206,8 +207,14 @@ export const setComponent = <C extends Component>(
     } else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
     if (Component.reactor && !Component.reactorMap.has(entity)) {
-      const root = startReactor(Component.reactor) as ReactorRoot
-      entity = entity
+      const root = startReactor(() =>
+        React.createElement(
+          EntityContext.Provider,
+          { value: entity },
+          React.createElement(Component.reactor || (() => null), {})
+        )
+      ) as ReactorRoot
+      root['entity'] = entity
       Component.reactorMap.set(entity, root)
     }
   }

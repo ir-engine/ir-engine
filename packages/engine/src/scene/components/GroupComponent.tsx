@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react'
+import React, { FC, memo, useMemo } from 'react'
 import { Camera, Material, Mesh, Object3D } from 'three'
 
 import { none } from '@etherealengine/hyperflux'
@@ -101,13 +101,12 @@ export type GroupReactorProps = {
 }
 
 export const GroupQueryReactor = (props: { GroupChildReactor: FC<GroupReactorProps> }) => {
-  const MemoGroupChildReactor = memo(props.GroupChildReactor)
   const entity = useEntityContext()
   const groupComponent = useComponent(entity, GroupComponent)
   return (
     <>
       {groupComponent.value.map((obj, i) => (
-        <MemoGroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+        <props.GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
       ))}
     </>
   )
