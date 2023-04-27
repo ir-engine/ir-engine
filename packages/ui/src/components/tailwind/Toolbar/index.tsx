@@ -1,4 +1,5 @@
-import { ArrowPathIcon, CameraIcon, CogIcon, StopIcon } from '@heroicons/react/24/solid'
+import { ArrowsRightLeftIcon } from '@heroicons/react/20/solid'
+import { CameraIcon, CogIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -7,15 +8,16 @@ import { twMerge } from 'tailwind-merge'
  */
 interface ToolbarProps {
   className: string
-  toggleDetecting: any
-  toggleWebcam: any
-  isVideoOn: boolean
+  toggleDetecting: () => void
+  toggleWebcam: () => void
+  videoStatus: string
   isDetecting: boolean
-  isRecording: any
+  isRecording: boolean
   recordingStatus: string | null
-  onToggleRecording: any
-  isVideoFlipped: any
-  flipVideo: any
+  onToggleRecording: () => void
+  isVideoFlipped: boolean
+  flipVideo: (val: boolean) => void
+  cycleCamera: () => void
 }
 
 /**
@@ -25,43 +27,24 @@ const Toolbar = ({
   className,
   toggleDetecting,
   toggleWebcam,
-  isVideoOn,
+  videoStatus,
   isDetecting,
   isRecording,
   recordingStatus,
   onToggleRecording,
   isVideoFlipped,
-  flipVideo
+  flipVideo,
+  cycleCamera
 }: ToolbarProps) => {
   return (
     <nav className={twMerge('navbar border-solid w-full', className)}>
       <div className="flex-1">
         <div className="btn-group">
-          <button className={twMerge('btn', isRecording && 'btn-active')} onClick={onToggleRecording}>
-            <div
-              className={twMerge('badge badge-xs badge-warning', isRecording && 'animate-pulse badge-secondary')}
-              style={{ marginRight: '5px' }}
-            ></div>
-            {isRecording ? (recordingStatus ? 'Stop' : 'Starting...') : 'Record'}
-          </button>
-          {/* <button
-            disabled={!isRecording && !recordingStatus ? true : undefined}
-            className="btn"
-            onClick={onToggleRecording}
+          <button
+            {...(videoStatus !== 'active' ? { disabled: true } : {})}
+            className={twMerge('btn', isDetecting === true && 'btn-active')}
+            onClick={toggleDetecting}
           >
-            <StopIcon className="block min-w-6 min-h-6" />
-          </button>
-          <button disabled={!isRecording && !recordingStatus ? true : undefined} className="btn">
-            <ArrowPathIcon className="block min-w-6 min-h-6" />
-          </button> */}
-        </div>
-      </div>
-      <div className="navbar-end w-full">
-        <div className="btn-group">
-          <button className={twMerge('btn', isVideoOn === true && 'btn-active')} onClick={toggleWebcam}>
-            <CameraIcon className="block min-w-6 min-h-6" />
-          </button>
-          <button className={twMerge('btn', isDetecting === true && 'btn-active')} onClick={toggleDetecting}>
             <svg
               version="1.0"
               xmlns="http://www.w3.org/2000/svg"
@@ -122,26 +105,51 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
               </g>
             </svg>
           </button>
-          <div className="dropdown dropdown-top dropdown-end">
-            <ul className="dropdown-content menu bg-base-100 p-2 rounded-box w-80">
-              <li>
-                <label className="label cursor-pointer">
-                  <span className="label-text whitespace-nowrap">Mirror</span>
-                  <input
-                    type="checkbox"
-                    className="toggle"
-                    defaultChecked={isVideoFlipped}
-                    onChange={(e) => {
-                      flipVideo(e.target.checked)
-                    }}
-                  />
-                </label>
-              </li>
-            </ul>
-            <button className="btn">
-              <CogIcon className="block min-w-6 min-h-6" />
-            </button>
-          </div>
+          <button
+            {...(!isDetecting ? { disabled: true } : {})}
+            className={twMerge('btn', isRecording && 'btn-active')}
+            onClick={onToggleRecording}
+          >
+            <div
+              className={twMerge('badge badge-xs badge-warning', isRecording && 'animate-pulse badge-secondary')}
+              style={{ marginRight: '5px' }}
+            ></div>
+            {isRecording ? (recordingStatus ? 'Stop' : 'Starting...') : 'Record'}
+          </button>
+        </div>
+      </div>
+      <div className="navbar-end w-full">
+        <div className="btn-group">
+          <button
+            {...(videoStatus !== 'active' ? { disabled: true } : {})}
+            className={twMerge('btn')}
+            onClick={cycleCamera}
+          >
+            <ArrowsRightLeftIcon className="block min-w-6 min-h-6" />
+          </button>
+          <button className={twMerge('btn', videoStatus === 'active' && 'btn-active')} onClick={toggleWebcam}>
+            <CameraIcon className="block min-w-6 min-h-6" />
+          </button>
+        </div>
+        <div className="dropdown dropdown-top dropdown-end">
+          <ul className="dropdown-content menu bg-base-100 p-2 rounded-box w-80">
+            <li>
+              <label className="label cursor-pointer">
+                <span className="label-text whitespace-nowrap">Mirror</span>
+                <input
+                  type="checkbox"
+                  className="toggle"
+                  defaultChecked={isVideoFlipped}
+                  onChange={(e) => {
+                    flipVideo(e.target.checked)
+                  }}
+                />
+              </label>
+            </li>
+          </ul>
+          <button {...(videoStatus !== 'active' ? { disabled: true } : {})} className="btn">
+            <CogIcon className="block min-w-6 min-h-6" />
+          </button>
         </div>
       </div>
     </nav>
