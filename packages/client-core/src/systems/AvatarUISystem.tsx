@@ -139,23 +139,23 @@ const execute = () => {
   videoPreviewTimer += Engine.instance.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
-  // for (const userEntity of userQuery.enter()) {
-  //   if (AvatarUI.has(userEntity)) {
-  //     logger.info({ userEntity }, 'Entity already exists.')
-  //     continue
-  //   }
-  //   const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
-  //   const ui = createAvatarDetailView(userId)
-  //   const transition = createTransitionState(1, 'IN')
-  //   AvatarUITransitions.set(userEntity, transition)
-  //   const root = new Group()
-  //   root.name = `avatar-ui-root-${userEntity}`
-  //   ui.state.videoPreviewMesh.value.position.y += 0.3
-  //   ui.state.videoPreviewMesh.value.visible = false
-  //   root.add(ui.state.videoPreviewMesh.value)
-  //   addObjectToGroup(ui.entity, root)
-  //   AvatarUI.set(userEntity, ui)
-  // }
+  for (const userEntity of userQuery.enter()) {
+    if (AvatarUI.has(userEntity)) {
+      logger.info({ userEntity }, 'Entity already exists.')
+      continue
+    }
+    const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
+    const ui = createAvatarDetailView(userId)
+    const transition = createTransitionState(1, 'IN')
+    AvatarUITransitions.set(userEntity, transition)
+    const root = new Group()
+    root.name = `avatar-ui-root-${userEntity}`
+    ui.state.videoPreviewMesh.value.position.y += 0.3
+    ui.state.videoPreviewMesh.value.visible = false
+    root.add(ui.state.videoPreviewMesh.value)
+    addObjectToGroup(ui.entity, root)
+    AvatarUI.set(userEntity, ui)
+  }
 
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
@@ -191,9 +191,10 @@ const execute = () => {
     if (Engine.instance.mediaNetwork)
       if (immersiveMedia && videoPreviewTimer === 0) {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
+        const peers = Engine.instance.mediaNetwork.peers ? Array.from(Engine.instance.mediaNetwork.peers.values()) : []
+        const peer = peers.find(peer => { console.log('peer', peer); return peer.userId === ownerId })
         const consumer = Engine.instance.mediaNetwork!.consumers.find(
-          (consumer) =>
-            consumer.appData.peerID === Engine.instance.mediaNetwork.peerID &&
+          (consumer) => consumer.appData.peerID === peer?.peerID &&
             consumer.appData.mediaTag === webcamVideoDataChannelType
         ) as Consumer
         const paused = consumer && (consumer as any).producerPaused
