@@ -63,8 +63,8 @@ export const config = {
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
       listenIps: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }],
-      initialAvailableOutgoingBitrate: 1000 * 1000 * 1000,
-      maxIncomingBitrate: 0
+      initialAvailableOutgoingBitrate: 1000 * 1000 * 1000, //1gbps
+      maxIncomingBitrate: 30 * 1000 * 1000 // 30mbps - this should be set to something; leaving it uncapped causes stuttering
     }
   }
 }
@@ -123,8 +123,8 @@ export const localConfig = {
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
       listenIps: [{ ip: configFile.instanceserver.hostname!, announcedIp: null! as string }],
-      initialAvailableOutgoingBitrate: 1000 * 1000 * 1000,
-      maxIncomingBitrate: 0
+      initialAvailableOutgoingBitrate: 1000 * 1000 * 1000, //1gbps
+      maxIncomingBitrate: 30 * 1000 * 1000 // 30mbps - this should be set to something; leaving it uncapped causes stuttering
     },
 
     plainTransport: {
