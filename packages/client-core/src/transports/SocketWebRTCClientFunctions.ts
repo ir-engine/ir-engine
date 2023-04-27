@@ -585,10 +585,10 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     if (
       producerId != null &&
       selfProducerIds.indexOf(producerId) < 0 &&
-        //The commented portion below was causing re-creation of consumers when the existing one was merely unable
-        //to provide data for a short time. If it's necessary for some logic to work, then it should be rewritten
-        //to do something like record when it started being muted, and only run if it's been muted for a while.
-      (consumerMatch == null /*|| (consumerMatch.track?.muted && consumerMatch.track?.enabled)*/) &&
+      //The commented portion below was causing re-creation of consumers when the existing one was merely unable
+      //to provide data for a short time. If it's necessary for some logic to work, then it should be rewritten
+      //to do something like record when it started being muted, and only run if it's been muted for a while.
+      consumerMatch == null /*|| (consumerMatch.track?.muted && consumerMatch.track?.enabled)*/ &&
       (channelType === 'instance'
         ? currentChannelInstanceConnection.channelType === 'instance'
         : currentChannelInstanceConnection.channelType === channelType &&
