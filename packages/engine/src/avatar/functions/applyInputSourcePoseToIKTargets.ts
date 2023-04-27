@@ -288,9 +288,7 @@ export const applyInputSourcePoseToIKTargets = () => {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
-              ikTransform.rotation
-                .copy(pose.transform.orientation as any as Quaternion)
-                .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
+              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
             }
           } else {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
