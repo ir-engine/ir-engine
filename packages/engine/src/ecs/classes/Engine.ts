@@ -26,7 +26,7 @@ import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Timer } from '../../common/functions/Timer'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { ButtonInputStateType } from '../../input/InputState'
+import { OldButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -245,7 +245,7 @@ export class Engine {
     lastScroll: new Vector2()
   }
 
-  buttons = {} as Readonly<ButtonInputStateType>
+  buttons = {} as Readonly<OldButtonInputStateType>
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
