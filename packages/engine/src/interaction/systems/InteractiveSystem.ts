@@ -29,6 +29,7 @@ import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
+import { EquippableSystem } from './EquippableSystem'
 
 export const InteractState = defineState({
   name: 'InteractState',
@@ -89,10 +90,10 @@ export const addInteractableUI = (
 
   if (!update) {
     update = onInteractableUpdate
-    const transition = createTransitionState(0.25)
-    transition.setState('OUT')
-    InteractableTransitions.set(entity, transition)
   }
+  const transition = createTransitionState(0.25)
+  transition.setState('OUT')
+  InteractableTransitions.set(entity, transition)
 
   InteractiveUI.set(entity, { xrui, update })
 }

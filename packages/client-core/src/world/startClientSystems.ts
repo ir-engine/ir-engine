@@ -17,6 +17,7 @@ import {
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ButtonCleanupSystem } from '@etherealengine/engine/src/input/systems/ButtonCleanupSystem'
 import { ClientInputSystem } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
+import { EquippableSystem } from '@etherealengine/engine/src/interaction/systems/EquippableSystem'
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MediaControlSystem } from '@etherealengine/engine/src/interaction/systems/MediaControlSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
@@ -42,7 +43,7 @@ export const startClientSystems = () => {
   )
 
   /** Fixed */
-  startSystems([WorldNetworkActionSystem, AvatarSimulationGroup], { with: SimulationSystemGroup })
+  startSystems([WorldNetworkActionSystem, EquippableSystem, AvatarSimulationGroup], { with: SimulationSystemGroup })
 
   /** Physics */
   startSystems([PhysicsSystem], { after: SimulationSystemGroup })

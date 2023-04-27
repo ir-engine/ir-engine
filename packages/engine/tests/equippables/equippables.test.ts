@@ -14,7 +14,6 @@ import { createEngine } from '../../src/initializeEngine'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
-import { equipperQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { Network } from '../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
@@ -101,8 +100,6 @@ describe.skip('Equippables Integration Tests', () => {
 
     clearOutgoingActions(Engine.instance.worldNetwork.topic)
     applyIncomingActions()
-
-    equipperQueryExit(equipperEntity)
 
     // validations for unequip
     assert(!hasComponent(equipperEntity, EquipperComponent))

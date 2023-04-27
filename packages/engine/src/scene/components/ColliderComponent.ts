@@ -35,7 +35,7 @@ export const ColliderComponent = defineComponent({
       removeMesh: false,
       collisionLayer: CollisionGroups.Default,
       collisionMask: DefaultCollisionMask,
-      restitution: 1,
+      restitution: 0.5,
       /**
        * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
        */

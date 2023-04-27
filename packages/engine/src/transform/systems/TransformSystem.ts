@@ -38,7 +38,12 @@ import { LocalTransformComponent, TransformComponent } from '../components/Trans
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
-const nonDynamicLocalTransformQuery = defineQuery([LocalTransformComponent, Not(RigidBodyDynamicTagComponent)])
+const nonDynamicLocalTransformQuery = defineQuery([
+  LocalTransformComponent,
+  Not(RigidBodyDynamicTagComponent),
+  Not(RigidBodyKinematicPositionBasedTagComponent),
+  Not(RigidBodyKinematicVelocityBasedTagComponent)
+])
 const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const fixedRigidBodyQuery = defineQuery([TransformComponent, RigidBodyComponent, RigidBodyFixedTagComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
@@ -125,11 +130,14 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
   const localTransform = getOptionalComponent(entity, LocalTransformComponent)
-  const isDynamicRigidbody = hasComponent(entity, RigidBodyDynamicTagComponent)
+  const isRigidbody =
+    hasComponent(entity, RigidBodyDynamicTagComponent) ||
+    hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) ||
+    hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
   const parentTransform = localTransform?.parentEntity
     ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
     : undefined
-  if (!localTransform || !parentTransform || isDynamicRigidbody) return false
+  if (!localTransform || !parentTransform || isRigidbody) return false
   const transform = getComponent(entity, TransformComponent)
   transform.matrix.multiplyMatrices(parentTransform.matrix, localTransform.matrix)
   transform.matrix.decompose(transform.position, transform.rotation, transform.scale)

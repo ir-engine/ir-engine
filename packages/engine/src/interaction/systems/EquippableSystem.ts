@@ -1,9 +1,10 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
-import { Vector3 } from 'three'
+import { MeshBasicMaterial, Vector3 } from 'three'
 
 import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -13,43 +14,52 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { Physics } from '../../physics/classes/Physics'
 import {
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
   RigidBodyKinematicPositionBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { ColliderComponent } from '../../scene/components/ColliderComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { EquippableComponent } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { changeHand, equipEntity, unequipEntity } from '../functions/equippableFunctions'
 import { createInteractUI } from '../functions/interactUI'
-import { addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
+import { addInteractableUI, InteractableTransitions, removeInteractiveUI } from './InteractiveSystem'
 
 export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetworkAction.setEquippedObject>) {
   const equippedEntity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  if (action.$from === Engine.instance.userId) {
+  if (action.equip && action.$from === Engine.instance.userId) {
     const equipperEntity = Engine.instance.localClientEntity
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity })
-    addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint: action.attachmentPoint })
+    setComponent(equipperEntity, EquipperComponent, { equippedEntity })
+    setComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint: action.attachmentPoint! })
   }
   const body = getComponent(equippedEntity, RigidBodyComponent)?.body
   if (body) {
     if (action.equip) {
-      addComponent(equippedEntity, RigidBodyKinematicPositionBasedTagComponent, true)
-      removeComponent(equippedEntity, RigidBodyDynamicTagComponent)
-      body.setBodyType(RigidBodyType.KinematicPositionBased, false)
+      if (hasComponent(equippedEntity, LocalTransformComponent)) {
+        removeComponent(equippedEntity, LocalTransformComponent)
+      }
+      if (hasComponent(equippedEntity, ColliderComponent)) {
+        removeComponent(equippedEntity, ColliderComponent)
+      }
+      Physics.changeRigidbodyType(equippedEntity, RigidBodyType.KinematicPositionBased)
     } else {
-      addComponent(equippedEntity, RigidBodyDynamicTagComponent, true)
-      removeComponent(equippedEntity, RigidBodyKinematicPositionBasedTagComponent)
-      body.setBodyType(RigidBodyType.Dynamic, false)
+      Physics.changeRigidbodyType(equippedEntity, RigidBodyType.Dynamic)
     }
     for (let i = 0; i < body.numColliders(); i++) {
       const collider = body.collider(i)
@@ -89,53 +99,68 @@ export function equipperQueryAll(equipperEntity: Entity) {
   const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
 
-  const target = getHandTarget(equipperEntity, attachmentPoint ?? 'left')!
-  const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
+  const target = getHandTarget(equipperEntity, attachmentPoint ?? 'right')!
 
+  const rigidbodyComponent = getComponent(equippedEntity, RigidBodyComponent)
+
+  if (rigidbodyComponent) {
+    rigidbodyComponent.targetKinematicPosition.copy(target.position)
+    rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
+    rigidbodyComponent.body.setTranslation(target.position, true)
+    rigidbodyComponent.body.setRotation(target.rotation, true)
+  }
+
+  const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
   equippableTransform.position.copy(target.position)
   equippableTransform.rotation.copy(target.rotation)
 }
 
-export function equipperQueryExit(entity: Entity) {
-  // const equipperComponent = getComponent(entity, EquipperComponent, true)
-  // const equippedEntity = equipperComponent.equippedEntity
-  // removeComponent(equippedEntity, EquippedComponent)
-}
-
 const vec3 = new Vector3()
 
-// export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-//
-//   const transform = getComponent(xrui.entity, TransformComponent)
-//   if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
-//   transform.position.copy(getComponent(entity, TransformComponent).position)
-//   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
-//   transform.position.y += 1
+export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
+  const transform = getComponent(xrui.entity, TransformComponent)
+  if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  transform.position.copy(getComponent(entity, TransformComponent).position)
+  transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
+  const boundingBox = getComponent(entity, BoundingBoxComponent)
+  if (boundingBox) {
+    const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
+    transform.position.y += boundingBoxHeight * 2
+  } else {
+    transform.position.y += 0.5
+  }
 
-//   const transition = InteractableTransitions.get(entity)!
-//   const isEquipped = hasComponent(entity, EquippedComponent)
-//   if (isEquipped) {
-//     if (transition.state === 'IN') {
-//       transition.setState('OUT')
-//     }
-//   } else {
-//     getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
-//     const distance = vec3.distanceToSquared(transform.position)
-//     const inRange = distance < 5
-//     if (transition.state === 'OUT' && inRange) {
-//       transition.setState('IN')
-//     }
-//     if (transition.state === 'IN' && !inRange) {
-//       transition.setState('OUT')
-//     }
-//   }
-//   transition.update(world, (opacity) => {
-//     xrui.rootLayer.traverseLayersPreOrder((layer) => {
-//       const mat = layer.contentMesh.material as MeshBasicMaterial
-//       mat.opacity = opacity
-//     })
-//   })
-// }
+  const transition = InteractableTransitions.get(entity)!
+  const isEquipped = hasComponent(entity, EquippedComponent)
+  if (isEquipped) {
+    if (transition.state === 'IN') {
+      transition.setState('OUT')
+      removeComponent(xrui.entity, VisibleComponent)
+    }
+  } else {
+    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
+    const distance = vec3.distanceToSquared(transform.position)
+    const inRange = distance < 5
+    if (transition.state === 'OUT' && inRange) {
+      transition.setState('IN')
+      setComponent(xrui.entity, VisibleComponent)
+    }
+    if (transition.state === 'IN' && !inRange) {
+      transition.setState('OUT')
+    }
+  }
+  transition.update(Engine.instance.deltaSeconds, (opacity) => {
+    if (opacity === 0) {
+      removeComponent(xrui.entity, VisibleComponent)
+    }
+    xrui.container.rootLayer.traverseLayersPreOrder((layer) => {
+      const mat = layer.contentMesh.material as MeshBasicMaterial
+      mat.opacity = opacity
+    })
+  })
+  if (hasComponent(xrui.entity, VisibleComponent))
+    ObjectFitFunctions.lookAtCameraFromPosition(xrui.container, transform.position)
+}
 
 /**
  * @todo refactor this into i18n and configurable
@@ -163,22 +188,29 @@ const execute = () => {
   if (keys.KeyU?.down) onKeyU()
 
   for (const action of interactedActionQueue()) {
-    if (action.$from !== Engine.instance.userId) continue
-    if (!hasComponent(action.targetEntity!, EquippableComponent)) continue
+    if (
+      action.$from !== Engine.instance.userId ||
+      !action.targetEntity ||
+      !entityExists(action.targetEntity!) ||
+      !hasComponent(action.targetEntity!, EquippableComponent)
+    )
+      continue
 
     const avatarEntity = Engine.instance.localClientEntity
 
     const equipperComponent = getComponent(avatarEntity, EquipperComponent)
     if (equipperComponent?.equippedEntity) {
-      const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
-      const attachmentPoint = equippedComponent.attachmentPoint
-      if (attachmentPoint !== action.handedness) {
-        changeHand(avatarEntity, action.handedness)
-      } else {
-        // drop(entity, inputKey, inputValue)
-      }
+      /** @todo - figure better way of swapping hands */
+      // const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+      // const attachmentPoint = equippedComponent.attachmentPoint
+      // if (attachmentPoint !== action.handedness) {
+      //   changeHand(avatarEntity, action.handedness)
+      // } else {
+      //   drop(entity, inputKey, inputValue)
+      // }
+      unequipEntity(avatarEntity)
     } else {
-      equipEntity(avatarEntity, action.targetEntity!, 'none')
+      equipEntity(avatarEntity, action.targetEntity!, 'right')
     }
   }
 
@@ -190,7 +222,8 @@ const execute = () => {
    * @todo use an XRUI pool
    */
   for (const entity of equippableQuery.enter()) {
-    if (isClient) addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
+    if (isClient)
+      addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage), onEquippableInteractUpdate)
   }
 
   for (const entity of equippableQuery.exit()) {
@@ -199,10 +232,6 @@ const execute = () => {
 
   for (const entity of equipperQuery()) {
     equipperQueryAll(entity)
-  }
-
-  for (const entity of equipperQuery.exit()) {
-    equipperQueryExit(entity)
   }
 }
 
