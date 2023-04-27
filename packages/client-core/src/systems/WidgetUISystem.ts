@@ -74,9 +74,9 @@ const WidgetUISystemState = defineState({
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
-    const helper = new AxesHelper(0.1)
-    setObjectLayers(helper, ObjectLayers.Gizmos)
-    addObjectToGroup(widgetMenuUI.entity, helper)
+    // const helper = new AxesHelper(0.1)
+    // setObjectLayers(helper, ObjectLayers.Gizmos)
+    // addObjectToGroup(widgetMenuUI.entity, helper)
 
     return {
       widgetMenuUI

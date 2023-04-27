@@ -122,7 +122,7 @@ const execute = () => {
     const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)!
     setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
     setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
-    addObjectToGroup(entity, new AxesHelper(0.5))
+    // addObjectToGroup(entity, new AxesHelper(0.5))
     setComponent(entity, VisibleComponent)
   }
 
