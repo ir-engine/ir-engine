@@ -4,7 +4,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -41,7 +40,6 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   if (!equipperComponent) return
   removeComponent(equipperEntity, EquipperComponent)
   const networkComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
-  const networkOwnerComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectOwnedTag)
   if (networkComponent.authorityPeerID === Engine.instance.worldNetwork.peerID) {
     dispatchAction(
       WorldNetworkAction.setEquippedObject({
@@ -49,8 +47,7 @@ export const unequipEntity = (equipperEntity: Entity): void => {
           networkId: networkComponent.networkId,
           ownerId: networkComponent.ownerId
         },
-        equip: false,
-        attachmentPoint: null!
+        equip: false
       })
     )
   } else {

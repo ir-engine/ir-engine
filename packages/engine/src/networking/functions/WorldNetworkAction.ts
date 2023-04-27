@@ -81,7 +81,7 @@ export class WorldNetworkAction {
       networkId: matchesNetworkId
     }),
     equip: matches.boolean,
-    attachmentPoint: matches.literals('left', 'right', 'none'),
+    attachmentPoint: matches.literals('left', 'right', 'none').optional(),
     $cache: true,
     $topic: NetworkTopics.world
   })

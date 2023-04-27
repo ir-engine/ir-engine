@@ -8,6 +8,8 @@ import {
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { EquippableSystem } from '@etherealengine/engine/src/interaction/systems/EquippableSystem'
+import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
@@ -33,15 +35,18 @@ export const startWorldServerSystems = () => {
   startSystems([IncomingNetworkSystem, MotionCaptureSystem], { with: InputSystemGroup })
 
   /** Fixed */
-  startSystems([WorldNetworkActionSystem, ServerHostNetworkSystem, AvatarSimulationGroup, PhysicsSystem], {
-    with: SimulationSystemGroup
-  })
+  startSystems(
+    [WorldNetworkActionSystem, ServerHostNetworkSystem, EquippableSystem, AvatarSimulationGroup, PhysicsSystem],
+    {
+      with: SimulationSystemGroup
+    }
+  )
 
   /** Avatar / Pre Transform */
   startSystems([AvatarSpawnSystem], { with: AnimationSystemGroup })
 
   /** Post Transform / Pre Render */
-  startSystems([SceneSystemUpdateGroup], {
+  startSystems([InteractiveSystem, SceneSystemUpdateGroup], {
     before: PresentationSystemGroup
   })
 
