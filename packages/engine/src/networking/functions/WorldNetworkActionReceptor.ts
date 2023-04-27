@@ -31,6 +31,8 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
   //   action.uuid === action.$from
   // if (existingAvatar) return
 
+  if (UUIDComponent.entitiesByUUID[action.uuid]) return
+
   const entity = createEntity()
   setComponent(entity, UUIDComponent, action.uuid)
 
