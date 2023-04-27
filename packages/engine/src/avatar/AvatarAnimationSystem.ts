@@ -95,6 +95,12 @@ const filterFrustumCulledEntities = (entity: Entity) =>
     FrustumCullCameraComponent.isCulled[entity]
   )
 
+const leftHandRotation = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, Math.PI))
+const leftHandRotationOffset = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, 0))
+
+const rightHandRotation = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
+const rightHandRotationOffset = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
+
 let avatarSortAccumulator = 0
 
 const execute = () => {
@@ -298,8 +304,8 @@ const execute = () => {
         rig.LeftForeArm,
         rig.LeftHand,
         transformComponent.position,
-        transformComponent.rotation.multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, Math.PI))),
-        new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, 0))
+        transformComponent.rotation.multiply(leftHandRotation),
+        leftHandRotationOffset
       )
     } else if (ikComponent.handedness === 'right') {
       rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
@@ -310,8 +316,8 @@ const execute = () => {
         rig.RightForeArm,
         rig.RightHand,
         transformComponent.position,
-        transformComponent.rotation.multiply(new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))),
-        new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
+        transformComponent.rotation.multiply(rightHandRotation),
+        rightHandRotationOffset
       )
     }
   }
