@@ -25,11 +25,11 @@ import {
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
-  const existingAvatar =
-    WorldNetworkAction.spawnAvatar.matches.test(action) &&
-    !!Engine.instance.getUserAvatarEntity(action.$from) &&
-    action.uuid === action.$from
-  if (existingAvatar) return
+  // const existingAvatar =
+  //   WorldNetworkAction.spawnAvatar.matches.test(action) &&
+  //   !!Engine.instance.getUserAvatarEntity(action.$from) &&
+  //   action.uuid === action.$from
+  // if (existingAvatar) return
 
   const entity = createEntity()
   setComponent(entity, UUIDComponent, action.uuid)

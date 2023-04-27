@@ -335,6 +335,7 @@ const execute = () => {
       TransformComponent.rotation.y[eid] = pose.transform.orientation.y
       TransformComponent.rotation.z[eid] = pose.transform.orientation.z
       TransformComponent.rotation.w[eid] = pose.transform.orientation.w
+      TransformComponent.dirtyTransforms[eid] = true
     }
   }
 
