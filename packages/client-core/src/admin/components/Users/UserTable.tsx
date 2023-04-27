@@ -6,7 +6,6 @@ import { IdentityProvider } from '@etherealengine/common/src/interfaces/Identity
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
-import Button from '@etherealengine/ui/src/Button'
 import Icon from '@etherealengine/ui/src/Icon'
 import Tooltip from '@etherealengine/ui/src/Tooltip'
 
@@ -186,10 +185,6 @@ const UserTable = ({ className, search }: UserProps) => {
     )
   })
 
-  const doBanUser = () => {
-    AdminUserService.banUser()
-  }
-
   return (
     <Box className={className}>
       <TableComponent
@@ -219,7 +214,6 @@ const UserTable = ({ className, search }: UserProps) => {
           onClose={() => openUserDrawer.set(false)}
         />
       )}
-      <Button onClick={doBanUser}>ban a user</Button>
     </Box>
   )
 }

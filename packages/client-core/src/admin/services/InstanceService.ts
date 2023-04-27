@@ -167,7 +167,11 @@ export const AdminInstanceUserService = {
   },
   kickUser: async (kickData: { userId: UserInterface['id']; instanceId: Instance['id']; duration: string }) => {
     console.log('kicking user', kickData)
-    const userKick = await API.instance.client.service('user-kick').create(kickData)
+
+    const duration = new Date()
+    duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
+
+    const userKick = await API.instance.client.service('user-kick').create({ ...kickData, duration })
 
     console.log('kicked user', userKick)
   }

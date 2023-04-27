@@ -35,12 +35,4 @@ describe('user-kick.test', () => {
       isGuest
     })) as UserInterface
   })
-
-  it('should create a new user-kick', async () => {
-    const item = await app.service('user-kick').create({ duration: '1000' })
-
-    console.log('item was', item)
-
-    assert.ok(true)
-  })
 })

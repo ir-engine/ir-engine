@@ -170,10 +170,6 @@ export const AdminUserService = {
   },
   resetFilter: () => {
     dispatchAction(AdminUserActions.resetFilter({}))
-  },
-  banUser: async () => {
-    const result = await API.instance.client.service('user-kick').create({ duration: '4324' })
-    console.log('the result from client api call ---->', result)
   }
 }
 

@@ -16,7 +16,7 @@ export default (app: Application) => {
         primaryKey: true
       },
       duration: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATE,
         allowNull: false
       }
     },

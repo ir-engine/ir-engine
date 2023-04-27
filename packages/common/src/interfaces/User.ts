@@ -23,7 +23,7 @@ export interface UserScope {
 
 export interface UserKick {
   id: string
-  duration: string
+  duration: Date
   userId: UserId
   instanceId: string
 }

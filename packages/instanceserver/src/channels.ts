@@ -7,7 +7,7 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -699,14 +699,21 @@ export default (app: Application): void => {
     createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
 
-  const kickCreatedListener = async (data) => {
-    // data contains is the user-kick entry created in the database
-    console.log('a user was kicked --->', data)
-    // this should fire a message type KICK to all connected clients
-    const network = getServerNetwork(app)
-    console.log('the network peers were', network.peers)
+  const kickCreatedListener = async (data: UserKick) => {
+    // TODO: only run for instanceserver
+    if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
 
-    console.log('engine instance peers were', Engine.instance.worldNetwork.peers)
+    logger.info('kicking user id %s', data.userId)
+
+    const peerId = Engine.instance.worldNetwork.users.get(data.userId)
+    if (!peerId || !peerId[0]) return
+
+    logger.info('kicking peerId %o', peerId)
+
+    const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
+    if (!peer || !peer.spark) return
+
+    peer.spark.write({ type: MessageTypes.Kick.toString(), data: '' })
   }
 
   app.service('user-kick').on('created', kickCreatedListener)
