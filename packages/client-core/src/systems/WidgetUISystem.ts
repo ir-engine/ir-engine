@@ -38,6 +38,7 @@ import {
 import { defineActionQueue, defineState, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
+import { createMediaWidget } from './createMediaWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'
@@ -90,6 +91,7 @@ const showWidgetMenu = (show: boolean) => {
   if (!createdWidgets && (isMobileXRHeadset || isDev)) {
     createdWidgets = true
     createAnchorWidget()
+    // createMediaWidget()
     // createHeightAdjustmentWidget()
     // createProfileWidget()
     // createSettingsWidget()

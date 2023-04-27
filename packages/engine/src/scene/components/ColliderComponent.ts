@@ -11,6 +11,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -103,8 +104,8 @@ export const ColliderComponent = defineComponent({
     return response
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
 
     const transformComponent = useComponent(entity, TransformComponent)
     const colliderComponent = useComponent(entity, ColliderComponent)

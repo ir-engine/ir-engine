@@ -58,11 +58,13 @@ export interface ReactorRoot {
   stop: () => Promise<void>
 }
 
-export interface ReactorProps {
-  root: ReactorRoot
+const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
+
+export function useReactorRootContext(): ReactorRoot {
+  return React.useContext(ReactorRootContext)
 }
 
-export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.store): ReactorRoot {
+export function startReactor(Reactor: React.FC, store = HyperFlux.store): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -91,7 +93,14 @@ export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
         store.activeReactors.add(reactorRoot)
-        ReactorReconciler.updateContainer(<Reactor root={reactorRoot} />, fiberRoot, null, () => resolve())
+        ReactorReconciler.updateContainer(
+          <ReactorRootContext.Provider value={reactorRoot}>
+            <Reactor />
+          </ReactorRootContext.Provider>,
+          fiberRoot,
+          null,
+          () => resolve()
+        )
       })
     },
     stop() {

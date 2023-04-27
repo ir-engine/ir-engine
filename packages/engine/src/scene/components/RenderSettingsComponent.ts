@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 
 export const RenderSettingsComponent = defineComponent({
@@ -31,8 +32,9 @@ export const RenderSettingsComponent = defineComponent({
     }
   },
 
-  reactor: ({ root }) => {
-    const component = useComponent(root.entity, RenderSettingsComponent)
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, RenderSettingsComponent)
 
     for (const prop of Object.keys(getState(RenderSettingsState))) {
       useEffect(() => {

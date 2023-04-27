@@ -3,7 +3,7 @@ import _ from 'lodash'
 import React, { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
-import { defineState, getMutableState, getState, ReactorProps, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
@@ -83,7 +83,7 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
 
 const FogGroupQueryReactor = createGroupQueryReactor(FogGroupReactor, [Not(SceneTagComponent), VisibleComponent])
 
-const reactor = ({ root }: ReactorProps) => {
+const reactor = () => {
   const fog = useHookstate(getMutableState(FogSettingState))
   const scene = Engine.instance.scene
 
@@ -152,7 +152,7 @@ const reactor = ({ root }: ReactorProps) => {
       }
   }, [fog.height])
 
-  return <FogGroupQueryReactor root={root} />
+  return <FogGroupQueryReactor />
 }
 
 export const FogSystem = defineSystem({

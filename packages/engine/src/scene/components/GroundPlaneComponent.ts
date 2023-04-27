@@ -5,6 +5,7 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -40,8 +41,8 @@ export const GroundPlaneComponent = defineComponent({
     }
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
 
     const component = useComponent(entity, GroundPlaneComponent)
 

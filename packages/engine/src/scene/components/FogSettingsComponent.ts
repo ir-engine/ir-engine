@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { FogSettingState } from '../systems/FogSystem'
 
 export const FogSettingsComponent = defineComponent({
@@ -37,8 +38,9 @@ export const FogSettingsComponent = defineComponent({
     }
   },
 
-  reactor: ({ root }) => {
-    const component = useComponent(root.entity, FogSettingsComponent)
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, FogSettingsComponent)
 
     for (const prop of Object.keys(getState(FogSettingState))) {
       useEffect(() => {

@@ -18,7 +18,7 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { getMutableState, getState, hookstate, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
@@ -38,6 +38,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
@@ -170,7 +171,7 @@ const sphere = new Sphere()
 const box3 = new Box3()
 
 const DropShadowReactor = createQueryReactor([ShadowComponent], function DropShadowReactor(props) {
-  const entity = props.root.entity
+  const entity = useEntityContext()
   const useShadows = useShadowsEnabled()
   const shadowMaterial = useHookstate(shadowState)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
@@ -260,7 +261,7 @@ const execute = () => {
   // if (helper) helper.update()
 }
 
-const reactor = ({ root }: ReactorProps) => {
+const reactor = () => {
   useEffect(() => {
     Engine.instance.scene.add(csmGroup)
 
@@ -279,7 +280,7 @@ const reactor = ({ root }: ReactorProps) => {
   return (
     <>
       <CSMReactor />
-      <DropShadowReactor root={root} />
+      <DropShadowReactor />
     </>
   )
 }

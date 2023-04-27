@@ -6,7 +6,7 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'
 import { SceneState } from '../ecs/classes/Scene'
-import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
+import { createInitialButtonState, OldButtonInputStateType } from '../input/InputState'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
@@ -197,10 +197,10 @@ export const setupARSession = () => {
    * This gets piped into the input system as a TouchInput.Touch
    */
   session.addEventListener('selectstart', () => {
-    ;(Engine.instance.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
+    ;(Engine.instance.buttons as OldButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   session.addEventListener('selectend', (inputSource) => {
-    const buttons = Engine.instance.buttons as ButtonInputStateType
+    const buttons = Engine.instance.buttons as OldButtonInputStateType
     if (!buttons.PrimaryClick) return
     buttons.PrimaryClick!.up = true
   })
