@@ -118,16 +118,10 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
   const rigidBody = localClientEntity
     ? getComponent(localClientEntity, RigidBodyComponent)
     : getComponent(Engine.instance.cameraEntity, TransformComponent)
-  const xrState = getMutableState(XRState)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
-  if (xrState.sessionMode.value === 'immersive-ar') {
-    worldOriginTransform.position.copy(rigidBody.position)
-    worldOriginTransform.rotation.copy(quat180y)
-  } else {
-    worldOriginTransform.position.copy(rigidBody.position)
-    worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
-  }
+  worldOriginTransform.position.copy(rigidBody.position)
+  worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
 
   /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
   xrSession.requestReferenceSpace('local-floor').then((space) => {
