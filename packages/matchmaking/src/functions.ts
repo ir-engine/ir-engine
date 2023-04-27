@@ -2,13 +2,8 @@ import AbortController from 'abort-controller'
 import axios from 'axios'
 import fetch from 'node-fetch'
 
-import {
-  isOpenAPIError,
-  isOpenMatchTicketAssignmentResponse,
-  OpenMatchTicket,
-  OpenMatchTicketAssignment,
-  OpenMatchTicketAssignmentResponse
-} from './interfaces'
+import { MatchTicketAssignmentType } from './match-ticket-assignment.schema'
+import { MatchTicketType } from './match-ticket.schema'
 
 export const FRONTEND_SERVICE_URL = process.env.FRONTEND_SERVICE_URL || 'http://localhost:51504/v1/frontendservice'
 const axiosInstance = axios.create({
@@ -16,7 +11,6 @@ const axiosInstance = axios.create({
 })
 
 /**
- * @throws OpenAPIErrorResponse
  * @param response
  */
 function checkForApiErrorResponse(response: unknown): unknown {
@@ -24,16 +18,16 @@ function checkForApiErrorResponse(response: unknown): unknown {
     return response
   }
 
-  if (isOpenAPIError(response)) {
+  if ((response as any).code) {
     throw response
-  }
-  if (isOpenAPIError((response as any).error)) {
+  } else if ((response as any).error) {
     throw (response as any).error
   }
+
   return response
 }
 
-function createTicket(gameMode: string, attributes?: Record<string, string>): Promise<OpenMatchTicket> {
+function createTicket(gameMode: string, attributes?: Record<string, string>): Promise<MatchTicketType> {
   const searchFields: any = {
     tags: [gameMode],
     doubleArgs: {
@@ -58,7 +52,7 @@ function createTicket(gameMode: string, attributes?: Record<string, string>): Pr
     })
     .then((r) => r.data)
     .then(checkForApiErrorResponse)
-    .then((response) => response as OpenMatchTicket)
+    .then((response) => response as MatchTicketType)
 }
 
 function readStreamFirstData(stream: NodeJS.ReadableStream) {
@@ -72,7 +66,7 @@ function readStreamFirstData(stream: NodeJS.ReadableStream) {
 }
 
 // TicketAssignmentsResponse
-async function getTicketsAssignment(ticketId: string, timeout = 300): Promise<OpenMatchTicketAssignment> {
+async function getTicketsAssignment(ticketId: string, timeout = 300): Promise<MatchTicketAssignmentType> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => {
     controller.abort()
@@ -97,22 +91,17 @@ async function getTicketsAssignment(ticketId: string, timeout = 300): Promise<Op
     clearTimeout(timeoutId)
   }
   checkForApiErrorResponse(data)
-  if (!isOpenMatchTicketAssignmentResponse(data)) {
-    console.error('Invalid result:')
-    console.log(data)
-    throw new Error('Invalid result from tickets/assignments service')
-  }
 
-  return (data as OpenMatchTicketAssignmentResponse).result.assignment
+  return data.result.assignment
 }
 
-function getTicket(ticketId: string): Promise<OpenMatchTicket | void> {
+function getTicket(ticketId: string): Promise<MatchTicketType | void> {
   return axiosInstance
     .get(`/tickets/${ticketId}`)
     .then((r) => r.data)
     .then(checkForApiErrorResponse)
     .then((result) => {
-      return result as OpenMatchTicket
+      return result as MatchTicketType
     })
     .catch((e) => {
       if (axios.isAxiosError(e)) {

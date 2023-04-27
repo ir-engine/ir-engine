@@ -18,7 +18,8 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists === false) {
     await knex.schema.createTable(redisSettingPath, (table) => {
-      table.string('id', 36).primary()
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.boolean('enabled').nullable()
       table.string('address', 255).nullable()
       table.string('port', 255).nullable()
