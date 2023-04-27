@@ -235,7 +235,7 @@ export class Engine {
    */
   localClientEntity = UndefinedEntity
 
-  inputSources: Readonly<XRInputSourceArray> = []
+  inputSources: ReadonlyArray<XRInputSource> = []
 
   pointerState = {
     position: new Vector2(),

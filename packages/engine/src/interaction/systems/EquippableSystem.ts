@@ -1,14 +1,14 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import { MeshBasicMaterial, Vector3 } from 'three'
 
-import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { V_000 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -190,6 +190,7 @@ const onKeyU = () => {
 }
 
 const execute = () => {
+  if (getState(EngineState).isEditor) return
   const keys = Engine.instance.buttons
   if (keys.KeyU?.down) onKeyU()
 
@@ -227,10 +228,10 @@ const execute = () => {
   /**
    * @todo use an XRUI pool
    */
-  for (const entity of equippableQuery.enter()) {
-    if (isClient)
+  if (isClient)
+    for (const entity of equippableQuery.enter()) {
       addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage), onEquippableInteractUpdate)
-  }
+    }
 
   for (const entity of equippableQuery.exit()) {
     removeInteractiveUI(entity)
