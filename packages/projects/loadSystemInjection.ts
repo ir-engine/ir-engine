@@ -44,8 +44,7 @@ export const importSystem = async (
     console.error(`[ProjectLoader]: File extension MUST end with '*System.ts', got ${filePathRelative} instead`)
     return null!
   }
-  // const module = await import(`./projects/${project}/src/systems/${filePathRelative.replace('System.ts', '')}System.ts`)
-  const module = await import(`./projects/${project}/src/systems/${filePathRelative}`)
+  const module = await import(`./projects/${project}/src/systems/${filePathRelative.replace('System.ts', '')}System.ts`)
   const systemUUID = module.default as SystemUUID
 
   if (!systemUUID) {
