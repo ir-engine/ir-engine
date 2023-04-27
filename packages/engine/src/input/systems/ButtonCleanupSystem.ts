@@ -8,8 +8,8 @@ const inputSources = defineQuery([InputSourceComponent])
 
 function cleanupButton(key: string, buttons: OldButtonInputStateType, hasFocus: boolean) {
   const button = buttons[key]
-  if (button.down) button.down = false
-  if (button.up || !hasFocus) delete buttons[key]
+  if (button?.down) button.down = false
+  if (button?.up || !hasFocus) delete buttons[key]
 }
 
 const execute = () => {
