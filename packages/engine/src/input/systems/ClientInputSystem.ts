@@ -1,9 +1,28 @@
 import { useEffect } from 'react'
+import { Vector3 } from 'three'
+
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import {
+  defineQuery,
+  getComponent,
+  getMutableComponent,
+  removeQuery,
+  setComponent,
+  useQuery
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { XRSpaceComponent } from '../../xr/XRComponents'
+import { ReferenceSpace, XRState } from '../../xr/XRState'
+import { InputComponent } from '../components/InputComponent'
+import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'
 
@@ -234,8 +253,52 @@ export function updateGamepadInput(source: XRInputSource) {
   }
 }
 
+const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
+const inputSources = defineQuery([InputSourceComponent])
+const inputSinks = defineQuery([InputComponent, BoundingBoxComponent])
+
+const boxCenter = new Vector3()
+
 const execute = () => {
   for (const source of Engine.instance.inputSources) updateGamepadInput(source)
+
+  const xrFrame = Engine.instance.xrFrame
+  const origin = ReferenceSpace.origin
+
+  for (const eid of xrSpaces()) {
+    const space = getComponent(eid, XRSpaceComponent)
+    const pose = origin && xrFrame?.getPose(space, origin)
+    if (pose) {
+      TransformComponent.position.x[eid] = pose.transform.position.x
+      TransformComponent.position.y[eid] = pose.transform.position.y
+      TransformComponent.position.z[eid] = pose.transform.position.z
+      TransformComponent.rotation.x[eid] = pose.transform.orientation.x
+      TransformComponent.rotation.y[eid] = pose.transform.orientation.y
+      TransformComponent.rotation.z[eid] = pose.transform.orientation.z
+      TransformComponent.rotation.w[eid] = pose.transform.orientation.w
+    }
+  }
+
+  for (const sourceEid of inputSources()) {
+    const sourceTransform = getComponent(sourceEid, TransformComponent)
+    const source = getMutableComponent(sourceEid, InputSourceComponent)
+
+    let assignedInputEntity = UndefinedEntity as Entity
+    let assignedDistance = Infinity
+
+    for (const inputEid of inputSinks()) {
+      const bounds = getComponent(inputEid, BoundingBoxComponent)
+      if (!bounds.box.containsPoint(sourceTransform.position)) continue
+      const center = bounds.box.getCenter(boxCenter) // todo: copmute bounding box center in a centralized place
+      const dist = sourceTransform.position.distanceTo(center) // todo: compute boudning box distance in centralized place
+      if (dist <= assignedDistance) {
+        assignedInputEntity = inputEid
+        assignedDistance = dist
+      }
+    }
+
+    source.assignedEntity.set(assignedInputEntity)
+  }
 
   Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
 
@@ -249,6 +312,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const xrState = useHookstate(getMutableState(XRState))
+
   useEffect(() => {
     addClientInputListeners()
     Engine.instance.pointerScreenRaycaster.layers.enableAll()
@@ -257,6 +322,31 @@ const reactor = () => {
       removeClientInputListeners()
     }
   }, [])
+
+  useEffect(() => {
+    const session = xrState.session.value
+    if (!session) return
+
+    const addInputSource = (source: XRInputSource) => setComponent(createEntity(), InputSourceComponent, { source })
+    const removeInputSource = (source: XRInputSource) =>
+      removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
+
+    const onInputSourcesChanged = (event: XRInputSourceChangeEvent) => {
+      event.added.map(addInputSource)
+      event.removed.map(removeInputSource)
+    }
+
+    ;[...session.inputSources].map(addInputSource)
+
+    session.addEventListener('inputsourceschange', onInputSourcesChanged)
+
+    return () => {
+      const inputSourceEntities = defineQuery([InputSourceComponent])
+      inputSourceEntities().map((eid) => removeEntity(eid))
+      removeQuery(inputSourceEntities)
+      session.removeEventListener('inputsourceschange', onInputSourcesChanged)
+    }
+  }, [xrState.session])
 
   return null
 }

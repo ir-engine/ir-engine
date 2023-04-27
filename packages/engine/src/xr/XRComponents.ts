@@ -4,8 +4,9 @@ import { BufferGeometry, Mesh } from 'three'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../common/functions/MatchesUtils'
-import { defineComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
-import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
+import { defineComponent, setComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../ecs/functions/EntityFunctions'
+import { QuaternionSchema, TransformComponent, Vector3Schema } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
 /** Maps each XR Joint to it's parent joint */
@@ -209,8 +210,8 @@ export const XRHitTestComponent = defineComponent({
     component.source.value?.cancel()
   },
 
-  reactor: ({ root }) => {
-    const entity = root.entity
+  reactor: () => {
+    const entity = useEntityContext()
 
     const hitTest = useOptionalComponent(entity, XRHitTestComponent)
 
@@ -277,6 +278,19 @@ export const XRAnchorComponent = defineComponent({
   }
 })
 
+export const XRSpaceComponent = defineComponent({
+  name: 'XRSpace',
+
+  onInit: (entity) => {
+    return null! as XRSpace
+  },
+
+  onSet: (entity, component, space: XRSpace) => {
+    component.set(space)
+    setComponent(entity, TransformComponent)
+  }
+})
+
 export type XRHand = Map<XRHandJoint, XRJointSpace>
 
 export const XRPlaneComponent = defineComponent({
@@ -319,8 +333,8 @@ export const XRPlaneComponent = defineComponent({
     component.geometry.value?.dispose?.()
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
     const plane = useOptionalComponent(entity, XRPlaneComponent)
     const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 

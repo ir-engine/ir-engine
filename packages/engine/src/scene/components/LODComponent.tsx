@@ -7,7 +7,7 @@ import { createState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { LODPath } from '../functions/loaders/LODFunctions'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -126,12 +126,13 @@ export const LODComponent = defineComponent({
   lodsByEntity: createState({} as Record<Entity, Entity[]>)
 })
 
-function LODReactor({ root }: EntityReactorProps): ReactElement {
-  const lodComponent = useComponent(root.entity, LODComponent)
+function LODReactor(): ReactElement {
+  const entity = useEntityContext()
+  const lodComponent = useComponent(entity, LODComponent)
   return (
     <>
       {lodComponent.levels.map((level, index) => (
-        <LodLevelReactor entity={root.entity} level={index} key={`${root.entity}-${index}`} />
+        <LodLevelReactor entity={entity} level={index} key={`${entity}-${index}`} />
       ))}
     </>
   )

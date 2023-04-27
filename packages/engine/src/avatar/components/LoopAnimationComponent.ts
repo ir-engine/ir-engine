@@ -12,6 +12,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationManager } from '../AnimationManager'
@@ -45,10 +46,9 @@ export const LoopAnimationComponent = defineComponent({
     }
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
     if (!isClient) return null
-
-    const entity = root.entity
+    const entity = useEntityContext()
 
     const modelComponent = useOptionalComponent(entity, ModelComponent)
 

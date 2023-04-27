@@ -4,6 +4,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraSettingsState } from '../../camera/CameraSceneMetadata'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 
 export const CameraSettingsComponent = defineComponent({
   name: 'CameraSettingsComponent',
@@ -47,8 +48,9 @@ export const CameraSettingsComponent = defineComponent({
     }
   },
 
-  reactor: ({ root }) => {
-    const component = useComponent(root.entity, CameraSettingsComponent)
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, CameraSettingsComponent)
 
     for (const prop of Object.keys(getState(CameraSettingsState))) {
       useEffect(() => {

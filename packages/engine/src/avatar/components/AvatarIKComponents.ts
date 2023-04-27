@@ -8,6 +8,7 @@ import {
   getComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -22,8 +23,8 @@ const EPSILON = 1e-6
 export const AvatarHeadDecapComponent = defineComponent({
   name: 'AvatarHeadDecapComponent',
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
 
     const headDecap = useOptionalComponent(entity, AvatarHeadDecapComponent)
     const rig = useOptionalComponent(entity, AvatarRigComponent)

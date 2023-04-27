@@ -234,7 +234,7 @@ const rightControllerOffset = new Quaternion().setFromEuler(new Euler(-Math.PI, 
 export const applyInputSourcePoseToIKTargets = () => {
   const { localClientEntity } = Engine.instance
 
-  const xrFrame = Engine.instance.xrFrame! as XRFrameWithFillPoses
+  const xrFrame = Engine.instance.xrFrame!
 
   const inAttachedControlMode = getCameraMode() === 'attached'
 

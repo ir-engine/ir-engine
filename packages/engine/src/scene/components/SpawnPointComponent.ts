@@ -7,6 +7,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -41,26 +42,27 @@ export const SpawnPointComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const spawnPoint = useComponent(root.entity, SpawnPointComponent)
+    const spawnPoint = useComponent(entity, SpawnPointComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !spawnPoint.helper.value) {
         AssetLoader.loadAsync(GLTF_PATH).then(({ scene: spawnPointHelperModel }) => {
           const helper = spawnPointHelperModel.clone()
-          helper.name = `spawn-point-helper-${root.entity}`
+          helper.name = `spawn-point-helper-${entity}`
           const helperBox = new BoxHelper(new Mesh(new BoxGeometry(1, 0, 1)), 0xffffff)
           helper.userData.helperBox = helperBox
           helper.add(helperBox)
           setObjectLayers(helper, ObjectLayers.NodeHelper)
-          addObjectToGroup(root.entity, helper)
+          addObjectToGroup(entity, helper)
           spawnPoint.helper.set(helper)
         })
       }
 
       if (!debugEnabled.value && spawnPoint.helper.value) {
-        removeObjectFromGroup(root.entity, spawnPoint.helper.value)
+        removeObjectFromGroup(entity, spawnPoint.helper.value)
         spawnPoint.helper.set(none)
       }
     }, [debugEnabled])
