@@ -41,9 +41,7 @@ PortalPreviewTypes.add(PortalPreviewTypeSpherical)
 export const PortalEffects = new Map<string, ComponentType<any>>()
 PortalEffects.set('None', null!)
 
-export const SCENE_COMPONENT_PORTAL = 'portal'
-
-export const SCENE_COMPONENT_PORTAL_COLLIDER_VALUES = {
+export const portalColliderValues = {
   bodyType: RigidBodyType.Fixed,
   shapeType: ShapeType.Cuboid,
   isTrigger: true,
@@ -56,12 +54,12 @@ export const SCENE_COMPONENT_PORTAL_COLLIDER_VALUES = {
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',
+  jsonID: 'portal',
 
   onInit: (entity) => {
     setCallback(entity, 'teleport', portalTriggerEnter)
 
-    if (!hasComponent(entity, ColliderComponent))
-      addComponent(entity, ColliderComponent, { ...SCENE_COMPONENT_PORTAL_COLLIDER_VALUES })
+    if (!hasComponent(entity, ColliderComponent)) addComponent(entity, ColliderComponent, { ...portalColliderValues })
     return {
       linkedPortalId: '',
       location: '',

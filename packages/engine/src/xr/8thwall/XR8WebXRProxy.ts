@@ -1,6 +1,6 @@
 import { EventDispatcher, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { V_111 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -176,7 +176,7 @@ export class XRFrameProxy {
   }
 
   get session() {
-    return getMutableState(XRState).session.value
+    return getState(XRState).session
   }
 
   getPose(space: XRSpace, baseSpace: XRSpace) {

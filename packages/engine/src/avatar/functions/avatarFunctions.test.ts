@@ -4,7 +4,7 @@ import { AnimationClip, Bone, Group, SkinnedMesh, Vector3 } from 'three'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
-import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
+import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent, ComponentType, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -24,7 +24,7 @@ const animGLB = '/packages/client/public/default_assets/Animations.glb'
 overrideFileLoaderLoad()
 
 before(async () => {
-  await loadDRACODecoder()
+  await loadDRACODecoderNode()
 })
 
 const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'

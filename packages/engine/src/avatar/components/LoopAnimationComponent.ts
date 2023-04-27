@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { AnimationAction, AnimationClip, AnimationMixer, Vector3 } from 'three'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import {
   addComponent,
   ComponentType,
@@ -20,6 +21,8 @@ import { AvatarAnimationComponent } from './AvatarAnimationComponent'
 
 export const LoopAnimationComponent = defineComponent({
   name: 'LoopAnimationComponent',
+  jsonID: 'loop-animation',
+
   onInit: (entity) => {
     return {
       activeClipIndex: -1,
@@ -43,6 +46,8 @@ export const LoopAnimationComponent = defineComponent({
   },
 
   reactor: function ({ root }) {
+    if (!isClient) return null
+
     const entity = root.entity
 
     const modelComponent = useOptionalComponent(entity, ModelComponent)
@@ -123,8 +128,6 @@ export const LoopAnimationComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
 
 export const playAnimationClip = (
   animationComponent: ComponentType<typeof AnimationComponent>,

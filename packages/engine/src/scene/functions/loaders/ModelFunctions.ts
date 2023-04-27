@@ -1,34 +1,15 @@
-import { DracoOptions, QuantizeOptions } from '@gltf-transform/functions'
+import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Mesh, Texture } from 'three'
-
-import { getState } from '@etherealengine/hyperflux'
 
 import {
   GeometryTransformParameters,
   ImageTransformParameters,
-  ParameterOverride,
   ResourceID,
-  ResourceParameters,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
-import { EngineState } from '../../../ecs/classes/EngineState'
-import { Entity } from '../../../ecs/classes/Entity'
-import { ComponentType, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { ComponentType } from '../../../ecs/functions/ComponentFunctions'
 import { ModelComponent } from '../../components/ModelComponent'
-import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
 import iterateObject3D from '../../util/iterateObject3D'
-
-export const deserializeModel: ComponentDeserializeFunction = (
-  entity: Entity,
-  data: ReturnType<typeof ModelComponent.toJSON>
-) => {
-  setComponent(entity, ModelComponent, data)
-  /**
-   * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-   */
-  if (!getState(EngineState).sceneLoaded) setComponent(entity, SceneAssetPendingTagComponent, true)
-}
 
 export function getModelResources(model: ComponentType<typeof ModelComponent>): ResourceTransforms {
   if (!model?.scene) return { geometries: [], images: [] }

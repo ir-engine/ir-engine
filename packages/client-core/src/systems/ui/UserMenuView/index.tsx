@@ -4,11 +4,14 @@ import { useTranslation } from 'react-i18next'
 
 import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { createXRUI, XRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { FriendService, useFriendState } from '../../../social/services/FriendService'
 import { InviteService } from '../../../social/services/InviteService'
@@ -21,22 +24,22 @@ import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
-export function createAvatarContextMenuView() {
-  return createXRUI(
-    AvatarContextMenu,
-    createState({
-      id: '' as UserId | ''
-    })
-  )
-}
-
-interface UserMenuState {
-  id: UserId
-}
+export const AvatarUIContextMenuState = defineState({
+  name: 'AvatarUISystem',
+  initial: () => {
+    const ui = createXRUI(AvatarContextMenu) as XRUI<null>
+    removeComponent(ui.entity, VisibleComponent)
+    setComponent(ui.entity, XRUIInteractableComponent)
+    return {
+      ui,
+      id: null! as string | UserId
+    }
+  }
+})
 
 const AvatarContextMenu = () => {
-  const detailState = useXRUIState<UserMenuState>()
-  const engineState = useEngineState()
+  const detailState = useHookstate(getMutableState(AvatarUIContextMenuState))
+  const engineState = useHookstate(getMutableState(EngineState))
   const userState = useNetworkUserState()
   const partyState = usePartyState()
   const friendState = useFriendState()

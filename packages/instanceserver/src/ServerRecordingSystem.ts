@@ -11,7 +11,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
@@ -27,7 +27,7 @@ import {
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
@@ -350,12 +350,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             // override entity ID such that it is actually unique, by appendig the recording id
             const entityID = (uuid + '_' + recording.id) as UserId
             entityChunks[chunkIndex].entities[i] = entityID
-            if (!UUIDComponent.entitiesByUUID.value[entityID]) {
+            if (!UUIDComponent.entitiesByUUID[entityID]) {
               app
                 .service('user')
                 .get(uuid)
                 .then((user) => {
-                  if (user && !UUIDComponent.entitiesByUUID.value[entityID]) {
+                  if (user && !UUIDComponent.entitiesByUUID[entityID]) {
                     dispatchAction(
                       WorldNetworkAction.spawnAvatar({
                         uuid: entityID
@@ -441,7 +441,7 @@ const playbackStopped = (userId: UserId, recordingID: string) => {
   const activePlayback = activePlaybacks.get(recordingID)!
 
   for (const entityUUID of activePlayback.entitiesSpawned) {
-    const entity = UUIDComponent.entitiesByUUID.value[entityUUID]
+    const entity = UUIDComponent.entitiesByUUID[entityUUID]
     const networkObject = getComponent(entity, NetworkObjectComponent)
     dispatchAction(
       WorldNetworkAction.destroyObject({
@@ -494,47 +494,40 @@ export const removeDataChannelToReplay = (userId: UserId) => {
   dataChannelToReplay.delete(userId)
 }
 
-export default async function ServerRecordingSystem() {
-  const startRecordingActionQueue = createActionQueue(ECSRecordingActions.startRecording.matches)
-  const stopRecordingActionQueue = createActionQueue(ECSRecordingActions.stopRecording.matches)
-  const startPlaybackActionQueue = createActionQueue(ECSRecordingActions.startPlayback.matches)
-  const stopPlaybackActionQueue = createActionQueue(ECSRecordingActions.stopPlayback.matches)
+const startRecordingActionQueue = defineActionQueue(ECSRecordingActions.startRecording.matches)
+const stopRecordingActionQueue = defineActionQueue(ECSRecordingActions.stopRecording.matches)
+const startPlaybackActionQueue = defineActionQueue(ECSRecordingActions.startPlayback.matches)
+const stopPlaybackActionQueue = defineActionQueue(ECSRecordingActions.stopPlayback.matches)
+
+const execute = () => {
+  for (const action of startRecordingActionQueue()) onStartRecording(action)
+  for (const action of stopRecordingActionQueue()) onStopRecording(action)
+
+  for (const action of startPlaybackActionQueue()) onStartPlayback(action)
+  for (const action of stopPlaybackActionQueue()) onStopPlayback(action)
+
+  // todo - only set deserializer.active to true once avatar spawns, if clone mode
 
   const app = Engine.instance.api as Application
+  const network = getServerNetwork(app)
 
-  const execute = () => {
-    for (const action of startRecordingActionQueue()) onStartRecording(action)
-    for (const action of stopRecordingActionQueue()) onStopRecording(action)
-
-    for (const action of startPlaybackActionQueue()) onStartPlayback(action)
-    for (const action of stopPlaybackActionQueue()) onStopPlayback(action)
-
-    // todo - only set deserializer.active to true once avatar spawns, if clone mode
-
-    const network = getServerNetwork(app)
-
-    for (const [userId, userMap] of dataChannelToReplay) {
-      if (network.users.has(userId))
-        for (const [dataChannel, chunk] of userMap) {
-          for (const frame of chunk.frames) {
-            if (frame.timecode > Date.now() - chunk.startTime) {
-              network.transport.bufferToAll(dataChannel, encode(frame.data))
-              // for (const peerID of network.users.get(userId)!) {
-              //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
-              // }
-              break
-            }
+  for (const [userId, userMap] of dataChannelToReplay) {
+    if (network.users.has(userId))
+      for (const [dataChannel, chunk] of userMap) {
+        for (const frame of chunk.frames) {
+          if (frame.timecode > Date.now() - chunk.startTime) {
+            network.transport.bufferToAll(dataChannel, encode(frame.data))
+            // for (const peerID of network.users.get(userId)!) {
+            //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
+            // }
+            break
           }
         }
-    }
+      }
   }
-
-  const cleanup = async () => {
-    removeActionQueue(startRecordingActionQueue)
-    removeActionQueue(stopRecordingActionQueue)
-    removeActionQueue(startPlaybackActionQueue)
-    removeActionQueue(stopPlaybackActionQueue)
-  }
-
-  return { execute, cleanup }
 }
+
+export const ServerRecordingSystem = defineSystem({
+  uuid: 'ee.engine.ServerRecordingSystem',
+  execute
+})

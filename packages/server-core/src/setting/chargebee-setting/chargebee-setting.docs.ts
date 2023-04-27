@@ -15,7 +15,7 @@ export default createSwaggerServiceOptions({
     chargebeeSettingSchema
   },
   docs: {
-    description: 'Chargebee service description',
+    description: 'Chargebee setting service description',
     securities: ['all']
   }
 })

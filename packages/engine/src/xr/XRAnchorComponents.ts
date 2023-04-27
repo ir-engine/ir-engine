@@ -31,6 +31,7 @@ import { XRState } from './XRState'
  */
 export const PersistentAnchorComponent = defineComponent({
   name: 'PersistentAnchorComponent',
+  jsonID: 'persistent-anchor',
 
   /**
    * Set default initialization values
@@ -79,8 +80,6 @@ export const PersistentAnchorComponent = defineComponent({
 
   reactor: PersistentAnchorReactor
 })
-
-export const SCENE_COMPONENT_PERSISTENT_ANCHOR = 'persistent-anchor'
 
 const vpsMeshes = new Map<string, { wireframe?: boolean }>()
 
@@ -182,7 +181,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       anchorMeshFound(group, wireframe, meshes)
     } else {
       /** add back to the scene */
-      const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value].value
+      const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value]
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = originalParent
       TransformComponent.dirtyTransforms[entity] = true

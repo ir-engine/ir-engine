@@ -11,7 +11,7 @@ import { useRouter } from '@etherealengine/client-core/src/common/services/Route
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState, getEngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -259,7 +259,7 @@ const EditorContainer = () => {
   }
 
   const onSaveAs = async () => {
-    const sceneLoaded = getEngineState().sceneLoaded.value
+    const sceneLoaded = getState(EngineState).sceneLoaded
 
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
     if (!sceneLoaded) {

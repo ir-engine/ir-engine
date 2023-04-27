@@ -63,8 +63,8 @@ export const config = {
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
       listenIps: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }],
-      initialAvailableOutgoingBitrate: 800000,
-      maxIncomingBitrate: 150000
+      initialAvailableOutgoingBitrate: 1000 * 1000 * 1000,
+      maxIncomingBitrate: 0
     }
   }
 }
@@ -123,8 +123,8 @@ export const localConfig = {
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
       listenIps: [{ ip: configFile.instanceserver.hostname!, announcedIp: null! as string }],
-      initialAvailableOutgoingBitrate: 800000,
-      maxIncomingBitrate: 150000
+      initialAvailableOutgoingBitrate: 1000 * 1000 * 1000,
+      maxIncomingBitrate: 0
     },
 
     plainTransport: {

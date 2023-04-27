@@ -14,7 +14,6 @@ import {
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
@@ -40,8 +39,7 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
   const result: SceneJson = {
     entities: {},
     root: rootUuid,
-    version: 2.0,
-    metadata: getSceneMetadataChanges()
+    version: 2.0
   }
   result.entities[rootUuid] = nodeToEntityJson(rootGL)
   const lookupNode = (idx) => gltf.nodes[idx]
@@ -196,18 +194,14 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity) => {
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = Engine.instance.sceneComponentRegistry.get(component.name)!
+    const sceneComponentID = component.jsonID
     if (sceneComponentID) {
-      const loadingRegister = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)
-      if (loadingRegister) {
-        const serialize = Engine.instance.sceneLoadingRegistry.get(sceneComponentID)?.serialize
-        const data = serialize ? serialize(entity) : serializeComponent(entity, component)
-        if (data)
-          addComponentDataToGLTFExtension(obj3d, {
-            name: sceneComponentID,
-            props: Object.assign({}, data)
-          })
-      }
+      const data = serializeComponent(entity, component)
+      if (data)
+        addComponentDataToGLTFExtension(obj3d, {
+          name: sceneComponentID,
+          props: Object.assign({}, data)
+        })
     }
   }
 }

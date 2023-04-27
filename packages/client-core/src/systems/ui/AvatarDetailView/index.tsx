@@ -1,14 +1,15 @@
-import { createState } from '@hookstate/core'
+import { createState, useHookstate } from '@hookstate/core'
 import { useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { useNetworkUserState } from '../../../user/services/NetworkUserService'
 import styleString from './index.scss?inline'
@@ -35,7 +36,7 @@ const AvatarDetailView = () => {
   const detailState = useXRUIState<AvatarDetailState>()
   const userState = useNetworkUserState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const usersTyping = useState(engineState.usersTyping[detailState.id.value]).value
 
   return (

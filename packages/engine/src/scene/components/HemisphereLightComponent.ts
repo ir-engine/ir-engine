@@ -7,6 +7,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
+  jsonID: 'hemisphere-light',
 
   onInit: (entity) => {
     const light = new HemisphereLight()
@@ -30,8 +31,8 @@ export const HemisphereLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      skyColor: component.skyColor.value.getHex(),
-      groundColor: component.groundColor.value.getHex(),
+      skyColor: component.skyColor.value,
+      groundColor: component.groundColor.value,
       intensity: component.intensity.value
     }
   },
@@ -58,5 +59,3 @@ export const HemisphereLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_HEMISPHERE_LIGHT = 'hemisphere-light'

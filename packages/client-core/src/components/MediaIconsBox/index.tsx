@@ -10,19 +10,19 @@ import {
 import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
-import { MediaStreamState } from '../../transports/MediaStreams'
+import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
-  const [hasAudioDevice, setHasAudioDevice] = useState(false)
-  const [hasVideoDevice, setHasVideoDevice] = useState(false)
+  const [hasAudioDevice, setHasAudioDevice] = useState(0)
+  const [hasVideoDevice, setHasVideoDevice] = useState(0)
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useLocationState().currentLocation.location
@@ -43,7 +43,7 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled =
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
-  const engineState = useEngineState()
+  const spectating = useHookstate(getMutableState(EngineState).spectating)
   const xrState = useHookstate(getMutableState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
@@ -53,10 +53,8 @@ export const MediaIconsBox = () => {
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => {
-        devices.forEach((device) => {
-          if (device.kind === 'audioinput') setHasAudioDevice(true)
-          if (device.kind === 'videoinput') setHasVideoDevice(true)
-        })
+        setHasAudioDevice(devices.filter((device) => device.kind === 'audioinput').length)
+        setHasVideoDevice(devices.filter((device) => device.kind === 'videoinput').length)
       })
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
@@ -96,6 +94,18 @@ export const MediaIconsBox = () => {
           >
             <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
           </button>
+          {isCamVideoEnabled && hasVideoDevice > 1 && (
+            <button
+              type="button"
+              id="FlipVideo"
+              className={styles.iconContainer}
+              onClick={MediaStreamService.cycleCamera}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            >
+              <Icon type={'FlipCameraAndroid'} />
+            </button>
+          )}
           <button
             type="button"
             id="UserPoseTracking"
@@ -150,7 +160,7 @@ export const MediaIconsBox = () => {
           {<Icon type="ViewInAr" />}
         </button>
       )}
-      {engineState.spectating.value && (
+      {spectating.value && (
         <button
           type="button"
           id="ExitSpectator"

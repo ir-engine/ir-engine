@@ -15,7 +15,7 @@ import {
   THUMBNAIL_WIDTH
 } from '@etherealengine/common/src/constants/AvatarConstants'
 import { createGLTFLoader } from '@etherealengine/engine/src/assets/functions/createGLTFLoader'
-import { loadDRACODecoder } from '@etherealengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
+import { loadDRACODecoderNode } from '@etherealengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 
 import logger from '../../ServerLogger'
 
@@ -76,7 +76,7 @@ const createThreeScene = () => {
 
 export const generateAvatarThumbnail = async (avatarModel: Buffer): Promise<Buffer> => {
   if (!renderer) createThreeScene()
-  await loadDRACODecoder()
+  await loadDRACODecoderNode()
   const model: any = await new Promise((resolve, reject) =>
     loader.parse(toArrayBuffer(avatarModel), '', resolve, reject)
   )

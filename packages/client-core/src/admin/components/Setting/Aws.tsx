@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { AwsCloudFrontType, AwsSmsType } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
@@ -38,8 +39,8 @@ const Aws = () => {
 
   useEffect(() => {
     if (awsSetting) {
-      let tempSms = JSON.parse(JSON.stringify(awsSetting?.sms))
-      let tempCloudfront = JSON.parse(JSON.stringify(awsSetting?.cloudfront))
+      const tempSms = JSON.parse(JSON.stringify(awsSetting?.sms)) as AwsSmsType
+      const tempCloudfront = JSON.parse(JSON.stringify(awsSetting?.cloudfront)) as AwsCloudFrontType
       sms.set(tempSms)
       cloudfront.set(tempCloudfront)
     }
@@ -48,15 +49,12 @@ const Aws = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    AwsSettingService.patchAwsSetting(
-      { sms: JSON.stringify(sms.value), cloudfront: JSON.stringify(cloudfront.value) },
-      id
-    )
+    AwsSettingService.patchAwsSetting({ sms: sms.value, cloudfront: cloudfront.value }, id)
   }
 
   const handleCancel = () => {
-    let tempSms = JSON.parse(JSON.stringify(awsSetting?.sms))
-    let tempCloudfront = JSON.parse(JSON.stringify(awsSetting?.cloudfront))
+    const tempSms = JSON.parse(JSON.stringify(awsSetting?.sms)) as AwsSmsType
+    const tempCloudfront = JSON.parse(JSON.stringify(awsSetting?.cloudfront)) as AwsCloudFrontType
     sms.set(tempSms)
     cloudfront.set(tempCloudfront)
   }

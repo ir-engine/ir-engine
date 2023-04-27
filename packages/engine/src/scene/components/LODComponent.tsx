@@ -28,10 +28,9 @@ export type LODComponentType = {
   instanceLevels: InstancedBufferAttribute
 }
 
-export const SCENE_COMPONENT_LOD = 'lod'
-
 export const LODComponent = defineComponent({
   name: 'EE_LOD',
+  jsonID: 'lod',
   onInit: (entity) =>
     ({
       target: 0,
@@ -45,8 +44,7 @@ export const LODComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (['number', 'string'].includes(typeof json.target)) {
-      const targetEntity =
-        typeof json.target === 'string' ? UUIDComponent.entitiesByUUID[json.target].value : json.target
+      const targetEntity = typeof json.target === 'string' ? UUIDComponent.entitiesByUUID[json.target] : json.target
       if (targetEntity && component.target.value !== targetEntity) {
         LODComponent.lodsByEntity[targetEntity].set(
           (

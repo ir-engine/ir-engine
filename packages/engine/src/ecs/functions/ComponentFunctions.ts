@@ -22,7 +22,9 @@ export const INITIAL_COMPONENT_SIZE = config.client.appEnv === 'test' ? 100000 :
 bitECS.setDefaultSize(INITIAL_COMPONENT_SIZE)
 
 export const ComponentMap = new Map<string, Component<any, any, any>>()
+export const ComponentJSONIDMap = new Map<string, Component<any, any, any>>() // <jsonID, Component>
 globalThis.ComponentMap = ComponentMap
+globalThis.ComponentJSONIDMap = ComponentJSONIDMap
 
 type PartialIfObject<T> = T extends object ? Partial<T> : T
 
@@ -31,7 +33,7 @@ type OnInitValidateNotState<T> = T extends State<any, {}> ? 'onAdd must not retu
 type SomeStringLiteral = 'a' | 'b' | 'c' // just a dummy string literal union
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 
-const createExistenceMap = () => hookstate({} as Record<Entity, boolean>, subscribable())
+const createExistenceMap = (val: Record<Entity, boolean>) => hookstate(val, subscribable())
 
 export interface ComponentPartial<
   ComponentType = any,
@@ -41,6 +43,7 @@ export interface ComponentPartial<
   ErrorTypes = never
 > {
   name: string
+  jsonID?: string
   schema?: Schema
   onInit?: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
@@ -58,6 +61,7 @@ export interface Component<
 > {
   isComponent: true
   name: string
+  jsonID?: string
   schema?: Schema
   onInit: (this: SoAComponentType<Schema>, entity: Entity) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
@@ -65,7 +69,8 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: HookableFunction<React.FC<EntityReactorProps>>
   reactorMap: Map<Entity, EntityReactorRoot>
-  existenceMap: ReturnType<typeof createExistenceMap>
+  existenceMap: Readonly<Record<Entity, boolean>>
+  existenceMapState: ReturnType<typeof createExistenceMap>
   stateMap: Record<Entity, State<ComponentType> | undefined>
   valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
@@ -103,9 +108,11 @@ export const defineComponent = <
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
-  Component.existenceMap = createExistenceMap()
+  Component.existenceMap = {}
+  Component.existenceMapState = createExistenceMap(Component.existenceMap)
   Component.stateMap = {}
   Component.valueMap = {}
+  if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
   ComponentMap.set(Component.name, Component)
   return Component
 }
@@ -133,7 +140,7 @@ export const getOptionalComponentState = <ComponentType>(
   component: Component<ComponentType, {}, unknown>
 ): State<ComponentType> | undefined => {
   // if (entity === UndefinedEntity) return undefined
-  if (component.existenceMap[entity].value) return component.stateMap[entity]
+  if (component.existenceMap[entity]) return component.stateMap[entity]
   return undefined
 }
 
@@ -190,7 +197,7 @@ export const setComponent = <C extends Component>(
   let value = args
   if (!hasComponent(entity, Component)) {
     value = Component.onInit(entity) ?? args
-    Component.existenceMap[entity].set(true)
+    Component.existenceMapState[entity].set(true)
     if (!Component.stateMap[entity]) {
       const state = hookstate(value, subscribable())
       Component.stateMap[entity] = state
@@ -258,6 +265,7 @@ export const updateComponent = <C extends Component>(
  * @param Component
  * @param args
  * @returns
+ * @deprecated - use setComponent instead
  */
 export const addComponent = <C extends Component>(
   entity: Entity,
@@ -269,7 +277,7 @@ export const addComponent = <C extends Component>(
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
-  return component.existenceMap[entity]?.value ?? false
+  return component.existenceMap[entity] ?? false
 }
 
 export const getOrAddComponent = <C extends Component>(entity: Entity, component: C, args?: SetComponentType<C>) => {
@@ -278,7 +286,7 @@ export const getOrAddComponent = <C extends Component>(entity: Entity, component
 
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
-  component.existenceMap[entity].set(false)
+  component.existenceMapState[entity].set(false)
   component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(Engine.instance, component, entity, false)
   delete component.valueMap[entity]
@@ -318,13 +326,15 @@ export const getAllComponentsOfType = <C extends Component<any>>(component: C): 
 }
 
 export const removeAllComponents = (entity: Entity) => {
+  const promises = [] as Promise<void>[]
   try {
     for (const component of bitECS.getEntityComponents(Engine.instance, entity)) {
-      removeComponent(entity, component as Component)
+      promises.push(removeComponent(entity, component as Component))
     }
   } catch (_) {
     logger.warn('Components of entity already removed')
   }
+  return promises
 }
 
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {
@@ -336,9 +346,24 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
   const query = bitECS.defineQuery([...components, bitECS.Not(EntityRemovedComponent)]) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
-  const wrappedQuery = () => query(Engine.instance) as Entity[]
-  wrappedQuery.enter = () => enterQuery(Engine.instance) as Entity[]
-  wrappedQuery.exit = () => exitQuery(Engine.instance) as Entity[]
+
+  const _remove = () => bitECS.removeQuery(Engine.instance, wrappedQuery._query)
+  const _removeEnter = () => bitECS.removeQuery(Engine.instance, wrappedQuery._enterQuery)
+  const _removeExit = () => bitECS.removeQuery(Engine.instance, wrappedQuery._exitQuery)
+
+  const wrappedQuery = () => {
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_remove)
+    return query(Engine.instance) as Entity[]
+  }
+  wrappedQuery.enter = () => {
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
+    return enterQuery(Engine.instance) as Entity[]
+  }
+  wrappedQuery.exit = () => {
+    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
+    return exitQuery(Engine.instance) as Entity[]
+  }
+
   wrappedQuery._query = query
   wrappedQuery._enterQuery = enterQuery
   wrappedQuery._exitQuery = exitQuery
@@ -421,12 +446,12 @@ function _use(promise) {
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component<any>>(entity: Entity, Component: C) {
-  const hasComponent = useHookstate(Component.existenceMap[entity]).value
+  const hasComponent = useHookstate(Component.existenceMapState[entity]).value
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (!hasComponent)
     (use ?? _use)(
       new Promise<void>((resolve) => {
-        const unsubscribe = Component.existenceMap[entity].subscribe((value) => {
+        const unsubscribe = Component.existenceMapState[entity].subscribe((value) => {
           if (value) {
             resolve()
             unsubscribe()
@@ -441,7 +466,7 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
  * Use a component in a reactive context (a React component)
  */
 export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
-  const hasComponent = useHookstate(Component.existenceMap[entity]).value
+  const hasComponent = useHookstate(Component.existenceMapState[entity]).value
   if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined)
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined

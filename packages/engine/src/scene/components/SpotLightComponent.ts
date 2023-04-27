@@ -13,6 +13,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
+  jsonID: 'spot-light',
 
   onInit: (entity) => {
     const light = new SpotLight()
@@ -58,7 +59,7 @@ export const SpotLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,
@@ -160,5 +161,3 @@ export const SpotLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_SPOT_LIGHT = 'spot-light'

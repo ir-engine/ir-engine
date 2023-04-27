@@ -29,6 +29,8 @@ export interface PositionalAudioInterface {
 export const PositionalAudioComponent = defineComponent({
   name: 'EE_positionalAudio',
 
+  jsonID: 'audio',
+
   onInit: (entity) => {
     return {
       // default values as suggested at https://medium.com/@kfarr/understanding-web-audio-api-positional-audio-distance-models-for-webxr-e77998afcdff
@@ -108,5 +110,3 @@ export const PositionalAudioComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_AUDIO = 'audio'

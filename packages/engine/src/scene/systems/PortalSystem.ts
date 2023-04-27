@@ -1,34 +1,39 @@
-import { createActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { PortalComponent, SCENE_COMPONENT_PORTAL } from '../components/PortalComponent'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { PortalComponent } from '../components/PortalComponent'
 import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
+import { HyperspacePortalSystem } from './HyperspacePortalSystem'
+import { PortalLoadSystem } from './PortalLoadSystem'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
-export default async function PortalSystem() {
-  Engine.instance.scenePrefabRegistry.set(ScenePrefabs.portal, [
-    ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_PORTAL, props: {} }
-  ])
+const sceneLoadedQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
-  Engine.instance.sceneComponentRegistry.set(PortalComponent.name, SCENE_COMPONENT_PORTAL)
-  Engine.instance.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {})
-
-  const sceneLoadedQueue = createActionQueue(EngineActions.sceneLoaded.matches)
-  const execute = () => {
-    if (sceneLoadedQueue().length && getMutableState(EngineState).isTeleporting.value)
-      revertAvatarToMovingStateFromTeleport()
-  }
-
-  const cleanup = async () => {
-    Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.portal)
-
-    Engine.instance.sceneLoadingRegistry.delete(SCENE_COMPONENT_PORTAL)
-    Engine.instance.sceneComponentRegistry.delete(PortalComponent.name)
-
-    removeActionQueue(sceneLoadedQueue)
-  }
-
-  return { execute, cleanup }
+const execute = () => {
+  if (sceneLoadedQueue().length && getState(EngineState).isTeleporting) revertAvatarToMovingStateFromTeleport()
 }
+
+const reactor = () => {
+  useEffect(() => {
+    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.portal, [
+      ...defaultSpatialComponents,
+      { name: PortalComponent.jsonID }
+    ])
+
+    return () => {
+      Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.portal)
+    }
+  }, [])
+  return null
+}
+
+export const PortalSystem = defineSystem({
+  uuid: 'ee.engine.PortalSystem',
+  execute,
+  reactor,
+  subSystems: [PortalLoadSystem, HyperspacePortalSystem]
+})

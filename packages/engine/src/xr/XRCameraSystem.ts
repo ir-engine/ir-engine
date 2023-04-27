@@ -1,10 +1,11 @@
 import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three'
 
-import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
@@ -94,16 +95,16 @@ function updateCameraFromXRViewerPose() {
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   const renderer = EngineRenderer.instance.renderer
-  const xrState = getMutableState(XRState)
-  const pose = xrState.viewerPose.value
+  const xrState = getState(XRState)
+  const pose = xrState.viewerPose
 
   if (pose) {
     const views = pose.views
-    const xrRendererState = getMutableState(XRRendererState)
-    const glBaseLayer = xrRendererState.glBaseLayer.value
-    const glBinding = xrRendererState.glBinding.value
-    const glProjLayer = xrRendererState.glProjLayer.value
-    const newRenderTarget = xrRendererState.newRenderTarget.value
+    const xrRendererState = getState(XRRendererState)
+    const glBaseLayer = xrRendererState.glBaseLayer
+    const glBinding = xrRendererState.glBinding
+    const glProjLayer = xrRendererState.glProjLayer
+    const newRenderTarget = xrRendererState.newRenderTarget
 
     if (glBaseLayer !== null) {
       // @ts-ignore setRenderTargetFramebuffer is not in the type definition
@@ -111,7 +112,7 @@ function updateCameraFromXRViewerPose() {
       renderer.setRenderTarget(newRenderTarget)
     }
 
-    cameraTransform.position.copy(pose.transform.position as any).multiplyScalar(1 / xrState.sceneScale.value)
+    cameraTransform.position.copy(pose.transform.position as any).multiplyScalar(1 / xrState.sceneScale)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
     cameraTransform.matrix
       .compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
@@ -161,7 +162,7 @@ function updateCameraFromXRViewerPose() {
         viewCamera.matrixWorldAutoUpdate = false
       }
 
-      viewCamera.position.copy(view.transform.position as any).multiplyScalar(1 / xrState.sceneScale.value)
+      viewCamera.position.copy(view.transform.position as any).multiplyScalar(1 / xrState.sceneScale)
       viewCamera.quaternion.copy(view.transform.orientation as any)
       viewCamera.matrixWorld
         .compose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
@@ -186,8 +187,8 @@ export function updateXRCamera() {
   const renderer = EngineRenderer.instance.renderer
 
   const camera = Engine.instance.camera
-  const xrState = getMutableState(XRState)
-  const session = xrState.session.value
+  const xrState = getState(XRState)
+  const session = xrState.session
 
   if (session === null) {
     camera.cameras = [cameraL]
@@ -220,24 +221,22 @@ export function updateXRCamera() {
   updateProjectionFromCameraArrayUnion(camera)
 }
 
-export default async function XRCameraSystem() {
-  const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
-  const xrState = getMutableState(XRState)
+const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
-  const execute = () => {
-    for (const action of xrSessionChangedQueue()) {
-      if (!action.active) {
-        _currentDepthNear = null
-        _currentDepthFar = null
-      }
+const execute = () => {
+  for (const action of xrSessionChangedQueue()) {
+    if (!action.active) {
+      _currentDepthNear = null
+      _currentDepthFar = null
     }
-
-    xrState.viewerPose.set(
-      ReferenceSpace.localFloor && Engine.instance.xrFrame?.getViewerPose(ReferenceSpace.localFloor)
-    )
   }
 
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+  getMutableState(XRState).viewerPose.set(
+    ReferenceSpace.localFloor && Engine.instance.xrFrame?.getViewerPose(ReferenceSpace.localFloor)
+  )
 }
+
+export const XRCameraSystem = defineSystem({
+  uuid: 'ee.engine.XRCameraSystem',
+  execute
+})

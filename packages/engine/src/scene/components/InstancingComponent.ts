@@ -114,6 +114,7 @@ export type InstancingComponentType = {
 
 export const InstancingComponent = defineComponent({
   name: 'InstancingComponent',
+  jsonID: 'instancing',
 
   onInit: (entity) => {
     return {
@@ -227,7 +228,7 @@ export const InstancingComponent = defineComponent({
     useEffect(() => {
       if (!sceneLoaded.value || instancingComponent.state.value !== ScatterState.STAGED) return
 
-      const refEntity = UUIDComponent.entitiesByUUID.value[instancingComponent.surface.value]
+      const refEntity = UUIDComponent.entitiesByUUIDState.value[instancingComponent.surface.value]
       const groupComponent = getComponent(refEntity, GroupComponent)
 
       for (const obj of groupComponent) {

@@ -20,6 +20,7 @@ import { PLANE_GEO } from './ImageComponent'
 
 export const VideoComponent = defineComponent({
   name: 'EE_video',
+  jsonID: 'video',
 
   onInit: (entity) => {
     const videoGroup = new Group()
@@ -67,14 +68,12 @@ export const VideoComponent = defineComponent({
   reactor: VideoReactor
 })
 
-export const SCENE_COMPONENT_VIDEO = 'video'
-
 function VideoReactor({ root }: EntityReactorProps) {
   const entity = root.entity
 
   const video = useComponent(entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value ?? ''
-  const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID].value ?? entity
+  const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID] ?? entity
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
   // update side

@@ -3,7 +3,7 @@ import { Box3, BufferAttribute, BufferGeometry, InterleavedBufferAttribute } fro
 import { MeshBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
-import { isClient } from '../functions/isClient'
+import { isClient } from '../functions/getEnvironment'
 
 export class GenerateMeshBVHWorker {
   running: boolean

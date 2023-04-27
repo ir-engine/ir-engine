@@ -95,7 +95,6 @@ export const setupXRSession = async (requestedMode) => {
 
   xrState.sessionActive.set(true)
 
-  xrManager.setFoveation(1)
   xrState.sessionMode.set(mode)
 
   await xrManager.setSession(xrSession, framebufferScaleFactor)
