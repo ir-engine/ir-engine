@@ -44,6 +44,7 @@ import { addInteractableUI, InteractableTransitions, removeInteractiveUI } from 
 
 export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetworkAction.setEquippedObject>) {
   const equippedEntity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
+  // todo, ensure the user has authority when equipping
   if (action.equip && action.$from === Engine.instance.userId) {
     const equipperEntity = Engine.instance.localClientEntity
     setComponent(equipperEntity, EquipperComponent, { equippedEntity })
