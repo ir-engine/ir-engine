@@ -24,7 +24,7 @@ export const localVideoConstraints: MediaStreamConstraints = {
 export const CAM_VIDEO_SIMULCAST_ENCODINGS = [
   { scaleResolutionDownBy: 4, maxBitrate: 500000 }, // 500kbps
   { scaleResolutionDownBy: 2, maxBitrate: 1000000 }, // 1mbps
-  { scaleResolutionDownBy: 1, maxBitrate: 10000000 } // 10mbps
+  { scaleResolutionDownBy: 1, maxBitrate: 30000000 } // 30mbps
 ]
 
 export const CAM_VIDEO_SIMULCAST_CODEC_OPTIONS = {
@@ -34,7 +34,7 @@ export const CAM_VIDEO_SIMULCAST_CODEC_OPTIONS = {
 }
 
 export const SCREEN_SHARE_SIMULCAST_ENCODINGS = [
-  { dtx: true, maxBitrate: 6000000 }, // 6mbps
-  { dtx: true, maxBitrate: 20000000 }, // 20mbps
-  { dtx: true, maxBitrate: 100000000 } // 100mbps
+  { dtx: true, maxBitrate: 6000000, scaleResolutionDownBy: 4 }, // 6mbps
+  { dtx: true, maxBitrate: 20000000, scaleResolutionDownBy: 2 }, // 20mbps
+  { dtx: true, maxBitrate: 100000000, scaleResolutionDownBy: 1 } // 100mbps
 ]
