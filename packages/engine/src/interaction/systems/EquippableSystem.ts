@@ -48,15 +48,17 @@ export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetwork
     setComponent(equipperEntity, EquipperComponent, { equippedEntity })
     setComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint: action.attachmentPoint! })
   }
+  if (action.equip) {
+    if (hasComponent(equippedEntity, LocalTransformComponent)) {
+      removeComponent(equippedEntity, LocalTransformComponent)
+    }
+    if (hasComponent(equippedEntity, ColliderComponent)) {
+      removeComponent(equippedEntity, ColliderComponent)
+    }
+  }
   const body = getComponent(equippedEntity, RigidBodyComponent)?.body
   if (body) {
     if (action.equip) {
-      if (hasComponent(equippedEntity, LocalTransformComponent)) {
-        removeComponent(equippedEntity, LocalTransformComponent)
-      }
-      if (hasComponent(equippedEntity, ColliderComponent)) {
-        removeComponent(equippedEntity, ColliderComponent)
-      }
       Physics.changeRigidbodyType(equippedEntity, RigidBodyType.KinematicPositionBased)
     } else {
       Physics.changeRigidbodyType(equippedEntity, RigidBodyType.Dynamic)
