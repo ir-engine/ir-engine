@@ -91,7 +91,7 @@ const showWidgetMenu = (show: boolean) => {
   if (!createdWidgets && (isMobileXRHeadset || isDev)) {
     createdWidgets = true
     createAnchorWidget()
-    createMediaWidget()
+    // createMediaWidget()
     // createHeightAdjustmentWidget()
     // createProfileWidget()
     // createSettingsWidget()

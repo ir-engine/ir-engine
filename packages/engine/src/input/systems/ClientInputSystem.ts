@@ -362,6 +362,14 @@ const execute = () => {
     updateGamepadInput(sourceEid)
   }
 
+  for (const eid of inputSinks()) {
+    const inputSink = getComponent(eid, InputComponent)
+    inputSink.inputSources = inputSources().filter((sourceEid) => {
+      const source = getComponent(sourceEid, InputSourceComponent)
+      return source.assignedEntity === eid
+    })
+  }
+
   Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
 
   Engine.instance.pointerState.movement.subVectors(

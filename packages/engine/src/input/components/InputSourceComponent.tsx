@@ -36,27 +36,27 @@ export const InputSourceComponent = defineComponent({
     setComponent(entity, XRSpaceComponent, source.targetRaySpace)
   },
 
-  entitiesByInputSource: new WeakMap<XRInputSource>(),
+  entitiesByInputSource: new WeakMap<XRInputSource>()
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const inputSource = useComponent(entity, InputSourceComponent)
-    const assignedEntity = inputSource.assignedEntity
-    return <InputSourceAssignmentReactor key={assignedEntity.value} assignedEntity={assignedEntity} />
-  }
+  // reactor: () => {
+  //   const entity = useEntityContext()
+  //   const inputSource = useComponent(entity, InputSourceComponent)
+  //   const assignedEntity = inputSource.assignedEntity
+  //   return <InputSourceAssignmentReactor key={assignedEntity.value} assignedEntity={assignedEntity} />
+  // }
 })
 
-const InputSourceAssignmentReactor = (props: { assignedEntity: State<Entity> }) => {
-  const assignedInputEntity = useHookstate(props.assignedEntity)
-  const input = useComponent(assignedInputEntity.value, InputComponent)
+// const InputSourceAssignmentReactor = (props: { assignedEntity: State<Entity> }) => {
+//   const assignedInputEntity = useHookstate(props.assignedEntity)
+//   const inputSink = useComponent(assignedInputEntity.value, InputComponent)
 
-  useLayoutEffect(() => {
-    input.inputSources.merge([assignedInputEntity.value])
-    return () => {
-      const idx = input.inputSources.keys.indexOf(assignedInputEntity.value)
-      idx > -1 && input.inputSources[idx].set(none)
-    }
-  }, [input])
+//   useLayoutEffect(() => {
+//     inputSink.inputSources.merge([assignedInputEntity.value])
+//     return () => {
+//       const idx = inputSink.inputSources.keys.indexOf(assignedInputEntity.value)
+//       idx > -1 && inputSink.inputSources[idx].set(none)
+//     }
+//   }, [inputSink, assignedInputEntity])
 
-  return null
-}
+//   return null
+// }
