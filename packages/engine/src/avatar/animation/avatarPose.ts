@@ -145,11 +145,6 @@ export function applySkeletonPose(mesh: SkinnedMesh) {
   const target = new Vector3()
   const posAttr = mesh.geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute
   const normalAttr = mesh.geometry.attributes.normal as BufferAttribute | InterleavedBufferAttribute
-  const { bones } = mesh.skeleton
-
-  bones.forEach((bone) => {
-    bone.updateMatrixWorld()
-  })
 
   for (let i = 0; i < posAttr.count; i++) {
     target.fromBufferAttribute(posAttr, i)
