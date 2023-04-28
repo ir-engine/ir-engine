@@ -18,7 +18,8 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists === false) {
     await knex.schema.createTable(chargebeeSettingPath, (table) => {
-      table.string('id', 36).primary()
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('url', 255).nullable()
       table.string('apiKey', 255).nullable()
       table.dateTime('createdAt').notNullable()

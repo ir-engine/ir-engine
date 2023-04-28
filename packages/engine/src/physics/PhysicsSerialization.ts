@@ -1,13 +1,13 @@
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { Entity } from '../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { checkBitflag, readCompressedRotation, readVector3 } from '../networking/serialization/DataReader'
-import { writeCompressedRotation, writeVector3 } from '../networking/serialization/DataWriter'
+import { checkBitflag, readCompressedRotation, readVector3, readVector4 } from '../networking/serialization/DataReader'
+import { writeCompressedRotation, writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
 import { readUint8, rewindViewCursor, spaceUint8, ViewCursor } from '../networking/serialization/ViewCursor'
 import { RigidBodyComponent } from './components/RigidBodyComponent'
 
 export const readBodyPosition = readVector3(RigidBodyComponent.position)
-export const readBodyRotation = readCompressedRotation(RigidBodyComponent.rotation)
+export const readBodyRotation = readVector4(RigidBodyComponent.rotation)
 export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
 export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
 
@@ -33,7 +33,7 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
 }
 
 export const writeBodyPosition = writeVector3(RigidBodyComponent.position)
-export const writeBodyRotation = writeCompressedRotation(RigidBodyComponent.rotation)
+export const writeBodyRotation = writeVector4(RigidBodyComponent.rotation)
 export const writeBodyLinearVelocity = writeVector3(RigidBodyComponent.linearVelocity)
 export const writeBodyAngularVelocity = writeVector3(RigidBodyComponent.angularVelocity)
 

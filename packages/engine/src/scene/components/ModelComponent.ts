@@ -16,7 +16,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -93,8 +93,8 @@ export const ModelComponent = defineComponent({
   reactor: ModelReactor
 })
 
-function ModelReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
+function ModelReactor() {
+  const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value

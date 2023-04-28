@@ -1,6 +1,7 @@
 import { Downgraded, State, useHookstate } from '@hookstate/core'
 import classNames from 'classnames'
 import hark from 'hark'
+import { t } from 'i18next'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -62,12 +63,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioElement
   } = peerMediaChannelState.value
 
-  useEffect(() => {
-    videoElement.draggable = false
-    document.getElementById(peerID + '-video-container')!.append(videoElement)
-    document.getElementById(peerID + '-audio-container')!.append(audioElement)
-  }, [])
-
   const [audioTrackClones, setAudioTrackClones] = useState<any[]>([])
   const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
   const [videoTrackId, setVideoTrackId] = useState('')
@@ -82,7 +77,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const resumeVideoOnUnhide = useRef<boolean>(false)
   const resumeAudioOnUnhide = useRef<boolean>(false)
 
-  const { t } = useTranslation()
   const audioState = useHookstate(getMutableState(AudioState))
 
   const [_volume, _setVolume] = useState(1)
@@ -105,14 +99,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const rendered = !mediaSettingState.immersiveMedia.value
 
   useEffect(() => {
-    if (peerMediaChannelState.videoStream.value?.track)
-      setVideoTrackId(peerMediaChannelState.videoStream.value.track.id)
-  }, [peerMediaChannelState.videoStream, mediaStreamState.videoStream])
+    if (videoStream?.track) setVideoTrackId(videoStream.track.id)
+  }, [videoStream, mediaStreamState.videoStream])
 
   useEffect(() => {
-    if (peerMediaChannelState.audioStream.value?.track)
-      setAudioTrackId(peerMediaChannelState.audioStream.value.track.id)
-  }, [peerMediaChannelState.audioStream, mediaStreamState.audioStream])
+    if (audioStream?.track) setAudioTrackId(audioStream.track.id)
+  }, [audioStream, mediaStreamState.audioStream])
 
   useEffect(() => {
     function onUserInteraction() {
@@ -362,7 +354,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioProducerGlobalMute,
     videoDisplayReady,
     soundIndicatorOn,
-    t,
     togglePiP,
     toggleAudio,
     toggleVideo,
@@ -372,7 +363,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }
 }
 
-const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
+export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   const {
     user,
     isPiP,
@@ -393,7 +384,6 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     audioProducerGlobalMute,
     videoDisplayReady,
     soundIndicatorOn,
-    t,
     togglePiP,
     toggleAudio,
     toggleVideo,
@@ -401,6 +391,18 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     toggleGlobalMute,
     rendered
   } = useUserMediaWindowHook({ peerID, type })
+
+  const peerMediaChannelState = useHookstate(
+    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
+  )
+
+  const { videoElement, audioElement } = peerMediaChannelState.value
+
+  useEffect(() => {
+    videoElement.draggable = false
+    document.getElementById(peerID + '-video-container')!.append(videoElement)
+    document.getElementById(peerID + '-audio-container')!.append(audioElement)
+  }, [])
 
   return (
     <Draggable isPiP={isPiP}>
@@ -551,4 +553,104 @@ const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   )
 }
 
-export default UserMediaWindow
+export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
+  const {
+    user,
+    volume,
+    isScreen,
+    username,
+    selfUser,
+    isSelf,
+    videoStream,
+    audioStream,
+    enableGlobalMute,
+    userAvatarDetails,
+    videoStreamPaused,
+    audioStreamPaused,
+    videoProducerPaused,
+    audioProducerPaused,
+    videoProducerGlobalMute,
+    audioProducerGlobalMute,
+    videoDisplayReady,
+    soundIndicatorOn,
+    toggleAudio,
+    toggleVideo,
+    adjustVolume,
+    toggleGlobalMute,
+    rendered
+  } = useUserMediaWindowHook({ peerID, type })
+
+  const peerMediaChannelState = useHookstate(
+    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
+  )
+
+  const { videoStream: videoStreamState } = peerMediaChannelState
+
+  const ref = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (!ref.current || ref.current.srcObject || !videoStreamState?.value) return
+
+    ref.current.id = `${peerID}_video_xrui`
+    ref.current.autoplay = true
+    ref.current.muted = true
+    ref.current.setAttribute('playsinline', 'true')
+
+    const newVideoTrack = videoStreamState.value.track!.clone()
+    ref.current.srcObject = new MediaStream([newVideoTrack])
+    ref.current.play()
+  }, [ref.current, videoStreamState])
+
+  return (
+    <div
+      style={{
+        height: '100px',
+        width: '100px',
+        background: 'white',
+        // borderRadius: '50px', // todo - fix video overflow to make round - see if we can replace the geometry of the layer with a circle geom
+        border: '3px solid var(--iconButtonSelectedBackground)',
+        overflow: 'hidden'
+      }}
+      xr-layer="true"
+    >
+      {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
+        <img
+          src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : user?.id)}
+          alt=""
+          crossOrigin="anonymous"
+          draggable={false}
+          xr-layer="true"
+        />
+      ) : (
+        <video
+          xr-layer="true"
+          style={{ maxWidth: '100px' }}
+          ref={ref}
+          key={peerID + '-video-container'}
+          id={peerID + '-video-container-xrui'}
+        />
+      )}
+      <div
+        style={{
+          fontFamily: "'Roboto', sans-serif",
+          textAlign: 'center',
+          width: '100%',
+          margin: '14px 0',
+          color: 'var(--textColor)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}
+        xr-layer="true"
+      >
+        {username}
+        <button style={{}} onClick={toggleAudio} xr-layer="true">
+          <Icon
+            xr-layer="true"
+            type={isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'}
+          />
+        </button>
+      </div>
+    </div>
+  )
+}

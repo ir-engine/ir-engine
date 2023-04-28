@@ -9,12 +9,12 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { startReactor } from '@etherealengine/hyperflux'
+import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
-import { EntityReactorProps, EntityReactorRoot } from './EntityFunctions'
+import { EntityContext } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
@@ -49,7 +49,7 @@ export interface ComponentPartial<
   toJSON?: (entity: Entity, component: State<ComponentType>) => JSON
   onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
-  reactor?: React.FC<EntityReactorProps>
+  reactor?: React.FC
   errors?: ErrorTypes[]
 }
 export interface Component<
@@ -67,8 +67,8 @@ export interface Component<
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
-  reactor?: HookableFunction<React.FC<EntityReactorProps>>
-  reactorMap: Map<Entity, EntityReactorRoot>
+  reactor?: HookableFunction<React.FC>
+  reactorMap: Map<Entity, ReactorRoot>
   existenceMap: Readonly<Record<Entity, boolean>>
   existenceMapState: ReturnType<typeof createExistenceMap>
   stateMap: Record<Entity, State<ComponentType> | undefined>
@@ -207,8 +207,14 @@ export const setComponent = <C extends Component>(
     } else Component.stateMap[entity]!.set(value)
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
     if (Component.reactor && !Component.reactorMap.has(entity)) {
-      const root = startReactor(Component.reactor) as EntityReactorRoot
-      root.entity = entity
+      const root = startReactor(() =>
+        React.createElement(
+          EntityContext.Provider,
+          { value: entity },
+          React.createElement(Component.reactor || (() => null), {})
+        )
+      ) as ReactorRoot
+      root['entity'] = entity
       Component.reactorMap.set(entity, root)
     }
   }

@@ -4,14 +4,14 @@ import React, { Component, ErrorInfo, FC, memo, Suspense, useEffect, useMemo } f
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getState, ReactorProps, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { getState, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { Entity } from '../classes/Entity'
+import { Entity, UndefinedEntity } from '../classes/Entity'
 import { QueryComponents, useQuery } from './ComponentFunctions'
-import { EntityReactorProps } from './EntityFunctions'
+import { EntityContext } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
@@ -19,7 +19,7 @@ export type SystemUUID = OpaqueType<'SystemUUID'> & string
 export interface System {
   uuid: SystemUUID
   execute: () => void // runs after preSystems, and before subSystems
-  reactor: FC<ReactorProps>
+  reactor: FC
   preSystems: SystemUUID[]
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
@@ -300,39 +300,37 @@ export const disableSystem = (systemUUID: SystemUUID) => {
   }
 }
 
-const QueryReactor = memo(
-  (props: { root: ReactorRoot; entity: Entity; ChildEntityReactor: FC<EntityReactorProps> }) => {
-    const entityRoot = useMemo(() => {
-      return {
-        ...props.root,
-        entity: props.entity
-      }
-    }, [props.root, props.entity])
-    return (
-      <>
-        <QueryReactorErrorBoundary>
-          <Suspense fallback={null}>
-            <props.ChildEntityReactor root={entityRoot} />
-          </Suspense>
-        </QueryReactorErrorBoundary>
-      </>
-    )
-  }
-)
+const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC }) => {
+  return (
+    <>
+      <QueryReactorErrorBoundary>
+        <Suspense fallback={null}>
+          <EntityContext.Provider value={props.entity}>
+            <props.ChildEntityReactor />
+          </EntityContext.Provider>
+        </Suspense>
+      </QueryReactorErrorBoundary>
+    </>
+  )
+})
 
-export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: FC<EntityReactorProps>) => {
-  if (!ChildEntityReactor.name) Object.defineProperty(ChildEntityReactor, 'name', { value: 'ChildEntityReactor' })
-  const MemoChildEntityReactor = memo(ChildEntityReactor)
-  return function HyperfluxQueryReactor({ root }: ReactorProps) {
-    const entities = useQuery(Components)
-    return (
-      <>
-        {entities.map((entity) => (
-          <QueryReactor root={root} key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} />
-        ))}
-      </>
-    )
-  }
+export function QueryReactor(props: { Components: QueryComponents; ChildEntityReactor: FC }) {
+  const entities = useQuery(props.Components)
+  const MemoChildEntityReactor = memo(props.ChildEntityReactor)
+  return (
+    <>
+      {entities.map((entity) => (
+        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} />
+      ))}
+    </>
+  )
+}
+
+/**
+ * @deprecated use QueryReactor directly
+ */
+export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: FC) => {
+  return () => <QueryReactor Components={Components} ChildEntityReactor={ChildEntityReactor} />
 }
 
 interface ErrorState {

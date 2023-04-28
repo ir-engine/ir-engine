@@ -1,47 +1,42 @@
-import { BadRequest, NotFound } from '@feathersjs/errors'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { NotFound } from '@feathersjs/errors'
+import { Id, Params } from '@feathersjs/feathers'
+import { KnexAdapter, KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex/lib'
 
 import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
-import { OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
+import {
+  MatchTicketAssignmentQuery,
+  MatchTicketAssignmentType
+} from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
+import config from '@etherealengine/server-core/src/appconfig'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import { emulate_getTicketsAssignment } from '../emulate'
 
-interface Data {}
-
-interface ServiceOptions {}
+export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTicketAssignmentQuery> {
+  userId?: string
+}
 
 /**
- * A class for OpenMatch Tickets service
+ * A class for MatchTicketAssignment service
  */
-export class MatchTicketAssignment implements ServiceMethods<Data> {
+export class MatchTicketAssignmentService<
+  T = MatchTicketAssignmentType,
+  ServiceParams extends Params = MatchTicketAssignmentParams
+> extends KnexAdapter<MatchTicketAssignmentType, MatchTicketAssignmentParams> {
   app: Application
-  options: ServiceOptions
-  docs: any
 
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
+  constructor(options: KnexAdapterOptions, app: Application) {
+    super(options)
     this.app = app
   }
 
-  async setup() {}
-
-  async find(params: Params): Promise<Data[]> {
-    return []
-  }
-
-  async get(ticketId: unknown, params: Params): Promise<OpenMatchTicketAssignment> {
-    if (typeof ticketId !== 'string' || ticketId.length === 0) {
-      throw new BadRequest('Invalid ticket id, not empty string is expected')
-    }
-
-    let assignment: OpenMatchTicketAssignment
+  async get(id: Id, params: MatchTicketAssignmentParams) {
+    let assignment: MatchTicketAssignmentType
     try {
       if (config.server.matchmakerEmulationMode) {
-        assignment = await emulate_getTicketsAssignment(this.app, ticketId, params['identity-provider'].userId)
+        assignment = await emulate_getTicketsAssignment(this.app, id, params['identity-provider'].userId)
       } else {
-        assignment = await getTicketsAssignment(ticketId)
+        assignment = await getTicketsAssignment(String(id))
       }
     } catch (e) {
       // todo: handle other errors. like no connection, etc....
@@ -49,23 +44,5 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
     }
 
     return assignment
-  }
-
-  async create(data: any, params: Params): Promise<Data> {
-    return data
-  }
-
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
-    // not implemented for tickets
-    return data
-  }
-
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
-    // not implemented for tickets
-    return data
-  }
-
-  async remove(id: Id, params: Params): Promise<Data> {
-    return { id }
   }
 }

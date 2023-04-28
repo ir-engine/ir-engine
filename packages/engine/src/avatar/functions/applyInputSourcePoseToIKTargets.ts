@@ -181,11 +181,6 @@ export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, ri
   }
 }
 
-type XRFrameWithFillPoses = XRFrame & {
-  fillPoses?: (poses: Iterable<XRJointSpace>, baseSpace: XRSpace, output: Float32Array) => void
-  fillJointRadii?: (joints: Iterable<XRJointSpace>, output: Float32Array) => void
-}
-
 const emptyVec = new Vector3()
 const mat4 = new Matrix4()
 
@@ -199,7 +194,7 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const hand = inputSource.hand as any as XRHand
   const rig = getComponent(entity, AvatarRigComponent)
   const referenceSpace = ReferenceSpace.origin!
-  const xrFrame = Engine.instance.xrFrame as XRFrameWithFillPoses
+  const xrFrame = Engine.instance.xrFrame!
   const poses1 = new Float32Array(16 * 25)
 
   xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
@@ -239,7 +234,7 @@ const rightControllerOffset = new Quaternion().setFromEuler(new Euler(-Math.PI, 
 export const applyInputSourcePoseToIKTargets = () => {
   const { localClientEntity } = Engine.instance
 
-  const xrFrame = Engine.instance.xrFrame! as XRFrameWithFillPoses
+  const xrFrame = Engine.instance.xrFrame!
 
   const inAttachedControlMode = getCameraMode() === 'attached'
 
@@ -293,9 +288,7 @@ export const applyInputSourcePoseToIKTargets = () => {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
-              ikTransform.rotation
-                .copy(pose.transform.orientation as any as Quaternion)
-                .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
+              ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
             }
           } else {
             const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)

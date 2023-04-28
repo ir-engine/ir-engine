@@ -12,7 +12,7 @@ import {
   MeshStandardMaterial
 } from 'three'
 
-import { getMutableState, getState, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
@@ -157,11 +157,11 @@ const execute = () => {
   }
 }
 
-const reactor = ({ root }: ReactorProps) => {
+const reactor = () => {
   useEffect(() => {
     Engine.instance.gltfLoader = createGLTFLoader()
   }, [])
-  return <GroupReactor root={root} />
+  return <GroupReactor />
 }
 
 export const SceneObjectSystem = defineSystem({

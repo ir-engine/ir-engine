@@ -1,10 +1,12 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { OpenMatchTicketAssignment } from '@etherealengine/matchmaking/src/interfaces'
+import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 
 import logger from '../ServerLogger'
 
-interface AssignmentResponse extends OpenMatchTicketAssignment {
+interface AssignmentResponse extends MatchTicketAssignmentType {
   instanceId: string
   locationName: string
 }
@@ -20,7 +22,7 @@ export default (): Hook => {
       return context
     }
 
-    const matchUserResult = await app.service('match-user').find({
+    const matchUserResult = await app.service(matchUserPath).find({
       query: {
         ticketId: context.id,
         $limit: 1
@@ -33,11 +35,11 @@ export default (): Hook => {
     }
 
     const matchUser = matchUserResult.data[0]
-    await app.service('match-user').patch(matchUser.id, {
+    await app.service(matchUserPath).patch(matchUser.id, {
       connection: result.connection
     })
 
-    let [matchServerInstance] = await app.service('match-instance').find({
+    let [matchServerInstance] = await app.service(matchInstancePath).find({
       query: {
         connection: result.connection
       }
@@ -46,12 +48,12 @@ export default (): Hook => {
     if (!matchServerInstance) {
       // try to create server instance, ignore error and try to search again, possibly someone just created same server
       try {
-        matchServerInstance = await app.service('match-instance').create({
+        matchServerInstance = await app.service(matchInstancePath).create({
           connection: result.connection,
-          gamemode: matchUser.gamemode
+          gameMode: matchUser.gameMode
         })
       } catch (e) {
-        logger.error('Failed to create new match-instance')
+        logger.error(`Failed to create new ${matchInstancePath}`)
         const isConnectionDuplicateError =
           e.errors?.[0]?.type === 'unique violation' && e.errors?.[0]?.path === 'connection'
         if (!isConnectionDuplicateError) {
@@ -64,12 +66,12 @@ export default (): Hook => {
       logger.info('Server instance probably exists but not provisioned: ' + matchServerInstance)
     }
 
-    if (!matchServerInstance?.instanceserver) {
-      for (let i = 0; i < 20 && !matchServerInstance?.instanceserver; i++) {
+    if (!matchServerInstance?.instanceServer) {
+      for (let i = 0; i < 20 && !matchServerInstance?.instanceServer; i++) {
         // retry search
         await new Promise((resolve) => setTimeout(resolve, 10))
         matchServerInstance = (
-          await app.service('match-instance').find({
+          await app.service(matchInstancePath).find({
             query: {
               connection: result.connection
             }
@@ -77,8 +79,8 @@ export default (): Hook => {
         )[0]
       }
     }
-    if (!matchServerInstance?.instanceserver) {
-      // say that no connection yet, on next query it will have instanceserver and same connection
+    if (!matchServerInstance?.instanceServer) {
+      // say that no connection yet, on next query it will have instanceServer and same connection
       logger.info('Failed to find provisioned server. Need to retry again.')
       result.connection = ''
       return context
@@ -88,19 +90,19 @@ export default (): Hook => {
     const existingInstanceAuthorizedUser = await app.service('instance-authorized-user').find({
       query: {
         userId: userId,
-        instanceId: matchServerInstance.instanceserver,
+        instanceId: matchServerInstance.instanceServer,
         $limit: 0
       }
     })
     if (existingInstanceAuthorizedUser.total === 0) {
       await app.service('instance-authorized-user').create({
         userId: userId,
-        instanceId: matchServerInstance.instanceserver
+        instanceId: matchServerInstance.instanceServer
       })
     }
 
-    result.instanceId = matchServerInstance.instanceserver
-    result.locationName = 'game-' + matchServerInstance.gamemode
+    result.instanceId = matchServerInstance.instanceServer
+    result.locationName = 'game-' + matchServerInstance.gameMode
 
     return context
   }

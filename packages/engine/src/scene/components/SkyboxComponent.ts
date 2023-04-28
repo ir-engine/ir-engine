@@ -7,6 +7,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Sky } from '../classes/Sky'
@@ -52,8 +53,8 @@ export const SkyboxComponent = defineComponent({
     }
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)

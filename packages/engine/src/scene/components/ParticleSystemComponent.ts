@@ -9,7 +9,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -643,8 +643,8 @@ export const ParticleSystemComponent = defineComponent({
     systemParameters: component.systemParameters.value,
     behaviorParameters: component.behaviorParameters.value
   }),
-  reactor: function ({ root }: EntityReactorProps) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const component = componentState.value
     const batchRenderer = getBatchRenderer()!

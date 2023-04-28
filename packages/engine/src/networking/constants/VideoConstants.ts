@@ -22,19 +22,19 @@ export const localVideoConstraints: MediaStreamConstraints = {
 }
 
 export const CAM_VIDEO_SIMULCAST_ENCODINGS = [
-  { scaleResolutionDownBy: 4, maxBitrate: 500000 }, // 500kbps
-  { scaleResolutionDownBy: 2, maxBitrate: 1000000 }, // 1mbps
-  { scaleResolutionDownBy: 1, maxBitrate: 10000000 } // 10mbps
+  { scaleResolutionDownBy: 4, maxBitrate: 500 * 1000 }, // 500kbps
+  { scaleResolutionDownBy: 2, maxBitrate: 1000 * 1000 }, // 1mbps
+  { scaleResolutionDownBy: 1, maxBitrate: 10 * 1000 * 1000 } // 10mbps
 ]
 
 export const CAM_VIDEO_SIMULCAST_CODEC_OPTIONS = {
-  videoGoogleStartBitrate: 1000 * 1000, // 1mbps
-  videoGoogleMaxBitrate: 1000 * 1000 * 1000, // 1gbps
-  videoGoogleMinBitrate: 1000 // 1kbps
+  videoGoogleStartBitrate: 1000, // 1mbps
+  videoGoogleMaxBitrate: 1000 * 1000, // 1gbps
+  videoGoogleMinBitrate: 1 // 1kbps
 }
 
 export const SCREEN_SHARE_SIMULCAST_ENCODINGS = [
-  { dtx: true, maxBitrate: 6000000 }, // 6mbps
-  { dtx: true, maxBitrate: 20000000 }, // 20mbps
-  { dtx: true, maxBitrate: 100000000 } // 100mbps
+  { dtx: true, maxBitrate: 500 * 1000 }, // 500kbps
+  { dtx: true, maxBitrate: 2 * 1000 * 1000 }, // 2mbps
+  { dtx: true, maxBitrate: 10 * 1000 * 1000 } // 10mbps
 ]

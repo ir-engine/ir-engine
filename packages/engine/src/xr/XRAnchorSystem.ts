@@ -252,9 +252,9 @@ const XRAnchorSystemState = defineState({
     setLocalTransformComponent(scenePlacementEntity, Engine.instance.originEntity)
     setComponent(scenePlacementEntity, VisibleComponent, true)
 
-    const originAxesHelper = new AxesHelper(10000)
-    setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
-    addObjectToGroup(scenePlacementEntity, originAxesHelper)
+    // const originAxesHelper = new AxesHelper(10000)
+    // setObjectLayers(originAxesHelper, ObjectLayers.Gizmos)
+    // addObjectToGroup(scenePlacementEntity, originAxesHelper)
 
     return {
       scenePlacementEntity
