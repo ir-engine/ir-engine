@@ -1,5 +1,6 @@
 import { Params } from '@feathersjs/feathers'
 import koaMulter from '@koa/multer'
+import { Route53RecoveryControlConfig } from 'aws-sdk'
 import { createHash } from 'crypto'
 import Koa from 'koa'
 import Router from 'koa-router'
@@ -67,6 +68,19 @@ const uploadLOD = async (file: Buffer, mimeType: string, key: string, storagePro
       isDirectory: false
     }
   )
+}
+
+class AssetService {
+  app: Application
+
+  constructor(app: Application) {
+    this.app = app
+  }
+  async create(data: AssetUploadType, params: UploadParams) {
+    ;async (ctx: Koa.Context) => {
+      ctx.body = await uploadAsset(this.app)(data, params)
+    }
+  }
 }
 
 const uploadAsset = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
@@ -205,23 +219,19 @@ export const addGenericAssetToS3AndStaticResources = async (
 }
 
 export default (app: Application): void => {
-  router.post(
-    'upload-asset',
-    multipartMiddleware.any(),
-    async (ctx: Koa.Context, next: Koa.Next) => {
-      if (ctx?.feathers && ctx.method !== 'GET') {
-        ;(ctx as any).feathers.files = (ctx as any).request.files.media
-          ? (ctx as any).request.files.media
-          : ctx.request.files
-      }
-
-      await next()
-    },
-    async (ctx: Koa.Context) => {
-      ctx.body = await uploadAsset(app)(ctx.request.body, ctx.feathers as any)
+  const assetService = new AssetService(app)
+  router.use('upload-asset', multipartMiddleware.any(), async (ctx: Koa.Context, next: Koa.Next) => {
+    if (ctx?.feathers && ctx.method !== 'GET') {
+      ;(ctx as any).feathers.files = (ctx as any).request.files.media
+        ? (ctx as any).request.files.media
+        : ctx.request.files
     }
-  )
-  app.use(router.routes())
+
+    await next()
+  })
+  app.use(router.routes()).use(router.allowedMethods())
+
+  app.use('upload-asset', assetService)
   const service = app.service('upload-asset')
 
   service.hooks(hooks)
