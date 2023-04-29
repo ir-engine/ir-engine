@@ -1,15 +1,14 @@
 import { Mesh, Object3D } from 'three'
-import { GLTFParser } from 'three/examples/jsm/loaders/GLTFLoader'
 
 import { getState } from '@etherealengine/hyperflux'
 
 import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
 import { registerMaterial } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+import { initializeMaterialLibrary, MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
-export function registerMaterials(root: Object3D, type: SourceType = SourceType.EDITOR_SESSION, path: string = '') {
+export function registerMaterials(root: Object3D, type: SourceType = SourceType.EDITOR_SESSION, path = '') {
   const materialLibrary = getState(MaterialLibraryState)
   root.traverse((mesh: Mesh) => {
     if (!mesh?.isMesh) return
@@ -23,6 +22,7 @@ export function registerMaterials(root: Object3D, type: SourceType = SourceType.
 export default class RegisterMaterialsExtension extends ImporterExtension implements GLTFLoaderPlugin {
   async afterRoot(result: GLTF) {
     const parser = this.parser
+    initializeMaterialLibrary()
     registerMaterials(result.scene, SourceType.MODEL, parser.options.url)
   }
 }

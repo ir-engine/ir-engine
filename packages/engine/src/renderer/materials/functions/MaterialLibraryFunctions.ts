@@ -67,7 +67,7 @@ export function prototypeFromId(protoId: string): MaterialPrototypeComponentType
   return prototype
 }
 
-export function materialIdToDefaultArgs(matId: string): Object {
+export function materialIdToDefaultArgs(matId: string): object {
   const material = materialFromId(matId)
   const prototype = prototypeFromId(material.prototype)
   return injectDefaults(prototype.arguments, material.parameters)
@@ -185,7 +185,7 @@ export function unregisterMaterial(material: Material) {
 
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
   const materialLibrary = getMaterialLibrary()
-  if (!!materialLibrary.prototypes[prototype.prototypeId].value) {
+  if (materialLibrary.prototypes[prototype.prototypeId].value) {
     console.warn(
       'overwriting existing material prototype!\nnew:',
       prototype.prototypeId,
