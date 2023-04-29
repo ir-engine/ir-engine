@@ -121,5 +121,7 @@ export function convertToScaffold(entity: Entity) {
       mesh.material = new MeshBasicMaterial()
     })
   const scaffoldPath = modelComponent.src.replace(/(\.[^.]*$)/, '_scaffold$1')
-  exportGLTF(entity, scaffoldPath)
+  exportGLTF(entity, scaffoldPath).then(() => {
+    getMutableComponent(entity, ModelComponent).src.set(scaffoldPath)
+  })
 }
