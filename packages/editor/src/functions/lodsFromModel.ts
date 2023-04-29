@@ -6,10 +6,16 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import {
+  removeMaterialSource,
+  unregisterMaterial
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -53,7 +59,7 @@ export async function createLODsFromModel(
       const mesh = meshes[i]
       const lodEntity = createEntity()
       addEntityNodeChild(lodEntity, entity)
-      addComponent(lodEntity, LODComponent, {
+      setComponent(lodEntity, LODComponent, {
         target: entity,
         lodPath: mesh.userData['lodPath'],
         levels: [
@@ -66,7 +72,7 @@ export async function createLODsFromModel(
         ],
         instanced: mesh instanceof InstancedMesh
       })
-      addComponent(lodEntity, NameComponent, mesh.name)
+      setComponent(lodEntity, NameComponent, mesh.name)
       processLoadedLODLevel(lodEntity, 0, mesh)
       if (options.serialize) {
         const lodComponent = getMutableComponent(lodEntity, LODComponent)
@@ -93,7 +99,6 @@ export async function serializeLOD(
   toExport.rotation.set(0, 0, 0)
   toExport.scale.set(1, 1, 1)
   toExport.updateMatrixWorld()
-  toExport.updateMatrix()
   const [, , projectName, fileName] = pathResolver().exec(rootSrc)!
   //create a new filename for the lod
   const nuRelativePath = fileName.replace(/\.[^.]*$/, `_${mesh.name}.gltf`)
@@ -123,5 +128,16 @@ export function convertToScaffold(entity: Entity) {
   const scaffoldPath = modelComponent.src.replace(/(\.[^.]*$)/, '_scaffold$1')
   exportGLTF(entity, scaffoldPath).then(() => {
     getMutableComponent(entity, ModelComponent).src.set(scaffoldPath)
+    LODComponent.lodsByEntity[entity].value?.map((lodEntity) => {
+      const lodComponent = getMutableComponent(lodEntity, LODComponent)
+      lodComponent.levels.map((level) => {
+        level.model.set(null)
+        removeMaterialSource({
+          path: level.src.value,
+          type: SourceType.MODEL
+        })
+        level.loaded.set(false)
+      })
+    })
   })
 }
