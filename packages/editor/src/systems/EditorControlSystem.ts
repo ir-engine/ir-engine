@@ -16,6 +16,7 @@ import {
 import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
@@ -322,7 +323,13 @@ const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
 const changedTransformMode = defineActionQueue(EditorHelperAction.changedTransformMode.matches)
 
+//wait for scene load to load gizmo
+const sceneLoaded = defineActionQueue(EngineActions.sceneLoaded.matches)
+
 const execute = () => {
+  if (sceneLoaded().length) {
+    getComponent(gizmoEntity, TransformGizmoComponent).load()
+  }
   for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
   if (Engine.instance.localClientEntity) return
 
@@ -332,6 +339,7 @@ const execute = () => {
   selectedParentEntities = selectionState.selectedParentEntities
   selectedEntities = selectionState.selectedEntities
 
+  // todo refactor these changes into a reactor
   transformModeChanged = transformMode !== editorHelperState.transformMode
   transformMode = editorHelperState.transformMode
 
@@ -383,22 +391,24 @@ const execute = () => {
         }
       }
 
-      if (isChanged || transformSpaceChanged) {
-        if (transformSpace === TransformSpace.LocalSelection) {
-          gizmoObj.quaternion.copy(
-            'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
-          )
-        } else {
-          gizmoObj.rotation.set(0, 0, 0)
-        }
-
-        inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
+      if (transformMode === TransformMode.Scale && transformSpace === TransformSpace.World) {
+        getMutableState(EditorHelperState).transformSpace.set(TransformSpace.Local)
+        transformSpace = TransformSpace.Local
       }
-
       if ((transformModeChanged || transformSpaceChanged) && transformMode === TransformMode.Scale) {
-        gizmoObj.setLocalScaleHandlesVisible(transformSpace !== TransformSpace.World)
+        gizmoObj.setLocalScaleHandlesVisible(true)
       }
       if (!hasComponent(gizmoEntity, VisibleComponent)) setComponent(gizmoEntity, VisibleComponent)
+
+      if (transformSpace === TransformSpace.Local) {
+        gizmoObj.quaternion.copy(
+          'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
+        )
+      } else {
+        gizmoObj.rotation.set(0, 0, 0)
+      }
+
+      inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
     }
   }
   const cursorPosition = Engine.instance.pointerState.position

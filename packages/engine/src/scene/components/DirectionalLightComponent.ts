@@ -5,6 +5,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -81,9 +82,10 @@ export const DirectionalLightComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const light = useComponent(root.entity, DirectionalLightComponent)
+    const light = useComponent(entity, DirectionalLightComponent)
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
@@ -122,7 +124,7 @@ export const DirectionalLightComponent = defineComponent({
     useEffect(() => {
       if (debugEnabled.value && !light.helper.value) {
         const helper = new EditorDirectionalLightHelper(light.light.value)
-        helper.name = `directional-light-helper-${root.entity}`
+        helper.name = `directional-light-helper-${entity}`
 
         // const cameraHelper = new CameraHelper(light.shadow.camera)
         // cameraHelper.visible = false
@@ -130,12 +132,12 @@ export const DirectionalLightComponent = defineComponent({
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
 
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
         light.helper.set(helper)
       }
 
       if (!debugEnabled.value && light.helper.value) {
-        removeObjectFromGroup(root.entity, light.helper.value)
+        removeObjectFromGroup(entity, light.helper.value)
         light.helper.set(none)
       }
     }, [debugEnabled])

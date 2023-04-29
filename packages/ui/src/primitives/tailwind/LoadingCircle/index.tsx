@@ -1,8 +1,8 @@
 import React from 'react'
 
 const LoadingCircle = ({ message }: { message: string }) => (
-  <div className="z-9001 w-full h-full flex justify-center items-center">
-    <div role="status" className="w-40 h-40">
+  <div className="z-9001 grid w-screen h-screen place-items-center">
+    <div role="status">
       <svg
         aria-hidden="true"
         className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -19,7 +19,7 @@ const LoadingCircle = ({ message }: { message: string }) => (
           fill="currentFill"
         />
       </svg>
-      <span className="sr-only text-black">{message}</span>
+      <span className="w-full sr-only text-black">{message}</span>
     </div>
   </div>
 )

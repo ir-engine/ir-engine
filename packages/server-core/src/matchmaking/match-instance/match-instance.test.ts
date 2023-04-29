@@ -2,8 +2,10 @@ import assert from 'assert'
 import nock from 'nock'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
-import type { OpenMatchTicket } from '@etherealengine/matchmaking/src/interfaces'
+import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
+import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -14,7 +16,7 @@ interface User {
 
 interface ticketsTestData {
   id: string
-  ticket: OpenMatchTicket
+  ticket: MatchTicketType
   connection: string
   user: User
 }
@@ -24,7 +26,7 @@ describe.skip('matchmaking match-instance service', () => {
   const ticketsNumber = 3
   const users: User[] = []
   const tickets: ticketsTestData[] = []
-  const gamemode = 'test-private-test'
+  const gameMode = 'test-private-test'
   const tier = 'bronze'
 
   const commonLocationSettings = {
@@ -51,7 +53,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     scope = nock(FRONTEND_SERVICE_URL)
 
-    const ticketsService = app.service('match-ticket')
+    const ticketsService = app.service(matchTicketPath)
 
     scope
       .post('/tickets')
@@ -62,16 +64,16 @@ describe.skip('matchmaking match-instance service', () => {
 
     await app.service('location').Model.destroy({
       where: {
-        slugifiedName: `game-${gamemode}`
+        slugifiedName: `game-${gameMode}`
       }
     })
 
     location = await app.service('location').create(
       {
-        name: `game-${gamemode}`,
-        slugifiedName: `game-${gamemode}`,
+        name: `game-${gameMode}`,
+        slugifiedName: `game-${gameMode}`,
         maxUsersPerInstance: 30,
-        sceneId: `test/game-${gamemode}`,
+        sceneId: `test/game-${gameMode}`,
         location_settings: commonLocationSettings as any,
         isLobby: false,
         isFeatured: false
@@ -91,7 +93,7 @@ describe.skip('matchmaking match-instance service', () => {
 
         userPromise.then((user) => {
           ticketsPromises.push(
-            ticketsService.create({ gamemode, attributes: { tier } }, { user } as any).then((ticketResponse) => {
+            ticketsService.create({ gameMode, attributes: { [tier]: tier } }).then((ticketResponse) => {
               const ticket = Array.isArray(ticketResponse) ? ticketResponse[0] : ticketResponse
               return {
                 id: ticket.id,
@@ -127,7 +129,7 @@ describe.skip('matchmaking match-instance service', () => {
     tickets.forEach((ticket) => {
       if (!ticket?.id) return
       scope.delete('/tickets/' + ticket.id).reply(200, { id: ticket.id })
-      cleanupPromises.push(app.service('match-ticket').remove(ticket.id))
+      cleanupPromises.push(app.service(matchTicketPath).remove(ticket.id))
     })
     tickets.length = 0
 
@@ -147,7 +149,7 @@ describe.skip('matchmaking match-instance service', () => {
   })
 
   it('assigns players to one server', async () => {
-    const assignmentService = app.service('match-ticket-assignment')
+    const assignmentService = app.service(matchTicketAssignmentPath)
     const connection = connections[0]
     const connectionTickets = tickets.filter((t) => t.connection === connection)
 
@@ -164,7 +166,7 @@ describe.skip('matchmaking match-instance service', () => {
       })
     )
 
-    const matchInstance = await app.service('match-instance').find({
+    const matchInstance = await app.service(matchInstancePath).find({
       query: {
         connection: connection
         // ended: false
@@ -174,9 +176,9 @@ describe.skip('matchmaking match-instance service', () => {
     assert(matchInstance.length === 1)
 
     // test cleanup
-    await app.service('match-instance').remove(matchInstance[0].id)
+    await app.service(matchInstancePath).remove(matchInstance[0].id)
 
-    const instanceServerInstance = await app.service('instance').get(matchInstance[0].instanceserver!)
+    const instanceServerInstance = await app.service('instance').get(matchInstance[0].instanceServer!)
     assert(instanceServerInstance)
     assert(!instanceServerInstance.ended)
 
@@ -191,7 +193,7 @@ describe.skip('matchmaking match-instance service', () => {
 
   // it will create null:null instance server on localhost for second match
   it('assigns two packs of players to different servers', async () => {
-    const assignmentService = app.service('match-ticket-assignment')
+    const assignmentService = app.service(matchTicketAssignmentPath)
 
     tickets.forEach((ticket) => {
       scope
@@ -206,7 +208,7 @@ describe.skip('matchmaking match-instance service', () => {
       })
     )
 
-    const matchInstance = await app.service('match-instance').find({
+    const matchInstance = await app.service(matchInstancePath).find({
       query: {
         connection: {
           $in: connections
@@ -217,12 +219,12 @@ describe.skip('matchmaking match-instance service', () => {
     assert(matchInstance.length === connections.length)
 
     // test cleanup
-    await Promise.all(matchInstance.map((mi) => app.service('match-instance').remove(mi.id)))
-    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.instanceserver!)))
+    await Promise.all(matchInstance.map((mi) => app.service(matchInstancePath).remove(mi.id)))
+    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.instanceServer!)))
   })
 
   it('does not assign players if match is not found', async () => {
-    const assignmentService = app.service('match-ticket-assignment')
+    const assignmentService = app.service(matchTicketAssignmentPath)
 
     tickets.forEach((ticket) => {
       scope.get(`/tickets/${ticket.id}/assignments`).reply(200, emptyAssignmentReplyBody)
@@ -235,7 +237,7 @@ describe.skip('matchmaking match-instance service', () => {
       })
     )
 
-    const matchInstance = await app.service('match-instance').find({
+    const matchInstance = await app.service(matchInstancePath).find({
       query: {
         connection: ''
       }

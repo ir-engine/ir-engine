@@ -28,7 +28,7 @@ const screenInputSource = {
   profiles: [],
   hand: undefined
 }
-const defaultInputSourceArray = [screenInputSource] as XRInputSourceArray
+const defaultInputSourceArray = [screenInputSource] as XRInputSource[]
 
 const execute = () => {
   const now = Date.now()

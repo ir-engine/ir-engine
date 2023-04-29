@@ -2,12 +2,13 @@ import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { defineActionQueue, getState, ReactorProps } from '@etherealengine/hyperflux'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -181,7 +182,7 @@ const execute = () => {
 const PositionalAudioPanner = createQueryReactor(
   [PositionalAudioComponent, TransformComponent],
   function PositionalAudioPannerReactor(props) {
-    const entity = props.root.entity
+    const entity = useEntityContext()
     const mediaElement = useComponent(entity, MediaElementComponent)
     const positionalAudio = useComponent(entity, PositionalAudioComponent)
     useEffect(() => {
@@ -193,8 +194,8 @@ const PositionalAudioPanner = createQueryReactor(
   }
 )
 
-const reactor = ({ root }: ReactorProps) => {
-  return <PositionalAudioPanner root={root} />
+const reactor = () => {
+  return <PositionalAudioPanner />
 }
 
 export const PositionalAudioSystem = defineSystem({

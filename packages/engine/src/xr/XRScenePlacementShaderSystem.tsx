@@ -2,13 +2,12 @@ import { useEffect } from 'react'
 import React from 'react'
 import { Material, Mesh } from 'three'
 
-import { getMutableState, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createGroupQueryReactor, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { XRState } from './XRState'
-import { XRSystem } from './XRSystem'
 
 type ScenePlacementMaterialType = {
   userData: {
@@ -74,8 +73,8 @@ const ScenePlacementReactor = createGroupQueryReactor(
   [VisibleComponent]
 )
 
-const reactor = ({ root }: ReactorProps) => {
-  return <ScenePlacementReactor root={root} />
+const reactor = () => {
+  return <ScenePlacementReactor />
 }
 
 export const XRScenePlacementShaderSystem = defineSystem({

@@ -1,5 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { EquippedComponent } from './EquippedComponent'
 
 export const EquipperComponent = defineComponent({
   name: 'EquipperComponent',
@@ -14,5 +15,10 @@ export const EquipperComponent = defineComponent({
     if (!json) return
 
     if (typeof json.equippedEntity === 'number') component.equippedEntity.set(json.equippedEntity)
+  },
+
+  onRemove(entity, component) {
+    const equippedEntity = component.equippedEntity.value
+    removeComponent(equippedEntity, EquippedComponent)
   }
 })

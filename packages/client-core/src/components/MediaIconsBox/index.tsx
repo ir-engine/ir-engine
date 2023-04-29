@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { useMediaInstanceConnectionState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
@@ -21,6 +22,7 @@ import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
+  const location = useLocation()
   const [hasAudioDevice, setHasAudioDevice] = useState(0)
   const [hasVideoDevice, setHasVideoDevice] = useState(0)
   const { topShelfStyle } = useShelfStyles()
@@ -110,7 +112,7 @@ export const MediaIconsBox = () => {
             type="button"
             id="UserPoseTracking"
             className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
-            onClick={() => window.open('/capture', '_blank')}
+            onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >

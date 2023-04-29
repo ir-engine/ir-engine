@@ -1,14 +1,17 @@
-/**
- * An object for swagger documentation configuration
- */
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-// TODO: unfinished
-export default {
-  definitions: {
-    'match-ticket': {
-      type: 'object',
-      properties: {}
-    }
+import {
+  matchTicketAssignmentQuerySchema,
+  matchTicketAssignmentSchema
+} from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    matchTicketAssignmentQuerySchema,
+    matchTicketAssignmentSchema
   },
-  overwriteTagSpec: true
-}
+  docs: {
+    description: 'Match ticket assignment service description',
+    securities: ['all']
+  }
+})

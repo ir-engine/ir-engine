@@ -15,7 +15,7 @@ export default createSwaggerServiceOptions({
     awsSettingSchema
   },
   docs: {
-    description: 'Aws service description',
+    description: 'Aws setting service description',
     securities: ['all']
   }
 })

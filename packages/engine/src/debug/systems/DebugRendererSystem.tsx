@@ -7,10 +7,10 @@ import {
   defineActionQueue,
   getMutableState,
   getState,
-  ReactorProps,
   removeActionQueue,
   startReactor,
-  useHookstate
+  useHookstate,
+  useReactorRootContext
 } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -131,7 +131,7 @@ const execute = () => {
   if (Engine.instance.physicsWorld) (Engine.instance.physicsWorld as any).raycastDebugs = []
 }
 
-const reactor = ({ root }: ReactorProps) => {
+const reactor = () => {
   useEffect(() => {
     InfiniteGridHelper.instance = new InfiniteGridHelper()
     Engine.instance.scene.add(InfiniteGridHelper.instance)
@@ -146,7 +146,7 @@ const reactor = ({ root }: ReactorProps) => {
       InfiniteGridHelper.instance = null!
     }
   }, [])
-  return <DebugReactor root={root} />
+  return <DebugReactor />
 }
 
 export const DebugRendererSystem = defineSystem({

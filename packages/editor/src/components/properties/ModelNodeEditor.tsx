@@ -5,12 +5,15 @@ import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationMan
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import {
   addComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
+  setComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
+import { CallbackComponent, getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
@@ -32,7 +35,7 @@ import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import ShadowProperties from './ShadowProperties'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -98,6 +101,13 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     }
   }, [])
 
+  const onChangePlayingAnimation = (index) => {
+    updateProperties(LoopAnimationComponent, {
+      activeClipIndex: index
+    })
+    getCallback(props.entity, 'xre.play')!()
+  }
+
   return (
     <NodeEditor
       name={t('editor:properties.model.title')}
@@ -139,7 +149,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={animationOptions.value}
           value={loopAnimationComponent?.activeClipIndex}
-          onChange={updateProperty(LoopAnimationComponent, 'activeClipIndex')}
+          onChange={onChangePlayingAnimation}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>

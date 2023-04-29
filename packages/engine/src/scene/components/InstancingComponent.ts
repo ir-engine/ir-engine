@@ -12,6 +12,7 @@ import {
   getOptionalComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
@@ -213,8 +214,8 @@ export const InstancingComponent = defineComponent({
     }
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
 
     const instancingComponent = useComponent(entity, InstancingComponent)
     const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)

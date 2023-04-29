@@ -4,7 +4,7 @@ import matches, { Validator } from 'ts-matches'
 import { matchesEntity } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { loadPrefab, unloadPrefab } from '../functions/loaders/PrefabComponentFunctions'
 
 export enum LoadState {
@@ -46,8 +46,8 @@ export const PrefabComponent = defineComponent({
 
   onRemove: unloadPrefab,
 
-  reactor: function ({ root }: EntityReactorProps) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
     const assembly = getComponent(entity, PrefabComponent)
     const assemblyState = useComponent(entity, PrefabComponent)
 

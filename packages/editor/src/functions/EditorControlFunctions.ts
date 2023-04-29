@@ -450,13 +450,14 @@ const scaleObject = (
   space: TransformSpace = TransformSpace.Local,
   overrideScale = false
 ) => {
+  if (space === TransformSpace.World) {
+    logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
+    return
+  }
+
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     const scale = scales[i] ?? scales[0]
-
-    if (space === TransformSpace.World && (scale.x !== scale.y || scale.x !== scale.z || scale.y !== scale.z)) {
-      logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
-    }
 
     const transformComponent =
       typeof node === 'string'

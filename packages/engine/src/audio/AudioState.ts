@@ -44,6 +44,10 @@ export const AudioState = defineState({
       'soundEffectsVolume',
       'backgroundMusicVolume'
     ])
+    //FIXME do this more gracefully than a hard setTimeout
+    setTimeout(() => {
+      getMutableState(MediaSettingsState).immersiveMedia.set(getState(AudioState).positionalMedia)
+    }, 1000)
   }
 })
 

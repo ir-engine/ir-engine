@@ -112,7 +112,7 @@ export function createWebXRManager() {
       xrRendererState.initialRenderTarget.set(renderer.getRenderTarget())
 
       session.addEventListener('end', onSessionEnd)
-      session.updateTargetFrameRate(72)
+      if ('updateTargetFrameRate' in session) session.updateTargetFrameRate(72)
 
       const gl = renderer.getContext() as WebGLRenderingContext
       const attributes = gl.getContextAttributes()!

@@ -15,7 +15,7 @@ export const XRState = defineState({
   name: 'XRState',
   initial: () => {
     return {
-      sessionActive: false,
+      sessionActive: false, // TODO: remove this; it's redundant, just need to check if session exists
       requestingSession: false,
       scenePosition: new Vector3(),
       sceneRotation: new Quaternion(),
@@ -27,6 +27,7 @@ export const XRState = defineState({
         'immersive-ar': false,
         'immersive-vr': false
       },
+      unassingedInputSources: [] as XRInputSource[],
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
       avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
@@ -131,7 +132,7 @@ export const hasMovementControls = () => {
  * @param {boolean} offhand specifies to return the non-preferred hand instead
  * @returns {Entity}
  */
-export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhand = false) => {
+export const getPreferredInputSource = (inputSources: readonly XRInputSource[], offhand = false) => {
   const xrState = getState(XRState)
   if (!xrState.sessionActive) return
   const avatarInputSettings = getState(AvatarInputSettingsState)
