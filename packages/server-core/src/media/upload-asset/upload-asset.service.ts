@@ -229,6 +229,7 @@ export default (app: Application): void => {
 
     await next()
   })
+
   app.use(router.routes()).use(router.allowedMethods())
 
   app.use('upload-asset', assetService)

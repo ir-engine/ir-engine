@@ -57,7 +57,7 @@ export default (app: Application): any => {
     }
   )
 
-  app.use(router.routes())
+  app.use(router.routes()).use(router.allowedMethods())
 
   /**
    * Initialize our service with any options it requires and docs
