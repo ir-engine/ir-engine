@@ -3,7 +3,7 @@ import { Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -85,6 +85,7 @@ export const ModelComponent = defineComponent({
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
+    LODComponent.lodsByEntity[entity].value && LODComponent.lodsByEntity[entity].set(none)
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 

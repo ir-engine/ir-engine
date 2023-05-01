@@ -1,5 +1,5 @@
 import { ImageDataType } from '@loaders.gl/images'
-import { CompressedTexture, Texture } from 'three'
+import { CompressedTexture, LinearEncoding, Texture } from 'three'
 
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
@@ -12,7 +12,7 @@ import { ExporterExtension } from './ExporterExtension'
 
 const hashCanvas = document.createElement('canvas')
 
-export function getImageHash(image: HTMLImageElement | HTMLCanvasElement, size = 8) {
+function getImageHash(image: HTMLImageElement | HTMLCanvasElement, size = 8) {
   hashCanvas.width = size
   hashCanvas.height = size
   const context = hashCanvas.getContext('2d')!
@@ -38,7 +38,7 @@ export function getImageHash(image: HTMLImageElement | HTMLCanvasElement, size =
   return hash
 }
 
-export function stageHash(pHash: string | number, bits = 256): string {
+function stageHash(pHash: string | number, bits = 256): string {
   const binaryHash = (typeof pHash === 'number' ? pHash : parseInt(pHash, 16)).toString(2).padStart(bits, '0')
   return binaryHash
 }
@@ -59,6 +59,7 @@ export default class BasisuExporterExtension extends ExporterExtension implement
   writeTexture(_texture: CompressedTexture, textureDef) {
     if (!_texture?.isCompressedTexture) return
     const writer = this.writer
+    _texture.encoding = LinearEncoding
     writer.pending.push(
       new Promise((resolve) => {
         createReadableTexture(_texture, { canvas: true, flipY: true }).then((texture: Texture) => {
@@ -83,7 +84,7 @@ export default class BasisuExporterExtension extends ExporterExtension implement
           const stagedHash = stageHash(imgId)
           const similarImages = this.lshIndex.query(stagedHash, 5)
           const ktx2Encoder = new KTX2Encoder()
-          similarImages.length && (imageDef.uri = this.imageIdCache[similarImages[0]])
+          similarImages.length && ((imageDef.uri = this.imageIdCache[similarImages[0]]) || resolve(null))
           !similarImages.length &&
             ktx2Encoder.encode(imgData, false, 2, false, false).then(async (arrayBuffer) => {
               if (writer.options.embedImages) {

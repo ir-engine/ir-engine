@@ -93,7 +93,8 @@ export async function serializeLOD(
 ) {
   const mesh = getFirstMesh(level.model.value!)!
   //clone the mesh and remove its world matrix so it can be exported
-  const toExport = mesh.clone()
+  //also convert instanced meshes into singleton version as instance matrix data is stored in the scaffold
+  const toExport = mesh instanceof InstancedMesh ? new Mesh(mesh.geometry, mesh.material) : mesh.clone()
   toExport.removeFromParent()
   toExport.position.set(0, 0, 0)
   toExport.rotation.set(0, 0, 0)
