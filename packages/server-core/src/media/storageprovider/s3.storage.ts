@@ -164,13 +164,13 @@ export class S3Provider implements StorageProviderInterface {
    * @returns {Promise<StorageListObjectInterface>}
    */
   async listObjects(prefix: string, recursive = true, continuationToken?: string): Promise<StorageListObjectInterface> {
-    const result = new ListObjectsV2Command({
+    const command = new ListObjectsV2Command({
       Bucket: this.bucket,
       ContinuationToken: continuationToken,
       Prefix: prefix,
       Delimiter: recursive ? undefined : '/'
     })
-    const response = await this.provider.send(result)
+    const response = await this.provider.send(command)
     if (!response.Contents) response.Contents = []
     if (!response.CommonPrefixes) response.CommonPrefixes = []
 
@@ -191,7 +191,6 @@ export class S3Provider implements StorageProviderInterface {
 
   async putObject(data: StorageObjectInterface, params: PutObjectParams = {}): Promise<any> {
     if (!data.Key) return
-
     // key should not contain '/' at the begining
     let key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
 
@@ -222,7 +221,7 @@ export class S3Provider implements StorageProviderInterface {
           console.log(progress)
           // if (params.onProgress) params.onProgress(progress.loaded, progress.total)
         })
-        await upload.done
+        await upload.done()
       } catch (err) {
         reject(err)
       }
@@ -299,7 +298,7 @@ export class S3Provider implements StorageProviderInterface {
    */
   async deleteResources(keys: string[]) {
     // Create batches of 1000 since S3 supports deletion of 1000 object max per request
-    const batches: any = [] as ObjectIdentifier
+    const batches = [] as ObjectIdentifier[][]
 
     let index = 0
     for (let i = 0; i < keys.length; i++) {
@@ -308,14 +307,18 @@ export class S3Provider implements StorageProviderInterface {
       batches[index].push({ Key: keys[i] })
     }
 
-    const input = {
-      Bucket: this.bucket,
-      Delete: { Objects: batches }
-    }
-    const command = new DeleteObjectsCommand(input)
-    const response = await this.provider.send(command)
-
-    return response
+    const data = await Promise.all(
+      batches.map(async (batch) => {
+        const input = {
+          Bucket: this.bucket,
+          Delete: { Objects: batch }
+        }
+        const command = new DeleteObjectsCommand(input)
+        const response = await this.provider.send(command)
+        return response
+      })
+    )
+    return data
   }
 
   /**

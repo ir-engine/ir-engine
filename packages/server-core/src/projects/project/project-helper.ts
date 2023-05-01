@@ -675,10 +675,10 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
       },
       region: 'us-east-1'
     })
-    const input = {
+    const command = {
       repositoryName: publicECRExec[1]
     }
-    const result = new DescribeImagesCommand(input)
+    const result = new DescribeImagesCommand(command)
     const response = await ecr.send(result)
     if (!response || !response.imageDetails) return []
     return response.imageDetails
@@ -704,10 +704,10 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
       },
       region: privateECRExec[1]
     })
-    const input = {
+    const command = {
       repositoryName: privateECRExec[2]
     }
-    const result = new DescribeImagesCommand(input)
+    const result = new DescribeImagesCommand(command)
     const response = await ecr.send(result)
     if (!response || !response.imageDetails) return []
     return response.imageDetails
