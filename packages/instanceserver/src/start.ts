@@ -128,7 +128,7 @@ export const start = async (): Promise<Application> => {
   //   ? https.createServer(certOptions, app as any).listen(port)
   //   : app.listen(port);
 
-  const server = useSSL ? https.createServer(certOptions, app as any).listen(port) : await app.listen(port)
+  const server = useSSL ? https.createServer(certOptions, app.callback()).listen(port) : await app.listen(port)
 
   if (useSSL) {
     app.setup(server)

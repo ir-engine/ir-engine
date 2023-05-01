@@ -84,7 +84,7 @@ export const start = async (): Promise<void> => {
     })
   }
 
-  const server = useSSL ? https.createServer(certOptions as any, app as any).listen(port) : await app.listen(port)
+  const server = useSSL ? https.createServer(certOptions as any, app.callback()).listen(port) : await app.listen(port)
 
   if (useSSL) {
     app.setup(server)
