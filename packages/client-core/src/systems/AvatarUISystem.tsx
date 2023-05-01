@@ -192,10 +192,13 @@ const execute = () => {
       if (immersiveMedia && videoPreviewTimer === 0) {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
         const peers = Engine.instance.mediaNetwork.peers ? Array.from(Engine.instance.mediaNetwork.peers.values()) : []
-        const peer = peers.find(peer => { console.log('peer', peer); return peer.userId === ownerId })
+        const peer = peers.find((peer) => {
+          console.log('peer', peer)
+          return peer.userId === ownerId
+        })
         const consumer = Engine.instance.mediaNetwork!.consumers.find(
-          (consumer) => consumer.appData.peerID === peer?.peerID &&
-            consumer.appData.mediaTag === webcamVideoDataChannelType
+          (consumer) =>
+            consumer.appData.peerID === peer?.peerID && consumer.appData.mediaTag === webcamVideoDataChannelType
         ) as Consumer
         const paused = consumer && (consumer as any).producerPaused
         if (videoPreviewMesh.material.map) {
