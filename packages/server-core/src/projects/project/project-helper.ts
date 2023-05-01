@@ -1,6 +1,5 @@
-import * as k8s from '@kubernetes/client-node'
+import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import appRootPath from 'app-root-path'
-import AWS from 'aws-sdk'
 import axios from 'axios'
 import { compareVersions } from 'compare-versions'
 import _ from 'lodash'
@@ -669,18 +668,20 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
-    const ecr = new AWS.ECRPUBLIC({
-      accessKeyId: process.env.AWS_ACCESS_KEY as string,
-      secretAccessKey: process.env.AWS_SECRET as string,
+    const ecr = new ECRPUBLICClient({
+      credentials: {
+        accessKeyId: config.aws.keys.accessKeyId,
+        secretAccessKey: config.aws.keys.secretAccessKey
+      },
       region: 'us-east-1'
     })
-    const result = await ecr
-      .describeImages({
-        repositoryName: publicECRExec[1]
-      })
-      .promise()
-    if (!result || !result.imageDetails) return []
-    return result.imageDetails
+    const input = {
+      repositoryName: publicECRExec[1]
+    }
+    const result = new DescribeImagesCommand(input)
+    const response = await ecr.send(result)
+    if (!response || !response.imageDetails) return []
+    return response.imageDetails
       .filter(
         (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
       )
@@ -696,18 +697,20 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
         }
       })
   } else if (privateECRExec) {
-    const ecr = new AWS.ECR({
-      accessKeyId: process.env.AWS_ACCESS_KEY as string,
-      secretAccessKey: process.env.AWS_SECRET as string,
+    const ecr = new ECRPUBLICClient({
+      credentials: {
+        accessKeyId: config.aws.keys.accessKeyId,
+        secretAccessKey: config.aws.keys.secretAccessKey
+      },
       region: privateECRExec[1]
     })
-    const result = await ecr
-      .describeImages({
-        repositoryName: privateECRExec[2]
-      })
-      .promise()
-    if (!result || !result.imageDetails) return []
-    return result.imageDetails
+    const input = {
+      repositoryName: privateECRExec[2]
+    }
+    const result = new DescribeImagesCommand(input)
+    const response = await ecr.send(result)
+    if (!response || !response.imageDetails) return []
+    return response.imageDetails
       .filter(
         (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
       )

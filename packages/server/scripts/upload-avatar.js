@@ -2,7 +2,7 @@
 const dotenv = require('dotenv');
 const fs = require('fs');
 const Sequelize = require('sequelize');
-const aws = require('aws-sdk');
+import { S3Client } from "@aws-sdk/client-s3";
 const { nanoid } = require('nanoid');
 
 // TODO: check for existing avatar on S3
@@ -10,7 +10,7 @@ const { nanoid } = require('nanoid');
 dotenv.config({ path: process.cwd() + '/../../.env.local' });
 const forceS3Upload = process.argv.includes('--force-s3-upload');
 
-const s3 = new aws.S3({
+const s3 = new S3Client({
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
     region: process.env.STORAGE_S3_REGION

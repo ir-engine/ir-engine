@@ -42,9 +42,12 @@
     "migrate:make": "knex --migrations-directory ./ migrate:make"
   },
   "dependencies": {
-    "@etherealengine/common": "^1.2.1",
-    "@etherealengine/engine": "^1.2.1",
-    "@etherealengine/matchmaking": "^1.2.1",
+    "@aws-sdk/client-ecr-public": "^3.316.0",
+    "@aws-sdk/client-s3": "^3.317.0",
+    "@aws-sdk/client-sns": "^3.316.0",
+    "@etherealengine/common": "^1.2.0",
+    "@etherealengine/engine": "^1.2.0",
+    "@etherealengine/matchmaking": "^1.2.0",
     "@feathersjs/authentication": "5.0.1",
     "@feathersjs/authentication-oauth": "5.0.1",
     "@feathersjs/errors": "5.0.1",
