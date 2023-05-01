@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CompressedTexture, Texture } from 'three'
+import { CompressedTexture, LinearEncoding, sRGBEncoding, Texture } from 'three'
 
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -139,7 +139,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
 
   const getSceneURL = async (url) => {
     const texture = (await AssetLoader.loadAsync(url)) as CompressedTexture
-    console.log(texture)
+    texture.encoding = LinearEncoding
     return (await createReadableTexture(texture, { url: true })) as string
   }
 
