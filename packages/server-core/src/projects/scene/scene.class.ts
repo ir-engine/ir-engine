@@ -29,7 +29,11 @@ export const getSceneData = async (
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
-  const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
+
+  let thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
+  //if no ktx2 is found, fallback on legacy jpg thumbnail formats
+  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, `projects/${projectName}`)))
+    thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
 
   const cacheDomain = getCacheDomain(storageProvider, internal)
   const thumbnailUrl = getCachedURL(thumbnailPath, cacheDomain)
