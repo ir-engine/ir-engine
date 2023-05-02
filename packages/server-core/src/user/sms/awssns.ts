@@ -3,7 +3,7 @@ import { PublishCommand, SNSClient } from '@aws-sdk/client-sns'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 
-const snsClient = new SNSClient({ region: config.aws.sms.region })
+const snsClient = new SNSClient(config.aws.sms)
 
 export async function sendSmsWithAWS(phone: string, text: string): Promise<void> {
   const params = {

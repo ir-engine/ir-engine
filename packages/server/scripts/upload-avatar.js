@@ -11,8 +11,10 @@ dotenv.config({ path: process.cwd() + '/../../.env.local' });
 const forceS3Upload = process.argv.includes('--force-s3-upload');
 
 const s3 = new S3Client({
+    credentials: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
+    },
     region: process.env.STORAGE_S3_REGION
 });
 

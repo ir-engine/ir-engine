@@ -7,7 +7,6 @@ import {
   ListObjectsV2Command,
   ObjectIdentifier,
   PutObjectCommand,
-  S3,
   S3Client
 } from '@aws-sdk/client-s3'
 import { Options, Upload } from '@aws-sdk/lib-storage'
@@ -50,6 +49,7 @@ export class S3Provider implements StorageProviderInterface {
     },
     endpoint: config.aws.s3.endpoint,
     region: config.aws.s3.region,
+    forcePathStyle: true,
     maxAttempts: 5
   })
 
@@ -92,18 +92,18 @@ export class S3Provider implements StorageProviderInterface {
    * @param fileName Name of file in the storage.
    * @param directoryPath Directory of file in the storage.
    */
-  async doesExist(fileName: string, directoryPath: string): Promise<any> {
+  async doesExist(fileName: string, directoryPath: string): Promise<boolean> {
     // have to use listOBjectsV2 since other object related methods does not check existance of a folder on S3
-    const result = new ListObjectsV2Command({
+    const command = new ListObjectsV2Command({
       Bucket: this.bucket,
       Prefix: path.join(directoryPath, fileName),
       MaxKeys: 1
     })
     try {
-      const response = await this.provider.send(result)
-      ;(response.Contents && response.Contents.length > 0) || false
+      const response = await this.provider.send(command)
+      return (response.Contents && response.Contents.length > 0) || false
     } catch {
-      false
+      return false
     }
   }
   /**
@@ -111,19 +111,19 @@ export class S3Provider implements StorageProviderInterface {
    * @param fileName Name of file in the storage.
    * @param directoryPath Directory of file in the storage.
    */
-  async isDirectory(fileName: string, directoryPath: string): Promise<any> {
+  async isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
     // last character of the key of directory is '/'
     // https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.htmlhow to
-    const result = new ListObjectsV2Command({
+    const command = new ListObjectsV2Command({
       Bucket: this.bucket,
       Prefix: path.join(directoryPath, fileName),
       MaxKeys: 1
     })
     try {
-      const response = await this.provider.send(result)
-      ;(await response?.Contents?.[0]?.Key?.endsWith('/')) || false
+      const response = await this.provider.send(command)
+      return response?.Contents?.[0]?.Key?.endsWith('/') || false
     } catch {
-      false
+      return false
     }
   }
 
@@ -221,7 +221,7 @@ export class S3Provider implements StorageProviderInterface {
           console.log(progress)
           // if (params.onProgress) params.onProgress(progress.loaded, progress.total)
         })
-        await upload.done()
+        return upload.done()
       } catch (err) {
         reject(err)
       }
@@ -271,16 +271,11 @@ export class S3Provider implements StorageProviderInterface {
     const Key = key
     const Conditions = conditions
     const client = this.provider
-    const result = await new Promise<PresignedPost>(async (resolve) => {
-      const { url, fields } = await createPresignedPost(client, {
-        Bucket,
-        Conditions,
-        Key,
-        Expires: expiresAfter
-      })
-      ;(err, data: PresignedPost) => {
-        resolve(data)
-      }
+    const result = await createPresignedPost(client, {
+      Bucket,
+      Conditions,
+      Key,
+      Expires: expiresAfter
     })
 
     await this.createInvalidation([key])
@@ -392,6 +387,8 @@ export class S3Provider implements StorageProviderInterface {
           Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
         }
         const command = new CopyObjectCommand(input)
+        const response = await this.provider.send(command)
+        return response
       })
     ])
 
