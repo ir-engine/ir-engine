@@ -16,7 +16,7 @@ import RAPIER, {
 } from '@dimforge/rapier3d-compat'
 import { BufferAttribute, Line, Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
@@ -311,7 +311,7 @@ function createRigidBodyForGroup(
 
   const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 
-  if (!getMutableState(EngineState).isEditor.value)
+  if (!getState(EngineState).isEditor)
     for (const mesh of meshesToRemove) {
       mesh.removeFromParent()
       mesh.traverse((obj: Mesh<any, any>) => cleanupAllMeshData(obj, { uuid: getComponent(entity, UUIDComponent) }))

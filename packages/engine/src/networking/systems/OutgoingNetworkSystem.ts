@@ -1,8 +1,9 @@
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
@@ -22,9 +23,7 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 ])
 
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
-  const ents = getMutableState(EngineState).isEditor.value
-    ? networkTransformsQuery()
-    : authoritativeNetworkTransformsQuery()
+  const ents = getState(EngineState).isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId
     const network = Engine.instance.worldNetwork as Network
@@ -41,17 +40,13 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   }
 }
 
-export default async function OutgoingNetworkSystem() {
-  const serialize = createDataWriter()
+const serialize = createDataWriter()
 
-  const execute = () => {
-    Engine.instance.worldNetwork && serializeAndSend(serialize)
-  }
-
-  const cleanup = async () => {
-    removeQuery(networkTransformsQuery)
-    removeQuery(authoritativeNetworkTransformsQuery)
-  }
-
-  return { execute, cleanup }
+const execute = () => {
+  Engine.instance.worldNetwork && serializeAndSend(serialize)
 }
+
+export const OutgoingNetworkSystem = defineSystem({
+  uuid: 'ee.engine.OutgoingNetworkSystem',
+  execute
+})

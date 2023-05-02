@@ -17,6 +17,7 @@ import {
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { Entity, UndefinedEntity } from './classes/Entity'
 import { entityExists } from './functions/EntityFunctions'
+import { defineSystem } from './functions/SystemFunctions'
 
 export type SerializedChunk = {
   startTimecode: number
@@ -136,7 +137,7 @@ export const readEntity = (v: ViewCursor, entities: EntityUUID[], serializationS
   const entityIndex = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  let entity = UUIDComponent.entitiesByUUID.value[entities[entityIndex]] || UndefinedEntity
+  let entity = UUIDComponent.entitiesByUUID[entities[entityIndex]] || UndefinedEntity
   if (!entity || !entityExists(entity)) entity = UndefinedEntity
 
   let b = 0
@@ -216,20 +217,18 @@ export const ECSSerialization = {
   createDeserializer
 }
 
-export default async function ECSSerializerSystem() {
-  const execute = () => {
-    for (const serializer of ActiveSerializers) {
-      if (!serializer.active) continue
-      serializer.write()
-    }
-
-    for (const deserializer of ActiveDeserializers) {
-      if (!deserializer.active) continue
-      deserializer.read()
-    }
+const execute = () => {
+  for (const serializer of ActiveSerializers) {
+    if (!serializer.active) continue
+    serializer.write()
   }
 
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+  for (const deserializer of ActiveDeserializers) {
+    if (!deserializer.active) continue
+    deserializer.read()
+  }
 }
+export const ECSSerializerSystem = defineSystem({
+  uuid: 'ee.engine.ecs.ECSSerializerSystem',
+  execute
+})

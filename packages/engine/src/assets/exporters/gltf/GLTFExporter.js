@@ -3,6 +3,7 @@ import {
 	ClampToEdgeWrapping,
 	Color,
 	DoubleSide,
+	Group,
 	InterpolateDiscrete,
 	InterpolateLinear,
 	LinearEncoding,
@@ -21,9 +22,11 @@ import {
 	Scene,
 	Source,
 	sRGBEncoding,
-	Vector3
+	Vector3,
+	Texture
 } from 'three';
 
+import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 
 /**
  * The KHR_mesh_quantization extension allows these extra attribute component types
@@ -1219,8 +1222,8 @@ export class GLTFWriter {
 					resolve({})
 				}))
 			} else {
-		const canvas = getCanvas();
-
+			const canvas = getCanvas();
+			
 			canvas.width = Math.min( image.width, options.maxTextureSize );
 			canvas.height = Math.min( image.height, options.maxTextureSize );
 
@@ -1235,7 +1238,7 @@ export class GLTFWriter {
 
 		if ( image.data !== undefined ) { // THREE.DataTexture
 			if ( format !== RGBAFormat ) {
-
+//pass this since basisU extension may be present
 
 			}
 					else
@@ -1263,23 +1266,24 @@ export class GLTFWriter {
 				ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
 
 			}
+			
+
 
 			if ( options.binary === true ) {
 
 				pending.push(
-
-					getToBlobPromise( canvas, mimeType )
+					//createReadableTexture(new Texture(image), {flipY: true, canvas: true}).then((texture) => 
+					getToBlobPromise( /*texture.image*/canvas, mimeType )
 						.then( blob => writer.processBufferViewImage( blob ) )
 						.then( bufferViewIndex => {
 
 							imageDef.bufferView = bufferViewIndex;
 
 						} )
-
-				);
-
+				)
+				//)
 			} else {
-
+/*
 				if ( canvas.toDataURL !== undefined ) {
 
 					imageDef.uri = canvas.toDataURL( mimeType );
@@ -1299,7 +1303,7 @@ export class GLTFWriter {
 					);
 
 				}
-
+*/
 		}
 			}
 		} else {
@@ -2310,7 +2314,10 @@ export class GLTFWriter {
 
 		for ( let i = 0; i < input.length; i ++ ) {
 
-			if ( input[ i ] instanceof Scene ) {
+			if ( 
+				input[ i ] instanceof Scene 
+				|| input[ i ] instanceof Group
+			) {
 
 				this.processScene( input[ i ] );
 
@@ -2321,7 +2328,7 @@ export class GLTFWriter {
 			}
 
 		}
-
+		
 		if ( objectsWithoutScene.length > 0 ) this.processObjects( objectsWithoutScene );
 
 		for ( let i = 0; i < this.skins.length; ++ i ) {

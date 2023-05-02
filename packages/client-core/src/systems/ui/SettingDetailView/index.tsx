@@ -3,7 +3,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserSetting } from '@etherealengine/common/src/interfaces/User'
-import { AudioSettingAction, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarAxesControlScheme,
@@ -38,7 +38,7 @@ function createSettingDetailState() {
 const SettingDetailView = () => {
   const { t } = useTranslation()
   const rendererState = useHookstate(getMutableState(RendererState))
-  const audioState = useAudioState()
+  const audioState = useHookstate(getMutableState(AudioState))
   const xrSessionActive = useHookstate(getMutableState(XRState).sessionActive)
   const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value

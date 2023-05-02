@@ -17,8 +17,7 @@ declare module '@etherealengine/common/declarations' {
 
 export default (app: Application): void => {
   const options = {
-    //TODO: Ideally we should use `chargebeeSettingPath` variable, but since our table name is not `chargebee-setting` therefore hardcoded string is used.
-    name: 'chargebeeSetting', // chargebeeSettingPath,
+    name: chargebeeSettingPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true

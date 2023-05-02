@@ -10,6 +10,7 @@ import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xru
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
+import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { useChatState } from '../../../social/services/ChatService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
@@ -91,6 +92,10 @@ const WidgetButtons = () => {
     respawnAvatar(Engine.instance.localClientEntity)
   }
 
+  const handleHeightAdjustment = () => {
+    setTrackingSpace()
+  }
+
   const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
     id,
     ...widgetMutableState,
@@ -122,6 +127,7 @@ const WidgetButtons = () => {
       <style>{styleString}</style>
       <div className="container" style={{ gridTemplateColumns }} xr-pixel-ratio="8" xr-layer="true">
         <WidgetButton icon="Refresh" toggle={handleRespawnAvatar} label={'Respawn'} />
+        <WidgetButton icon="Person" toggle={handleHeightAdjustment} label={'Reset Height'} />
         {mediaInstanceState?.value && (
           <WidgetButton
             icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}

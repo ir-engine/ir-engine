@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
@@ -52,15 +52,19 @@ ReactorReconciler.injectIntoDevTools({
 export interface ReactorRoot {
   fiber: any
   isRunning: boolean
+  promise: Promise<void>
+  cleanupFunctions: Set<() => void>
   run: () => Promise<void>
   stop: () => Promise<void>
 }
 
-export interface ReactorProps {
-  root: ReactorRoot
+const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
+
+export function useReactorRootContext(): ReactorRoot {
+  return React.useContext(ReactorRootContext)
 }
 
-export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.store): ReactorRoot {
+export function startReactor(Reactor: React.FC, store = HyperFlux.store): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -83,12 +87,20 @@ export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.
     fiber: fiberRoot,
     isRunning: false,
     Reactor,
+    promise: null! as Promise<void>,
     run() {
       if (reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
         store.activeReactors.add(reactorRoot)
-        ReactorReconciler.updateContainer(<Reactor root={reactorRoot} />, fiberRoot, null, () => resolve())
+        ReactorReconciler.updateContainer(
+          <ReactorRootContext.Provider value={reactorRoot}>
+            <Reactor />
+          </ReactorRootContext.Provider>,
+          fiberRoot,
+          null,
+          () => resolve()
+        )
       })
     },
     stop() {
@@ -97,13 +109,16 @@ export function startReactor(Reactor: React.FC<ReactorProps>, store = HyperFlux.
         ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
           reactorRoot.isRunning = false
           store.activeReactors.delete(reactorRoot)
+          reactorRoot.cleanupFunctions.forEach((fn) => fn())
+          reactorRoot.cleanupFunctions.clear()
           resolve()
         })
       })
-    }
-  }
+    },
+    cleanupFunctions: new Set()
+  } as ReactorRoot
 
-  reactorRoot.run()
+  reactorRoot.promise = reactorRoot.run()
 
   return reactorRoot
 }

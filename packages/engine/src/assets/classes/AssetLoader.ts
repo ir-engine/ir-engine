@@ -19,10 +19,10 @@ import {
   TextureLoader
 } from 'three'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -69,7 +69,7 @@ const onTextureUploadDropSource = (uuid?: string) =>
   }
 
 export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
-  if (getMutableState(EngineState).isEditor.value || !child.isMesh) return
+  if (getState(EngineState).isEditor || !child.isMesh) return
   const geo = child.geometry as BufferGeometry
   const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
   const attributes = geo.attributes
@@ -123,7 +123,7 @@ const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).matc
  */
 const handleLODs = (asset: Object3D): Object3D => {
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = DEFAULT_LOD_DISTANCES //getRendererSceneMetadataState().LODs.value
+  const LODState = DEFAULT_LOD_DISTANCES
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
     if (!childMatch) {
@@ -257,7 +257,7 @@ const ktx2Loader = () => ({
     ktxLoader.load(
       src,
       (texture) => {
-        console.log('KTX2Loader loaded texture', texture)
+        // console.log('KTX2Loader loaded texture', texture)
         texture.source.data.src = src
         onLoad(texture)
       },

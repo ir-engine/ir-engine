@@ -1,7 +1,5 @@
 import type { Knex } from 'knex'
 
-const TABLE_NAME = 'TABLE_NAME'
-
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
@@ -11,7 +9,10 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists === false) {
     await knex.schema.createTable(TABLE_NAME, (table) => {
-      table.string('id', 36).primary()
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
+
+      
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })

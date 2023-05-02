@@ -25,7 +25,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
@@ -47,6 +47,7 @@ export type ImageResource = {
 
 export const ImageComponent = defineComponent({
   name: 'EE_image',
+  jsonID: 'image',
 
   onInit: (entity) => {
     return {
@@ -130,10 +131,8 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
   return geometry
 }
 
-export const SCENE_COMPONENT_IMAGE = 'image'
-
-export function ImageReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
+export function ImageReactor() {
+  const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
   const imageValue = image.value

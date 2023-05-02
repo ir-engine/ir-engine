@@ -549,6 +549,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
 
   async function webRTCCloseConsumerHandler(consumerId) {
     const consumer = network.consumers.find((c) => c.id === consumerId) as ConsumerExtension
+    if (!consumer) throw new Error('Consumer not found: ' + consumerId)
     consumer.close()
     const networkState = getMutableState(NetworkState).networks[network.hostId]
     // reactively splice the consumer out of the array
@@ -584,7 +585,10 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     if (
       producerId != null &&
       selfProducerIds.indexOf(producerId) < 0 &&
-      (consumerMatch == null || (consumerMatch.track?.muted && consumerMatch.track?.enabled)) &&
+      //The commented portion below was causing re-creation of consumers when the existing one was merely unable
+      //to provide data for a short time. If it's necessary for some logic to work, then it should be rewritten
+      //to do something like record when it started being muted, and only run if it's been muted for a while.
+      consumerMatch == null /*|| (consumerMatch.track?.muted && consumerMatch.track?.enabled)*/ &&
       (channelType === 'instance'
         ? currentChannelInstanceConnection.channelType === 'instance'
         : currentChannelInstanceConnection.channelType === channelType &&

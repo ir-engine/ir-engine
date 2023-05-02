@@ -7,7 +7,7 @@ import { createState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { LODPath } from '../functions/loaders/LODFunctions'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -28,10 +28,9 @@ export type LODComponentType = {
   instanceLevels: InstancedBufferAttribute
 }
 
-export const SCENE_COMPONENT_LOD = 'lod'
-
 export const LODComponent = defineComponent({
   name: 'EE_LOD',
+  jsonID: 'lod',
   onInit: (entity) =>
     ({
       target: 0,
@@ -45,8 +44,7 @@ export const LODComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (['number', 'string'].includes(typeof json.target)) {
-      const targetEntity =
-        typeof json.target === 'string' ? UUIDComponent.entitiesByUUID[json.target].value : json.target
+      const targetEntity = typeof json.target === 'string' ? UUIDComponent.entitiesByUUID[json.target] : json.target
       if (targetEntity && component.target.value !== targetEntity) {
         LODComponent.lodsByEntity[targetEntity].set(
           (
@@ -128,12 +126,13 @@ export const LODComponent = defineComponent({
   lodsByEntity: createState({} as Record<Entity, Entity[]>)
 })
 
-function LODReactor({ root }: EntityReactorProps): ReactElement {
-  const lodComponent = useComponent(root.entity, LODComponent)
+function LODReactor(): ReactElement {
+  const entity = useEntityContext()
+  const lodComponent = useComponent(entity, LODComponent)
   return (
     <>
       {lodComponent.levels.map((level, index) => (
-        <LodLevelReactor entity={root.entity} level={index} key={`${root.entity}-${index}`} />
+        <LodLevelReactor entity={entity} level={index} key={`${entity}-${index}`} />
       ))}
     </>
   )

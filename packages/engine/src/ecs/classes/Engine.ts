@@ -26,10 +26,9 @@ import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Timer } from '../../common/functions/Timer'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { ButtonInputStateType } from '../../input/InputState'
+import { OldButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
-import { SerializationSchema } from '../../networking/serialization/Utils'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -53,8 +52,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
-import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
-import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { disableAllSystems, SystemUUID } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -110,14 +108,15 @@ export class Engine {
     },
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => Date.now(),
-    defaultDispatchDelay: 1 / this.tickRate
+    defaultDispatchDelay: 1 / this.tickRate,
+    getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)
   }) as HyperStore
 
   /**
    * Current frame timestamp, relative to performance.timeOrigin
    */
   get frameTime() {
-    return getMutableState(EngineState).frameTime.value
+    return getState(EngineState).frameTime
   }
 
   engineTimer = null! as ReturnType<typeof Timer>
@@ -162,32 +161,32 @@ export class Engine {
    * The seconds since the last world execution
    */
   get deltaSeconds() {
-    return getMutableState(EngineState).deltaSeconds.value
+    return getState(EngineState).deltaSeconds
   }
 
   /**
    * The elapsed seconds since `startTime`
    */
   get elapsedSeconds() {
-    return getMutableState(EngineState).elapsedSeconds.value
+    return getState(EngineState).elapsedSeconds
   }
 
   /**
    * The elapsed seconds since `startTime`, in fixed time steps.
    */
   get fixedElapsedSeconds() {
-    return getMutableState(EngineState).fixedElapsedSeconds.value
+    return getState(EngineState).fixedElapsedSeconds
   }
 
   /**
    * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   get fixedTick() {
-    return getMutableState(EngineState).fixedTick.value
+    return getState(EngineState).fixedTick
   }
 
   get fixedDeltaSeconds() {
-    return getMutableState(EngineState).fixedDeltaSeconds.value
+    return getState(EngineState).fixedDeltaSeconds
   }
 
   physicsWorld: PhysicsWorld
@@ -234,11 +233,9 @@ export class Engine {
   /**
    * The local client entity
    */
-  get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
-  }
+  localClientEntity = UndefinedEntity
 
-  inputSources: Readonly<XRInputSourceArray> = []
+  inputSources: ReadonlyArray<XRInputSource> = []
 
   pointerState = {
     position: new Vector2(),
@@ -248,7 +245,7 @@ export class Engine {
     lastScroll: new Vector2()
   }
 
-  buttons = {} as Readonly<ButtonInputStateType>
+  buttons = {} as Readonly<OldButtonInputStateType>
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
@@ -258,38 +255,20 @@ export class Engine {
   // @todo move to EngineState
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
-  /**
-   * Custom systems injected into this world
-   */
-  pipelines = {
-    [SystemUpdateType.UPDATE_EARLY]: [],
-    [SystemUpdateType.UPDATE]: [],
-    [SystemUpdateType.FIXED_EARLY]: [],
-    [SystemUpdateType.FIXED]: [],
-    [SystemUpdateType.FIXED_LATE]: [],
-    [SystemUpdateType.UPDATE_LATE]: [],
-    [SystemUpdateType.PRE_RENDER]: [],
-    [SystemUpdateType.RENDER]: [],
-    [SystemUpdateType.POST_RENDER]: []
-  } as { [pipeline: string]: SystemInstance[] }
+  systemGroups = {} as {
+    input: SystemUUID
+    simulation: SystemUUID
+    presentation: SystemUUID
+  }
 
-  systemsByUUID = {} as Record<string, SystemInstance>
+  activeSystems = new Set<SystemUUID>()
+  currentSystemUUID = '__null__' as SystemUUID
+  activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
 
   /**
    * Network object query
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
-
-  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use EE_ extension names*/
-
-  /**
-   * Registry map of scene loader components
-   * @todo replace with a Set once SceneLoaderType is removed
-   * */
-  sceneLoadingRegistry = new Map<string, SceneLoaderType>()
-
-  /** Scene component of scene loader components  */
-  sceneComponentRegistry = new Map<string, string>()
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()
@@ -372,14 +351,19 @@ export async function destroyEngine() {
 
   /** Remove all entities */
   const entities = Engine.instance.entityQuery()
-  for (const entity of entities) if (entity) removeEntity(entity, true)
+
+  const entityPromises = [] as Promise<void>[]
+
+  for (const entity of entities) if (entity) entityPromises.push(...removeEntity(entity, true))
+
+  await Promise.all(entityPromises)
 
   for (const query of Engine.instance.reactiveQueryStates) {
     removeQuery(query.query)
   }
 
   /** Unload and clean up all systems */
-  await unloadAllSystems()
+  await disableAllSystems()
 
   const activeReactors = [] as Promise<void>[]
 

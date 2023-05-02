@@ -3,11 +3,13 @@ import {
   defineAction,
   defineState,
   getMutableState,
+  getState,
   syncStateWithLocalStorage,
   useState
 } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
+import { MediaSettingsState } from '../networking/MediaSettingsState'
 
 /**
  * All values ranged from 0 to 1
@@ -42,12 +44,12 @@ export const AudioState = defineState({
       'soundEffectsVolume',
       'backgroundMusicVolume'
     ])
+    //FIXME do this more gracefully than a hard setTimeout
+    setTimeout(() => {
+      getMutableState(MediaSettingsState).immersiveMedia.set(getState(AudioState).positionalMedia)
+    }, 1000)
   }
 })
-/**@deprecated use getMutableState directly instead */
-export const accessAudioState = () => getMutableState(AudioState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAudioState = () => useState(accessAudioState())
 
 export function AudioSettingReceptor(action) {
   const s = getMutableState(AudioState)
@@ -61,6 +63,7 @@ export function AudioSettingReceptor(action) {
     })
     .when(AudioSettingAction.setUsePositionalMedia.matches, (action) => {
       s.positionalMedia.set(action.value)
+      getMutableState(MediaSettingsState).immersiveMedia.set(action.value)
     })
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
       s.mediaStreamVolume.set(action.value)
@@ -112,8 +115,6 @@ export class AudioSettingAction {
 }
 
 export const getPositionalMedia = () => {
-  const audioState = getMutableState(AudioState)
-  return audioState.usePositionalMedia.value === 'auto'
-    ? audioState.positionalMedia.value
-    : audioState.usePositionalMedia.value === 'on'
+  const audioState = getState(AudioState)
+  return audioState.usePositionalMedia === 'auto' ? audioState.positionalMedia : audioState.usePositionalMedia === 'on'
 }

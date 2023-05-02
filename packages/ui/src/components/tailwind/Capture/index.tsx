@@ -1,17 +1,14 @@
+import { PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useHookstate } from '@hookstate/core'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
-import {
-  RecordingFunctions,
-  RecordingState,
-  RecordingStateReceptorSystem
-} from '@etherealengine/client-core/src/recording/RecordingService'
-import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
+import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
+import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   closeDataProducer,
   SocketWebRTCClientNetwork,
@@ -19,7 +16,6 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/useSystems'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
@@ -27,6 +23,7 @@ import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 
 let creatingProducer = false
@@ -77,13 +74,10 @@ const sendResults = (results: NormalizedLandmarkList) => {
   }
 }
 
-const MotionCaptureReceptorSystemInjection = {
-  uuid: 'ee.client.MotionCaptureReceptorSystem',
-  type: 'POST_RENDER',
-  systemLoader: () => Promise.resolve({ default: RecordingStateReceptorSystem })
-} as const
-
 const CaptureDashboard = () => {
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const [videoStatus, setVideoStatus] = useState('')
+
   const poseDetectorRef = useRef<Pose>()
   const isDetecting = useHookstate(false)
 
@@ -138,8 +132,6 @@ const CaptureDashboard = () => {
     }
   }
 
-  useSystems([MotionCaptureReceptorSystemInjection])
-
   const mediapipe = useHookstate(null as Pose | null)
 
   const videoActive = useHookstate(false)
@@ -178,6 +170,7 @@ const CaptureDashboard = () => {
   const stopDetecting = async () => {
     isDetecting.set(false)
     await poseDetectorRef.current?.close()
+    // poseDetectorRef.current = null
   }
 
   const onResults: ResultsListener = useCallback(
@@ -259,10 +252,12 @@ const CaptureDashboard = () => {
 
   // Enable video via the media server
   useEffect(() => {
-    if (mediaConnection?.connected.value) toggleWebcamPaused()
+    // if (mediaConnection?.connected.value) toggleWebcamPaused()
   }, [mediaConnection?.connected])
 
   const createPoseDetector = () => {
+    if (poseDetectorRef.current) return poseDetectorRef.current
+
     const poseDetector = new Pose({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
@@ -275,14 +270,37 @@ const CaptureDashboard = () => {
 
   useEffect(() => {
     if (videoRef.current && canvasRef.current) {
-      const detector = createPoseDetector()
-      startDetecting(detector)
+      if (isDetecting?.value) {
+        // start detecting on mount
+        const detector = createPoseDetector()
+        startDetecting(detector)
+      }
     }
     RecordingFunctions.getRecordings()
   }, [videoRef, canvasRef])
 
+  useEffect(() => {
+    const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
+
+    setVideoStatus(
+      mediaConnection?.connected?.value === false && videoActive?.value === false
+        ? 'loading'
+        : isCamVideoEnabled !== true
+        ? 'ready'
+        : 'active'
+    )
+  }, [mediaConnection?.connected, videoActive])
+
   return (
     <div className="w-full">
+      {/* <ul className="">
+        <li>{`videoStatus: ${videoStatus}`}</li>
+        <li>{`mediaConnection: ${mediaConnection?.connected?.value}`}</li>
+        <li>{`videoActive: ${videoActive?.value}`}</li>
+        <li>{`camVideoProducer: ${mediaStreamState.camVideoProducer.value}`}</li>
+        <li>{`videoPaused: ${mediaStreamState.videoPaused.value}`}</li>
+        <li>{`isDetecting: ${isDetecting?.value}`}</li>
+      </ul> */}
       <Drawer
         settings={
           <div className="w-100 bg-base-100">
@@ -400,29 +418,49 @@ const CaptureDashboard = () => {
         }
       >
         <Header />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="card p-4 pb-6">
-            <div className="w-full relative">
-              <div className={twMerge('relative left-0 top-0 z-10 min-w-full min-h-full')}>
-                <Video ref={videoRef} />
+        <div className="grid justify-items-center grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="card p-4 pb-6 overflow-hidden">
+            <div className="w-full relative ">
+              <div className="relative w-full h-auto max-w-full" style={{ backgroundColor: '#000000' }}>
+                <Video ref={videoRef} className="w-full h-auto max-w-full" />
               </div>
               <div className="object-contain absolute top-0 z-20" style={{ objectFit: 'contain', top: '0px' }}>
                 <Canvas ref={canvasRef} />
               </div>
-              <Toolbar
-                className="w-full z-30 fixed bottom-0"
-                isVideoOn={mediaConnection?.connected?.value}
-                isDetecting={isDetecting?.value}
-                onToggleRecording={onToggleRecording}
-                toggleWebcam={toggleWebcamPaused}
-                toggleDetecting={toggleDetecting}
-                isRecording={recordingState.started.value}
-                recordingStatus={recordingState.recordingID.value}
-                isVideoFlipped={isVideoFlipped.value}
-                flipVideo={(val) => {
-                  isVideoFlipped.set(val)
-                }}
-              />
+              {videoStatus === 'loading' ? (
+                <LoadingCircle message="Loading..." />
+              ) : videoStatus !== 'active' ? (
+                <button
+                  onClick={toggleWebcamPaused}
+                  className="absolute btn btn-ghost w-full h-full bg-none"
+                  style={{ objectFit: 'contain', top: '0px' }}
+                >
+                  <div className="grid w-screen h-screen place-items-center">
+                    <h1>Enable Camera</h1>
+                  </div>
+                </button>
+              ) : null}
+            </div>
+            <div className="w-full relative ">
+              {mediaConnection?.connected?.value ? (
+                <Toolbar
+                  className="w-full z-30 fixed bottom-0"
+                  videoStatus={videoStatus}
+                  isDetecting={isDetecting?.value}
+                  onToggleRecording={onToggleRecording}
+                  toggleWebcam={toggleWebcamPaused}
+                  toggleDetecting={toggleDetecting}
+                  isRecording={recordingState.started.value}
+                  recordingStatus={recordingState.recordingID.value}
+                  isVideoFlipped={isVideoFlipped.value}
+                  flipVideo={(val) => {
+                    isVideoFlipped.set(val)
+                  }}
+                  cycleCamera={MediaStreamService.cycleCamera}
+                />
+              ) : (
+                <div className="navbar border-none w-full z-30 fixed bottom-0"></div>
+              )}
             </div>
           </div>
           <div className="card p-4">

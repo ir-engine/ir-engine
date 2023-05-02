@@ -311,7 +311,7 @@ function removeActionsForTopic(topic: string, store = HyperFlux.store) {
  * Adds an action receptor to the store
  * @param store
  * @param receptor
- * @deprecated use createActionQueue instead
+ * @deprecated use defineActionQueue instead
  */
 function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   logger.info(`Added Receptor ${receptor.name}`)
@@ -322,7 +322,7 @@ function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
  * Removes an action receptor from the store
  * @param store
  * @param receptor
- * @deprecated use createActionQueue instead
+ * @deprecated use defineActionQueue instead
  */
 function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   const idx = store.receptors.indexOf(receptor)
@@ -370,9 +370,12 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>, stor
 }
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
-  for (const [shape, queues] of store.actions.queues) {
+  for (const [shape, queueDefintions] of store.actions.queueDefinitions) {
     if (shape.test(action)) {
-      for (const queue of queues) queue.push(action)
+      for (const queues of queueDefintions) {
+        if (!store.actions.queues.has(queues)) continue
+        store.actions.queues.get(queues)!.push(action)
+      }
     }
   }
 }
@@ -441,22 +444,35 @@ const clearOutgoingActions = (topic: string, store = HyperFlux.store) => {
   queue.length = 0
 }
 
-function createActionQueue<V extends Validator<unknown, ResolvedActionType>>(
-  shape: V,
-  store = HyperFlux.store
-): () => V['_TYPE'][] {
-  if (!store.actions.queues.get(shape)) store.actions.queues.set(shape, [])
-  const queue = store.actions.history.filter(shape.test)
-  store.actions.queues.get(shape)!.push(queue)
-  const actionQueueDefinition = () => {
+function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(shape: V): () => V['_TYPE'][] {
+  const actionQueueDefinition = (store = HyperFlux.store) => {
+    if (!store.actions.queueDefinitions.has(shape)) store.actions.queueDefinitions.set(shape, [])
+
+    if (!store.actions.queueDefinitions.get(shape)!.includes(actionQueueDefinition))
+      store.actions.queueDefinitions.get(shape)!.push(actionQueueDefinition)
+
+    if (!store.actions.queues.has(actionQueueDefinition)) {
+      store.actions.queues.set(actionQueueDefinition, store.actions.history.filter(shape.test))
+      store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
+        removeActionQueue(actionQueueDefinition, store)
+      })
+    }
+
+    const queue = store.actions.queues.get(actionQueueDefinition)!
     const result = [...queue]
     queue.length = 0
     return result
   }
-  actionQueueDefinition._queue = queue
   actionQueueDefinition._shape = shape
   return actionQueueDefinition
 }
+
+/**
+ * @deprecated use defineActionQueue instead
+ */
+const createActionQueue = defineActionQueue
+
+export type ActionQueueDefinition = ReturnType<typeof defineActionQueue>
 
 const removeActionQueue = (queueFunction, store = HyperFlux.store) => {
   const queue = queueFunction._queue
@@ -474,6 +490,7 @@ export {
   addActionReceptor,
   removeActionReceptor,
   createActionQueue,
+  defineActionQueue,
   removeActionQueue,
   addOutgoingTopicIfNecessary,
   removeActionsForTopic,

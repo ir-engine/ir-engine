@@ -1,4 +1,4 @@
-import { InstancedMesh, Mesh } from 'three'
+import { BufferGeometry, InstancedMesh, Mesh, MeshBasicMaterial } from 'three'
 
 import createGLTFExporter from '@etherealengine/engine/src/assets/functions/createGLTFExporter'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
@@ -6,10 +6,16 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import {
+  removeMaterialSource,
+  unregisterMaterial
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -19,6 +25,7 @@ import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject
 import { State } from '@etherealengine/hyperflux'
 
 import { uploadProjectFiles } from './assetFunctions'
+import exportGLTF from './exportGLTF'
 
 export type LODsFromModelParameters = {
   serialize: boolean
@@ -52,7 +59,7 @@ export async function createLODsFromModel(
       const mesh = meshes[i]
       const lodEntity = createEntity()
       addEntityNodeChild(lodEntity, entity)
-      addComponent(lodEntity, LODComponent, {
+      setComponent(lodEntity, LODComponent, {
         target: entity,
         lodPath: mesh.userData['lodPath'],
         levels: [
@@ -65,7 +72,7 @@ export async function createLODsFromModel(
         ],
         instanced: mesh instanceof InstancedMesh
       })
-      addComponent(lodEntity, NameComponent, mesh.name)
+      setComponent(lodEntity, NameComponent, mesh.name)
       processLoadedLODLevel(lodEntity, 0, mesh)
       if (options.serialize) {
         const lodComponent = getMutableComponent(lodEntity, LODComponent)
@@ -86,13 +93,13 @@ export async function serializeLOD(
 ) {
   const mesh = getFirstMesh(level.model.value!)!
   //clone the mesh and remove its world matrix so it can be exported
-  const toExport = mesh.clone()
+  //also convert instanced meshes into singleton version as instance matrix data is stored in the scaffold
+  const toExport = mesh instanceof InstancedMesh ? new Mesh(mesh.geometry, mesh.material) : mesh.clone()
   toExport.removeFromParent()
   toExport.position.set(0, 0, 0)
   toExport.rotation.set(0, 0, 0)
   toExport.scale.set(1, 1, 1)
   toExport.updateMatrixWorld()
-  toExport.updateMatrix()
   const [, , projectName, fileName] = pathResolver().exec(rootSrc)!
   //create a new filename for the lod
   const nuRelativePath = fileName.replace(/\.[^.]*$/, `_${mesh.name}.gltf`)
@@ -109,4 +116,29 @@ export async function serializeLOD(
   const file = new File([JSON.stringify(gltf)], nuNuRelativePath)
   const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
   level.src.set(urls[0][0])
+}
+
+export function convertToScaffold(entity: Entity) {
+  const modelComponent = getComponent(entity, ModelComponent)
+  modelComponent.scene &&
+    iterateObject3D(modelComponent.scene, (mesh: Mesh | InstancedMesh) => {
+      if (!mesh?.isMesh) return
+      mesh.geometry = new BufferGeometry()
+      mesh.material = new MeshBasicMaterial()
+    })
+  const scaffoldPath = modelComponent.src.replace(/(\.[^.]*$)/, '_scaffold$1')
+  exportGLTF(entity, scaffoldPath).then(() => {
+    getMutableComponent(entity, ModelComponent).src.set(scaffoldPath)
+    LODComponent.lodsByEntity[entity].value?.map((lodEntity) => {
+      const lodComponent = getMutableComponent(lodEntity, LODComponent)
+      lodComponent.levels.map((level) => {
+        level.model.set(null)
+        removeMaterialSource({
+          path: level.src.value,
+          type: SourceType.MODEL
+        })
+        level.loaded.set(false)
+      })
+    })
+  })
 }

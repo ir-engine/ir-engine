@@ -1,14 +1,21 @@
-/**
- * An object for swagger documentation configuration
- */
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-// TODO: unfinished
-export default {
-  definitions: {
-    'match-instance': {
-      type: 'object',
-      properties: {}
-    }
+import {
+  matchInstanceDataSchema,
+  matchInstancePatchSchema,
+  matchInstanceQuerySchema,
+  matchInstanceSchema
+} from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    matchInstanceDataSchema,
+    matchInstancePatchSchema,
+    matchInstanceQuerySchema,
+    matchInstanceSchema
   },
-  overwriteTagSpec: true
-}
+  docs: {
+    description: 'Match instance service description',
+    securities: ['all']
+  }
+})

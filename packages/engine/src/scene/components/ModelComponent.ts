@@ -3,8 +3,10 @@ import { Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { getState, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
@@ -14,7 +16,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -41,6 +43,7 @@ export type ModelResource = {
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
+  jsonID: 'gltf-model',
 
   onInit: (entity) => {
     return {
@@ -70,6 +73,11 @@ export const ModelComponent = defineComponent({
     }
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(EngineState).sceneLoaded) setComponent(entity, SceneAssetPendingTagComponent, true)
   },
 
   onRemove: (entity, component) => {
@@ -77,6 +85,7 @@ export const ModelComponent = defineComponent({
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
+    LODComponent.lodsByEntity[entity].value && LODComponent.lodsByEntity[entity].set(none)
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
@@ -85,8 +94,8 @@ export const ModelComponent = defineComponent({
   reactor: ModelReactor
 })
 
-function ModelReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
+function ModelReactor() {
+  const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
@@ -187,5 +196,3 @@ function ModelReactor({ root }: EntityReactorProps) {
 
   return null
 }
-
-export const SCENE_COMPONENT_MODEL = 'gltf-model'

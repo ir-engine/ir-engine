@@ -9,7 +9,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -120,17 +120,19 @@ export type IntervalValueJSON = {
   b: number
 }
 
+export type BezierFunctionJSON = {
+  function: {
+    p0: number
+    p1: number
+    p2: number
+    p3: number
+  }
+  start: number
+}
+
 export type PiecewiseBezierValueJSON = {
   type: 'PiecewiseBezier'
-  functions: {
-    function: {
-      p0: number
-      p1: number
-      p2: number
-      p3: number
-    }
-    start: number
-  }[]
+  functions: BezierFunctionJSON[]
 }
 
 export type ValueGeneratorJSON = ConstantValueJSON | IntervalValueJSON | PiecewiseBezierValueJSON
@@ -196,7 +198,7 @@ export type RandomColorJSON = {
 export type ColorGradientJSON = {
   type: 'Gradient'
   functions: {
-    function: ColorGeneratorJSON
+    function: ColorRangeJSON
     start: number
   }[]
 }
@@ -220,7 +222,16 @@ export const ColorGeneratorJSONDefaults: Record<string, ColorGeneratorJSON> = {
   },
   Gradient: {
     type: 'Gradient',
-    functions: []
+    functions: [
+      {
+        function: {
+          type: 'ColorRange',
+          a: { r: 1, g: 1, b: 1, a: 1 },
+          b: { r: 1, g: 1, b: 1, a: 1 }
+        },
+        start: 0
+      }
+    ]
   }
 }
 
@@ -598,10 +609,9 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   worldSpace: true
 }
 
-export const SCENE_COMPONENT_PARTICLE_SYSTEM = 'particle-system'
-
 export const ParticleSystemComponent = defineComponent({
   name: 'EE_ParticleSystem',
+  jsonID: 'particle-system',
   onInit: (entity) => {
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
@@ -633,8 +643,8 @@ export const ParticleSystemComponent = defineComponent({
     systemParameters: component.systemParameters.value,
     behaviorParameters: component.behaviorParameters.value
   }),
-  reactor: function ({ root }: EntityReactorProps) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const component = componentState.value
     const batchRenderer = getBatchRenderer()!

@@ -22,6 +22,7 @@ import {
   hasComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -41,9 +42,7 @@ PortalPreviewTypes.add(PortalPreviewTypeSpherical)
 export const PortalEffects = new Map<string, ComponentType<any>>()
 PortalEffects.set('None', null!)
 
-export const SCENE_COMPONENT_PORTAL = 'portal'
-
-export const SCENE_COMPONENT_PORTAL_COLLIDER_VALUES = {
+export const portalColliderValues = {
   bodyType: RigidBodyType.Fixed,
   shapeType: ShapeType.Cuboid,
   isTrigger: true,
@@ -56,12 +55,12 @@ export const SCENE_COMPONENT_PORTAL_COLLIDER_VALUES = {
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',
+  jsonID: 'portal',
 
   onInit: (entity) => {
     setCallback(entity, 'teleport', portalTriggerEnter)
 
-    if (!hasComponent(entity, ColliderComponent))
-      addComponent(entity, ColliderComponent, { ...SCENE_COMPONENT_PORTAL_COLLIDER_VALUES })
+    if (!hasComponent(entity, ColliderComponent)) addComponent(entity, ColliderComponent, { ...portalColliderValues })
     return {
       linkedPortalId: '',
       location: '',
@@ -115,9 +114,10 @@ export const PortalComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const portalComponent = useComponent(root.entity, PortalComponent)
+    const portalComponent = useComponent(entity, PortalComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !portalComponent.helper.value) {
@@ -125,7 +125,7 @@ export const PortalComponent = defineComponent({
           new CylinderGeometry(0.25, 0.25, 0.1, 6, 1, false, (30 * Math.PI) / 180),
           new MeshBasicMaterial({ color: 0x2b59c3 })
         )
-        helper.name = `portal-helper-${root.entity}`
+        helper.name = `portal-helper-${entity}`
 
         const spawnDirection = new Mesh(
           new ConeGeometry(0.05, 0.5, 4, 1, false, Math.PI / 4),
@@ -136,20 +136,20 @@ export const PortalComponent = defineComponent({
         helper.add(spawnDirection)
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
 
         portalComponent.helper.set(helper)
       }
 
       if (!debugEnabled.value && portalComponent.helper.value) {
-        removeObjectFromGroup(root.entity, portalComponent.helper.value)
+        removeObjectFromGroup(entity, portalComponent.helper.value)
         portalComponent.helper.set(none)
       }
     }, [debugEnabled])
 
     useEffect(() => {
       if (portalComponent.mesh.value && portalComponent.previewType.value === PortalPreviewTypeSimple) {
-        removeObjectFromGroup(root.entity, portalComponent.mesh.value)
+        removeObjectFromGroup(entity, portalComponent.mesh.value)
         portalComponent.mesh.set(null)
       }
 
@@ -157,7 +157,7 @@ export const PortalComponent = defineComponent({
         const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
         portalMesh.scale.x = -1
         portalComponent.mesh.set(portalMesh)
-        addObjectToGroup(root.entity, portalMesh)
+        addObjectToGroup(entity, portalMesh)
       }
     }, [portalComponent.previewType])
 

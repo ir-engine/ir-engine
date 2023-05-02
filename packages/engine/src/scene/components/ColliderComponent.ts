@@ -11,6 +11,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -21,6 +22,7 @@ import { GroupComponent } from './GroupComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
+  jsonID: 'collider',
 
   onInit(entity) {
     return {
@@ -34,7 +36,7 @@ export const ColliderComponent = defineComponent({
       removeMesh: false,
       collisionLayer: CollisionGroups.Default,
       collisionMask: DefaultCollisionMask,
-      restitution: 1,
+      restitution: 0.5,
       /**
        * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
        */
@@ -59,8 +61,10 @@ export const ColliderComponent = defineComponent({
 
     if (typeof json.bodyType === 'number') component.bodyType.set(json.bodyType)
     if (typeof json.shapeType === 'number') component.shapeType.set(json.shapeType)
-    if (typeof json.isTrigger === 'boolean') component.isTrigger.set(json.isTrigger)
-    if (typeof json.removeMesh === 'boolean') component.removeMesh.set(json.removeMesh)
+    if (typeof json.isTrigger === 'boolean' || typeof json.isTrigger === 'number')
+      component.isTrigger.set(Boolean(json.isTrigger))
+    if (typeof json.removeMesh === 'boolean' || typeof json.removeMesh === 'number')
+      component.removeMesh.set(Boolean(json.removeMesh))
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
@@ -100,8 +104,8 @@ export const ColliderComponent = defineComponent({
     return response
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
 
     const transformComponent = useComponent(entity, TransformComponent)
     const colliderComponent = useComponent(entity, ColliderComponent)
@@ -233,15 +237,4 @@ export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3
     case ShapeType.Cylinder:
       return ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
   }
-}
-
-export const SCENE_COMPONENT_COLLIDER = 'collider'
-export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {
-  bodyType: RigidBodyType.Fixed,
-  shapeType: ShapeType.Cuboid,
-  isTrigger: false,
-  removeMesh: false,
-  restitution: 0.5,
-  collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
 }

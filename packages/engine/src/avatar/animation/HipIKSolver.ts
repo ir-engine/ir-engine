@@ -51,7 +51,7 @@ const rightFootTargetHint = new Object3D().add(
  * @param entity
  * @param target
  */
-export function solveHipHeight(entity: Entity, target: Object3D) {
+export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const body = getComponent(entity, RigidBodyComponent)
 
@@ -73,7 +73,7 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const pivotHalfLength = rigComponent.upperLegLength * 0.5
   const pivotHalfLengthSquare = pivotHalfLength * pivotHalfLength
   const minHeadHeight = pivotHalfLength + rigComponent.lowerLegLength + rigComponent.footHeight
-  const headTargetY = target.getWorldPosition(_vec3).y - body.position.y
+  const headTargetY = headPosition.y - body.position.y
   const clampedHeadTargetY =
     Math.min(Math.max(minHeadHeight, headTargetY), headToFeetLength + rigComponent.footHeight) - rigComponent.footHeight
 
@@ -176,7 +176,6 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   _vec3.applyQuaternion(body.rotation)
   leftFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
   leftFootTarget.position.add(_vec3)
-  leftFootTarget.updateMatrixWorld(true)
 
   /** hint is where the knees aim */
   leftFootTargetHint.position.set(kneeFlareSeparation + leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
@@ -185,7 +184,18 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
   leftFootTargetHint.updateMatrixWorld(true)
 
-  solveTwoBoneIK(rig.LeftUpLeg, rig.LeftLeg, rig.LeftFoot, leftFootTarget, leftFootTargetHint, leftFootTargetOffset)
+  solveTwoBoneIK(
+    rig.LeftUpLeg,
+    rig.LeftLeg,
+    rig.LeftFoot,
+    leftFootTarget.position,
+    leftFootTarget.quaternion,
+    null,
+    leftFootTargetHint,
+    1,
+    0,
+    1
+  )
 
   /** Right Foot */
   const rightKneeFlare = -kneeFlareSeparation - kneeX * kneeFlareMultiplier
@@ -197,7 +207,6 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   _vec3.applyQuaternion(body.rotation)
   rightFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
   rightFootTarget.position.add(_vec3)
-  rightFootTarget.updateMatrixWorld(true)
 
   rightFootTargetHint.position.set(kneeFlareSeparation + rightKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   rightFootTargetHint.position.applyQuaternion(body.rotation)
@@ -209,9 +218,13 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
     rig.RightUpLeg,
     rig.RightLeg,
     rig.RightFoot,
-    rightFootTarget,
+    rightFootTarget.position,
+    rightFootTarget.quaternion,
+    null,
     rightFootTargetHint,
-    rightFootTargetOffset
+    1,
+    0,
+    1
   )
 
   /** Torso */

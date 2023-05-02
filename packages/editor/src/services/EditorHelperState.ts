@@ -37,11 +37,6 @@ export const EditorHelperState = defineState({
   }),
   onCreate: () => {
     syncStateWithLocalStorage(EditorHelperState, [
-      'isFlyModeEnabled',
-      'transformMode',
-      'transformModeOnCancel',
-      'transformSpace',
-      'transformPivot',
       'snapMode',
       'translationSnap',
       'rotationSnap',

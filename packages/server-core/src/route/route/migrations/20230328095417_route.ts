@@ -1,17 +1,18 @@
 import type { Knex } from 'knex'
 
-const TABLE_NAME = 'route'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(routePath)
 
   if (tableExists === false) {
-    await knex.schema.createTable(TABLE_NAME, (table) => {
-      table.string('id', 36).primary()
+    await knex.schema.createTable(routePath, (table) => {
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('project', 255).nullable()
       table.string('route', 255).nullable()
       table.dateTime('createdAt').notNullable()
@@ -25,9 +26,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(routePath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(TABLE_NAME)
+    await knex.schema.dropTable(routePath)
   }
 }

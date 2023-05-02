@@ -5,6 +5,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -13,6 +14,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
+  jsonID: 'spot-light',
 
   onInit: (entity) => {
     const light = new SpotLight()
@@ -58,7 +60,7 @@ export const SpotLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,
@@ -76,9 +78,10 @@ export const SpotLightComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const light = useComponent(root.entity, SpotLightComponent)
+    const light = useComponent(entity, SpotLightComponent)
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
@@ -131,7 +134,7 @@ export const SpotLightComponent = defineComponent({
     useEffect(() => {
       if (debugEnabled.value && !light.helper.value) {
         const helper = new Object3D()
-        helper.name = `spotlight-helper-${root.entity}`
+        helper.name = `spotlight-helper-${entity}`
 
         const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
         const cone = new Mesh(
@@ -145,14 +148,14 @@ export const SpotLightComponent = defineComponent({
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
 
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
         light.helper.set(helper)
         light.helperRing.set(ring)
         light.helperCone.set(cone)
       }
 
       if (!debugEnabled.value && light.helper.value) {
-        removeObjectFromGroup(root.entity, light.helper.value)
+        removeObjectFromGroup(entity, light.helper.value)
         light.helper.set(none)
       }
     }, [debugEnabled])
@@ -160,5 +163,3 @@ export const SpotLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_SPOT_LIGHT = 'spot-light'

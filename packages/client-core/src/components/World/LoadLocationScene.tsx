@@ -1,13 +1,64 @@
+import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
   LocationAction,
   LocationService,
+  LocationState,
   useLocationState
 } from '@etherealengine/client-core/src/social/services/LocationService'
 import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
+import { WarningUIService } from '../../systems/WarningUISystem'
+import { SceneService } from '../../world/services/SceneService'
+import { loadSceneJsonOffline } from '../../world/utils'
+
+export const useLoadLocation = (props: { locationName: string }) => {
+  const locationState = useHookstate(getMutableState(LocationState))
+
+  useEffect(() => {
+    dispatchAction(LocationAction.setLocationName({ locationName: props.locationName }))
+  }, [])
+
+  useEffect(() => {
+    if (locationState.invalidLocation.value) {
+      WarningUIService.openWarning({
+        title: t('common:instanceServer.invalidLocation'),
+        body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
+          'common:instanceServer.misspelledOrNotExist'
+        )}`
+      })
+    }
+  }, [locationState.invalidLocation])
+
+  useEffect(() => {
+    if (locationState.currentLocation.selfNotAuthorized.value) {
+      WarningUIService.openWarning({
+        title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
+        body: t('common:instanceServer.notAuthorizedAtLocation')
+      })
+    }
+  }, [locationState.currentLocation.selfNotAuthorized])
+
+  /**
+   * Once we have the location, fetch the current scene data
+   */
+  useEffect(() => {
+    if (locationState.currentLocation.location.sceneId.value) {
+      const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
+      SceneService.fetchCurrentScene(project, scene)
+    }
+  }, [locationState.currentLocation.location.sceneId])
+}
+
+export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
+  useEffect(() => {
+    dispatchAction(LocationAction.setLocationName({ locationName: `${props.projectName}/${props.sceneName}` }))
+    loadSceneJsonOffline(props.projectName, props.sceneName)
+  }, [])
+}
 
 export const useLoadLocationScene = () => {
   const { t } = useTranslation()
@@ -33,7 +84,7 @@ export const useLoadLocationScene = () => {
       locationState.locationName.value &&
       authState.isLoggedIn.value
     ) {
-      LocationService.getLocationByName(locationState.locationName.value, selfUser.id.value)
+      LocationService.getLocationByName(locationState.locationName.value)
     }
   }, [authState.isLoggedIn.value, locationState.locationName.value])
 

@@ -1,20 +1,13 @@
 import { TypedArray } from 'bitecs'
-import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarLeftArmIKComponent, AvatarRightArmIKComponent } from '../../avatar/components/AvatarIKComponents'
-import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
@@ -29,17 +22,7 @@ import {
   VEC3_PRECISION_MULT
 } from './Utils'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
-import {
-  createViewCursor,
-  readInt16,
-  readProp,
-  readUint8,
-  readUint16,
-  readUint32,
-  readUint64,
-  scrollViewCursor,
-  ViewCursor
-} from './ViewCursor'
+import { createViewCursor, readProp, readUint8, readUint16, readUint32, readUint64, ViewCursor } from './ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
