@@ -1,3 +1,5 @@
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+
 export interface InstanceColumn {
   id: 'id' | 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'podName' | 'action'
   label: string
@@ -36,6 +38,7 @@ export const instanceColumns: InstanceColumn[] = [
 ]
 
 export interface InstanceData {
+  el: Instance
   id: string
   ipAddress: string
   currentUsers: Number
@@ -44,3 +47,16 @@ export interface InstanceData {
   podName: string
   action: any
 }
+
+export interface InstanceUsersColumn {
+  id: 'id' | 'name' | 'action'
+  label: string
+  minWidth?: number
+  align?: 'right'
+}
+
+export const instanceUsersColumns: InstanceUsersColumn[] = [
+  { id: 'id', label: 'User ID' },
+  { id: 'name', label: 'User Name' },
+  { id: 'action', label: 'Action' }
+]

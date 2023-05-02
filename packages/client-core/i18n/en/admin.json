@@ -62,6 +62,7 @@
       "reset": "Reset",
       "delete": "Delete",
       "view": "View",
+      "kick": "Kick",
       "yes": "Yes",
       "no": "No",
       "refresh": "Refresh",
@@ -203,7 +204,8 @@
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
-      "count": "Count"
+      "count": "Count",
+      "kickDuration": "Kick Duration"
     },
     "resources": {
       "resources": "resources",

@@ -21,6 +21,15 @@ export interface UserScope {
   id?: string
 }
 
+export interface UserKick {
+  id: string
+  duration: Date
+  userId: UserId
+  instanceId: string
+}
+
+export interface CreateUserKick extends Omit<UserKick, 'id'> {}
+
 export interface UserInterface {
   id: UserId
   name: string
