@@ -217,6 +217,30 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
   }
 }
 
+/** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
+export const removeSceneEntitiesFromOldJSON = () => {
+  const sceneState = getState(SceneState)
+  const sceneData = sceneState.sceneData as SceneData
+  console.log(sceneData.scene.entities)
+  console.log(
+    ...getAllEntitiesInTree(sceneState.sceneEntity).map((entity) => ({
+      entity,
+      uuid: getComponent(entity, UUIDComponent)
+    }))
+  )
+  const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
+    (entity) =>
+      !sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
+      !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity')
+  )
+  console.log({ oldLoadedEntityNodesToRemove })
+  /** @todo this will not  */
+  for (const node of oldLoadedEntityNodesToRemove) {
+    if (node === sceneState.sceneEntity) continue
+    removeEntityNodeRecursively(node)
+  }
+}
+
 /**
  * Updates the scene based on serialized json data
  * @param sceneData
@@ -252,17 +276,7 @@ export const updateSceneFromJSON = async () => {
     disableSystems(systemsToUnload)
   }
 
-  /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
-  const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
-    (entity) =>
-      !sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
-      !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity')
-  )
-  /** @todo this will not  */
-  for (const node of oldLoadedEntityNodesToRemove) {
-    if (node === sceneState.sceneEntity) continue
-    removeEntityNodeRecursively(node)
-  }
+  removeSceneEntitiesFromOldJSON()
 
   /** 3. load new systems */
   if (!getState(EngineState).isEditor) {
@@ -272,8 +286,7 @@ export const updateSceneFromJSON = async () => {
   }
 
   /** 4. update scene entities with new data, and load new ones */
-  setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null! })
-  setComponent(sceneState.sceneEntity, UUIDComponent, sceneData.scene.root)
+  setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
   updateSceneEntitiesFromJSON(sceneData.scene.root)
 
@@ -314,6 +327,7 @@ export const updateSceneFromJSON = async () => {
 export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
   try {
     const existingEntity = UUIDComponent.entitiesByUUID[uuid]
+    console.log({ existingEntity, uuid })
     if (existingEntity) {
       deserializeSceneEntity(existingEntity, entityJson)
       /** @todo handle reparenting due to changes in scene json */
@@ -344,13 +358,12 @@ export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson):
   setComponent(entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
 
   /** remove ECS components that are in the scene register but not in the json */
-  /** @todo we need to handle the case where a system is unloaded and an existing component no longer exists in the registry */
   const componentsToRemove = getAllComponents(entity).filter(
     (C) =>
       C.jsonID && ComponentJSONIDMap.has(C.jsonID) && !sceneEntity.components.find((json) => C.jsonID === json.name)
   )
   for (const C of componentsToRemove) {
-    if (entity === getState(SceneState).sceneEntity) if (C === VisibleComponent) continue
+    if (entity === getState(SceneState).sceneEntity && C === VisibleComponent) continue
     if (C === GroupComponent || C === TransformComponent) continue
     removeComponent(entity, C)
   }

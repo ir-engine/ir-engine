@@ -19,7 +19,7 @@ import {
 
 import { API } from '../../API'
 import { accessChatState } from '../../social/services/ChatService'
-import { accessLocationState, LocationState } from '../../social/services/LocationService'
+import { LocationState } from '../../social/services/LocationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import {
   connectToNetwork,

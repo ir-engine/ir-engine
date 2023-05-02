@@ -1,3 +1,5 @@
+import { diff } from 'deep-object-diff'
+
 import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -5,7 +7,11 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import { defineAction, defineState, getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import {
+  removeSceneEntitiesFromOldJSON,
+  updateSceneEntitiesFromJSON
+} from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { defineActionQueue, dispatchAction, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { SelectionAction, SelectionState } from './SelectionServices'
@@ -60,10 +66,15 @@ export class EditorHistoryAction {
 }
 
 const applyCurrentSnapshot = () => {
-  const state = getMutableState(EditorHistoryState)
-  const snapshot = state.history[state.index.value].get(NO_PROXY)
-  console.log('Applying snapshot', state.index.value, snapshot)
-  if (snapshot.data) getMutableState(SceneState).sceneData.set(snapshot.data)
+  const state = getState(EditorHistoryState)
+  const snapshot = state.history[state.index]
+  console.log('Applying snapshot', state.index, snapshot)
+  if (snapshot.data) {
+    console.log(diff(getState(SceneState).sceneData!.scene, snapshot.data.scene))
+    getMutableState(SceneState).sceneData.ornull!.scene.set(snapshot.data.scene)
+    removeSceneEntitiesFromOldJSON()
+    updateSceneEntitiesFromJSON(snapshot.data.scene.root)
+  }
   if (snapshot.selectedEntities)
     dispatchAction(SelectionAction.updateSelection({ selectedEntities: snapshot.selectedEntities }))
 }
@@ -115,13 +126,15 @@ const execute = () => {
 
   /** Local only - serialize world then push to CRDT */
   for (const action of modifyQueue()) {
+    const editorHistory = getState(EditorHistoryState)
     if (action.modify) {
       const data = { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData
-      state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { data }])
+      console.log('saved histoiry', data)
+      state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { data }])
       state.index.set(state.index.value + 1)
     } else if (state.includeSelection.value) {
       const selectedEntities = action.selectedEntities ?? selectedEntitiesState.selectedEntities
-      state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { selectedEntities }])
+      state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { selectedEntities }])
       state.index.set(state.index.value + 1)
     }
   }
