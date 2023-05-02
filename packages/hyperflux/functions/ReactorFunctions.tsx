@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
