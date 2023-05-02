@@ -165,12 +165,13 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   const skinnedMeshes = findSkinnedMeshes(model)
 
-  /**@todo replace check for loop aniamtion component with ensuring tpose is only handled once */
+  /*
   // Try converting to T pose
   if (!hasComponent(entity, LoopAnimationComponent)) {
     makeTPose(rig)
     skinnedMeshes.forEach(applySkeletonPose)
   }
+  */
 
   const targetSkeleton = createSkeletonFromBone(rootBone)
 
