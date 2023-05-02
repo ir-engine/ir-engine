@@ -9,12 +9,13 @@ import {
   NormalBlending,
   SubtractiveBlending
 } from 'three'
-import { RenderMode } from 'three.quarks/dist/three.quarks'
+import { BurstParameters, RenderMode } from 'three.quarks/dist/three.quarks'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,
+  BurstParametersJSON,
   CONE_SHAPE_DEFAULT,
   ConstantColorJSON,
   DONUT_SHAPE_DEFAULT,
@@ -32,6 +33,8 @@ import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
+import NumericInput from '../inputs/NumericInput'
+import NumericInputGroup from '../inputs/NumericInputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
@@ -77,6 +80,13 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       const nuParms = JSON.parse(JSON.stringify(particleSystem.systemParameters.shape))
       nuParms[field] = value
       particleSystemState.systemParameters.shape.set(nuParms)
+      particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+    }
+  }, [])
+
+  const onSetState = useCallback((state: State<any>) => {
+    return (value: any) => {
+      state.set(value)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
@@ -127,6 +137,30 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
     []
   )
 
+  const onAddBurst = useCallback(() => {
+    const nuBurst: BurstParametersJSON = {
+      time: 0,
+      count: 0,
+      cycle: 0,
+      interval: 0,
+      probability: 0
+    }
+    particleSystemState.systemParameters.emissionBursts.set([
+      ...JSON.parse(JSON.stringify(particleSystem.systemParameters.emissionBursts)),
+      nuBurst
+    ])
+    particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+  }, [])
+
+  const onRemoveBurst = useCallback((burst: State<BurstParameters>) => {
+    return () => {
+      particleSystemState.systemParameters.emissionBursts.set(
+        JSON.parse(JSON.stringify(particleSystem.systemParameters.emissionBursts.filter((b) => b !== burst.value)))
+      )
+      particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+    }
+  }, [])
+
   return (
     <NodeEditor
       {...props}
@@ -134,6 +168,14 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.particle-system.description')}
     >
       <h4>Options</h4>
+      <InputGroup name="Looping" label={t('editor:properties.particle-system.looping')}>
+        <BooleanInput value={particleSystem.systemParameters.looping} onChange={onSetSystemParm('looping')} />
+      </InputGroup>
+
+      <InputGroup name="Duration" label={t('editor:properties.particle-system.duration')}>
+        <NumericInput value={particleSystem.systemParameters.duration} onChange={onSetSystemParm('duration')} />
+      </InputGroup>
+
       <InputGroup name="Emitter Shape" label={t('editor:properties.particle-system.emitter-shape')}>
         <SelectInput
           value={particleSystem.systemParameters.shape.type}
@@ -147,6 +189,54 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           ]}
         />
       </InputGroup>
+
+      <InputGroup name="Emission Bursts" label={t('editor:properties.particle-system.emission-bursts')}>
+        <Button onClick={onAddBurst}>Add Burst</Button>
+      </InputGroup>
+      <PaginatedList
+        list={
+          particleSystem.systemParameters.emissionBursts
+            ? (particleSystemState.systemParameters.emissionBursts as State<BurstParametersJSON[]>)
+            : []
+        }
+        element={(burst: State<BurstParametersJSON>) => {
+          return (
+            <div>
+              <NumericInputGroup
+                name="Time"
+                label={t('editor:properties.particle-system.burst.time')}
+                value={burst.time.value}
+                onChange={onSetState(burst.time)}
+              />
+              <NumericInputGroup
+                name="Count"
+                label={t('editor:properties.particle-system.burst.count')}
+                value={burst.count.value}
+                onChange={onSetState(burst.count)}
+              />
+              <NumericInputGroup
+                name="Cycle"
+                label={t('editor:properties.particle-system.burst.cycle')}
+                value={burst.cycle.value}
+                onChange={onSetState(burst.cycle)}
+              />
+              <NumericInputGroup
+                name="Interval"
+                label={t('editor:properties.particle-system.burst.interval')}
+                value={burst.interval.value}
+                onChange={onSetState(burst.interval)}
+              />
+              <NumericInputGroup
+                name="Probability"
+                label={t('editor:properties.particle-system.burst.probability')}
+                value={burst.probability.value}
+                onChange={onSetState(burst.probability)}
+              />
+              <Button onClick={onRemoveBurst(burst)}>Remove Burst</Button>
+            </div>
+          )
+        }}
+      />
       {particleSystem.systemParameters.shape.type === 'mesh_surface' && (
         <InputGroup name="Shape Mesh" label={t('editor:properties.particle-system.shape-mesh')}>
           <ModelInput value={particleSystem.systemParameters.shape.mesh} onChange={onChangeShapeParm('mesh')} />
@@ -214,9 +304,69 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           ]}
         />
       </InputGroup>
+      {particleSystem.systemParameters.renderMode === RenderMode.Trail && (
+        <>
+          <InputGroup name="Trail Length" label={t('editor:properties.particle-system.trail-length')}>
+            <ValueGenerator
+              value={particleSystem.systemParameters.rendererEmitterSettings.startLength as ValueGeneratorJSON}
+              scope={
+                particleSystemState.systemParameters.rendererEmitterSettings
+                  .startLength as unknown as State<ValueGeneratorJSON>
+              }
+              onChange={onSetStateParm(
+                particleSystemState.systemParameters.rendererEmitterSettings
+                  .startLength as unknown as State<ValueGeneratorJSON>
+              )}
+            />
+          </InputGroup>
+          <InputGroup name="Follow Local Origin" label={t('editor:properties.particle-system.follow-local-origin')}>
+            <BooleanInput
+              value={particleSystem.systemParameters.rendererEmitterSettings.followLocalOrigin}
+              onChange={onSetState(particleSystemState.systemParameters.rendererEmitterSettings.followLocalOrigin)}
+            />
+          </InputGroup>
+        </>
+      )}
       <InputGroup name="Texture" label={t('editor:properties.particle-system.texture')}>
         <TexturePreviewInput value={particleSystem.systemParameters.texture} onChange={onSetSystemParm('texture')} />
       </InputGroup>
+      <InputGroup name="U Tiles" label={t('editor:properties.particle-system.u-tiles')}>
+        <NumericInput value={particleSystem.systemParameters.uTileCount} onChange={onSetSystemParm('uTileCount')} />
+      </InputGroup>
+      <InputGroup name="V Tiles" label={t('editor:properties.particle-system.v-tiles')}>
+        <NumericInput value={particleSystem.systemParameters.vTileCount} onChange={onSetSystemParm('vTileCount')} />
+      </InputGroup>
+      <InputGroup name="Start Tile Index" label={t('editor:properties.particle-system.start-tile-index')}>
+        {typeof particleSystem.systemParameters.startTileIndex === 'number' && (
+          <>
+            <NumericInput
+              value={particleSystem.systemParameters.startTileIndex}
+              onChange={onSetSystemParm('startTileIndex')}
+            />
+            <Button
+              onClick={() => {
+                const nuParms = JSON.parse(JSON.stringify(particleSystem.systemParameters))
+                nuParms.startTileIndex = {
+                  type: 'ConstantValue',
+                  value: particleSystem.systemParameters.startTileIndex
+                }
+                particleSystemState.systemParameters.set(nuParms)
+                particleSystemState._refresh.set(particleSystem._refresh + 1)
+              }}
+            >
+              Convert to Value Generator
+            </Button>
+          </>
+        )}
+        {typeof particleSystem.systemParameters.startTileIndex === 'object' && (
+          <ValueGenerator
+            scope={particleSystemState.systemParameters.startTileIndex as unknown as State<ValueGeneratorJSON>}
+            value={particleSystem.systemParameters.startTileIndex as ValueGeneratorJSON}
+            onChange={onSetStateParm(particleSystemState.systemParameters.startTileIndex)}
+          />
+        )}
+      </InputGroup>
+
       <InputGroup name="Mesh" label={t('editor:properties.particle-system.mesh')}>
         <ModelInput
           value={particleSystem.systemParameters.instancingGeometry}

@@ -6,7 +6,8 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -52,7 +53,7 @@ export async function createLODsFromModel(
       const mesh = meshes[i]
       const lodEntity = createEntity()
       addEntityNodeChild(lodEntity, entity)
-      addComponent(lodEntity, LODComponent, {
+      setComponent(lodEntity, LODComponent, {
         target: entity,
         lodPath: mesh.userData['lodPath'],
         levels: [
@@ -65,7 +66,7 @@ export async function createLODsFromModel(
         ],
         instanced: mesh instanceof InstancedMesh
       })
-      addComponent(lodEntity, NameComponent, mesh.name)
+      setComponent(lodEntity, NameComponent, mesh.name)
       processLoadedLODLevel(lodEntity, 0, mesh)
       if (options.serialize) {
         const lodComponent = getMutableComponent(lodEntity, LODComponent)

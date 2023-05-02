@@ -14,6 +14,14 @@ import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
+export type BurstParametersJSON = {
+  time: number
+  count: number
+  cycle: number
+  interval: number
+  probability: number
+}
+
 /*
 SHAPE TYPES
 */
@@ -374,6 +382,15 @@ export type BehaviorJSON =
   | ChangeEmitDirectionBehaviorJSON
   | EmitSubParticleSystemBehaviorJSON
 
+/*
+  SYSTEM TYPES
+*/
+
+export type RendererSettingsJSON = {
+  startLength: ValueGeneratorJSON
+  followLocalOrigin: boolean
+}
+
 export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
   ApplyForce: {
     type: 'ApplyForce',
@@ -504,6 +521,8 @@ export type ExpandedSystemJSON = ParticleSystemJSONParameters & {
   startSpeed: ValueGeneratorJSON
   startLife: ValueGeneratorJSON
   behaviors: BehaviorJSON[]
+  emissionBursts: BurstParametersJSON[]
+  rendererEmitterSettings?: RendererSettingsJSON
 }
 
 export type ParticleSystemComponentType = {
@@ -544,6 +563,7 @@ export const ParticleSystemJSONParametersValidator = matches.shape({
     })
     .optional(),
   renderMode: matches.natural,
+  speedFactor: matches.number,
   texture: matches.string,
   instancingGeometry: matches.object.optional(),
   startTileIndex: matches.natural,
@@ -595,13 +615,19 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   emissionBursts: [],
   onlyUsedByOther: false,
   rendererEmitterSettings: {
-    startLength: undefined,
-    followLocalOrigin: undefined
+    startLength: {
+      type: 'ConstantValue',
+      value: 1
+    },
+    followLocalOrigin: true
   },
   renderMode: RenderMode.BillBoard,
   texture: '/static/editor/dot.png',
   instancingGeometry: undefined,
-  startTileIndex: 0,
+  startTileIndex: {
+    type: 'ConstantValue',
+    value: 0
+  },
   uTileCount: 1,
   vTileCount: 1,
   blending: AdditiveBlending,
