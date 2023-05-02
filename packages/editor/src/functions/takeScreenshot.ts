@@ -88,12 +88,13 @@ export async function takeScreenshot(
   EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
 
   const renderer = EngineRenderer.instance.renderer
-
+  renderer.outputEncoding = sRGBEncoding
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
     magFilter: LinearFilter,
     wrapS: ClampToEdgeWrapping,
     wrapT: ClampToEdgeWrapping,
+    encoding: sRGBEncoding,
     format: RGBAFormat,
     type: UnsignedByteType
   })
