@@ -143,17 +143,16 @@ async function encodeKTX2BasisTexture(image, options = {}) {
   let basisEncoder;
   try {
     const { BasisEncoder } = await loadBasisEncoder(options);
-    basisEncoder = new BasisEncoder();
     basisEncoder = new BasisEncoder()
     const basisFileData = new Uint8Array(image.width*image.height)
     basisEncoder.setCreateKTX2File(true)
     basisEncoder.setKTX2UASTCSupercompression(true)
-    basisEncoder.setKTX2SRGBTransferFunc(false)
+    basisEncoder.setKTX2SRGBTransferFunc(useSRGB)
 
     basisEncoder.setSliceSourceImage(0, image.data, image.width, image.height, false)
     basisEncoder.setDebug(false)
     basisEncoder.setComputeStats(false)
-    basisEncoder.setPerceptual(false)
+    basisEncoder.setPerceptual(true)
     basisEncoder.setMipSRGB(useSRGB)
     if(qualityLevel > -1)  basisEncoder.setQualityLevel(qualityLevel)
     basisEncoder.setUASTC(encodeUASTC)

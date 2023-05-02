@@ -139,10 +139,10 @@ export const convertCubemapToKTX2 = async (
   const camera = new OrthographicCamera(1 / -2, 1 / 2, 1 / 2, 1 / -2, -10000, 10000)
 
   quad.scale.set(width, height, 1)
-  camera.left = width / -2
-  camera.right = width / 2
-  camera.top = height / 2
-  camera.bottom = height / -2
+  camera.left = width / 2
+  camera.right = width / -2
+  camera.top = height / -2
+  camera.bottom = height / 2
   camera.updateProjectionMatrix()
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
@@ -161,7 +161,7 @@ export const convertCubemapToKTX2 = async (
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
 
-  const ktx2texture = (await ktx2write.encode(imageData, false, 5, false, false)) as ArrayBuffer
+  const ktx2texture = (await ktx2write.encode(imageData, false, -1, true, false)) as ArrayBuffer
 
   if (returnAsBlob) {
     return new Blob([ktx2texture])

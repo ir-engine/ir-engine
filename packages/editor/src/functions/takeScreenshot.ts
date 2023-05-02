@@ -1,10 +1,12 @@
 import { blob } from 'stream/consumers'
 import {
+  _SRGBFormat,
   Camera,
   ClampToEdgeWrapping,
   LinearFilter,
   PerspectiveCamera,
   RGBAFormat,
+  sRGBEncoding,
   UnsignedByteType,
   WebGLRenderTarget
 } from 'three'
@@ -30,7 +32,6 @@ import { getState } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder.bundle'
 
 import { EditorState } from '../services/EditorServices'
-import { getCanvasBlob } from './thumbnails'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
   const tmpCanvas = document.createElement('canvas')
@@ -132,7 +133,6 @@ export async function takeScreenshot(
   renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
-
   EngineRenderer.instance.effectComposer.setSize(originalWidth, originalHeight, true)
 
   // Restoring previous state
@@ -140,7 +140,6 @@ export async function takeScreenshot(
   scenePreviewCamera.updateProjectionMatrix()
 
   const ktx2texture = (await ktx2Encoder.encode(imageData, false, 10, false, false)) as ArrayBuffer
-
   return new Blob([ktx2texture])
 }
 
