@@ -12,14 +12,14 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import {
   addObjectToGroup,
   Object3DWithEntity,
   removeObjectFromGroup
 } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Divider } from '@mui/material'
 
@@ -46,7 +46,6 @@ type Object3DProps = {
   obj3d: Object3D
   multiEdit: boolean
 }
-
 /**
  * Object3DNodeEditor component used to provide the editor view to customize Object3D properties inside a model.
  *
@@ -57,7 +56,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
   console.log(props)
   const scene: Scene = Engine.instance.scene
   const selectionState = accessSelectionState()
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getState(MaterialLibraryState)
   const obj3d: Object3D = props.obj3d as any
   const mesh = obj3d as Mesh
   const instancedMesh = obj3d as InstancedMesh
@@ -272,7 +271,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                 <MaterialInput
                   value={materials[currentMaterialId.value].uuid}
                   onChange={(nuId) => {
-                    if (materialLibrary.materials[nuId].value) {
+                    if (materialLibrary.materials[nuId]) {
                       if (Array.isArray(mesh.material)) {
                         mesh.material[currentMaterialId.value] = materialFromId('' + nuId).material
                       } else {
@@ -315,11 +314,11 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
               <PaginatedList
                 list={range(0, instancedMesh.count)}
                 element={(i: number) => {
-                  let transform = new Matrix4()
+                  const transform = new Matrix4()
                   instancedMesh.getMatrixAt(i, transform)
-                  let position = new Vector3()
-                  let rotation = new Quaternion()
-                  let scale = new Vector3()
+                  const position = new Vector3()
+                  const rotation = new Quaternion()
+                  const scale = new Vector3()
                   transform.decompose(position, rotation, scale)
 
                   const euler = new Euler()

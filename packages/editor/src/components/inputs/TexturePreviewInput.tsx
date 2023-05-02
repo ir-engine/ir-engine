@@ -5,6 +5,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { ImageFileTypes, VideoFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/Button'
 
 import { Stack } from '@mui/material'
 
@@ -95,6 +96,19 @@ export default function TexturePreviewInput({
               }}
               uniformScaling={false}
             />
+          </>
+        )}
+        {value && (
+          <>
+            <div>
+              <Button
+                onClick={() => {
+                  onChange('')
+                }}
+              >
+                Clear
+              </Button>
+            </div>
           </>
         )}
       </Stack>

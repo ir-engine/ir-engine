@@ -22,7 +22,7 @@ import { useState } from '@etherealengine/hyperflux'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
-import { createLODsFromModel } from '../../functions/lodsFromModel'
+import { convertToScaffold, createLODsFromModel } from '../../functions/lodsFromModel'
 import { LODsFromModelParameters } from '../../functions/lodsFromModel'
 import { StaticResourceService } from '../../services/StaticResourceService'
 import BooleanInput from '../inputs/BooleanInput'
@@ -30,6 +30,7 @@ import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
+import CollapsibleBlock from '../layout/CollapsibleBlock'
 import Well from '../layout/Well'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
@@ -160,19 +161,24 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
       <ShadowProperties entity={props.entity} />
-      <div className="bg-gradient-to-b from-blue-gray-400 to-cool-gray-800 rounded-lg shadow-lg">
-        <div className="px-4 py-2 border-b border-gray-300">
-          <h2 className="text-lg font-semibold text-gray-100">LODs</h2>
+      <CollapsibleBlock label={t('editor:properties.model.lods.label')}>
+        <div className="bg-gradient-to-b from-blue-gray-400 to-cool-gray-800 rounded-lg shadow-lg">
+          <div className="px-4 py-2 border-b border-gray-300">
+            <h2 className="text-lg font-semibold text-gray-100">LODs</h2>
+          </div>
+          <InputGroup name="Serialize" label={t('editor:properties.model.lods.serialize')}>
+            <BooleanInput value={lodParms.value.serialize} onChange={lodParms.serialize.set} />
+          </InputGroup>
+          <div className="p-4">
+            <Button onClick={convertToScaffold.bind({}, entity)}>Convert to Scaffold</Button>
+          </div>
+          <div className="p-4">
+            <Button onClick={createLODsFromModel.bind({}, entity, lodParms.value)}>
+              {t('editor:properties.model.lods.generate')}
+            </Button>
+          </div>
         </div>
-        <InputGroup name="Serialize" label={t('editor:properties.model.lods.serialize')}>
-          <BooleanInput value={lodParms.value.serialize} onChange={lodParms.serialize.set} />
-        </InputGroup>
-        <div className="p-4">
-          <Button onClick={createLODsFromModel.bind({}, entity, lodParms.value)}>
-            {t('editor:properties.model.lods.generate')}
-          </Button>
-        </div>
-      </div>
+      </CollapsibleBlock>
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting.value && modelComponent.src.value && (
         <Well>
