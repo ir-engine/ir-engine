@@ -84,31 +84,6 @@ export async function takeScreenshot(
   const originalWidth = EngineRenderer.instance.renderer.domElement.width
   const originalHeight = EngineRenderer.instance.renderer.domElement.height
 
-  // Rendering the scene to the new canvas with given size
-  await new Promise<void>((resolve, reject) => {
-    const interval = setInterval(() => {
-      const viewport = EngineRenderer.instance.renderContext.getParameter(
-        EngineRenderer.instance.renderContext.VIEWPORT
-      )
-      const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
-      if (viewport[2] === width * pixelRatio && viewport[3] === height * pixelRatio) {
-        clearTimeout(timeout)
-        clearInterval(interval)
-        resolve()
-      }
-    }, 10)
-    const timeout = setTimeout(() => {
-      console.warn('Could not resize viewport in time')
-      clearTimeout(timeout)
-      clearInterval(interval)
-      reject()
-    }, 10000)
-
-    // set up effect composer
-    EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    EngineRenderer.instance.effectComposer.setSize(width, height, true)
-  })
-
   EngineRenderer.instance.effectComposer.render()
   EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
 
