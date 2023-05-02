@@ -6,12 +6,14 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
+import Button from '@etherealengine/ui/src/Button'
 
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { instanceColumns, InstanceData } from '../../common/variables/instance'
 import { AdminInstanceService, AdminInstanceState, INSTANCE_PAGE_LIMIT } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
+import InstanceDrawer from './InstanceDrawer'
 
 interface Props {
   className?: string
@@ -33,6 +35,8 @@ const InstanceTable = ({ className, search }: Props) => {
   const instanceName = useHookstate('')
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('createdAt')
+  const instanceAdmin = useHookstate<Instance | undefined>(undefined)
+  const openInstanceDrawer = useHookstate(false)
   const { t } = useTranslation()
 
   const user = useHookstate(getMutableState(AuthState).user)
@@ -69,6 +73,19 @@ const InstanceTable = ({ className, search }: Props) => {
     }, 5000)
   }
 
+  const handleOpenInstanceDrawer =
+    (open: boolean, instance: Instance) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      event.preventDefault()
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return
+      }
+      instanceAdmin.set(instance)
+      openInstanceDrawer.set(open)
+    }
+
   useEffect(() => {
     isMounted.current = true
     fetchTick()
@@ -77,7 +94,7 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isMounted.current) return
     if ((user.id.value && adminInstances.updateNeeded.value) || refetch.value) {
       AdminInstanceService.fetchAdminInstances(search, page.value, sortField.value, fieldOrder.value)
@@ -86,6 +103,7 @@ const InstanceTable = ({ className, search }: Props) => {
   }, [user, adminInstanceState.updateNeeded.value, refetch.value])
 
   const createData = (
+    el: Instance,
     id: string,
     ipAddress: string,
     currentUsers: Number,
@@ -94,6 +112,7 @@ const InstanceTable = ({ className, search }: Props) => {
     locationId?: Location
   ): InstanceData => {
     return {
+      el,
       id,
       ipAddress,
       currentUsers,
@@ -101,23 +120,27 @@ const InstanceTable = ({ className, search }: Props) => {
       channelId,
       podName,
       action: (
-        <a
-          href="#"
-          className={styles.actionStyle}
-          onClick={() => {
-            instanceId.set(id)
-            instanceName.set(ipAddress)
-            openConfirm.set(true)
-          }}
-        >
-          <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
-        </a>
+        <>
+          <Button className={styles.actionStyle} onClick={handleOpenInstanceDrawer(true, el)}>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
+          </Button>
+          <Button
+            className={styles.actionStyle}
+            onClick={() => {
+              instanceId.set(id)
+              instanceName.set(ipAddress)
+              openConfirm.set(true)
+            }}
+          >
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
+          </Button>
+        </>
       )
     }
   }
 
   const rows = adminInstances.instances.value.map((el: Instance) =>
-    createData(el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
+    createData({ ...el }, el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
   )
 
   return (
@@ -140,6 +163,11 @@ const InstanceTable = ({ className, search }: Props) => {
         description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName.value}'?`}
         onClose={() => openConfirm.set(false)}
         onSubmit={submitRemoveInstance}
+      />
+      <InstanceDrawer
+        open={openInstanceDrawer.value}
+        selectedInstance={instanceAdmin.value}
+        onClose={() => openInstanceDrawer.set(false)}
       />
     </Box>
   )

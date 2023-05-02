@@ -2,6 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
@@ -102,5 +103,83 @@ export class AdminInstanceActions {
   static instanceRemoved = defineAction({
     type: 'ee.client.AdminInstance.INSTANCE_REMOVED_ROW',
     instance: matches.object as Validator<unknown, Instance>
+  })
+}
+
+export const INSTANCE_USERS_PAGE_LIMIT = 10
+
+export const AdminInstanceUserState = defineState({
+  name: 'AdminInstanceUserState',
+  initial: () => ({
+    users: [] as Array<UserInterface>,
+    skip: 0,
+    limit: INSTANCE_USERS_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    created: false,
+    lastFetched: Date.now()
+  })
+})
+
+const userInstancesReceivedReceptor = (
+  action: typeof AdminInstanceUserActions.instanceUsersRetrieved.matches._TYPE
+) => {
+  const state = getMutableState(AdminInstanceUserState)
+  return state.merge({
+    users: action.users.data,
+    skip: action.users.skip,
+    limit: action.users.limit,
+    total: action.users.total,
+    fetched: true,
+    lastFetched: Date.now()
+  })
+}
+
+export const AdminInstanceUserReceptors = {
+  userInstancesReceivedReceptor
+}
+
+export const AdminInstanceUserService = {
+  fetchUsersInInstance: async (instanceId: string) => {
+    const instanceAttendances = await API.instance.client.service('instance-attendance').find({
+      query: {
+        instanceId
+      }
+    })
+
+    if (!('data' in instanceAttendances) || instanceAttendances.data.length === 0) return
+
+    const userIds = instanceAttendances.data.map((d: any) => d.userId)
+
+    const users = await API.instance.client.service('user').find({
+      query: {
+        id: {
+          $in: userIds
+        }
+      }
+    })
+
+    if (!('data' in users)) return
+
+    dispatchAction(AdminInstanceUserActions.instanceUsersRetrieved({ users }))
+  },
+  kickUser: async (kickData: { userId: UserInterface['id']; instanceId: Instance['id']; duration: string }) => {
+    console.log('kicking user', kickData)
+
+    const duration = new Date()
+    duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
+
+    const userKick = await API.instance.client.service('user-kick').create({ ...kickData, duration })
+
+    console.log('kicked user', userKick)
+  }
+}
+
+export class AdminInstanceUserActions {
+  static instanceUsersRetrieved = defineAction({
+    type: 'ee.client.AdminInstanceUser.USER_INSTANCES_RETRIEVED',
+    users: matches.object as Validator<unknown, Paginated<UserInterface>>
   })
 }
