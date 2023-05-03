@@ -3,13 +3,13 @@
 import { feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
 import * as k8s from '@kubernetes/client-node'
-import cors from 'cors'
 import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import { parse, stringify } from 'flatted'
 import compress from 'koa-compress'
+import cors from 'koa-cors'
 import helmet from 'koa-helmet'
 import Router from 'koa-router'
 import path from 'path'
@@ -185,6 +185,7 @@ export const createFeathersKoaApp = (
   app.configure(sequelize)
 
   // Enable security, CORS, compression, favicon and body parsing
+  app.use(errorHandler()) // in koa no option to pass logger object its a async function instead and must be set first
   app.use(helmet())
   app.use(
     cors({
@@ -224,7 +225,6 @@ export const createFeathersKoaApp = (
 
   app.use(router.routes())
   app.use(router.allowedMethods())
-  app.use(errorHandler()) // not passing logger here , gives error , earlier it was app.use(errorHandler({logger}))
 
   return app
 }
