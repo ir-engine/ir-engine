@@ -1,7 +1,5 @@
 // Initializes the `accept-invite` service on path `/accept-invite`
 
-import Router from 'koa-router'
-
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -55,8 +53,6 @@ async function redirect(ctx, next) {
     throw err
   }
 }
-
-const router = new Router()
 
 export default (app: Application) => {
   const options = {

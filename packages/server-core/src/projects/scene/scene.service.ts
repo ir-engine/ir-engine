@@ -1,7 +1,5 @@
 import { Params } from '@feathersjs/feathers'
-import koaMulter from '@koa/multer'
-import Koa from 'koa'
-import Router from 'koa-router'
+import { bodyParser, koa } from '@feathersjs/koa'
 
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getState } from '@etherealengine/hyperflux'
@@ -12,7 +10,7 @@ import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
-import { getAllPortals, getEnvMapBake, getPortal } from './scene-helper'
+import { getAllPortals, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
@@ -122,8 +120,12 @@ export const getAllScenes = (app: Application) => {
   }
 }
 
-const router = new Router()
-const multipartMiddleware = koaMulter({ limits: { fieldSize: Infinity, files: 1 } })
+const multipartMiddleware = bodyParser({
+  multipart: true,
+  formidable: {
+    maxFileSize: Infinity
+  }
+})
 
 export default (app: Application) => {
   /**
@@ -131,27 +133,37 @@ export default (app: Application) => {
    */
   const event = new Scene(app)
   event.docs = projectDocs
-
   app.use('scene', event)
-
-  router.post(
+  app.use(multipartMiddleware)
+  app.use(
     'scene/upload',
-    multipartMiddleware.any(),
-    async (ctx: Koa.Context, next: Koa.Next) => {
-      if (ctx?.feathers && ctx.method !== 'GET') {
-        ;(ctx as any).feathers.files = (ctx as any).request.files.media
-          ? (ctx as any).request.files.media
-          : ctx.request.files
-      }
-
-      await next()
+    {
+      create: uploadScene(app)
     },
-    async (ctx: Koa.Context) => {
-      ctx.body = await uploadScene(app)(ctx.request.body, ctx.feathers as any)
+    {
+      koa: {
+        before: [
+          async (ctx, next) => {
+            console.log('trying to upload scene')
+            const files = ctx.request.files
+            if (ctx?.feathers && ctx.method !== 'GET') {
+              ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
+            }
+            if (Object.keys(files as any).length > 1) {
+              ctx.status = 400
+              ctx.body = 'Only one scene is allowed'
+              return
+            }
+            await next()
+            console.log('uploaded scene')
+            return ctx.body
+          }
+        ]
+      }
     }
   )
-
-  router.get('/cubemap/:entityId', (ctx) => (ctx.body = getEnvMapBake(app)))
 
   app.use('scene-data', {
     get: getScenesForProject(app),
@@ -166,7 +178,6 @@ export default (app: Application) => {
   /**
    * Get our initialized service so that we can register hooks
    */
-  app.use(router.routes())
 
   const service = app.service('scene')
 

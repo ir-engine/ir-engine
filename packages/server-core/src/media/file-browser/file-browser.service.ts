@@ -1,6 +1,4 @@
-import koaMulter from '@koa/multer'
-import Koa from 'koa'
-import Router from 'koa-router'
+import { bodyParser, koa } from '@feathersjs/koa'
 
 import { Application } from '../../../declarations'
 import { UploadParams } from '../upload-asset/upload-asset.service'
@@ -33,31 +31,46 @@ export const uploadFile = (app: Application) => async (data: any, params: Upload
   return result
 }
 
-const router = new Router()
-const multipartMiddleware = koaMulter({ limits: { fieldSize: Infinity, files: 1 } })
+const multipartMiddleware = bodyParser({
+  multipart: true,
+  formidable: {
+    maxFileSize: Infinity
+  }
+})
 
 export default (app: Application): any => {
   const fileBrowser = new FileBrowserService(app)
   // fileBrowser.docs = projectDocs
-
-  router.post(
+  app.use(multipartMiddleware)
+  app.use(
     'file-browser/upload',
-    multipartMiddleware.any(),
-    async (ctx: Koa.Context, next: Koa.Next) => {
-      if (ctx?.feathers && ctx.method !== 'GET') {
-        ;(ctx as any).feathers.files = (ctx as any).request.files.media
-          ? (ctx as any).request.files.media
-          : ctx.request.files
-      }
-
-      await next()
+    {
+      create: uploadFile(app)
     },
-    async (ctx: Koa.Context) => {
-      ctx.body = await uploadFile(app)(ctx.request.body, ctx.feathers as any)
+    {
+      koa: {
+        before: [
+          async (ctx, next) => {
+            console.log('trying to upload file')
+            const files = ctx.request.files
+            if (ctx?.feathers && ctx.method !== 'GET') {
+              ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
+            }
+            if (Object.keys(files as any).length > 1) {
+              ctx.status = 400
+              ctx.body = 'Only one file is allowed'
+              return
+            }
+            await next()
+            console.log('uploaded file')
+            return ctx.body
+          }
+        ]
+      }
     }
   )
-
-  app.use(router.routes()).use(router.allowedMethods())
 
   /**
    * Initialize our service with any options it requires and docs

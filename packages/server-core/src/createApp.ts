@@ -223,8 +223,7 @@ export const createFeathersKoaApp = (
     ctx.status = 204
   })
 
-  app.use(router.routes())
-  app.use(router.allowedMethods())
+  app.use(router.routes()).use(router.allowedMethods())
 
   return app
 }

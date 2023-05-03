@@ -1,9 +1,7 @@
 import { Params } from '@feathersjs/feathers'
-import koaMulter from '@koa/multer'
+import { bodyParser, koa } from '@feathersjs/koa'
 import { Route53RecoveryControlConfig } from 'aws-sdk'
 import { createHash } from 'crypto'
-import Koa from 'koa'
-import Router from 'koa-router'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'
 
@@ -28,8 +26,12 @@ import { getStorageProvider } from '../storageprovider/storageprovider'
 import { videoUpload } from '../video/video-upload.helper'
 import hooks from './upload-asset.hooks'
 
-const router = new Router()
-const multipartMiddleware = koaMulter({ limits: { fieldSize: Infinity, files: 1 } })
+const multipartMiddleware = bodyParser({
+  multipart: true,
+  formidable: {
+    maxFileSize: Infinity
+  }
+})
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -68,19 +70,6 @@ const uploadLOD = async (file: Buffer, mimeType: string, key: string, storagePro
       isDirectory: false
     }
   )
-}
-
-class AssetService {
-  app: Application
-
-  constructor(app: Application) {
-    this.app = app
-  }
-  async create(data: AssetUploadType, params: UploadParams) {
-    ;async (ctx: Koa.Context) => {
-      ctx.body = await uploadAsset(this.app)(data, params)
-    }
-  }
 }
 
 const uploadAsset = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
@@ -219,20 +208,36 @@ export const addGenericAssetToS3AndStaticResources = async (
 }
 
 export default (app: Application): void => {
-  const assetService = new AssetService(app)
-  router.use('upload-asset', multipartMiddleware.any(), async (ctx: Koa.Context, next: Koa.Next) => {
-    if (ctx?.feathers && ctx.method !== 'GET') {
-      ;(ctx as any).feathers.files = (ctx as any).request.files.media
-        ? (ctx as any).request.files.media
-        : ctx.request.files
+  app.use(multipartMiddleware)
+  app.use(
+    'upload-asset',
+    {
+      create: uploadAsset(app)
+    },
+    {
+      koa: {
+        before: [
+          async (ctx, next) => {
+            console.log('trying to upload asset')
+            const files = ctx.request.files
+            if (ctx?.feathers && ctx.method !== 'GET') {
+              ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
+            }
+            if (Object.keys(files as any).length > 1) {
+              ctx.status = 400
+              ctx.body = 'Only one asset is allowed'
+              return
+            }
+            await next()
+            console.log('uploaded asset')
+            return ctx.body
+          }
+        ]
+      }
     }
-
-    await next()
-  })
-
-  app.use(router.routes()).use(router.allowedMethods())
-
-  app.use('upload-asset', assetService)
+  )
   const service = app.service('upload-asset')
 
   service.hooks(hooks)
