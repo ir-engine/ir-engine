@@ -31,12 +31,16 @@ export const getSceneData = async (
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
 
   let thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
-  //if no ktx2 is found, fallback on legacy jpg thumbnail formats
-  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, `projects/${projectName}`)))
+
+  //if no ktx2 is found, fallback on legacy jpg thumbnail format, if still not found, fallback on ethereal logo
+  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, `projects/${projectName}`))) {
     thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
+    if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.jpeg`, `projects/${projectName}`))) thumbnailPath = ``
+  }
 
   const cacheDomain = getCacheDomain(storageProvider, internal)
-  const thumbnailUrl = getCachedURL(thumbnailPath, cacheDomain)
+  const thumbnailUrl =
+    thumbnailPath != `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
 
   const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
   if (sceneExists) {
