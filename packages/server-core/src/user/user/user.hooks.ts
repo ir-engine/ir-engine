@@ -246,7 +246,7 @@ export default {
     find: [parseAllUserSettings(), addAvatarResources()],
     get: [parseUserSettings(), addAvatarResources()],
     create: [parseUserSettings(), addAvatarResources()],
-    update: [parseUserSettings, addAvatarResources()],
+    update: [parseUserSettings(), addAvatarResources()],
     patch: [parseUserSettings(), addAvatarResources()],
     remove: []
   },
