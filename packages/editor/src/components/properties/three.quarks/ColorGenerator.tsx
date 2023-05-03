@@ -49,19 +49,137 @@ export default function ColorGenerator({
   value,
   onChange
 }: {
-  scope: State<ColorGeneratorJSON> | State<ColorGeneratorJSON & FunctionJSON>
+  scope: State<ColorGeneratorJSON>
   value: ColorGeneratorJSON
-  onChange: (
-    key: keyof (ConstantColorJSON & ColorRangeJSON & RandomColorJSON & ColorGradientJSON)
-  ) => (value: any) => void
+  onChange: (scope: State<any>) => (value: any) => void
 }) {
   const onChangeType = useCallback(() => {
-    const thisOnChange = onChange('type')
+    const thisOnChange = onChange(scope.type)
     return (type: typeof value.type) => {
       scope.set(ColorGeneratorJSONDefaults[type])
       thisOnChange(type)
     }
   }, [])
+
+  const ConstantColorInput = useCallback(() => {
+    const constantScope = scope as State<ConstantColorJSON>
+    const constant = constantScope.value
+    return <ColorJSONInput value={constant.color} onChange={onChange(constantScope.color)} />
+  }, [scope])
+
+  const ColorRangeInput = useCallback(() => {
+    const rangeScope = scope as State<ColorRangeJSON>
+    const range = rangeScope.value
+    return (
+      <>
+        <InputGroup name="A" label="A">
+          <ColorJSONInput value={range.a} onChange={onChange(rangeScope.a)} />
+        </InputGroup>
+        <InputGroup name="B" label="B">
+          <ColorJSONInput value={range.b} onChange={onChange(rangeScope.b)} />
+        </InputGroup>
+      </>
+    )
+  }, [scope])
+
+  const RandomColorInput = useCallback(() => {
+    const randomScope = scope as State<RandomColorJSON>
+    const random = randomScope.value
+    return (
+      <>
+        <InputGroup name="A" label="A">
+          <ColorJSONInput value={random.a} onChange={onChange(randomScope.a)} />
+        </InputGroup>
+        <InputGroup name="B" label="B">
+          <ColorJSONInput value={random.b} onChange={onChange(randomScope.b)} />
+        </InputGroup>
+      </>
+    )
+  }, [scope])
+
+  const GradientInput = useCallback(() => {
+    const gradientScope = scope as State<ColorGradientJSON>
+    const gradient = gradientScope.value
+    return (
+      <div>
+        <Button
+          onClick={() => {
+            const gradientState = scope as State<ColorGradientJSON>
+            gradientState.functions.set([
+              ...JSON.parse(JSON.stringify(gradient.functions)),
+              {
+                start: 0,
+                function: {
+                  type: 'ColorRange',
+                  a: { r: 1, g: 1, b: 1, a: 1 },
+                  b: { r: 1, g: 1, b: 1, a: 1 }
+                }
+              }
+            ])
+          }}
+        >
+          +
+        </Button>
+
+        {gradient.functions.map((item, index) => (
+          <div
+            key={index}
+            style={{
+              border: '1px solid white',
+              borderRadius: '0.5rem',
+              margin: '1rem',
+              padding: '1.5rem',
+              overflow: 'auto'
+            }}
+          >
+            <Grid
+              container
+              spacing={1}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Grid item xs={2}>
+                <Typography>Start</Typography>
+              </Grid>
+              <Grid item xs={10}>
+                <NumericInput value={item.start} onChange={onChange(gradientScope.functions[index].start)} />
+              </Grid>
+              <Grid item xs={2}>
+                <Typography>A</Typography>
+              </Grid>
+              <Grid item xs={10}>
+                <ColorJSONInput
+                  value={item.function.a}
+                  onChange={onChange(gradientScope.functions[index].function.a)}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <Typography>B</Typography>
+              </Grid>
+              <Grid item xs={10}>
+                <ColorJSONInput
+                  value={item.function.b}
+                  onChange={onChange(gradientScope.functions[index].function.b)}
+                />
+              </Grid>
+            </Grid>
+          </div>
+        ))}
+      </div>
+    )
+  }, [scope])
+
+  const colorInputs = {
+    ConstantColor: ConstantColorInput,
+    ColorRange: ColorRangeInput,
+    RandomColor: RandomColorInput,
+    Gradient: GradientInput
+  }
 
   return (
     <div>
@@ -77,111 +195,7 @@ export default function ColorGenerator({
           onChange={onChangeType()}
         />
       </InputGroup>
-      {value.type === 'ConstantColor' && <ColorJSONInput value={value.color} onChange={onChange('color')} />}
-      {value.type === 'ColorRange' && (
-        <>
-          <InputGroup name="A" label="A">
-            <ColorJSONInput value={value.a} onChange={onChange('a')} />
-          </InputGroup>
-          <InputGroup name="B" label="B">
-            <ColorJSONInput value={value.b} onChange={onChange('b')} />
-          </InputGroup>
-        </>
-      )}
-      {value.type === 'RandomColor' && (
-        <>
-          <InputGroup name="A" label="A">
-            <ColorJSONInput value={value.a} onChange={onChange('a')} />
-          </InputGroup>
-          <InputGroup name="B" label="B">
-            <ColorJSONInput value={value.b} onChange={onChange('b')} />
-          </InputGroup>
-        </>
-      )}
-      {value.type === 'Gradient' && (
-        <div>
-          <Button
-            onClick={() => {
-              const gradientState = scope as State<ColorGradientJSON>
-              gradientState.functions.set([
-                ...JSON.parse(JSON.stringify(value.functions)),
-                {
-                  start: 0,
-                  function: {
-                    type: 'ColorRange',
-                    a: { r: 1, g: 1, b: 1, a: 1 },
-                    b: { r: 1, g: 1, b: 1, a: 1 }
-                  }
-                }
-              ])
-            }}
-          >
-            +
-          </Button>
-
-          {value.functions.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                border: '1px solid white',
-                borderRadius: '0.5rem',
-                margin: '1rem',
-                padding: '1.5rem',
-                overflow: 'auto'
-              }}
-            >
-              <Grid
-                container
-                spacing={1}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <Grid item xs={2}>
-                  <Typography>Start</Typography>
-                </Grid>
-                <Grid item xs={10}>
-                  <NumericInput
-                    value={item.start}
-                    onChange={(start) => {
-                      const gradientState = scope as State<ColorGradientJSON>
-                      gradientState.functions[index].start.set(start)
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <Typography>A</Typography>
-                </Grid>
-                <Grid item xs={10}>
-                  <ColorJSONInput
-                    value={item.function.a}
-                    onChange={(color) => {
-                      const gradientState = scope as State<ColorGradientJSON>
-                      gradientState.functions[index].function.a.set(color)
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <Typography>B</Typography>
-                </Grid>
-                <Grid item xs={10}>
-                  <ColorJSONInput
-                    value={item.function.b}
-                    onChange={(color) => {
-                      const gradientState = scope as State<ColorGradientJSON>
-                      gradientState.functions[index].function.b.set(color)
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            </div>
-          ))}
-        </div>
-      )}
+      {colorInputs[value.type]()}
     </div>
   )
 }

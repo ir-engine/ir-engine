@@ -31,6 +31,7 @@ export function getDefaultType(value) {
       if ((value as Color).isColor) {
         return 'color'
       }
+      return ''
     //todo: vectors, selects, objects
     default:
       return ''

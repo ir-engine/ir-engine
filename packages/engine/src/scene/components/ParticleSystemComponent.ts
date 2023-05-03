@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { AdditiveBlending, BufferGeometry, Texture } from 'three'
+import { AdditiveBlending, BufferGeometry, Texture, Vector2, Vector3 } from 'three'
 import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
 import matches from 'ts-matches'
 
@@ -13,14 +13,6 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-
-export type BurstParametersJSON = {
-  time: number
-  count: number
-  cycle: number
-  interval: number
-  probability: number
-}
 
 /*
 SHAPE TYPES
@@ -278,6 +270,34 @@ export type RotationGeneratorJSON = AxisAngleGeneratorJSON | EulerGeneratorJSON 
 BEHAVIOR TYPES
 */
 
+//  SEQUENCER
+export type TextureSequencerJSON = {
+  scaleX: number
+  scaleY: number
+  position: Vector3
+  locations: Vector2[]
+}
+
+export type SequencerJSON = TextureSequencerJSON
+
+export type ApplySequencesJSON = {
+  type: 'ApplySequences'
+  delay: number
+  sequencers: {
+    range: IntervalValueJSON
+    sequencer: SequencerJSON
+  }[]
+}
+
+export type BurstParametersJSON = {
+  time: number
+  count: number
+  cycle: number
+  interval: number
+  probability: number
+}
+//  /SEQUENCER
+
 export type ApplyForceBehaviorJSON = {
   type: 'ApplyForce'
   direction: [number, number, number]
@@ -381,6 +401,7 @@ export type BehaviorJSON =
   | WidthOverLengthBehaviorJSON
   | ChangeEmitDirectionBehaviorJSON
   | EmitSubParticleSystemBehaviorJSON
+  | ApplySequencesJSON
 
 /*
   SYSTEM TYPES
@@ -513,8 +534,8 @@ export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
 /BEHAVIOR TYPES
 */
 
-export type ExpandedSystemJSON = ParticleSystemJSONParameters & {
-  instancingGeometry?: string
+export type ExtraSystemJSON = {
+  instancingGeometry: string
   startColor: ColorGeneratorJSON
   startRotation: ValueGeneratorJSON
   startSize: ValueGeneratorJSON
@@ -524,6 +545,8 @@ export type ExpandedSystemJSON = ParticleSystemJSONParameters & {
   emissionBursts: BurstParametersJSON[]
   rendererEmitterSettings?: RendererSettingsJSON
 }
+
+export type ExpandedSystemJSON = ParticleSystemJSONParameters & ExtraSystemJSON
 
 export type ParticleSystemComponentType = {
   systemParameters: ExpandedSystemJSON
@@ -623,7 +646,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   },
   renderMode: RenderMode.BillBoard,
   texture: '/static/editor/dot.png',
-  instancingGeometry: undefined,
+  instancingGeometry: '',
   startTileIndex: {
     type: 'ConstantValue',
     value: 0

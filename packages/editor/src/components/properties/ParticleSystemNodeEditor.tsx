@@ -16,9 +16,11 @@ import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,
   BurstParametersJSON,
+  ColorGeneratorJSON,
   CONE_SHAPE_DEFAULT,
   ConstantColorJSON,
   DONUT_SHAPE_DEFAULT,
+  ExtraSystemJSON,
   MESH_SHAPE_DEFAULT,
   ParticleSystemComponent,
   POINT_SHAPE_DEFAULT,
@@ -254,42 +256,42 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         <ValueGenerator
           value={particleSystem.systemParameters.startLife as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startLife as any}
-          onChange={onSetStateParm(particleSystemState.systemParameters.startLife)}
+          onChange={onSetState}
         />
       </InputGroup>
       <InputGroup name="Start Size" label={t('editor:properties.particle-system.start-size')}>
         <ValueGenerator
           value={particleSystem.systemParameters.startSize as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startSize as any}
-          onChange={onSetStateParm(particleSystemState.systemParameters.startSize)}
+          onChange={onSetState}
         />
       </InputGroup>
       <InputGroup name="Start Speed" label={t('editor:properties.particle-system.start-speed')}>
         <ValueGenerator
           value={particleSystem.systemParameters.startSpeed as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startSpeed as any}
-          onChange={onSetStateParm(particleSystemState.systemParameters.startSpeed)}
+          onChange={onSetState}
         />
       </InputGroup>
       <InputGroup name="Start Rotation" label={t('editor:properties.particle-system.start-rotation')}>
         <ValueGenerator
           value={particleSystem.systemParameters.startRotation as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startRotation as any}
-          onChange={onSetStateParm(particleSystemState.systemParameters.startRotation)}
+          onChange={onSetState}
         />
       </InputGroup>
       <InputGroup name="Start Color" label={t('editor:properties.particle-system.start-color')}>
         <ColorGenerator
-          scope={particleSystemState.systemParameters.startColor}
+          scope={particleSystemState.systemParameters.startColor as unknown as State<ColorGeneratorJSON>}
           value={particleSystem.systemParameters.startColor as ConstantColorJSON}
-          onChange={onSetStateParm(particleSystemState.systemParameters.startColor)}
+          onChange={onSetState}
         />
       </InputGroup>
       <InputGroup name="Emission Over Time" label={t('editor:properties.particle-system.emission-over-time')}>
         <ValueGenerator
           value={particleSystem.systemParameters.emissionOverTime as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.emissionOverTime as any}
-          onChange={onSetStateParm(particleSystemState.systemParameters.emissionOverTime)}
+          onChange={onSetState}
         />
       </InputGroup>
       <InputGroup name="Render Mode" label={t('editor:properties.particle-system.render-mode')}>
@@ -313,10 +315,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
                 particleSystemState.systemParameters.rendererEmitterSettings
                   .startLength as unknown as State<ValueGeneratorJSON>
               }
-              onChange={onSetStateParm(
-                particleSystemState.systemParameters.rendererEmitterSettings
-                  .startLength as unknown as State<ValueGeneratorJSON>
-              )}
+              onChange={onSetState}
             />
           </InputGroup>
           <InputGroup name="Follow Local Origin" label={t('editor:properties.particle-system.follow-local-origin')}>
@@ -341,7 +340,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           <>
             <NumericInput
               value={particleSystem.systemParameters.startTileIndex}
-              onChange={onSetSystemParm('startTileIndex')}
+              onChange={onSetState(particleSystemState.systemParameters.startTileIndex)}
             />
             <Button
               onClick={() => {
@@ -362,7 +361,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           <ValueGenerator
             scope={particleSystemState.systemParameters.startTileIndex as unknown as State<ValueGeneratorJSON>}
             value={particleSystem.systemParameters.startTileIndex as ValueGeneratorJSON}
-            onChange={onSetStateParm(particleSystemState.systemParameters.startTileIndex)}
+            onChange={onSetState}
           />
         )}
       </InputGroup>
@@ -370,13 +369,15 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Mesh" label={t('editor:properties.particle-system.mesh')}>
         <ModelInput
           value={particleSystem.systemParameters.instancingGeometry}
-          onChange={onSetSystemParm('instancingGeometry')}
+          onChange={onSetState(
+            (particleSystemState.systemParameters as unknown as State<ExtraSystemJSON>).instancingGeometry
+          )}
         />
       </InputGroup>
       <InputGroup name="Blending" label={t('editor:properties.particle-system.blending')}>
         <SelectInput
           value={particleSystem.systemParameters.blending as Blending}
-          onChange={onSetSystemParm('blending')}
+          onChange={onSetState(particleSystemState.systemParameters.blending)}
           options={[
             { label: 'Normal', value: NormalBlending },
             { label: 'Additive', value: AdditiveBlending },
@@ -397,11 +398,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         element={(behaviorState: State<BehaviorJSON>) => {
           return (
             <>
-              <BehaviorInput
-                scope={behaviorState}
-                value={behaviorState.value}
-                onChange={onSetStateParm(behaviorState)}
-              />
+              <BehaviorInput scope={behaviorState} value={behaviorState.value} onChange={onSetState} />
               <Button onClick={onRemoveBehavior(behaviorState.value)}>Remove</Button>
             </>
           )

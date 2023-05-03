@@ -3,6 +3,7 @@ import { Vector3 } from 'three'
 
 import {
   ApplyForceBehaviorJSON,
+  ApplySequencesJSON,
   BehaviorJSON,
   BehaviorJSONDefaults,
   ChangeEmitDirectionBehaviorJSON,
@@ -10,10 +11,12 @@ import {
   EmitSubParticleSystemBehaviorJSON,
   FrameOverLifeBehaviorJSON,
   GravityForceBehaviorJSON,
+  IntervalValueJSON,
   NoiseBehaviorJSON,
   OrbitOverLifeBehaviorJSON,
   Rotation3DOverLifeBehaviorJSON,
   RotationOverLifeBehaviorJSON,
+  SequencerJSON,
   SizeOverLifeBehaviorJSON,
   SpeedOverLifeBehaviorJSON,
   TurbulenceFieldBehaviorJSON,
@@ -27,6 +30,7 @@ import { SceneObjectInput } from '../../inputs/SceneObjectInput'
 import SelectInput from '../../inputs/SelectInput'
 import StringInput from '../../inputs/StringInput'
 import Vector3Input from '../../inputs/Vector3Input'
+import PaginatedList from '../../layout/PaginatedList'
 import ColorGenerator from './ColorGenerator'
 import ValueGenerator from './ValueGenerator'
 
@@ -37,32 +41,21 @@ export default function BehaviorInput({
 }: {
   scope: State<BehaviorJSON>
   value: BehaviorJSON
-  onChange: (key: string) => (value: any) => void
+  onChange: (scope: State<any>) => (value: any) => void
 }) {
-  const onChangeProp = useCallback(
-    (scope: State<any>, scopeKey: string) => (key: string) => {
-      const topOnChange = onChange(scopeKey)
-      return (keyVal: any) => {
-        const nuVal = { ...JSON.parse(JSON.stringify(scope.value)), [key]: keyVal }
-        topOnChange(nuVal)
-      }
-    },
-    []
-  )
-
-  const onChangeVec3 = useCallback((key: string) => {
-    const thisOnChange = onChange(key)
-    return (value: Vector3) => {
-      thisOnChange(value.toArray())
-    }
-  }, [])
-
   const onChangeBehaviorType = useCallback(() => {
-    const onChangeType = onChange('type')
+    const onChangeType = onChange(scope.type)
     return (type: typeof value.type) => {
       const nuVals = BehaviorJSONDefaults[type]
       scope.set(nuVals)
       onChangeType(type)
+    }
+  }, [])
+
+  const onChangeVec3 = useCallback((scope: State<any>) => {
+    const thisOnChange = onChange(scope)
+    return (vec3: Vector3) => {
+      thisOnChange([...vec3.toArray()])
     }
   }, [])
 
@@ -73,14 +66,10 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="force" label="Force">
-            <Vector3Input value={new Vector3(...value.direction)} onChange={onChangeVec3('direction')} />
+            <Vector3Input value={new Vector3(...value.direction)} onChange={onChange(forceScope.direction)} />
           </InputGroup>
           <InputGroup name="magnitude" label="Magnitude">
-            <ValueGenerator
-              scope={forceScope.magnitude}
-              value={value.magnitude}
-              onChange={onChangeProp(forceScope.magnitude, 'magnitude')}
-            />
+            <ValueGenerator scope={forceScope.magnitude} value={value.magnitude} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -95,10 +84,10 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="frequency" label="Frequency">
-            <Vector3Input value={new Vector3(...value.frequency)} onChange={onChangeVec3('frequency')} />
+            <Vector3Input value={new Vector3(...value.frequency)} onChange={onChangeVec3(noiseScope.frequency)} />
           </InputGroup>
           <InputGroup name="power" label="Power">
-            <Vector3Input value={new Vector3(...value.power)} onChange={onChange('power')} />
+            <Vector3Input value={new Vector3(...value.power)} onChange={onChange(noiseScope.power)} />
           </InputGroup>
         </>
       )
@@ -113,17 +102,22 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="scale" label="Scale">
-            <Vector3Input value={new Vector3(...value.scale)} onChange={onChangeVec3('scale')} />
+            <Vector3Input value={new Vector3(...value.scale)} onChange={onChangeVec3(turbulenceScope.scale)} />
           </InputGroup>
-          <NumericInputGroup name="octaves" label="Octaves" value={value.octaves} onChange={onChange('octaves')} />
+          <NumericInputGroup
+            name="octaves"
+            label="Octaves"
+            value={value.octaves}
+            onChange={onChange(turbulenceScope.octaves)}
+          />
           <InputGroup name="velocityMultiplier" label="Velocity Multiplier">
             <Vector3Input
               value={new Vector3(...value.velocityMultiplier)}
-              onChange={onChangeVec3('velocityMultiplier')}
+              onChange={onChangeVec3(turbulenceScope.velocityMultiplier)}
             />
           </InputGroup>
           <InputGroup name="timeScale" label="Time Scale">
-            <Vector3Input value={new Vector3(...value.timeScale)} onChange={onChangeVec3('timeScale')} />
+            <Vector3Input value={new Vector3(...value.timeScale)} onChange={onChangeVec3(turbulenceScope.timeScale)} />
           </InputGroup>
         </>
       )
@@ -138,13 +132,13 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="center" label="Center">
-            <Vector3Input value={new Vector3(...value.center)} onChange={onChangeVec3('center')} />
+            <Vector3Input value={new Vector3(...value.center)} onChange={onChangeVec3(gravityScope.center)} />
           </InputGroup>
           <NumericInputGroup
             name="magnitude"
             label="Magnitude"
             value={value.magnitude}
-            onChange={onChange('magnitude')}
+            onChange={onChange(gravityScope.magnitude)}
           />
         </>
       )
@@ -159,11 +153,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="color" label="Color">
-            <ColorGenerator
-              scope={colorScope.color}
-              value={value.color}
-              onChange={onChangeProp(colorScope.color, 'color')}
-            />
+            <ColorGenerator scope={colorScope.color} value={value.color} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -178,11 +168,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="angularVelocity" label="Angular Velocity">
-            <ValueGenerator
-              scope={rotationScope.angularVelocity}
-              value={value.angularVelocity}
-              onChange={onChangeProp(rotationScope.angularVelocity, 'angularVelocity')}
-            />
+            <ValueGenerator scope={rotationScope.angularVelocity} value={value.angularVelocity} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -197,7 +183,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="size" label="Size">
-            <ValueGenerator scope={sizeScope.size} value={value.size} onChange={onChangeProp(sizeScope.size, 'size')} />
+            <ValueGenerator scope={sizeScope.size} value={value.size} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -212,11 +198,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="speed" label="Speed">
-            <ValueGenerator
-              scope={speedScope.speed}
-              value={value.speed}
-              onChange={onChangeProp(speedScope.speed, 'speed')}
-            />
+            <ValueGenerator scope={speedScope.speed} value={value.speed} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -231,11 +213,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="frame" label="Frame">
-            <ValueGenerator
-              scope={frameScope.frame}
-              value={value.frame}
-              onChange={onChangeProp(frameScope.frame, 'frame')}
-            />
+            <ValueGenerator scope={frameScope.frame} value={value.frame} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -250,14 +228,10 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="orbit" label="Orbit">
-            <ValueGenerator
-              scope={orbitScope.orbitSpeed}
-              value={value.orbitSpeed}
-              onChange={onChangeProp(orbitScope.orbitSpeed, 'orbitSpeed')}
-            />
+            <ValueGenerator scope={orbitScope.orbitSpeed} value={value.orbitSpeed} onChange={onChange} />
           </InputGroup>
           <InputGroup name="axis" label="Axis">
-            <Vector3Input value={new Vector3(...value.axis)} onChange={onChangeVec3('axis')} />
+            <Vector3Input value={new Vector3(...value.axis)} onChange={onChangeVec3(orbitScope.axis)} />
           </InputGroup>
         </>
       )
@@ -272,11 +246,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="width" label="Width">
-            <ValueGenerator
-              scope={widthScope.width}
-              value={value.width}
-              onChange={onChangeProp(widthScope.width, 'width')}
-            />
+            <ValueGenerator scope={widthScope.width} value={value.width} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -291,11 +261,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="angle" label="Angle">
-            <ValueGenerator
-              scope={changeEmitDirectionScope.angle}
-              value={value.angle}
-              onChange={onChangeProp(changeEmitDirectionScope.angle, 'angle')}
-            />
+            <ValueGenerator scope={changeEmitDirectionScope.angle} value={value.angle} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -312,9 +278,67 @@ export default function BehaviorInput({
           <InputGroup name="subParticleSystem" label="Sub Particle System">
             <SceneObjectInput
               value={value.subParticleSystem}
-              onChange={onChangeProp(emitSubParticleSystemScope.subParticleSystem, 'subParticleSystem')}
+              onChange={onChange(emitSubParticleSystemScope.subParticleSystem)}
             />
           </InputGroup>
+        </>
+      )
+    },
+    [scope]
+  )
+
+  const applySequencesInput = useCallback(
+    (scope: State<BehaviorJSON>) => {
+      const applySequencesScope = scope as State<ApplySequencesJSON>
+      const value = applySequencesScope.value
+      return (
+        <>
+          <NumericInputGroup
+            name="Delay"
+            label="Delay"
+            value={value.delay}
+            onChange={onChange(applySequencesScope.delay)}
+          />
+          <PaginatedList
+            list={applySequencesScope.sequencers}
+            element={(sequencerScope: State<{ range: IntervalValueJSON; sequencer: SequencerJSON }>) => {
+              const sequencer = sequencerScope.value
+              return (
+                <>
+                  <NumericInputGroup
+                    name="Start"
+                    label="Start"
+                    value={sequencer.range.a}
+                    onChange={onChange(sequencerScope.range.a)}
+                  />
+                  <NumericInputGroup
+                    name="End"
+                    label="End"
+                    value={sequencer.range.b}
+                    onChange={onChange(sequencerScope.range.b)}
+                  />
+                  <NumericInputGroup
+                    name="Scale X"
+                    label="Scale X"
+                    value={sequencer.sequencer.scaleX}
+                    onChange={onChange(sequencerScope.sequencer.scaleX)}
+                  />
+                  <NumericInputGroup
+                    name="Scale Y"
+                    label="Scale Y"
+                    value={sequencer.sequencer.scaleY}
+                    onChange={onChange(sequencerScope.sequencer.scaleY)}
+                  />
+                  <InputGroup name="Position" label="Position">
+                    <Vector3Input
+                      value={sequencer.sequencer.position}
+                      onChange={onChange(sequencerScope.sequencer.position)}
+                    />
+                  </InputGroup>
+                </>
+              )
+            }}
+          />
         </>
       )
     },
@@ -334,7 +358,8 @@ export default function BehaviorInput({
     OrbitOverLife: orbitOverLifeInput,
     WidthOverLength: widthOverLength,
     ChangeEmitDirection: changeEmitDirectionInput,
-    EmitSubParticleSystem: emitSubParticleSystemInput
+    EmitSubParticleSystem: emitSubParticleSystemInput,
+    ApplySequences: applySequencesInput
   }
 
   return (
@@ -343,6 +368,7 @@ export default function BehaviorInput({
         <SelectInput
           value={value.type}
           options={[
+            { label: 'Apply Sequences', value: 'ApplySequences' },
             { label: 'Apply Force', value: 'ApplyForce' },
             { label: 'Noise', value: 'Noise' },
             { label: 'Turbulence Field', value: 'TurbulenceField' },
