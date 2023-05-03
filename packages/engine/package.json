@@ -40,6 +40,7 @@
     "@hookstate/subscribable": "^4.0.0",
     "@mediapipe/pose": "^0.5.1675469404",
     "@pixiv/three-vrm": "^1.0.9",
+    "@pixiv/types-vrmc-vrm-1.0": "^1.0.0",
     "@tweenjs/tween.js": "^18.6.4",
     "@vladmandic/face-api": "^1.7.9",
     "alea": "1.0.1",

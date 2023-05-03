@@ -1,3 +1,4 @@
+import { VRMHumanBone } from '@pixiv/three-vrm'
 import { AnimationClip, Bone, SkinnedMesh } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
@@ -13,7 +14,7 @@ export class AnimationManager {
   _animations: AnimationClip[]
   _defaultSkinnedMesh: SkinnedMesh
   _rootAnimationData: {}
-  _defaultRootBone: Bone
+  _defaultRootBone: VRMHumanBone
 
   getAnimationDuration(name: string): number {
     const animation = this._animations.find((a) => a.name === name)
@@ -30,15 +31,14 @@ export class AnimationManager {
     const defaultRig = makeDefaultSkinnedMesh()
     const rig = avatarBoneMatching(defaultRig)
     const rootBone = rig.Hips
-    rootBone.updateWorldMatrix(true, true)
+    rootBone?.updateWorldMatrix(true, true)
     const skinnedMeshes = findSkinnedMeshes(defaultRig)
-    makeTPose(rig)
-    rootBone.updateWorldMatrix(true, true)
+    // makeTPose(rig)
+    rootBone?.updateWorldMatrix(true, true)
     skinnedMeshes.forEach((mesh) => mesh.skeleton.calculateInverses())
     skinnedMeshes.forEach((mesh) => mesh.skeleton.computeBoneTexture())
 
     this._defaultSkinnedMesh = defaultRig.children[0] as SkinnedMesh
-
     this._defaultRootBone = findRootBone(this._defaultSkinnedMesh)!
     this._rootAnimationData = {}
     this._animations = gltf.animations
@@ -46,11 +46,10 @@ export class AnimationManager {
       // TODO: make list of morph targets names
       clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
 
-      const rootData = processRootAnimation(clip, this._defaultRootBone)
-
-      if (rootData) {
-        this._rootAnimationData[clip.name] = rootData
-      }
+      // const rootData = processRootAnimation(clip, this._defaultRootBone)
+      // if (rootData) {
+      this._rootAnimationData[clip.name] = {}
+      // }
     })
     return this._animations
   }

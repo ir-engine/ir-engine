@@ -31,9 +31,9 @@ export const AvatarHeadDecapComponent = defineComponent({
 
     useEffect(() => {
       if (rig?.value) {
-        if (headDecap?.value) rig.value.rig.Head?.scale.setScalar(EPSILON)
+        if (headDecap?.value) rig.value.rig.head?.node?.scale.setScalar(EPSILON)
         return () => {
-          rig.value.rig.Head?.scale.setScalar(1)
+          rig.value.rig.head?.node?.scale.setScalar(1)
         }
       }
     }, [headDecap, rig])
@@ -85,19 +85,19 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   switch (hand) {
     case 'left':
       return {
-        position: rig.rig.LeftHand.getWorldPosition(vec3),
-        rotation: rig.rig.LeftHand.getWorldQuaternion(quat)
+        position: rig.rig.leftHand.node.getWorldPosition(vec3),
+        rotation: rig.rig.leftHand.node.getWorldQuaternion(quat)
       }
     case 'right':
       return {
-        position: rig.rig.RightHand.getWorldPosition(vec3),
-        rotation: rig.rig.RightHand.getWorldQuaternion(quat)
+        position: rig.rig.rightHand.node.getWorldPosition(vec3),
+        rotation: rig.rig.rightHand.node.getWorldQuaternion(quat)
       }
     default:
     case 'none':
       return {
-        position: rig.rig.Head.getWorldPosition(vec3),
-        rotation: rig.rig.Head.getWorldQuaternion(quat)
+        position: rig.rig.head.node.getWorldPosition(vec3),
+        rotation: rig.rig.head.node.getWorldQuaternion(quat)
       }
   }
 }

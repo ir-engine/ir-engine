@@ -1,5 +1,7 @@
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import * as VRMSchema from '@pixiv/types-vrmc-vrm-1.0'
 import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Bone, Euler, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -68,7 +70,7 @@ const _vec = new Vector3()
 //   LeftHandBindRotationInv: new Quaternion(),
 //   LeftArmTwistAmount: 0.6,
 //   RightHandBindRotationInv: new Quaternion(),
-//   RightArmTwistAmount: 0.6
+//   rightUpperArmTwistAmount: 0.6
 // })
 
 const loopAnimationQuery = defineQuery([
@@ -240,11 +242,14 @@ const execute = () => {
     const rootBone = animationComponent.mixer.getRoot() as Bone
     const avatarRigComponent = getComponent(entity, AvatarRigComponent)
     const rig = avatarRigComponent.rig
+    const vrm = avatarRigComponent.vrm
 
     rootBone.traverse((bone: Bone) => {
       if (!bone.isBone) return
 
-      const targetBone = rig[bone.name]
+      const targetBone = rig[bone.name.toLowerCase()]
+      // const tb2 = vrm.humanoid?.getBoneNode(bone.name.toLowerCase() as VRMHumanBoneName)
+
       if (!targetBone) {
         return
       }
@@ -252,7 +257,8 @@ const execute = () => {
       targetBone.quaternion.copy(bone.quaternion)
 
       // Only copy the root position
-      if (targetBone === rig.Hips) {
+
+      if (targetBone === rig.hips) {
         targetBone.position.copy(bone.position)
         targetBone.position.y *= avatarAnimationComponent.rootYRatio
       }
@@ -260,67 +266,68 @@ const execute = () => {
 
     // TODO: Find a more elegant way to handle root motion
     const rootPos = AnimationManager.instance._defaultRootBone.position
-    rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+    rig.hips.node.position.setX(rootPos.x).setZ(rootPos.z)
   }
 
   /**
    * 3 - Get IK target pose from WebXR
    */
 
-  applyInputSourcePoseToIKTargets()
+  // applyInputSourcePoseToIKTargets()
 
   /**
    * 4 - Apply avatar IK
    */
-  for (const entity of ikEntities) {
-    /** Filter by priority queue */
-    const networkObject = getComponent(entity, NetworkObjectComponent)
-    const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
-    if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
+  // for (const entity of ikEntities) {
+  //   /** Filter by priority queue */
+  //   const networkObject = getComponent(entity, NetworkObjectComponent)
+  //   const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
+  //   if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
 
-    const transformComponent = getComponent(entity, TransformComponent)
-    // If data is zeroed out, assume there is no input and do not run IK
-    if (transformComponent.position.equals(V_000)) continue
+  //   const transformComponent = getComponent(entity, TransformComponent)
+  //   // If data is zeroed out, assume there is no input and do not run IK
+  //   if (transformComponent.position.equals(V_000)) continue
 
-    const { rig } = getComponent(ownerEntity, AvatarRigComponent)
+  //   const { rig } = getComponent(ownerEntity, AvatarRigComponent)
 
-    const ikComponent = getComponent(entity, AvatarIKTargetComponent)
-    if (ikComponent.handedness === 'none') {
-      _vec
-        .set(
-          transformComponent.matrix.elements[8],
-          transformComponent.matrix.elements[9],
-          transformComponent.matrix.elements[10]
-        )
-        .normalize() // equivalent to Object3D.getWorldDirection
-      solveHipHeight(ownerEntity, transformComponent.position)
-      solveLookIK(rig.Head, _vec)
-    } else if (ikComponent.handedness === 'left') {
-      rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-      /** @todo see if this is still necessary */
-      rig.LeftForeArm.updateWorldMatrix(false, true)
-      solveTwoBoneIK(
-        rig.LeftArm,
-        rig.LeftForeArm,
-        rig.LeftHand,
-        transformComponent.position,
-        transformComponent.rotation.multiply(leftHandRotation),
-        leftHandRotationOffset
-      )
-    } else if (ikComponent.handedness === 'right') {
-      rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
-      /** @todo see if this is still necessary */
-      rig.RightForeArm.updateWorldMatrix(false, true)
-      solveTwoBoneIK(
-        rig.RightArm,
-        rig.RightForeArm,
-        rig.RightHand,
-        transformComponent.position,
-        transformComponent.rotation.multiply(rightHandRotation),
-        rightHandRotationOffset
-      )
-    }
-  }
+  //   const ikComponent = getComponent(entity, AvatarIKTargetComponent)
+  //   if (ikComponent.handedness === 'none') {
+  //     _vec
+  //       .set(
+  //         transformComponent.matrix.elements[8],
+  //         transformComponent.matrix.elements[9],
+  //         transformComponent.matrix.elements[10]
+  //       )
+  //       .normalize() // equivalent to Object3D.getWorldDirection
+  //     solveHipHeight(ownerEntity, transformComponent.position)
+
+  //     solveLookIK(rig.head.node, _vec)
+  //   } else if (ikComponent.handedness === 'left') {
+  //     rig.leftLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+  //     /** @todo see if this is still necessary */
+  //     rig.leftLowerArm.node.updateWorldMatrix(false, true)
+  //     solveTwoBoneIK(
+  //       rig.leftUpperArm.node,
+  //       rig.leftLowerArm.node,
+  //       rig.leftHand.node,
+  //       transformComponent.position,
+  //       transformComponent.rotation.multiply(leftHandRotation),
+  //       leftHandRotationOffset
+  //     )
+  //   } else if (ikComponent.handedness === 'right') {
+  //     rig.rightLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+  //     /** @todo see if this is still necessary */
+  //     rig.rightLowerArm.node.updateWorldMatrix(false, true)
+  //     solveTwoBoneIK(
+  //       rig.rightUpperArm.node,
+  //       rig.rightLowerArm.node,
+  //       rig.rightHand.node,
+  //       transformComponent.position,
+  //       transformComponent.rotation.multiply(rightHandRotation),
+  //       rightHandRotationOffset
+  //     )
+  //   }
+  // }
 
   /**
    * Since the scene does not automatically update the matricies for all objects, which updates bones,
@@ -332,7 +339,7 @@ const execute = () => {
   for (const entity of Engine.instance.priorityAvatarEntities) {
     const avatarRig = getComponent(entity, AvatarRigComponent)
     if (avatarRig?.helper) {
-      avatarRig.rig.Hips.updateWorldMatrix(true, true)
+      avatarRig.rig.hips.node.updateWorldMatrix(true, true)
       avatarRig.helper?.updateMatrixWorld(true)
     }
   }

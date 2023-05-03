@@ -1,3 +1,4 @@
+import { VRM, VRMHumanBone, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
@@ -30,8 +31,13 @@ import { computeTransformMatrix, updateGroupChildren } from '../../transform/sys
 import { XRState } from '../../xr/XRState'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
-import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
+// import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
+import avatarBoneMatching, {
+  BoneNames,
+  BoneStructure,
+  createSkeletonFromBone,
+  findSkinnedMeshes
+} from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -50,30 +56,69 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const model = await AssetLoader.loadAsync(avatarURL)
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
-  const parent = new Group()
-  parent.name = 'model-parent'
-  const root = new Group()
-  root.name = 'model-root'
-  root.add(scene)
-  parent.add(root)
-  parent.userData = scene.userData
 
-  scene.traverse((obj) => {
-    //TODO: To avoid the changes of the source material
-    if (obj.material && obj.material.clone) {
-      obj.material = obj.material.clone()
-      //TODO: to fix alphablend issue of some models (mostly fbx converted models)
-      if (obj.material.opacity != 0) {
-        obj.material.depthWrite = true
-      } else {
-        obj.material.depthWrite = false
-      }
-      obj.material.depthTest = true
-    }
-    // Enable shadow for avatars
-    obj.castShadow = true
-  })
-  return SkeletonUtils.clone(parent) as Object3D
+  if (model.userData.vrm) {
+    return model.userData.vrm as VRM
+    // const vrm: VRM = model.userData.vrm;
+    // vrm.scene.traverse((l) => {
+    //   l.frustumCulled = false;
+    // });
+
+    // VRMUtils.removeUnnecessaryJoints(vrm.scene);
+    // VRMUtils.removeUnnecessaryVertices(vrm.scene);
+    // VRMUtils.rotateVRM0(vrm);
+
+    // scene = vrm.scene
+    // scene.userData = model.userData
+
+    // this._vrm = vrm;
+    // this._positionBone.add(vrm.scene);
+    // this._avatarScene.add(this._positionBone);
+    // this._stage.rootScene.add(this._avatarScene);
+
+    // model = {
+    //   ...model,
+    //   ...model.userData.vrm,
+    //   scene: {
+    //     ...model.scene,
+    //   }
+    // };
+    // VRMUtils.removeUnnecessaryVertices(model.scene);
+    // VRMUtils.removeUnnecessaryJoints(model.scene);
+    // model.scene.traverse((obj) => { obj.frustumCulled = false; });
+  }
+
+  // console.log(model.userData);
+  // const { vrmCore } = model.userData;
+  // VRMUtils.rotateVRM0(vrmCore);
+  // VRMUtils.removeUnnecessaryJoints(model.scene);
+  // return vrmCore as VRM;
+  // VRMUtils.removeUnnecessaryJoints(model.scene);
+
+  // const parent = new Group()
+  // parent.name = 'model-parent'
+  // const root = new Group()
+  // root.name = 'model-root'
+  // root.add(scene)
+  // parent.add(root)
+  // parent.userData = scene.userData
+
+  // scene.traverse((obj) => {
+  //   //TODO: To avoid the changes of the source material
+  //   if (obj.material && obj.material.clone) {
+  //     obj.material = obj.material.clone()
+  //     //TODO: to fix alphablend issue of some models (mostly fbx converted models)
+  //     if (obj.material.opacity != 0) {
+  //       obj.material.depthWrite = true
+  //     } else {
+  //       obj.material.depthWrite = false
+  //     }
+  //     obj.material.depthTest = true
+  //   }
+  //   // Enable shadow for avatars
+  //   obj.castShadow = true
+  // })
+  return scene as Object3D
 }
 
 export const loadAvatarForUser = async (
@@ -91,7 +136,7 @@ export const loadAvatarForUser = async (
   }
 
   setComponent(entity, AvatarPendingComponent, { url: avatarURL })
-  const parent = await loadAvatarModelAsset(avatarURL)
+  const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
 
   /** hack a cancellable promise - check if the url we start with is the one we end up with */
   if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
@@ -116,82 +161,84 @@ export const loadAvatarForUser = async (
   dispatchAction(EngineActions.avatarModelChanged({ entity }))
 }
 
-export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
+export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const avatar = getComponent(entity, AvatarComponent)
-  if (avatar.model) removeObjectFromGroup(entity, avatar.model)
+  // if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   setupAvatarModel(entity)(model)
-  addObjectToGroup(entity, model)
+  addObjectToGroup(entity, model.scene)
 
   computeTransformMatrix(entity)
   updateGroupChildren(entity)
 
-  setupAvatarHeight(entity, model)
+  setupAvatarHeight(entity, model.scene)
 
-  setObjectLayers(model, ObjectLayers.Avatar)
-  avatar.model = model
+  setObjectLayers(model.scene, ObjectLayers.Avatar)
+  avatar.model = model.scene
 }
 
-export const setupAvatarModel = (entity: Entity) =>
-  pipe(boneMatchAvatarModel(entity), rigAvatarModel(entity), animateAvatarModel(entity))
+export const setupAvatarModel = (entity: Entity) => pipe(rigAvatarModel(entity), animateAvatarModel(entity))
 
-export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
-  const assetType = model.userData.type
+// export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
+//   const assetType = model.scene.userData.type
 
-  const groupComponent = getOptionalComponent(entity, GroupComponent)
+//   const groupComponent = getOptionalComponent(entity, GroupComponent)
 
-  if (assetType == AssetType.FBX) {
-    // TODO: Should probably be applied to vertexes in the modeling tool
-    model.children[0].scale.setScalar(0.01)
-    if (groupComponent) for (const obj of groupComponent) obj.userData.scale = 0.01
-  } else if (assetType == AssetType.VRM) {
-    if (model && (model as UpdateableObject3D).update) {
-      addComponent(entity, UpdatableComponent, true)
-      setCallback(entity, UpdatableCallback, (delta: number) => {
-        ;(model as UpdateableObject3D).update(delta)
-      })
-    }
-  }
+//   if (assetType == AssetType.FBX) {
+//     // TODO: Should probably be applied to vertexes in the modeling tool
+//     model.children[0].scale.setScalar(0.01)
+//     if (groupComponent) for (const obj of groupComponent) obj.userData.scale = 0.01
+//   } else if (assetType == AssetType.VRM) {
+//     if (model && (model as UpdateableObject3D).update) {
+//       addComponent(entity, UpdatableComponent, true)
+//       setCallback(entity, UpdatableCallback, (delta: number) => {
+//         ;(model as UpdateableObject3D).update(delta)
+//       })
+//     }
+//   }
 
-  return model
-}
+//   return model
+// }
 
-export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
+export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
-  const rig = avatarBoneMatching(model)
-  const rootBone = rig.Root || rig.Hips
-  rootBone.updateWorldMatrix(true, true)
+  // const rig = avatarBoneMatching(model)
 
-  const skinnedMeshes = findSkinnedMeshes(model)
+  const rig = model.humanoid?.rawHumanBones
 
-  /*
+  const rootBone = model.humanoid?.getRawBoneNode(VRMHumanBoneName.Hips)
+
+  rootBone?.updateWorldMatrix(true, true)
+
+  const skinnedMeshes = findSkinnedMeshes(model.scene)
+
   // Try converting to T pose
-  if (!hasComponent(entity, LoopAnimationComponent)) {
-    makeTPose(rig)
-    skinnedMeshes.forEach(applySkeletonPose)
-  }
-  */
+  // if (!hasComponent(entity, LoopAnimationComponent)) {
+  //   // makeTPose(rig)
+  //   skinnedMeshes.forEach(applySkeletonPose)
+  // }
 
-  const targetSkeleton = createSkeletonFromBone(rootBone)
+  // const targetSkeleton = SkeletonUtils.clone(rootBone)
 
-  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
-  retargetSkeleton(targetSkeleton, sourceSkeleton)
-  syncModelSkeletons(model, targetSkeleton)
+  // const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
+  // retargetSkeleton(targetSkeleton, sourceSkeleton)
+  // syncModelSkeletons(model.scene, targetSkeleton)
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    bindRig: avatarBoneMatching(SkeletonUtils.clone(rootBone)),
-    skinnedMeshes
+    bindRig: SkeletonUtils.clone(rootBone),
+    skinnedMeshes,
+    vrm: model
   })
 
-  const sourceHips = sourceSkeleton.bones[0]
-  avatarAnimationComponent.rootYRatio = rig.Hips.position.y / sourceHips.position.y
+  // const sourceHips = sourceSkeleton.bones[0]
+  avatarAnimationComponent.rootYRatio = 1 // rig.Hips.position.y / sourceHips.position.y
 
   return model
 }
 
-export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
+export const animateAvatarModel = (entity: Entity) => (model: VRM) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   const controllerComponent = getOptionalComponent(entity, AvatarControllerComponent)
@@ -199,8 +246,11 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   animationComponent.mixer?.stopAllAction()
   // Mixer has some issues when binding with the target skeleton
   // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
-  const sourceSkeleton = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
-  animationComponent.mixer = new AnimationMixer(sourceSkeleton.bones[0])
+
+  // (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
+  const sourceSkeleton = model.humanoid?.normalizedHumanBonesRoot
+  // debugger
+  animationComponent.mixer = new AnimationMixer(sourceSkeleton)
   animationComponent.animations = AnimationManager.instance._animations
 
   if (avatarAnimationComponent)
@@ -294,7 +344,7 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
   if (!avatarRigComponent) return false
-  const bone = avatarRigComponent.rig[boneName]
+  const bone = avatarRigComponent.rig[boneName.toLowerCase()]
   if (!bone) return false
   const el = bone.matrixWorld.elements
   position.set(el[12], el[13], el[14])
