@@ -546,19 +546,8 @@ const groupObjects = (
  */
 const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
   cancelGrabOrPlacement()
+  replaceSelection([])
 
-  if (updateSelection) {
-    // TEMPORARY - this is to stop a crash
-    getMutableState(SelectionState).set({
-      selectedEntities: [],
-      selectedParentEntities: [],
-      selectionCounter: 1,
-      objectChangeCounter: 1,
-      sceneGraphChangeCounter: 1,
-      propertyName: '',
-      transformPropertyChanged: false
-    })
-  }
   const removedParentNodes = getEntityNodeArrayFromEntities(filterParentEntities(nodes, undefined, true, false))
   const scene = Engine.instance.scene
   for (let i = 0; i < removedParentNodes.length; i++) {
