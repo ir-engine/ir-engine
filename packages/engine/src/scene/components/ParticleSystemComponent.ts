@@ -195,12 +195,14 @@ export type RandomColorJSON = {
   b: ColorJSON
 }
 
+export type ColorGradientFunctionJSON = {
+  function: ColorRangeJSON
+  start: number
+}
+
 export type ColorGradientJSON = {
   type: 'Gradient'
-  functions: {
-    function: ColorRangeJSON
-    start: number
-  }[]
+  functions: ColorGradientFunctionJSON[]
 }
 
 export type ColorGeneratorJSON = ConstantColorJSON | ColorRangeJSON | RandomColorJSON | ColorGradientJSON
@@ -262,6 +264,34 @@ export type RandomQuatGeneratorJSON = {
 
 export type RotationGeneratorJSON = AxisAngleGeneratorJSON | EulerGeneratorJSON | RandomQuatGeneratorJSON
 
+export const RotationGeneratorJSONDefaults: Record<string, RotationGeneratorJSON> = {
+  AxisAngle: {
+    type: 'AxisAngle',
+    axis: [0, 1, 0],
+    angle: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  Euler: {
+    type: 'Euler',
+    angleX: {
+      type: 'ConstantValue',
+      value: 0
+    },
+    angleY: {
+      type: 'ConstantValue',
+      value: 0
+    },
+    angleZ: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  RandomQuat: {
+    type: 'RandomQuat'
+  }
+}
 /*
 /ROTATION GENERATOR TYPES
 */
@@ -276,6 +306,8 @@ export type TextureSequencerJSON = {
   scaleY: number
   position: Vector3
   locations: Vector2[]
+  src: string
+  threshold: number
 }
 
 export type SequencerJSON = TextureSequencerJSON
@@ -413,6 +445,11 @@ export type RendererSettingsJSON = {
 }
 
 export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
+  ApplySequences: {
+    type: 'ApplySequences',
+    delay: 0,
+    sequencers: []
+  },
   ApplyForce: {
     type: 'ApplyForce',
     direction: [0, 1, 0],

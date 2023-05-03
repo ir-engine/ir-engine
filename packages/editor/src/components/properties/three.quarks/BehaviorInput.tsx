@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react'
-import { Vector3 } from 'three'
+import { Texture, Vector2, Vector3 } from 'three'
 
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import {
   ApplyForceBehaviorJSON,
   ApplySequencesJSON,
@@ -19,19 +21,23 @@ import {
   SequencerJSON,
   SizeOverLifeBehaviorJSON,
   SpeedOverLifeBehaviorJSON,
+  TextureSequencerJSON,
   TurbulenceFieldBehaviorJSON,
   WidthOverLengthBehaviorJSON
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
 
+import BooleanInput from '../../inputs/BooleanInput'
+import { Button } from '../../inputs/Button'
 import InputGroup from '../../inputs/InputGroup'
 import NumericInputGroup from '../../inputs/NumericInputGroup'
 import { SceneObjectInput } from '../../inputs/SceneObjectInput'
 import SelectInput from '../../inputs/SelectInput'
-import StringInput from '../../inputs/StringInput'
+import TexturePreviewInput from '../../inputs/TexturePreviewInput'
 import Vector3Input from '../../inputs/Vector3Input'
 import PaginatedList from '../../layout/PaginatedList'
 import ColorGenerator from './ColorGenerator'
+import RotationGenerator from './RotationGenerator'
 import ValueGenerator from './ValueGenerator'
 
 export default function BehaviorInput({
@@ -66,7 +72,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="force" label="Force">
-            <Vector3Input value={new Vector3(...value.direction)} onChange={onChange(forceScope.direction)} />
+            <Vector3Input value={new Vector3(...value.direction)} onChange={onChangeVec3(forceScope.direction)} />
           </InputGroup>
           <InputGroup name="magnitude" label="Magnitude">
             <ValueGenerator scope={forceScope.magnitude} value={value.magnitude} onChange={onChange} />
@@ -169,6 +175,28 @@ export default function BehaviorInput({
         <>
           <InputGroup name="angularVelocity" label="Angular Velocity">
             <ValueGenerator scope={rotationScope.angularVelocity} value={value.angularVelocity} onChange={onChange} />
+          </InputGroup>
+        </>
+      )
+    },
+    [scope]
+  )
+
+  const rotation3DOverLifeInput = useCallback(
+    (scope: State<BehaviorJSON>) => {
+      const rotation3DScope = scope as State<Rotation3DOverLifeBehaviorJSON>
+      const rotation3D = rotation3DScope.value
+      return (
+        <>
+          <InputGroup name="angularVelocity" label="Angular Velocity">
+            <RotationGenerator
+              scope={rotation3DScope.angularVelocity}
+              value={rotation3D.angularVelocity}
+              onChange={onChange}
+            />
+          </InputGroup>
+          <InputGroup name="dynamic" label="Dynamic">
+            <BooleanInput value={rotation3D.dynamic} onChange={onChange(rotation3DScope.dynamic)} />
           </InputGroup>
         </>
       )
@@ -287,6 +315,56 @@ export default function BehaviorInput({
     [scope]
   )
 
+  const onChangeSequenceTexture = useCallback(
+    (scope: State<TextureSequencerJSON>) => {
+      const thisOnChange = onChange(scope.src)
+      return (src: string) => {
+        AssetLoader.load(src, {}, (texture: Texture) => {
+          createReadableTexture(texture, { canvas: true, flipY: true }).then((readableTexture: Texture) => {
+            const canvas = readableTexture.image as HTMLCanvasElement
+            const ctx = canvas.getContext('2d')!
+            const width = canvas.width
+            const height = canvas.height
+            const imageData = ctx.getImageData(0, 0, width, height)
+            const locations: Vector2[] = []
+            const threshold = scope.threshold.value
+            for (let i = 0; i < imageData.height; i++) {
+              for (let j = 0; j < imageData.width; j++) {
+                imageData.data[(i * imageData.width + j) * 4 + 3] > threshold &&
+                  locations.push(new Vector2(j, imageData.height - i))
+              }
+            }
+            canvas.remove()
+            scope.locations.set(locations)
+          })
+        })
+        thisOnChange(src)
+      }
+    },
+    [scope]
+  )
+
+  const onAddTextureSequencer = useCallback(() => {
+    const sequencersScope = scope as State<ApplySequencesJSON>
+    const sequencers = sequencersScope.value
+    const thisOnChange = onChange(sequencersScope.sequencers)
+    return () => {
+      const nuSequencer = {
+        range: { a: 0, b: 1 },
+        sequencer: {
+          scaleX: 1,
+          scaleY: 1,
+          position: [0, 0, 0],
+          src: '',
+          locations: [],
+          threshold: 0.5
+        }
+      }
+      const nuSequencers = [...JSON.parse(JSON.stringify(sequencers.sequencers)), nuSequencer]
+      thisOnChange(nuSequencers)
+    }
+  }, [scope])
+
   const applySequencesInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const applySequencesScope = scope as State<ApplySequencesJSON>
@@ -299,6 +377,7 @@ export default function BehaviorInput({
             value={value.delay}
             onChange={onChange(applySequencesScope.delay)}
           />
+          <Button onClick={onAddTextureSequencer()}>Add Texture Sequencer</Button>
           <PaginatedList
             list={applySequencesScope.sequencers}
             element={(sequencerScope: State<{ range: IntervalValueJSON; sequencer: SequencerJSON }>) => {
@@ -332,7 +411,13 @@ export default function BehaviorInput({
                   <InputGroup name="Position" label="Position">
                     <Vector3Input
                       value={sequencer.sequencer.position}
-                      onChange={onChange(sequencerScope.sequencer.position)}
+                      onChange={onChangeVec3(sequencerScope.sequencer.position)}
+                    />
+                  </InputGroup>
+                  <InputGroup name="Texture" label="Texture">
+                    <TexturePreviewInput
+                      value={sequencer.sequencer.src}
+                      onChange={onChangeSequenceTexture(sequencerScope.sequencer)}
                     />
                   </InputGroup>
                 </>
@@ -356,6 +441,7 @@ export default function BehaviorInput({
     SpeedOverLife: speedOverLifeInput,
     FrameOverLife: frameOverLifeInput,
     OrbitOverLife: orbitOverLifeInput,
+    Rotation3DOverLife: rotation3DOverLifeInput,
     WidthOverLength: widthOverLength,
     ChangeEmitDirection: changeEmitDirectionInput,
     EmitSubParticleSystem: emitSubParticleSystemInput,

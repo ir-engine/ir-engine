@@ -54,6 +54,16 @@ export default function ValueGenerator({
     }
   }, [])
 
+  const onRemoveBezier = useCallback((element: State<BezierFunctionJSON>) => {
+    const bezierScope = scope as State<PiecewiseBezierValueJSON>
+    const bezier = bezierScope.value
+    const thisOnChange = onChange(bezierScope.functions)
+    return () => {
+      const nuFunctions = bezier.functions.filter((f) => f !== element.value)
+      thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
+    }
+  }, [])
+
   const ConstantInput = useCallback(() => {
     const constantScope = scope as State<ConstantValueJSON>
     const constant = constantScope.value
@@ -83,7 +93,7 @@ export default function ValueGenerator({
   const BezierInput = useCallback(() => {
     const bezierScope = scope as State<PiecewiseBezierValueJSON>
     return (
-      <>
+      <div>
         <Button onClick={onAddBezier()}>Add Bezier</Button>
         <PaginatedList
           list={bezierScope.functions}
@@ -129,10 +139,12 @@ export default function ValueGenerator({
                 value={element.start.value}
                 onChange={onChange(element.start)}
               />
+              <br />
+              <Button onClick={onRemoveBezier(element)}>Remove</Button>
             </div>
           )}
         />
-      </>
+      </div>
     )
   }, [scope])
 
@@ -154,8 +166,8 @@ export default function ValueGenerator({
           ]}
           onChange={onChangeType()}
         />
-        {valueInputs[value.type]()}
       </InputGroup>
+      {valueInputs[value.type]()}
     </div>
   )
 }

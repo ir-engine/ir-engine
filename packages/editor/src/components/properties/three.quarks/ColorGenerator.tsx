@@ -5,6 +5,7 @@ import { FunctionJSON } from 'three.quarks/dist/three.quarks.esm'
 import {
   ColorGeneratorJSON,
   ColorGeneratorJSONDefaults,
+  ColorGradientFunctionJSON,
   ColorGradientJSON,
   ColorJSON,
   ColorRangeJSON,
@@ -97,6 +98,16 @@ export default function ColorGenerator({
     )
   }, [scope])
 
+  const onRemoveGradient = useCallback((element: State<ColorGradientFunctionJSON>) => {
+    const gradientScope = scope as State<ColorGradientJSON>
+    const gradient = gradientScope.value
+    const thisOnChange = onChange(gradientScope.functions)
+    return () => {
+      const nuFunctions = gradient.functions.filter((item) => item !== element.value)
+      thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
+    }
+  }, [])
+
   const GradientInput = useCallback(() => {
     const gradientScope = scope as State<ColorGradientJSON>
     const gradient = gradientScope.value
@@ -168,6 +179,7 @@ export default function ColorGenerator({
                 />
               </Grid>
             </Grid>
+            <Button onClick={onRemoveGradient(gradientScope.functions[index])}>Remove</Button>
           </div>
         ))}
       </div>
