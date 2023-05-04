@@ -783,7 +783,7 @@ export const ParticleSystemComponent = defineComponent({
       componentState.systemParameters.material.set('dud')
       const dudMaterial = new MeshBasicMaterial({
         color: 0xffffff,
-        transparent: true,
+        transparent: component.systemParameters.transparent ?? true,
         blending: component.systemParameters.blending
       })
       metadata.materials['dud'] = dudMaterial

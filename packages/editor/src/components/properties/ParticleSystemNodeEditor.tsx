@@ -54,7 +54,8 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const particleSystem = particleSystemState.value
 
   const onSetSystemParm = useCallback((field: keyof typeof particleSystem.systemParameters) => {
-    return (value: any) => {
+    const parm = particleSystem.systemParameters[field]
+    return (value: typeof parm) => {
       const nuParms = JSON.parse(JSON.stringify(particleSystem.systemParameters))
       nuParms[field] = value
       particleSystemState.systemParameters.set(nuParms)
@@ -327,7 +328,10 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         </>
       )}
       <InputGroup name="Texture" label={t('editor:properties.particle-system.texture')}>
-        <TexturePreviewInput value={particleSystem.systemParameters.texture} onChange={onSetSystemParm('texture')} />
+        <TexturePreviewInput
+          value={particleSystem.systemParameters.texture ?? ''}
+          onChange={onSetSystemParm('texture')}
+        />
       </InputGroup>
       <InputGroup name="U Tiles" label={t('editor:properties.particle-system.u-tiles')}>
         <NumericInput value={particleSystem.systemParameters.uTileCount} onChange={onSetSystemParm('uTileCount')} />
@@ -386,6 +390,12 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
             { label: 'Custom', value: CustomBlending },
             { label: 'No Blending', value: NoBlending }
           ]}
+        />
+      </InputGroup>
+      <InputGroup name="Transparent" label={t('editor:properties.particle-system.transparent')}>
+        <BooleanInput
+          value={particleSystem.systemParameters.transparent ?? false}
+          onChange={onSetState(particleSystemState.systemParameters.transparent)}
         />
       </InputGroup>
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>
