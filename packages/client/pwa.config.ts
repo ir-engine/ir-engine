@@ -40,7 +40,7 @@ const PWA = (clientSetting) =>
     registerType: 'autoUpdate',
     // Inline registration code in index.html during development
     // This specifies the registration code injection method, which is set to 'inline' for development mode
-    injectRegister: 'inline',
+    injectRegister: process.env.APP_ENV === 'development' ? 'inline' : null,
     includeManifestIcons: true,
     devOptions: {
       // Enable dev options only during development
@@ -83,7 +83,7 @@ const PWA = (clientSetting) =>
       swDest: 'public/sw.js',
       // Set the glob directory and patterns for the cache
       // This specifies the directory and patterns for the cache files
-      globDirectory: './dist',
+      globDirectory: './public',
       globPatterns: [
         // fonts
         '**/*.{woff2,woff,ttf,eot}',

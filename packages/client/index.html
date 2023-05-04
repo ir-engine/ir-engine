@@ -27,6 +27,22 @@
     <script>
       var global = globalThis
       var exports = { __esModule: true }
+      // Don't register on service worker on dev
+      if ("serviceWorker" in navigator && '<%- swScriptLink %>' !== '') {
+        if (navigator.serviceWorker.controller) {
+          console.log("[PWA] Existing sw found at ", navigator.serviceWorker.controller.scriptURL);
+        } else {
+          console.log('[PWA] Registering sw at <%- swScriptLink %>')
+          // Register the service worker
+          navigator.serviceWorker
+            .register("<%- swScriptLink %>", {
+              scope: "./"
+            })
+            .then(function (reg) {
+              console.log("[PWA] SW registered at " + reg.scope);
+            });
+        }
+      }
     </script>
 </head>
   <body>
