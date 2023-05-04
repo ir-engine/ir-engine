@@ -8,8 +8,9 @@ import { Application } from '@etherealengine/server-core/declarations'
 import { transformModel } from './model-transform.helpers'
 
 interface CreateParams {
-  path: string
+  src: string
   transformParameters: ModelTransformParameters
+  dst?: string
 }
 
 interface GetParams {
@@ -58,9 +59,10 @@ export class ModelTransform implements ServiceMethods<any> {
   async create(createParams: CreateParams, params?: Params): Promise<any> {
     try {
       const transformParms = createParams.transformParameters
-      const commonPath = this.processPath(createParams.path)
+      const commonPath = this.processPath(createParams.src)
       const inPath = `${commonPath}.glb`
-      const outPath = `${commonPath}-transformed.glb`
+      let outPath = createParams.dst ? commonPath.replace(/[^/]+$/, createParams.dst) : `${commonPath}-transformed.glb`
+      !outPath.endsWith('.glb') && (outPath += '.glb')
       return await transformModel(this.app, { src: inPath, dst: outPath, parms: transformParms })
     } catch (e) {
       console.error('error transforming model')

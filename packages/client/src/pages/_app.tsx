@@ -41,11 +41,6 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import {
-  OEmbedService,
-  OEmbedServiceReceptor,
-  OEmbedState
-} from '@etherealengine/client-core/src/common/services/OEmbedService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import config from '@etherealengine/common/src/config'
 import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
@@ -79,9 +74,6 @@ const AppPage = (): any => {
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
   const projectState = useHookstate(getMutableState(ProjectState))
-  const oEmbedState = useHookstate(getMutableState(OEmbedState))
-  const pathname = oEmbedState.pathname.value
-  const oEmbed = oEmbedState.oEmbed
 
   const initApp = useCallback(() => {
     initGA()
@@ -100,12 +92,10 @@ const AppPage = (): any => {
       })
     }
     addActionReceptor(receptor)
-    addActionReceptor(OEmbedServiceReceptor)
     addActionReceptor(AppThemeServiceReceptor)
 
     return () => {
       removeActionReceptor(receptor)
-      removeActionReceptor(OEmbedServiceReceptor)
       removeActionReceptor(AppThemeServiceReceptor)
     }
   }, [])
@@ -167,17 +157,6 @@ const AppPage = (): any => {
     updateTheme()
   }, [clientThemeSettings, appTheme.customTheme])
 
-  const location = useLocation()
-  const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
-    `${config.client.clientUrl}${location.pathname}`
-  )}&format=json`
-
-  useEffect(() => {
-    if (pathname !== location.pathname) {
-      OEmbedService.fetchData(location.pathname, `${config.client.clientUrl}${location.pathname}`)
-    }
-  }, [location.pathname])
-
   const updateTheme = () => {
     const currentThemeName = getAppThemeName()
     const theme = getAppTheme()
@@ -193,48 +172,6 @@ const AppPage = (): any => {
 
   return (
     <>
-      <MetaTags>
-        {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
-        {oEmbed.value && pathname === location.pathname ? (
-          <>
-            <title>{oEmbed.value.title}</title>
-            <meta name="description" content={oEmbed.value.description} />
-
-            <meta property="og:type" content="website" />
-            <meta property="og:url" content={oEmbed.value.query_url} />
-            <meta property="og:title" content={oEmbed.value.title} />
-            <meta property="og:description" content={oEmbed.value.description} />
-            <meta
-              property="og:image"
-              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
-            />
-
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:domain" content={oEmbed.value.provider_url?.replace('https://', '')} />
-            <meta name="twitter:title" content={oEmbed.value.title} />
-            <meta name="twitter:description" content={oEmbed.value.description} />
-            <meta
-              property="twitter:image"
-              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
-            />
-            <meta name="twitter:url" content={oEmbed.value.query_url} />
-          </>
-        ) : (
-          <>
-            <title>{ctitle.value}</title>
-            {description && <meta name="description" content={description} data-rh="true" />}
-          </>
-        )}
-
-        {paymentPointer && <meta name="monetization" content={paymentPointer} />}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
-        />
-        <meta name="theme-color" content={clientThemeSettings?.[currentThemeName]?.mainBackground || '#FFFFFF'} />
-        {favicon16.value && <link rel="icon" type="image/png" sizes="16x16" href={favicon16.value} />}
-        {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
-      </MetaTags>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <SnackbarProvider

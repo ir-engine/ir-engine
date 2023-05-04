@@ -5,7 +5,7 @@ import { NO_PROXY } from '@etherealengine/hyperflux'
 
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { Entity } from '../../../ecs/classes/Entity'
-import { ComponentType, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
+import { ComponentType, getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Object3DWithEntity } from '../../components/GroupComponent'
 import { LODComponent } from '../../components/LODComponent'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -22,17 +22,17 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
     console.warn('trying to process an empty model file')
     return
   }
-  const component = getMutableComponent(entity, LODComponent)
-  const targetModel = getMutableComponent(component.target.value, ModelComponent)
-  const level = component.levels[index]
+  const lodComponentState = getMutableComponent(entity, LODComponent)
+  const lodComponent = getComponent(entity, LODComponent)
+  const targetModel = getMutableComponent(lodComponent.target, ModelComponent)
+  const level = lodComponentState.levels[index]
 
-  const lodComponent = getMutableComponent(entity, LODComponent)
-  let loadedModel: Object3D | null = lodComponent.levels.find((level) => level.loaded.value)?.model.value ?? null
+  let loadedModel: Object3D | null = lodComponent.levels.find((level) => level.loaded)?.model ?? null
 
   function addPlugin(mesh: Mesh) {
     delete mesh.geometry.attributes['lodIndex']
     delete mesh.geometry.attributes['_lodIndex']
-    mesh.geometry.setAttribute('lodIndex', component.instanceLevels.get(NO_PROXY))
+    mesh.geometry.setAttribute('lodIndex', lodComponentState.instanceLevels.get(NO_PROXY))
     const materials: Material[] = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     materials.forEach((material) => {
       addOBCPlugin(material, {
@@ -64,8 +64,8 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
   if (mesh instanceof InstancedMesh) {
     mesh.instanceMatrix.setUsage(DynamicDrawUsage)
     mesh.instanceMatrix.needsUpdate = true
-    if (component.instanced.value) {
-      if (component.instanceMatrix.value.array.length === 0) {
+    if (lodComponent.instanced) {
+      if (lodComponent.instanceMatrix.array.length === 0) {
         const transforms = new Float32Array(mesh.count * 16)
         const matrix = new Matrix4()
         for (let i = 0; i < mesh.count; i++) {
@@ -74,21 +74,21 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
             transforms[i * 16 + j] = matrix.elements[j]
           }
         }
-        component.instanceMatrix.set(new InstancedBufferAttribute(transforms, 16))
-        component.instanceLevels.set(new InstancedBufferAttribute(new Uint8Array(mesh.count), 1))
+        lodComponentState.instanceMatrix.set(new InstancedBufferAttribute(transforms, 16))
+        lodComponentState.instanceLevels.set(new InstancedBufferAttribute(new Uint8Array(mesh.count), 1))
       } else {
-        mesh.instanceMatrix = component.instanceMatrix.value
+        mesh.instanceMatrix = lodComponent.instanceMatrix
       }
     }
-  } else if (component.instanced.value) {
-    const instancedModel = new InstancedMesh(mesh.geometry, mesh.material, component.instanceMatrix.value.count)
-    instancedModel.instanceMatrix = component.instanceMatrix.get(NO_PROXY)
+  } else if (lodComponent.instanced) {
+    const instancedModel = new InstancedMesh(mesh.geometry, mesh.material, lodComponent.instanceMatrix.count)
+    instancedModel.instanceMatrix = lodComponent.instanceMatrix
     loadedMesh = instancedModel
   }
 
   let removeLoaded = () => {}
   if (!loadedModel) {
-    loadedModel = objectFromLodPath(targetModel.value, component.lodPath.value)
+    loadedModel = objectFromLodPath(targetModel.value, lodComponent.lodPath)
     removeLoaded = () => {
       loadedModel?.removeFromParent()
     }
@@ -97,21 +97,22 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
   loadedMesh instanceof InstancedMesh && addPlugin(loadedMesh)
   level.model.set(loadedMesh)
 
-  if (component.instanced.value) {
-    if (component.instanceMatrix.value.array.length === 0) {
-      component.instanceMatrix.set(new InstancedBufferAttribute(new Float32Array([...loadedMesh.matrix.elements]), 16))
-      component.instanceLevels.set(new InstancedBufferAttribute(new Uint8Array([index]), 1))
-    }
+  if (lodComponent.instanceMatrix.array.length === 0) {
+    lodComponentState.instanceMatrix.set(
+      new InstancedBufferAttribute(new Float32Array([...loadedMesh.matrix.elements]), 16)
+    )
+    lodComponentState.instanceLevels.set(new InstancedBufferAttribute(new Uint8Array([index]), 1))
   }
+  if (loadedMesh !== loadedModel) {
+    loadedModel.parent?.add(loadedMesh)
+    loadedMesh.name = loadedModel.name
+    loadedMesh.position.copy(loadedModel.position)
+    loadedMesh.quaternion.copy(loadedModel.quaternion)
+    loadedMesh.scale.copy(loadedModel.scale)
+    loadedMesh.updateMatrixWorld(true)
 
-  loadedModel.parent?.add(loadedMesh)
-  loadedMesh.name = loadedModel.name
-  loadedMesh.position.copy(loadedModel.position)
-  loadedMesh.quaternion.copy(loadedModel.quaternion)
-  loadedMesh.scale.copy(loadedModel.scale)
-  loadedMesh.updateMatrixWorld(true)
-
-  removeLoaded()
+    removeLoaded()
+  }
 }
 
 export type LODPath = OpaqueType<'LODPath'> & string

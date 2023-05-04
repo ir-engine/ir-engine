@@ -26,21 +26,19 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
     const gltfLoaded = getComponent(entity, GLTFLoadedComponent)
     const data = new Array<[string, any]>()
     for (const field of gltfLoaded) {
-      switch (field) {
-        case 'entity':
-          const name = getComponent(entity, NameComponent)
-          data.push(['xrengine.entity', name])
-          break
-        default:
-          const component = ComponentMap.get(field)!
-          if (!component?.toJSON) {
-            console.error(`[EEECSExporter]: Component ${field} does not have a toJSON method`)
-            continue
-          }
-          const compData = component.toJSON(entity, getMutableComponent(entity, component))
-          for (const [field, value] of Object.entries(compData)) {
-            data.push([`xrengine.${component.name}.${field}`, value])
-          }
+      if (field === 'entity') {
+        const name = getComponent(entity, NameComponent)
+        data.push(['xrengine.entity', name])
+      } else {
+        const component = ComponentMap.get(field)!
+        if (!component?.toJSON) {
+          console.error(`[EEECSExporter]: Component ${field} does not have a toJSON method`)
+          continue
+        }
+        const compData = component.toJSON(entity, getMutableComponent(entity, component))
+        for (const [field, value] of Object.entries(compData)) {
+          data.push([`xrengine.${component.name}.${field}`, value])
+        }
       }
     }
     nodeDef.extensions = nodeDef.extensions ?? {}

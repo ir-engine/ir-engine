@@ -1,10 +1,11 @@
 import { sha3_256 } from 'js-sha3'
-import { Event, LoaderUtils, Object3D } from 'three'
+import { Event, LoaderUtils, Mesh, Object3D } from 'three'
 import { generateUUID } from 'three/src/math/MathUtils'
 import matches, { Validator } from 'ts-matches'
 
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
+import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { AssetLoader } from '../../../classes/AssetLoader'
 import { getFileName, getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
@@ -53,6 +54,17 @@ export default class BufferHandlerExtension extends ExporterExtension implements
     this.projectName = getProjectName(writer.options.path!)
     this.modelName = getRelativeURI(writer.options.path!)
     this.resourceURI = writer.options.resourceURI ?? null
+    const inputs = Array.isArray(input) ? input : [input]
+    inputs.forEach((input) =>
+      iterateObject3D(input, (child: Mesh) => {
+        if (child?.isMesh) {
+          const materials = Array.isArray(child.material) ? child.material : [child.material]
+          materials.forEach((material) => {
+            console.log(material)
+          })
+        }
+      })
+    )
     dispatchAction(
       BufferHandlerExtension.beginModelExport({
         projectName: this.projectName,
