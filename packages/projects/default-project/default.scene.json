@@ -49,7 +49,7 @@
             "bakeType": "Baked",
             "resolution": 2048,
             "refreshMode": "OnAwake",
-            "envMapOrigin": "__$project$__/default-project/default.envmap.png",
+            "envMapOrigin": "__$project$__/default-project/default.envmap.ktx2",
             "boxProjection": true
           }
         }
@@ -306,6 +306,38 @@
       "parent": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71",
       "index": 5,
       "name": "directional light"
+    },
+    "e1902c6e-9d10-4bd2-9443-49765a2d2e09": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 1.5,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "w": 1
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "scene-preview-camera",
+          "props": {}
+        }
+      ],
+      "parent": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71",
+      "index": 6,
+      "name": "entity-6"
     }
   },
   "root": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71"
