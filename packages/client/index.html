@@ -32,10 +32,10 @@
           if (navigator.serviceWorker.controller) {
             console.log("[PWA] Existing sw found at ", navigator.serviceWorker.controller.scriptURL);
           } else {
-            console.log('[PWA] Registering sw at <%- swScriptLink %>')
+            console.log('[PWA] Registering sw at /sw.js')
             // Register the service worker
             navigator.serviceWorker
-              .register("./sw.js", {
+              .register("%PUBLIC_URL%/sw.js", {
                 scope: "./"
               })
               .then(function (reg) {
