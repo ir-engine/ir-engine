@@ -35,7 +35,7 @@
             console.log('[PWA] Registering sw at <%- swScriptLink %>')
             // Register the service worker
             navigator.serviceWorker
-              .register("/sw.js", {
+              .register("./sw.js", {
                 scope: "./"
               })
               .then(function (reg) {
