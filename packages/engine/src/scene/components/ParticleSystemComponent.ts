@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { AdditiveBlending, BufferGeometry, Texture, Vector2, Vector3 } from 'three'
+import { AdditiveBlending, BufferGeometry, Material, MeshBasicMaterial, Texture, Vector2, Vector3 } from 'three'
 import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
 import matches from 'ts-matches'
 
@@ -585,6 +585,12 @@ export type ExtraSystemJSON = {
 
 export type ExpandedSystemJSON = ParticleSystemJSONParameters & ExtraSystemJSON
 
+export type ParticleSystemMetadata = {
+  geometries: { [key: string]: BufferGeometry }
+  materials: { [key: string]: Material }
+  textures: { [key: string]: Texture }
+}
+
 export type ParticleSystemComponentType = {
   systemParameters: ExpandedSystemJSON
   behaviorParameters: BehaviorJSON[]
@@ -638,6 +644,8 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   version: '1.0',
   autoDestroy: false,
   looping: true,
+  prewarm: false,
+  material: '',
   duration: 5,
   shape: { type: 'point' },
   startLife: {
@@ -741,14 +749,9 @@ export const ParticleSystemComponent = defineComponent({
         component.system.dispose()
         componentState.system.set(none)
       }
-      function initParticleSystem(
-        systemParameters: ParticleSystemJSONParameters,
-        dependencies: {
-          textures: { [key: string]: Texture }
-          geometries: { [key: string]: BufferGeometry }
-        }
-      ) {
-        const nuSystem = ParticleSystem.fromJSON(systemParameters, dependencies, {}, batchRenderer)
+      function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
+        const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
+        batchRenderer.addSystem(nuSystem)
         componentState.behaviors.set(
           component.behaviorParameters.map((behaviorJSON) => {
             const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
@@ -774,12 +777,18 @@ export const ParticleSystemComponent = defineComponent({
         AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
 
       const loadDependencies: Promise<any>[] = []
-      const metadata: {
-        textures: { [key: string]: Texture }
-        geometries: { [key: string]: BufferGeometry }
-      } = { textures: {}, geometries: {} }
+      const metadata: ParticleSystemMetadata = { textures: {}, geometries: {}, materials: {} }
 
-      const processedParms = JSON.parse(JSON.stringify(component.systemParameters))
+      //add dud material
+      componentState.systemParameters.material.set('dud')
+      const dudMaterial = new MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        blending: component.systemParameters.blending
+      })
+      metadata.materials['dud'] = dudMaterial
+
+      const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
 
       function loadGeoDependency(src: string) {
         return new Promise((resolve) => {
@@ -796,7 +805,7 @@ export const ParticleSystemComponent = defineComponent({
           new Promise((resolve) => {
             AssetLoader.load(component.systemParameters.shape.mesh!, {}, ({ scene }: GLTF) => {
               const mesh = getFirstMesh(scene)
-              !!mesh && (processedParms.shape.mesh = mesh)
+              mesh && (metadata.geometries[component.systemParameters.shape.mesh!] = mesh.geometry)
               resolve(null)
             })
           })
@@ -807,8 +816,9 @@ export const ParticleSystemComponent = defineComponent({
       doLoadTexture &&
         loadDependencies.push(
           new Promise((resolve) => {
-            AssetLoader.load(component.systemParameters.texture, {}, (texture) => {
-              metadata.textures[component.systemParameters.texture] = texture
+            AssetLoader.load(component.systemParameters.texture!, {}, (texture: Texture) => {
+              metadata.textures[component.systemParameters.texture!] = texture
+              dudMaterial.map = texture
               resolve(null)
             })
           })
