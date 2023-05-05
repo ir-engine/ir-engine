@@ -175,9 +175,13 @@ export const createFeathersKoaApp = (
 
   app.set('paginate', appConfig.server.paginate)
   app.set('authentication', appConfig.authentication)
-
+  app.use(
+    cors({
+      origin: '*',
+      credentials: true
+    })
+  )
   configurationPipe(app)
-
   // Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
   // Doesn't appear anything else uses it.
   app.set('env', 'production')
@@ -187,12 +191,6 @@ export const createFeathersKoaApp = (
   // Enable security, CORS, compression, favicon and body parsing
   app.use(errorHandler()) // in koa no option to pass logger object its a async function instead and must be set first
   app.use(helmet())
-  app.use(
-    cors({
-      origin: true,
-      credentials: true
-    }) as any
-  )
 
   app.use(compress())
   app.use(bodyParser())
