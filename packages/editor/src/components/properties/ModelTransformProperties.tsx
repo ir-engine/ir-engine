@@ -9,6 +9,7 @@ import {
   ImageTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { string } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
@@ -146,6 +147,14 @@ export default function ModelTransformProperties({
     }
   })
 
+  const ioParms = useHookstate<{
+    dst: string
+    resourceUri: string
+  }>(() => ({
+    dst: '',
+    resourceUri: ''
+  }))
+
   const vertexBakeOptions = useHookstate({
     map: true,
     emissive: true,
@@ -220,6 +229,7 @@ export default function ModelTransformProperties({
       const modelSrc = modelState.src.value
       const nuPath = await Engine.instance.api.service('model-transform').create({
         src: modelSrc,
+        ...ioParms.value,
         transformParameters: transformParms.value
       })
       transformHistory.set([modelSrc, ...transformHistory.value])
@@ -285,6 +295,15 @@ export default function ModelTransformProperties({
       <TransformContainer>
         <LightmapBakerProperties modelState={modelState} />
         <CollapsibleBlock label="glTF-Transform">
+          <ElementsContainer>
+            <InputGroup name="dst" label={t('editor:properties.model.transform.dst')}>
+              <StringInput value={ioParms.dst.value} onChange={ioParms.dst.set} />
+            </InputGroup>
+            <InputGroup name="resource uri" label={t('editor:properties.model.transform.resourceUri')}>
+              <StringInput value={ioParms.resourceUri.value} onChange={ioParms.resourceUri.set} />
+            </InputGroup>
+          </ElementsContainer>
+          <hr />
           <ElementsContainer>
             <InputGroup name="Model Format" label={t('editor:properties.model.transform.modelFormat')}>
               <SelectInput

@@ -11,6 +11,7 @@ interface CreateParams {
   src: string
   transformParameters: ModelTransformParameters
   dst?: string
+  resourceUri?: string
 }
 
 interface GetParams {
@@ -31,11 +32,11 @@ export class ModelTransform implements ServiceMethods<any> {
     return Promise.resolve({})
   }
 
-  processPath(inPath: string): string {
-    const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_\\/]+).glb$/.exec(inPath)
+  processPath(inPath: string): [string, string] {
+    const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/(.*)\.(glb|gltf)$/.exec(inPath)
     if (!pathData) throw Error('could not extract path data')
-    const [_, projectName, fileName] = pathData
-    return path.join(this.rootPath, `${projectName}/assets/${fileName}`)
+    const [_, projectName, fileName, extension] = pathData
+    return [path.join(this.rootPath, `${projectName}/assets/${fileName}`), extension]
   }
 
   async find(params?: Params): Promise<any> {
@@ -59,11 +60,13 @@ export class ModelTransform implements ServiceMethods<any> {
   async create(createParams: CreateParams, params?: Params): Promise<any> {
     try {
       const transformParms = createParams.transformParameters
-      const commonPath = this.processPath(createParams.src)
-      const inPath = `${commonPath}.glb`
-      let outPath = createParams.dst ? commonPath.replace(/[^/]+$/, createParams.dst) : `${commonPath}-transformed.glb`
-      !outPath.endsWith('.glb') && (outPath += '.glb')
-      return await transformModel(this.app, { src: inPath, dst: outPath, parms: transformParms })
+      const [commonPath, extension] = this.processPath(createParams.src)
+      const inPath = `${commonPath}.${extension}`
+      const outPath = createParams.dst
+        ? `${commonPath.replace(/[^/]+$/, createParams.dst)}.${extension}`
+        : `${commonPath}-transformed.${extension}`
+      const resourceUri = createParams.resourceUri ?? ''
+      return await transformModel(this.app, { src: inPath, dst: outPath, resourceUri, parms: transformParms })
     } catch (e) {
       console.error('error transforming model')
       console.error(e)

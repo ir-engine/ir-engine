@@ -184,6 +184,7 @@ function unInstanceSingletons(document: Document) {
 export type ModelTransformArguments = {
   src: string
   dst: string
+  resourceUri: string
   parms: ModelTransformParameters
 }
 
@@ -297,7 +298,9 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
 
   const resourceName = /*'model-resources'*/ path.basename(args.src).slice(0, path.basename(args.src).lastIndexOf('.'))
-  const resourcePath = path.join(path.dirname(args.src), resourceName)
+  const resourcePath = args.resourceURI
+    ? path.join(path.dirname(args.src), args.resourceURI)
+    : path.join(path.dirname(args.src), resourceName)
   const projectRoot = path.join(appRootPath.path, 'packages/projects')
 
   const toValidFilename = (name: string) => {
@@ -323,16 +326,6 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     const [_, savePath, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(path.join(path.dirname(args.src), fUploadPath))!
     return [savePath, fileName]
-  }
-
-  const initializeResourceDir = async () => {
-    if (fs.existsSync(resourcePath)) {
-      //fs.rmSync(resourcePath, { recursive: true, force: true })
-      await app.service('file-browser').remove(resourcePath.replace(projectRoot, ''))
-    }
-    //fs.mkdirSync(resourcePath)
-    if (!fs.existsSync(resourcePath))
-      await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
   }
 
   const { io } = await ModelTransformLoader()
@@ -495,16 +488,28 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-    await initializeResourceDir()
+    if (fs.existsSync(resourcePath)) {
+      await app.service('file-browser').remove(resourcePath.replace(projectRoot, ''))
+    }
+    if (!fs.existsSync(resourcePath)) {
+      await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
+    }
     json.images?.map((image) => {
-      image.uri = path.join(resourceName, path.basename(image.uri!))
+      const nuURI = path.join(
+        resourceName,
+        path.basename(image.uri!).replace(/\.[^.]+$/, `.${mimeToFileType(image.mimeType)}`)
+      )
+      resources[nuURI] = resources[image.uri!]
+      delete resources[image.uri!]
+      image.uri = nuURI
     })
     const defaultBufURI = MathUtils.generateUUID() + '.bin'
     json.buffers?.map((buffer) => {
       buffer.uri = path.join(resourceName, path.basename(buffer.uri ?? defaultBufURI))
     })
     Object.keys(resources).map((uri) => {
-      resources[path.join(resourceName, path.basename(uri))] = resources[uri]
+      const localPath = path.join(resourcePath, path.basename(uri))
+      resources[localPath] = resources[uri]
       delete resources[uri]
     })
     const doUpload = (uri, data) => {
