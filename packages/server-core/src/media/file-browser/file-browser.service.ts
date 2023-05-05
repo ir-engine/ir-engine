@@ -1,4 +1,4 @@
-import { bodyParser, koa } from '@feathersjs/koa'
+import Multer from '@koa/multer'
 
 import { Application } from '../../../declarations'
 import { UploadParams } from '../upload-asset/upload-asset.service'
@@ -31,14 +31,7 @@ export const uploadFile = (app: Application) => async (data: any, params: Upload
   return result
 }
 
-const multipartMiddleware = bodyParser({
-  multipart: true,
-  formidable: {
-    maxFileSize: Infinity
-  },
-  urlencoded: true,
-  json: true
-})
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application): any => {
   const fileBrowser = new FileBrowserService(app)
@@ -52,22 +45,20 @@ export default (app: Application): any => {
     {
       koa: {
         before: [
-          multipartMiddleware,
+          multipartMiddleware.any(),
           async (ctx, next) => {
             console.log('trying to upload file')
-            console.log(ctx)
-            console.log(ctx.request)
             if (ctx?.feathers && ctx.method !== 'GET') {
               ;(ctx as any).feathers.files = (ctx as any).request.files.media
                 ? (ctx as any).request.files.media
                 : ctx.request.files
             }
-            const files = ctx.request.files
+            /*const files = ctx.request.files
             if (Object.keys(files as any).length > 1) {
               ctx.status = 400
               ctx.body = 'Only one file is allowed'
               return
-            }
+            }*/
             await next()
             console.log('uploaded file')
             return ctx.body

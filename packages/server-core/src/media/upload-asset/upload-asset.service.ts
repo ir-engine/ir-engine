@@ -1,5 +1,6 @@
 import { Params } from '@feathersjs/feathers'
 import { bodyParser, koa } from '@feathersjs/koa'
+import Multer from '@koa/multer'
 import { Route53RecoveryControlConfig } from 'aws-sdk'
 import { createHash } from 'crypto'
 import { Op } from 'sequelize'
@@ -26,12 +27,7 @@ import { getStorageProvider } from '../storageprovider/storageprovider'
 import { videoUpload } from '../video/video-upload.helper'
 import hooks from './upload-asset.hooks'
 
-const multipartMiddleware = bodyParser({
-  multipart: true,
-  formidable: {
-    maxFileSize: Infinity
-  }
-})
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -208,7 +204,6 @@ export const addGenericAssetToS3AndStaticResources = async (
 }
 
 export default (app: Application): void => {
-  app.use(multipartMiddleware)
   app.use(
     'upload-asset',
     {
@@ -217,6 +212,7 @@ export default (app: Application): void => {
     {
       koa: {
         before: [
+          multipartMiddleware.any(),
           async (ctx, next) => {
             console.log('trying to upload asset')
             const files = ctx.request.files
@@ -225,11 +221,7 @@ export default (app: Application): void => {
                 ? (ctx as any).request.files.media
                 : ctx.request.files
             }
-            if (Object.keys(files as any).length > 1) {
-              ctx.status = 400
-              ctx.body = 'Only one asset is allowed'
-              return
-            }
+
             await next()
             console.log('uploaded asset')
             return ctx.body

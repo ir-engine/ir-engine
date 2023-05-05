@@ -1,5 +1,5 @@
 import { Params } from '@feathersjs/feathers'
-import { bodyParser, koa } from '@feathersjs/koa'
+import Multer from '@koa/multer'
 
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getState } from '@etherealengine/hyperflux'
@@ -120,12 +120,7 @@ export const getAllScenes = (app: Application) => {
   }
 }
 
-const multipartMiddleware = bodyParser({
-  multipart: true,
-  formidable: {
-    maxFileSize: Infinity
-  }
-})
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application) => {
   /**
@@ -134,7 +129,6 @@ export default (app: Application) => {
   const event = new Scene(app)
   event.docs = projectDocs
   app.use('scene', event)
-  app.use(multipartMiddleware)
   app.use(
     'scene/upload',
     {
@@ -143,6 +137,7 @@ export default (app: Application) => {
     {
       koa: {
         before: [
+          multipartMiddleware.any(),
           async (ctx, next) => {
             console.log('trying to upload scene')
             const files = ctx.request.files
