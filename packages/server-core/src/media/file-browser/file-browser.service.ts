@@ -35,13 +35,15 @@ const multipartMiddleware = bodyParser({
   multipart: true,
   formidable: {
     maxFileSize: Infinity
-  }
+  },
+  urlencoded: true,
+  json: true
 })
 
 export default (app: Application): any => {
   const fileBrowser = new FileBrowserService(app)
   // fileBrowser.docs = projectDocs
-  app.use(multipartMiddleware)
+
   app.use(
     'file-browser/upload',
     {
@@ -50,14 +52,17 @@ export default (app: Application): any => {
     {
       koa: {
         before: [
+          multipartMiddleware,
           async (ctx, next) => {
             console.log('trying to upload file')
-            const files = ctx.request.files
+            console.log(ctx)
+            console.log(ctx.request)
             if (ctx?.feathers && ctx.method !== 'GET') {
               ;(ctx as any).feathers.files = (ctx as any).request.files.media
                 ? (ctx as any).request.files.media
                 : ctx.request.files
             }
+            const files = ctx.request.files
             if (Object.keys(files as any).length > 1) {
               ctx.status = 400
               ctx.body = 'Only one file is allowed'
