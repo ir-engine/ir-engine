@@ -78,7 +78,11 @@ const PWA = (clientSetting) =>
         // auth route
         /^\/auth?.*/,
         // api route
-        /^\/api?.*/
+        /^\/api-?.*/,
+        // resources route
+        /^\/resources-?.*/,
+        // instanceserver route
+        /^\/instanceserver-?.*/
       ],
       // Set the path for the service worker file
       // This specifies the path for the service worker file

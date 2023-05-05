@@ -646,13 +646,13 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
     "revision": "5661bc18bc9b9fecd7ad49b099a8a1c2"
   }, {
     "url": "/index.html",
-    "revision": "1.2.0"
+    "revision": "1.2.1"
   }, {
     "url": "/sw.js",
-    "revision": "1.2.0"
+    "revision": "1.2.1"
   }, {
     "url": "/manifest.webmanifest",
-    "revision": "1.2.0"
+    "revision": "1.2.1"
   }, {
     "url": "android-chrome-192x192.png",
     "revision": "63a03842ef90572c4c47ed7a13cc2bfe"
@@ -677,7 +677,7 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
-    allowlist: [/^\/.*/, /^\/location?.*/, /^\/editor?.*/, /^\/studio?.*/, /^\/admin?.*/, /^\/auth?.*/, /^\/api?.*/]
+    allowlist: [/^\/.*/, /^\/location?.*/, /^\/editor?.*/, /^\/studio?.*/, /^\/admin?.*/, /^\/auth?.*/, /^\/api-?.*/, /^\/resources-?.*/, /^\/instanceserver-?.*/]
   }));
   workbox.registerRoute(/^https?:\/\/resources-.*\/.*/i, new workbox.CacheFirst({
     "cacheName": "resources",
