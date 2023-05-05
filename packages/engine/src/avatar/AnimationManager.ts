@@ -39,7 +39,7 @@ export class AnimationManager {
     skinnedMeshes.forEach((mesh) => mesh.skeleton.computeBoneTexture())
 
     this._defaultSkinnedMesh = defaultRig.children[0] as SkinnedMesh
-    this._defaultRootBone = findRootBone(this._defaultSkinnedMesh)!
+    this._defaultRootBone = { node: findRootBone(this._defaultSkinnedMesh)! } as VRMHumanBone
     this._rootAnimationData = {}
     this._animations = gltf.animations
     this._animations?.forEach((clip) => {

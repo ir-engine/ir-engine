@@ -265,7 +265,7 @@ const execute = () => {
     })
 
     // TODO: Find a more elegant way to handle root motion
-    const rootPos = AnimationManager.instance._defaultRootBone.position
+    const rootPos = AnimationManager.instance._defaultRootBone.node.position
     rig.hips.node.position.setX(rootPos.x).setZ(rootPos.z)
   }
 

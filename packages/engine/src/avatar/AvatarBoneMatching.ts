@@ -745,7 +745,7 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
 
     Object.keys(targetModelBones).forEach((key) => {
       if (!targetModelBones[key]) return
-      targetModelBones[key].userData.name = targetModelBones[key.toLowerCase()].name.toLowerCase()
+      targetModelBones[key].userData.name = targetModelBones[key].name
       targetModelBones[key].name = key
     })
 
