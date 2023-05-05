@@ -1,4 +1,3 @@
-import { start } from 'repl'
 import { VitePWA } from 'vite-plugin-pwa'
 
 import manifest from './manifest.default.json'
@@ -86,7 +85,7 @@ const PWA = (clientSetting) =>
       swDest: 'public/sw.js',
       // Set the glob directory and patterns for the cache
       // This specifies the directory and patterns for the cache files
-      globDirectory: './dist',
+      globDirectory: './public',
       globPatterns: [
         // fonts
         '**/*.{woff2,woff,ttf,eot}',

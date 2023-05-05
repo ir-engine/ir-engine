@@ -27,22 +27,19 @@
     <script type="text/javascript">
       var global = globalThis
       var exports = { __esModule: true }
-      if ("serviceWorker" in navigator) {
+      
+      if('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          if (navigator.serviceWorker.controller) {
-            console.log("[PWA] Existing sw found at ", navigator.serviceWorker.controller.scriptURL);
-          } else {
-            console.log('[PWA] Registering sw at /sw.js')
-            // Register the service worker
-            navigator.serviceWorker
-              .register('./sw.js', {
-                scope: "./"
-              })
-              .then(function (reg) {
-                console.log("[PWA] SW registered at " + reg.scope);
-              });
-          }
-        });
+          console.log('[PWA] Registering sw at /sw.js')
+          // Register the service worker
+          navigator.serviceWorker
+            .register(`${window.location.href.split('/')[0]}/sw.js`, {
+              scope: window.location.pathname
+            })
+            .then(function (reg) {
+              console.log("[PWA] SW registered at " + reg.scope);
+            });
+        })
       }
     </script>
 </head>
