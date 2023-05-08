@@ -11,7 +11,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { DefaultMediaState, MediaSettingsState } from '../../networking/MediaSettingsState'
+import { MediaSettingReceptor } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
@@ -60,7 +60,7 @@ export class AudioEffectPlayer {
     }
   }
 
-  play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume) => {
+  play = async (sound: string, volumeMultiplier = getMutableState(AudioState).notificationVolume.value) => {
     await Promise.resolve()
 
     if (!this.#els.length) return
@@ -89,7 +89,25 @@ export const MediaPrefabs = {
   volumetric: 'Volumetric' as const
 }
 
+export const DefaultMediaState = {
+  immersiveMedia: false,
+  refDistance: 20,
+  rolloffFactor: 1,
+  maxDistance: 10000,
+  distanceModel: 'linear' as DistanceModelType,
+  coneInnerAngle: 360,
+  coneOuterAngle: 0,
+  coneOuterGain: 0
+}
+
 export const MediaSceneMetadataLabel = 'mediaSettings'
+
+export const MediaSettingsState = defineState({
+  name: 'MediaSettingsState',
+  initial: DefaultMediaState
+})
+
+export const getMediaSceneMetadataState = () => getMutableState(MediaSettingsState)
 
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
@@ -137,6 +155,13 @@ const reactor = () => {
       EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
       EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
     }
+
+    getMutableState(SceneState).sceneMetadataRegistry.merge({
+      [MediaSceneMetadataLabel]: {
+        data: () => getState(MediaSettingsState),
+        default: DefaultMediaState
+      }
+    })
 
     Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
       { name: TransformComponent.jsonID },
@@ -200,6 +225,7 @@ const reactor = () => {
     Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
 
     addActionReceptor(AudioSettingReceptor)
+    addActionReceptor(MediaSettingReceptor)
 
     return () => {
       Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.audio)
