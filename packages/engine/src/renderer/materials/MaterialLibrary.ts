@@ -65,8 +65,8 @@ export const MaterialLibraryActions = {
 export function initializeMaterialLibrary() {
   //load default prototypes from source
   const materialLibrary = getState(MaterialLibraryState)
-  ;(!materialLibrary.initialized &&
-    [
+  if (!materialLibrary.initialized) {
+    ;[
       MeshBasicMaterial,
       MeshStandardMaterial,
       MeshMatcapMaterial,
@@ -76,6 +76,7 @@ export function initializeMaterialLibrary() {
       MeshToonMaterial,
       ShaderMaterial,
       ShadowMaterial
-    ].map(registerMaterialPrototype)) ||
+    ].map(registerMaterialPrototype)
     getMutableState(MaterialLibraryState).initialized.set(true)
+  }
 }
