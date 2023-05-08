@@ -15,6 +15,8 @@ import packageJson from './package.json'
  */
 const PWA = (clientSetting) =>
   VitePWA({
+    srcDir: 'src/service-worker',
+    filename: 'sw.js',
     // Merge custom client settings with default values from manifest.default.json
     // This specifies the PWA's metadata such as name, description, and icons
     manifest: {
@@ -28,7 +30,7 @@ const PWA = (clientSetting) =>
     },
     // Use generateSW caching strategy
     // This specifies the caching strategy for the service worker
-    strategies: 'generateSW',
+    strategies: 'injectManifest',
     // Set mode to development or production depending on environment variable
     // This specifies the build mode ('development' or 'production') depending on the environment variable APP_ENV
     mode: process.env.APP_ENV === 'development' ? 'development' : 'production',
@@ -44,7 +46,7 @@ const PWA = (clientSetting) =>
     injectRegister: process.env.APP_ENV === 'development' ? 'inline' : null,
     includeManifestIcons: true,
     devOptions: {
-      disableRuntimeConfig: true,
+      disableRuntimeConfig: false,
       // Enable dev options only during development
       // This specifies that these options should only be used during development mode
       enabled: process.env.APP_ENV === 'development',
