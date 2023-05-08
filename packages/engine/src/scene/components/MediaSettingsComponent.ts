@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { MediaSettingsState } from '../../networking/MediaSettingsState'
 
 export const MediaSettingsComponent = defineComponent({
@@ -39,8 +40,9 @@ export const MediaSettingsComponent = defineComponent({
     }
   },
 
-  reactor: ({ root }) => {
-    const component = useComponent(root.entity, MediaSettingsComponent)
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, MediaSettingsComponent)
 
     for (const prop of Object.keys(getState(MediaSettingsState))) {
       useEffect(() => {

@@ -94,12 +94,11 @@ const execute = () => {
   for (const entity of effectQuery.enter()) {
     const effectComponent = getComponent(entity, AvatarEffectComponent)
     const sourceTransform = getComponent(effectComponent.sourceEntity, TransformComponent)
-    setTransformComponent(
-      entity,
-      sourceTransform.position.clone(),
-      sourceTransform.rotation.clone(),
-      sourceTransform.scale.clone()
-    )
+    setComponent(entity, TransformComponent, {
+      position: sourceTransform.position.clone(),
+      rotation: sourceTransform.rotation.clone(),
+      scale: sourceTransform.scale.clone()
+    })
     const transform = getComponent(entity, TransformComponent)
     setComponent(entity, VisibleComponent, true)
     /**
@@ -124,7 +123,7 @@ const execute = () => {
       const ray = light.clone()
       ray.position.y -= 2 * ray.geometry.boundingSphere?.radius! * Math.random()
 
-      var a = (2 * Math.PI * i) / n,
+      const a = (2 * Math.PI * i) / n,
         r = R * Math.random()
       ray.position.x += r * Math.cos(a)
       ray.position.z += r * Math.sin(a)
@@ -190,8 +189,8 @@ const execute = () => {
     if (pillar !== null && plate !== null) {
       plate['material'].opacity = opacityMultiplier * (0.7 + 0.5 * Math.sin((Date.now() % 6283) * 5e-3))
       if (pillar !== undefined && plate !== undefined) {
-        for (var i = 0, n = pillar.children.length; i < n; i++) {
-          var ray = pillar.children[i]
+        for (let i = 0, n = pillar.children.length; i < n; i++) {
+          const ray = pillar.children[i]
           ray.position.y += 2 * delta
           ray.scale.y = lightScale(ray.position.y, ray['geometry'].boundingSphere.radius)
           ray['material'].opacity = lightOpacity(ray.position.y, ray['geometry'].boundingSphere.radius)

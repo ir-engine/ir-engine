@@ -59,7 +59,7 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    const component = Array.from(ComponentJSONIDMap.keys()).find((jsonID) => jsonID === key)?.[0]
+    const component = Array.from(ComponentJSONIDMap.keys()).find((jsonID) => jsonID === key)
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${component}'`)
     } else {

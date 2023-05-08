@@ -13,6 +13,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -37,22 +38,23 @@ export const BoundingBoxComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
-    const boundingBox = useComponent(root.entity, BoundingBoxComponent)
+    const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
       if (!boundingBox) return
       if (debugEnabled.value && !boundingBox.helper.value) {
         const helper = new Box3Helper(boundingBox.box.value)
-        helper.name = `bounding-box-helper-${root.entity}`
+        helper.name = `bounding-box-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
         boundingBox.helper.set(helper)
       }
 
       if (!debugEnabled.value && boundingBox.helper.value) {
-        removeObjectFromGroup(root.entity, boundingBox.helper.value)
+        removeObjectFromGroup(entity, boundingBox.helper.value)
         boundingBox.helper.set(none)
       }
     }, [debugEnabled])

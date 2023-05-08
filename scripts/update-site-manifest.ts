@@ -135,7 +135,7 @@ cli.main(async () => {
 
   const [clientSettings] = await ClientSettings.findAll()
 
-  const manifestPath = path.join(appRootPath.path, 'packages/client/public/site.webmanifest')
+  const manifestPath = path.join(appRootPath.path, 'packages/client/public/manifest.webmanifest')
   const manifest = JSON.parse(fs.readFileSync(manifestPath, { encoding: 'utf-8' }))
 
   const icon192px = /https:\/\//.test(clientSettings.icon192px)

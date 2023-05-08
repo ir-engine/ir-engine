@@ -7,12 +7,13 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -238,7 +239,19 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
   await setupSubdomain()
-  const networkPromise = initializeNetwork(app, hostId, topic)
+  const network = await initializeNetwork(app, hostId, topic)
+
+  addNetwork(network)
+
+  NetworkPeerFunctions.createPeer(
+    network,
+    'server' as PeerID,
+    network.peerIndexCount++,
+    hostId,
+    network.userIndexCount++,
+    'server-' + hostId
+  )
+
   const projects = await getProjectsList()
 
   if (instanceServerState.isMediaInstance) {
@@ -278,20 +291,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
 
-  const network = await networkPromise
-
-  addNetwork(network)
-
   network.ready = true
 
-  NetworkPeerFunctions.createPeer(
-    network,
-    'server' as PeerID,
-    network.peerIndexCount++,
-    hostId,
-    network.userIndexCount++,
-    'server-' + hostId
-  )
   dispatchAction(EngineActions.joinedWorld({}))
 }
 
@@ -697,6 +698,27 @@ export default (app: Application): void => {
 
     createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
+
+  const kickCreatedListener = async (data: UserKick) => {
+    // TODO: only run for instanceserver
+    if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
+
+    logger.info('kicking user id %s', data.userId)
+
+    const peerId = Engine.instance.worldNetwork.users.get(data.userId)
+    if (!peerId || !peerId[0]) return
+
+    logger.info('kicking peerId %o', peerId)
+
+    const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
+    if (!peer || !peer.spark) return
+
+    peer.spark.write({ type: MessageTypes.Kick.toString(), data: '' })
+  }
+
+  app.service('user-kick').on('created', kickCreatedListener)
+
+  logger.info('registered kickCreatedListener')
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

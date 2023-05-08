@@ -1,5 +1,6 @@
 import classNames from 'classnames'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/components/UserMenu/util'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -15,6 +16,8 @@ interface Props {
   peerID: PeerID
   type: 'cam' | 'screen'
 }
+
+const { t } = useTranslation()
 
 const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
   const {
@@ -34,7 +37,6 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
     audioProducerPaused,
     videoProducerGlobalMute,
     audioProducerGlobalMute,
-    t,
     toggleAudio,
     toggleVideo,
     adjustVolume,

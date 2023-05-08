@@ -7,7 +7,7 @@ import {
   Registry
 } from 'behave-graph'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { BehaveGraphSystemState } from '../systems/BehaveGraphSystem'
@@ -22,8 +22,8 @@ export const RuntimeGraphComponent = defineComponent({
     const logger = new DefaultLogger()
     const ticker = new ManualLifecycleEventEmitter()
     registerCoreProfile(registry, logger, ticker)
-    const systemState = getMutableState(BehaveGraphSystemState)
-    systemState.domains[graphComponent.domain]?.value.register(registry, logger, ticker)
+    const systemState = getState(BehaveGraphSystemState)
+    systemState.domains[graphComponent.domain]?.register(registry, logger, ticker)
     const graph = readGraphFromJSON(graphComponent.graph, registry)
     const engine = new Engine(graph)
     return { engine, ticker }

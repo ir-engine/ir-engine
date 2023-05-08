@@ -327,7 +327,9 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/apartment.glb",
-            "resource": null,
+            "resource": {
+              "src": "__$project$__/default-project/assets/apartment.glb"
+            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
           }
@@ -342,10 +344,10 @@
         {
           "name": "envmap",
           "props": {
-            "type": "Skybox",
-            "envMapTextureType": "Cubemap",
+            "type": "Texture",
+            "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapSourceURL": "__$project$__/default-project/apartment.envmap.ktx2",
             "envMapIntensity": 1
           }
         }
@@ -1071,7 +1073,9 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/keycard.glb",
-            "resource": null,
+            "resource": {
+              "src": "__$project$__/default-project/assets/keycard.glb"
+            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
           }
@@ -1084,13 +1088,6 @@
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
           }
         }
       ],

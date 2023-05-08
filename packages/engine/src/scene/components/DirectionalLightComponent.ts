@@ -5,6 +5,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -49,6 +50,18 @@ export const DirectionalLightComponent = defineComponent({
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
     if (matches.number.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
+
+    /**
+     * we need to put this here in case the CSM needs to grab the values, which can sometimes happen before the component reactor hooks
+     * @todo find a better way of doing this
+     */
+    component.light.value.color.set(component.color.value)
+    component.light.value.intensity = component.intensity.value
+    component.light.value.castShadow = component.castShadow.value
+    component.light.value.shadow.camera.far = component.cameraFar.value
+    component.light.value.shadow.bias = component.shadowBias.value
+    component.light.value.shadow.radius = component.shadowRadius.value
+    component.light.value.shadow.mapSize.set(component.shadowMapResolution.value, component.shadowMapResolution.value)
   },
 
   toJSON: (entity, component) => {
@@ -69,9 +82,10 @@ export const DirectionalLightComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const light = useComponent(root.entity, DirectionalLightComponent)
+    const light = useComponent(entity, DirectionalLightComponent)
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
@@ -110,7 +124,7 @@ export const DirectionalLightComponent = defineComponent({
     useEffect(() => {
       if (debugEnabled.value && !light.helper.value) {
         const helper = new EditorDirectionalLightHelper(light.light.value)
-        helper.name = `directional-light-helper-${root.entity}`
+        helper.name = `directional-light-helper-${entity}`
 
         // const cameraHelper = new CameraHelper(light.shadow.camera)
         // cameraHelper.visible = false
@@ -118,12 +132,12 @@ export const DirectionalLightComponent = defineComponent({
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
 
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
         light.helper.set(helper)
       }
 
       if (!debugEnabled.value && light.helper.value) {
-        removeObjectFromGroup(root.entity, light.helper.value)
+        removeObjectFromGroup(entity, light.helper.value)
         light.helper.set(none)
       }
     }, [debugEnabled])

@@ -12,12 +12,11 @@ import {
   MeshStandardMaterial
 } from 'three'
 
-import { getMutableState, getState, ReactorProps, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
-import { isNode } from '../../common/functions/getEnvironment'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -29,6 +28,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { updateShadowMap } from '../../renderer/functions/RenderSettingsFunction'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -95,7 +95,9 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
   const { entity, obj } = props
 
   const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-  const forceBasicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
+  const renderState = getMutableState(RendererState)
+  const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
+  const csm = useHookstate(renderState.csm)
 
   useEffect(() => {
     return () => {
@@ -112,16 +114,16 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
 
   useEffect(() => {
     const shadow = shadowComponent?.value
+    const csm = getState(RendererState).csm
     obj.traverse((child: Mesh<any, Material>) => {
       if (!child.isMesh) return
       child.castShadow = !!shadow?.cast
       child.receiveShadow = !!shadow?.receive
-      if (child.material && child.receiveShadow) {
-        /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
-        EngineRenderer.instance.csm?.setupMaterial(child)
+      if (child.material && child.receiveShadow && csm) {
+        csm.setupMaterial(child)
       }
     })
-  }, [shadowComponent])
+  }, [shadowComponent?.cast, shadowComponent?.receive, csm])
 
   return null
 }
@@ -155,11 +157,11 @@ const execute = () => {
   }
 }
 
-const reactor = ({ root }: ReactorProps) => {
+const reactor = () => {
   useEffect(() => {
     Engine.instance.gltfLoader = createGLTFLoader()
   }, [])
-  return <GroupReactor root={root} />
+  return <GroupReactor />
 }
 
 export const SceneObjectSystem = defineSystem({

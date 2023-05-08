@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { CompressedTexture, LinearEncoding, LuminanceFormat, RGBAFormat, sRGBEncoding, Texture } from 'three'
 
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/common/src/logger'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
@@ -37,11 +40,18 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const route = useRouter()
   const editorState = useEditorState()
   const [DialogComponent, setDialogComponent] = useDialog()
+  const [fetched, setFetch] = useState(false)
 
+  const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
   const fetchItems = async () => {
     try {
       const data = await getScenes(editorState.projectName.value!)
+      for (let i = 0; i < data.length; i++) {
+        const ktx2url = await getSceneURL(data[i].thumbnailUrl)
+        thumbnails.set(data[i].name, ktx2url)
+      }
       setScenes(data ?? [])
+      console.log(data)
     } catch (error) {
       logger.error(error, 'Error fetching scenes')
     }
@@ -127,6 +137,11 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (e.key == 'Enter' && activeScene) finishRenaming()
   }
 
+  const getSceneURL = async (url) => {
+    const texture = (await AssetLoader.loadAsync(url)) as CompressedTexture
+    return (await createReadableTexture(texture, { url: true })) as string
+  }
+
   return (
     <>
       <div id="file-browser-panel" className={styles.panelContainer}>
@@ -141,7 +156,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
               <div className={styles.sceneContainer} key={i}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
-                    <img src={scene.thumbnailUrl} alt="" crossOrigin="anonymous" />
+                    <img src={thumbnails.get(scene.name)} alt="" crossOrigin="anonymous" />
                   </div>
                   <div className={styles.detailBlock}>
                     {activeScene === scene && isRenaming ? (

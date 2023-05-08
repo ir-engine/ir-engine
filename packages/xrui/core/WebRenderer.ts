@@ -1,6 +1,6 @@
 import { ResizeObserver as Polyfill } from '@juggle/resize-observer'
 
-import { isClient } from '@etherealengine/engine/src/common/functions/isClient'
+import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 
 import { EventCallback, WebLayer } from './WebLayer'
 import { WebLayerManagerBase } from './WebLayerManagerBase'

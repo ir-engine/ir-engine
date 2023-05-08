@@ -70,7 +70,7 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
 
   async patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
     const webmanifestPath =
-      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' ? `client/site.webmanifest` : 'site.webmanifest'
+      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' ? `client/public/site.webmanifest` : 'site.webmanifest'
     const storageProvider = getStorageProvider()
     try {
       const webmanifestResponse = await storageProvider.getObject(webmanifestPath)
@@ -115,7 +115,7 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
       await storageProvider.putObject({
         Body: Buffer.from(JSON.stringify(webmanifest)),
         ContentType: 'application/manifest+json',
-        Key: 'client/site.webmanifest'
+        Key: 'client/public/site.webmanifest'
       })
     } catch (err) {
       logger.info('Error with manifest update', webmanifestPath)

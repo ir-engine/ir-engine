@@ -3,7 +3,7 @@ import { Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -16,7 +16,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -85,6 +85,7 @@ export const ModelComponent = defineComponent({
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
+    LODComponent.lodsByEntity[entity].value && LODComponent.lodsByEntity[entity].set(none)
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
@@ -93,8 +94,8 @@ export const ModelComponent = defineComponent({
   reactor: ModelReactor
 })
 
-function ModelReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
+function ModelReactor() {
+  const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value

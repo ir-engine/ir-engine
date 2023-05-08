@@ -21,7 +21,7 @@ export const userPatched = (params) => {
 
   const selfUser = accessAuthState().user
   const userState = accessNetworkUserState()
-  const patchedUser = resolveUser(params.userRelationship || selfUser)
+  const patchedUser = resolveUser(params.userRelationship || selfUser.get({ noproxy: true }))
   const worldHostID = getState(NetworkState).hostIds.world
 
   logger.info('Resolved patched user %o', patchedUser)

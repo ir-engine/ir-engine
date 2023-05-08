@@ -1,11 +1,30 @@
 import { useEffect } from 'react'
+import { Vector3 } from 'three'
 
-import { isClient } from '../../common/functions/isClient'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import {
+  defineQuery,
+  getComponent,
+  getMutableComponent,
+  removeQuery,
+  setComponent,
+  useQuery
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { XRSpaceComponent } from '../../xr/XRComponents'
+import { ReferenceSpace, XRState } from '../../xr/XRState'
+import { InputComponent } from '../components/InputComponent'
+import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'
+import { createInitialButtonState, OldButtonInputStateType, OldButtonTypes } from '../InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -55,11 +74,11 @@ export const addClientInputListeners = () => {
   const handleMouseClick = (event: MouseEvent) => {
     const down = event.type === 'mousedown' || event.type === 'touchstart'
 
-    let button: ButtonTypes = 'PrimaryClick'
+    let button: OldButtonTypes = 'PrimaryClick'
     if (event.button === 1) button = 'AuxiliaryClick'
     else if (event.button === 2) button = 'SecondaryClick'
 
-    const state = Engine.instance.buttons as ButtonInputStateType
+    const state = Engine.instance.buttons as OldButtonInputStateType
 
     if (down) state[button] = createInitialButtonState()
     else if (state[button]) state[button]!.up = true
@@ -106,7 +125,7 @@ export const addClientInputListeners = () => {
 
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
   const clearKeyState = () => {
-    const state = Engine.instance.buttons as ButtonInputStateType
+    const state = Engine.instance.buttons as OldButtonInputStateType
     for (const button of pointerButtons) {
       const val = state[button]
       if (!val?.up && val?.pressed) state[button].up = true
@@ -159,7 +178,7 @@ export const removeClientInputListeners = () => {
   boundListeners.splice(0, boundListeners.length - 1)
 }
 
-export const GamepadMapping = {
+export const OldGamepadMapping = {
   //https://w3c.github.io/gamepad/#remapping
   standard: {
     0: 'ButtonA',
@@ -207,10 +226,10 @@ export const GamepadMapping = {
     }
   }
 }
-export function updateGamepadInput(source: XRInputSource) {
+export function updateOldGamepadInput(source: XRInputSource) {
   if (!source.gamepad) return
-  if (source.gamepad.mapping in GamepadMapping) {
-    const ButtonAlias = GamepadMapping[source.gamepad!.mapping]
+  if (source.gamepad.mapping in OldGamepadMapping) {
+    const ButtonAlias = OldGamepadMapping[source.gamepad!.mapping]
     const mapping = ButtonAlias[source.handedness]
     const buttons = source.gamepad?.buttons
     if (buttons) {
@@ -234,8 +253,122 @@ export function updateGamepadInput(source: XRInputSource) {
   }
 }
 
+export const GamepadMapping = {
+  //https://w3c.github.io/gamepad/#remapping
+  standard: {
+    0: 'ButtonA',
+    1: 'ButtonB',
+    2: 'ButtonX',
+    3: 'ButtonY',
+    4: 'LeftBumper',
+    5: 'RightBumper',
+    6: 'LeftTrigger',
+    7: 'RightTrigger',
+    8: 'ButtonBack',
+    9: 'ButtonStart',
+    10: 'LeftStick',
+    11: 'RightStick',
+    12: 'DPad1',
+    13: 'DPad2',
+    14: 'DPad3',
+    15: 'DPad4'
+  },
+  //https://www.w3.org/TR/webxr-gamepads-module-1/
+  'xr-standard': {
+    0: 'Trigger',
+    1: 'Squeeze',
+    2: 'Pad',
+    3: 'Stick',
+    4: 'ButtonA',
+    5: 'ButtonB'
+  }
+}
+
+export function updateGamepadInput(eid: Entity) {
+  const inputSource = getComponent(eid, InputSourceComponent)
+  const source = inputSource.source
+  const buttons = inputSource.buttons
+  if (!source.gamepad) return
+  if (source.gamepad.mapping in GamepadMapping) {
+    const ButtonAlias = GamepadMapping[source.gamepad!.mapping]
+    const gamepadButtons = source.gamepad?.buttons
+    if (gamepadButtons) {
+      for (let i = 0; i < gamepadButtons.length; i++) {
+        const buttonMapping = ButtonAlias[i]
+        const button = gamepadButtons[i]
+        if (!buttons[buttonMapping] && (button.pressed || button.touched)) {
+          buttons[buttonMapping] = createInitialButtonState(button)
+        }
+        if (buttons[buttonMapping] && (button.pressed || button.touched)) {
+          if (!buttons[buttonMapping].pressed && button.pressed) buttons[buttonMapping].down = true
+          buttons[buttonMapping].pressed = button.pressed
+          buttons[buttonMapping].touched = button.touched
+          buttons[buttonMapping].value = button.value
+        } else if (buttons[buttonMapping]) {
+          buttons[buttonMapping].up = true
+        }
+      }
+    }
+  }
+}
+
+const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
+const inputSources = defineQuery([InputSourceComponent])
+const inputSinks = defineQuery([InputComponent, BoundingBoxComponent])
+
+const boxCenter = new Vector3()
+
 const execute = () => {
-  for (const source of Engine.instance.inputSources) updateGamepadInput(source)
+  for (const source of Engine.instance.inputSources) updateOldGamepadInput(source)
+
+  const xrFrame = Engine.instance.xrFrame
+  const origin = ReferenceSpace.origin
+
+  for (const eid of xrSpaces()) {
+    const space = getComponent(eid, XRSpaceComponent)
+    const pose = origin && xrFrame?.getPose(space, origin)
+    if (pose) {
+      TransformComponent.position.x[eid] = pose.transform.position.x
+      TransformComponent.position.y[eid] = pose.transform.position.y
+      TransformComponent.position.z[eid] = pose.transform.position.z
+      TransformComponent.rotation.x[eid] = pose.transform.orientation.x
+      TransformComponent.rotation.y[eid] = pose.transform.orientation.y
+      TransformComponent.rotation.z[eid] = pose.transform.orientation.z
+      TransformComponent.rotation.w[eid] = pose.transform.orientation.w
+      TransformComponent.dirtyTransforms[eid] = true
+    }
+  }
+
+  for (const sourceEid of inputSources()) {
+    const sourceTransform = getComponent(sourceEid, TransformComponent)
+    const source = getMutableComponent(sourceEid, InputSourceComponent)
+
+    let assignedInputEntity = UndefinedEntity as Entity
+    let assignedDistance = Infinity
+
+    for (const inputEid of inputSinks()) {
+      const bounds = getComponent(inputEid, BoundingBoxComponent)
+      if (!bounds.box.containsPoint(sourceTransform.position)) continue
+      const center = bounds.box.getCenter(boxCenter) // todo: copmute bounding box center in a centralized place
+      const dist = sourceTransform.position.distanceTo(center) // todo: compute boudning box distance in centralized place
+      if (dist <= assignedDistance) {
+        assignedInputEntity = inputEid
+        assignedDistance = dist
+      }
+    }
+
+    source.assignedEntity.set(assignedInputEntity)
+
+    updateGamepadInput(sourceEid)
+  }
+
+  for (const eid of inputSinks()) {
+    const inputSink = getComponent(eid, InputComponent)
+    inputSink.inputSources = inputSources().filter((sourceEid) => {
+      const source = getComponent(sourceEid, InputSourceComponent)
+      return source.assignedEntity === eid
+    })
+  }
 
   Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
 
@@ -249,6 +382,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const xrState = useHookstate(getMutableState(XRState))
+
   useEffect(() => {
     addClientInputListeners()
     Engine.instance.pointerScreenRaycaster.layers.enableAll()
@@ -257,6 +392,31 @@ const reactor = () => {
       removeClientInputListeners()
     }
   }, [])
+
+  useEffect(() => {
+    const session = xrState.session.value
+    if (!session) return
+
+    const addInputSource = (source: XRInputSource) => setComponent(createEntity(), InputSourceComponent, { source })
+    const removeInputSource = (source: XRInputSource) =>
+      removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
+
+    const onInputSourcesChanged = (event: XRInputSourceChangeEvent) => {
+      event.added.map(addInputSource)
+      event.removed.map(removeInputSource)
+    }
+
+    ;[...session.inputSources].map(addInputSource)
+
+    session.addEventListener('inputsourceschange', onInputSourcesChanged)
+
+    return () => {
+      const inputSourceEntities = defineQuery([InputSourceComponent])
+      inputSourceEntities().map((eid) => removeEntity(eid))
+      removeQuery(inputSourceEntities)
+      session.removeEventListener('inputsourceschange', onInputSourcesChanged)
+    }
+  }, [xrState.session])
 
   return null
 }

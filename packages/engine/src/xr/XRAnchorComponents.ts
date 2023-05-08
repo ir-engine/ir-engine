@@ -15,7 +15,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../ecs/functions/EntityFunctions'
 import { GroupComponent, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import {
@@ -151,8 +151,8 @@ const anchorMeshLost = (
  * @param
  * @returns
  */
-function PersistentAnchorReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
+function PersistentAnchorReactor() {
+  const entity = useEntityContext()
 
   const originalParentEntityUUID = useHookstate('' as EntityUUID)
   const meshes = useHookstate([] as Mesh[])
@@ -181,7 +181,7 @@ function PersistentAnchorReactor({ root }: EntityReactorProps) {
       anchorMeshFound(group, wireframe, meshes)
     } else {
       /** add back to the scene */
-      const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value].value
+      const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value]
       const localTransform = getComponent(entity, LocalTransformComponent)
       localTransform.parentEntity = originalParent
       TransformComponent.dirtyTransforms[entity] = true

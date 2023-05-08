@@ -75,6 +75,7 @@ export default (app: Application) => {
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
     ;(User as any).hasOne(models.user_api_key)
     ;(User as any).belongsTo(models.avatar)
+    ;(User as any).hasMany(models.user_kick, { onDelete: 'cascade' })
   }
 
   return User

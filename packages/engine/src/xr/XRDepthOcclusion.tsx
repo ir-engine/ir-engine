@@ -11,7 +11,6 @@ import {
   defineActionQueue,
   getMutableState,
   getState,
-  ReactorProps,
   removeActionQueue,
   useHookstate
 } from '@etherealengine/hyperflux'
@@ -275,7 +274,7 @@ const execute = () => {
   XRDepthOcclusion.updateDepthMaterials(Engine.instance.xrFrame as any, ReferenceSpace.origin!, depthTexture)
 }
 
-const reactor = ({ root }: ReactorProps) => {
+const reactor = () => {
   const xrState = useHookstate(getMutableState(XRState))
 
   useEffect(() => {
@@ -288,7 +287,7 @@ const reactor = ({ root }: ReactorProps) => {
     }
   }, [xrState.sessionActive])
 
-  return <DepthOcclusionReactor root={root} />
+  return <DepthOcclusionReactor />
 }
 
 export const XRDepthOcclusionSystem = defineSystem({

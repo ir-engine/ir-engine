@@ -9,6 +9,7 @@ import {
   ImageTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   ComponentType,
@@ -217,8 +218,8 @@ export default function ModelTransformProperties({
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      const nuPath = await API.instance.client.service('model-transform').create({
-        path: modelSrc,
+      const nuPath = await Engine.instance.api.service('model-transform').create({
+        src: modelSrc,
         transformParameters: transformParms.value
       })
       transformHistory.set([modelSrc, ...transformHistory.value])
@@ -266,8 +267,8 @@ export default function ModelTransformProperties({
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await API.instance.client.service('model-transform').create({
-        path: bakedPath,
+      const transformedPath = await Engine.instance.api.service('model-transform').create({
+        src: bakedPath,
         transformParameters: transformParms.value
       })
       console.log('transformed model into ' + transformedPath)

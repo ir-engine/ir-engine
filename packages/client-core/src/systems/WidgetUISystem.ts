@@ -38,6 +38,7 @@ import {
 import { defineActionQueue, defineState, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
+import { createMediaWidget } from './createMediaWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'
@@ -73,9 +74,9 @@ const WidgetUISystemState = defineState({
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
-    const helper = new AxesHelper(0.1)
-    setObjectLayers(helper, ObjectLayers.Gizmos)
-    addObjectToGroup(widgetMenuUI.entity, helper)
+    // const helper = new AxesHelper(0.1)
+    // setObjectLayers(helper, ObjectLayers.Gizmos)
+    // addObjectToGroup(widgetMenuUI.entity, helper)
 
     return {
       widgetMenuUI
@@ -90,6 +91,7 @@ const showWidgetMenu = (show: boolean) => {
   if (!createdWidgets && (isMobileXRHeadset || isDev)) {
     createdWidgets = true
     createAnchorWidget()
+    // createMediaWidget()
     // createHeightAdjustmentWidget()
     // createProfileWidget()
     // createSettingsWidget()

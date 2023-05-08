@@ -1,6 +1,6 @@
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { dispatchAction, getMutableState, none } from '@etherealengine/hyperflux'
+import { dispatchAction, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -41,7 +41,7 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
         }
         const tex = v as Texture
         if (tex?.isTexture) {
-          if (tex.source.data != undefined) {
+          if (tex.source.data !== undefined) {
             return [k, v]
           }
           return [k, undefined]
@@ -67,7 +67,7 @@ export function prototypeFromId(protoId: string): MaterialPrototypeComponentType
   return prototype
 }
 
-export function materialIdToDefaultArgs(matId: string): Object {
+export function materialIdToDefaultArgs(matId: string): object {
   const material = materialFromId(matId)
   const prototype = prototypeFromId(material.prototype)
   return injectDefaults(prototype.arguments, material.parameters)
@@ -105,7 +105,7 @@ export function materialIdToPrototype(matId: string): MaterialPrototypeComponent
   return prototypeFromId(materialFromId(matId).prototype)
 }
 
-export function materialToDefaultArgs(material: Material): Object {
+export function materialToDefaultArgs(material: Material): object {
   return materialIdToDefaultArgs(material.uuid)
 }
 
@@ -185,7 +185,7 @@ export function unregisterMaterial(material: Material) {
 
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
   const materialLibrary = getMaterialLibrary()
-  if (!!materialLibrary.prototypes[prototype.prototypeId].value) {
+  if (materialLibrary.prototypes[prototype.prototypeId].value) {
     console.warn(
       'overwriting existing material prototype!\nnew:',
       prototype.prototypeId,

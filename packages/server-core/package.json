@@ -36,7 +36,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "npm run migrate && mocha --jobs 1",
+    "test": "mocha --jobs 1",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
     "migrate:make": "knex --migrations-directory ./ migrate:make"

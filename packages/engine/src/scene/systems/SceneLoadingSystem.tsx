@@ -122,7 +122,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
     EntityJson
   ][]
   const idMap = new Map<EntityUUID, EntityUUID>()
-  const loadedEntities = UUIDComponent.entitiesByUUID.get(NO_PROXY)
+  const loadedEntities = UUIDComponent.entitiesByUUID
 
   const rootEntity = assetRoot ?? getState(SceneState).sceneEntity
   const rootId = sceneData.root
@@ -135,7 +135,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
       idMap.set(_uuid, uuid)
     }
     const eNode = createEntity()
-    const parent = eJson.parent ? UUIDComponent.entitiesByUUID[eJson.parent].value : rootEntity
+    const parent = eJson.parent ? UUIDComponent.entitiesByUUID[eJson.parent] : rootEntity
     setComponent(eNode, EntityTreeComponent, { parentEntity: parent })
     setComponent(eNode, UUIDComponent, uuid)
     if (eJson.parent && loadedEntities[eJson.parent]) {
@@ -200,7 +200,7 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
     )
 
     if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) {
-      const existingEntity = UUIDComponent.entitiesByUUID[uuid].value
+      const existingEntity = UUIDComponent.entitiesByUUID[uuid]
       if (existingEntity) {
         const previouslyNotDynamic = !getOptionalComponent(existingEntity, SceneDynamicLoadTagComponent)?.loaded
         if (previouslyNotDynamic) {
@@ -261,7 +261,7 @@ export const updateSceneFromJSON = async () => {
   /** @todo this will not  */
   for (const node of oldLoadedEntityNodesToRemove) {
     if (node === sceneState.sceneEntity) continue
-    removeEntityNodeRecursively(node, false)
+    removeEntityNodeRecursively(node)
   }
 
   /** 3. load new systems */
@@ -313,16 +313,16 @@ export const updateSceneFromJSON = async () => {
  */
 export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
   try {
-    const existingEntity = UUIDComponent.entitiesByUUID[uuid].value
+    const existingEntity = UUIDComponent.entitiesByUUID[uuid]
     if (existingEntity) {
       deserializeSceneEntity(existingEntity, entityJson)
       /** @todo handle reparenting due to changes in scene json */
       // const parent = existingEntity.parentEntity
       // if (parent && getComponent(parent, UUIDComponent) !== entityJson.parent)
-      //   reparentEntityNode(existingEntity, UUIDComponent.entitiesByUUID[entityJson.parent].value)
+      //   reparentEntityNode(existingEntity, UUIDComponent.entitiesBy[entityJson.parent])
     } else {
       const entity = createEntity()
-      const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!].value
+      const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
       setComponent(entity, EntityTreeComponent, { parentEntity })
       setComponent(entity, UUIDComponent, uuid)
       setLocalTransformComponent(entity, parentEntity)

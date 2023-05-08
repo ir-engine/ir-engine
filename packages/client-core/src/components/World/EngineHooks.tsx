@@ -1,8 +1,8 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { LocationAction, LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
+import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -17,7 +17,7 @@ import {
   AppLoadingStates
 } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -32,13 +32,12 @@ import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { AvatarService } from '../../user/services/AvatarService'
 import { startClientSystems } from '../../world/startClientSystems'
-import { loadSceneJsonOffline } from '../../world/utils'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -59,15 +58,33 @@ export const useLoadEngine = () => {
   }, [])
 }
 
+const fetchMissingAvatar = async (user, avatarSpawnPose) => {
+  const avatar = await AvatarService.getAvatar(user.avatar.id.value)
+  if (avatar && (avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src))
+    spawnLocalAvatarInWorld({
+      avatarSpawnPose,
+      avatarDetail: {
+        avatarURL: avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src,
+        thumbnailURL: avatar.thumbnailResource?.LOD0_url || (avatar.thumbnailResource as any)?.src
+      },
+      name: user.name.value
+    })
+  else
+    NotificationService.dispatchNotify(
+      'Your avatar is missing its model. Please change your avatar from the user menu.',
+      { variant: 'error' }
+    )
+}
+
 export const useLocationSpawnAvatar = (spectate = false) => {
-  const engineState = useEngineState()
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const authState = useAuthState()
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
   useEffect(() => {
     if (spectate) {
-      if (!engineState.sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
+      if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
       dispatchAction(EngineActions.spectateUser({}))
       dispatchAction(EngineActions.joinedWorld({}))
       return
@@ -75,7 +92,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     if (
       Engine.instance.localClientEntity ||
-      !engineState.sceneLoaded.value ||
+      !sceneLoaded.value ||
       !authState.user.value ||
       !authState.user.avatar.value ||
       spectateParam
@@ -91,7 +108,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       ? getSpawnPoint(spawnPoint, Engine.instance.userId)
       : getRandomSpawnPoint(Engine.instance.userId)
 
-    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any).src)
+    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any)?.src)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
         avatarDetail: {
@@ -100,18 +117,13 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         },
         name: user.name.value
       })
-    else {
-      NotificationService.dispatchNotify(
-        'Your avatar is missing its model. Please change your avatar from the user menu.',
-        { variant: 'error' }
-      )
-    }
-  }, [engineState.sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
+    else fetchMissingAvatar(user, avatarSpawnPose)
+  }, [sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
 }
 
 export const usePortalTeleport = () => {
   const route = useRouter()
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useLocationState()
   const authState = useAuthState()
 
@@ -123,10 +135,7 @@ export const usePortalTeleport = () => {
       if (!activePortal) return
 
       const currentLocation = locationState.locationName.value.split('/')[1]
-      if (
-        currentLocation === activePortal.location ||
-        UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
-      ) {
+      if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
         teleportAvatar(
           Engine.instance.localClientEntity!,
           activePortal.remoteSpawnPosition
@@ -177,13 +186,23 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 
-export const useOfflineScene = (props: { projectName: string; sceneName: string; spectate?: boolean }) => {
+export const useOnlineInstance = () => {
+  useEffect(() => {
+    getMutableState(NetworkState).config.set({
+      world: true,
+      media: true,
+      friends: true,
+      instanceID: true,
+      roomID: false
+    })
+  }, [])
+}
+
+export const useOfflineScene = (props?: { spectate?: boolean }) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName: `${props.projectName}/${props.sceneName}` }))
-    loadSceneJsonOffline(props.projectName, props.sceneName)
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
   }, [])
 
@@ -209,7 +228,7 @@ export const useOfflineScene = (props: { projectName: string; sceneName: string;
         authState.user.name.value
       )
 
-      if (props.spectate) return
+      if (props?.spectate) return
 
       receiveJoinWorld({
         highResTimeOrigin: performance.timeOrigin,

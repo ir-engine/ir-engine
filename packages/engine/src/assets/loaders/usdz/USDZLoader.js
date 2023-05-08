@@ -387,7 +387,7 @@ class USDZLoader extends Loader {
 			let geometry = new BufferGeometry();
 			let indices = []
 			function parseArray( text) {
-				return JSON.parse( text.replaceAll('(', '').replaceAll(')','').replaceAll(/nan|inf/, '0.0').replaceAll('inf', '0.0'))
+				return JSON.parse( text.replaceAll(/[()]*/g,'').replaceAll(/nan|inf/g, '0.0'))
 			}
 			if ( 'int[] faceVertexIndices' in data && typeof data['int[] faceVertexIndices'] === 'string' ) {
 
@@ -820,6 +820,7 @@ class USDZLoader extends Loader {
         const frontier = Object.keys(root).map(field => ["", root, field])
 		while (frontier.length > 0) {
             const [path, context, name] = frontier.pop()
+						console.log("path", path, "context", context, "name", name)
             const nameContext = context[name]
             if ( registryRegex.test( name ) ) {
                 const domain = registryRegex.exec( name )[1]

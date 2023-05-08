@@ -5,7 +5,7 @@ import logger from '@etherealengine/common/src/logger'
 import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
@@ -19,7 +19,7 @@ import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { defaultSpatialComponents } from '../../scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { accessAudioState, AudioSettingReceptor, AudioState } from '../AudioState'
+import { AudioSettingReceptor, AudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
 export class AudioEffectPlayer {
@@ -71,7 +71,7 @@ export class AudioEffectPlayer {
     const source = getState(AudioState).audioContext.createBufferSource()
     source.buffer = this.bufferMap[sound]
     const el = this.#els.find((el) => el.paused) ?? this.#els[0]
-    el.volume = accessAudioState().masterVolume.value * volumeMultiplier
+    el.volume = getState(AudioState).masterVolume * volumeMultiplier
     if (el.src !== sound) el.src = sound
     el.currentTime = 0
     source.start()

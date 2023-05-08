@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { AnimationAction, AnimationClip, AnimationMixer, Vector3 } from 'three'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import {
   addComponent,
   ComponentType,
@@ -11,6 +12,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationManager } from '../AnimationManager'
@@ -44,8 +46,9 @@ export const LoopAnimationComponent = defineComponent({
     }
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    if (!isClient) return null
+    const entity = useEntityContext()
 
     const modelComponent = useOptionalComponent(entity, ModelComponent)
 

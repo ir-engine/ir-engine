@@ -1,6 +1,6 @@
-import { isNode } from './common/functions/getEnvironment'
+import { isClient } from './common/functions/getEnvironment'
 
-if (isNode) {
+if (!isClient) {
   const { Blob } = require('buffer')
   const fetch = require('node-fetch')
 

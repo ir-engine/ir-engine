@@ -11,7 +11,8 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists === false) {
     await knex.schema.createTable(analyticsPath, (table) => {
-      table.string('id', 36).primary()
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.integer('count').nullable()
       table.string('type', 255).nullable()
       table.dateTime('createdAt').notNullable()

@@ -5,6 +5,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
+import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -12,6 +13,7 @@ import {
   getOptionalComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
@@ -213,8 +215,10 @@ export const InstancingComponent = defineComponent({
     }
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    if (!isClient) return null
+
+    const entity = useEntityContext()
 
     const instancingComponent = useComponent(entity, InstancingComponent)
     const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
@@ -228,7 +232,7 @@ export const InstancingComponent = defineComponent({
     useEffect(() => {
       if (!sceneLoaded.value || instancingComponent.state.value !== ScatterState.STAGED) return
 
-      const refEntity = UUIDComponent.entitiesByUUID.value[instancingComponent.surface.value]
+      const refEntity = UUIDComponent.entitiesByUUIDState.value[instancingComponent.surface.value]
       const groupComponent = getComponent(refEntity, GroupComponent)
 
       for (const obj of groupComponent) {

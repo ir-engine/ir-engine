@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
@@ -225,6 +226,24 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
       return false
     }
   }
+
+  // check if user is not kicked in the instance for a duration
+  const currentDate = new Date()
+  const userKick = (await app.service('user-kick').find({
+    query: {
+      userId,
+      instanceId: instance.id,
+      duration: {
+        $gt: currentDate
+      },
+      $limit: 0
+    }
+  })) as any
+  if (userKick.total > 0) {
+    logger.info(`User "${userId}" has been kicked from this server for this duration`)
+    return false
+  }
+
   return true
 }
 
@@ -307,7 +326,12 @@ export async function handleJoinWorld(
 ) {
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId)
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId).map((action) => {
+    const _action = _.cloneDeep(action)
+    // todo, can we ensure the server actions always has a peerID?
+    if (!_action.$peer) _action.$peer = network.hostPeerID
+    return _action
+  })
 
   const peerID = spark.id as PeerID
 
@@ -325,8 +349,6 @@ export async function handleJoinWorld(
     },
     id: messageId
   })
-
-  const app = Engine.instance.api as Application
 
   const instanceServerState = getState(InstanceServerState)
   if (data.inviteCode && !instanceServerState.isMediaInstance)

@@ -18,7 +18,8 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists === false) {
     await knex.schema.createTable(awsSettingPath, (table) => {
-      table.string('id', 36).primary()
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.json('keys').nullable()
       table.json('route53').nullable()
       table.json('s3').nullable()

@@ -9,7 +9,7 @@ export const Vec2Arg = { default: [1, 1], type: 'vec2' }
 export const Vec3Arg = { default: [1, 1, 1], type: 'vec3' }
 export const ColorArg = { default: new Color(), type: 'color' }
 
-export const TextureArg = { default: undefined, type: 'texture' }
+export const TextureArg = { default: null, type: 'texture' }
 
 export const SelectArg = { default: '', options: [], type: 'select' }
 export const StringArg = { default: '', type: 'string' }
@@ -31,6 +31,7 @@ export function getDefaultType(value) {
       if ((value as Color).isColor) {
         return 'color'
       }
+      return ''
     //todo: vectors, selects, objects
     default:
       return ''

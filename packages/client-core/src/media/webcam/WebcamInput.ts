@@ -260,7 +260,7 @@ const avatarSpawnQueue = defineActionQueue(WorldNetworkAction.spawnAvatar.matche
 
 const execute = () => {
   for (const action of avatarSpawnQueue()) {
-    const entity = UUIDComponent.entitiesByUUID.value[action.uuid]
+    const entity = UUIDComponent.entitiesByUUID[action.uuid]
     setComponent(entity, WebcamInputComponent)
   }
   for (const entity of webcamQuery()) setAvatarExpression(entity)
