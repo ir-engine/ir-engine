@@ -3,13 +3,11 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
-import { API } from '@etherealengine/client-core/src/API'
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   ImageTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { string } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
@@ -24,7 +22,7 @@ import { materialsFromSource } from '@etherealengine/engine/src/renderer/materia
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { ToggleButton } from '@mui/material'
 

@@ -298,8 +298,8 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
 
   const resourceName = /*'model-resources'*/ path.basename(args.src).slice(0, path.basename(args.src).lastIndexOf('.'))
-  const resourcePath = args.resourceURI
-    ? path.join(path.dirname(args.src), args.resourceURI)
+  const resourcePath = args.resourceUri
+    ? path.join(path.dirname(args.src), args.resourceUri)
     : path.join(path.dirname(args.src), resourceName)
   const projectRoot = path.join(appRootPath.path, 'packages/projects')
 
@@ -496,7 +496,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     }
     json.images?.map((image) => {
       const nuURI = path.join(
-        resourceName,
+        args.resourceUri ? args.resourceUri : resourceName,
         path.basename(image.uri!).replace(/\.[^.]+$/, `.${mimeToFileType(image.mimeType)}`)
       )
       resources[nuURI] = resources[image.uri!]
@@ -505,7 +505,10 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     })
     const defaultBufURI = MathUtils.generateUUID() + '.bin'
     json.buffers?.map((buffer) => {
-      buffer.uri = path.join(resourceName, path.basename(buffer.uri ?? defaultBufURI))
+      buffer.uri = path.join(
+        args.resourceUri ? args.resourceUri : resourceName,
+        path.basename(buffer.uri ?? defaultBufURI)
+      )
     })
     Object.keys(resources).map((uri) => {
       const localPath = path.join(resourcePath, path.basename(uri))
