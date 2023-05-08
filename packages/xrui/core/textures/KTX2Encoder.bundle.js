@@ -139,24 +139,28 @@ async function loadBasisEncoder(options) {
   return { BasisFile, KTX2File, BasisEncoder };
 }
 async function encodeKTX2BasisTexture(image, options = {}) {
-  const { useSRGB = false, qualityLevel = 10, encodeUASTC = false, mipmaps = false } = options;
+  const { useSRGB = false, qualityLevel = 0, encodeUASTC = false, mipmaps = false } = options;
   let basisEncoder;
   try {
     const { BasisEncoder } = await loadBasisEncoder(options);
-    basisEncoder = new BasisEncoder();
-    const basisFileData = new Uint8Array(image.width * image.height * 4);
-    basisEncoder.setCreateKTX2File(true);
-    basisEncoder.setKTX2UASTCSupercompression(true);
-    basisEncoder.setKTX2SRGBTransferFunc(true);
-    basisEncoder.setSliceSourceImage(0, image.data, image.width, image.height, false);
-    basisEncoder.setPerceptual(useSRGB);
-    basisEncoder.setMipSRGB(useSRGB);
-    basisEncoder.setQualityLevel(qualityLevel);
-    basisEncoder.setUASTC(encodeUASTC);
-    basisEncoder.setMipGen(mipmaps);
+    basisEncoder = new BasisEncoder()
+    const basisFileData = new Uint8Array(image.width*image.height)
+    basisEncoder.setCreateKTX2File(true)
+    basisEncoder.setKTX2UASTCSupercompression(true)
+    basisEncoder.setKTX2SRGBTransferFunc(useSRGB)
+
+    basisEncoder.setSliceSourceImage(0, image.data, image.width, image.height, false)
+    basisEncoder.setDebug(false)
+    basisEncoder.setComputeStats(false)
+    basisEncoder.setPerceptual(true)
+    basisEncoder.setMipSRGB(useSRGB)
+    if(qualityLevel > -1)  basisEncoder.setQualityLevel(qualityLevel)
+    basisEncoder.setUASTC(encodeUASTC)
+    basisEncoder.setMipGen(mipmaps)
     const numOutputBytes = basisEncoder.encode(basisFileData);
+
     const actualKTX2FileData = basisFileData.subarray(0, numOutputBytes).buffer;
-    return actualKTX2FileData;
+    return actualKTX2FileData.slice(0, numOutputBytes)
   } catch (error) {
     console.error("Basis Universal Supercompressed GPU Texture encoder Error: ", error);
     throw error;
@@ -166,7 +170,7 @@ async function encodeKTX2BasisTexture(image, options = {}) {
 }
 `;
 
-// core/textures/KTX2Encoder.ts
+// core/t*extures/KTX2Encoder.ts
 var workerBlob = new Blob([KTX2Worker_bundle_default], { type: "text/javascript" });
 var workerURL = URL.createObjectURL(workerBlob);
 var KTX2Encoder = class {

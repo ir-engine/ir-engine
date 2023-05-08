@@ -49,7 +49,7 @@
             "bakeType": "Baked",
             "resolution": 2048,
             "refreshMode": "OnAwake",
-            "envMapOrigin": "__$project$__/default-project/sky-station.envmap.png",
+            "envMapOrigin": "__$project$__/default-project/sky-station.envmap.ktx2",
             "boxProjection": true
           }
         }
@@ -62,20 +62,20 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
+              "x": 17.956847776903302,
+              "y": 2.5,
+              "z": -31.999999999999996
             },
             "rotation": {
               "x": 0,
-              "y": 0,
+              "y": 0.3826834323650898,
               "z": 0,
-              "w": 1
+              "w": 0.9238795325112867
             },
             "scale": {
-              "x": 1,
+              "x": 0.9999999999999993,
               "y": 1,
-              "z": 1
+              "z": 0.9999999999999993
             }
           }
         },
@@ -210,7 +210,9 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
-            "resource": null,
+            "resource": {
+              "src": "__$project$__/default-project/assets/Skybase.glb"
+            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
           }
@@ -415,7 +417,9 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "resource": null,
+            "resource": {
+              "src": "__$project$__/default-project/assets/test-equippable.glb"
+            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
           }
@@ -429,6 +433,22 @@
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1
           }
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7,
+            "restitution": 0.5
+          }
+        },
+        {
+          "name": "equippable",
+          "props": {}
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
@@ -786,6 +806,38 @@
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 12,
       "name": "Audio - Ambience"
+    },
+    "6fbb28ad-d3a9-48aa-a077-44d7598a0a51": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 37,
+              "y": 4,
+              "z": 22.5
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0.21643961393810288,
+              "z": 0,
+              "w": 0.9762960071199334
+            },
+            "scale": {
+              "x": 0.999999999999999,
+              "y": 1,
+              "z": 0.999999999999999
+            }
+          }
+        },
+        {
+          "name": "scene-preview-camera",
+          "props": {}
+        }
+      ],
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
+      "index": 13,
+      "name": "entity-13"
     }
   },
   "root": "1b731841-172a-4141-89cb-d1cceeec748f"

@@ -23,11 +23,24 @@
     <link rel="preconnect" crossorigin="anonymous" href="https://fonts.gstatic.com">
     <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css?family=Lato:300,400,700|PT+Sans:400,400italic,700,700italic|Quicksand:400,300|Raleway:400|Roboto:300,400,700|Source+Sans+Pro:300,400,700|Khula:300,400,700&display=swap" />
 
-    <link rel="manifest" href="<%- webmanifestLink %>" />
-    <script type="text/javascript" src="<%- swScriptLink %>" ></script>
-    <script>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script type="text/javascript">
       var global = globalThis
       var exports = { __esModule: true }
+      
+      if('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          console.log('[PWA] Registering sw at /sw.js')
+          // Register the service worker
+          navigator.serviceWorker
+            .register(`${window.location.href.split('/')[0]}/sw.js`, {
+              scope: window.location.pathname
+            })
+            .then(function (reg) {
+              console.log("[PWA] SW registered at " + reg.scope);
+            });
+        })
+      }
     </script>
 </head>
   <body>

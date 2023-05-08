@@ -31,7 +31,7 @@ export const loadSceneJsonOffline = async (projectName, sceneName) => {
   getMutableState(SceneState).sceneData.set({
     scene: parseSceneDataCacheURLsLocal(projectName, sceneData),
     name: sceneName,
-    thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.jpeg`,
+    thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.ktx2`,
     project: projectName
   })
 }

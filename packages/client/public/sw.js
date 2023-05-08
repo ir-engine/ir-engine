@@ -516,162 +516,6 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
     "url": "sfx/ui.mp3",
     "revision": "7df40d806884053f6238f182ee1762ed"
   }, {
-    "url": "assets/_app_tw-8ef3c41b.js",
-    "revision": null
-  }, {
-    "url": "assets/_app-61c8215e.js",
-    "revision": null
-  }, {
-    "url": "assets/admin-44738a92.js",
-    "revision": null
-  }, {
-    "url": "assets/admin.module-fa63fcf2.js",
-    "revision": null
-  }, {
-    "url": "assets/adminRoutes-fe8e476d.js",
-    "revision": null
-  }, {
-    "url": "assets/allowedRoutes-346ddf91.js",
-    "revision": null
-  }, {
-    "url": "assets/AudioState-7859a9d0.js",
-    "revision": null
-  }, {
-    "url": "assets/authRoutes-d1400160.js",
-    "revision": null
-  }, {
-    "url": "assets/AvatarService-b3cbcea0.js",
-    "revision": null
-  }, {
-    "url": "assets/BubbleEmitterSystem-abb214a9.js",
-    "revision": null
-  }, {
-    "url": "assets/BubblePhysicsSystem-6779f762.js",
-    "revision": null
-  }, {
-    "url": "assets/BubbleUISystem-806ebe11.js",
-    "revision": null
-  }, {
-    "url": "assets/capture-60e49d5f.js",
-    "revision": null
-  }, {
-    "url": "assets/CounterComponent-768b38b6.js",
-    "revision": null
-  }, {
-    "url": "assets/createXRUI-85316a3a.js",
-    "revision": null
-  }, {
-    "url": "assets/customRoutes-5eb0a0b8.js",
-    "revision": null
-  }, {
-    "url": "assets/DefaultThemeSettings-8a456a6a.js",
-    "revision": null
-  }, {
-    "url": "assets/editor-7af11804.js",
-    "revision": null
-  }, {
-    "url": "assets/engine-5c25fe45.js",
-    "revision": null
-  }, {
-    "url": "assets/index-29550f6d.js",
-    "revision": null
-  }, {
-    "url": "assets/index-3c968277.js",
-    "revision": null
-  }, {
-    "url": "assets/index-4ad70aa4.js",
-    "revision": null
-  }, {
-    "url": "assets/index-4b2a2bde.js",
-    "revision": null
-  }, {
-    "url": "assets/index-4f955416.js",
-    "revision": null
-  }, {
-    "url": "assets/index-5058d321.js",
-    "revision": null
-  }, {
-    "url": "assets/index-6a46773b.js",
-    "revision": null
-  }, {
-    "url": "assets/index-7b3551b0.js",
-    "revision": null
-  }, {
-    "url": "assets/index-80531bda.js",
-    "revision": null
-  }, {
-    "url": "assets/index-95700c52.js",
-    "revision": null
-  }, {
-    "url": "assets/index-bbe49f2b.js",
-    "revision": null
-  }, {
-    "url": "assets/loadEngineInjection-9560fdb3.js",
-    "revision": null
-  }, {
-    "url": "assets/location-509621ed.js",
-    "revision": null
-  }, {
-    "url": "assets/Location-7a24bf2d.js",
-    "revision": null
-  }, {
-    "url": "assets/objectWithoutProperties-ec4beb5e.js",
-    "revision": null
-  }, {
-    "url": "assets/offline-42f604d9.js",
-    "revision": null
-  }, {
-    "url": "assets/ParticleSystemSystem-2f256f52.js",
-    "revision": null
-  }, {
-    "url": "assets/PhysicsSerialization-a2a0fcb1.js",
-    "revision": null
-  }, {
-    "url": "assets/player-688845cb.js",
-    "revision": null
-  }, {
-    "url": "assets/PopupMenuInline-77a78830.js",
-    "revision": null
-  }, {
-    "url": "assets/ProjectUpdateSystem-d1f59523.js",
-    "revision": null
-  }, {
-    "url": "assets/respawnAvatar-247f49e2.js",
-    "revision": null
-  }, {
-    "url": "assets/room-5d0e6fdd.js",
-    "revision": null
-  }, {
-    "url": "assets/startClientSystems-836a99f0.js",
-    "revision": null
-  }, {
-    "url": "assets/Trans-c601f444.js",
-    "revision": null
-  }, {
-    "url": "assets/useFullscreen-532277c5.js",
-    "revision": null
-  }, {
-    "url": "assets/UserUISystem-8fbd1dab.js",
-    "revision": null
-  }, {
-    "url": "assets/util-202c8e24.js",
-    "revision": null
-  }, {
-    "url": "assets/WebContainer3D-d66ae6e9.js",
-    "revision": null
-  }, {
-    "url": "assets/WorldNetworkAction-c7834280.js",
-    "revision": null
-  }, {
-    "url": "assets/XRAnchorComponents-4912409b.js",
-    "revision": null
-  }, {
-    "url": "assets/xrengine.config-6e40b724.js",
-    "revision": null
-  }, {
-    "url": "assets/xrengine.config-79cadf06.js",
-    "revision": null
-  }, {
     "url": "corto/attribute.js",
     "revision": "374750562a96b3c11a2e1a10746ac164"
   }, {
@@ -716,12 +560,6 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
   }, {
     "url": "loader_decoders/draco_wasm_wrapper.js",
     "revision": "76d5f06fb95f804621f8d04f798cf118"
-  }, {
-    "url": "sw.js",
-    "revision": "6f8afcb0c0ef255ee461fe4171cda82b"
-  }, {
-    "url": "workbox-30d76c4a.js",
-    "revision": null
   }, {
     "url": "workers/generateBVHAsync.worker.js",
     "revision": "b1f77c563b22487b89a3cb9ca59423ae"
@@ -808,7 +646,13 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
     "revision": "5661bc18bc9b9fecd7ad49b099a8a1c2"
   }, {
     "url": "/index.html",
-    "revision": "1.2.0"
+    "revision": "1.2.1"
+  }, {
+    "url": "/sw.js",
+    "revision": "1.2.1"
+  }, {
+    "url": "/manifest.webmanifest",
+    "revision": "1.2.1"
   }, {
     "url": "android-chrome-192x192.png",
     "revision": "63a03842ef90572c4c47ed7a13cc2bfe"
@@ -829,23 +673,14 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
     "revision": "6fa5dbe82c07314c540deb7040e16618"
   }, {
     "url": "manifest.webmanifest",
-    "revision": "53a4b513f744ff4c015d51533370887b"
+    "revision": "d8a6a3eff6501aec0ef9d2364dd498ea"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
-    allowlist: [/^\/.*/, /^\/location?.*/, /^\/editor?.*/, /^\/studio?.*/, /^\/admin?.*/, /^\/auth?.*/, /^\/api?.*/]
+    allowlist: [/^\/.*/, /^\/location?.*/, /^\/editor?.*/, /^\/studio?.*/, /^\/admin?.*/, /^\/auth?.*/, /^\/api-?.*/, /^\/resources-?.*/, /^\/instanceserver-?.*/]
   }));
-  workbox.registerRoute(/^https?:\/\/.*\.(?:png|jpg|jpeg|svg|gif|ico|webp|webmanifest|woff2|woff|ttf|eot|mp3|mp4|webm|js|css|html|txt|xml|json|pdf|gltf|glb|bin|mtl|br|gzip|zip|rar|7z|wasm|ktx2)/i, new workbox.CacheFirst({
-    "cacheName": "assets",
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 1000,
-      maxAgeSeconds: 2592000
-    }), new workbox.CacheableResponsePlugin({
-      statuses: [0, 200]
-    })]
-  }), 'GET');
-  workbox.registerRoute(/^https?:\/\/.*\/api\/.*/i, new workbox.CacheFirst({
-    "cacheName": "api",
+  workbox.registerRoute(/^https?:\/\/resources-.*\/.*/i, new workbox.CacheFirst({
+    "cacheName": "resources",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 1000,
       maxAgeSeconds: 2592000
@@ -855,6 +690,33 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
   }), 'GET');
   workbox.registerRoute(/^https?:\/\/.*\/admin\/.*/i, new workbox.CacheFirst({
     "cacheName": "admin",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 1000,
+      maxAgeSeconds: 2592000
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https?:\/\/.*\/capture\/.*/i, new workbox.CacheFirst({
+    "cacheName": "capture",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 1000,
+      maxAgeSeconds: 2592000
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https?:\/\/.*\/(?:editor | studio)\/.*/i, new workbox.CacheFirst({
+    "cacheName": "studio",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 1000,
+      maxAgeSeconds: 2592000
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https?:\/\/.*\/location\/.*/i, new workbox.CacheFirst({
+    "cacheName": "location",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 1000,
       maxAgeSeconds: 2592000

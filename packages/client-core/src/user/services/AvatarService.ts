@@ -7,6 +7,7 @@ import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInt
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
@@ -191,6 +192,14 @@ export const AvatarService = {
         isPublic
       }
     }).promise as Promise<StaticResourceInterface[]>
+  },
+
+  async getAvatar(id: string) {
+    try {
+      return Engine.instance.api.service('avatar').get(id)
+    } catch (err) {
+      return null
+    }
   }
 }
 

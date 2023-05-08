@@ -7,6 +7,7 @@ import {
   PlaneGeometry,
   Scene,
   ShaderMaterial,
+  sRGBEncoding,
   Texture,
   Uniform,
   Vector4,

@@ -53,22 +53,24 @@ async function encodeKTX2BasisTexture(
   try {
     const { BasisEncoder } = await loadBasisEncoder(options)
     basisEncoder = new BasisEncoder()
-    const basisFileData = new Uint8Array(image.width * image.height * 4)
+    basisEncoder = new BasisEncoder()
+    const basisFileData = new Uint8Array(image.width * image.height)
     basisEncoder.setCreateKTX2File(true)
     basisEncoder.setKTX2UASTCSupercompression(true)
-    basisEncoder.setKTX2SRGBTransferFunc(true)
+    basisEncoder.setKTX2SRGBTransferFunc(false)
 
     basisEncoder.setSliceSourceImage(0, image.data, image.width, image.height, false)
-    basisEncoder.setPerceptual(useSRGB)
+    basisEncoder.setDebug(false)
+    basisEncoder.setComputeStats(false)
+    basisEncoder.setPerceptual(false)
     basisEncoder.setMipSRGB(useSRGB)
-    basisEncoder.setQualityLevel(qualityLevel)
+    if (qualityLevel > 0) basisEncoder.setQualityLevel(qualityLevel)
     basisEncoder.setUASTC(encodeUASTC)
     basisEncoder.setMipGen(mipmaps)
-
     const numOutputBytes = basisEncoder.encode(basisFileData)
 
     const actualKTX2FileData = basisFileData.subarray(0, numOutputBytes).buffer
-    return actualKTX2FileData
+    return actualKTX2FileData.slice(0, numOutputBytes)
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Basis Universal Supercompressed GPU Texture encoder Error: ', error)
