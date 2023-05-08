@@ -2,14 +2,16 @@ import _ from 'lodash'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
-import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
+import { addActionReceptor, defineState, getMutableState, getState, State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { SceneState } from '../../ecs/classes/Scene'
+import { defineQuery, getComponent, getMutableComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { DefaultMediaState, MediaSettingsState } from '../../networking/MediaSettingsState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
@@ -19,7 +21,7 @@ import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { defaultSpatialComponents } from '../../scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AudioSettingReceptor, AudioState } from '../AudioState'
+import { accessAudioState, AudioSettingReceptor, AudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
 export class AudioEffectPlayer {
@@ -71,7 +73,7 @@ export class AudioEffectPlayer {
     const source = getState(AudioState).audioContext.createBufferSource()
     source.buffer = this.bufferMap[sound]
     const el = this.#els.find((el) => el.paused) ?? this.#els[0]
-    el.volume = getState(AudioState).masterVolume * volumeMultiplier
+    el.volume = accessAudioState().masterVolume.value * volumeMultiplier
     if (el.src !== sound) el.src = sound
     el.currentTime = 0
     source.start()
@@ -86,6 +88,8 @@ export const MediaPrefabs = {
   video: 'Video' as const,
   volumetric: 'Volumetric' as const
 }
+
+export const MediaSceneMetadataLabel = 'mediaSettings'
 
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
@@ -118,7 +122,7 @@ const reactor = () => {
       // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
       // in order to ensure media will play programmatically
       const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
-      function handleAutoplay() {
+      const handleAutoplay = () => {
         enableAudioContext()
         for (const entity of mediaQuery()) {
           const mediaElement = getComponent(entity, MediaElementComponent)

@@ -19,15 +19,15 @@ const PWA = (clientSetting) =>
     filename: 'sw.js',
     // Merge custom client settings with default values from manifest.default.json
     // This specifies the PWA's metadata such as name, description, and icons
-    manifest: {
-      ...manifest,
-      name: clientSetting?.title || 'Ethereal Engine',
-      description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
-      short_name: clientSetting?.shortName || 'EE',
-      theme_color: clientSetting?.themeColor || '#ffffff',
-      background_color: clientSetting?.backgroundColor || '#000000',
-      start_url: `${process.env.APP_URL}/`
-    },
+    // manifest: {
+    //   ...manifest,
+    //   name: clientSetting?.title || 'Ethereal Engine',
+    //   description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
+    //   short_name: clientSetting?.shortName || 'EE',
+    //   theme_color: clientSetting?.themeColor || '#ffffff',
+    //   background_color: clientSetting?.backgroundColor || '#000000',
+    //   start_url: `${process.env.APP_URL}/`
+    // },
     // Use generateSW caching strategy
     // This specifies the caching strategy for the service worker
     strategies: process.env.GEN_SW === 'true' ? 'generateSW' : 'injectManifest',
@@ -36,7 +36,7 @@ const PWA = (clientSetting) =>
     mode: process.env.APP_ENV === 'development' ? 'development' : 'production',
     // Set scope to root directory
     // This specifies the URL scope that the service worker controls
-    scope: `${process.env.APP_URL}/`,
+    // scope: `${process.env.APP_URL}/`,
     // Set register type to autoUpdate
     // This specifies the service worker registration type, which is set to 'autoUpdate'
     // to automatically update the service worker when a new version is available
