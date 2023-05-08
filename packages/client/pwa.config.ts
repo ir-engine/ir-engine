@@ -15,7 +15,7 @@ import packageJson from './package.json'
  */
 const PWA = (clientSetting) =>
   VitePWA({
-    srcDir: 'src/service-worker',
+    srcDir: process.env.GEN_SW === 'true' ? 'src/service-worker' : 'public',
     filename: 'sw.js',
     // Merge custom client settings with default values from manifest.default.json
     // This specifies the PWA's metadata such as name, description, and icons
@@ -26,17 +26,17 @@ const PWA = (clientSetting) =>
       short_name: clientSetting?.shortName || 'EE',
       theme_color: clientSetting?.themeColor || '#ffffff',
       background_color: clientSetting?.backgroundColor || '#000000',
-      start_url: `${process.env['APP_URL']}/`
+      start_url: `${process.env.APP_URL}/`
     },
     // Use generateSW caching strategy
     // This specifies the caching strategy for the service worker
-    strategies: 'injectManifest',
+    strategies: process.env.GEN_SW === 'true' ? 'generateSW' : 'injectManifest',
     // Set mode to development or production depending on environment variable
     // This specifies the build mode ('development' or 'production') depending on the environment variable APP_ENV
     mode: process.env.APP_ENV === 'development' ? 'development' : 'production',
     // Set scope to root directory
     // This specifies the URL scope that the service worker controls
-    scope: `${process.env['APP_URL']}/`,
+    scope: `${process.env.APP_URL}/`,
     // Set register type to autoUpdate
     // This specifies the service worker registration type, which is set to 'autoUpdate'
     // to automatically update the service worker when a new version is available
@@ -116,11 +116,7 @@ const PWA = (clientSetting) =>
       ],
       // Set additional manifest entries for the cache
       // This specifies additional files to be cached and their revision version
-      additionalManifestEntries: [
-        { url: '/index.html', revision: packageJson.version },
-        { url: '/sw.js', revision: packageJson.version },
-        { url: '/manifest.webmanifest', revision: packageJson.version }
-      ],
+      additionalManifestEntries: [{ url: '/index.html', revision: packageJson.version }],
       // Enable cleanup of outdated caches
       // This specifies whether outdated caches should be cleaned up
       cleanupOutdatedCaches: true,

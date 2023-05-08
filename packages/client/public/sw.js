@@ -570,9 +570,6 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
     "url": "workers/three.min.js",
     "revision": "bdf0f4bad52598a4b2e8d252d9912ccc"
   }, {
-    "url": "manifest.webmanifest",
-    "revision": "53a4b513f744ff4c015d51533370887b"
-  }, {
     "url": "browserconfig.xml",
     "revision": "a493ba0aa0b8ec8068d786d7248bb92c"
   }, {
@@ -646,12 +643,6 @@ define(['./workbox-30d76c4a'], (function (workbox) { 'use strict';
     "revision": "5661bc18bc9b9fecd7ad49b099a8a1c2"
   }, {
     "url": "/index.html",
-    "revision": "1.2.1"
-  }, {
-    "url": "/sw.js",
-    "revision": "1.2.1"
-  }, {
-    "url": "/manifest.webmanifest",
     "revision": "1.2.1"
   }, {
     "url": "android-chrome-192x192.png",
