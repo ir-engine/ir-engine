@@ -1,7 +1,7 @@
 {
   "name": "@etherealengine/server-core",
   "description": "Shared components for Ethereal Engine server",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/etherealengine/etherealengine.git"
@@ -42,9 +42,9 @@
     "migrate:make": "knex --migrations-directory ./ migrate:make"
   },
   "dependencies": {
-    "@etherealengine/common": "^1.2.0",
-    "@etherealengine/engine": "^1.2.0",
-    "@etherealengine/matchmaking": "^1.2.0",
+    "@etherealengine/common": "^1.2.1",
+    "@etherealengine/engine": "^1.2.1",
+    "@etherealengine/matchmaking": "^1.2.1",
     "@feathersjs/authentication": "5.0.1",
     "@feathersjs/authentication-oauth": "5.0.1",
     "@feathersjs/errors": "5.0.1",

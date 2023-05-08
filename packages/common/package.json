@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/common",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "lib/common.umd.js",
   "module": "lib/common.es.js",
   "types": "lib/index.d.ts",

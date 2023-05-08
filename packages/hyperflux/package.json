@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/hyperflux",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "index.ts",
   "description": "State Management for Ethereal Engine",
   "publishConfig": {

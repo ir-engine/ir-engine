@@ -23,7 +23,8 @@ const PWA = (clientSetting) =>
       description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
       short_name: clientSetting?.shortName || 'EE',
       theme_color: clientSetting?.themeColor || '#ffffff',
-      background_color: clientSetting?.backgroundColor || '#000000'
+      background_color: clientSetting?.backgroundColor || '#000000',
+      start_url: `${process.env['APP_URL']}/`
     },
     // Use generateSW caching strategy
     // This specifies the caching strategy for the service worker
@@ -33,7 +34,7 @@ const PWA = (clientSetting) =>
     mode: process.env.APP_ENV === 'development' ? 'development' : 'production',
     // Set scope to root directory
     // This specifies the URL scope that the service worker controls
-    scope: './',
+    scope: `${process.env['APP_URL']}/`,
     // Set register type to autoUpdate
     // This specifies the service worker registration type, which is set to 'autoUpdate'
     // to automatically update the service worker when a new version is available
@@ -43,6 +44,7 @@ const PWA = (clientSetting) =>
     injectRegister: process.env.APP_ENV === 'development' ? 'inline' : null,
     includeManifestIcons: true,
     devOptions: {
+      disableRuntimeConfig: true,
       // Enable dev options only during development
       // This specifies that these options should only be used during development mode
       enabled: process.env.APP_ENV === 'development',
@@ -76,7 +78,11 @@ const PWA = (clientSetting) =>
         // auth route
         /^\/auth?.*/,
         // api route
-        /^\/api?.*/
+        /^\/api-?.*/,
+        // resources route
+        /^\/resources-?.*/,
+        // instanceserver route
+        /^\/instanceserver-?.*/
       ],
       // Set the path for the service worker file
       // This specifies the path for the service worker file
@@ -108,7 +114,11 @@ const PWA = (clientSetting) =>
       ],
       // Set additional manifest entries for the cache
       // This specifies additional files to be cached and their revision version
-      additionalManifestEntries: [{ url: '/index.html', revision: packageJson.version }],
+      additionalManifestEntries: [
+        { url: '/index.html', revision: packageJson.version },
+        { url: '/sw.js', revision: packageJson.version },
+        { url: '/manifest.webmanifest', revision: packageJson.version }
+      ],
       // Enable cleanup of outdated caches
       // This specifies whether outdated caches should be cleaned up
       cleanupOutdatedCaches: true,
@@ -116,30 +126,13 @@ const PWA = (clientSetting) =>
       // This specifies the maximum cache size in bytes
       maximumFileSizeToCacheInBytes: 1000 * 1000 * 100,
       runtimeCaching: [
-        // Cache all production assets
-        // This specifies that all production assets should be cached
+        // Cache all requests on the resources- subdomain for this domain
+        // This specifies that all requests on the resources- subdomain for this domain should be cached
         {
-          urlPattern:
-            /^https?:\/\/.*\.(?:png|jpg|jpeg|svg|gif|ico|webp|webmanifest|woff2|woff|ttf|eot|mp3|mp4|webm|js|css|html|txt|xml|json|pdf|gltf|glb|bin|mtl|br|gzip|zip|rar|7z|wasm|ktx2)/i,
+          urlPattern: /^https?:\/\/resources-.*\/.*/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'assets',
-            expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        // Cache all API requests
-        // This specifies that all API requests should be cached
-        {
-          urlPattern: /^https?:\/\/.*\/api\/.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'api',
+            cacheName: 'resources',
             expiration: {
               maxEntries: 1000,
               maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
@@ -156,6 +149,54 @@ const PWA = (clientSetting) =>
           handler: 'CacheFirst',
           options: {
             cacheName: 'admin',
+            expiration: {
+              maxEntries: 1000,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache all capture requests
+        // This specifies that all capture requests should be cached
+        {
+          urlPattern: /^https?:\/\/.*\/capture\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'capture',
+            expiration: {
+              maxEntries: 1000,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache all studio requests
+        // This specifies that all studio requests should be cached
+        {
+          urlPattern: /^https?:\/\/.*\/(?:editor | studio)\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'studio',
+            expiration: {
+              maxEntries: 1000,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache all location requests
+        // This specifies that all location requests should be cached
+        {
+          urlPattern: /^https?:\/\/.*\/location\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'location',
             expiration: {
               maxEntries: 1000,
               maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
