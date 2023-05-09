@@ -72,6 +72,9 @@ export type ResourceTransforms = {
 }
 
 export type ModelTransformParameters = ExtractedImageTransformParameters & {
+  dst: string
+  resourceUri: string
+
   dedup: boolean
   prune: boolean
   reorder: boolean

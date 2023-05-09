@@ -10,8 +10,6 @@ import { transformModel } from './model-transform.helpers'
 interface CreateParams {
   src: string
   transformParameters: ModelTransformParameters
-  dst?: string
-  resourceUri?: string
 }
 
 interface GetParams {
@@ -62,10 +60,10 @@ export class ModelTransform implements ServiceMethods<any> {
       const transformParms = createParams.transformParameters
       const [commonPath, extension] = this.processPath(createParams.src)
       const inPath = `${commonPath}.${extension}`
-      const outPath = createParams.dst
-        ? `${commonPath.replace(/[^/]+$/, createParams.dst)}.${extension}`
+      const outPath = transformParms.dst
+        ? `${commonPath.replace(/[^/]+$/, transformParms.dst)}.${extension}`
         : `${commonPath}-transformed.${extension}`
-      const resourceUri = createParams.resourceUri ?? ''
+      const resourceUri = transformParms.resourceUri ?? ''
       return await transformModel(this.app, { src: inPath, dst: outPath, resourceUri, parms: transformParms })
     } catch (e) {
       console.error('error transforming model')

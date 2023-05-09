@@ -81,7 +81,7 @@ function pruneUnusedNodes(nodes: Node[], logger) {
     ) {
       continue
     }
-    const nodeParent = node.getParent() as Node
+    const nodeParent = node.getParentNode() as Node
     if (nodeParent instanceof Node) {
       nodes.push(nodeParent)
     }
@@ -124,12 +124,8 @@ const split = async (document: Document) => {
     })
   })
 }
-/**
- *
- * @param {Document} document
- * @param {*} args
- */
-const myInstance = async (document: Document, args: any | null = null) => {
+
+const myInstance = async (document: Document) => {
   const root = document.getRoot()
   const scene = root.listScenes()[0]
   const batchExtension = document.createExtension(EXTMeshGPUInstancing)
