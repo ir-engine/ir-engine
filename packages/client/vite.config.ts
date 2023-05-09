@@ -1,5 +1,4 @@
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
-import basicSsl from '@vitejs/plugin-basic-ssl'
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
@@ -137,15 +136,15 @@ export default defineConfig(async () => {
       port: process.env['VITE_APP_PORT'],
       headers: {
         'Origin-Agent-Cluster': '?1'
-      }
-      // ...(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
-      //   ? {
-      //       https: {
-      //         key: fs.readFileSync('../../certs/key.pem'),
-      //         cert: fs.readFileSync('../../certs/cert.pem')
-      //       }
-      //     }
-      //   : {})
+      },
+      ...(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+        ? {
+            https: {
+              key: fs.readFileSync('../../certs/key.pem'),
+              cert: fs.readFileSync('../../certs/cert.pem')
+            }
+          }
+        : {})
     },
     base,
     optimizeDeps: {
@@ -156,7 +155,6 @@ export default defineConfig(async () => {
       }
     },
     plugins: [
-      process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true' ? basicSsl() : null,
       OptimizationPersist(),
       mediapipe_workaround(),
       PkgConfig(),

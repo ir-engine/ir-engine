@@ -33,4 +33,4 @@ app.listen = function () {
   return server.listen.apply(server, arguments)
 }
 
-app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Server listening on port: ${PORT}`));

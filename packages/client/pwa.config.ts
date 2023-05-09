@@ -15,7 +15,7 @@ import packageJson from './package.json'
  */
 const PWA = (clientSetting) =>
   VitePWA({
-    srcDir: process.env.GEN_SW === 'true' ? 'src/service-worker' : 'public',
+    srcDir: 'public',
     filename: 'sw.js',
     // Merge custom client settings with default values from manifest.default.json
     // This specifies the PWA's metadata such as name, description, and icons
@@ -26,7 +26,7 @@ const PWA = (clientSetting) =>
     //   short_name: clientSetting?.shortName || 'EE',
     //   theme_color: clientSetting?.themeColor || '#ffffff',
     //   background_color: clientSetting?.backgroundColor || '#000000',
-    //   start_url: `${process.env.APP_URL}/`
+    //   // start_url: `${process.env.APP_URL}/`
     // },
     // Use generateSW caching strategy
     // This specifies the caching strategy for the service worker
@@ -67,6 +67,12 @@ const PWA = (clientSetting) =>
       // Allowlist all paths for navigateFallback during production
       // This specifies that all paths should be allowed for the navigateFallback option during production mode
       navigateFallbackAllowlist: [
+        // @vite/client
+        /^\/@vite\/client\/.*/,
+        // src/main.tsx
+        /^\/src\/main\.tsx/,
+        // @vite-plugin-pwa
+        /^\/@vite-plugin-pwa\/.*/,
         // allow all files for production build
         /^\/.*/,
         // location route
@@ -88,7 +94,7 @@ const PWA = (clientSetting) =>
       ],
       // Set the path for the service worker file
       // This specifies the path for the service worker file
-      swDest: 'public/sw.js',
+      swDest: 'src/service-worker/service-worker.js',
       // Set the glob directory and patterns for the cache
       // This specifies the directory and patterns for the cache files
       globDirectory: './public',
@@ -116,7 +122,10 @@ const PWA = (clientSetting) =>
       ],
       // Set additional manifest entries for the cache
       // This specifies additional files to be cached and their revision version
-      additionalManifestEntries: [{ url: '/index.html', revision: packageJson.version }],
+      additionalManifestEntries: [
+        { url: '/index.html', revision: packageJson.version },
+        { url: '/sw.js', revision: packageJson.version }
+      ],
       // Enable cleanup of outdated caches
       // This specifies whether outdated caches should be cleaned up
       cleanupOutdatedCaches: true,
@@ -131,70 +140,6 @@ const PWA = (clientSetting) =>
           handler: 'CacheFirst',
           options: {
             cacheName: 'resources',
-            expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        // Cache all admin requests
-        // This specifies that all admin requests should be cached
-        {
-          urlPattern: /^https?:\/\/.*\/admin\/.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'admin',
-            expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        // Cache all capture requests
-        // This specifies that all capture requests should be cached
-        {
-          urlPattern: /^https?:\/\/.*\/capture\/.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'capture',
-            expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        // Cache all studio requests
-        // This specifies that all studio requests should be cached
-        {
-          urlPattern: /^https?:\/\/.*\/(?:editor | studio)\/.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'studio',
-            expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        // Cache all location requests
-        // This specifies that all location requests should be cached
-        {
-          urlPattern: /^https?:\/\/.*\/location\/.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'location',
             expiration: {
               maxEntries: 1000,
               maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days

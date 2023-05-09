@@ -50,6 +50,7 @@
     "@swc/core": "^1.2.210",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/typography": "^0.5.9",
+    "@vitejs/plugin-basic-ssl": "^1.0.1",
     "app-root-path": "3.0.0",
     "autoprefixer": "^10.4.14",
     "classnames": "2.3.2",
@@ -77,6 +78,7 @@
     "vite": "4.2.1",
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-html": "3.2.0",
+    "vite-plugin-optimize-persist": "^0.1.2",
     "vite-plugin-package-config": "0.1.1",
     "vite-plugin-pwa": "^0.14.7"
   },
