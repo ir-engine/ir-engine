@@ -42,13 +42,6 @@ const mediaInstanceReconnectedQueue = defineActionQueue(
   NetworkConnectionService.actions.mediaInstanceReconnected.matches
 )
 
-// todo replace with subsystems
-addActionReceptor(LocationInstanceConnectionServiceReceptor)
-addActionReceptor(MediaInstanceConnectionServiceReceptor)
-addActionReceptor(NetworkUserServiceReceptor)
-addActionReceptor(FriendServiceReceptor)
-addActionReceptor(ChatServiceReceptor)
-
 const execute = () => {
   const locationState = getState(LocationState)
   const chatState = getState(ChatState)
