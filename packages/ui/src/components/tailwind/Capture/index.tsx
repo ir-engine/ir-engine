@@ -169,7 +169,7 @@ const CaptureDashboard = () => {
 
   const stopDetecting = async () => {
     isDetecting.set(false)
-    await poseDetectorRef.current?.close()
+    // await poseDetectorRef.current?.close()
     // poseDetectorRef.current = null
   }
 
