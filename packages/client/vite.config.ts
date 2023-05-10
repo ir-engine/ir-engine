@@ -5,7 +5,7 @@ import fs from 'fs'
 import fsExtra from 'fs-extra'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
-import { defineConfig, loadEnv, UserConfig } from 'vite'
+import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
@@ -22,6 +22,7 @@ const merge = (src, dest) =>
     }
   })
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('ts-node').register({
   project: './tsconfig.json'
 })
@@ -51,9 +52,11 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
   for (const project of projects) {
     const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
     if (fs.existsSync(staticPath)) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { default: viteConfigExtension } = require(staticPath)
       if (typeof viteConfigExtension === 'function') {
         const configExtension = await viteConfigExtension()
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         config.plugins = [...config.plugins!, ...configExtension.default.plugins]
         delete configExtension.default.plugins
         config = merge(config, configExtension.default)
