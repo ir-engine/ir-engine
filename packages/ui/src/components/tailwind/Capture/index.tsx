@@ -214,6 +214,7 @@ const CaptureDashboard = () => {
         videoActive.set(true)
         let processingData = false
         const onAnimationFrame = () => {
+          if (!isDetecting.value === false) return
           if (!videoActive.value) {
             processingData = false
             return
@@ -277,7 +278,7 @@ const CaptureDashboard = () => {
       }
     }
     RecordingFunctions.getRecordings()
-  }, [videoRef, canvasRef])
+  }, [videoRef, canvasRef, isDetecting])
 
   useEffect(() => {
     const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
