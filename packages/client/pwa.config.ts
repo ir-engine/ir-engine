@@ -108,7 +108,10 @@ const PWA = (clientSetting) =>
         '**/*.{ktx2}'
       ],
       // Set additional manifest entries for the cache
-      additionalManifestEntries: [{ url: '/index.html', revision: packageJson.version }],
+      additionalManifestEntries: [
+        { url: '/index.html', revision: null },
+        { url: '/service-worker.js', revision: null }
+      ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
       // Set maximum cache size to 100 MB
@@ -116,7 +119,7 @@ const PWA = (clientSetting) =>
       runtimeCaching: [
         // Cache all requests on the resources- subdomain for this domain
         {
-          urlPattern: /^https?:\/\/resources-.*\/.*/i,
+          urlPattern: /^https?:\/\/resources-*\/.*/i,
           handler: 'CacheFirst',
           options: {
             cacheName: 'resources',
