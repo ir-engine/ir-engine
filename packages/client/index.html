@@ -29,16 +29,15 @@
       
       if('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            console.log(`[PWA] Registering sw at /service-worker.js ${window.location.pathname}`)
+            console.log(`[PWA] Registering sw at <%- swScriptLink %> ${window.location.pathname}`)
             // Register the service worker
             navigator.serviceWorker
-              .register(`${window.location.href.split('/')[0]}/service-worker.js`, {
+              .register(`${window.location.href.split('/')[0]}/<%- swScriptLink %>`, {
                 scope: './'
               })
               .then(function (reg) {
                 console.log("[PWA] SW registered at " + reg.scope);
               });
-          // }
         })
       }
     </script>
