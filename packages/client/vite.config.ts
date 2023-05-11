@@ -177,10 +177,7 @@ export default defineConfig(async () => {
             icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
             icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
             webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
-            swScriptLink:
-              clientSetting.swscriptLink || process.env.APP_ENV === 'production'
-                ? 'service-worker.js'
-                : 'dev-sw.js?dev-sw',
+            swScriptLink: process.env.APP_ENV === 'development' ? 'service-worker.js' : 'dev-sw.js?dev-sw',
             paymentPointer: clientSetting.paymentPointer || ''
           }
         }

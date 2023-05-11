@@ -21,8 +21,6 @@ npm run install-projects >project-install-build-logs.txt 2>project-install-build
 test -s project-install-build-error.txt && npm run record-build-error -- --service=project-install
 npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
-# npm run update-site-manifest >update-site-manifest-build-logs.txt 2>update-site-manifest-build-error.txt || npm run record-build-error -- --service=update-site-manifest
-# test -s update-site-manifest-build-error.txt && npm run record-build-error -- --service=update-site-manifest
 cd packages/client && npm run buildenv >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
