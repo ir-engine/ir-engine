@@ -12,6 +12,8 @@ import compress from 'koa-compress'
 import cors from 'koa-cors'
 import helmet from 'koa-helmet'
 import Router from 'koa-router'
+import healthcheck from 'koa-simple-healthcheck'
+import { AsyncFunc } from 'mocha'
 import path from 'path'
 
 import { isDev } from '@etherealengine/common/src/config'
@@ -33,6 +35,12 @@ import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    '/api/log': any
+  }
+}
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('fix-esm').register()
@@ -175,6 +183,7 @@ export const createFeathersKoaApp = (
 
   app.set('paginate', appConfig.server.paginate)
   app.set('authentication', appConfig.authentication)
+  app.use(healthcheck())
   app.use(
     cors({
       origin: '*',
@@ -210,18 +219,31 @@ export const createFeathersKoaApp = (
   // Set up our services (see `services/index.js`)
   app.configure(services)
 
-  router.get('/healthcheck', (ctx) => {
-    ctx.status = 200
-  })
-
   // Receive client-side log events (only active when APP_ENV != 'development')
-  router.post('/api/log', (ctx) => {
-    const { msg, ...mergeObject } = ctx.body
-    if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
-    ctx.status = 204
-  })
+  app.use(
+    '/api/log',
+    {
+      create: () => {
+        return
+      }
+    },
+    {
+      koa: {
+        before: [
+          async (ctx: any, next) => {
+            console.log(ctx)
+            const { msg, ...mergeObject } = ctx.body
+            if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
+            await next()
+            ctx.status = 204
+            return
+          }
+        ]
+      }
+    }
+  )
 
-  app.use(router.routes()).use(router.allowedMethods())
+  app.use(router.routes())
 
   return app
 }

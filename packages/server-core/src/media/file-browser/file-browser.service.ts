@@ -53,12 +53,6 @@ export default (app: Application): any => {
                 ? (ctx as any).request.files.media
                 : ctx.request.files
             }
-            /*const files = ctx.request.files
-            if (Object.keys(files as any).length > 1) {
-              ctx.status = 400
-              ctx.body = 'Only one file is allowed'
-              return
-            }*/
             await next()
             console.log('uploaded file')
             return ctx.body
