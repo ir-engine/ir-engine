@@ -118,7 +118,7 @@ const reactor = () => {
       // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
       // in order to ensure media will play programmatically
       const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
-      function handleAutoplay() {
+      const handleAutoplay = () => {
         enableAudioContext()
         for (const entity of mediaQuery()) {
           const mediaElement = getComponent(entity, MediaElementComponent)

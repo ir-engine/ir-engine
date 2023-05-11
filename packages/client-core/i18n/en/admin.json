@@ -291,7 +291,7 @@
       "favIcon16px": "FavIcon 16px",
       "favIcon32px": "FavIcon 32px",
       "webmanifestLink": "Webmanifest",
-      "swScriptLink": "pwabuilder-sw.js",
+      "swScriptLink": "service-worker.js",
       "releaseName": "Release Name",
       "email": "Email",
       "smtp": "SMTP",

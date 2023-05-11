@@ -43,10 +43,11 @@
     "@mui/material": "5.11.13",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/typography": "^0.5.9",
+    "autoprefixer": "^10.4.14",
     "daisyui": "^2.51.5",
     "react-webcam": "^7.0.1",
     "tailwind-merge": "^1.10.0",
-    "tailwindcss": "^3.2.7",
+    "tailwindcss": "^3.3.2",
     "typescript": "5.0.2"
   },
   "devDependencies": {
@@ -83,7 +84,7 @@
     "jest": "^29.4.1",
     "jest-enzyme": "^7.1.2",
     "jest-scss-transform": "^1.0.3",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.23",
     "react-dom": "18.2.0",
     "react-json-view": "^1.21.3",
     "sass": "1.59.3",
