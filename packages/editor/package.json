@@ -28,6 +28,7 @@
     "react": "18.2.0"
   },
   "dependencies": {
+    "@dimforge/rapier3d-compat": "0.11.2",
     "@etherealengine/client-core": "^1.2.1",
     "@etherealengine/common": "^1.2.1",
     "@etherealengine/engine": "^1.2.1",
