@@ -3,7 +3,7 @@ name: travis-deploy
 on:
   push:
     branches:
-      [inject-manifest-sw]
+      [ios-fixes]
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
