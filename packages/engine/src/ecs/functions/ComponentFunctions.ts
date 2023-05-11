@@ -1,6 +1,6 @@
-import { subscribable } from '@hookstate/subscribable'
+import { Subscribable, subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
-import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
+import React, { startTransition, use, useEffect, useLayoutEffect, useMemo } from 'react'
 import type from 'react/experimental'
 
 import config from '@etherealengine/common/src/config'
@@ -32,8 +32,6 @@ type OnInitValidateNotState<T> = T extends State<any, {}> ? 'onAdd must not retu
 
 type SomeStringLiteral = 'a' | 'b' | 'c' // just a dummy string literal union
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
-
-const createExistenceMap = (val: Record<Entity, boolean>) => hookstate(val, subscribable())
 
 export interface ComponentPartial<
   ComponentType = any,
@@ -70,8 +68,9 @@ export interface Component<
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
   existenceMap: Readonly<Record<Entity, boolean>>
-  existenceMapState: ReturnType<typeof createExistenceMap>
-  stateMap: Record<Entity, State<ComponentType> | undefined>
+  existenceMapState: State<Record<Entity, boolean>, Subscribable>
+  existenceMapPromiseResolver: Record<Entity, { promise: Promise<void>; resolve: () => void }>
+  stateMap: Record<Entity, State<ComponentType, Subscribable> | undefined>
   valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
 }
@@ -109,11 +108,18 @@ export const defineComponent = <
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.existenceMap = {}
-  Component.existenceMapState = createExistenceMap(Component.existenceMap)
+  Component.existenceMapState = hookstate(Component.existenceMap, subscribable())
   Component.stateMap = {}
   Component.valueMap = {}
   if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
   ComponentMap.set(Component.name, Component)
+
+  Component.existenceMapPromiseResolver = {}
+  Component.existenceMapState.subscribe((map) => {
+    // make sure all promises for existing entities are resolved
+    for (const entity in map) Component.existenceMapPromiseResolver[entity]?.resolve?.()
+  })
+
   return Component
 }
 
@@ -138,7 +144,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
 export const getOptionalComponentState = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, {}, unknown>
-): State<ComponentType> | undefined => {
+): State<ComponentType, Subscribable> | undefined => {
   // if (entity === UndefinedEntity) return undefined
   if (component.existenceMap[entity]) return component.stateMap[entity]
   return undefined
@@ -147,7 +153,7 @@ export const getOptionalComponentState = <ComponentType>(
 export const getMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, {}, unknown>
-): State<ComponentType> => {
+): State<ComponentType, Subscribable> => {
   const componentState = getOptionalComponentState(entity, component)!
   // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
   // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
@@ -175,7 +181,7 @@ export const getComponent = <ComponentType>(
 
 /**
  * Set a component on an entity. If the component already exists, it will be overwritten.
- * Unlike calling removeComponent followed by addComponent, entry queue will not be rerun.
+ * Unlike calling ``removeComponent`` followed by addComponent, entry queue will not be rerun.
  *
  * @param entity
  * @param Component
@@ -198,22 +204,31 @@ export const setComponent = <C extends Component>(
   if (!hasComponent(entity, Component)) {
     value = Component.onInit(entity) ?? args
     Component.existenceMapState[entity].set(true)
+
     if (!Component.stateMap[entity]) {
-      const state = hookstate(value, subscribable())
-      Component.stateMap[entity] = state
-      state.subscribe(() => {
-        Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY)
-      })
+      Component.stateMap[entity] = hookstate(value, subscribable())
     } else Component.stateMap[entity]!.set(value)
+
     bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
+
+    const state = Component.stateMap[entity]!
+
     if (Component.reactor && !Component.reactorMap.has(entity)) {
-      const root = startReactor(() =>
-        React.createElement(
+      const root = startReactor(() => {
+        useEffect(
+          () =>
+            state.subscribe(() => {
+              Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY)
+            }),
+          []
+        )
+
+        return React.createElement(
           EntityContext.Provider,
           { value: entity },
           React.createElement(Component.reactor || (() => null), {})
         )
-      ) as ReactorRoot
+      }) as ReactorRoot
       root['entity'] = entity
       Component.reactorMap.set(entity, root)
     }
@@ -293,6 +308,8 @@ export const getOrAddComponent = <C extends Component>(entity: Entity, component
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.existenceMapState[entity].set(false)
+  component.existenceMapPromiseResolver[entity]?.resolve?.()
+  component.existenceMapPromiseResolver[entity] = _createPromiseResolver()
   component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(Engine.instance, component, entity, false)
   delete component.valueMap[entity]
@@ -448,23 +465,25 @@ function _use(promise) {
   }
 }
 
+function _createPromiseResolver() {
+  let resolve!: () => void
+  const promise = new Promise<void>((r) => (resolve = r))
+  return { promise, resolve }
+}
+
 /**
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component<any>>(entity: Entity, Component: C) {
-  const hasComponent = useHookstate(Component.existenceMapState[entity]).value
+  let promiseResolver = Component.existenceMapPromiseResolver[entity]
+  if (!promiseResolver) {
+    promiseResolver = Component.existenceMapPromiseResolver[entity] = _createPromiseResolver()
+    if (hasComponent(entity, Component)) promiseResolver.resolve()
+  }
+
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  if (!hasComponent)
-    (use ?? _use)(
-      new Promise<void>((resolve) => {
-        const unsubscribe = Component.existenceMapState[entity].subscribe((value) => {
-          if (value) {
-            resolve()
-            unsubscribe()
-          }
-        })
-      })
-    )
+  ;(use ?? _use)(promiseResolver.promise)
+
   return useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
 }
 
