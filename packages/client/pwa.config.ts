@@ -38,13 +38,23 @@ const PWA = (clientSetting) =>
     devOptions: {
       disableRuntimeConfig: false,
       // Enable dev options only during development
-      enabled: true, // process.env.APP_ENV === 'development',
+      enabled: process.env.APP_ENV === 'development',
       // Navigate to index.html for all 404 errors during development
       navigateFallback: '/index.html',
       // Allowlist all paths for navigateFallback during development
       navigateFallbackAllowlist: [
+        // allow dev-sw.js
+        /^\/dev-sw\.js/,
         // allow all files for local vite dev server
-        /^\/.*/
+        /^\/.*/,
+        // allow node_modules/.vite cache
+        /^\/node_modules\/\.vite\/.*/,
+        // @vite/client
+        /^\/@vite\/client\/.*/,
+        // src/main.tsx
+        /^\/src\/main\.tsx/,
+        // @vite-plugin-pwa
+        /^\/@vite-plugin-pwa\/.*/
       ]
     },
     workbox: {
@@ -56,14 +66,6 @@ const PWA = (clientSetting) =>
       navigateFallback: '/index.html',
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
-        // allow node_modules/.vite cache
-        /^\/node_modules\/\.vite\/.*/,
-        // @vite/client
-        /^\/@vite\/client\/.*/,
-        // src/main.tsx
-        /^\/src\/main\.tsx/,
-        // @vite-plugin-pwa
-        /^\/@vite-plugin-pwa\/.*/,
         // allow all files for production build
         /^\/.*/,
         // location route
