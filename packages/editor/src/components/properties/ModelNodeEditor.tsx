@@ -1,6 +1,10 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  DefaultModelTransformParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import {
@@ -17,7 +21,7 @@ import { CallbackComponent, getCallback } from '@etherealengine/engine/src/scene
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
-import { useState } from '@etherealengine/hyperflux'
+import { State, useState } from '@etherealengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -31,7 +35,9 @@ import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
+import PaginatedList from '../layout/PaginatedList'
 import Well from '../layout/Well'
+import GLTFTransformProperties from './GLTFTransformProperties'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -58,7 +64,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
   const lodParms = useState<LODsFromModelParameters>(() => ({
-    serialize: false
+    serialize: false,
+    levels: []
   }))
 
   const onChangeEquippable = useCallback(() => {
@@ -108,6 +115,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     })
     getCallback(props.entity, 'xre.play')!()
   }
+
+  const onAddLODLevel = useCallback(() => {
+    lodParms.levels[lodParms.levels.length].set({
+      ...DefaultModelTransformParameters
+    })
+  }, [])
 
   return (
     <NodeEditor
@@ -169,6 +182,15 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <InputGroup name="Serialize" label={t('editor:properties.model.lods.serialize')}>
             <BooleanInput value={lodParms.value.serialize} onChange={lodParms.serialize.set} />
           </InputGroup>
+          <InputGroup name="LOD Level Parameters" label={t('editor:properties.model.lods.lodLevelParameters')}>
+            <Button onClick={onAddLODLevel}>Add LOD Level</Button>
+          </InputGroup>
+          <PaginatedList
+            list={lodParms.levels}
+            element={(lodLevel: State<ModelTransformParameters>) => {
+              return <GLTFTransformProperties transformParms={lodLevel} onChange={lodLevel.set} />
+            }}
+          />
           <div className="p-4">
             <Button onClick={convertToScaffold.bind({}, entity)}>Convert to Scaffold</Button>
           </div>

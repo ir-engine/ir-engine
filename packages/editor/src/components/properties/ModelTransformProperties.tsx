@@ -5,6 +5,7 @@ import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
+  DefaultModelTransformParameters,
   ImageTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
@@ -106,40 +107,8 @@ export default function ModelTransformProperties({
   const transformHistory = useHookstate<string[]>([])
 
   const transformParms = useHookstate<ModelTransformParameters>({
-    dst: '',
-    resourceUri: '',
-    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb',
-    dedup: true,
-    prune: true,
-    reorder: true,
-    resample: true,
-    weld: {
-      enabled: true,
-      tolerance: 0.001
-    },
-    dracoCompression: {
-      enabled: true,
-      options: {
-        method: 'sequential',
-        encodeSpeed: 0,
-        decodeSpeed: 0,
-        quantizePosition: 14,
-        quantizeNormal: 8,
-        quantizeColor: 8,
-        quantizeTexcoord: 12,
-        quantizeGeneric: 16,
-        quantizationVolume: 'mesh'
-      }
-    },
-    textureFormat: 'ktx2',
-    textureCompressionType: 'etc1',
-    flipY: true,
-    textureCompressionQuality: 128,
-    maxTextureSize: 1024,
-    resources: {
-      geometries: [],
-      images: []
-    }
+    ...DefaultModelTransformParameters,
+    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
   })
 
   const vertexBakeOptions = useHookstate({

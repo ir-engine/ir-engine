@@ -27,7 +27,7 @@ export default function GLTFTransformProperties({
   const onChangeTransformParm = useCallback((scope: State<any>) => {
     return (value: typeof scope.value) => {
       scope.set(value)
-      onChange(transformParms.value)
+      onChange(JSON.parse(JSON.stringify(transformParms.value)))
     }
   }, [])
 

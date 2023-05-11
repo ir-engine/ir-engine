@@ -1,7 +1,9 @@
 import { BufferGeometry, InstancedMesh, Mesh, MeshBasicMaterial } from 'three'
 
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import createGLTFExporter from '@etherealengine/engine/src/assets/functions/createGLTFExporter'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
@@ -29,6 +31,7 @@ import exportGLTF from './exportGLTF'
 
 export type LODsFromModelParameters = {
   serialize: boolean
+  levels: ModelTransformParameters[]
 }
 
 /**
@@ -39,7 +42,8 @@ export type LODsFromModelParameters = {
 export async function createLODsFromModel(
   entity: Entity,
   options: LODsFromModelParameters = {
-    serialize: false
+    serialize: false,
+    levels: []
   }
 ): Promise<Entity[]> {
   LODComponent.lodsByEntity[entity].value?.map((entity) => removeEntity(entity))
@@ -76,7 +80,21 @@ export async function createLODsFromModel(
       processLoadedLODLevel(lodEntity, 0, mesh)
       if (options.serialize) {
         const lodComponent = getMutableComponent(lodEntity, LODComponent)
-        await serializeLOD(model.src, lodEntity, lodComponent.levels[0], exporter)
+        const lodURL = await serializeLOD(model.src, lodEntity, lodComponent.levels[0], exporter)
+        const lodDistance = 5
+        for (let i = 0; i < options.levels.length; i++) {
+          const lodParms = options.levels[i]
+          const levelURL = await Engine.instance.api.service('model-transform').create({
+            src: lodURL,
+            transformParameters: lodParms
+          })
+          lodComponent.levels[i].set({
+            model: null,
+            distance: lodDistance * (i + 1),
+            loaded: false,
+            src: levelURL
+          })
+        }
       }
       lods.push(lodEntity)
     }
@@ -115,7 +133,8 @@ export async function serializeLOD(
   const [, , , nuNuRelativePath] = pathResolver().exec(lodURL)!
   const file = new File([JSON.stringify(gltf)], nuNuRelativePath)
   const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
-  level.src.set(urls[0][0])
+  const result = urls[0][0]
+  return Promise.resolve(result)
 }
 
 export function convertToScaffold(entity: Entity) {

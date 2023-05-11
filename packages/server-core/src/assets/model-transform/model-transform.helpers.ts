@@ -15,6 +15,7 @@ import { EXTMeshGPUInstancing, KHRTextureBasisu } from '@gltf-transform/extensio
 import { dedup, draco, partition, prune, reorder, weld } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { execFileSync } from 'child_process'
+import { createHash } from 'crypto'
 import fs from 'fs'
 import { MeshoptEncoder } from 'meshoptimizer'
 import path from 'path'
@@ -251,6 +252,12 @@ export async function combineMeshes(document: Document) {
   })
 }
 
+function hashBuffer(buffer: Uint8Array): string {
+  const hash = createHash('sha256')
+  hash.update(buffer)
+  return hash.digest('hex')
+}
+
 export async function transformModel(app: Application, args: ModelTransformArguments) {
   const parms = args.parms
   const serverDir = path.join(appRootPath.path, 'packages/server')
@@ -475,7 +482,23 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
     ;[root.listBuffers(), root.listMeshes(), root.listTextures()].forEach((elements) =>
-      elements.map((mesh: Texture | Mesh | glBuffer) => !mesh.getName() && mesh.setName(MathUtils.generateUUID()))
+      //elements.map((mesh: Texture | Mesh | glBuffer) => !mesh.getName() && mesh.setName(MathUtils.generateUUID()))
+      elements.map((element: Texture | Mesh | glBuffer) => {
+        let elementName = ''
+        if (element instanceof Texture) {
+          console.log('image:')
+          console.log(element.getImage())
+          console.log('hash: ' + hashBuffer(element.getImage()!))
+          elementName = hashBuffer(element.getImage()!)
+        } else if (element instanceof Mesh) {
+          elementName = hashBuffer(Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!))
+        } else if (element instanceof glBuffer) {
+          const bufferPath = path.join(path.dirname(args.src), element.getURI())
+          const bufferData = fs.readFileSync(bufferPath)
+          elementName = hashBuffer(bufferData)
+        }
+        element.setName(elementName)
+      })
     )
     document.transform(
       partition({
@@ -484,16 +507,16 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-    if (fs.existsSync(resourcePath)) {
+    /*if (fs.existsSync(resourcePath)) {
       await app.service('file-browser').remove(resourcePath.replace(projectRoot, ''))
-    }
+    }*/
     if (!fs.existsSync(resourcePath)) {
       await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
     }
     json.images?.map((image) => {
       const nuURI = path.join(
         args.resourceUri ? args.resourceUri : resourceName,
-        path.basename(image.uri!).replace(/\.[^.]+$/, `.${mimeToFileType(image.mimeType)}`)
+        `${image.name}.${mimeToFileType(image.mimeType)}`
       )
       resources[nuURI] = resources[image.uri!]
       delete resources[image.uri!]
