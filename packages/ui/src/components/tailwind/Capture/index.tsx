@@ -214,7 +214,6 @@ const CaptureDashboard = () => {
         videoActive.set(true)
         let processingData = false
         const onAnimationFrame = () => {
-          if (!isDetecting.value === false) return
           if (!videoActive.value) {
             processingData = false
             return
@@ -281,8 +280,8 @@ const CaptureDashboard = () => {
   }, [videoRef, canvasRef, isDetecting])
 
   useEffect(() => {
-    const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
-
+    const isCamVideoEnabled =
+      mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState.videoPaused.value !== null
     setVideoStatus(
       mediaConnection?.connected?.value === false && videoActive?.value === false
         ? 'loading'
@@ -290,7 +289,7 @@ const CaptureDashboard = () => {
         ? 'ready'
         : 'active'
     )
-  }, [mediaStreamState, mediaConnection?.connected, videoActive])
+  }, [mediaStreamState, mediaConnection, videoActive])
 
   return (
     <div className="w-full">

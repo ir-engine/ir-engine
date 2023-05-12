@@ -33,7 +33,7 @@
             // Register the service worker
             navigator.serviceWorker
               .register(`${window.location.href.split('/')[0]}/<%- swScriptLink %>`, {
-                scope: `./${window.location.pathname}`
+                scope: `./`
               })
               .then(function (reg) {
                 console.log("[PWA] SW registered at " + reg.scope);
