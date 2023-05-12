@@ -12,7 +12,7 @@ import {
 
 import { Application } from '../../../declarations'
 
-export type AnalyticsParams = KnexAdapterParams<AnalyticsQuery>
+export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
 
 /**
  * A class for Analytics service

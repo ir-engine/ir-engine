@@ -48,7 +48,7 @@
   "dependencies": {
     "@etherealengine/server-core": "^1.2.1",
     "@feathersjs/feathers": "5.0.1",
-    "@feathersjs/koa": "5.0.1",
+    "@feathersjs/koa": "^5.0.1",
     "@feathersjs/primus": "4.5.15",
     "@feathersjs/transport-commons": "5.0.1",
     "@kubernetes/client-node": "0.18.1",
