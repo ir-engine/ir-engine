@@ -11,7 +11,6 @@ import { parse, stringify } from 'flatted'
 import compress from 'koa-compress'
 import cors from 'koa-cors'
 import helmet from 'koa-helmet'
-import Router from 'koa-router'
 import healthcheck from 'koa-simple-healthcheck'
 import { AsyncFunc } from 'mocha'
 import path from 'path'
@@ -165,7 +164,6 @@ export const createFeathersKoaApp = (
   }
 
   const app = koa(feathers()) as Application
-  const router = new Router()
   Engine.instance.api = app
 
   const serverState = getMutableState(ServerState)
@@ -242,8 +240,6 @@ export const createFeathersKoaApp = (
       }
     }
   )
-
-  app.use(router.routes())
 
   return app
 }
