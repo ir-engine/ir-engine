@@ -120,7 +120,7 @@ export default defineConfig(async () => {
   })
   const clientSetting = await getClientSetting()
 
-  let base = `${process.env['APP_URL']}/`
+  let base = `https://${process.env['VITE_APP_HOST'] || process.env['APP_URL']}/`
 
   if (
     process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
