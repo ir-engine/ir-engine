@@ -43,8 +43,6 @@ const PWA = (clientSetting) =>
       navigateFallback: '/index.html',
       // Allowlist all paths for navigateFallback during development
       navigateFallbackAllowlist: [
-        // allow dev-sw.js
-        /^\/dev-sw\.js/,
         // allow all files for local vite dev server
         /^\/.*/,
         // allow node_modules/.vite cache
@@ -66,6 +64,8 @@ const PWA = (clientSetting) =>
       navigateFallback: '/index.html',
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
+        // allow jsdelivr cdn
+        /^https:\/\/cdn.jsdelivr.net\/.*/,
         // allow all files for production build
         /^\/.*/,
         // location route
@@ -119,74 +119,51 @@ const PWA = (clientSetting) =>
       // Set maximum cache size to 100 MB
       maximumFileSizeToCacheInBytes: 1000 * 1000 * 100,
       runtimeCaching: [
-        // Cache all requests on the resources- subdomain for this domain
+        // cache all static images
         {
-          urlPattern: /^https?:\/\/resources-*\/.*/i,
+          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'resources',
+            cacheName: 'images',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
             }
           }
         },
+        // cache all static fonts
         {
-          urlPattern: /^https?.*/i,
+          urlPattern: /\.(?:woff2|woff|ttf|eot)$/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'all-content-cache',
+            cacheName: 'fonts',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 7 * 24 * 60 * 60 // <== 7 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
             }
           }
         },
+        // cache all static media
         {
-          urlPattern: /^\/fonts?.*/i,
+          urlPattern: /\.(?:mp3|mp4|webm)$/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'fonts-assets-cache',
+            cacheName: 'media',
             expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
+              maxEntries: 1000,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
             }
           }
         },
+        // cache all static code
         {
-          urlPattern: /^\/icons?.*/,
+          urlPattern: /\.(?:js|css|html)$/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'icons-assets-cache',
+            cacheName: 'code',
             expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        {
-          urlPattern: /^\/static?.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'static-assets-cache',
-            expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
+              maxEntries: 1000,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
             }
           }
         }
