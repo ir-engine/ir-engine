@@ -290,7 +290,7 @@ const CaptureDashboard = () => {
         ? 'ready'
         : 'active'
     )
-  }, [mediaConnection?.connected, videoActive])
+  }, [mediaStreamState, mediaConnection?.connected, videoActive])
 
   return (
     <div className="w-full">
