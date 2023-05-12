@@ -141,11 +141,11 @@
     "supertest": "6.3.3"
   },
   "dependencies": {
-    "@feathersjs/commons": "5.0.1",
-    "@feathersjs/errors": "5.0.1",
-    "@feathersjs/feathers": "5.0.1",
-    "@feathersjs/schema": "5.0.1",
-    "@feathersjs/typebox": "5.0.1",
+    "@feathersjs/commons": "^5.0.1",
+    "@feathersjs/errors": "^5.0.1",
+    "@feathersjs/feathers": "^5.0.1",
+    "@feathersjs/schema": "^5.0.1",
+    "@feathersjs/typebox": "^5.0.1",
     "app-root-path": "3.1.0",
     "cli": "1.0.1",
     "daisyui": "^2.51.4",
