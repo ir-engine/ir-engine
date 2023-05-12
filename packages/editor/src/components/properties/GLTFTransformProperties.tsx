@@ -31,6 +31,14 @@ export default function GLTFTransformProperties({
     }
   }, [])
 
+  const onChangeParameter = useCallback(
+    (scope: State<any>, key: string) => (val: any) => {
+      scope[key].set(val)
+      onChange(JSON.parse(JSON.stringify(transformParms.value)))
+    },
+    []
+  )
+
   return (
     <CollapsibleBlock label="glTF-Transform">
       <div
@@ -112,7 +120,7 @@ export default function GLTFTransformProperties({
             <ParameterInput
               entity={`${transformParms}-draco-compression`}
               values={transformParms.dracoCompression.options.value}
-              onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
+              onChange={onChangeParameter.bind({}, transformParms.dracoCompression.options)}
             />
           </>
         )}
@@ -137,6 +145,12 @@ export default function GLTFTransformProperties({
           max={4096}
           min={64}
         />
+        <InputGroup name="Flip Y" label={t('editor:properties.model.transform.flipY')}>
+          <BooleanInput value={transformParms.flipY.value} onChange={onChangeTransformParm(transformParms.flipY)} />
+        </InputGroup>
+        <InputGroup name="Linear" label={t('editor:properties.model.transform.linear')}>
+          <BooleanInput value={transformParms.linear.value} onChange={onChangeTransformParm(transformParms.linear)} />
+        </InputGroup>
         {transformParms.textureFormat.value === 'ktx2' && (
           <>
             <InputGroup
@@ -165,7 +179,7 @@ export default function GLTFTransformProperties({
             />
           </>
         )}
-        <CollapsibleBlock label="Resource Overrides">
+        <CollapsibleBlock label={t('editor:properties.model.transform.resourceOverrides')}>
           <PaginatedList
             list={transformParms.resources.images}
             element={(image: State<ImageTransformParameters>) => {

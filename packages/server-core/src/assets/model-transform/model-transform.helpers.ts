@@ -434,14 +434,15 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         }
         const img = await sharp(oldPath)
         const metadata = await img.metadata()
+        let resizedDimension = 2
+        while (resizedDimension * 2 < Math.min(mergedParms.maxTextureSize, Math.min(metadata.width, metadata.height))) {
+          resizedDimension *= 2
+        }
+        //resize the image to be no larger than the max texture size
         await img
-          .resize(
-            Math.min(mergedParms.maxTextureSize, metadata.width),
-            Math.min(mergedParms.maxTextureSize, metadata.height),
-            {
-              fit: 'contain'
-            }
-          )
+          .resize(resizedDimension, resizedDimension, {
+            fit: 'fill'
+          })
           .toFormat(resizeExtension)
           .toFile(resizedPath.replace(/\.[\w\d]+$/, `.${resizeExtension}`))
         console.log('handled image file ' + oldPath)
@@ -453,14 +454,13 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       if (mergedParms.textureFormat === 'ktx2') {
         //KTX2 Basisu Compression
         document.createExtension(KHRTextureBasisu).setRequired(true)
-        execFileSync(
-          BASIS_U,
-          `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${
-            mergedParms.textureCompressionType === 'uastc' ? '-uastc' : ''
-          } -linear -y_flip`.split(/\s+/)
-        )
+        const basisArgs = `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${
+          mergedParms.textureCompressionType === 'uastc' ? '-uastc' : ''
+        } ${mergedParms.linear ? '-linear' : ''} ${mergedParms.flipY ? '-y_flip' : ''}`
+          .split(/\s+/)
+          .filter((x) => !!x)
+        execFileSync(BASIS_U, basisArgs)
         execFileSync('mv', [`${serverDir}/${xResizedName}`, nuPath])
-
         console.log('loaded ktx2 image ' + nuPath)
       } else {
         execFileSync('mv', [resizedPath, nuPath])

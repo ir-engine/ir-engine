@@ -55,6 +55,7 @@ export type ImageTransformParameters = ResourceParameters<{
 
 export type ExtractedImageTransformParameters = {
   flipY: boolean
+  linear: boolean
   maxTextureSize: number
   textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
   textureCompressionType: 'etc1' | 'uastc'
@@ -121,6 +122,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   textureFormat: 'ktx2',
   textureCompressionType: 'etc1',
   flipY: true,
+  linear: true,
   textureCompressionQuality: 128,
   maxTextureSize: 1024,
   resources: {
