@@ -288,7 +288,8 @@
       "avatars": "Avatars",
       "benchmarking": "Benchmarking",
       "bots": "Bots",
-      "server": "Server"
+      "server": "Server",
+      "recordings": "Recordings"
     }
   },
   "oauth": {

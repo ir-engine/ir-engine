@@ -12,6 +12,7 @@ import Invites from './components/Invite'
 import Locations from './components/Location'
 import Party from './components/Party'
 import Projects from './components/Project'
+import Recordings from './components/Recordings'
 import Resources from './components/Resources'
 import RoutesComp from './components/Routes'
 import Server from './components/Server'
@@ -32,7 +33,8 @@ const availableRoutes = [
   { route: '/server', key: 'server', component: Server, props: {} },
   { route: '/settings', key: 'settings', component: Setting, props: {} },
   { route: '/resources', key: 'static_resource', component: Resources, props: {} },
-  { route: '/users', key: 'user', component: Users, props: {} }
+  { route: '/users', key: 'user', component: Users, props: {} },
+  { route: '/recordings', key: 'recordings', component: Recordings, props: {} }
 ]
 
 const AllowedRoutes = ({ allowedRoutes }) => {
