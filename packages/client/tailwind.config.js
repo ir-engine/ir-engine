@@ -2,7 +2,10 @@
 
 module.exports = {
   mode: 'jit',
-  content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './public/index.html'
+  ],
   darkMode: "class",
   important: true, // important in prod is must be
   theme: ["dark"],

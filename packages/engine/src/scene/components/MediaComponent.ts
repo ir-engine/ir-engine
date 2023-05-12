@@ -255,7 +255,12 @@ export function MediaReactor() {
       if (media.paused.value) {
         mediaElement.element.value.pause()
       } else {
-        mediaElement.element.value.play()
+        const promise = mediaElement.element.value.play()
+        if (promise) {
+          promise.catch((error) => {
+            console.error(error)
+          })
+        }
       }
     },
     [media.paused, mediaElement]
