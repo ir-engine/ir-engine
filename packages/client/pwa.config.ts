@@ -56,8 +56,7 @@ const PWA = (clientSetting) =>
       ]
     },
     workbox: {
-      clientsClaim: true,
-      skipWaiting: true,
+      sourcemap: true,
       // Set the path for the service worker file
       swDest: process.env.GEN_SW === 'true' ? 'public/service-worker.js' : 'src/service-worker.js',
       // Navigate to index.html for all 404 errors during production
