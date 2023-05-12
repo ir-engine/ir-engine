@@ -25,7 +25,7 @@ const PWA = (clientSetting) =>
       short_name: clientSetting?.shortName || 'EE',
       theme_color: clientSetting?.themeColor || '#ffffff',
       background_color: clientSetting?.backgroundColor || '#000000',
-      start_url: `/`,
+      start_url: process.env.APP_URL || '/',
       scope: `./`,
       id: `ETHEREAL_ENGINE`
     },
@@ -64,6 +64,8 @@ const PWA = (clientSetting) =>
       navigateFallback: '/index.html',
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
+        // allow access to loder_decoder directory
+        /^\/loader_decoder\/.*/,
         // allow jsdelivr cdn
         /^https:\/\/cdn.jsdelivr.net\/.*/,
         // allow all files for production build

@@ -78,7 +78,7 @@ const CaptureDashboard = () => {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const [videoStatus, setVideoStatus] = useState('')
 
-  const poseDetectorRef = useRef<Pose>()
+  const poseDetectorRef = useRef<Pose | any>(null)
   const isDetecting = useHookstate(false)
 
   const staticImageMode = useHookstate(true)
@@ -103,7 +103,7 @@ const CaptureDashboard = () => {
 
   // Restart dectector when option states is updated
   useEffect(() => {
-    if (poseDetectorRef.current) {
+    if (poseDetectorRef.current !== null) {
       stopDetecting()
       const detector = createPoseDetector()
       startDetecting(detector)
@@ -167,11 +167,13 @@ const CaptureDashboard = () => {
     }
   }
 
-  const stopDetecting = async () => {
+  const stopDetecting = useCallback(async () => {
     isDetecting.set(false)
-    // await poseDetectorRef.current?.close()
-    // poseDetectorRef.current = null
-  }
+    if (poseDetectorRef?.current !== null) {
+      await poseDetectorRef?.current?.close()
+      poseDetectorRef.current = null
+    }
+  }, [isDetecting])
 
   const onResults: ResultsListener = useCallback(
     (results) => {
@@ -228,12 +230,14 @@ const CaptureDashboard = () => {
           } else {
             processingData = true
             // we have to wait for the current frame to be processed before we can send the next one
+            if (poseDetectorRef?.current === null) return
             mediapipe.value?.send({ image: videoElement }).then(() => {
               processingData = false
               videoElement.requestVideoFrameCallback(onAnimationFrame)
             })
           }
         }
+        if (poseDetectorRef?.current === null) return
         videoElement.requestVideoFrameCallback(onAnimationFrame)
       }
       videoElement.onpause = () => {
@@ -256,7 +260,7 @@ const CaptureDashboard = () => {
   }, [mediaConnection?.connected])
 
   const createPoseDetector = () => {
-    if (poseDetectorRef.current) return poseDetectorRef.current
+    if (poseDetectorRef.current !== null) return poseDetectorRef.current
 
     const poseDetector = new Pose({
       locateFile: (file) => {
@@ -268,16 +272,16 @@ const CaptureDashboard = () => {
     return poseDetector
   }
 
-  useEffect(() => {
-    if (videoRef.current && canvasRef.current) {
-      if (isDetecting?.value) {
-        // start detecting on mount
-        const detector = createPoseDetector()
-        startDetecting(detector)
-      }
-    }
-    RecordingFunctions.getRecordings()
-  }, [videoRef, canvasRef, isDetecting])
+  // useEffect(() => {
+  //   if (videoRef.current && canvasRef.current) {
+  //     if (isDetecting?.value) {
+  //       // start detecting on mount
+  //       const detector = createPoseDetector()
+  //       startDetecting(detector)
+  //     }
+  //   }
+  //   // RecordingFunctions.getRecordings()
+  // }, [videoRef, canvasRef, isDetecting])
 
   useEffect(() => {
     const isCamVideoEnabled =
@@ -293,14 +297,14 @@ const CaptureDashboard = () => {
 
   return (
     <div className="w-full">
-      {/* <ul className="">
+      <ul className="">
         <li>{`videoStatus: ${videoStatus}`}</li>
         <li>{`mediaConnection: ${mediaConnection?.connected?.value}`}</li>
         <li>{`videoActive: ${videoActive?.value}`}</li>
         <li>{`camVideoProducer: ${mediaStreamState.camVideoProducer.value}`}</li>
         <li>{`videoPaused: ${mediaStreamState.videoPaused.value}`}</li>
         <li>{`isDetecting: ${isDetecting?.value}`}</li>
-      </ul> */}
+      </ul>
       <Drawer
         settings={
           <div className="w-100 bg-base-100">
@@ -431,12 +435,14 @@ const CaptureDashboard = () => {
                 <LoadingCircle message="Loading..." />
               ) : videoStatus !== 'active' ? (
                 <button
-                  onClick={toggleWebcamPaused}
+                  onClick={() => {
+                    if (mediaConnection?.connected?.value) toggleWebcamPaused()
+                  }}
                   className="absolute btn btn-ghost w-full h-full bg-none"
                   style={{ objectFit: 'contain', top: '0px' }}
                 >
                   <div className="grid w-screen h-screen place-items-center">
-                    <h1>Enable Camera</h1>
+                    <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
                   </div>
                 </button>
               ) : null}
