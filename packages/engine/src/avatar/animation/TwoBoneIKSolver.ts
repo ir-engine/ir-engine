@@ -30,9 +30,9 @@ function triangleAngle(aLen: number, bLen: number, cLen: number): number {
  * @param {number} hintWeight
  */
 export function solveTwoBoneIK(
-  root: Bone,
-  mid: Bone,
-  tip: Bone,
+  root: Object3D,
+  mid: Object3D,
+  tip: Object3D,
   targetPosition: Vector3, // world space
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,

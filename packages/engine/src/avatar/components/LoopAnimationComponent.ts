@@ -15,7 +15,6 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { AnimationManager } from '../AnimationManager'
 import { setupAvatarModel } from '../functions/avatarFunctions'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarAnimationComponent } from './AvatarAnimationComponent'
@@ -92,12 +91,12 @@ export const LoopAnimationComponent = defineComponent({
       const loopComponent = getComponent(entity, LoopAnimationComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
 
-      const changedToAvatarAnimation =
-        loopComponent.hasAvatarAnimations && animationComponent.animations !== AnimationManager.instance._animations
+      //      const changedToAvatarAnimation =
+      //        loopComponent.hasAvatarAnimations && animationComponent.animations !== AnimationManager.instance._animations
       const changedToObjectAnimation =
         !loopComponent.hasAvatarAnimations && animationComponent.animations !== scene.animations
 
-      if (changedToAvatarAnimation) {
+      /*      if (changedToAvatarAnimation) {
         if (!hasComponent(entity, AvatarAnimationComponent)) {
           addComponent(entity, AvatarAnimationComponent, {
             animationGraph: {
@@ -113,7 +112,7 @@ export const LoopAnimationComponent = defineComponent({
           setupLoopableAvatarModel(scene)
         }
       }
-
+*/
       if (changedToObjectAnimation) {
         if (hasComponent(entity, AvatarAnimationComponent)) {
           removeComponent(entity, AvatarAnimationComponent)

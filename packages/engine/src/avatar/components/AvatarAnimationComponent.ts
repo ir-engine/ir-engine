@@ -120,7 +120,6 @@ export const AvatarRigComponent = defineComponent({
         anim.helper.set(none)
       }
     }, [debugEnabled, pending])
-
     /**
      * Proxify the rig bones with the bitecs store
      */

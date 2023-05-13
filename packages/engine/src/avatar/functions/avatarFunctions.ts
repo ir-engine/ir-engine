@@ -1,12 +1,23 @@
-import { VRM, VRMHumanBone, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { cloneDeep } from 'lodash'
+import {
+  AnimationClip,
+  AnimationMixer,
+  Bone,
+  Box3,
+  Euler,
+  Group,
+  Object3D,
+  Skeleton,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
-import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
@@ -29,8 +40,9 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
-import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
+import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
+import { animationManager } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import avatarBoneMatching, {
   BoneNames,
@@ -47,6 +59,7 @@ import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { SkeletonUtils } from '../SkeletonUtils'
+import { getIdlePose } from './proceduralIKAnimations'
 import { resizeAvatar } from './resizeAvatar'
 
 const tempVec3ForHeight = new Vector3()
@@ -166,6 +179,9 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   // if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   setupAvatarModel(entity)(model)
+
+  createIKAnimator(entity)
+
   addObjectToGroup(entity, model.scene)
 
   computeTransformMatrix(entity)
@@ -200,6 +216,16 @@ export const setupAvatarModel = (entity: Entity) => pipe(rigAvatarModel(entity),
 //   return model
 // }
 
+export const createIKAnimator = (entity: Entity) => {
+  const manager = getState(animationManager)
+  const animationComponent = getComponent(entity, AnimationComponent)
+  animationComponent.mixer = new AnimationMixer(manager.targets)
+  const clip = getIdlePose()
+  animationComponent.animations = [clip]
+  const action = animationComponent.mixer.clipAction(clip)
+  action.play()
+}
+
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
@@ -207,9 +233,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   const rig = model.humanoid?.rawHumanBones
 
-  const rootBone = model.humanoid?.getRawBoneNode(VRMHumanBoneName.Hips)
-
-  rootBone?.updateWorldMatrix(true, true)
+  const targetSkeleton = model.scene.children[0]
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
 
@@ -219,15 +243,12 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   //   skinnedMeshes.forEach(applySkeletonPose)
   // }
 
-  // const targetSkeleton = SkeletonUtils.clone(rootBone)
-
-  // const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
-  // retargetSkeleton(targetSkeleton, sourceSkeleton)
-  // syncModelSkeletons(model.scene, targetSkeleton)
+  //retargetSkeleton(targetSkeleton, sourceSkeleton)
+  //syncModelSkeletons(model.scene, targetSkeleton)
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    bindRig: SkeletonUtils.clone(rootBone),
+    bindRig: cloneDeep(rig),
     skinnedMeshes,
     vrm: model
   })
@@ -247,20 +268,25 @@ export const animateAvatarModel = (entity: Entity) => (model: VRM) => {
   // Mixer has some issues when binding with the target skeleton
   // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
 
-  // (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
-  const sourceSkeleton = model.humanoid?.normalizedHumanBonesRoot
-  // debugger
-  animationComponent.mixer = new AnimationMixer(sourceSkeleton)
-  animationComponent.animations = AnimationManager.instance._animations
+  console.log((makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton)
 
-  if (avatarAnimationComponent)
+  const sourceSkeleton = getComponent(entity, AvatarRigComponent).bindRig
+  // debugger
+  //animationComponent.mixer = new AnimationMixer(AnimationManager.instance._animatedScene.children[0].children[0])
+  //animationComponent.animations = AnimationManager.instance._animations
+  //animationComponent.mixer.clipAction(animationComponent.animations[0]).play()
+
+  console.log(animationComponent.mixer)
+  console.log(avatarAnimationComponent.locomotion)
+
+  /* if (avatarAnimationComponent)
     avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
       entity,
       animationComponent.mixer,
       avatarAnimationComponent.locomotion,
       controllerComponent ?? {}
     )
-
+*/
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(1 / 60)
 }
@@ -344,9 +370,9 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
   if (!avatarRigComponent) return false
-  const bone = avatarRigComponent.rig[boneName.toLowerCase()]
+  const bone = avatarRigComponent.rig[boneName.toLowerCase()] as VRMHumanBone
   if (!bone) return false
-  const el = bone.matrixWorld.elements
+  const el = bone.node.matrixWorld.elements
   position.set(el[12], el[13], el[14])
   return true
 }

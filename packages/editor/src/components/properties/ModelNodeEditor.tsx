@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import {
   addComponent,
@@ -73,9 +72,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const animationOptions = useState(() => {
     const obj3d = modelComponent.value.scene
-    const animations = loopAnimationComponent?.hasAvatarAnimations
-      ? AnimationManager.instance._animations
-      : obj3d?.animations ?? []
+    const animations = obj3d?.animations ?? []
     return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
   })
 

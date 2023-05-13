@@ -1,5 +1,8 @@
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
+
+import { VRMHumanBones } from '@pixiv/three-vrm'
+import { cloneDeep } from 'lodash'
 import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { Object3DUtils } from '../common/functions/Object3DUtils'
@@ -614,144 +617,36 @@ function findFirstTwistChildBone(parent: Object3D, hand: Object3D, left: boolean
   return existingBone
 }
 
-export default function avatarBoneMatching(model: Object3D): BoneStructure {
-  try {
-    let Root = findRootBone(model.getObjectByProperty('type', 'Bone') as Bone)
-    const skinnedMeshes = [] as SkinnedMesh[]
-    model.traverse((obj: SkinnedMesh) => {
-      if (obj.isSkinnedMesh) skinnedMeshes.push(obj)
-    })
-    Root.updateMatrixWorld(true)
+export default function avatarBoneMatching(model: Object3D): VRMHumanBones {
+  //this is a mess
+  //tentatively mapping mixamo rig to animated vrm object :)
+  const _animatedVRM = {} as VRMHumanBones
+  _animatedVRM.hips = { node: model.getObjectByName('mixamorigHips')! }
+  _animatedVRM.head = { node: model.getObjectByName('mixamorigHead')! }
+  _animatedVRM.chest = { node: model.getObjectByName('mixamorigSpine2')! }
+  _animatedVRM.spine = { node: model.getObjectByName('mixamorigSpine')! }
+  _animatedVRM.leftUpperLeg = { node: model.getObjectByName('mixamorigLeftUpLeg')! }
+  _animatedVRM.leftLowerLeg = { node: model.getObjectByName('mixamorigLeftLeg')! }
+  _animatedVRM.leftFoot = { node: model.getObjectByName('mixamorigLeftFoot')! }
+  _animatedVRM.rightUpperLeg = { node: model.getObjectByName('mixamorigRightUpLeg')! }
+  _animatedVRM.rightLowerLeg = { node: model.getObjectByName('mixamorigRightLeg')! }
+  _animatedVRM.rightFoot = { node: model.getObjectByName('mixamorigRightFoot')! }
+  _animatedVRM.leftShoulder = { node: model.getObjectByName('mixamorigLeftShoulder')! }
+  _animatedVRM.leftUpperArm = { node: model.getObjectByName('mixamorigLeftArm')! }
+  _animatedVRM.leftLowerArm = { node: model.getObjectByName('mixamorigLeftForeArm')! }
+  _animatedVRM.leftHand = { node: model.getObjectByName('mixamorigLeftHand')! }
+  _animatedVRM.leftShoulder = { node: model.getObjectByName('mixamorigRightShoulder')! }
+  _animatedVRM.leftUpperArm = { node: model.getObjectByName('mixamorigRightArm')! }
+  _animatedVRM.leftLowerArm = { node: model.getObjectByName('mixamorigRightForeArm')! }
+  _animatedVRM.leftHand = { node: model.getObjectByName('mixamorigRightHand')! }
 
-    const Hips = _findHips(Root)
-    const tailBones = _getTailBones(Root)
-    const LeftEye = _findEye(tailBones, true)
-    const RightEye = _findEye(tailBones, false)
-    const Head = _findHead(tailBones)
-    const Neck = Head.parent
-    const Spine2 = Neck.parent
-    const Spine1 = Spine2.parent
-    const Spine = _findSpine(Spine2, Hips)
-    const LeftShoulder = _findShoulder(tailBones, true)
-    const LeftHand = _findHand(LeftShoulder)
-    const LeftForeArm = LeftHand.parent
-    // const LeftForeArmTwist = findFirstTwistChildBone(LeftForeArm, LeftHand, true)
-    const LeftArm = LeftForeArm.parent
-    const RightShoulder = _findShoulder(tailBones, false)
-    const RightHand = _findHand(RightShoulder)
-    const RightForeArm = RightHand.parent
-    // const RightForeArmTwist = findFirstTwistChildBone(RightForeArm, RightHand, false)
-    const RightArm = RightForeArm.parent
-    const LeftFoot = _findFoot(tailBones, true)
-    const LeftLeg = LeftFoot.parent
-    const LeftUpLeg = LeftLeg.parent
-    const RightFoot = _findFoot(tailBones, false)
-    const RightLeg = RightFoot.parent
-    const RightUpLeg = RightLeg.parent
-    const leftHandBones = findHandBones(LeftHand)
-    const rightHandBones = findHandBones(RightHand)
+  return _animatedVRM
+}
 
-    // for (const mesh of skinnedMeshes) {
-    //   if(!mesh.skeleton.bones.includes(LeftForeArmTwist))
-    //     mesh.skeleton.bones.push(LeftForeArmTwist)
-    //   if(!mesh.skeleton.bones.includes(RightForeArmTwist))
-    //     mesh.skeleton.bones.push(RightForeArmTwist)
-    //   mesh.skeleton.calculateInverses()
-    // }
-
-    if (Root === Hips) {
-      Root = null!
-    }
-
-    const targetModelBones = {
-      Root,
-      Hips,
-      Spine,
-      Spine1,
-      Spine2,
-      Neck,
-      Head,
-      LeftEye,
-      RightEye,
-
-      LeftShoulder,
-      LeftArm,
-      LeftForeArm,
-      // LeftForeArmTwist,
-      LeftHand,
-      LeftUpLeg,
-      LeftLeg,
-      LeftFoot,
-
-      LeftHandPinky1: leftHandBones.pinky1,
-      LeftHandPinky2: leftHandBones.pinky2,
-      LeftHandPinky3: leftHandBones.pinky3,
-      LeftHandPinky4: leftHandBones.pinky4,
-      LeftHandPinky5: leftHandBones.pinky5,
-      LeftHandRing1: leftHandBones.ring1,
-      LeftHandRing2: leftHandBones.ring2,
-      LeftHandRing3: leftHandBones.ring3,
-      LeftHandRing4: leftHandBones.ring4,
-      LeftHandRing5: leftHandBones.ring5,
-      LeftHandMiddle1: leftHandBones.middle1,
-      LeftHandMiddle2: leftHandBones.middle2,
-      LeftHandMiddle3: leftHandBones.middle3,
-      LeftHandMiddle4: leftHandBones.middle4,
-      LeftHandMiddle5: leftHandBones.middle5,
-      LeftHandIndex1: leftHandBones.index1,
-      LeftHandIndex2: leftHandBones.index2,
-      LeftHandIndex3: leftHandBones.index3,
-      LeftHandIndex4: leftHandBones.index4,
-      LeftHandIndex5: leftHandBones.index5,
-      LeftHandThumb1: leftHandBones.thumb1,
-      LeftHandThumb2: leftHandBones.thumb2,
-      LeftHandThumb3: leftHandBones.thumb3,
-      LeftHandThumb4: leftHandBones.thumb4,
-
-      RightShoulder,
-      RightArm,
-      RightForeArm,
-      // RightForeArmTwist,
-      RightHand,
-      RightUpLeg,
-      RightLeg,
-      RightFoot,
-
-      RightHandPinky1: rightHandBones.pinky1,
-      RightHandPinky2: rightHandBones.pinky2,
-      RightHandPinky3: rightHandBones.pinky3,
-      RightHandPinky4: rightHandBones.pinky4,
-      RightHandPinky5: rightHandBones.pinky5,
-      RightHandRing1: rightHandBones.ring1,
-      RightHandRing2: rightHandBones.ring2,
-      RightHandRing3: rightHandBones.ring3,
-      RightHandRing4: rightHandBones.ring4,
-      RightHandRing5: rightHandBones.ring5,
-      RightHandMiddle1: rightHandBones.middle1,
-      RightHandMiddle2: rightHandBones.middle2,
-      RightHandMiddle3: rightHandBones.middle3,
-      RightHandMiddle4: rightHandBones.middle4,
-      RightHandMiddle5: rightHandBones.middle5,
-      RightHandIndex1: rightHandBones.index1,
-      RightHandIndex2: rightHandBones.index2,
-      RightHandIndex3: rightHandBones.index3,
-      RightHandIndex4: rightHandBones.index4,
-      RightHandIndex5: rightHandBones.index5,
-      RightHandThumb1: rightHandBones.thumb1,
-      RightHandThumb2: rightHandBones.thumb2,
-      RightHandThumb3: rightHandBones.thumb3,
-      RightHandThumb4: rightHandBones.thumb4
-    }
-
-    Object.keys(targetModelBones).forEach((key) => {
-      if (!targetModelBones[key]) return
-      targetModelBones[key].userData.name = targetModelBones[key].name
-      targetModelBones[key].name = key
-    })
-
-    return targetModelBones as any
-  } catch (error) {
-    console.error(error)
-    return null!
+export function makeBindPose(bones: VRMHumanBones) {
+  const newRig = cloneDeep(bones)
+  for (const [key, value] of Object.entries(newRig)) {
+    value.node.quaternion.set(0, 0, 0, 0)
   }
+  return newRig
 }

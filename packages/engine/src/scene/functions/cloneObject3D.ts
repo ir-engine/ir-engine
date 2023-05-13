@@ -1,6 +1,5 @@
 import { AnimationClip, Bone, KeyframeTrack, Mesh, Object3D, PropertyBinding, SkinnedMesh } from 'three'
 
-import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DWithEntity } from '../components/GroupComponent'
@@ -111,7 +110,7 @@ export const getAnimationClips = (): AnimationClip[] => {
     if (comp.activeClipIndex < 0) continue
 
     if (comp.hasAvatarAnimations) {
-      result.add(AnimationManager.instance._animations[comp.activeClipIndex])
+      //result.add(AnimationManager.instance._animations[comp.activeClipIndex])
     } else {
       const scene = getComponent(entity, ModelComponent).scene!
       if (scene) result.add(scene.animations[comp.activeClipIndex])

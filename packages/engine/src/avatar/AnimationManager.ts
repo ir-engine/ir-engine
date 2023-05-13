@@ -1,56 +1,47 @@
-import { VRMHumanBone } from '@pixiv/three-vrm'
-import { AnimationClip, Bone, SkinnedMesh } from 'three'
+import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
+import { AnimationClip, Bone, Euler, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
+
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 import { applySkeletonPose, makeTPose } from './animation/avatarPose'
 import { findRootBone, processRootAnimation } from './animation/Util'
-import avatarBoneMatching, { findSkinnedMeshes } from './AvatarBoneMatching'
+import avatarBoneMatching, { findSkinnedMeshes, makeBindPose } from './AvatarBoneMatching'
 import { makeDefaultSkinnedMesh } from './functions/avatarFunctions'
 
-export class AnimationManager {
-  static instance: AnimationManager = new AnimationManager()
+export interface ikTargets {
+  rightHandTarget: Object3D
+  leftHandTarget: Object3D
+  rightFootTarget: Object3D
+  leftFootTarget: Object3D
+}
 
-  _animations: AnimationClip[]
-  _defaultSkinnedMesh: SkinnedMesh
-  _rootAnimationData: {}
-  _defaultRootBone: VRMHumanBone
+//Create all IK targets as object 3ds, stored in
+//a named struct and in an object 3d hierarchy
+//the former allows easy accessability while the
+//latter allows for threejs keyframe animation
+export const animationManager = defineState({
+  name: 'animationManager',
+  initial: () => ({
+    targets: new Object3D(),
+    ikTargetsMap: {
+      rightHandTarget: new Object3D(),
+      leftHandTarget: new Object3D(),
+      rightFootTarget: new Object3D(),
+      leftFootTarget: new Object3D()
+    } as ikTargets
+  }),
+  onCreate: () => {
+    const ikTargetHolder = new Object3D()
 
-  getAnimationDuration(name: string): number {
-    const animation = this._animations.find((a) => a.name === name)
-    return animation ? animation.duration : 0
-  }
+    const state = getMutableState(animationManager)
 
-  async loadDefaultAnimations(path: string = '/default_assets/Animations.glb') {
-    if (this._animations) {
-      return this._animations
+    for (const [key, value] of Object.entries(state.ikTargetsMap.value)) {
+      value.name = key
+      ikTargetHolder.add(value)
     }
 
-    const gltf = (await AssetLoader.loadAsync(path)) as GLTF
-
-    const defaultRig = makeDefaultSkinnedMesh()
-    const rig = avatarBoneMatching(defaultRig)
-    const rootBone = rig.Hips
-    rootBone?.updateWorldMatrix(true, true)
-    const skinnedMeshes = findSkinnedMeshes(defaultRig)
-    // makeTPose(rig)
-    rootBone?.updateWorldMatrix(true, true)
-    skinnedMeshes.forEach((mesh) => mesh.skeleton.calculateInverses())
-    skinnedMeshes.forEach((mesh) => mesh.skeleton.computeBoneTexture())
-
-    this._defaultSkinnedMesh = defaultRig.children[0] as SkinnedMesh
-    this._defaultRootBone = { node: findRootBone(this._defaultSkinnedMesh)! } as VRMHumanBone
-    this._rootAnimationData = {}
-    this._animations = gltf.animations
-    this._animations?.forEach((clip) => {
-      // TODO: make list of morph targets names
-      clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
-
-      // const rootData = processRootAnimation(clip, this._defaultRootBone)
-      // if (rootData) {
-      this._rootAnimationData[clip.name] = {}
-      // }
-    })
-    return this._animations
+    state.targets.set(ikTargetHolder)
   }
-}
+})

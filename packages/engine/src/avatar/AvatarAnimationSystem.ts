@@ -1,7 +1,7 @@
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBone, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import * as VRMSchema from '@pixiv/types-vrmc-vrm-1.0'
 import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Bone, Euler, MathUtils, Matrix4, Object3D, Quaternion, Raycaster, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -9,6 +9,7 @@ import { defineActionQueue, defineState, dispatchAction, getState } from '@ether
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
+import { Object3DUtils } from '../common/functions/Object3DUtils'
 import { proxifyQuaternion } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -17,7 +18,9 @@ import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { Physics, RaycastArgs } from '../physics/classes/Physics'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
+import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
@@ -34,7 +37,7 @@ import { updateAnimationGraph } from './animation/AnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
-import { AnimationManager } from './AnimationManager'
+import { animationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
 import {
@@ -45,6 +48,7 @@ import {
 } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePoseToIKTargets'
+import { interactionGroups } from './functions/autopilotFunctions'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -62,9 +66,6 @@ export const AvatarAnimationState = defineState({
     }
   }
 })
-
-const _vector3 = new Vector3()
-const _vec = new Vector3()
 
 // setComponent(entity, AvatarArmsTwistCorrectionComponent, {
 //   LeftHandBindRotationInv: new Quaternion(),
@@ -97,13 +98,15 @@ const filterFrustumCulledEntities = (entity: Entity) =>
     FrustumCullCameraComponent.isCulled[entity]
   )
 
-const leftHandRotation = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, Math.PI))
-const leftHandRotationOffset = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, 0))
-
-const rightHandRotation = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
-const rightHandRotationOffset = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
+const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 let avatarSortAccumulator = 0
+
+const _vector3 = new Vector3()
+const _vec = new Vector3()
+
+const rightHandRot = new Quaternion()
+const leftHandRot = new Quaternion()
 
 const execute = () => {
   const xrState = getState(XRState)
@@ -232,41 +235,77 @@ const execute = () => {
     }
 
     /**
-     * Update animation graph
+     * Apply IK
      */
-    updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
 
-    /**
-     * Apply retargeting
-     */
-    const rootBone = animationComponent.mixer.getRoot() as Bone
     const avatarRigComponent = getComponent(entity, AvatarRigComponent)
     const rig = avatarRigComponent.rig
-    const vrm = avatarRigComponent.vrm
+    const transform = getComponent(entity, TransformComponent)
+    const animationState = getState(animationManager)
 
-    rootBone.traverse((bone: Bone) => {
-      if (!bone.isBone) return
+    //get world space in a better way  -  can be proxified / use transform component?
+    const worldSpaceRightHand = rig.hips.node.localToWorld(animationState.ikTargetsMap.rightHandTarget.position)
+    const worldSpaceLeftHand = rig.hips.node.localToWorld(animationState.ikTargetsMap.leftHandTarget.position)
+    const worldSpaceRightFoot = rig.hips.node.localToWorld(animationState.ikTargetsMap.rightFootTarget.position)
+    const worldSpaceLeftFoot = rig.hips.node.localToWorld(animationState.ikTargetsMap.leftFootTarget.position)
+    const hipsWorldSpace = new Vector3()
+    rig.hips.node.getWorldPosition(hipsWorldSpace)
 
-      const targetBone = rig[bone.name.toLowerCase()]
-      // const tb2 = vrm.humanoid?.getBoneNode(bone.name.toLowerCase() as VRMHumanBoneName)
+    //to do, get leg length of avatar in world space
+    const legLength = 0.9
+    //to do, get arm length of avatar in world space
+    const armLength = 0.75
+    //to do, get height of avatar in world space
+    const height = 1.8
 
-      if (!targetBone) {
-        return
-      }
+    //get rotations from ik targets and convert to world space relative to hips
+    const rot = new Quaternion()
+    rig.hips.node.getWorldQuaternion(rot)
 
-      targetBone.quaternion.copy(bone.quaternion)
+    rightHandRot.multiplyQuaternions(rot, animationState.ikTargetsMap.rightHandTarget.quaternion)
+    leftHandRot.multiplyQuaternions(rot, animationState.ikTargetsMap.leftHandTarget.quaternion)
 
-      // Only copy the root position
+    solveTwoBoneIK(
+      rig.rightUpperArm.node,
+      rig.rightLowerArm.node,
+      rig.rightHand.node,
+      worldSpaceRightHand,
+      rightHandRot
+    )
+    solveTwoBoneIK(rig.leftUpperArm.node, rig.leftLowerArm.node, rig.leftHand.node, worldSpaceLeftHand, leftHandRot)
 
-      if (targetBone === rig.hips) {
-        targetBone.position.copy(bone.position)
-        targetBone.position.y *= avatarAnimationComponent.rootYRatio
-      }
-    })
+    //cast ray for right foot, starting at hips y position and foot x/z
+    const footRaycastArgs = {
+      type: SceneQueryType.Closest,
+      origin: new Vector3(worldSpaceRightFoot.x, hipsWorldSpace.y, worldSpaceRightFoot.z),
+      direction: new Vector3(0, -1, 0),
+      maxDistance: legLength,
+      groups: interactionGroups
+    } as RaycastArgs
 
-    // TODO: Find a more elegant way to handle root motion
-    const rootPos = AnimationManager.instance._defaultRootBone.node.position
-    rig.hips.node.position.setX(rootPos.x).setZ(rootPos.z)
+    const rightCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
+    if (rightCastedRay[0]) worldSpaceRightFoot.copy(rightCastedRay[0].position as Vector3)
+    solveTwoBoneIK(
+      rig.rightUpperLeg.node,
+      rig.rightLowerLeg.node,
+      rig.rightFoot.node,
+      worldSpaceRightFoot.setY(worldSpaceRightFoot.y + 0.1),
+      rot
+    )
+
+    //reuse raycast args object, cast ray for left foot
+    footRaycastArgs.origin.set(worldSpaceLeftFoot.x, hipsWorldSpace.y, worldSpaceLeftFoot.z)
+    const leftCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
+    if (leftCastedRay[0]) worldSpaceLeftFoot.copy(leftCastedRay[0].position as Vector3)
+    solveTwoBoneIK(
+      rig.leftUpperLeg.node,
+      rig.leftLowerLeg.node,
+      rig.leftFoot.node,
+      worldSpaceLeftFoot.setY(worldSpaceLeftFoot.y + 0.1),
+      rot
+    )
+
+    rig.hips.node.quaternion.copy(hipsRotationoffset)
   }
 
   /**
@@ -352,7 +391,7 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    AnimationManager.instance.loadDefaultAnimations()
+    //AnimationManager.instance.loadDefaultAnimations()
   }, [])
   return null
 }

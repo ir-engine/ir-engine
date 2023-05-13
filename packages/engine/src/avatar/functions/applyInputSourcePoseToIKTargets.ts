@@ -191,7 +191,7 @@ const thumbOffsetRadians = -Math.PI / 2
 const offsetMatrix = new Matrix4()
 
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
-  const hand = inputSource.hand as any as XRHand
+  /*  const hand = inputSource.hand as any as XRHand
   const rig = getComponent(entity, AvatarRigComponent)
   const referenceSpace = ReferenceSpace.origin!
   const xrFrame = Engine.instance.xrFrame!
@@ -222,6 +222,7 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
       matrix.decompose(emptyVec, bone.quaternion, emptyVec)
     }
   }
+*/
 }
 
 const handOffsetRadians = Math.PI / 2.5

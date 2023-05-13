@@ -132,8 +132,9 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
 
   /** move hips to the new position */
   const hipDifference = fullLegLength - (footToKneeY + kneeToHipsY)
-  rig.hips.node.position.y -= hipDifference
-  rig.hips.node.position.z -= hipX
+  console.log(rig.hips.node.position.y)
+  //rig.hips.node.position.y -= hipDifference
+  //rig.hips.node.position.z -= hipX
 
   /** Update matrices */
   rig.hips.node.updateWorldMatrix(true, true)
@@ -226,7 +227,6 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
     0,
     1
   )
-
   /** Torso */
   /** Apply the hip internal angle we calculated previously */
   rig.spine.node.applyQuaternion(_quat.setFromAxisAngle(V_100, degtoRad90 - hipToHeadAngle))
