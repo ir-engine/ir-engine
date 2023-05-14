@@ -132,7 +132,7 @@ const CaptureDashboard = () => {
       sendResults(poseWorldLandmarks)
       processingFrame.set(false)
 
-      if (!canvasCtxRef.current || !canvasRef.current) return
+      if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
 
       //draw!!!
       canvasCtxRef.current.save()
@@ -162,8 +162,12 @@ const CaptureDashboard = () => {
 
     if (processingFrame.value) return
 
-    processingFrame.set(true)
-    poseDetector.value?.send({ image: videoRef.current! })
+    if (poseDetector.value) {
+      processingFrame.set(true)
+      poseDetector.value?.send({ image: videoRef.current! }).finally(() => {
+        processingFrame.set(false)
+      })
+    }
   })
 
   // todo include a mechanism to confirm that the recording has started/stopped
