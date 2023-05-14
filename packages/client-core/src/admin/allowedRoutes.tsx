@@ -23,7 +23,7 @@ const availableRoutes = [
   { route: '/avatars', key: 'globalAvatars', component: Avatars, props: {} },
   { route: '/benchmarking', key: 'benchmarking', component: Benchmarking, props: {} },
   { route: '/groups', key: 'groups', component: Groups, props: {} },
-  { route: '/instance', key: 'instance', component: Instance, props: {} },
+  { route: '/instance', key: 'instance', component: Recordings, props: {} },
   { route: '/invites', key: 'invite', component: Invites, props: {} },
   { route: '/locations', key: 'location', component: Locations, props: {} },
   { route: '/routes', key: 'routes', component: RoutesComp, props: {} },

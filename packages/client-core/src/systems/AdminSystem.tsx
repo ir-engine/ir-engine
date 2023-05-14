@@ -1,5 +1,5 @@
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { defineActionQueue } from '@etherealengine/hyperflux'
+import { defineAction, defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
@@ -18,6 +18,7 @@ import {
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
+import { AdminRecordingReceptors, AdminRecordingsActions } from '../admin/services/RecordingService'
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
@@ -132,6 +133,8 @@ const inviteRemovedQueue = defineActionQueue(AdminInviteActions.inviteRemoved.ma
 // const fetchedClientQueue = defineActionQueue(ClientSettingActions.fetchedClient.matches)
 // const clientSettingPatchedQueue = defineActionQueue(ClientSettingActions.clientSettingPatched.matches)
 const buildStatusRetrievedQueue = defineActionQueue(AdminBuildStatusActions.fetchBuildStatusRetrieved.matches)
+const recordingsRetrievedQueue = defineActionQueue(AdminRecordingsActions.recordingsRetrieved.matches)
+const recordingRemovedQueue = defineActionQueue(AdminRecordingsActions.recordingsRemoved.matches)
 
 const execute = () => {
   for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
@@ -225,6 +228,8 @@ const execute = () => {
   // for (const action of fetchedClientQueue()) //   ClientSettingReceptors.fetchedClientReceptor(action)/ }
   // for (const action of clientSettingPatchedQueue()) //   ClientSettingReceptors.clientSettingPatchedReceptor(action)/ }
   for (const action of buildStatusRetrievedQueue()) AdminBuildStatusReceptors.fetchBuildStatusReceptor(action)
+  for (const action of recordingsRetrievedQueue()) AdminRecordingReceptors.recordingsRetrievedReceptor(action)
+  for (const action of recordingRemovedQueue()) AdminRecordingReceptors.recordingRemovedReceptor(action)
 }
 
 export const AdminSystem = defineSystem({

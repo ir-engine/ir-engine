@@ -442,6 +442,9 @@
       "minutes": "minutes",
       "download": "Download",
       "confirmPodDelete": "Do you want to delete pod"
+    },
+    "recording": {
+      "recording": "Recording"
     }
   }
 }
