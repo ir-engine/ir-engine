@@ -701,7 +701,7 @@ export async function createDataProducer(
     appData: { data: customInitInfo },
     ordered: false,
     label: dataChannelType,
-    maxPacketLifeTime: 3000,
+    maxPacketLifeTime: 0,
     // maxRetransmits: 3,
     protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
   })
