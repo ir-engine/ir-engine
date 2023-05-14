@@ -59,7 +59,7 @@ import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { SkeletonUtils } from '../SkeletonUtils'
-import { getIdlePose } from './proceduralIKAnimations'
+import { getIdlePose, getWalkForwardPose } from './proceduralIKAnimations'
 import { resizeAvatar } from './resizeAvatar'
 
 const tempVec3ForHeight = new Vector3()
@@ -220,10 +220,13 @@ export const createIKAnimator = (entity: Entity) => {
   const manager = getState(animationManager)
   const animationComponent = getComponent(entity, AnimationComponent)
   animationComponent.mixer = new AnimationMixer(manager.targets)
-  const clip = getIdlePose()
-  animationComponent.animations = [clip]
-  const action = animationComponent.mixer.clipAction(clip)
-  action.play()
+  const idle = getIdlePose()
+  const walkForward = getWalkForwardPose()
+  animationComponent.animations = [idle, walkForward]
+  const idleAction = animationComponent.mixer.clipAction(idle)
+  const walkAction = animationComponent.mixer.clipAction(walkForward)
+  idleAction.play()
+  walkAction.play()
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {

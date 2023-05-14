@@ -34,6 +34,7 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
+import { setAvatarLocomotionAnimation } from './animation/AvatarAnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
@@ -233,6 +234,8 @@ const execute = () => {
     } else {
       avatarAnimationComponent.locomotion.setScalar(0)
     }
+
+    setAvatarLocomotionAnimation(entity)
 
     /**
      * Apply IK

@@ -12,6 +12,9 @@ import { getState } from '@etherealengine/hyperflux'
 import { Entity } from '../../ecs/classes/Entity'
 import { animationManager } from '../AnimationManager'
 
+//Programatic keyframe placement for complex animations is horrible and NOT scalable
+//To be replaced with keyframes from ik target glb
+//For now programmatic keyframe placement makes debugging easier
 export const getIdlePose = () => {
   const state = getState(animationManager)
 
@@ -47,14 +50,14 @@ export const getIdlePose = () => {
   const idleTrackRightLeg = new VectorKeyframeTrack(
     state.ikTargetsMap.rightFootTarget.name + '.position',
     [0, 1, 2],
-    [0.1, -0.7, -0.2, 0.1, -0.4, -0.2, 0.1, -0.7, -0.2],
+    [0.1, -0.8, -0.2, 0.1, -0.8, -0.225, 0.1, -0.8, -0.2],
     InterpolateSmooth
   )
 
   const idleTrackLeftLeg = new VectorKeyframeTrack(
     state.ikTargetsMap.leftFootTarget.name + '.position',
     [0, 1, 2],
-    [-0.1, -1, 0, -0.1, -1, 0.01, -0.1, -1, 0],
+    [-0.1, -0.8, 0, -0.1, -0.8, 0.01, -0.1, -0.8, 0],
     InterpolateSmooth
   )
 
@@ -70,6 +73,22 @@ export const getIdlePose = () => {
 }
 
 export const getWalkForwardPose = () => {
-  const clip = new AnimationClip('walkForwardTrack', 1)
+  const state = getState(animationManager)
+
+  const walkTrackLeftLeg = new VectorKeyframeTrack(
+    state.ikTargetsMap.leftFootTarget.name + '.position',
+    [0, 0.5, 1],
+    [-0.1, -0.8, 0, -0.1, -0.4, 0, -0.1, -0.8, 0],
+    InterpolateSmooth
+  )
+
+  const walkTrackRightLeg = new VectorKeyframeTrack(
+    state.ikTargetsMap.rightFootTarget.name + '.position',
+    [1, 1.5, 2],
+    [0.1, -0.8, 0, 0.1, -0.4, 0, 0.1, -0.8, 0],
+    InterpolateSmooth
+  )
+
+  const clip = new AnimationClip('walkForwardTrack', 2, [walkTrackLeftLeg, walkTrackRightLeg])
   return clip
 }
