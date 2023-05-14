@@ -68,3 +68,8 @@ export const getIdlePose = () => {
   ])
   return clip
 }
+
+export const getWalkForwardPose = () => {
+  const clip = new AnimationClip('walkForwardTrack', 1)
+  return clip
+}

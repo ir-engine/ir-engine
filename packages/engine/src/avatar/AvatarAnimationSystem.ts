@@ -243,7 +243,7 @@ const execute = () => {
     const transform = getComponent(entity, TransformComponent)
     const animationState = getState(animationManager)
 
-    //get world space in a better way  -  can be proxified / use transform component?
+    //to do: get world space in a better way  -  can be proxified / use transform component?
     const worldSpaceRightHand = rig.hips.node.localToWorld(animationState.ikTargetsMap.rightHandTarget.position)
     const worldSpaceLeftHand = rig.hips.node.localToWorld(animationState.ikTargetsMap.leftHandTarget.position)
     const worldSpaceRightFoot = rig.hips.node.localToWorld(animationState.ikTargetsMap.rightFootTarget.position)
@@ -251,11 +251,11 @@ const execute = () => {
     const hipsWorldSpace = new Vector3()
     rig.hips.node.getWorldPosition(hipsWorldSpace)
 
-    //to do, get leg length of avatar in world space
+    //to do: get leg length of avatar in world space
     const legLength = 0.9
-    //to do, get arm length of avatar in world space
+    //to do: get arm length of avatar in world space
     const armLength = 0.75
-    //to do, get height of avatar in world space
+    //to do: get height of avatar in world space
     const height = 1.8
 
     //get rotations from ik targets and convert to world space relative to hips
