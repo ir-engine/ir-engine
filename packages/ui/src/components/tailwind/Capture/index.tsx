@@ -83,7 +83,7 @@ const CaptureDashboard = () => {
   const [isVideoFlipped, setIsVideoFlipped] = useState(true)
   const [isDrawingBody, setIsDrawingBody] = useState(true)
   const [isDrawingHands, setIsDrawingHands] = useState(true)
-  const [isDrawingFace, setIsDrawingFace] = useState(false)
+  const [isDrawingFace, setIsDrawingFace] = useState(true)
 
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
@@ -222,10 +222,10 @@ const CaptureDashboard = () => {
             lineWidth: 2
           })
           // Face Landmarks
-          drawLandmarks(canvasCtxRef.current, faceLandmarks, {
-            color: '#fff',
-            lineWidth: 1
-          })
+          // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
+          //   color: '#fff',
+          //   lineWidth: 1
+          // })
         }
         canvasCtxRef.current.restore()
       })
