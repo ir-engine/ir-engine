@@ -90,7 +90,7 @@ const CaptureDashboard = () => {
 
   const detector = useHookstate(null as null | Holistic)
   const poseOptions = useHookstate({
-    enableFaceGeometry: true,
+    enableFaceGeometry: isDrawingFace,
     selfieMode: false,
     modelComplexity: 1,
     smoothLandmarks: true,
