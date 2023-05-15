@@ -36,6 +36,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { AvatarService } from '../../user/services/AvatarService'
 import { startClientSystems } from '../../world/startClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
@@ -55,6 +56,24 @@ export const useLoadEngine = () => {
   useEffect(() => {
     initClient()
   }, [])
+}
+
+const fetchMissingAvatar = async (user, avatarSpawnPose) => {
+  const avatar = await AvatarService.getAvatar(user.avatar.id.value)
+  if (avatar && (avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src))
+    spawnLocalAvatarInWorld({
+      avatarSpawnPose,
+      avatarDetail: {
+        avatarURL: avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src,
+        thumbnailURL: avatar.thumbnailResource?.LOD0_url || (avatar.thumbnailResource as any)?.src
+      },
+      name: user.name.value
+    })
+  else
+    NotificationService.dispatchNotify(
+      'Your avatar is missing its model. Please change your avatar from the user menu.',
+      { variant: 'error' }
+    )
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
@@ -89,7 +108,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       ? getSpawnPoint(spawnPoint, Engine.instance.userId)
       : getRandomSpawnPoint(Engine.instance.userId)
 
-    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any).src)
+    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any)?.src)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
         avatarDetail: {
@@ -98,12 +117,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         },
         name: user.name.value
       })
-    else {
-      NotificationService.dispatchNotify(
-        'Your avatar is missing its model. Please change your avatar from the user menu.',
-        { variant: 'error' }
-      )
-    }
+    else fetchMissingAvatar(user, avatarSpawnPose)
   }, [sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
 }
 

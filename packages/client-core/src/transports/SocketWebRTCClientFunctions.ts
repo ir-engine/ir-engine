@@ -701,7 +701,7 @@ export async function createDataProducer(
     appData: { data: customInitInfo },
     ordered: false,
     label: dataChannelType,
-    maxPacketLifeTime: 3000,
+    maxPacketLifeTime: 0,
     // maxRetransmits: 3,
     protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
   })
@@ -1021,7 +1021,6 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
           }
         }, 100)
       })
-      console.log(mediaStreamState.videoPaused.value)
       if (mediaStreamState.videoPaused.value) await mediaStreamState.camVideoProducer.value!.pause()
       else if (mediaStreamState.camVideoProducer.value)
         await resumeProducer(network, mediaStreamState.camVideoProducer.value!)

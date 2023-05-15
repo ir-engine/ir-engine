@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { AdditiveBlending, BufferGeometry, Texture } from 'three'
+import { AdditiveBlending, BufferGeometry, Material, MeshBasicMaterial, Texture, Vector2, Vector3 } from 'three'
 import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
 import matches from 'ts-matches'
 
@@ -195,12 +195,14 @@ export type RandomColorJSON = {
   b: ColorJSON
 }
 
+export type ColorGradientFunctionJSON = {
+  function: ColorRangeJSON
+  start: number
+}
+
 export type ColorGradientJSON = {
   type: 'Gradient'
-  functions: {
-    function: ColorRangeJSON
-    start: number
-  }[]
+  functions: ColorGradientFunctionJSON[]
 }
 
 export type ColorGeneratorJSON = ConstantColorJSON | ColorRangeJSON | RandomColorJSON | ColorGradientJSON
@@ -262,6 +264,34 @@ export type RandomQuatGeneratorJSON = {
 
 export type RotationGeneratorJSON = AxisAngleGeneratorJSON | EulerGeneratorJSON | RandomQuatGeneratorJSON
 
+export const RotationGeneratorJSONDefaults: Record<string, RotationGeneratorJSON> = {
+  AxisAngle: {
+    type: 'AxisAngle',
+    axis: [0, 1, 0],
+    angle: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  Euler: {
+    type: 'Euler',
+    angleX: {
+      type: 'ConstantValue',
+      value: 0
+    },
+    angleY: {
+      type: 'ConstantValue',
+      value: 0
+    },
+    angleZ: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  RandomQuat: {
+    type: 'RandomQuat'
+  }
+}
 /*
 /ROTATION GENERATOR TYPES
 */
@@ -269,6 +299,36 @@ export type RotationGeneratorJSON = AxisAngleGeneratorJSON | EulerGeneratorJSON 
 /*
 BEHAVIOR TYPES
 */
+
+//  SEQUENCER
+export type TextureSequencerJSON = {
+  scaleX: number
+  scaleY: number
+  position: Vector3
+  locations: Vector2[]
+  src: string
+  threshold: number
+}
+
+export type SequencerJSON = TextureSequencerJSON
+
+export type ApplySequencesJSON = {
+  type: 'ApplySequences'
+  delay: number
+  sequencers: {
+    range: IntervalValueJSON
+    sequencer: SequencerJSON
+  }[]
+}
+
+export type BurstParametersJSON = {
+  time: number
+  count: number
+  cycle: number
+  interval: number
+  probability: number
+}
+//  /SEQUENCER
 
 export type ApplyForceBehaviorJSON = {
   type: 'ApplyForce'
@@ -373,8 +433,23 @@ export type BehaviorJSON =
   | WidthOverLengthBehaviorJSON
   | ChangeEmitDirectionBehaviorJSON
   | EmitSubParticleSystemBehaviorJSON
+  | ApplySequencesJSON
+
+/*
+  SYSTEM TYPES
+*/
+
+export type RendererSettingsJSON = {
+  startLength: ValueGeneratorJSON
+  followLocalOrigin: boolean
+}
 
 export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
+  ApplySequences: {
+    type: 'ApplySequences',
+    delay: 0,
+    sequencers: []
+  },
   ApplyForce: {
     type: 'ApplyForce',
     direction: [0, 1, 0],
@@ -496,14 +571,24 @@ export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
 /BEHAVIOR TYPES
 */
 
-export type ExpandedSystemJSON = ParticleSystemJSONParameters & {
-  instancingGeometry?: string
+export type ExtraSystemJSON = {
+  instancingGeometry: string
   startColor: ColorGeneratorJSON
   startRotation: ValueGeneratorJSON
   startSize: ValueGeneratorJSON
   startSpeed: ValueGeneratorJSON
   startLife: ValueGeneratorJSON
   behaviors: BehaviorJSON[]
+  emissionBursts: BurstParametersJSON[]
+  rendererEmitterSettings?: RendererSettingsJSON
+}
+
+export type ExpandedSystemJSON = ParticleSystemJSONParameters & ExtraSystemJSON
+
+export type ParticleSystemMetadata = {
+  geometries: { [key: string]: BufferGeometry }
+  materials: { [key: string]: Material }
+  textures: { [key: string]: Texture }
 }
 
 export type ParticleSystemComponentType = {
@@ -544,6 +629,7 @@ export const ParticleSystemJSONParametersValidator = matches.shape({
     })
     .optional(),
   renderMode: matches.natural,
+  speedFactor: matches.number,
   texture: matches.string,
   instancingGeometry: matches.object.optional(),
   startTileIndex: matches.natural,
@@ -558,6 +644,8 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   version: '1.0',
   autoDestroy: false,
   looping: true,
+  prewarm: false,
+  material: '',
   duration: 5,
   shape: { type: 'point' },
   startLife: {
@@ -595,13 +683,19 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   emissionBursts: [],
   onlyUsedByOther: false,
   rendererEmitterSettings: {
-    startLength: undefined,
-    followLocalOrigin: undefined
+    startLength: {
+      type: 'ConstantValue',
+      value: 1
+    },
+    followLocalOrigin: true
   },
   renderMode: RenderMode.BillBoard,
   texture: '/static/editor/dot.png',
-  instancingGeometry: undefined,
-  startTileIndex: 0,
+  instancingGeometry: '',
+  startTileIndex: {
+    type: 'ConstantValue',
+    value: 0
+  },
   uTileCount: 1,
   vTileCount: 1,
   blending: AdditiveBlending,
@@ -640,8 +734,8 @@ export const ParticleSystemComponent = defineComponent({
     component.behaviors.set(none)
   },
   toJSON: (entity, component) => ({
-    systemParameters: component.systemParameters.value,
-    behaviorParameters: component.behaviorParameters.value
+    systemParameters: JSON.parse(JSON.stringify(component.systemParameters.value)),
+    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters.value))
   }),
   reactor: function () {
     const entity = useEntityContext()
@@ -655,14 +749,9 @@ export const ParticleSystemComponent = defineComponent({
         component.system.dispose()
         componentState.system.set(none)
       }
-      function initParticleSystem(
-        systemParameters: ParticleSystemJSONParameters,
-        dependencies: {
-          textures: { [key: string]: Texture }
-          geometries: { [key: string]: BufferGeometry }
-        }
-      ) {
-        const nuSystem = ParticleSystem.fromJSON(systemParameters, dependencies, {}, batchRenderer)
+      function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
+        const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
+        batchRenderer.addSystem(nuSystem)
         componentState.behaviors.set(
           component.behaviorParameters.map((behaviorJSON) => {
             const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
@@ -688,12 +777,18 @@ export const ParticleSystemComponent = defineComponent({
         AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
 
       const loadDependencies: Promise<any>[] = []
-      const metadata: {
-        textures: { [key: string]: Texture }
-        geometries: { [key: string]: BufferGeometry }
-      } = { textures: {}, geometries: {} }
+      const metadata: ParticleSystemMetadata = { textures: {}, geometries: {}, materials: {} }
 
-      const processedParms = JSON.parse(JSON.stringify(component.systemParameters))
+      //add dud material
+      componentState.systemParameters.material.set('dud')
+      const dudMaterial = new MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: component.systemParameters.transparent ?? true,
+        blending: component.systemParameters.blending
+      })
+      metadata.materials['dud'] = dudMaterial
+
+      const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
 
       function loadGeoDependency(src: string) {
         return new Promise((resolve) => {
@@ -710,7 +805,7 @@ export const ParticleSystemComponent = defineComponent({
           new Promise((resolve) => {
             AssetLoader.load(component.systemParameters.shape.mesh!, {}, ({ scene }: GLTF) => {
               const mesh = getFirstMesh(scene)
-              !!mesh && (processedParms.shape.mesh = mesh)
+              mesh && (metadata.geometries[component.systemParameters.shape.mesh!] = mesh.geometry)
               resolve(null)
             })
           })
@@ -721,8 +816,9 @@ export const ParticleSystemComponent = defineComponent({
       doLoadTexture &&
         loadDependencies.push(
           new Promise((resolve) => {
-            AssetLoader.load(component.systemParameters.texture, {}, (texture) => {
-              metadata.textures[component.systemParameters.texture] = texture
+            AssetLoader.load(component.systemParameters.texture!, {}, (texture: Texture) => {
+              metadata.textures[component.systemParameters.texture!] = texture
+              dudMaterial.map = texture
               resolve(null)
             })
           })

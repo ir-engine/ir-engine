@@ -55,6 +55,7 @@ const AppPage = () => {
 
   useEffect(() => {
     const receptor = (action): any => {
+      // @ts-ignore
       matches(action).when(NotificationAction.notify.matches, (action) => {
         AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {

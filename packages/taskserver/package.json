@@ -1,7 +1,7 @@
 {
   "name": "@etherealengine/taskserver",
   "description": "Task server for EtherealEngine platform",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/etherealengine/etherealengine.git"
@@ -39,7 +39,7 @@
     "validate": "npm run build && npm run test"
   },
   "dependencies": {
-    "@etherealengine/server-core": "^1.2.0",
+    "@etherealengine/server-core": "^1.2.1",
     "@feathersjs/express": "5.0.1",
     "@feathersjs/feathers": "5.0.1",
     "@feathersjs/primus": "4.5.15",

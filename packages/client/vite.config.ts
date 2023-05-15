@@ -5,9 +5,10 @@ import fs from 'fs'
 import fsExtra from 'fs-extra'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
-import { defineConfig, loadEnv, UserConfig } from 'vite'
+import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
 
 import manifest from './manifest.default.json'
@@ -21,6 +22,7 @@ const merge = (src, dest) =>
     }
   })
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('ts-node').register({
   project: './tsconfig.json'
 })
@@ -50,9 +52,11 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
   for (const project of projects) {
     const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
     if (fs.existsSync(staticPath)) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { default: viteConfigExtension } = require(staticPath)
       if (typeof viteConfigExtension === 'function') {
         const configExtension = await viteConfigExtension()
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         config.plugins = [...config.plugins!, ...configExtension.default.plugins]
         delete configExtension.default.plugins
         config = merge(config, configExtension.default)
@@ -111,7 +115,6 @@ function mediapipe_workaround() {
 copyProjectDependencies()
 
 export default defineConfig(async () => {
-  const env = loadEnv('', process.cwd() + '../../')
   dotenv.config({
     path: appRootPath.path + '/.env.local'
   })
@@ -155,6 +158,7 @@ export default defineConfig(async () => {
       }
     },
     plugins: [
+      OptimizationPersist(),
       mediapipe_workaround(),
       PkgConfig(),
       PWA(clientSetting),
@@ -173,7 +177,7 @@ export default defineConfig(async () => {
             icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
             icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
             webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
-            swScriptLink: clientSetting.swscriptLink || process.env.APP_ENV === 'production' ? '/sw.js' : '',
+            swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
             paymentPointer: clientSetting.paymentPointer || ''
           }
         }

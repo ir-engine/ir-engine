@@ -304,7 +304,7 @@ const execute = () => {
         rig.LeftForeArm,
         rig.LeftHand,
         transformComponent.position,
-        transformComponent.rotation.multiply(leftHandRotation),
+        transformComponent.rotation.clone().multiply(leftHandRotation),
         leftHandRotationOffset
       )
     } else if (ikComponent.handedness === 'right') {
@@ -316,7 +316,7 @@ const execute = () => {
         rig.RightForeArm,
         rig.RightHand,
         transformComponent.position,
-        transformComponent.rotation.multiply(rightHandRotation),
+        transformComponent.rotation.clone().multiply(rightHandRotation),
         rightHandRotationOffset
       )
     }
