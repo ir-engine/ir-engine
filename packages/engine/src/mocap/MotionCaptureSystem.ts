@@ -10,6 +10,7 @@ import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -90,6 +91,7 @@ const rightHandPos = new Vector3()
 
 const execute = () => {
   const xrState = getState(XRState)
+  const engineState = getState(EngineState)
 
   if (xrState.sessionActive) return
 
@@ -188,7 +190,7 @@ const execute = () => {
           .multiplyScalar(-1)
           .applyQuaternion(avatarTransform.rotation)
           .add(hipsPos)
-        ik.position.copy(leftHandPos)
+        ik.position.lerp(leftHandPos, engineState.deltaSeconds * 10)
         // ik.quaternion.copy()
       }
 
@@ -201,7 +203,7 @@ const execute = () => {
           .multiplyScalar(-1)
           .applyQuaternion(avatarTransform.rotation)
           .add(hipsPos)
-        ik.position.copy(rightHandPos)
+        ik.position.lerp(rightHandPos, engineState.deltaSeconds * 10)
         // ik.quaternion.copy()
       }
     }
