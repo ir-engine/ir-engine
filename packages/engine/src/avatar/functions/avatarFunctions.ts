@@ -1,6 +1,7 @@
 import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
 import { cloneDeep } from 'lodash'
+import { useEffect } from 'react'
 import {
   AnimationClip,
   AnimationMixer,
@@ -13,8 +14,9 @@ import {
   SkinnedMesh,
   Vector3
 } from 'three'
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState, startReactor } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
@@ -216,17 +218,23 @@ export const setupAvatarModel = (entity: Entity) => pipe(rigAvatarModel(entity),
 //   return model
 // }
 
-export const createIKAnimator = (entity: Entity) => {
+export const createIKAnimator = async (entity: Entity) => {
   const manager = getState(animationManager)
   const animationComponent = getComponent(entity, AnimationComponent)
+
+  const asset = await AssetLoader.loadAsync('/default_assets/test_ik_targets.glb')
+  const glb = asset as GLTF
+
   animationComponent.mixer = new AnimationMixer(manager.targets)
-  const idle = getIdlePose()
+  //const idle = manager.targetsAnimation[0]
+  const idle = glb.animations[0]
   const walkForward = getWalkForwardPose()
   animationComponent.animations = [idle, walkForward]
   const idleAction = animationComponent.mixer.clipAction(idle)
   const walkAction = animationComponent.mixer.clipAction(walkForward)
+  console.log(idle)
   idleAction.play()
-  walkAction.play()
+  //walkAction.play()
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {

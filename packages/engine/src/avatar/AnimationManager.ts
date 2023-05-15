@@ -30,11 +30,12 @@ export const animationManager = defineState({
       leftHandTarget: new Object3D(),
       rightFootTarget: new Object3D(),
       leftFootTarget: new Object3D()
-    } as ikTargets
+    } as ikTargets,
+    targetsAnimation: [] as AnimationClip[]
   }),
   onCreate: () => {
     const ikTargetHolder = new Object3D()
-
+    ikTargetHolder.name = 'Hips'
     const state = getMutableState(animationManager)
 
     for (const [key, value] of Object.entries(state.ikTargetsMap.value)) {

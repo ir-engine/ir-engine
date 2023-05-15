@@ -246,11 +246,13 @@ const execute = () => {
     const transform = getComponent(entity, TransformComponent)
     const animationState = getState(animationManager)
 
+    const root = avatarRigComponent.vrm.humanoid.normalizedHumanBonesRoot
+
     //to do: get world space in a better way  -  can be proxified / use transform component?
-    const worldSpaceRightHand = rig.hips.node.localToWorld(animationState.ikTargetsMap.rightHandTarget.position)
-    const worldSpaceLeftHand = rig.hips.node.localToWorld(animationState.ikTargetsMap.leftHandTarget.position)
-    const worldSpaceRightFoot = rig.hips.node.localToWorld(animationState.ikTargetsMap.rightFootTarget.position)
-    const worldSpaceLeftFoot = rig.hips.node.localToWorld(animationState.ikTargetsMap.leftFootTarget.position)
+    const worldSpaceRightHand = root.localToWorld(animationState.ikTargetsMap.rightHandTarget.position)
+    const worldSpaceLeftHand = root.localToWorld(animationState.ikTargetsMap.leftHandTarget.position)
+    const worldSpaceRightFoot = root.localToWorld(animationState.ikTargetsMap.rightFootTarget.position)
+    const worldSpaceLeftFoot = root.localToWorld(animationState.ikTargetsMap.leftFootTarget.position)
     const hipsWorldSpace = new Vector3()
     rig.hips.node.getWorldPosition(hipsWorldSpace)
 
@@ -277,6 +279,7 @@ const execute = () => {
     )
     solveTwoBoneIK(rig.leftUpperArm.node, rig.leftLowerArm.node, rig.leftHand.node, worldSpaceLeftHand, leftHandRot)
 
+    //raycasting here every frame is terrible, this should be done every quarter of a second at most.
     //cast ray for right foot, starting at hips y position and foot x/z
     const footRaycastArgs = {
       type: SceneQueryType.Closest,
