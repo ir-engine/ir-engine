@@ -10,7 +10,7 @@ import {
   S3Client
 } from '@aws-sdk/client-s3'
 import { Options, Upload } from '@aws-sdk/lib-storage'
-import { createPresignedPost, PresignedPost } from '@aws-sdk/s3-presigned-post'
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import { reject } from 'lodash'
 import fetch from 'node-fetch'
 import path from 'path/posix'
