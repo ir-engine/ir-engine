@@ -12,10 +12,8 @@ import compress from 'koa-compress'
 import cors from 'koa-cors'
 import helmet from 'koa-helmet'
 import healthcheck from 'koa-simple-healthcheck'
-import { AsyncFunc } from 'mocha'
 import path from 'path'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -29,17 +27,11 @@ import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
 import sequelize from './sequelize'
-import { elasticOnlyLogger, logger } from './ServerLogger'
+import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
-
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    '/api/log': any
-  }
-}
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('fix-esm').register()
@@ -216,30 +208,6 @@ export const createFeathersKoaApp = (
 
   // Set up our services (see `services/index.js`)
   app.configure(services)
-
-  // Receive client-side log events (only active when APP_ENV != 'development')
-  app.use(
-    '/api/log',
-    {
-      create: () => {
-        return
-      }
-    },
-    {
-      koa: {
-        before: [
-          async (ctx: any, next) => {
-            console.log(ctx)
-            const { msg, ...mergeObject } = ctx.body
-            if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
-            await next()
-            ctx.status = 204
-            return
-          }
-        ]
-      }
-    }
-  )
 
   return app
 }
