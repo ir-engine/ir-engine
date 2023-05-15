@@ -105,7 +105,7 @@ const CaptureDashboard = () => {
   useLayoutEffect(() => {
     canvasCtxRef.current = canvasRef.current!.getContext('2d')!
     const factor = poseOptions.selfieMode.value === true ? '-1' : '1'
-    canvasRef.current!.style.transform = `scaleX(${factor})`
+    // canvasRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.srcObject = videoStream.value
     videoRef.current!.onplay = () => videoActive.set(true)
