@@ -22,7 +22,6 @@ export default (app: Application): void => {
       koa: {
         before: [
           async (ctx: any, next) => {
-            console.log(ctx)
             const { msg, ...mergeObject } = ctx.body
             if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
             await next()
