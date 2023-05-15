@@ -307,7 +307,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const projectRoot = path.join(appRootPath.path, 'packages/projects')
 
   const toValidFilename = (name: string) => {
-    const result = name.replace(/[\s]/, '-')
+    const result = name.replace(/[\s]/g, '-')
     return result
   }
   let pathIndex = 0

@@ -734,8 +734,8 @@ export const ParticleSystemComponent = defineComponent({
     component.behaviors.set(none)
   },
   toJSON: (entity, component) => ({
-    systemParameters: component.systemParameters.value,
-    behaviorParameters: component.behaviorParameters.value
+    systemParameters: JSON.parse(JSON.stringify(component.systemParameters.value)),
+    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters.value))
   }),
   reactor: function () {
     const entity = useEntityContext()

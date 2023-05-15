@@ -124,8 +124,8 @@ const execute = () => {
       const leftWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
 
       const head = !!nose.visibility && nose.visibility > 0.5
-      const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.5
-      const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.5
+      const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.1
+      const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.1
 
       const headUUID = (Engine.instance.userId + motionCaptureHeadSuffix) as EntityUUID
       const leftHandUUID = (Engine.instance.userId + motionCaptureLeftHandSuffix) as EntityUUID
@@ -164,7 +164,7 @@ const execute = () => {
         }
 
       if (ikTargetHead) {
-        if (!nose.visibility || nose.visibility < 0.5) continue
+        if (!nose.visibility || nose.visibility < 0.1) continue
         if (!nose.x || !nose.y || !nose.z) continue
         const ik = getComponent(ikTargetHead, TransformComponent)
         headPos
@@ -180,7 +180,7 @@ const execute = () => {
       }
 
       if (ikTargetLeftHand) {
-        if (!leftWrist.visibility || leftWrist.visibility < 0.5) continue
+        if (!leftWrist.visibility || leftWrist.visibility < 0.1) continue
         if (!leftWrist.x || !leftWrist.y || !leftWrist.z) continue
         const ik = getComponent(ikTargetLeftHand, TransformComponent)
         leftHandPos

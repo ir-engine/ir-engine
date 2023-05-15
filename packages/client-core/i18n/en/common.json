@@ -56,6 +56,7 @@
     "subSystems": "Sub System",
     "postSystems": "Post Systems",
     "nodeHelperDebug": "Node Helper",
+    "entityTree": "Entity Tree",
     "gridDebug": "Grid",
     "tick": "Tick",
     "state": "State",

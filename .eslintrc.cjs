@@ -5,7 +5,7 @@ module.exports = {
   root: true,
   rules: {
     '@typescript-eslint/no-empty-function': 'off',
-    // "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/no-non-null-assertion": 'off',
     "@typescript-eslint/no-non-null-asserted-optional-chain": "warn",
     "@typescript-eslint/ban-ts-comment": "warn"
   },

@@ -1,7 +1,7 @@
 import { PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useHookstate } from '@hookstate/core'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { NormalizedLandmarkList, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
+import { NormalizedLandmarkList, Options, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -14,6 +14,7 @@ import {
   SocketWebRTCClientNetwork,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
@@ -35,7 +36,7 @@ const startDataProducer = async () => {
     appData: { data: {} },
     ordered: true,
     label: mocapDataChannelType,
-    maxPacketLifeTime: 3000,
+    maxPacketLifeTime: 0,
     // maxRetransmits: 3,
     protocol: 'raw'
   })
@@ -75,48 +76,99 @@ const sendResults = (results: NormalizedLandmarkList) => {
 }
 
 const CaptureDashboard = () => {
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
-  const [videoStatus, setVideoStatus] = useState('')
-
-  const poseDetectorRef = useRef<Pose>()
   const isDetecting = useHookstate(false)
 
-  const staticImageMode = useHookstate(true)
-  const modelComplexity = useHookstate(1)
-  const smoothLandmarks = useHookstate(true)
-  const enableSegmentation = useHookstate(false)
-  const smoothSegmentation = useHookstate(false)
-  const minDetectionConfidence = useHookstate(0.5)
-  const minTrackingConfidence = useHookstate(0.5)
+  const poseDetector = useHookstate(null as null | Pose)
+  const poseOptions = useHookstate({
+    selfieMode: false,
+    modelComplexity: 1,
+    smoothLandmarks: true,
+    enableSegmentation: false,
+    smoothSegmentation: false,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  } as Options)
+  const processingFrame = useHookstate(false)
 
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const canvasCtxRef = useRef<CanvasRenderingContext2D | null>(null)
+  const videoRef = useRef<HTMLVideoElement>()
+  const canvasRef = useRef<HTMLCanvasElement>()
+  const canvasCtxRef = useRef<CanvasRenderingContext2D>()
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
   const mediaConnection = useMediaInstance()
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const recordingState = useHookstate(getMutableState(RecordingState))
 
-  const modelLoaded = useHookstate(false)
-  const isVideoFlipped = useHookstate(true)
+  const videoActive = useHookstate(false)
 
-  // Restart dectector when option states is updated
+  useLayoutEffect(() => {
+    canvasCtxRef.current = canvasRef.current!.getContext('2d')!
+    const factor = poseOptions.selfieMode.value === true ? '-1' : '1'
+    // canvasRef.current!.style.transform = `scaleX(${factor})`
+    videoRef.current!.style.transform = `scaleX(${factor})`
+    videoRef.current!.srcObject = videoStream.value
+    videoRef.current!.onplay = () => videoActive.set(true)
+    videoRef.current!.onpause = () => videoActive.set(false)
+  }, [videoStream, poseOptions.selfieMode])
+
   useEffect(() => {
-    if (poseDetectorRef.current) {
-      stopDetecting()
-      const detector = createPoseDetector()
-      startDetecting(detector)
+    poseDetector.value?.setOptions(poseOptions.value)
+  }, [poseDetector, poseOptions])
+
+  useEffect(() => {
+    if (!isDetecting?.value) return
+
+    processingFrame.set(false)
+
+    const pose = new Pose({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+      }
+    })
+
+    pose.onResults((results) => {
+      const { poseWorldLandmarks, poseLandmarks } = results
+      sendResults(poseWorldLandmarks)
+      processingFrame.set(false)
+
+      if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
+
+      //draw!!!
+      canvasCtxRef.current.save()
+      canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+      canvasCtxRef.current.globalCompositeOperation = 'source-over'
+      drawConnectors(canvasCtxRef.current, [...poseLandmarks], POSE_CONNECTIONS, {
+        color: '#fff' /*'#00FF00'*/,
+        lineWidth: 4
+      })
+      drawLandmarks(canvasCtxRef.current, [...poseLandmarks], {
+        color: '#fff' /*'#FF0000'*/,
+        lineWidth: 2
+      })
+      canvasCtxRef.current.restore()
+    })
+
+    poseDetector.set(pose)
+    return () => {
+      pose.close()
+      poseDetector.set(null)
     }
-  }, [
-    staticImageMode?.value,
-    modelComplexity?.value,
-    smoothLandmarks?.value,
-    enableSegmentation?.value,
-    smoothSegmentation?.value,
-    minDetectionConfidence?.value,
-    minTrackingConfidence?.value
-  ])
+  }, [isDetecting])
+
+  useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
+    canvasRef.current!.width = videoRef.current!.clientWidth
+    canvasRef.current!.height = videoRef.current!.clientHeight
+
+    if (processingFrame.value) return
+
+    if (poseDetector.value) {
+      processingFrame.set(true)
+      poseDetector.value?.send({ image: videoRef.current! }).finally(() => {
+        processingFrame.set(false)
+      })
+    }
+  })
 
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {
@@ -132,175 +184,23 @@ const CaptureDashboard = () => {
     }
   }
 
-  const mediapipe = useHookstate(null as Pose | null)
-
-  const videoActive = useHookstate(false)
-
-  useEffect(() => {
-    if (videoRef.current && canvasRef.current) {
-      const factor = isVideoFlipped.value === true ? '-1' : '1'
-      videoRef.current.style.transform = `scaleX(${factor})`
-      canvasRef.current.style.transform = `scaleX(${factor})`
-    }
-  }, [canvasRef, videoRef, isVideoFlipped])
-
-  const startDetecting = async (poseDetector) => {
-    await poseDetector.setOptions({
-      staticImageMode: staticImageMode.value,
-      modelComplexity: modelComplexity.value,
-      smoothLandmarks: smoothLandmarks.value,
-      enableSegmentation: enableSegmentation.value,
-      smoothSegmentation: smoothSegmentation.value,
-      minDetectionConfidence: minDetectionConfidence.value,
-      minTrackingConfidence: minTrackingConfidence.value
-    })
-    poseDetector.onResults(onResults)
-    isDetecting.set(true)
-  }
-
-  const toggleDetecting = async () => {
-    if (isDetecting?.value === true) {
-      await stopDetecting()
-    } else {
-      const detector = createPoseDetector()
-      await startDetecting(detector)
-    }
-  }
-
-  const stopDetecting = async () => {
-    isDetecting.set(false)
-    // await poseDetectorRef.current?.close()
-    // poseDetectorRef.current = null
-  }
-
-  const onResults: ResultsListener = useCallback(
-    (results) => {
-      // todo, when playing back, we should be displaying the playback data instead of live data
-      if (recordingState.playback.value) return
-      if (canvasCtxRef.current !== null && canvasRef.current !== null) {
-        const { poseWorldLandmarks, poseLandmarks } = results
-        if (canvasCtxRef.current && poseLandmarks?.length) {
-          if (!modelLoaded.value) modelLoaded.set(true)
-          //draw!!!
-          canvasCtxRef.current.save()
-          canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-          canvasCtxRef.current.globalCompositeOperation = 'source-over'
-          drawConnectors(canvasCtxRef.current, [...poseLandmarks], POSE_CONNECTIONS, {
-            color: '#fff' /*'#00FF00'*/,
-            lineWidth: 4
-          })
-          drawLandmarks(canvasCtxRef.current, [...poseLandmarks], {
-            color: '#fff' /*'#FF0000'*/,
-            lineWidth: 2
-          })
-          canvasCtxRef.current.restore()
-
-          sendResults(poseWorldLandmarks)
-        }
-      }
-    },
-    [canvasCtxRef]
-  )
-
-  useEffect(() => {
-    const videoElement = videoRef.current
-    if (videoElement && videoStream.value) {
-      videoElement.srcObject = videoStream.value
-      videoElement.onloadedmetadata = () => {
-        videoElement.style.transform = `scaleX(${isVideoFlipped.value ? -1 : 1})`
-        if (videoElement.paused) videoElement.play()
-      }
-      videoElement.onplay = () => {
-        videoActive.set(true)
-        let processingData = false
-        const onAnimationFrame = () => {
-          if (!isDetecting.value === false) return
-          if (!videoActive.value) {
-            processingData = false
-            return
-          }
-          if (canvasRef.current) {
-            canvasRef.current.width = videoElement.clientWidth
-            canvasRef.current.height = videoElement.clientHeight
-            canvasRef.current.style.transform = `scaleX(${isVideoFlipped.value ? -1 : 1})`
-          }
-          if (!mediapipe.value || processingData) {
-            videoElement.requestVideoFrameCallback(onAnimationFrame)
-          } else {
-            processingData = true
-            // we have to wait for the current frame to be processed before we can send the next one
-            mediapipe.value?.send({ image: videoElement }).then(() => {
-              processingData = false
-              videoElement.requestVideoFrameCallback(onAnimationFrame)
-            })
-          }
-        }
-        videoElement.requestVideoFrameCallback(onAnimationFrame)
-      }
-      videoElement.onpause = () => {
-        videoActive.set(false)
-      }
-    }
-  }, [videoRef, videoStream])
-
-  useLayoutEffect(() => {
-    if (canvasRef.current !== null) {
-      const canvasElement = canvasRef.current
-      canvasCtxRef.current = canvasElement.getContext('2d') //canvas context
-      // canvasCtxRef?.current?.scale(isVideoFlipped.value ? -1 : 1, 1);
-    }
-  }, [canvasRef])
-
-  // Enable video via the media server
-  useEffect(() => {
-    // if (mediaConnection?.connected.value) toggleWebcamPaused()
-  }, [mediaConnection?.connected])
-
-  const createPoseDetector = () => {
-    if (poseDetectorRef.current) return poseDetectorRef.current
-
-    const poseDetector = new Pose({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-      }
-    })
-    poseDetectorRef.current = poseDetector
-    mediapipe.set(poseDetector)
-    return poseDetector
-  }
-
-  useEffect(() => {
-    if (videoRef.current && canvasRef.current) {
-      if (isDetecting?.value) {
-        // start detecting on mount
-        const detector = createPoseDetector()
-        startDetecting(detector)
-      }
-    }
-    RecordingFunctions.getRecordings()
-  }, [videoRef, canvasRef, isDetecting])
-
-  useEffect(() => {
-    const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
-
-    setVideoStatus(
-      mediaConnection?.connected?.value === false && videoActive?.value === false
-        ? 'loading'
-        : isCamVideoEnabled !== true
-        ? 'ready'
-        : 'active'
-    )
-  }, [mediaConnection?.connected, videoActive])
+  const isCamVideoEnabled =
+    mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState.videoPaused.value !== null
+  const videoStatus =
+    mediaConnection?.connected?.value === false && videoActive?.value === false
+      ? 'loading'
+      : isCamVideoEnabled !== true
+      ? 'ready'
+      : 'active'
 
   return (
     <div className="w-full">
       {/* <ul className="">
-        <li>{`videoStatus: ${videoStatus}`}</li>
-        <li>{`mediaConnection: ${mediaConnection?.connected?.value}`}</li>
-        <li>{`videoActive: ${videoActive?.value}`}</li>
-        <li>{`camVideoProducer: ${mediaStreamState.camVideoProducer.value}`}</li>
-        <li>{`videoPaused: ${mediaStreamState.videoPaused.value}`}</li>
-        <li>{`isDetecting: ${isDetecting?.value}`}</li>
+        <li>{`videoStatus: ${videoStatus}`} {`mediaConnection: ${mediaConnection?.connected?.value}`}
+        {`videoActive: ${videoActive?.value}`}
+        {`camVideoProducer: ${mediaStreamState.camVideoProducer.value}`}
+        {`videoPaused: ${mediaStreamState.videoPaused.value}`}
+        {`isDetecting: ${isDetecting?.value}`}</li>
       </ul> */}
       <Drawer
         settings={
@@ -313,49 +213,53 @@ const CaptureDashboard = () => {
                 <ul className="text-base-content w-full h-auto">
                   <li>
                     <label className="label">
-                      <span className="label-text">Model Complexity: {modelComplexity.value}</span>
+                      <span className="label-text">Model Complexity: {poseOptions.modelComplexity.value}</span>
                     </label>
                     <input
                       type="range"
                       min="0"
                       max="2"
                       step="1"
-                      value={modelComplexity.value}
+                      value={poseOptions.modelComplexity.value}
                       className="range w-full"
                       onChange={(e) => {
-                        modelComplexity.set(parseInt(e.currentTarget.value))
+                        poseOptions.modelComplexity.set(parseInt(e.currentTarget.value) as 0 | 1 | 2)
                       }}
                     />
                   </li>
                   <li>
                     <label className="cursor-pointer label">
-                      <span className="label-text">Min Detection Confidence: {minDetectionConfidence.value}</span>
+                      <span className="label-text">
+                        Min Detection Confidence: {poseOptions.minDetectionConfidence.value}
+                      </span>
                     </label>
                     <input
                       type="range"
                       min="0.0"
                       max="1.0"
                       step="0.1"
-                      value={minDetectionConfidence.value}
+                      value={poseOptions.minDetectionConfidence.value}
                       className="w-full range"
                       onChange={(e) => {
-                        minDetectionConfidence.set(parseFloat(e.currentTarget.value))
+                        poseOptions.minDetectionConfidence.set(parseFloat(e.currentTarget.value))
                       }}
                     />
                   </li>
                   <li>
                     <label className="cursor-pointer label">
-                      <span className="label-text">Min Tracking Confidence: {minTrackingConfidence.value}</span>
+                      <span className="label-text">
+                        Min Tracking Confidence: {poseOptions.minTrackingConfidence.value}
+                      </span>
                     </label>
                     <input
                       type="range"
                       min="0.0"
                       max="1.0"
                       step="0.1"
-                      value={minTrackingConfidence.value}
+                      value={poseOptions.minTrackingConfidence.value}
                       className="w-full range"
                       onChange={(e) => {
-                        minTrackingConfidence.set(parseFloat(e.currentTarget.value))
+                        poseOptions.minTrackingConfidence.set(parseFloat(e.currentTarget.value))
                       }}
                     />
                   </li>
@@ -365,9 +269,9 @@ const CaptureDashboard = () => {
                       <input
                         type="checkbox"
                         className="toggle toggle-primary"
-                        defaultChecked={smoothLandmarks?.value}
+                        defaultChecked={poseOptions.smoothLandmarks?.value}
                         onChange={(e) => {
-                          staticImageMode.set(e.currentTarget.checked)
+                          poseOptions.smoothLandmarks.set(e.currentTarget.checked)
                         }}
                       />
                     </label>
@@ -378,9 +282,9 @@ const CaptureDashboard = () => {
                       <input
                         type="checkbox"
                         className="toggle toggle-primary"
-                        defaultChecked={enableSegmentation?.value}
+                        defaultChecked={poseOptions.enableSegmentation?.value}
                         onChange={(e) => {
-                          staticImageMode.set(e.currentTarget.checked)
+                          poseOptions.enableSegmentation.set(e.currentTarget.checked)
                         }}
                       />
                     </label>
@@ -391,23 +295,9 @@ const CaptureDashboard = () => {
                       <input
                         type="checkbox"
                         className="toggle toggle-primary"
-                        defaultChecked={smoothSegmentation?.value}
+                        defaultChecked={poseOptions.smoothSegmentation?.value}
                         onChange={(e) => {
-                          staticImageMode.set(e.currentTarget.checked)
-                        }}
-                      />
-                    </label>
-                  </li>
-                  <li className="">
-                    <label className="label">
-                      <span className="label-text">Static Image Mode</span>
-                      <input
-                        type="checkbox"
-                        disabled
-                        className="toggle toggle-primary"
-                        defaultChecked={staticImageMode?.value}
-                        onChange={(e) => {
-                          staticImageMode.set(e.currentTarget.checked)
+                          poseOptions.smoothSegmentation.set(e.currentTarget.checked)
                         }}
                       />
                     </label>
@@ -432,12 +322,14 @@ const CaptureDashboard = () => {
                 <LoadingCircle message="Loading..." />
               ) : videoStatus !== 'active' ? (
                 <button
-                  onClick={toggleWebcamPaused}
+                  onClick={() => {
+                    if (mediaConnection?.connected?.value) toggleWebcamPaused()
+                  }}
                   className="absolute btn btn-ghost w-full h-full bg-none"
                   style={{ objectFit: 'contain', top: '0px' }}
                 >
                   <div className="grid w-screen h-screen place-items-center">
-                    <h1>Enable Camera</h1>
+                    <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
                   </div>
                 </button>
               ) : null}
@@ -450,13 +342,11 @@ const CaptureDashboard = () => {
                   isDetecting={isDetecting?.value}
                   onToggleRecording={onToggleRecording}
                   toggleWebcam={toggleWebcamPaused}
-                  toggleDetecting={toggleDetecting}
+                  toggleDetecting={() => isDetecting.set((v) => !v)}
                   isRecording={recordingState.started.value}
                   recordingStatus={recordingState.recordingID.value}
-                  isVideoFlipped={isVideoFlipped.value}
-                  flipVideo={(val) => {
-                    isVideoFlipped.set(val)
-                  }}
+                  isVideoFlipped={poseOptions.selfieMode.value}
+                  flipVideo={(v) => poseOptions.selfieMode.set(v)}
                   cycleCamera={MediaStreamService.cycleCamera}
                 />
               ) : (
