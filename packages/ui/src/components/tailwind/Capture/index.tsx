@@ -1,9 +1,14 @@
-import { PlayCircleIcon } from '@heroicons/react/24/solid'
 import { useHookstate } from '@hookstate/core'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { NormalizedLandmarkList, Options, Pose, POSE_CONNECTIONS, ResultsListener } from '@mediapipe/pose'
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { twMerge } from 'tailwind-merge'
+import {
+  FACEMESH_TESSELATION,
+  HAND_CONNECTIONS,
+  Holistic,
+  NormalizedLandmarkList,
+  Options,
+  POSE_CONNECTIONS
+} from '@mediapipe/holistic'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
@@ -24,7 +29,6 @@ import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 
 let creatingProducer = false
@@ -76,10 +80,17 @@ const sendResults = (results: NormalizedLandmarkList) => {
 }
 
 const CaptureDashboard = () => {
-  const isDetecting = useHookstate(false)
+  const [isVideoFlipped, setIsVideoFlipped] = useState(true)
+  const [isDrawingBody, setIsDrawingBody] = useState(true)
+  const [isDrawingHands, setIsDrawingHands] = useState(true)
+  const [isDrawingFace, setIsDrawingFace] = useState(false)
 
-  const poseDetector = useHookstate(null as null | Pose)
+  const isDetecting = useHookstate(false)
+  const [detectingStatus, setDetectingStatus] = useState('inactive')
+
+  const detector = useHookstate(null as null | Holistic)
   const poseOptions = useHookstate({
+    enableFaceGeometry: true,
     selfieMode: false,
     modelComplexity: 1,
     smoothLandmarks: true,
@@ -102,57 +113,130 @@ const CaptureDashboard = () => {
 
   const videoActive = useHookstate(false)
 
+  useEffect(() => {
+    const factor = isVideoFlipped === true ? '-1' : '1'
+    canvasRef.current!.style.transform = `scaleX(${factor})`
+    videoRef.current!.style.transform = `scaleX(${factor})`
+  }, [isVideoFlipped])
+
   useLayoutEffect(() => {
     canvasCtxRef.current = canvasRef.current!.getContext('2d')!
-    const factor = poseOptions.selfieMode.value === true ? '-1' : '1'
-    // canvasRef.current!.style.transform = `scaleX(${factor})`
-    videoRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.srcObject = videoStream.value
     videoRef.current!.onplay = () => videoActive.set(true)
     videoRef.current!.onpause = () => videoActive.set(false)
   }, [videoStream, poseOptions.selfieMode])
 
   useEffect(() => {
-    poseDetector.value?.setOptions(poseOptions.value)
-  }, [poseDetector, poseOptions])
+    detector.value?.setOptions(poseOptions.value)
+  }, [detector, poseOptions])
 
   useEffect(() => {
     if (!isDetecting?.value) return
 
+    if (!detector.value) {
+      setDetectingStatus('loading')
+      const holistic = new Holistic({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+        }
+      })
+      detector.set(holistic)
+    }
+
     processingFrame.set(false)
 
-    const pose = new Pose({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-      }
-    })
+    if (detector.value) {
+      detector.value.onResults((results) => {
+        if (detectingStatus !== 'active') setDetectingStatus('active')
 
-    pose.onResults((results) => {
-      const { poseWorldLandmarks, poseLandmarks } = results
-      sendResults(poseWorldLandmarks)
-      processingFrame.set(false)
+        const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
 
-      if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
+        sendResults({
+          ...poseLandmarks,
+          // ...faceLandmarks,
+          ...(leftHandLandmarks !== undefined ? leftHandLandmarks : []),
+          ...(rightHandLandmarks !== undefined ? rightHandLandmarks : [])
+        })
+        processingFrame.set(false)
 
-      //draw!!!
-      canvasCtxRef.current.save()
-      canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-      canvasCtxRef.current.globalCompositeOperation = 'source-over'
-      drawConnectors(canvasCtxRef.current, [...poseLandmarks], POSE_CONNECTIONS, {
-        color: '#fff' /*'#00FF00'*/,
-        lineWidth: 4
+        if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
+
+        //draw!!!
+        canvasCtxRef.current.save()
+        canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+        canvasCtxRef.current.globalCompositeOperation = 'source-over'
+
+        if (isDrawingBody) {
+          // Pose Connections
+          drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
+            color: '#fff',
+            lineWidth: 4
+          })
+          // Pose Landmarks
+          drawLandmarks(canvasCtxRef.current, poseLandmarks, {
+            color: '#fff',
+            lineWidth: 2
+          })
+        }
+
+        if (isDrawingHands) {
+          // Left Hand Connections
+          drawConnectors(
+            canvasCtxRef.current,
+            leftHandLandmarks !== undefined ? leftHandLandmarks : [],
+            HAND_CONNECTIONS,
+            {
+              color: '#fff',
+              lineWidth: 4
+            }
+          )
+
+          // Left Hand Landmarks
+          drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
+            color: '#fff',
+            lineWidth: 2
+          })
+
+          // Right Hand Connections
+          drawConnectors(
+            canvasCtxRef.current,
+            rightHandLandmarks !== undefined ? rightHandLandmarks : [],
+            HAND_CONNECTIONS,
+            {
+              color: '#fff',
+              lineWidth: 4
+            }
+          )
+
+          // Right Hand Landmarks
+          drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
+            color: '#fff',
+            lineWidth: 2
+          })
+        }
+
+        if (isDrawingFace) {
+          // Face Connections
+          drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
+            color: '#fff',
+            lineWidth: 2
+          })
+          // Face Landmarks
+          drawLandmarks(canvasCtxRef.current, faceLandmarks, {
+            color: '#fff',
+            lineWidth: 1
+          })
+        }
+        canvasCtxRef.current.restore()
       })
-      drawLandmarks(canvasCtxRef.current, [...poseLandmarks], {
-        color: '#fff' /*'#FF0000'*/,
-        lineWidth: 2
-      })
-      canvasCtxRef.current.restore()
-    })
+    }
 
-    poseDetector.set(pose)
     return () => {
-      pose.close()
-      poseDetector.set(null)
+      setDetectingStatus('inactive')
+      if (detector.value) {
+        detector.value.close()
+      }
+      detector.set(null)
     }
   }, [isDetecting])
 
@@ -162,9 +246,9 @@ const CaptureDashboard = () => {
 
     if (processingFrame.value) return
 
-    if (poseDetector.value) {
+    if (detector.value) {
       processingFrame.set(true)
-      poseDetector.value?.send({ image: videoRef.current! }).finally(() => {
+      detector.value?.send({ image: videoRef.current! }).finally(() => {
         processingFrame.set(false)
       })
     }
@@ -318,9 +402,7 @@ const CaptureDashboard = () => {
               <div className="object-contain absolute top-0 z-20" style={{ objectFit: 'contain', top: '0px' }}>
                 <Canvas ref={canvasRef} />
               </div>
-              {videoStatus === 'loading' ? (
-                <LoadingCircle message="Loading..." />
-              ) : videoStatus !== 'active' ? (
+              {videoStatus !== 'active' ? (
                 <button
                   onClick={() => {
                     if (mediaConnection?.connected?.value) toggleWebcamPaused()
@@ -339,15 +421,29 @@ const CaptureDashboard = () => {
                 <Toolbar
                   className="w-full z-30 fixed bottom-0"
                   videoStatus={videoStatus}
-                  isDetecting={isDetecting?.value}
+                  detectingStatus={detectingStatus}
                   onToggleRecording={onToggleRecording}
                   toggleWebcam={toggleWebcamPaused}
                   toggleDetecting={() => isDetecting.set((v) => !v)}
                   isRecording={recordingState.started.value}
                   recordingStatus={recordingState.recordingID.value}
-                  isVideoFlipped={poseOptions.selfieMode.value}
-                  flipVideo={(v) => poseOptions.selfieMode.set(v)}
+                  isVideoFlipped={isVideoFlipped}
+                  flipVideo={(v) => {
+                    setIsVideoFlipped(v)
+                  }}
                   cycleCamera={MediaStreamService.cycleCamera}
+                  isDrawingBody={isDrawingBody}
+                  drawBody={(v) => {
+                    setIsDrawingBody(v)
+                  }}
+                  isDrawingHands={isDrawingHands}
+                  drawHands={(v) => {
+                    setIsDrawingHands(v)
+                  }}
+                  isDrawingFace={isDrawingFace}
+                  drawFace={(v) => {
+                    setIsDrawingFace(v)
+                  }}
                 />
               ) : (
                 <div className="navbar border-none w-full z-30 fixed bottom-0"></div>
