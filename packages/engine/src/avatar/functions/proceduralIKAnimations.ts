@@ -11,53 +11,52 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { animationManager } from '../AnimationManager'
+import { ikTargets } from '../components/AvatarAnimationComponent'
 
-//Programatic keyframe placement for complex animations is horrible and NOT scalable
-//To be replaced with keyframes from ik target glb
-//For now programmatic keyframe placement makes debugging easier
-export const getIdlePose = () => {
+//Programatic keyframe placement for complex animations is not scalable
+//Used here for an idle pose experimentally
+export const getIdlePose = (map: ikTargets) => {
   const state = getState(animationManager)
 
-  //tentatively, space is local relative to the hips
   const idleTrackRightHand = new VectorKeyframeTrack(
-    state.ikTargetsMap.rightHandTarget.name + '.position',
+    map.rightHandTarget.name + '.position',
     [0, 1, 2],
-    [0.175, 0, 0, 0.175, 0.01, 0, 0.175, 0, 0],
+    [-0.195, 1, 0, -0.195, 1, 0, -0.195, 1, 0],
     InterpolateSmooth
   )
 
   const idleTrackRightHandRot = new QuaternionKeyframeTrack(
-    state.ikTargetsMap.rightHandTarget.name + '.quaternion',
+    map.rightHandTarget.name + '.quaternion',
     [0, 1, 2],
     [0, 0, -0.6, 1, 0, 0, -0.7, 1, 0, 0, -0.6, 1],
     InterpolateSmooth
   )
 
   const idleTrackLeftHand = new VectorKeyframeTrack(
-    state.ikTargetsMap.leftHandTarget.name + '.position',
+    map.leftHandTarget.name + '.position',
     [0, 1, 2],
-    [-0.175, 0, 0, -0.175, 0.01, 0, -0.175, 0, 0],
+    [0.195, 0, 0, 0.195, 0, 0, 0.195, 0, 0],
     InterpolateSmooth
   )
 
   const idleTrackLeftHandRot = new QuaternionKeyframeTrack(
-    state.ikTargetsMap.leftHandTarget.name + '.quaternion',
+    map.leftHandTarget.name + '.quaternion',
     [0, 1, 2],
     [0, 0, 0.6, 1, 0, 0, 0.7, 1, 0, 0, 0.6, 1],
     InterpolateSmooth
   )
 
   const idleTrackRightLeg = new VectorKeyframeTrack(
-    state.ikTargetsMap.rightFootTarget.name + '.position',
+    map.rightFootTarget.name + '.position',
     [0, 1, 2],
-    [0.1, -0.8, -0.2, 0.1, -0.8, -0.225, 0.1, -0.8, -0.2],
+    [-0.1, -0.8, -0.2, -0.1, -0.8, -0.225, -0.1, -0.8, -0.2],
     InterpolateSmooth
   )
 
   const idleTrackLeftLeg = new VectorKeyframeTrack(
-    state.ikTargetsMap.leftFootTarget.name + '.position',
+    map.leftFootTarget.name + '.position',
     [0, 1, 2],
-    [-0.1, -0.8, 0, -0.1, -0.8, 0.01, -0.1, -0.8, 0],
+    [0.1, -0.8, 0, 0.1, -0.8, 0.01, 0.1, -0.8, 0],
     InterpolateSmooth
   )
 
@@ -72,18 +71,18 @@ export const getIdlePose = () => {
   return clip
 }
 
-export const getWalkForwardPose = () => {
+export const getWalkForwardPose = (map: ikTargets) => {
   const state = getState(animationManager)
 
   const walkTrackLeftLeg = new VectorKeyframeTrack(
-    state.ikTargetsMap.leftFootTarget.name + '.position',
+    map.leftFootTarget.name + '.position',
     [0, 0.5, 1],
     [-0.1, -0.8, 0, -0.1, -0.4, 0, -0.1, -0.8, 0],
     InterpolateSmooth
   )
 
   const walkTrackRightLeg = new VectorKeyframeTrack(
-    state.ikTargetsMap.rightFootTarget.name + '.position',
+    map.rightFootTarget.name + '.position',
     [1, 1.5, 2],
     [0.1, -0.8, 0, 0.1, -0.4, 0, 0.1, -0.8, 0],
     InterpolateSmooth

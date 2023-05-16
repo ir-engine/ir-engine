@@ -16,7 +16,7 @@ import {
 } from 'three'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 
-import { dispatchAction, getState, startReactor } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
@@ -219,22 +219,30 @@ export const setupAvatarModel = (entity: Entity) => pipe(rigAvatarModel(entity),
 // }
 
 export const createIKAnimator = async (entity: Entity) => {
-  const manager = getState(animationManager)
   const animationComponent = getComponent(entity, AnimationComponent)
+  const rigComponent = getComponent(entity, AvatarRigComponent)
+  const animations = await getAnimations()
 
-  const asset = await AssetLoader.loadAsync('/default_assets/test_ik_targets.glb')
-  const glb = asset as GLTF
+  animationComponent.mixer = new AnimationMixer(rigComponent.targets)
+  const idle = animations[1]
+  const walkForward = animations[0]
 
-  animationComponent.mixer = new AnimationMixer(manager.targets)
-  //const idle = manager.targetsAnimation[0]
-  const idle = glb.animations[0]
-  const walkForward = getWalkForwardPose()
   animationComponent.animations = [idle, walkForward]
   const idleAction = animationComponent.mixer.clipAction(idle)
   const walkAction = animationComponent.mixer.clipAction(walkForward)
   console.log(idle)
   idleAction.play()
-  //walkAction.play()
+  walkAction.play()
+}
+
+export const getAnimations = async () => {
+  const manager = getMutableState(animationManager)
+  if (!manager.targetsAnimation.value) {
+    const asset = await AssetLoader.loadAsync('/default_assets/test_ik_targets.glb')
+    const glb = asset as GLTF
+    manager.targetsAnimation.set(glb.animations)
+  }
+  return manager.targetsAnimation.value!
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {

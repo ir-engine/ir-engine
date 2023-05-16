@@ -1,6 +1,6 @@
 import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AxesHelper, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import { AxesHelper, Object3D, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -8,6 +8,7 @@ import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import {
   defineComponent,
+  getMutableComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
@@ -52,6 +53,13 @@ export const AvatarAnimationComponent = defineComponent({
   }
 })
 
+export interface ikTargets {
+  rightHandTarget: Object3D
+  leftHandTarget: Object3D
+  rightFootTarget: Object3D
+  leftFootTarget: Object3D
+}
+
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
@@ -77,7 +85,15 @@ export const AvatarRigComponent = defineComponent({
       /** Cache of the skinned meshes currently on the rig */
       skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
-      vrm: null! as VRM
+      vrm: null! as VRM,
+
+      targets: new Object3D(),
+      ikTargetsMap: {
+        rightHandTarget: new Object3D(),
+        leftHandTarget: new Object3D(),
+        rightFootTarget: new Object3D(),
+        leftFootTarget: new Object3D()
+      } as ikTargets
     }
   },
 
@@ -135,6 +151,12 @@ export const AvatarRigComponent = defineComponent({
       }
     }, [anim.rig])
 
+    const rigComponent = getMutableComponent(entity, AvatarRigComponent)
+    for (const [key, value] of Object.entries(rigComponent.ikTargetsMap.value)) {
+      value.name = key
+      rigComponent.targets.value.add(value)
+    }
+    console.log(rigComponent.targets)
     return null
   }
 })

@@ -109,6 +109,11 @@ const _vec = new Vector3()
 const rightHandRot = new Quaternion()
 const leftHandRot = new Quaternion()
 
+const rightHandWorldPos = new Vector3()
+const leftHandWorldPos = new Vector3()
+const rightFootWorldPos = new Vector3()
+const leftFootWorldPos = new Vector3()
+
 const execute = () => {
   const xrState = getState(XRState)
   const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
@@ -241,19 +246,24 @@ const execute = () => {
      * Apply IK
      */
 
-    const avatarRigComponent = getComponent(entity, AvatarRigComponent)
-    const rig = avatarRigComponent.rig
+    const rigComponent = getComponent(entity, AvatarRigComponent)
+    const rig = rigComponent.rig
     const transform = getComponent(entity, TransformComponent)
     const animationState = getState(animationManager)
 
-    const root = avatarRigComponent.vrm.humanoid.normalizedHumanBonesRoot
+    console.log(animationState.targetsAnimation)
+    if (!animationState.targetsAnimation) return
 
-    //to do: get world space in a better way  -  can be proxified / use transform component?
-    const worldSpaceRightHand = root.localToWorld(animationState.ikTargetsMap.rightHandTarget.position)
-    const worldSpaceLeftHand = root.localToWorld(animationState.ikTargetsMap.leftHandTarget.position)
-    const worldSpaceRightFoot = root.localToWorld(animationState.ikTargetsMap.rightFootTarget.position)
-    const worldSpaceLeftFoot = root.localToWorld(animationState.ikTargetsMap.leftFootTarget.position)
+    //calculate world positions
+    const root = rigComponent.vrm.humanoid.normalizedHumanBonesRoot
+    root.updateMatrixWorld()
+    rightHandWorldPos.copy(rigComponent.ikTargetsMap.rightHandTarget.position).applyMatrix4(root.matrixWorld)
+    leftHandWorldPos.copy(rigComponent.ikTargetsMap.leftHandTarget.position).applyMatrix4(root.matrixWorld)
+    rightFootWorldPos.copy(rigComponent.ikTargetsMap.rightFootTarget.position).applyMatrix4(root.matrixWorld)
+    leftFootWorldPos.copy(rigComponent.ikTargetsMap.leftFootTarget.position).applyMatrix4(root.matrixWorld)
+
     const hipsWorldSpace = new Vector3()
+
     rig.hips.node.getWorldPosition(hipsWorldSpace)
 
     //to do: get leg length of avatar in world space
@@ -267,47 +277,41 @@ const execute = () => {
     const rot = new Quaternion()
     rig.hips.node.getWorldQuaternion(rot)
 
-    rightHandRot.multiplyQuaternions(rot, animationState.ikTargetsMap.rightHandTarget.quaternion)
-    leftHandRot.multiplyQuaternions(rot, animationState.ikTargetsMap.leftHandTarget.quaternion)
+    rightHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.rightHandTarget.quaternion)
+    leftHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.leftHandTarget.quaternion)
 
-    solveTwoBoneIK(
-      rig.rightUpperArm.node,
-      rig.rightLowerArm.node,
-      rig.rightHand.node,
-      worldSpaceRightHand,
-      rightHandRot
-    )
-    solveTwoBoneIK(rig.leftUpperArm.node, rig.leftLowerArm.node, rig.leftHand.node, worldSpaceLeftHand, leftHandRot)
+    solveTwoBoneIK(rig.rightUpperArm.node, rig.rightLowerArm.node, rig.rightHand.node, rightHandWorldPos, rightHandRot)
+    solveTwoBoneIK(rig.leftUpperArm.node, rig.leftLowerArm.node, rig.leftHand.node, leftHandWorldPos, leftHandRot)
 
     //raycasting here every frame is terrible, this should be done every quarter of a second at most.
     //cast ray for right foot, starting at hips y position and foot x/z
     const footRaycastArgs = {
       type: SceneQueryType.Closest,
-      origin: new Vector3(worldSpaceRightFoot.x, hipsWorldSpace.y, worldSpaceRightFoot.z),
+      origin: new Vector3(rightFootWorldPos.x, hipsWorldSpace.y, rightFootWorldPos.z),
       direction: new Vector3(0, -1, 0),
       maxDistance: legLength,
       groups: interactionGroups
     } as RaycastArgs
 
     const rightCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    if (rightCastedRay[0]) worldSpaceRightFoot.copy(rightCastedRay[0].position as Vector3)
+    if (rightCastedRay[0]) rightFootWorldPos.copy(rightCastedRay[0].position as Vector3)
     solveTwoBoneIK(
       rig.rightUpperLeg.node,
       rig.rightLowerLeg.node,
       rig.rightFoot.node,
-      worldSpaceRightFoot.setY(worldSpaceRightFoot.y + 0.1),
+      rightFootWorldPos.setY(rightFootWorldPos.y + 0.1),
       rot
     )
 
     //reuse raycast args object, cast ray for left foot
-    footRaycastArgs.origin.set(worldSpaceLeftFoot.x, hipsWorldSpace.y, worldSpaceLeftFoot.z)
+    footRaycastArgs.origin.set(leftFootWorldPos.x, hipsWorldSpace.y, leftFootWorldPos.z)
     const leftCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    if (leftCastedRay[0]) worldSpaceLeftFoot.copy(leftCastedRay[0].position as Vector3)
+    if (leftCastedRay[0]) leftFootWorldPos.copy(leftCastedRay[0].position as Vector3)
     solveTwoBoneIK(
       rig.leftUpperLeg.node,
       rig.leftLowerLeg.node,
       rig.leftFoot.node,
-      worldSpaceLeftFoot.setY(worldSpaceLeftFoot.y + 0.1),
+      leftFootWorldPos.setY(leftFootWorldPos.y + 0.1),
       rot
     )
 

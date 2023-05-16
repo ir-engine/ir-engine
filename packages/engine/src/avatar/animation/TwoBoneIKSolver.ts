@@ -1,4 +1,4 @@
-import { Bone, Euler, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+import { Bone, Euler, MathUtils, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
@@ -14,6 +14,14 @@ const sqrEpsilon = 1e-8
 function triangleAngle(aLen: number, bLen: number, cLen: number): number {
   const c = MathUtils.clamp((bLen * bLen + cLen * cLen - aLen * aLen) / (bLen * cLen * 2), -1, 1)
   return Math.acos(c)
+}
+
+//mutates target position to constrain it to max distance
+const distVector = new Vector3()
+export function constrainTargetPosition(targetPosition: Vector3, constraintCenter: Vector3, distance: number) {
+  distVector.subVectors(targetPosition, constraintCenter)
+  distVector.clampLength(0, distance)
+  targetPosition.copy(constraintCenter).add(distVector)
 }
 
 /**
@@ -36,7 +44,7 @@ export function solveTwoBoneIK(
   targetPosition: Vector3, // world space
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
-  hint: Object3D | null = null, // todo: in local space, should be in world space, convert to matrix or dual quat
+  hint: Matrix4 | null = null, // todo: in local space, should be in world space, convert to matrix or dual quat
   targetPosWeight: number = 1,
   targetRotWeight: number = 1,
   hintWeight: number = 1
@@ -48,15 +56,13 @@ export function solveTwoBoneIK(
   bPosition.setFromMatrixPosition(mid.matrixWorld)
   cPosition.setFromMatrixPosition(tip.matrixWorld)
 
-  targetPos.lerp(cPosition, 1 - targetPosWeight)
-
   ab.subVectors(bPosition, aPosition)
   bc.subVectors(cPosition, bPosition)
   ac.subVectors(cPosition, aPosition)
   at.subVectors(targetPos, aPosition)
 
   const hasHint = hint && hintWeight > 0
-  if (hasHint) ah.setFromMatrixPosition(hint.matrixWorld).sub(aPosition)
+  if (hasHint) ah.setFromMatrixPosition(hint).sub(aPosition)
 
   let abLength = ab.length()
   let bcLength = bc.length()
