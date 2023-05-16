@@ -40,6 +40,6 @@
   ],
   "include": [
     "./src/**/*.ts",
-    "./serc/**/*.tsx"
+    "./src/**/*.tsx"
   ]
 }

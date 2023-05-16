@@ -14,7 +14,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'

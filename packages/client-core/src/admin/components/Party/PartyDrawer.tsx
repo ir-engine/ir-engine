@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Party } from '@etherealengine/common/src/interfaces/Party'
-import Button from '@etherealengine/ui/src/Button'
-import Container from '@etherealengine/ui/src/Container'
-import DialogActions from '@etherealengine/ui/src/DialogActions'
-import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -73,7 +73,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    let tempErrors = { ...state.formErrors }
+    const tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'maxMembers':
@@ -91,7 +91,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
       maxMembers: state.maxMembers
     }
 
-    let tempErrors = {
+    const tempErrors = {
       ...state.formErrors,
       maxMembers: state.maxMembers ? '' : t('admin:components.party.maxMembersRequired')
     }

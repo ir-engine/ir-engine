@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@etherealengine/ui/src/Button'
-import Grid from '@etherealengine/ui/src/Grid'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'

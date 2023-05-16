@@ -10,9 +10,9 @@ import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
 import { getMutableState } from '@etherealengine/hyperflux'
-import CircularProgress from '@etherealengine/ui/src/CircularProgress'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { AdminClientSettingsState } from '../../../admin/services/Setting/ClientSettingService'
@@ -87,7 +87,7 @@ const ProfileDetailView = () => {
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -146,7 +146,7 @@ const ProfileDetailView = () => {
   useEffect(() => {
     oauthConnectedState.set(initialOAuthConnectedState)
     if (selfUser.identityProviders.value)
-      for (let ip of selfUser.identityProviders.value) {
+      for (const ip of selfUser.identityProviders.value) {
         switch (ip.type) {
           case 'discord':
             oauthConnectedState.set((oauthConnectedState) => {

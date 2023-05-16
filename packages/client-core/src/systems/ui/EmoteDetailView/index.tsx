@@ -5,8 +5,8 @@ import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/an
 import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import Button from '@etherealengine/ui/src/Button'
-import Icon from '@etherealengine/ui/src/Icon'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
@@ -23,14 +23,14 @@ const EmoteDetailView = () => {
   const [page, setPage] = useState(0)
 
   const imgPerPage = 7
-  let menuRadius = 250
-  let menuPadding = 25
+  const menuRadius = 250
+  const menuPadding = 25
   let menuThickness = menuRadius > 170 ? 70 : 60
   let menuItemWidth = menuThickness - menuPadding
   let menuItemRadius = menuItemWidth / 2
   let effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
 
-  let [items, setItems] = useState([
+  const [items, setItems] = useState([
     {
       body: <img src="/static/grinning.svg" alt="Dance 4" />,
       containerProps: {
@@ -124,7 +124,7 @@ const EmoteDetailView = () => {
     const itemList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, items.length)
-    let angle = 360 / imgPerPage
+    const angle = 360 / imgPerPage
     let index = 0
     let itemAngle = 0
     let x = 0

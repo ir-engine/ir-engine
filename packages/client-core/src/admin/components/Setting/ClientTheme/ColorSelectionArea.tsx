@@ -5,8 +5,8 @@ import InputRadio from '@etherealengine/client-core/src/common/components/InputR
 import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import { ThemeOptions } from '@etherealengine/common/src/interfaces/ClientSetting'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import Divider from '@etherealengine/ui/src/Divider'
-import Grid from '@etherealengine/ui/src/Grid'
+import Divider from '@etherealengine/ui/src/primitives/mui/Divider'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import SketchColorPicker from '../../../common/SketchColorPicker'
 import styles from '../../../styles/settings.module.scss'
@@ -15,8 +15,8 @@ interface ColorSelectionAreaProps {
   mode: string
   colorModes: string[]
   theme: ThemeOptions
-  onChangeMode: Function
-  onChangeColor: Function
+  onChangeMode: (ChangeEvent) => void
+  onChangeColor: (string, ChangeEvent) => void
 }
 
 const ColorSelectionArea = ({ mode, colorModes, theme, onChangeMode, onChangeColor }: ColorSelectionAreaProps) => {

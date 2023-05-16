@@ -22,16 +22,16 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Button from '@etherealengine/ui/src/Button'
-import Container from '@etherealengine/ui/src/Container'
-import DialogActions from '@etherealengine/ui/src/DialogActions'
-import DialogTitle from '@etherealengine/ui/src/DialogTitle'
-import FormControl from '@etherealengine/ui/src/FormControl'
-import FormHelperText from '@etherealengine/ui/src/FormHelperText'
-import Icon from '@etherealengine/ui/src/Icon'
-import Tooltip from '@etherealengine/ui/src/Tooltip'
-import Typography from '@etherealengine/ui/src/Typography'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
+import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { loadAvatarForPreview, resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
@@ -176,8 +176,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       return
     }
 
-    let tempErrors = { ...state.formErrors }
-
     switch (name) {
       case 'avatarFile': {
         const inValidSize = files[0].size < MIN_AVATAR_FILE_SIZE || files[0].size > MAX_AVATAR_FILE_SIZE
@@ -212,8 +210,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
   const handleChange = (e) => {
     const { name, value } = e.target
-
-    let tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'name':
@@ -250,7 +246,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     let avatarBlob: Blob | undefined = undefined
     let thumbnailBlob: Blob | undefined = undefined
 
-    let tempErrors = {
+    const tempErrors = {
       name: state.name.value ? '' : t('admin:components.avatar.nameCantEmpty'),
       avatarUrl:
         state.source.value === 'url' && state.avatarUrl.value ? '' : t('admin:components.avatar.avatarUrlCantEmpty'),

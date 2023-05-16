@@ -14,9 +14,9 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
@@ -58,7 +58,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     const isEmail = emailRegex.test(token)
     const isPhone = phoneRegex.test(token)
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
     const sendData = {
       inviteType: 'instance',
       token: token.length === 8 ? null : token,
@@ -87,7 +87,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const getInviteLink = () => {
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
     if (selfUser?.inviteCode.value != null) {
       params.set('inviteCode', selfUser.inviteCode.value)
       location.search = params.toString()
@@ -99,7 +99,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const getSpectateModeUrl = () => {
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
     params.set('spectate', selfUser.id.value)
     params.delete('inviteCode')
     location.search = params.toString()
@@ -145,7 +145,7 @@ const ShareMenu = (): JSX.Element => {
   })
 
   // Ref: https://developer.oculus.com/documentation/web/web-launch
-  let questShareLink = new URL('https://oculus.com/open_url/')
+  const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
 
   const copyToClipboard = (text: string) => {

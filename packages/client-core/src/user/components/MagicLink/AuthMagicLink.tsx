@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import Box from '@etherealengine/ui/src/Box'
-import Container from '@etherealengine/ui/src/Container'
-import Typography from '@etherealengine/ui/src/Typography'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'

@@ -134,7 +134,7 @@ export default defineConfig(async () => {
 
   const returned = {
     server: {
-      hmr: true,
+      hmr: process.env.APP_ENV === 'development',
       host: process.env['VITE_APP_HOST'],
       port: process.env['VITE_APP_PORT'],
       headers: {
@@ -162,9 +162,11 @@ export default defineConfig(async () => {
       mediapipe_workaround(),
       PkgConfig(),
       PWA(clientSetting),
+      PWA(clientSetting),
       createHtmlPlugin({
         inject: {
           data: {
+            ...manifest,
             ...manifest,
             title: clientSetting.title || 'Ethereal Engine',
             description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',

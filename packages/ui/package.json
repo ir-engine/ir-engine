@@ -39,6 +39,7 @@
     "@heroicons/react": "^2.0.16",
     "@mediapipe/camera_utils": "^0.3.1675466862",
     "@mediapipe/drawing_utils": "^0.3.1675466124",
+    "@mediapipe/holistic": "^0.5.1675471629",
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",
     "@tailwindcss/aspect-ratio": "^0.4.2",

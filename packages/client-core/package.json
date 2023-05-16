@@ -39,6 +39,7 @@
     "@hookstate/core": "4.0.0-rc21",
     "@hookstate/localstored": "4.0.0-rc21",
     "@iconify/react": "4.1.0",
+    "@mui/base": "^5.0.0-alpha.125",
     "@mui/icons-material": "5.11.11",
     "@mui/lab": "5.0.0-alpha.94",
     "@mui/material": "5.11.13",

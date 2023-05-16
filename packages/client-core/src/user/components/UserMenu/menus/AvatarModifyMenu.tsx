@@ -22,11 +22,11 @@ import {
 } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import Box from '@etherealengine/ui/src/Box'
-import CircularProgress from '@etherealengine/ui/src/CircularProgress'
-import Grid from '@etherealengine/ui/src/Grid'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AvatarService } from '../../../services/AvatarService'
 import { UserMenus } from '../../../UserUISystem'
@@ -124,8 +124,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
       return
     }
 
-    let tempState = { ...state }
-    let tempErrors = { ...state.formErrors }
+    const tempState = { ...state }
+    const tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'avatarFile': {
@@ -167,7 +167,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    let tempErrors = { ...state.formErrors }
+    const tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'name':

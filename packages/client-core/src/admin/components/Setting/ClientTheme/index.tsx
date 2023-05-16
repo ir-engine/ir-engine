@@ -8,7 +8,7 @@ import {
 } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { ThemeMode, ThemeSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/Button'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
 import { AuthState } from '../../../../user/services/AuthService'
 import { AdminClientSettingsState, ClientSettingService } from '../../../services/Setting/ClientSettingService'
@@ -99,7 +99,7 @@ const ClientTheme = () => {
     const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
     if (newThemeSettings[currentTheme]) {
-      for (let variable of Object.keys(newThemeSettings[currentTheme])) {
+      for (const variable of Object.keys(newThemeSettings[currentTheme])) {
         ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
           '--' + variable,
           newThemeSettings[currentTheme][variable]

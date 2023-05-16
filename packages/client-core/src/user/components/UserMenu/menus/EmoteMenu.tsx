@@ -4,8 +4,8 @@ import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/Medi
 import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import Button from '@etherealengine/ui/src/Button'
-import Icon from '@etherealengine/ui/src/Icon'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
@@ -20,15 +20,15 @@ export const useEmoteMenuHooks = () => {
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
 
-  let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
+  const [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
 
-  let menuPadding = window.innerWidth > 360 ? 25 : 20
+  const menuPadding = window.innerWidth > 360 ? 25 : 20
   let menuThickness = menuRadius > 170 ? 70 : 60
   let menuItemWidth = menuThickness - menuPadding
   let menuItemRadius = menuItemWidth / 2
   let effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
 
-  let [items, setItems] = useState([
+  const [items, setItems] = useState([
     {
       body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
@@ -131,7 +131,7 @@ export const useEmoteMenuHooks = () => {
     const itemList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, items.length)
-    let angle = 360 / imgPerPage
+    const angle = 360 / imgPerPage
     let index = 0
     let itemAngle = 0
     let x = 0

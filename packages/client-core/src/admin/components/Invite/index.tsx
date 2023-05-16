@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Button from '@etherealengine/ui/src/Button'
-import Grid from '@etherealengine/ui/src/Grid'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
@@ -64,11 +64,11 @@ const InvitesConsole = () => {
   const { t } = useTranslation()
 
   const confirmMultiInviteDelete = () => {
-    for (let id of selectedInviteIds) AdminInviteService.removeInvite(id)
+    for (const id of selectedInviteIds) AdminInviteService.removeInvite(id)
     handleCloseDeleteMultiInviteModal()
   }
 
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const handleChange = (event: React.ChangeEvent, newValue: number) => {
     setValue(newValue)
   }
 
