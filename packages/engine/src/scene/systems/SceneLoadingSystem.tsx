@@ -221,19 +221,11 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
 export const removeSceneEntitiesFromOldJSON = () => {
   const sceneState = getState(SceneState)
   const sceneData = sceneState.sceneData as SceneData
-  console.log(sceneData.scene.entities)
-  console.log(
-    ...getAllEntitiesInTree(sceneState.sceneEntity).map((entity) => ({
-      entity,
-      uuid: getComponent(entity, UUIDComponent)
-    }))
-  )
   const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
     (entity) =>
       !sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
       !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity')
   )
-  console.log({ oldLoadedEntityNodesToRemove })
   /** @todo this will not  */
   for (const node of oldLoadedEntityNodesToRemove) {
     if (node === sceneState.sceneEntity) continue
@@ -327,7 +319,6 @@ export const updateSceneFromJSON = async () => {
 export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
   try {
     const existingEntity = UUIDComponent.entitiesByUUID[uuid]
-    console.log({ existingEntity, uuid })
     if (existingEntity) {
       deserializeSceneEntity(existingEntity, entityJson)
       /** @todo handle reparenting due to changes in scene json */
@@ -337,8 +328,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
     } else {
       const entity = createEntity()
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
-      setComponent(entity, EntityTreeComponent, { parentEntity })
-      setComponent(entity, UUIDComponent, uuid)
+      setComponent(entity, EntityTreeComponent, { parentEntity, uuid, childIndex: entityJson.index })
       setLocalTransformComponent(entity, parentEntity)
       addEntityNodeChild(entity, parentEntity)
       deserializeSceneEntity(entity, entityJson)
