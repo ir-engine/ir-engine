@@ -27,7 +27,6 @@ export const EditorHistoryState = defineState({
   name: 'EditorHistoryState',
   initial: () => ({
     index: 0,
-    includeSelection: false,
     history: [] as EditorStateSnapshot[]
   })
 })
@@ -60,6 +59,7 @@ export class EditorHistoryAction {
 
   static createSnapshot = defineAction({
     type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
+    /** only one of selectedEntities OR modify - @todo should we make these separate actions? */
     selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>,
     modify: matches.boolean.optional()
   })
@@ -132,7 +132,7 @@ const execute = () => {
       console.log('saved histoiry', data)
       state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { data }])
       state.index.set(state.index.value + 1)
-    } else if (state.includeSelection.value) {
+    } else if (action.selectedEntities) {
       const selectedEntities = action.selectedEntities ?? selectedEntitiesState.selectedEntities
       state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { selectedEntities }])
       state.index.set(state.index.value + 1)
