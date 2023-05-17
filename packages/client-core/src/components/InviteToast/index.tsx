@@ -3,14 +3,15 @@ import { useTranslation } from 'react-i18next'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { Button } from '@etherealengine/editor/src/components/inputs/Button'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
-import { InviteService, useInviteState } from '../../social/services/InviteService'
-import { useAuthState } from '../../user/services/AuthService'
+import { InviteService, InviteServiceReceptor, InviteState } from '../../social/services/InviteService'
+import { AuthState } from '../../user/services/AuthService'
 import styles from './index.module.scss'
 
 const InviteToast = () => {
-  const inviteState = useInviteState()
-  const authState = useAuthState()
+  const inviteState = useHookstate(getMutableState(InviteState))
+  const authState = useHookstate(getMutableState(AuthState))
   const newestInvite =
     inviteState.receivedInvites.total.value > 0 ? inviteState.receivedInvites.invites[0].value : ({} as any)
   const { t } = useTranslation()
@@ -18,7 +19,14 @@ const InviteToast = () => {
   useEffect(() => {
     if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
       InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
-  }, [inviteState.receivedUpdateNeeded, authState.isLoggedIn])
+  }, [inviteState.receivedUpdateNeeded.value, authState.isLoggedIn.value])
+
+  useEffect(() => {
+    addActionReceptor(InviteServiceReceptor)
+    return () => {
+      removeActionReceptor(InviteServiceReceptor)
+    }
+  }, [])
 
   const acceptInvite = (invite) => {
     InviteService.acceptInvite(invite)

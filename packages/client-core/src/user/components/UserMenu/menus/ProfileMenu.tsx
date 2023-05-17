@@ -335,7 +335,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
-            showChangeButton={engineInitialized.value ? true : false}
+            showChangeButton={!!engineInitialized.value}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />
 
