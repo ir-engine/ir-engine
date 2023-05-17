@@ -27,6 +27,9 @@ type EulerInputProps = {
  */
 export const EulerInput = (props: EulerInputProps) => {
   const euler = useState(new Euler().setFromQuaternion(props.quaternion, 'YXZ'))
+  useEffect(() => {
+    euler.value.setFromQuaternion(props.quaternion, 'YXZ')
+  }, [props])
   const onSetEuler = useCallback(
     (component: keyof typeof euler) => (value: number) => {
       const radVal = value * DEG2RAD
