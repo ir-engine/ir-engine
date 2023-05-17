@@ -54,6 +54,7 @@ export class EditorHistoryAction {
 
   static createSnapshot = defineAction({
     type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
+    /** only one of selectedEntities OR modify - @todo should we make these separate actions? */
     selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>,
     modify: matches.boolean.optional()
   })
@@ -119,7 +120,7 @@ const execute = () => {
       const data = { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData
       state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { data }])
       state.index.set(state.index.value + 1)
-    } else if (state.includeSelection.value) {
+    } else if (action.selectedEntities) {
       const selectedEntities = action.selectedEntities ?? selectedEntitiesState.selectedEntities
       state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { selectedEntities }])
       state.index.set(state.index.value + 1)

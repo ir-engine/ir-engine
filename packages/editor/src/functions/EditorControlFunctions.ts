@@ -544,7 +544,7 @@ const groupObjects = (
  * @param nodes
  * @returns
  */
-const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
+const removeObject = (nodes: EntityOrObjectUUID[]) => {
   cancelGrabOrPlacement()
   replaceSelection([])
 
@@ -562,7 +562,6 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
     }
   }
 
-  dispatchAction(SelectionAction.updateSelection({ selectedEntities: [] }))
   dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
 }
 /**
