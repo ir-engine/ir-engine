@@ -193,7 +193,6 @@ const execute = () => {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
         const peers = Engine.instance.mediaNetwork.peers ? Array.from(Engine.instance.mediaNetwork.peers.values()) : []
         const peer = peers.find((peer) => {
-          console.log('peer', peer)
           return peer.userId === ownerId
         })
         const consumer = Engine.instance.mediaNetwork!.consumers.find(
