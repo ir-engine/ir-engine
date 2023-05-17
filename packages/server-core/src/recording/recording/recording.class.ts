@@ -6,6 +6,8 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
+import { UnauthorizedException } from '../../util/exceptions/exception'
+import { NotFoundException } from '../../util/exceptions/exception'
 
 export type RecordingDataType = RecordingResult
 
@@ -42,7 +44,8 @@ export class Recording<T = RecordingDataType> extends Service<T> {
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin && params.query.action === 'admin') {
-        // show admin page results only if user is admin and query.action explicitly is admin (indicating admin panel)
+        delete params.query.action
+        // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
         params.sequelize = {
           include: [{ model: this.app.service('user').Model, attributes: ['name'], as: 'user' }]
         }
@@ -61,5 +64,19 @@ export class Recording<T = RecordingDataType> extends Service<T> {
       ...data,
       userId: params.user.id
     })
+  }
+
+  async remove(id: RecordingResult['id'], params?: UserParams) {
+    if (params && params.user && params.query) {
+      const admin = await checkScope(params.user, this.app, 'admin', 'admin')
+      if (admin) {
+        const recording = super.get(id)
+        if (!recording) {
+          throw new NotFoundException('Unable to find recording with this id')
+        }
+        return super.remove(id)
+      }
+    }
+    throw new UnauthorizedException('This action can only be performed by admins')
   }
 }

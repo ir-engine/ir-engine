@@ -41,7 +41,7 @@ const recordingsRetrievedReceptor = (action: typeof AdminRecordingsActions.recor
   })
 }
 
-const recordingRemovedReceptor = (action: typeof AdminRecordingsActions.recordingsRemoved.matches._TYPE) => {
+const recordingRemovedReceptor = (_action: typeof AdminRecordingsActions.recordingsRemoved.matches._TYPE) => {
   const state = getMutableState(AdminRecordingState)
   return state.merge({ updateNeeded: true })
 }
@@ -81,7 +81,7 @@ export const AdminRecordingService = {
     }
   },
   removeRecording: async (id: string) => {
-    const recording = (await API.instance.client.service('recording').patch(id, { ended: true })) as RecordingResult
+    const recording = (await API.instance.client.service('recording').remove(id)) as RecordingResult
     dispatchAction(AdminRecordingsActions.recordingsRemoved({ recording }))
   },
   useAPIListeners: () => {

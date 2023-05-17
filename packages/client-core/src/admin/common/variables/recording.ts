@@ -1,5 +1,5 @@
 export interface RecordingColumn {
-  id: 'id' | 'user' | 'ended' | 'schema' | 'action'
+  id: 'id' | 'user' | 'ended' | 'schema' | 'view' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
@@ -11,7 +11,11 @@ export const recordingColumns: RecordingColumn[] = [
   { id: 'ended', label: 'Ended' },
   {
     id: 'schema',
-    label: 'Schema',
+    label: 'Schema'
+  },
+  {
+    id: 'view',
+    label: 'View',
     align: 'right'
   },
   {

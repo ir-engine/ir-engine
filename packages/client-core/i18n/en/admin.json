@@ -444,7 +444,8 @@
       "confirmPodDelete": "Do you want to delete pod"
     },
     "recording": {
-      "recording": "Recording"
+      "recording": "Recording",
+      "confirmRecordingDelete": "Do you want to delete recording"
     }
   }
 }

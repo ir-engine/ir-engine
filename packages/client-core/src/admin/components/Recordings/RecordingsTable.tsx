@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next'
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
-import Button from '@etherealengine/ui/src/Button'
+import Icon from '@etherealengine/ui/src/Icon'
+import IconButton from '@etherealengine/ui/src/IconButton'
 
+import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { recordingColumns } from '../../common/variables/recording'
 import { AdminRecordingService, AdminRecordingState, RECORDING_PAGE_LIMIT } from '../../services/RecordingService'
@@ -17,6 +19,8 @@ const RecordingsTable = () => {
   const rowsPerPage = useHookstate(RECORDING_PAGE_LIMIT)
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('createdAt')
+  const openConfirm = useHookstate(false)
+  const currentRecordingId = useHookstate<string | null>(null)
   const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -30,8 +34,18 @@ const RecordingsTable = () => {
   const adminRecordingsState = useHookstate(getMutableState(AdminRecordingState))
 
   useEffect(() => {
-    AdminRecordingService.fetchAdminRecordings(null, page.value, sortField.value, fieldOrder.value, rowsPerPage.value)
-  }, [page.value, sortField.value, fieldOrder.value, rowsPerPage.value])
+    if (adminRecordingsState.updateNeeded) {
+      AdminRecordingService.fetchAdminRecordings(null, page.value, sortField.value, fieldOrder.value, rowsPerPage.value)
+    }
+  }, [page.value, sortField.value, fieldOrder.value, rowsPerPage.value, adminRecordingsState.updateNeeded])
+
+  const handleSubmitRemove = () => {
+    if (currentRecordingId.value) {
+      AdminRecordingService.removeRecording(currentRecordingId.value)
+      openConfirm.set(false)
+      currentRecordingId.set(null)
+    }
+  }
 
   const createData = (el: RecordingResult, id: string, user: string, ended: boolean, schema: string) => ({
     el,
@@ -39,15 +53,17 @@ const RecordingsTable = () => {
     user,
     ended: ended ? t('admin:components.common.yes') : t('admin:components.common.no'),
     schema,
+    view: <IconButton className={styles.iconButton} name="view" onClick={() => {}} icon={<Icon type="Visibility" />} />,
     action: (
-      <>
-        <Button className={styles.actionStyle} onClick={() => {}}>
-          <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
-        </Button>
-        <Button className={styles.actionStyle} onClick={() => {}}>
-          <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
-        </Button>
-      </>
+      <IconButton
+        className={styles.iconButton}
+        name="remove"
+        onClick={() => {
+          currentRecordingId.set(el.id)
+          openConfirm.set(true)
+        }}
+        icon={<Icon type="Cancel" />}
+      />
     )
   })
 
@@ -70,13 +86,13 @@ const RecordingsTable = () => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      {/* <ConfirmDialog
+      <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('admin:components.instance.confirmInstanceDelete')} '${recordingName.value}'?`}
+        description={`${t('admin:components.recording.confirmRecordingDelete')} '${currentRecordingId.value}'?`}
         onClose={() => openConfirm.set(false)}
-        onSubmit={submitRemoveInstance}
+        onSubmit={handleSubmitRemove}
       />
-      <InstanceDrawer
+      {/* <InstanceDrawer
         open={openInstanceDrawer.value}
         selectedInstance={instanceAdmin.value}
         onClose={() => openInstanceDrawer.set(false)}
