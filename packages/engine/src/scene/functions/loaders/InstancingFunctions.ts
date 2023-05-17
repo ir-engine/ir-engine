@@ -299,7 +299,7 @@ const loadTex = async (props: State<TextureRef>) => {
   props.texture.set(texture)
 }
 
-async function loadSampleTextures(props: State<ScatterProperties & VertexProperties>) {
+async function loadSampleTextures(props: State<ScatterProperties | VertexProperties>) {
   await Promise.all([props.densityMap, props.heightMap].map(loadTex))
 }
 
@@ -424,7 +424,7 @@ export async function stageInstancing(entity: Entity) {
   const transforms: number[] = []
   const surfaceUVs: number[] = []
   if ([SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling)) {
-    await loadSampleTextures(scatterState.sampleProperties as State<SampleProperties>)
+    await loadSampleTextures(scatterState.sampleProperties)
   }
 
   let props = scatter.sourceProperties
