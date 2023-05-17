@@ -53,10 +53,9 @@ function createPeer(
 
 function destroyPeer(network: Network, peerID: PeerID) {
   if (!network.peers.has(peerID))
-    return console.warn(`[WorldNetworkActionReceptors]: tried to remove client with peerID ${peerID} that doesn't exit`)
+    return console.warn(`[NetworkPeerFunctions]: tried to remove client with peerID ${peerID} that doesn't exit`)
   const userID = network.peers.get(peerID)!.userId
-  if (userID === Engine.instance.userId)
-    return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
+  if (userID === Engine.instance.userId) return console.warn(`[NetworkPeerFunctions]: tried to remove local client`)
 
   if (network.topic === 'world') {
     const worldState = getState(WorldState)

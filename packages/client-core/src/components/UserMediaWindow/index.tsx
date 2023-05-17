@@ -409,7 +409,6 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
 
-  console.log('rendering UserMediaWindow', peerID, type, isSelf, rendered, isSelf || rendered)
   return (
     <Draggable isPiP={isPiP}>
       <div

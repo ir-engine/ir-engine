@@ -231,7 +231,7 @@ const execute = () => {
 
   for (const userEntity of userQuery.exit()) {
     const entity = AvatarUI.get(userEntity)?.entity
-    if (typeof entity !== 'undefined') removeEntity(entity)
+    if (typeof entity !== 'undefined') removeEntity(entity) // todo - why does this cause a GroupQueryReactor unmount error?
     AvatarUI.delete(userEntity)
     AvatarUITransitions.delete(userEntity)
   }
