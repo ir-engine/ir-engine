@@ -28,8 +28,11 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
   }, [])
 
   useEffect(() => {
-    if (fullScreenActive.value) handle.enter()
-    else handle.exit()
+    if (fullScreenActive.value) {
+      handle.enter().catch((err) => console.log(err))
+    } else {
+      handle.exit().catch((err) => console.log(err))
+    }
   }, [fullScreenActive.value])
 
   return iOS ? (

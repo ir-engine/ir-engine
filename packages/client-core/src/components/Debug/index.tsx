@@ -256,7 +256,10 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
-        <JSONTree data={Engine.instance.store.stateMap} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree
+          data={Engine.instance.store.stateMap}
+          postprocessValue={(v) => (v?.value && v?.get({ noproxy: true })) ?? v}
+        />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
@@ -271,10 +274,6 @@ export const Debug = ({ showingStateRef }) => {
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>
         <JSONTree data={namedEntities.get({ noproxy: true })} />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.networks')}</h1>
-        <JSONTree data={networks} />
       </div>
     </div>
   )
