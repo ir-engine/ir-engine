@@ -24,13 +24,14 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   syncStateWithLocalStorage,
   useState
 } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessLocationState } from '../../social/services/LocationService'
+import { LocationState } from '../../social/services/LocationService'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
@@ -760,14 +761,14 @@ export const AuthService = {
     useEffect(() => {
       const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
       const locationBanCreatedListener = async (params) => {
-        const selfUser = accessAuthState().user
-        const currentLocation = accessLocationState().currentLocation.location
+        const selfUser = getState(AuthState).user
+        const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
-        if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
+        if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           // TODO: Decouple and reenable me!
           // endVideoChat({ leftParty: true });
           // leave(true);
-          const userId = selfUser.id.value ?? ''
+          const userId = selfUser.id ?? ''
           const user = resolveUser(await API.instance.client.service('user').get(userId))
           dispatchAction(AuthAction.userUpdatedAction({ user }))
         }

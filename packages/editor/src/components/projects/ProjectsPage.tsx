@@ -2,15 +2,15 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
-import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { ProjectUpdateSystem } from '@etherealengine/client-core/src/systems/ProjectUpdateSystem'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction, useHookstate } from '@etherealengine/hyperflux'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -157,8 +157,8 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
-  const authState = useAuthState()
-  const projectState = useProjectState()
+  const authState = useHookstate(getMutableState(AuthState))
+  const projectState = useHookstate(getMutableState(ProjectState))
   const authUser = authState.authUser
   const user = authState.user
 

@@ -1,6 +1,7 @@
 import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { NetworkPeer } from '../../networking/interfaces/NetworkPeer'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -149,5 +150,17 @@ export class EngineActions {
   static avatarModelChanged = defineAction({
     type: 'xre.engine.Engine.AVATAR_MODEL_CHANGED' as const,
     entity: matchesEntity
+  })
+
+  static peerCreated = defineAction({
+    type: 'ee.engine.Engine.PEER_CREATED' as const,
+    peer: matches.any as Validator<unknown, NetworkPeer>,
+    name: matches.string
+  })
+
+  static peerDestroyed = defineAction({
+    type: 'ee.engine.Engine.PEER_DESTROYED' as const,
+    peer: matches.any as Validator<unknown, NetworkPeer>,
+    name: matches.string
   })
 }

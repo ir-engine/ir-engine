@@ -61,9 +61,18 @@ export default (app: Application) => {
     } else if (channel.channelType === 'instance') {
       const instanceUsers = await app.service('user').find({
         query: {
-          $limit: 1000,
-          instanceId: channel.instanceId,
-          action: 'layer-users'
+          $limit: 1000
+        },
+        sequelize: {
+          include: [
+            {
+              model: app.service('instance-attendance').Model,
+              as: 'instanceAttendance',
+              where: {
+                instanceId: channel.instanceId
+              }
+            }
+          ]
         }
       })
 
@@ -110,9 +119,18 @@ export default (app: Application) => {
     } else if (channel.channelType === 'instance') {
       const instanceUsers = await app.service('user').find({
         query: {
-          $limit: 1000,
-          instanceId: channel.instanceId,
-          action: 'layer-users'
+          $limit: 1000
+        },
+        sequelize: {
+          include: [
+            {
+              model: app.service('instance-attendance').Model,
+              as: 'instanceAttendance',
+              where: {
+                instanceId: channel.instanceId
+              }
+            }
+          ]
         }
       })
 
@@ -159,9 +177,18 @@ export default (app: Application) => {
     } else if (channel.channelType === 'instance') {
       const instanceUsers = await app.service('user').find({
         query: {
-          $limit: 1000,
-          instanceId: channel.instanceId,
-          action: 'layer-users'
+          $limit: 1000
+        },
+        sequelize: {
+          include: [
+            {
+              model: app.service('instance-attendance').Model,
+              as: 'instanceAttendance',
+              where: {
+                instanceId: channel.instanceId
+              }
+            }
+          ]
         }
       })
 

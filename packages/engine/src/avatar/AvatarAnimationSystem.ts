@@ -126,7 +126,11 @@ const execute = () => {
   }
 
   for (const action of ikTargetSpawnQueue()) {
-    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)!
+    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
+    if (!entity) {
+      console.warn('Could not find entity for networkId', action.$from, action.networkId)
+      continue
+    }
     setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
     setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
     // addObjectToGroup(entity, new AxesHelper(0.5))
