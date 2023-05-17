@@ -44,7 +44,7 @@ const sceneJSON_2 = {
   } as SceneJson
 } as SceneData
 
-describe.only('SceneLoadingSystem', () => {
+describe('SceneLoadingSystem', () => {
   beforeEach(() => {
     createEngine()
   })
