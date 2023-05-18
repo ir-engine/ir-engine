@@ -28,6 +28,8 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
     rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y
   rigComponent.footHeight = rig.leftFoot.node.getWorldPosition(vec3).y - transform.position.y
 
+  rigComponent.upperArmLength = rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y
+
   if (!hasComponent(entity, RigidBodyComponent)) return
 
   Physics.removeCollidersFromRigidBody(entity, Engine.instance.physicsWorld)

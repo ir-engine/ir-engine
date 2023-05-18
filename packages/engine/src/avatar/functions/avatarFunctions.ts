@@ -182,14 +182,14 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   setupAvatarModel(entity)(model)
 
-  createIKAnimator(entity)
-
   addObjectToGroup(entity, model.scene)
 
   computeTransformMatrix(entity)
   updateGroupChildren(entity)
 
   setupAvatarHeight(entity, model.scene)
+
+  createIKAnimator(entity)
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
@@ -277,6 +277,8 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   return model
 }
+
+export const ikRetargeting = (entity: Entity) => {}
 
 export const animateAvatarModel = (entity: Entity) => (model: VRM) => {
   const animationComponent = getComponent(entity, AnimationComponent)
