@@ -198,7 +198,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                   }}
                   onRelease={() => {
                     dispatchAction(EditorAction.sceneModified({ modified: true }))
-                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
               </InputGroup>
@@ -216,7 +216,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                   }}
                   onRelease={() => {
                     dispatchAction(EditorAction.sceneModified({ modified: true }))
-                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
               </InputGroup>
@@ -232,7 +232,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                   }}
                   onRelease={() => {
                     dispatchAction(EditorAction.sceneModified({ modified: true }))
-                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
               </InputGroup>

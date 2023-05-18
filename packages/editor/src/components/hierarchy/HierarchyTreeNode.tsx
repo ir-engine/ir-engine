@@ -12,6 +12,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   EntityTreeComponent,
   getEntityNodeArrayFromEntities
@@ -266,11 +267,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }, [preview])
 
   const collectNodeMenuProps = useCallback(() => node, [node])
-  const editors = node.entityNode
-    ? getAllComponents(node.entityNode as Entity)
-        .map((c) => EntityNodeEditor.get(c)!)
-        .filter((c) => !!c)
-    : []
+  const editors =
+    typeof node.entityNode === 'number' && entityExists(node.entityNode as Entity)
+      ? getAllComponents(node.entityNode as Entity)
+          .map((c) => EntityNodeEditor.get(c)!)
+          .filter((c) => !!c)
+      : []
   const IconComponent = editors.length && editors[editors.length - 1].iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
