@@ -61,7 +61,6 @@
     "@gltf-transform/functions": "3.1.1",
     "@kubernetes/client-node": "0.18.1",
     "app-root-path": "3.1.0",
-    "aws-sdk": "2.1339.0",
     "bent": "^7.3.12",
     "chargebee": "^2.19.0",
     "compare-versions": "^6.0.0-rc.1",
