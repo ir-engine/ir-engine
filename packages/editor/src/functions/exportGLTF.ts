@@ -2,7 +2,6 @@ import exportModelGLTF from '@etherealengine/engine/src/assets/functions/exportM
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 
-import { accessEditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
 export default async function exportGLTF(entity: Entity, path: string) {
@@ -13,7 +12,6 @@ export default async function exportGLTF(entity: Entity, path: string) {
     embedImages: !isGLTF,
     includeCustomExtensions: true
   }) //, {binary: false, embedImages: false, includeCustomExtensions: true})
-  //const pName = accessEditorState().projectName.value!
   const [, , pName, fileName] = pathResolver().exec(path)!
   const blob = isGLTF ? [JSON.stringify(gltf)] : [gltf]
   const file = new File(blob, fileName)
