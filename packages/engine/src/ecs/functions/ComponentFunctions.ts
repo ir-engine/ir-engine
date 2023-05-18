@@ -218,7 +218,7 @@ export const setComponent = <C extends Component>(
       const root = startReactor(() => {
         useEffect(() => {
           if (typeof state.value === 'object') return
-          state.subscribe(() => {
+          return state.subscribe(() => {
             Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY)
           })
         }, [])
