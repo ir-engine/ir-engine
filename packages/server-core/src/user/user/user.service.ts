@@ -61,10 +61,10 @@ export default (app: Application): void => {
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 
-      if (data.instanceId != null || params.params?.instanceId != null) {
+      if (params.params?.instanceId != null) {
         const layerUsers = await app.service('user').Model.findAll({
           where: {
-            instanceId: data.instanceId || params.params?.instanceId
+            instanceId: params.params?.instanceId
           }
         })
         targetIds = targetIds.concat(layerUsers.map((user) => user.id))
@@ -97,9 +97,7 @@ export default (app: Application): void => {
       targetIds = _.uniq(targetIds)
       return Promise.all(
         targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({
-            userRelationship: data
-          })
+          return app.channel(`userIds/${userId}`).send(data)
         })
       )
     } catch (err) {

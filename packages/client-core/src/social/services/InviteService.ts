@@ -4,12 +4,12 @@ import { useEffect } from 'react'
 import { Invite, SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 import { PartyService } from './PartyService'
 
 export const emailRegex =
@@ -106,10 +106,6 @@ export const InviteServiceReceptor = (action) => {
       return s.getReceivedInvitesInProgress.set(true)
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const accessInviteState = () => getMutableState(InviteState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useInviteState = () => useState(accessInviteState())
 
 //Service
 export const InviteService = {
@@ -139,7 +135,7 @@ export const InviteService = {
         return
       } else {
         try {
-          const userResult = (await API.instance.client.service('user').find({
+          const userResult = (await Engine.instance.api.service('user').find({
             query: {
               action: 'invite-code-lookup',
               inviteCode: data.inviteCode
@@ -186,12 +182,12 @@ export const InviteService = {
         existenceCheck: true
       }
 
-      const existingInviteResult = (await API.instance.client.service('invite').find({
+      const existingInviteResult = (await Engine.instance.api.service('invite').find({
         query: params
       })) as Paginated<Invite>
 
       let inviteResult
-      if (existingInviteResult.total === 0) inviteResult = await API.instance.client.service('invite').create(params)
+      if (existingInviteResult.total === 0) inviteResult = await Engine.instance.api.service('invite').create(params)
 
       NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
       dispatchAction(
@@ -210,7 +206,7 @@ export const InviteService = {
     orderBy = 'asc'
   ) => {
     dispatchAction(InviteAction.fetchingReceivedInvites({}))
-    const inviteState = accessInviteState().value
+    const inviteState = getState(InviteState)
     const skip = inviteState.receivedInvites.skip
     const limit = inviteState.receivedInvites.limit
     let sortData = {}
@@ -226,7 +222,7 @@ export const InviteService = {
     }
 
     try {
-      const inviteResult = (await API.instance.client.service('invite').find({
+      const inviteResult = (await Engine.instance.api.service('invite').find({
         query: {
           $sort: sortData,
           type: 'received',
@@ -254,7 +250,7 @@ export const InviteService = {
     orderBy = 'asc'
   ) => {
     dispatchAction(InviteAction.fetchingSentInvites({}))
-    const inviteState = accessInviteState().value
+    const inviteState = getState(InviteState)
     const skip = inviteState.sentInvites.skip
     const limit = inviteState.sentInvites.limit
     let sortData = {}
@@ -269,7 +265,7 @@ export const InviteService = {
       }
     }
     try {
-      const inviteResult = (await API.instance.client.service('invite').find({
+      const inviteResult = (await Engine.instance.api.service('invite').find({
         query: {
           $sort: sortData,
           type: 'sent',
@@ -292,7 +288,7 @@ export const InviteService = {
   },
   removeInvite: async (inviteId: string) => {
     try {
-      await API.instance.client.service('invite').remove(inviteId)
+      await Engine.instance.api.service('invite').remove(inviteId)
       dispatchAction(InviteAction.removedSentInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -303,12 +299,12 @@ export const InviteService = {
       if (invite.inviteType === 'party') {
         dispatchAction(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel({}))
       }
-      await API.instance.client.service('a-i').get(invite.id, {
+      await Engine.instance.api.service('a-i').get(invite.id, {
         query: {
           passcode: invite.passcode
         }
       })
-      if (invite.inviteType === 'party') PartyService.leaveNetwork(false)
+      if (invite.inviteType === 'party') await PartyService.leaveNetwork(false)
       dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -316,7 +312,7 @@ export const InviteService = {
   },
   declineInvite: async (invite: Invite) => {
     try {
-      await API.instance.client.service('invite').remove(invite.id)
+      await Engine.instance.api.service('invite').remove(invite.id)
       dispatchAction(InviteAction.declinedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -329,8 +325,8 @@ export const InviteService = {
     useEffect(() => {
       const inviteCreatedListener = (params) => {
         const invite = params
-        const selfUser = accessAuthState().user
-        if (invite.userId === selfUser.id.value) {
+        const selfUser = getState(AuthState).user
+        if (invite.userId === selfUser.id) {
           dispatchAction(InviteAction.createdSentInvite({}))
         } else {
           dispatchAction(InviteAction.createdReceivedInvite({}))
@@ -339,20 +335,20 @@ export const InviteService = {
 
       const inviteRemovedListener = (params) => {
         const invite = params
-        const selfUser = accessAuthState().user
-        if (invite.userId === selfUser.id.value) {
+        const selfUser = getState(AuthState).user
+        if (invite.userId === selfUser.id) {
           dispatchAction(InviteAction.removedSentInvite({}))
         } else {
           dispatchAction(InviteAction.removedReceivedInvite({}))
         }
       }
 
-      API.instance.client.service('invite').on('created', inviteCreatedListener)
-      API.instance.client.service('invite').on('removed', inviteRemovedListener)
+      Engine.instance.api.service('invite').on('created', inviteCreatedListener)
+      Engine.instance.api.service('invite').on('removed', inviteRemovedListener)
 
       return () => {
-        API.instance.client.service('invite').off('created', inviteCreatedListener)
-        API.instance.client.service('invite').off('removed', inviteRemovedListener)
+        Engine.instance.api.service('invite').off('created', inviteCreatedListener)
+        Engine.instance.api.service('invite').off('removed', inviteRemovedListener)
       }
     }, [])
   }

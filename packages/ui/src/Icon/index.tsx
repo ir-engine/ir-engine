@@ -94,6 +94,7 @@ import {
   PermMedia,
   Person,
   PersonAdd,
+  PersonOff,
   Phone,
   Portrait,
   QrCode2,
@@ -109,6 +110,7 @@ import {
   Send,
   Settings,
   Shuffle,
+  SportsScore,
   SquareFoot,
   StopScreenShare,
   Storage,
@@ -274,6 +276,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <ArrowBack {...props} />
     case 'PersonAdd':
       return <PersonAdd {...props} />
+    case 'PersonOff':
+      return <PersonOff {...props} />
     case 'CloudUpload':
       return <CloudUpload {...props} />
     case 'SystemUpdateAlt':
@@ -394,6 +398,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Storage {...props} />
     case 'Shuffle':
       return <Shuffle {...props} />
+    case 'SportsScore':
+      return <SportsScore {...props} />
     case 'NearMe':
       return <NearMe {...props} />
     case 'DirectionsRun':

@@ -23,12 +23,12 @@ import { materialsFromSource } from '@etherealengine/engine/src/renderer/materia
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { ToggleButton } from '@mui/material'
 
 import exportGLTF from '../../functions/exportGLTF'
-import { accessSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -102,7 +102,7 @@ export default function ModelTransformProperties({
   onChangeModel: any
 }) {
   const { t } = useTranslation()
-  const selectionState = accessSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
 

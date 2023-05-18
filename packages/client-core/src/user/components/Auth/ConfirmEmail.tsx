@@ -1,17 +1,19 @@
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 
+import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/Box'
 import Button from '@etherealengine/ui/src/Button'
 import Container from '@etherealengine/ui/src/Container'
 import Typography from '@etherealengine/ui/src/Typography'
 
 import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
+import { AuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
 
 const ConfirmEmail = (): JSX.Element => {
-  const auth = useAuthState()
+  const auth = useHookstate(getMutableState(AuthState))
   const { t } = useTranslation()
   const handleResendEmail = (e: any): any => {
     e.preventDefault()

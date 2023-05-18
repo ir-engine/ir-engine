@@ -24,7 +24,7 @@ import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/co
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 
-import { accessEditorState } from '../services/EditorServices'
+import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
 const query = defineQuery([ScenePreviewCameraComponent, TransformComponent])
@@ -106,8 +106,9 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   if (!blob) return null!
 
   const nameComponent = getComponent(entity, NameComponent)
-  const sceneName = accessEditorState().sceneName.value!
-  const projectName = accessEditorState().projectName.value!
+  const editorState = getState(EditorState)
+  const sceneName = editorState.sceneName!
+  const projectName = editorState.projectName!
   const filename = isSceneEntity ? `${sceneName}.envmap.ktx2` : `${sceneName}-${nameComponent.replace(' ', '-')}.ktx2`
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
@@ -140,8 +141,9 @@ export const uploadCubemapBakeToServer = async (name: string, position: Vector3)
 
   if (!blob) return null!
 
-  const sceneName = accessEditorState().sceneName.value!
-  const projectName = accessEditorState().projectName.value!
+  const editorState = getState(EditorState)
+  const sceneName = editorState.sceneName!
+  const projectName = editorState.projectName!
   const filename = `${sceneName}-${name.replace(' ', '-')}.ktx2`
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)])[0])[0]

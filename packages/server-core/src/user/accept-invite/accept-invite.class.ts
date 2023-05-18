@@ -279,26 +279,39 @@ export class AcceptInvite implements ServiceMethods<Data> {
           sequelize: {
             include: [
               {
-                model: this.app.service('user').Model
+                model: this.app.service('user').Model,
+                include: [
+                  {
+                    model: this.app.service('instance-attendance').Model,
+                    as: 'instanceAttendance',
+                    where: {
+                      isChannel: false,
+                      ended: false
+                    },
+                    required: false,
+                    include: [
+                      {
+                        model: this.app.service('instance').Model,
+                        include: [
+                          {
+                            model: this.app.service('location').Model
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
         })
 
         const owner = ownerResult.data[0]
+        const ownerInstanceAttendance = owner?.user?.instanceAttendance
 
-        if (owner && owner.user?.instanceId) {
-          const instance = await this.app.service('instance').get(owner.user.instanceId, {
-            sequelize: {
-              include: [
-                {
-                  model: this.app.service('location').Model
-                }
-              ]
-            }
-          })
-          returned.locationName = instance.location.slugifiedName
-          returned.instanceId = owner.user.instanceId
+        if (ownerInstanceAttendance && ownerInstanceAttendance[0]) {
+          returned.locationName = ownerInstanceAttendance[0].instance.location.slugifiedName
+          returned.instanceId = ownerInstanceAttendance[0].instanceId
           returned.inviteCode = owner.user.inviteCode
         }
       }

@@ -5,14 +5,15 @@ import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendere
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessSelectionState } from '../services/SelectionServices'
+import { SelectionState } from '../services/SelectionServices'
 
 export const updateOutlinePassSelection = (): void => {
   if (!EngineRenderer.instance.effectComposer || !EngineRenderer.instance.effectComposer[Effects.OutlineEffect]) return
 
   const meshes = [] as any[]
-  const parentEntities = accessSelectionState().selectedParentEntities.value
+  const parentEntities = getState(SelectionState).selectedParentEntities
   for (let i = 0; i < parentEntities.length; i++) {
     const parentEnt = parentEntities[i]
     const isUuid = typeof parentEnt === 'string'

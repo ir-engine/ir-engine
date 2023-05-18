@@ -81,26 +81,6 @@ describe('user service', () => {
     }
   })
 
-  it('should find users by action layer-users', async () => {
-    const item = await app.service('user').find({
-      query: {
-        action: 'layer-users'
-      }
-    })
-
-    assert.ok(item, 'user items is found')
-  })
-
-  it('should find users by action channel-users', async () => {
-    const item = await app.service('user').find({
-      query: {
-        action: 'channel-users'
-      }
-    })
-
-    assert.ok(item, 'user items is found')
-  })
-
   it('should find users by action invite-code-lookup', async () => {
     const item = await app.service('user').find({
       query: {

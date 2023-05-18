@@ -4,12 +4,12 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Dashboard from '@etherealengine/ui/src/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import { AdminSystem } from '../systems/AdminSystem'
-import { useAuthState } from '../user/services/AuthService'
+import { AuthState } from '../user/services/AuthService'
 import { UserUISystem } from '../user/UserUISystem'
 import Analytics from './components/Analytics'
 
@@ -21,7 +21,7 @@ const AdminSystemInjection = () => {
 
 const AdminRoutes = () => {
   const location = useLocation()
-  const admin = useAuthState().user
+  const admin = useHookstate(getMutableState(AuthState)).user
 
   let allowedRoutes = {
     analytics: false,

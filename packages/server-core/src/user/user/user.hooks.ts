@@ -279,18 +279,24 @@ export default {
             model: 'user-settings'
           },
           {
-            model: 'instance',
-            as: 'instance',
+            model: 'instance-attendance',
+            as: 'instanceAttendance',
+            where: {
+              ended: false
+            },
+            required: false,
             include: [
               {
-                model: 'location',
-                as: 'location'
+                model: 'instance',
+                as: 'instance',
+                include: [
+                  {
+                    model: 'location',
+                    as: 'location'
+                  }
+                ]
               }
             ]
-          },
-          {
-            model: 'instance',
-            as: 'channelInstance'
           },
           {
             model: 'scope'
@@ -335,7 +341,39 @@ export default {
             model: 'avatar'
           }
         ]
-      })
+      }),
+      iff(
+        (context: HookContext) => context.params.user.id === context.arguments[0],
+        addAssociations({
+          models: [
+            {
+              model: 'instance-attendance',
+              as: 'instanceAttendance',
+              where: { ended: false },
+              required: false,
+              include: [
+                {
+                  model: 'instance',
+                  as: 'instance',
+                  include: [
+                    {
+                      model: 'location',
+                      as: 'location'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        })
+      ),
+      iff(
+        (context: HookContext) => context.params.user.id !== context.arguments[0],
+        (context: HookContext) => {
+          if (!context.params.sequelize.attributes) context.params.sequelize.attributes = {}
+          context.params.sequelize.attributes.exclude = ['partyId']
+        }
+      )
     ],
     create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
     update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
