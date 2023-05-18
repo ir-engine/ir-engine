@@ -25,7 +25,7 @@ const PWA = (clientSetting) =>
       short_name: clientSetting?.shortName || 'EE',
       theme_color: clientSetting?.themeColor || '#ffffff',
       background_color: clientSetting?.backgroundColor || '#000000',
-      start_url: `/`,
+      start_url: process.env.APP_URL || '/',
       scope: `./`,
       id: `ETHEREAL_ENGINE`
     },
@@ -38,24 +38,13 @@ const PWA = (clientSetting) =>
     devOptions: {
       disableRuntimeConfig: false,
       // Enable dev options only during development
-      enabled: true, // process.env.APP_ENV === 'development',
+      enabled: process.env.APP_ENV === 'development',
       // Navigate to index.html for all 404 errors during development
       navigateFallback: '/index.html',
       // Allowlist all paths for navigateFallback during development
       navigateFallbackAllowlist: [
         // allow all files for local vite dev server
-        /^\/.*/
-      ]
-    },
-    workbox: {
-      clientsClaim: true,
-      skipWaiting: true,
-      // Set the path for the service worker file
-      swDest: process.env.GEN_SW === 'true' ? 'public/service-worker.js' : 'src/service-worker.js',
-      // Navigate to index.html for all 404 errors during production
-      navigateFallback: '/index.html',
-      // Allowlist all paths for navigateFallback during production
-      navigateFallbackAllowlist: [
+        /^\/.*/,
         // allow node_modules/.vite cache
         /^\/node_modules\/\.vite\/.*/,
         // @vite/client
@@ -63,7 +52,21 @@ const PWA = (clientSetting) =>
         // src/main.tsx
         /^\/src\/main\.tsx/,
         // @vite-plugin-pwa
-        /^\/@vite-plugin-pwa\/.*/,
+        /^\/@vite-plugin-pwa\/.*/
+      ]
+    },
+    workbox: {
+      sourcemap: true,
+      // Set the path for the service worker file
+      swDest: process.env.GEN_SW === 'true' ? 'public/service-worker.js' : 'src/service-worker.js',
+      // Navigate to index.html for all 404 errors during production
+      navigateFallback: '/index.html',
+      // Allowlist all paths for navigateFallback during production
+      navigateFallbackAllowlist: [
+        // allow access to loder_decoder directory
+        /^\/loader_decoder\/.*/,
+        // allow jsdelivr cdn
+        /^https:\/\/cdn.jsdelivr.net\/.*/,
         // allow all files for production build
         /^\/.*/,
         // location route
@@ -117,74 +120,51 @@ const PWA = (clientSetting) =>
       // Set maximum cache size to 100 MB
       maximumFileSizeToCacheInBytes: 1000 * 1000 * 100,
       runtimeCaching: [
-        // Cache all requests on the resources- subdomain for this domain
+        // cache all static images
         {
-          urlPattern: /^https?:\/\/resources-*\/.*/i,
+          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'resources',
+            cacheName: 'images',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
             }
           }
         },
+        // cache all static fonts
         {
-          urlPattern: /^https?.*/i,
+          urlPattern: /\.(?:woff2|woff|ttf|eot)$/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'all-content-cache',
+            cacheName: 'fonts',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 7 * 24 * 60 * 60 // <== 7 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
             }
           }
         },
+        // cache all static media
         {
-          urlPattern: /^\/fonts?.*/i,
+          urlPattern: /\.(?:mp3|mp4|webm)$/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'fonts-assets-cache',
+            cacheName: 'media',
             expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
+              maxEntries: 1000,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
             }
           }
         },
+        // cache all static code
         {
-          urlPattern: /^\/icons?.*/,
+          urlPattern: /\.(?:js|css|html)$/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'icons-assets-cache',
+            cacheName: 'code',
             expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        {
-          urlPattern: /^\/static?.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'static-assets-cache',
-            expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
+              maxEntries: 1000,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
             }
           }
         }

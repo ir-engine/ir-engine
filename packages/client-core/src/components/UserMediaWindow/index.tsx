@@ -1,16 +1,13 @@
-import { Downgraded, State, useHookstate } from '@hookstate/core'
 import classNames from 'classnames'
 import hark from 'hark'
 import { t } from 'i18next'
-import React, { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { useEffect, useRef } from 'react'
 
-import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   globalMuteProducer,
   globalUnmuteProducer,
   pauseConsumer,
-  ProducerExtension,
   resumeConsumer,
   toggleMicrophonePaused,
   toggleScreenshareAudioPaused,
@@ -18,23 +15,21 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/components/UserMenu/util'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { useNetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 import IconButton from '@etherealengine/ui/src/IconButton'
 import Slider from '@etherealengine/ui/src/Slider'
 import Tooltip from '@etherealengine/ui/src/Tooltip'
 
-import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -61,62 +56,70 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioProducerGlobalMute,
     videoElement,
     audioElement
-  } = peerMediaChannelState.value
+  } = peerMediaChannelState.get({ noproxy: true })
 
-  const [audioTrackClones, setAudioTrackClones] = useState<any[]>([])
-  const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
-  const [videoTrackId, setVideoTrackId] = useState('')
-  const [audioTrackId, setAudioTrackId] = useState('')
+  const audioTrackClones = useHookstate<any[]>([])
+  const videoTrackClones = useHookstate<any[]>([])
+  const videoTrackId = useHookstate('')
+  const audioTrackId = useHookstate('')
 
-  const [harkListener, setHarkListener] = useState(null as ReturnType<typeof hark> | null)
-  const [soundIndicatorOn, setSoundIndicatorOn] = useState(false)
-  const [isPiP, setPiP] = useState(false)
-  const [videoDisplayReady, setVideoDisplayReady] = useState<boolean>(false)
+  const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
+  const soundIndicatorOn = useHookstate(false)
+  const isPiP = useHookstate(false)
+  const videoDisplayReady = useHookstate<boolean>(false)
 
-  const userState = useNetworkUserState()
   const resumeVideoOnUnhide = useRef<boolean>(false)
   const resumeAudioOnUnhide = useRef<boolean>(false)
 
   const audioState = useHookstate(getMutableState(AudioState))
 
-  const [_volume, _setVolume] = useState(1)
+  const _volume = useHookstate(1)
 
-  const selfUser = useAuthState().user.value
-  const currentLocation = useLocationState().currentLocation.location
+  const selfUser = useHookstate(getMutableState(AuthState).user).get({ noproxy: true })
+  const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
 
   const mediaNetwork = Engine.instance.mediaNetwork
-  const isSelf = !mediaNetwork || peerID === mediaNetwork?.peerID
-  const volume = isSelf ? audioState.microphoneGain.value : _volume
+  const isSelf =
+    !mediaNetwork ||
+    peerID === mediaNetwork?.peerID ||
+    (mediaNetwork?.peers &&
+      Array.from(mediaNetwork.peers.values()).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
+    peerID === 'self'
+  const volume = isSelf ? audioState.microphoneGain.value : _volume.value
   const isScreen = type === 'screen'
-  const userId = mediaNetwork ? mediaNetwork?.peers!.get(peerID!)?.userId : ''
-  const user = userState.layerUsers.find((user) => user.id.value === userId)?.attach(Downgraded).value
+  const userId =
+    mediaNetwork && mediaNetwork.peers && mediaNetwork.peers.get(peerID)
+      ? mediaNetwork.peers.get(peerID!)?.userId
+      : undefined
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
   const rendered = !mediaSettingState.immersiveMedia.value
 
   useEffect(() => {
-    if (videoStream?.track) setVideoTrackId(videoStream.track.id)
-  }, [videoStream, mediaStreamState.videoStream])
+    if (peerMediaChannelState.videoStream.value?.track)
+      videoTrackId.set(peerMediaChannelState.videoStream.value.track.id)
+  }, [peerMediaChannelState.videoStream])
 
   useEffect(() => {
-    if (audioStream?.track) setAudioTrackId(audioStream.track.id)
-  }, [audioStream, mediaStreamState.audioStream])
+    if (peerMediaChannelState.audioStream.value?.track)
+      audioTrackId.set(peerMediaChannelState.audioStream.value.track.id)
+  }, [peerMediaChannelState.audioStream])
 
   useEffect(() => {
     function onUserInteraction() {
       videoElement?.play()
       audioElement?.play()
-      harkListener?.resume()
+      harkListener?.value?.resume()
     }
     window.addEventListener('pointerdown', onUserInteraction)
     return () => {
       window.removeEventListener('pointerdown', onUserInteraction)
     }
-  }, [videoElement, audioElement, harkListener])
+  }, [videoElement, audioElement, harkListener?.value])
 
   useEffect(() => {
     if (audioElement != null) {
@@ -130,26 +133,26 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       }
       if (audioStream != null) {
         const newAudioTrack = audioStream.track!.clone()
-        const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
-        setAudioTrackClones(updateAudioTrackClones)
+        const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
+        audioTrackClones.set(updateAudioTrackClones)
         audioElement.srcObject = new MediaStream([newAudioTrack])
         const newHark = hark(audioElement.srcObject, { play: false })
         newHark.on('speaking', () => {
-          setSoundIndicatorOn(true)
+          soundIndicatorOn.set(true)
         })
         newHark.on('stopped_speaking', () => {
-          setSoundIndicatorOn(false)
+          soundIndicatorOn.set(false)
         })
-        setHarkListener(newHark)
+        harkListener.set(newHark)
         peerMediaChannelState.audioProducerPaused.set(audioStream.paused)
       }
     }
 
     return () => {
-      audioTrackClones.forEach((track) => track.stop())
-      if (harkListener) (harkListener as any).stop()
+      audioTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+      if (harkListener?.value) (harkListener.value as any).stop()
     }
-  }, [audioTrackId])
+  }, [audioTrackId.value])
 
   useEffect(() => {
     videoElement.id = `${peerID}_video`
@@ -157,7 +160,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     videoElement.muted = true
     videoElement.setAttribute('playsinline', 'true')
     if (videoStream != null) {
-      setVideoDisplayReady(false)
+      videoDisplayReady.set(false)
       if (isSelf) peerMediaChannelState.videoProducerPaused.set(false)
       const originalTrackEnabledInterval = setInterval(() => {
         if (videoStream.track!.enabled) {
@@ -165,22 +168,22 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           // if (!videoRef?.srcObject?.active || !videoRef?.srcObject?.getVideoTracks()[0].enabled) {
           const newVideoTrack = videoStream.track!.clone()
-          videoTrackClones.forEach((track) => track.stop())
-          setVideoTrackClones([newVideoTrack])
+          videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+          videoTrackClones.set([newVideoTrack])
           videoElement!.srcObject = new MediaStream([newVideoTrack])
           if (isScreen) {
             applyScreenshareToTexture(videoElement!)
           }
-          setVideoDisplayReady(true)
+          videoDisplayReady.set(true)
           // }
         }
       }, 100)
     }
 
     return () => {
-      videoTrackClones.forEach((track) => track.stop())
+      videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
     }
-  }, [videoTrackId])
+  }, [videoTrackId.value])
 
   useEffect(() => {
     if (!isSelf && !videoProducerPaused && videoStream != null && videoElement != null) {
@@ -190,8 +193,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           if (!(videoElement?.srcObject as MediaStream)?.getVideoTracks()[0].enabled) {
             const newVideoTrack = videoStream.track!.clone()
-            videoTrackClones.forEach((track) => track.stop())
-            setVideoTrackClones([newVideoTrack])
+            videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+            videoTrackClones.set([newVideoTrack])
             videoElement!.srcObject = new MediaStream([newVideoTrack])
           }
         }
@@ -207,8 +210,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           if (!(audioElement?.srcObject as MediaStream)?.getAudioTracks()[0].enabled) {
             const newAudioTrack = audioStream.track!.clone()
-            const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
-            setAudioTrackClones(updateAudioTrackClones)
+            const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
+            audioTrackClones.set(updateAudioTrackClones)
             audioElement!.srcObject = new MediaStream([newAudioTrack])
           }
         }
@@ -219,10 +222,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   useEffect(() => {
     mediaStreamState.microphoneGainNode.value?.gain.setTargetAtTime(
       audioState.microphoneGain.value,
-      getState(AudioState).audioContext.currentTime,
+      audioState.audioContext.currentTime.value,
       0.01
     )
-  }, [audioState.microphoneGain])
+  }, [audioState.microphoneGain.value])
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
@@ -279,17 +282,19 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     } else {
       audioElement!.volume = value
     }
-    _setVolume(value)
+    _volume.set(value)
   }
 
+  const usernames = useHookstate(getMutableState(WorldState).userNames)
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    if (!isSelf && isScreen) return user?.name + "'s Screen"
-    return user?.name
+    const username = userId ? usernames.get({ noproxy: true })[userId] : 'A User'
+    if (!isSelf && isScreen) return username + "'s Screen"
+    return username
   }
 
-  const togglePiP = () => setPiP(!isPiP)
+  const togglePiP = () => isPiP.set(!isPiP.value)
 
   const username = getUsername()
 
@@ -335,8 +340,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [])
 
   return {
-    user,
-    isPiP,
+    userId,
+    isPiP: isPiP.value,
     volume,
     isScreen,
     username,
@@ -352,8 +357,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioProducerPaused,
     videoProducerGlobalMute,
     audioProducerGlobalMute,
-    videoDisplayReady,
-    soundIndicatorOn,
+    videoDisplayReady: videoDisplayReady.value,
+    soundIndicatorOn: soundIndicatorOn.value,
     togglePiP,
     toggleAudio,
     toggleVideo,
@@ -365,7 +370,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
 export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   const {
-    user,
+    userId,
     isPiP,
     volume,
     isScreen,
@@ -400,15 +405,15 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
   useEffect(() => {
     videoElement.draggable = false
-    document.getElementById(peerID + '-video-container')!.append(videoElement)
-    document.getElementById(peerID + '-audio-container')!.append(audioElement)
+    document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
+    document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
 
   return (
     <Draggable isPiP={isPiP}>
       <div
         tabIndex={0}
-        id={peerID + '_container'}
+        id={peerID + '_' + type + '_container'}
         className={classNames({
           [styles['resizeable-screen']]: isScreen && !isPiP,
           [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
@@ -417,11 +422,11 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
           [styles['no-video']]: videoStream == null,
           [styles['video-paused']]: (videoStream && (videoProducerPaused || videoStreamPaused)) || !videoDisplayReady,
           [styles.pip]: isPiP && !isScreen,
-          [styles.screenpip]: isPiP && isScreen
+          [styles.screenpip]: isPiP && isScreen,
+          [styles['not-rendered']]: !isSelf && !rendered
         })}
         style={{
-          pointerEvents: 'auto',
-          display: isSelf || rendered ? 'auto' : 'none'
+          pointerEvents: 'auto'
         }}
         onClick={() => {
           if (isScreen && isPiP) togglePiP()
@@ -440,15 +445,15 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
             videoProducerGlobalMute ||
             !videoDisplayReady) && (
             <img
-              src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : user?.id)}
+              src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : userId)}
               alt=""
               crossOrigin="anonymous"
               draggable={false}
             />
           )}
-          <span key={peerID + '-video-container'} id={peerID + '-video-container'} />
+          <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
         </div>
-        <span key={peerID + '-audio-container'} id={peerID + '-audio-container'} />
+        <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
         <div className={styles['user-controls']}>
           <div className={styles['username']}>{username}</div>
           <div className={styles['controls']}>
@@ -555,7 +560,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
 export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
   const {
-    user,
+    userId,
     volume,
     isScreen,
     username,
@@ -615,7 +620,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
     >
       {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
         <img
-          src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : user?.id)}
+          src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : userId)}
           alt=""
           crossOrigin="anonymous"
           draggable={false}

@@ -1,12 +1,14 @@
 import { Material, Mesh } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { MaterialInstanceComponent } from '../components/MaterialInstanceComponent'
-import { getMaterialLibrary, MaterialLibraryState } from '../MaterialLibrary'
+import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function createMaterialInstance(mesh: Mesh, material: Material) {
-  if (!getMaterialLibrary().materials[material.uuid].value) {
+  if (!getState(MaterialLibraryState).materials[material.uuid]) {
     throw new Error('Could not find material ' + material + ' in Material Library')
   }
   const entity = createEntity()

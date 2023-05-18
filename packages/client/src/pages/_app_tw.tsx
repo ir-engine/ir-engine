@@ -19,8 +19,8 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import config from '@etherealengine/common/src/config'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -34,7 +34,7 @@ import { ThemeContextProvider } from '../themes/themeContext'
 
 const AppPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
@@ -46,7 +46,7 @@ const AppPage = () => {
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useProjectState()
+  const projectState = useHookstate(getMutableState(ProjectState))
 
   const initApp = useCallback(() => {
     initGA()
@@ -55,6 +55,7 @@ const AppPage = () => {
 
   useEffect(() => {
     const receptor = (action): any => {
+      // @ts-ignore
       matches(action).when(NotificationAction.notify.matches, (action) => {
         AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {

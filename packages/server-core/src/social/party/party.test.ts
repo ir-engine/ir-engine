@@ -119,7 +119,7 @@ describe('party.test', () => {
         assert.strictEqual(partyUser1.partyId, party2.id)
         assert.strictEqual(partyUser1.userId, user1.id)
         assert.strictEqual(partyUser1.isOwner, true)
-        assert.strictEqual(user.partyId, party2.id)
+        assert.strictEqual(user.party!.id, party2.id)
       })
 
       it("should delete the user's old party-user if they create a new party, and make a new party", async function () {
@@ -152,7 +152,7 @@ describe('party.test', () => {
         assert.strictEqual(partyUser1.partyId, party1.id)
         assert.strictEqual(partyUser1.userId, user1.id)
         assert.strictEqual(partyUser1.isOwner, true)
-        assert.strictEqual(user.partyId, party1.id)
+        assert.strictEqual(user.party!.id, party1.id)
       })
     })
 
@@ -358,7 +358,7 @@ describe('party.test', () => {
         const user2Result = await app.service('user').get(user2.id)
 
         assert.strictEqual(partyUsers.total, 2)
-        assert.strictEqual(user2Result.partyId, null)
+        assert.strictEqual(user2Result.party, null)
       })
 
       it('should allow the owner to remove another member', async function () {
@@ -380,7 +380,7 @@ describe('party.test', () => {
         const user3Result = await app.service('user').get(user3.id)
 
         assert.strictEqual(partyUsers.total, 1)
-        assert.strictEqual(user3Result.partyId, null)
+        assert.strictEqual(user3Result.party, null)
       })
 
       it('should allow the owner to remove themself, and automatically pass ownership to another party member', async function () {
@@ -411,7 +411,7 @@ describe('party.test', () => {
         const returnedPartyUser = partyUsers.data[0]
         assert.strictEqual(returnedPartyUser.id, partyUser2.id)
         assert.strictEqual(returnedPartyUser.isOwner, true)
-        assert.strictEqual(user1Result.partyId, null)
+        assert.strictEqual(user1Result.party, null)
       })
 
       it('should automatically delete the party if the last party member leaves', async function () {

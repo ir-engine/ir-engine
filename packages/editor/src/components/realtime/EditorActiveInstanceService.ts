@@ -1,10 +1,10 @@
-import { API } from '@etherealengine/client-core/src/API'
 import { LocationInstanceConnectionAction } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { accessAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import logger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export type ActiveInstance = {
   id: string
@@ -31,17 +31,13 @@ export const EditorActiveInstanceServiceReceptor = (action): any => {
       return state.merge({ activeInstances: action.activeInstances, fetching: false })
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const accessEditorActiveInstanceState = () => getMutableState(EditorActiveInstanceState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useEditorActiveInstanceState = () => useState(accessEditorActiveInstanceState())
 
 //Service
 export const EditorActiveInstanceService = {
   provisionServer: async (locationId: string, instanceId: string, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server Editor')
-    const token = accessAuthState().authUser.accessToken.value
-    const provisionResult = await API.instance.client.service('instance-provision').find({
+    const token = getState(AuthState).authUser.accessToken
+    const provisionResult = await Engine.instance.api.service('instance-provision').find({
       query: {
         locationId: locationId,
         instanceId: instanceId,
@@ -64,7 +60,7 @@ export const EditorActiveInstanceService = {
   },
   getActiveInstances: async (sceneId: string) => {
     dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances({}))
-    const activeInstances = await API.instance.client.service('instances-active').find({
+    const activeInstances = await Engine.instance.api.service('instances-active').find({
       query: { sceneId }
     })
     dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))

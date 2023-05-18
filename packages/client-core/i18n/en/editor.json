@@ -279,7 +279,22 @@
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
-        "textureFormat": "Image Format"
+        "textureFormat": "Image Format",
+        "modelFormat": "Model Format",
+        "resourceUri": "Resource URI",
+        "dst": "File Name",
+        "resampleAnimations": "Resample Animations",
+        "maxTextureSize": "Max Texture Size",
+        "flipY": "Flip Y",
+        "linear": "Linear Color Space",
+        "textureCompressionType": "Texture Compression Type",
+        "ktx2Quality": "Compression Quality",
+        "weldVertices": "Weld Vertices",
+        "weldThreshold": "Weld Threshold",
+        "removeDuplicates": "Remove Duplicates",
+        "pruneUnused": "Prune Unused",
+        "reorder": "Reorder",
+        "resourceOverrides": "Resource Overrides"
       },
       "lods": {
         "label": "Level of Detail",

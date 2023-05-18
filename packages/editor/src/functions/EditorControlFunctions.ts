@@ -32,7 +32,7 @@ import {
   traverseEntityNode
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -90,7 +90,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   dispatchAction(EngineActions.sceneObjectUpdate({ entities: nodes as Entity[] }))
   dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
 
 /**
@@ -120,7 +120,7 @@ const modifyProperty = <C extends Component<any, any>>(
   )
   dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
 
 const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => {
@@ -150,7 +150,7 @@ const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => 
 
 function _getMaterial(node: string, materialId: string) {
   let material: Material | undefined
-  if (!!getMaterialLibrary().materials[materialId].value) {
+  if (!!getState(MaterialLibraryState).materials[materialId]) {
     material = materialFromId(node).material
   } else {
     const mesh = obj3dFromUuid(node) as Mesh
@@ -213,7 +213,7 @@ const createObjectFromPrefab = (
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({}))
 
   return newEntity
 }
@@ -287,7 +287,7 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
 
 const tempMatrix = new Matrix4()
@@ -518,7 +518,7 @@ const reparentObject = (
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
 
 /** @todo - grouping currently doesnt take into account parentEntity or beforeEntity */
@@ -544,21 +544,12 @@ const groupObjects = (
  * @param nodes
  * @returns
  */
-const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
+const removeObject = (nodes: EntityOrObjectUUID[]) => {
   cancelGrabOrPlacement()
 
-  if (updateSelection) {
-    // TEMPORARY - this is to stop a crash
-    getMutableState(SelectionState).set({
-      selectedEntities: [],
-      selectedParentEntities: [],
-      selectionCounter: 1,
-      objectChangeCounter: 1,
-      sceneGraphChangeCounter: 1,
-      propertyName: '',
-      transformPropertyChanged: false
-    })
-  }
+  /** we have to manually set this here or it will cause react errors when entities are removed */
+  getMutableState(SelectionState).selectedEntities.set([])
+
   const removedParentNodes = getEntityNodeArrayFromEntities(filterParentEntities(nodes, undefined, true, false))
   const scene = Engine.instance.scene
   for (let i = 0; i < removedParentNodes.length; i++) {
@@ -574,7 +565,7 @@ const removeObject = (nodes: EntityOrObjectUUID[], updateSelection = true) => {
   }
 
   dispatchAction(SelectionAction.updateSelection({ selectedEntities: [] }))
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({ selectedEntities: [] }))
 }
 /**
  *

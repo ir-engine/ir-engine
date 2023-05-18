@@ -76,7 +76,7 @@ import {
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
 import { EditorHistoryAction, EditorHistoryReceptorSystem } from '../services/EditorHistory'
-import { accessSelectionState, EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
+import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -229,10 +229,10 @@ function copy(event) {
   event.preventDefault()
 
   // TODO: Prevent copying objects with a disabled transform
-  if (accessSelectionState().selectedEntities.length > 0) {
+  if (getState(SelectionState).selectedEntities.length > 0) {
     event.clipboardData.setData(
       'application/vnd.editor.nodes',
-      JSON.stringify({ entities: accessSelectionState().selectedEntities.value })
+      JSON.stringify({ entities: getState(SelectionState).selectedEntities })
     )
   }
 }

@@ -6,8 +6,9 @@ import { getComponent } from '@etherealengine/engine/src/ecs/functions/Component
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessSelectionState } from '../services/SelectionServices'
+import { SelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
   obj3d: Object3DWithEntity
@@ -27,8 +28,8 @@ function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
 
 export function getIntersectingNode(results: Intersection<Object3DWithEntity>[]): RaycastIntersectionNode | undefined {
   if (results.length <= 0) return
-  const selectionState = accessSelectionState()
-  const selected = new Set<string | Entity>(selectionState.selectedEntities.value)
+  const selectionState = getState(SelectionState)
+  const selected = new Set<string | Entity>(selectionState.selectedEntities)
   for (const result of results as RaycastIntersectionNode[]) {
     const obj = result.object //getParentEntity(result.object)
     const parentNode = getParentEntity(obj)

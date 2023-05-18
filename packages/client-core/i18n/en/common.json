@@ -16,6 +16,7 @@
   },
   "loader": {
     "connecting": "Connecting...",
+    "authenticating": "Authenticating...",
     "starting": "Starting...",
     "loadingLocation": "Loading locations...",
     "loadingEngine": "Loading engine...",
@@ -56,6 +57,7 @@
     "subSystems": "Sub System",
     "postSystems": "Post Systems",
     "nodeHelperDebug": "Node Helper",
+    "entityTree": "Entity Tree",
     "gridDebug": "Grid",
     "tick": "Tick",
     "state": "State",

@@ -8,14 +8,14 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener } from '@mui/material'
 import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
-import { EditorAction, useEditorState } from '../../services/EditorServices'
+import { EditorAction, EditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { useDialog } from '../hooks/useDialog'
 import { Button } from '../inputs/Button'
@@ -38,7 +38,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
   const route = useRouter()
-  const editorState = useEditorState()
+  const editorState = useHookstate(getMutableState(EditorState))
   const [DialogComponent, setDialogComponent] = useDialog()
   const [fetched, setFetch] = useState(false)
 

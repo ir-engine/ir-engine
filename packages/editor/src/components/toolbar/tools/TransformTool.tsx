@@ -1,18 +1,20 @@
 import React from 'react'
 
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import HeightIcon from '@mui/icons-material/Height'
 import OpenWithIcon from '@mui/icons-material/OpenWith'
 import SyncIcon from '@mui/icons-material/Sync'
 
 import { setTransformMode } from '../../../functions/transformFunctions'
-import { useEditorHelperState } from '../../../services/EditorHelperState'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const TransformTool = () => {
-  const transformMode = useEditorHelperState().transformMode.value
+  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const transformMode = editorHelperState.transformMode.value
 
   return (
     <div className={styles.toolbarInputGroup}>

@@ -16,6 +16,7 @@ import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Net
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -165,7 +166,7 @@ const initializeInstance = async (
   channelId: string,
   userId?: UserId
 ) => {
-  logger.info('Initialized new instance')
+  logger.info('Initializing new instance')
 
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
@@ -304,26 +305,21 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
 const handleUserAttendance = async (app: Application, userId: UserId) => {
   const instanceServerState = getState(InstanceServerState)
-  const instanceIdKey = instanceServerState.isMediaInstance ? 'channelInstanceId' : 'instanceId'
-  logger.info(`Patching user ${userId} ${instanceIdKey} to ${instanceServerState.instance.id}`)
 
-  const instanceIdPatchResult = await app.service('user').patch(userId, {
-    [instanceIdKey]: instanceServerState.instance.id
-  })
-  logger.info('Patched new user instanceId to', instanceIdPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
       ended: true
     },
     {
-      where: {
+      query: {
         isChannel: instanceServerState.isMediaInstance,
         ended: false,
         userId: userId
       }
     }
   )
+
   const newInstanceAttendance = {
     instanceId: instanceServerState.instance.id,
     isChannel: instanceServerState.isMediaInstance,
@@ -460,11 +456,7 @@ const handleUserDisconnect = async (
     logger.info('Failed to patch instance user count, likely because it was destroyed.')
   }
 
-  const instanceIdKey = instanceServerState.isMediaInstance ? 'channelInstanceId' : 'instanceId'
-
-  const userPatch = {
-    [instanceIdKey]: null
-  }
+  const userPatch = {} as any
 
   if (user?.partyId && instanceServerState.isMediaInstance) {
     const partyChannel = await app.service('channel').Model.findOne({
@@ -493,8 +485,7 @@ const handleUserDisconnect = async (
     .service('user')
     .patch(null, userPatch, {
       query: {
-        id: user.id,
-        [instanceIdKey]: instanceId
+        id: user.id
       }
     })
     .catch((err) => {
@@ -526,6 +517,26 @@ const handleUserDisconnect = async (
   if (network.peers.size <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
+  }
+}
+
+const handlePartyUserRemoved = (app: Application) => async (params) => {
+  const instanceServerState = getState(InstanceServerState)
+  if (!instanceServerState.isMediaInstance) return
+  const instance = instanceServerState.instance
+  if (!instance.channelId) return
+  const channel = await app.service('channel').Model.findOne({
+    where: {
+      id: instance.channelId
+    }
+  })
+  if (channel.channelType !== 'party') return
+  const network = getServerNetwork(app)
+  const matchingPeer = Array.from(network.peers.values()).find((peer) => peer.userId === params.userId)
+  if (matchingPeer) {
+    matchingPeer.spark?.end()
+    NetworkPeerFunctions.destroyPeer(network, matchingPeer.peerID)
+    updatePeers(network)
   }
 }
 
@@ -565,9 +576,6 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
-  const isResult = await serverState.agonesSDK.getGameServer()
-  const status = isResult.status as InstanceserverStatus
-
   /**
    * Since local environments do not have the ability to run multiple gameservers,
    * we need to shut down the current one if the user tries to load a new location
@@ -584,9 +592,12 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       locationId ?? channelId
     }`
   )
-  logger.info(`current id: ${roomCode} and new id: ${instanceServerState.instance?.roomCode}`)
+  logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
+    await app.service('instance').patch(instanceServerState.instance.id, {
+      ended: true
+    })
     restartInstanceServer()
     return
   }
@@ -612,6 +623,9 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
    */
+  const isResult = await serverState.agonesSDK.getGameServer()
+  const status = isResult.status as InstanceserverStatus
+
   await createOrUpdateInstance(app, status, locationId, channelId, sceneId, userId)
 
   if (instanceServerState.instance) {
@@ -623,7 +637,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
 }
 
 const onDisconnection = (app: Application) => async (connection: PrimusConnectionType) => {
-  logger.info('Disconnection: %o', connection)
+  logger.info('Disconnection or end: %o', connection)
   const token = connection.socketQuery?.token
   if (!token) return
 
@@ -649,7 +663,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)
-    logger.info('Disconnecting user instanceId %s channelInstanceId %s: ', user.instanceId, user.channelInstanceId)
+    logger.info('Disconnecting user ', user.id)
 
     if (!instanceId) {
       logger.info('No instanceId on user disconnect, waiting one second to see if initial user was connecting')
@@ -719,6 +733,8 @@ export default (app: Application): void => {
   app.service('user-kick').on('created', kickCreatedListener)
 
   logger.info('registered kickCreatedListener')
+
+  app.service('party-user').on('removed', handlePartyUserRemoved(app))
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

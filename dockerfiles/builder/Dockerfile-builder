@@ -1,5 +1,3 @@
-# syntax = docker/dockerfile:1.2
-# not slim because we need github depedencies
 FROM node:18-buster-slim as builder
 
 RUN apt update

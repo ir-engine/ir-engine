@@ -1,6 +1,6 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import {
@@ -12,6 +12,7 @@ import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
+import { InviteService, InviteState } from '@etherealengine/client-core/src/social/services/InviteService'
 import { theme } from '@etherealengine/client-core/src/theme'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
@@ -29,7 +30,6 @@ import {
   AdminCoilSettingService,
   AdminCoilSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
-import { API } from '@etherealengine/client-core/src/API'
 import {
   AppThemeServiceReceptor,
   AppThemeState,
@@ -43,7 +43,6 @@ import {
 } from '@etherealengine/client-core/src/common/services/NotificationService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import config from '@etherealengine/common/src/config'
-import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
@@ -60,6 +59,7 @@ declare module '@mui/styles/defaultTheme' {
 const AppPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))
+  const inviteState = useHookstate(getMutableState(InviteState))
   const selfUser = authState.user
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
@@ -122,7 +122,7 @@ const AppPage = (): any => {
       ProjectService.fetchProjects()
       if (!fetchedProjectComponents) {
         setFetchedProjectComponents(true)
-        API.instance.client
+        Engine.instance.api
           .service('projects')
           .find()
           .then((projects) => {

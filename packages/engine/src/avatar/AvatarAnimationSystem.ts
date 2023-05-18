@@ -102,6 +102,7 @@ const rightHandRotation = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 
 const rightHandRotationOffset = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
 
 let avatarSortAccumulator = 0
+const _quat = new Quaternion()
 
 const execute = () => {
   const xrState = getState(XRState)
@@ -125,7 +126,11 @@ const execute = () => {
   }
 
   for (const action of ikTargetSpawnQueue()) {
-    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)!
+    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
+    if (!entity) {
+      console.warn('Could not find entity for networkId', action.$from, action.networkId)
+      continue
+    }
     setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
     setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
     // addObjectToGroup(entity, new AxesHelper(0.5))
@@ -304,7 +309,7 @@ const execute = () => {
         rig.LeftForeArm,
         rig.LeftHand,
         transformComponent.position,
-        transformComponent.rotation.multiply(leftHandRotation),
+        _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
       )
     } else if (ikComponent.handedness === 'right') {
@@ -316,7 +321,7 @@ const execute = () => {
         rig.RightForeArm,
         rig.RightHand,
         transformComponent.position,
-        transformComponent.rotation.multiply(rightHandRotation),
+        _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
       )
     }

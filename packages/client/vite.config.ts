@@ -120,7 +120,7 @@ export default defineConfig(async () => {
   })
   const clientSetting = await getClientSetting()
 
-  let base = `${process.env['APP_URL']}/`
+  let base = `https://${process.env['VITE_APP_HOST'] || process.env['APP_URL']}/`
 
   if (
     process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
@@ -134,7 +134,7 @@ export default defineConfig(async () => {
 
   const returned = {
     server: {
-      hmr: true,
+      hmr: process.env.VITE_HMR,
       host: process.env['VITE_APP_HOST'],
       port: process.env['VITE_APP_PORT'],
       headers: {
@@ -177,7 +177,7 @@ export default defineConfig(async () => {
             icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
             icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
             webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
-            swScriptLink: clientSetting.webmanifestLink || 'service-worker.js',
+            swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
             paymentPointer: clientSetting.paymentPointer || ''
           }
         }

@@ -2,12 +2,12 @@ import React from 'react'
 
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 
 import { toggleSnapMode } from '../../../functions/transformFunctions'
-import { EditorHelperAction, useEditorHelperState } from '../../../services/EditorHelperState'
+import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -33,7 +33,7 @@ const rotationSnapOptions = [
 ]
 
 const TransformSnapTool = () => {
-  const editorHelperState = useEditorHelperState()
+  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   const onChangeTranslationSnap = (snapValue: number) => {
     InfiniteGridHelper.instance.setSize(snapValue)

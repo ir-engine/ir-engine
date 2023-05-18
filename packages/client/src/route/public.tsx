@@ -11,6 +11,7 @@ import {
   AdminClientSettingsState,
   ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { FeathersClient } from '@etherealengine/client-core/src/API'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import {
@@ -21,6 +22,7 @@ import {
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
@@ -100,6 +102,10 @@ function RouterComp() {
     if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
       return routesReady.set(true)
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
+
+  if (!(Engine.instance.api as FeathersClient).authentication?.authenticated) {
+    return <LoadingCircle message={t('common:loader.authenticating')} />
+  }
 
   if (!routesReady.value) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />

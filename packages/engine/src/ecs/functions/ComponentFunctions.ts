@@ -141,7 +141,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
   return Component
 }
 
-export const getOptionalComponentState = <ComponentType>(
+export const getOptionalMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, {}, unknown>
 ): State<ComponentType, Subscribable> | undefined => {
@@ -150,11 +150,16 @@ export const getOptionalComponentState = <ComponentType>(
   return undefined
 }
 
+/**
+ * @deprecated use `getOptionalMutableComponent`
+ */
+export const getOptionalComponentState = getOptionalMutableComponent
+
 export const getMutableComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, {}, unknown>
 ): State<ComponentType, Subscribable> => {
-  const componentState = getOptionalComponentState(entity, component)!
+  const componentState = getOptionalMutableComponent(entity, component)!
   // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
   // if (!componentState?.value) throw new Error(`[getComponent]: entity does not have ${component.name}`)
   return componentState
