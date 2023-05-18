@@ -109,10 +109,14 @@ const _vec = new Vector3()
 const rightHandRot = new Quaternion()
 const leftHandRot = new Quaternion()
 
-const rightHandWorldPos = new Vector3()
-const leftHandWorldPos = new Vector3()
-const rightFootWorldPos = new Vector3()
-const leftFootWorldPos = new Vector3()
+const rightHandWorldPos = new Vector3(),
+  rightElbowWorldPos = new Vector3(),
+  leftHandWorldPos = new Vector3(),
+  leftElbowWorldPos = new Vector3(),
+  rightFootWorldPos = new Vector3(),
+  rightKneeWorldPos = new Vector3(),
+  leftFootWorldPos = new Vector3(),
+  leftKneeWorldPos = new Vector3()
 
 const execute = () => {
   const xrState = getState(XRState)
@@ -251,27 +255,33 @@ const execute = () => {
     const transform = getComponent(entity, TransformComponent)
     const animationState = getState(animationManager)
 
-    console.log(animationState.targetsAnimation)
     if (!animationState.targetsAnimation) return
 
     //calculate world positions
     const root = rigComponent.vrm.humanoid.normalizedHumanBonesRoot
     root.updateMatrixWorld()
     rightHandWorldPos.copy(rigComponent.ikTargetsMap.rightHandTarget.position).applyMatrix4(root.matrixWorld)
+    rightElbowWorldPos.copy(rigComponent.ikTargetsMap.rightElbowHint.position).applyMatrix4(root.matrixWorld)
+
     leftHandWorldPos.copy(rigComponent.ikTargetsMap.leftHandTarget.position).applyMatrix4(root.matrixWorld)
+    leftElbowWorldPos.copy(rigComponent.ikTargetsMap.leftElbowHint.position).applyMatrix4(root.matrixWorld)
+
     rightFootWorldPos.copy(rigComponent.ikTargetsMap.rightFootTarget.position).applyMatrix4(root.matrixWorld)
+    rightKneeWorldPos.copy(rigComponent.ikTargetsMap.rightKneeHint.position).applyMatrix4(root.matrixWorld)
+
     leftFootWorldPos.copy(rigComponent.ikTargetsMap.leftFootTarget.position).applyMatrix4(root.matrixWorld)
+    leftKneeWorldPos.copy(rigComponent.ikTargetsMap.leftKneeHint.position).applyMatrix4(root.matrixWorld)
 
     const hipsWorldSpace = new Vector3()
 
     rig.hips.node.getWorldPosition(hipsWorldSpace)
 
     //to do: get leg length of avatar in world space
-    const legLength = 0.9
+    const legLength = rigComponent.upperLegLength + rigComponent.lowerLegLength * 2
     //to do: get arm length of avatar in world space
     const armLength = 0.75
     //to do: get height of avatar in world space
-    const height = 1.8
+    const height = rigComponent.torsoLength
 
     //get rotations from ik targets and convert to world space relative to hips
     const rot = new Quaternion()
@@ -280,8 +290,24 @@ const execute = () => {
     rightHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.rightHandTarget.quaternion)
     leftHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.leftHandTarget.quaternion)
 
-    solveTwoBoneIK(rig.rightUpperArm.node, rig.rightLowerArm.node, rig.rightHand.node, rightHandWorldPos, rightHandRot)
-    solveTwoBoneIK(rig.leftUpperArm.node, rig.leftLowerArm.node, rig.leftHand.node, leftHandWorldPos, leftHandRot)
+    solveTwoBoneIK(
+      rig.rightUpperArm.node,
+      rig.rightLowerArm.node,
+      rig.rightHand.node,
+      rightHandWorldPos,
+      rightHandRot,
+      null,
+      rightElbowWorldPos
+    )
+    solveTwoBoneIK(
+      rig.leftUpperArm.node,
+      rig.leftLowerArm.node,
+      rig.leftHand.node,
+      leftHandWorldPos,
+      leftHandRot,
+      null,
+      leftElbowWorldPos
+    )
 
     //raycasting here every frame is terrible, this should be done every quarter of a second at most.
     //cast ray for right foot, starting at hips y position and foot x/z
@@ -300,7 +326,9 @@ const execute = () => {
       rig.rightLowerLeg.node,
       rig.rightFoot.node,
       rightFootWorldPos.setY(rightFootWorldPos.y + 0.1),
-      rot
+      rot,
+      null,
+      rightKneeWorldPos
     )
 
     //reuse raycast args object, cast ray for left foot
@@ -312,7 +340,9 @@ const execute = () => {
       rig.leftLowerLeg.node,
       rig.leftFoot.node,
       leftFootWorldPos.setY(leftFootWorldPos.y + 0.1),
-      rot
+      rot,
+      null,
+      leftKneeWorldPos
     )
 
     rig.hips.node.quaternion.copy(hipsRotationoffset)

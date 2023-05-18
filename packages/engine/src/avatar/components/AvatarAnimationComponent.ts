@@ -58,6 +58,11 @@ export interface ikTargets {
   leftHandTarget: Object3D
   rightFootTarget: Object3D
   leftFootTarget: Object3D
+
+  rightElbowHint: Object3D
+  leftElbowHint: Object3D
+  rightKneeHint: Object3D
+  leftKneeHint: Object3D
 }
 
 export const AvatarRigComponent = defineComponent({
@@ -74,7 +79,7 @@ export const AvatarRigComponent = defineComponent({
       /** Read-only bones in bind pose */
       bindRig: null! as VRMHumanBones,
       helper: null as SkeletonHelper | null,
-      /** The length of the torso in a t-pose, from the hip join to the head joint */
+      /** The length of the torso in a t-pose, from the hip joint to the head joint */
       torsoLength: 0,
       /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
       upperLegLength: 0,
@@ -82,6 +87,11 @@ export const AvatarRigComponent = defineComponent({
       lowerLegLength: 0,
       /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
       footHeight: 0,
+
+      upperArmLength: 0,
+
+      lowerArmLength: 0,
+
       /** Cache of the skinned meshes currently on the rig */
       skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
@@ -92,8 +102,15 @@ export const AvatarRigComponent = defineComponent({
         rightHandTarget: new Object3D(),
         leftHandTarget: new Object3D(),
         rightFootTarget: new Object3D(),
-        leftFootTarget: new Object3D()
-      } as ikTargets
+        leftFootTarget: new Object3D(),
+
+        rightElbowHint: new Object3D(),
+        leftElbowHint: new Object3D(),
+        rightKneeHint: new Object3D(),
+        leftKneeHint: new Object3D()
+      } as ikTargets,
+
+      ikOffsetsMap: new Map<string, Vector3>()
     }
   },
 
@@ -156,7 +173,6 @@ export const AvatarRigComponent = defineComponent({
       value.name = key
       rigComponent.targets.value.add(value)
     }
-    console.log(rigComponent.targets)
     return null
   }
 })

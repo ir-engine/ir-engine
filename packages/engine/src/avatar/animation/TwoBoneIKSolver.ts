@@ -44,7 +44,7 @@ export function solveTwoBoneIK(
   targetPosition: Vector3, // world space
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
-  hint: Matrix4 | null = null, // todo: in local space, should be in world space, convert to matrix or dual quat
+  hint: Vector3 | null = null,
   targetPosWeight: number = 1,
   targetRotWeight: number = 1,
   hintWeight: number = 1
@@ -62,7 +62,7 @@ export function solveTwoBoneIK(
   at.subVectors(targetPos, aPosition)
 
   const hasHint = hint && hintWeight > 0
-  if (hasHint) ah.setFromMatrixPosition(hint).sub(aPosition)
+  if (hasHint) ah.copy(hint).sub(aPosition)
 
   let abLength = ab.length()
   let bcLength = bc.length()
@@ -118,16 +118,17 @@ export function solveTwoBoneIK(
   }
 
   // Apply tip rotation
-  Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
-  tip.quaternion.slerp(targetRot, targetRotWeight)
-  Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
-  if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
+  //Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
+  //tip.quaternion.slerp(targetRot, targetRotWeight)
+  //Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
+  //if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
 }
 
 const targetPos = new Vector3(),
   aPosition = new Vector3(),
   bPosition = new Vector3(),
   cPosition = new Vector3(),
+  dPosition = new Vector3(),
   rotAxis = new Vector3(),
   ab = new Vector3(),
   bc = new Vector3(),
