@@ -19,10 +19,11 @@ npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
 npm run install-projects >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
 test -s project-install-build-error.txt && npm run record-build-error -- --service=project-install
+npm run create-root-package-json
 mv package.json package.jsonmoved
 mv package-root-build.json package.json
 npm install
-mv package.json package-root-build.json
+rm package.json
 mv package.jsonmoved package.json
 npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
