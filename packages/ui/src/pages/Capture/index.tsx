@@ -279,13 +279,16 @@ const CaptureDashboard = () => {
 
   return (
     <div className="w-full">
-      {/* <ul className="">
-        <li>{`videoStatus: ${videoStatus}`} {`mediaConnection: ${mediaConnection?.connected?.value}`}
-        {`videoActive: ${videoActive?.value}`}
-        {`camVideoProducer: ${mediaStreamState.camVideoProducer.value}`}
-        {`videoPaused: ${mediaStreamState.videoPaused.value}`}
-        {`isDetecting: ${isDetecting?.value}`}</li>
-      </ul> */}
+      <ul className="">
+        <li>
+          {`videoStatus: ${videoStatus}`}
+          {` - mediaConnection: ${mediaConnection?.connected?.value}`}
+          {` - videoActive: ${videoActive?.value}`}
+          {` - camVideoProducer: ${mediaStreamState.camVideoProducer.value}`}
+          {` - videoPaused: ${mediaStreamState.videoPaused.value}`}
+          {` - isDetecting: ${isDetecting?.value}`}
+        </li>
+      </ul>
       <Drawer
         settings={
           <div className="w-100 bg-base-100">

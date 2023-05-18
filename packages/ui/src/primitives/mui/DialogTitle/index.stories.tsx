@@ -1,25 +1,25 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 import * as React from 'react'
 
-import Paper from './index'
+import DialogTitle from './index'
 
 const argTypes = {}
 
 export default {
-  title: 'Primitives/MUI/Paper',
-  component: Paper,
+  title: 'Primitives/MUI/DialogTitle',
+  component: DialogTitle,
   parameters: {
-    componentSubtitle: 'Paper',
-    jest: 'Paper.test.tsx',
+    componentSubtitle: 'DialogTitle',
+    jest: 'DialogTitle.test.tsx',
     design: {
       type: 'figma',
       url: ''
     }
   },
   argTypes
-} as ComponentMeta<typeof Paper>
+} as ComponentMeta<typeof DialogTitle>
 
-const Template: ComponentStory<typeof Paper> = (args) => <Paper {...args} />
+const Template: ComponentStory<typeof DialogTitle> = (args) => <DialogTitle {...args} />
 
 export const Default = Template.bind({})
-Default.args = Paper.defaultProps
+Default.args = DialogTitle.defaultProps
