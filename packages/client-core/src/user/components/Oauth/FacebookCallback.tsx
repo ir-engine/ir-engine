@@ -1,12 +1,14 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
+import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/Button'
 import Container from '@etherealengine/ui/src/Container'
 
 import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
+import { AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 
 const FacebookCallbackComponent = (props): JSX.Element => {
@@ -24,7 +26,7 @@ const FacebookCallbackComponent = (props): JSX.Element => {
 
     if (!error) {
       if (type === 'connection') {
-        const user = useAuthState().user
+        const user = useHookstate(getMutableState(AuthState)).user
         AuthService.refreshConnections(user.id.value!)
       } else {
         let redirectSuccess = `${path}`

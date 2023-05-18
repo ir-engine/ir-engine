@@ -12,7 +12,7 @@ import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/Icon'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import { EmoteIcon } from '../../../user/UserUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
@@ -29,7 +29,9 @@ const LocationMenuView = () => {
   const { t } = useTranslation()
   const xrState = useState(getMutableState(XRState))
 
-  const isAdmin = useAuthState().user?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+  const isAdmin = useHookstate(getMutableState(AuthState)).user?.scopes?.value?.find(
+    (scope) => scope.type === 'admin:admin'
+  )
 
   const handleStartXRSession = () => {
     if (!xrState.sessionActive.value) {

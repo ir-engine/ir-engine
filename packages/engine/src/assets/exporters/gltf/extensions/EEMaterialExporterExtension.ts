@@ -1,10 +1,12 @@
 import { CubeTexture, Material, Texture } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import {
   extractDefaults,
   materialToDefaultArgs
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary } from '../../../../renderer/materials/MaterialLibrary'
+import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import createReadableTexture from '../../../functions/createReadableTexture'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -56,7 +58,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       uuid: material.uuid,
       name: material.name,
       prototype:
-        getMaterialLibrary().materials[material.uuid].value?.prototype ?? material.userData.type ?? material.type,
+        getState(MaterialLibraryState).materials[material.uuid]?.prototype ?? material.userData.type ?? material.type,
       args: result
     }
     this.writer.extensionsUsed[this.name] = true

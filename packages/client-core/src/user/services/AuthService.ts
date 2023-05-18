@@ -51,10 +51,6 @@ export const AuthState = defineState({
     syncStateWithLocalStorage(AuthState, ['authUser'])
   }
 })
-/**@deprecated use getMutableState directly instead */
-export const accessAuthState = () => getMutableState(AuthState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAuthState = () => useState(accessAuthState())
 
 export interface EmailLoginForm {
   email: string
@@ -419,7 +415,7 @@ export const AuthService = {
       }
 
       // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = accessAuthState().user.id.value
+      const oldId = getState(AuthState).user.id
       walletUser.id = oldId
 
       // loadXRAvatarForUpdatedUser(walletUser)
@@ -440,7 +436,7 @@ export const AuthService = {
    */
   async loginUserByOAuth(service: string, location: any) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    const token = accessAuthState().authUser.accessToken.value
+    const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
     const queryString = querystring.parse(window.location.search.slice(1))
     const redirectObject = {

@@ -2,7 +2,6 @@ import React from 'react'
 
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
-import { useEditorState } from '../../services/EditorServices'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import styles from '../styles.module.scss'
 

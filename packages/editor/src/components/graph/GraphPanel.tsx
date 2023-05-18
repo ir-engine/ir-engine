@@ -1,3 +1,4 @@
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
@@ -9,13 +10,14 @@ import {
   hasComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { useSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
 import BehaveFlow from './ee-behave-flow/BehaveFlow'
 
 export default function GraphPanel() {
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const entity = selectionState.selectedEntities[0]?.value
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
   const graphState = useOptionalComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)

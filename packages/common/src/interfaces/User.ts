@@ -43,14 +43,6 @@ export interface UserInterface {
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType
   avatarUrl?: string
-  /** @deprecated */
-  instanceId?: string
-  /** @deprecated */
-  instance?: Instance
-  /** @deprecated */
-  channelInstanceId?: string
-  /** @deprecated */
-  channelInstance?: Instance
   partyId?: string
   party?: Party
   locationBans?: LocationBan[]
@@ -128,7 +120,6 @@ export function resolveUser(user: any): UserInterface {
 export function resolveWalletUser(credentials: any): UserInterface {
   return {
     id: '' as UserId,
-    instanceId: credentials.user.id,
     name: credentials.user.displayName,
     isGuest: true,
     avatarId: credentials.user.id,
