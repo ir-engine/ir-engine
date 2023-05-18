@@ -20,7 +20,7 @@ import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { getOctokitForChecking, getUserOrgs, getUserRepos } from './github-helper'
+import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/

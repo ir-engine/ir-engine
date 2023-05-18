@@ -3,8 +3,9 @@ import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessEditorHelperState } from '../services/EditorHelperState'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -20,7 +21,7 @@ export const getScreenSpacePosition = (() => {
 
   return (screenSpacePosition: Vector2, target = new Vector3()): Vector3 => {
     raycastTargets.length = 0
-    const editorHelperState = accessEditorHelperState()
+    const editorHelperState = getState(EditorHelperState)
     const closestTarget = getIntersectingNodeOnScreen(raycaster, screenSpacePosition, raycastTargets)
 
     if (closestTarget && closestTarget.distance < 1000) {
@@ -29,8 +30,8 @@ export const getScreenSpacePosition = (() => {
       raycaster.ray.at(20, target)
     }
 
-    if (editorHelperState.snapMode.value === SnapMode.Grid) {
-      const translationSnap = editorHelperState.translationSnap.value
+    if (editorHelperState.snapMode === SnapMode.Grid) {
+      const translationSnap = editorHelperState.translationSnap
 
       target.set(
         Math.round(target.x / translationSnap) * translationSnap,

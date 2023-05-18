@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
 import { FollowCameraComponent } from '@etherealengine/engine/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera/components/TargetCameraRotationComponent'
@@ -15,13 +15,13 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
-import { EditorHelperAction, useEditorHelperState } from '../../../services/EditorHelperState'
+import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
-  const editorHelperState = useEditorHelperState()
-  const authState = useAuthState()
+  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const authState = useHookstate(getMutableState(AuthState))
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
 
   const onTogglePlayMode = () => {

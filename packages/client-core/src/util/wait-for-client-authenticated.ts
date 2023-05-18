@@ -1,8 +1,11 @@
-import { API } from '../API'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
+import { FeathersClient } from '../API'
 
 async function waitForClientAuthenticated(): Promise<void> {
-  //console.log('Client authenticated?', client.authentication?.authenticated)
-  if (API.instance.client.authentication?.authenticated === true) return Promise.resolve()
+  const api = Engine.instance.api as FeathersClient
+  console.log('Client authenticated?', api.authentication?.authenticated)
+  if (api.authentication?.authenticated === true) return
   else
     return await new Promise((resolve) =>
       setTimeout(async () => {

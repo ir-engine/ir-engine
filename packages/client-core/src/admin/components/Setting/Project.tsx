@@ -11,7 +11,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
-import { AuthState, useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import { AdminProjectSettingsState, ProjectSettingService } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
 

@@ -1,16 +1,18 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Party } from '@etherealengine/common/src/interfaces/Party'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminPartyService } from '../../services/PartyService'
@@ -40,7 +42,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({ ...defaultState })
 
-  const { user } = useAuthState().value
+  const user = useHookstate(getMutableState(AuthState)).user.value
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'party:write')
   const viewMode = mode === PartyDrawerMode.ViewEdit && !editMode

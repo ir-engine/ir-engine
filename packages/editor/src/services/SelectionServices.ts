@@ -6,6 +6,7 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
@@ -41,11 +42,6 @@ export const SelectionState = defineState({
     } as SelectionServiceStateType)
 })
 
-/**@deprecated use getMutableState directly instead */
-export const accessSelectionState = () => getMutableState(SelectionState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useSelectionState = () => useState(accessSelectionState())
-
 //Action
 export class SelectionAction {
   static changedObject = defineAction({
@@ -79,7 +75,7 @@ const execute = () => {
     cancelGrabOrPlacement()
     /** update SelectTagComponent to only newly selected entities */
     for (const entity of action.selectedEntities.concat(...selectionState.selectedEntities.value)) {
-      if (typeof entity === 'number') {
+      if (typeof entity === 'number' && entityExists(entity)) {
         const add = action.selectedEntities.includes(entity)
         if (add && !hasComponent(entity, SelectTagComponent)) setComponent(entity, SelectTagComponent)
         if (!add && hasComponent(entity, SelectTagComponent)) removeComponent(entity, SelectTagComponent)

@@ -1,3 +1,4 @@
+import { useHookstate } from '@hookstate/core'
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
@@ -13,6 +14,7 @@ import {
   entryId,
   hashMaterialSource
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -21,7 +23,7 @@ import MaterialSourceIcon from '@mui/icons-material/YardTwoTone'
 import { Grid } from '@mui/material'
 
 import { ItemTypes } from '../../constants/AssetTypes'
-import { useSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
 
 export type MaterialLibraryEntryType = {
@@ -68,7 +70,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const node = data.nodes[props.index]
   const material = node.entry
 
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
 
   const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
 

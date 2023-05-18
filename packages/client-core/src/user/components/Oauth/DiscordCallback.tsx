@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
 import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
+import { AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 
 const DiscordCallbackComponent = (props): JSX.Element => {
@@ -24,7 +25,7 @@ const DiscordCallbackComponent = (props): JSX.Element => {
 
     if (!error) {
       if (type === 'connection') {
-        const user = useAuthState().user
+        const user = useHookstate(getMutableState(AuthState)).user
         AuthService.refreshConnections(user.id.value!)
       } else {
         let redirectSuccess = `${path}`

@@ -71,9 +71,7 @@ const UserTable = ({ className, search }: UserProps) => {
     avatarId: string | JSX.Element,
     identityProviders: IdentityProvider[],
     isGuest: string,
-    location: string | JSX.Element,
-    inviteCode: string | JSX.Element,
-    instanceId: string | JSX.Element
+    inviteCode: string | JSX.Element
   ): UserData => {
     const discordIp = identityProviders.find((ip) => ip.type === 'discord')
     const googleIp = identityProviders.find((ip) => ip.type === 'google')
@@ -134,9 +132,7 @@ const UserTable = ({ className, search }: UserProps) => {
         </Box>
       ),
       isGuest,
-      location,
       inviteCode,
-      instanceId,
       action: (
         <>
           <a
@@ -175,13 +171,7 @@ const UserTable = ({ className, search }: UserProps) => {
       el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
       el.identity_providers || [],
       el.isGuest.toString(),
-      el.instance && el.instance.location ? (
-        el.instance.location.name
-      ) : (
-        <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
-      ),
-      el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
-      el.instance ? el.instance.ipAddress : <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
+      el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
   })
 

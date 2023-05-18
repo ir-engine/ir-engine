@@ -12,7 +12,7 @@ import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import { AvatarService, AvatarState } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
@@ -31,7 +31,7 @@ const SelectAvatarMenu = () => {
   const MAX_AVATARS_PER_PAGE = window.innerWidth <= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const avatarId = authState.user?.avatarId?.value
   const avatarState = useHookstate(getMutableState(AvatarState))
 

@@ -33,7 +33,7 @@ import { ThemeContextProvider } from '../themes/themeContext'
 
 const AppPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
@@ -45,7 +45,7 @@ const AppPage = () => {
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useProjectState()
+  const projectState = useHookstate(getMutableState(ProjectState))
 
   const initApp = useCallback(() => {
     initGA()

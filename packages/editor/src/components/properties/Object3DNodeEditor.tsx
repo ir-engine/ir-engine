@@ -19,14 +19,14 @@ import {
   removeObjectFromGroup
 } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Divider } from '@mui/material'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
 import { EditorAction } from '../../services/EditorServices'
-import { accessSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import GeometryEditor from '../geometry/GeometryEditor'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -55,7 +55,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
   const { t } = useTranslation()
   console.log(props)
   const scene: Scene = Engine.instance.scene
-  const selectionState = accessSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const materialLibrary = getState(MaterialLibraryState)
   const obj3d: Object3D = props.obj3d as any
   const mesh = obj3d as Mesh
@@ -198,7 +198,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                   }}
                   onRelease={() => {
                     dispatchAction(EditorAction.sceneModified({ modified: true }))
-                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
               </InputGroup>
@@ -216,7 +216,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                   }}
                   onRelease={() => {
                     dispatchAction(EditorAction.sceneModified({ modified: true }))
-                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
               </InputGroup>
@@ -232,7 +232,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                   }}
                   onRelease={() => {
                     dispatchAction(EditorAction.sceneModified({ modified: true }))
-                    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+                    dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
               </InputGroup>
