@@ -109,16 +109,11 @@ export const defineComponent = <
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.existenceMap = {}
   Component.existenceMapState = hookstate(Component.existenceMap, subscribable())
+  Component.existenceMapPromiseResolver = {}
   Component.stateMap = {}
   Component.valueMap = {}
   if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
   ComponentMap.set(Component.name, Component)
-
-  Component.existenceMapPromiseResolver = {}
-  Component.existenceMapState.subscribe((map) => {
-    // make sure all promises for existing entities are resolved
-    for (const entity in map) Component.existenceMapPromiseResolver[entity]?.resolve?.()
-  })
 
   return Component
 }
@@ -209,6 +204,7 @@ export const setComponent = <C extends Component>(
   if (!hasComponent(entity, Component)) {
     value = Component.onInit(entity) ?? args
     Component.existenceMapState[entity].set(true)
+    Component.existenceMapPromiseResolver[entity]?.resolve?.()
 
     if (!Component.stateMap[entity]) {
       Component.stateMap[entity] = hookstate(value, subscribable())
@@ -220,13 +216,12 @@ export const setComponent = <C extends Component>(
 
     if (Component.reactor && !Component.reactorMap.has(entity)) {
       const root = startReactor(() => {
-        useEffect(
-          () =>
-            state.subscribe(() => {
-              Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY)
-            }),
-          []
-        )
+        useEffect(() => {
+          if (typeof state.value === 'object') return
+          state.subscribe(() => {
+            Component.valueMap[entity] = Component.stateMap[entity]?.get(NO_PROXY)
+          })
+        }, [])
 
         return React.createElement(
           EntityContext.Provider,
