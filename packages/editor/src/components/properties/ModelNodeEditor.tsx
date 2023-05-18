@@ -56,7 +56,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
-  const exportPath = useState(modelComponent?.src.value)
+
+  const exportPath = useState(() => modelComponent?.src.value)
+  const exportType = useState(modelComponent?.src.value?.endsWith('.gltf') ? 'gltf' : 'glb')
 
   if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
@@ -85,6 +87,30 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       : obj3d?.animations ?? []
     return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
   })
+
+  const onChangeExportPath = useCallback(
+    (path: string) => {
+      let finalPath = path
+      if (finalPath.endsWith('.gltf')) {
+        exportType.set('gltf')
+      } else if (path.endsWith('.glb')) {
+        exportType.set('glb')
+      } else {
+        finalPath = `${finalPath}.${exportType.value}`
+      }
+      exportPath.set(finalPath)
+    },
+    [exportType, exportPath]
+  )
+
+  const onChangeExportType = useCallback(
+    (type: string) => {
+      const finalPath = exportPath.value.replace(/\.[^.]*$/, `.${type}`)
+      exportPath.set(finalPath)
+      exportType.set(type)
+    },
+    [exportPath, exportType]
+  )
 
   const onExportModel = useCallback(() => {
     if (exporting.value) {
@@ -204,7 +230,23 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting.value && modelComponent.src.value && (
         <Well>
-          <ModelInput value={exportPath.value} onChange={exportPath.set} />
+          <ModelInput value={exportPath.value} onChange={onChangeExportPath} />
+          <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
+            <SelectInput<string>
+              options={[
+                {
+                  label: 'glB',
+                  value: 'glb'
+                },
+                {
+                  label: 'glTF',
+                  value: 'gltf'
+                }
+              ]}
+              value={exportType.value}
+              onChange={onChangeExportType}
+            />
+          </InputGroup>
           <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
         </Well>
       )}

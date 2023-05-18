@@ -482,13 +482,9 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
     ;[root.listBuffers(), root.listMeshes(), root.listTextures()].forEach((elements) =>
-      //elements.map((mesh: Texture | Mesh | glBuffer) => !mesh.getName() && mesh.setName(MathUtils.generateUUID()))
       elements.map((element: Texture | Mesh | glBuffer) => {
         let elementName = ''
         if (element instanceof Texture) {
-          console.log('image:')
-          console.log(element.getImage())
-          console.log('hash: ' + hashBuffer(element.getImage()!))
           elementName = hashBuffer(element.getImage()!)
         } else if (element instanceof Mesh) {
           elementName = hashBuffer(Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!))
@@ -507,9 +503,6 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       })
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-    /*if (fs.existsSync(resourcePath)) {
-      await app.service('file-browser').remove(resourcePath.replace(projectRoot, ''))
-    }*/
     if (!fs.existsSync(resourcePath)) {
       await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
     }
