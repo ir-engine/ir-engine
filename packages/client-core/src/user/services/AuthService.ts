@@ -24,13 +24,14 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   syncStateWithLocalStorage,
   useState
 } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessLocationState } from '../../social/services/LocationService'
+import { LocationState } from '../../social/services/LocationService'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
@@ -50,10 +51,6 @@ export const AuthState = defineState({
     syncStateWithLocalStorage(AuthState, ['authUser'])
   }
 })
-/**@deprecated use getMutableState directly instead */
-export const accessAuthState = () => getMutableState(AuthState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAuthState = () => useState(accessAuthState())
 
 export interface EmailLoginForm {
   email: string
@@ -418,7 +415,7 @@ export const AuthService = {
       }
 
       // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = accessAuthState().user.id.value
+      const oldId = getState(AuthState).user.id
       walletUser.id = oldId
 
       // loadXRAvatarForUpdatedUser(walletUser)
@@ -439,7 +436,7 @@ export const AuthService = {
    */
   async loginUserByOAuth(service: string, location: any) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    const token = accessAuthState().authUser.accessToken.value
+    const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
     const queryString = querystring.parse(window.location.search.slice(1))
     const redirectObject = {
@@ -760,14 +757,14 @@ export const AuthService = {
     useEffect(() => {
       const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
       const locationBanCreatedListener = async (params) => {
-        const selfUser = accessAuthState().user
-        const currentLocation = accessLocationState().currentLocation.location
+        const selfUser = getState(AuthState).user
+        const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
-        if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
+        if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           // TODO: Decouple and reenable me!
           // endVideoChat({ leftParty: true });
           // leave(true);
-          const userId = selfUser.id.value ?? ''
+          const userId = selfUser.id ?? ''
           const user = resolveUser(await API.instance.client.service('user').get(userId))
           dispatchAction(AuthAction.userUpdatedAction({ user }))
         }

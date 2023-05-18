@@ -134,7 +134,7 @@ export default defineConfig(async () => {
 
   const returned = {
     server: {
-      hmr: true,
+      hmr: process.env.VITE_HMR,
       host: process.env['VITE_APP_HOST'],
       port: process.env['VITE_APP_PORT'],
       headers: {

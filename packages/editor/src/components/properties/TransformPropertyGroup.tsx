@@ -42,7 +42,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   const onRelease = () => {
     dispatchAction(EditorAction.sceneModified({ modified: true }))
-    dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+    dispatchAction(EditorHistoryAction.createSnapshot({}))
   }
 
   const onChangeDynamicLoad = (value) => {

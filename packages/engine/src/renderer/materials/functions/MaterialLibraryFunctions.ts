@@ -1,6 +1,6 @@
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { dispatchAction, none } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -8,7 +8,7 @@ import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
-import { getMaterialLibrary, MaterialLibraryActions } from '../MaterialLibrary'
+import { MaterialLibraryActions, MaterialLibraryState } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -54,15 +54,15 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
 }
 
 export function materialFromId(matId: string): MaterialComponentType {
-  const materialLibrary = getMaterialLibrary()
-  const material = materialLibrary.materials[matId].get({ noproxy: true })
+  const materialLibrary = getState(MaterialLibraryState)
+  const material = materialLibrary.materials[matId]
   if (!material) throw new MaterialNotFoundError('could not find Material with ID ' + matId)
   return material
 }
 
 export function prototypeFromId(protoId: string): MaterialPrototypeComponentType {
-  const materialLibrary = getMaterialLibrary()
-  const prototype = materialLibrary.prototypes[protoId].get({ noproxy: true })
+  const materialLibrary = getState(MaterialLibraryState)
+  const prototype = materialLibrary.prototypes[protoId]
   if (!prototype) throw new Error('could not find Material Prototype for ID ' + protoId)
   return prototype
 }
@@ -114,7 +114,7 @@ export function hashMaterialSource(src: MaterialSource): string {
 }
 
 export function addMaterialSource(src: MaterialSource): boolean {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   const srcId = hashMaterialSource(src)
   if (!materialLibrary.sources[srcId].value) {
     materialLibrary.sources[srcId].set({ src, entries: [] })
@@ -123,12 +123,12 @@ export function addMaterialSource(src: MaterialSource): boolean {
 }
 
 export function getSourceMaterials(src: MaterialSource): string[] | undefined {
-  const materialLibrary = getMaterialLibrary()
-  return materialLibrary.sources[hashMaterialSource(src)].value?.entries
+  const materialLibrary = getState(MaterialLibraryState)
+  return materialLibrary.sources[hashMaterialSource(src)]?.entries
 }
 
 export function removeMaterialSource(src: MaterialSource): boolean {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   const srcId = hashMaterialSource(src)
   if (materialLibrary.sources[srcId].value) {
     const srcComp = materialLibrary.sources[srcId].value
@@ -148,7 +148,7 @@ export function removeMaterialSource(src: MaterialSource): boolean {
 }
 
 export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   const prototype = prototypeFromId(material.userData.type ?? material.type)
   addMaterialSource(src)
   const srcMats = getSourceMaterials(src)!
@@ -168,7 +168,7 @@ export function registerMaterial(material: Material, src: MaterialSource, params
 }
 
 export function unregisterMaterial(material: Material) {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   try {
     const matEntry = materialFromId(material.uuid)
     materialLibrary.materials[material.uuid].set(none)
@@ -184,7 +184,7 @@ export function unregisterMaterial(material: Material) {
 }
 
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   if (materialLibrary.prototypes[prototype.prototypeId].value) {
     console.warn(
       'overwriting existing material prototype!\nnew:',

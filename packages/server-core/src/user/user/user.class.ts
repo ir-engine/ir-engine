@@ -89,16 +89,7 @@ export class User extends Service<UserInterface> {
 
     const loggedInUser = params!.user as any
 
-    if (action === 'layer-users') {
-      delete params.query.action
-      params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
-      return super.find(params)
-    } else if (action === 'channel-users') {
-      delete params.query.action
-      params.query.channelInstanceId =
-        params.query.channelInstanceId || loggedInUser.channelInstanceId || 'intentionalBadId'
-      return super.find(params)
-    } else if (action === 'admin') {
+    if (action === 'admin') {
       delete params.query.action
       delete params.query.search
       if (!params.isInternal && !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))

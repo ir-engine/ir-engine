@@ -383,7 +383,15 @@ const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, s
 const _applyIncomingAction = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   // ensure actions are idempotent
   if (store.actions.knownUUIDs.has(action.$uuid)) {
-    logger.info('Repeat action %o', action)
+    //Certain actions were causing logger.info to throw errors since it JSON.stringifies inputs, and those
+    //actions had circular references. Just try/catching the logger.info call was not catching them properly,
+    //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
+    try {
+      const jsonStringified = JSON.stringify(action)
+      logger.info('Repeat action %o', action)
+    } catch (err) {
+      console.log('error in logging action', action)
+    }
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
     return
@@ -394,7 +402,15 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
   applyIncomingActionsToAllQueues(action, store)
 
   try {
-    logger.info(`[Action]: ${action.type} %o`, action)
+    //Certain actions were causing logger.info to throw errors since it JSON.stringifies inputs, and those
+    //actions had circular references. Just try/catching the logger.info call was not catching them properly,
+    //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
+    try {
+      const jsonStringified = JSON.stringify(action)
+      logger.info(`[Action]: ${action.type} %o`, action)
+    } catch (err) {
+      console.log('error in logging action', action)
+    }
     for (const receptor of [...store.receptors]) receptor(action)
     if (store.forwardIncomingActions(action)) {
       addOutgoingTopicIfNecessary(action.$topic, store)

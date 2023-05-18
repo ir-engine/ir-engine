@@ -38,10 +38,6 @@ export const EditorServiceReceptor = (action) => {
       return s.merge({ advancedMode: action.advanced })
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const accessEditorState = () => getMutableState(EditorState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useEditorState = () => useState(accessEditorState())
 
 //Service
 export const EditorService = {}
