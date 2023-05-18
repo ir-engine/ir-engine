@@ -3,8 +3,9 @@ import React from 'react'
 
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import AppBar from '@etherealengine/ui/src/AppBar'
 import Drawer from '@etherealengine/ui/src/Drawer'
 import Icon from '@etherealengine/ui/src/Icon'
@@ -24,7 +25,7 @@ import styles from './index.module.scss'
  */
 
 const Dashboard = ({ children }) => {
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
   const { user } = authState

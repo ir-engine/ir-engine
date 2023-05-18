@@ -42,11 +42,6 @@ export const SelectionState = defineState({
     } as SelectionServiceStateType)
 })
 
-/**@deprecated use getMutableState directly instead */
-export const accessSelectionState = () => getMutableState(SelectionState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useSelectionState = () => useState(accessSelectionState())
-
 //Action
 export class SelectionAction {
   static changedObject = defineAction({

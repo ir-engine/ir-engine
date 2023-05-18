@@ -19,7 +19,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -29,7 +29,7 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
-import { useSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
@@ -73,7 +73,7 @@ export type HierarchyTreeNodeProps = {
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   useComponent(getMutableState(SceneState).sceneEntity.value, EntityTreeComponent)
 
   const nodeName = node.obj3d

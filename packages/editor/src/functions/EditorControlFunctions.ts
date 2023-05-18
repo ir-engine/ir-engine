@@ -32,7 +32,7 @@ import {
   traverseEntityNode
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -150,7 +150,7 @@ const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => 
 
 function _getMaterial(node: string, materialId: string) {
   let material: Material | undefined
-  if (!!getMaterialLibrary().materials[materialId].value) {
+  if (!!getState(MaterialLibraryState).materials[materialId]) {
     material = materialFromId(node).material
   } else {
     const mesh = obj3dFromUuid(node) as Mesh

@@ -1,10 +1,12 @@
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { useEditorHelperState } from '../../services/EditorHelperState'
-import { useSelectionState } from '../../services/SelectionServices'
+import { EditorHelperState } from '../../services/EditorHelperState'
+import { SelectionState } from '../../services/SelectionServices'
 import styles from './styles.module.scss'
 
 /**
@@ -13,10 +15,11 @@ import styles from './styles.module.scss'
  * @constructor
  */
 export function ControlText() {
-  const editorHelperState = useEditorHelperState()
+  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const { t } = useTranslation()
 
-  const objectSelected = useSelectionState().selectedEntities.length > 0
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const objectSelected = selectionState.selectedEntities.length > 0
 
   let controlsText
 

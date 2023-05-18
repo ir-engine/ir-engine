@@ -127,7 +127,8 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }
 
   const packageMessage = (): void => {
-    if (composingMessage?.value?.length && user.instanceId.value) {
+    const instanceId = Engine.instance.worldNetwork.hostId
+    if (composingMessage?.value?.length && instanceId) {
       if (usersTyping) {
         dispatchAction(
           WorldNetworkAction.setUserTyping({
@@ -137,7 +138,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
       }
 
       ChatService.createMessage({
-        targetObjectId: user.instanceId.value,
+        targetObjectId: instanceId,
         targetObjectType: 'instance',
         text: composingMessage.value
       })

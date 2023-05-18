@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { startClientSystems } from '@etherealengine/client-core/src/world/startClientSystems'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -18,7 +18,7 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 import EditorContainer from '../components/EditorContainer'
 import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
 import { RenderInfoSystem } from '../components/toolbar/tools/StatsTool'
-import { EditorAction, useEditorState } from '../services/EditorServices'
+import { EditorAction, EditorState } from '../services/EditorServices'
 import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorCameraSystem } from '../systems/EditorCameraSystem'
 import { EditorControlSystem } from '../systems/EditorControlSystem'
@@ -39,10 +39,10 @@ const editorSystems = () => {
 
 export const EditorPage = () => {
   const params = useParams()
-  const projectState = useProjectState()
-  const editorState = useEditorState()
+  const projectState = useHookstate(getMutableState(ProjectState))
+  const editorState = useHookstate(getMutableState(EditorState))
   const isEditor = useHookstate(getMutableState(EngineState).isEditor)
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const authUser = authState.authUser
   const user = authState.user
   const [isAuthenticated, setAuthenticated] = useState(false)
