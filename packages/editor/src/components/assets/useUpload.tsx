@@ -6,7 +6,7 @@ import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTy
 import { getState } from '@etherealengine/hyperflux'
 
 import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'
-import { accessEditorState, EditorState } from '../../services/EditorServices'
+import { EditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { useDialog } from '../hooks/useDialog'
