@@ -25,11 +25,7 @@ cli.enable('status')
 
 const options = cli.parse({
   service: [false, 'Name of failing service', 'string'],
-  isDocker: [
-    false,
-    "Whether or not this is checking logs files for a Docker process.",
-    'boolean'
-  ]
+  isDocker: [false, 'Whether or not this is checking logs files for a Docker process.', 'boolean']
 })
 
 cli.main(async () => {
