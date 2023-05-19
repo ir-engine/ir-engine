@@ -99,7 +99,7 @@ const ClientTheme = () => {
     const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
     if (newThemeSettings[currentTheme]) {
-      for (const variable of Object.keys(newThemeSettings[currentTheme])) {
+      for (let variable of Object.keys(newThemeSettings[currentTheme])) {
         ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
           '--' + variable,
           newThemeSettings[currentTheme][variable]

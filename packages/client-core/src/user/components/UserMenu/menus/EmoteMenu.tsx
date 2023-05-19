@@ -20,15 +20,15 @@ export const useEmoteMenuHooks = () => {
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
 
-  const [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
+  let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
 
-  const menuPadding = window.innerWidth > 360 ? 25 : 20
+  let menuPadding = window.innerWidth > 360 ? 25 : 20
   let menuThickness = menuRadius > 170 ? 70 : 60
   let menuItemWidth = menuThickness - menuPadding
   let menuItemRadius = menuItemWidth / 2
   let effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
 
-  const [items, setItems] = useState([
+  let [items, setItems] = useState([
     {
       body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
@@ -131,7 +131,7 @@ export const useEmoteMenuHooks = () => {
     const itemList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, items.length)
-    const angle = 360 / imgPerPage
+    let angle = 360 / imgPerPage
     let index = 0
     let itemAngle = 0
     let x = 0

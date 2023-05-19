@@ -27,7 +27,7 @@ const Server = () => {
   const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
   const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
 
-  const displayLogs = serverLogs.podName.value ? true : false
+  let displayLogs = serverLogs.podName.value ? true : false
 
   useEffect(() => {
     if (serverInfo.updateNeeded.value) ServerInfoService.fetchServerInfo()

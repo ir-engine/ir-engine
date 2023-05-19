@@ -7,7 +7,7 @@ import Popover from '@etherealengine/ui/src/primitives/mui/Popover'
 interface SketchColorPickerProps {
   name: string
   value: string
-  onChange: (string) => void
+  onChange: Function
 }
 
 const SketchColorPicker = ({ name, value, onChange }: SketchColorPickerProps) => {

@@ -28,6 +28,8 @@ interface Props {
   onClose: () => void
 }
 
+const INFINITY = 'INFINITY'
+
 const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(INSTANCE_USERS_PAGE_LIMIT)
@@ -64,16 +66,29 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
         >
           <span className={styles.spanWhite}>{t('admin:components.common.kick')}</span>
         </Button>
+        <Button
+          className={styles.actionStyle}
+          onClick={() => {
+            kickData.merge({ userId: id, instanceId: selectedInstance!.id, duration: INFINITY })
+            openKickDialog.set(true)
+          }}
+        >
+          <span className={styles.spanWhite}>{t('admin:components.common.ban')}</span>
+        </Button>
       </>
     )
   })
 
-  const handleSubmitKickUser = () => {
-    if (!kickData.value.duration) {
+  const handleSubmitKickUser = async () => {
+    if (!kickData.value.duration || !selectedInstance) {
       return
     }
-    AdminInstanceUserService.kickUser({ ...kickData.value })
+    await AdminInstanceUserService.kickUser({ ...kickData.value })
+    await AdminInstanceUserService.fetchUsersInInstance(selectedInstance.id)
     openKickDialog.set(false)
+    if (kickData.value.duration === INFINITY) {
+      kickData.merge({ duration: '8' })
+    }
   }
 
   const rows = adminInstanceUserState.value.users.map((el) => createData(el.id, el.name))
@@ -104,12 +119,16 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
         onClose={() => openKickDialog.set(false)}
         description={
           <Box>
-            <InputText
-              name="kickDuration"
-              label={t('admin:components.instance.kickDuration')}
-              value={kickData.value.duration}
-              onChange={(event) => kickData.merge({ duration: event.target.value })}
-            />
+            {kickData.value.duration === INFINITY ? (
+              <span>{t('admin:components.instance.confirmUserBan')}</span>
+            ) : (
+              <InputText
+                name="kickDuration"
+                label={t('admin:components.instance.kickDuration')}
+                value={kickData.value.duration}
+                onChange={(event) => kickData.merge({ duration: event.target.value })}
+              />
+            )}
           </Box>
         }
       />

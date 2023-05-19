@@ -15,8 +15,8 @@ interface ColorSelectionAreaProps {
   mode: string
   colorModes: string[]
   theme: ThemeOptions
-  onChangeMode: (ChangeEvent) => void
-  onChangeColor: (string, any) => void
+  onChangeMode: Function
+  onChangeColor: Function
 }
 
 const ColorSelectionArea = ({ mode, colorModes, theme, onChangeMode, onChangeColor }: ColorSelectionAreaProps) => {

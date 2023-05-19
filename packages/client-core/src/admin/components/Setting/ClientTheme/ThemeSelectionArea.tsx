@@ -12,7 +12,7 @@ import styles from '../../../styles/settings.module.scss'
 interface ThemeSelectionAreaProps {
   themeModes: ThemeMode
   colorModes: string[]
-  onChangeThemeMode: (ChangeEvent) => void
+  onChangeThemeMode: Function
 }
 
 const ThemeSelectionArea = ({ themeModes, colorModes, onChangeThemeMode }: ThemeSelectionAreaProps) => {

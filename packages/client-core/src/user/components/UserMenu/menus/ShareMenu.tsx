@@ -19,7 +19,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
-import { useAuthState } from '../../../services/AuthService'
+import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
@@ -31,7 +31,7 @@ export const useShareMenuHooks = ({ refLink }) => {
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
   const [shareLink, setShareLink] = useState('')
   const engineState = useHookstate(getMutableState(EngineState))
-  const selfUser = useAuthState().user
+  const selfUser = useHookstate(getMutableState(AuthState)).user
 
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
@@ -58,7 +58,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     const isEmail = emailRegex.test(token)
     const isPhone = phoneRegex.test(token)
     const location = new URL(window.location as any)
-    const params = new URLSearchParams(location.search)
+    let params = new URLSearchParams(location.search)
     const sendData = {
       inviteType: 'instance',
       token: token.length === 8 ? null : token,
@@ -87,7 +87,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const getInviteLink = () => {
     const location = new URL(window.location as any)
-    const params = new URLSearchParams(location.search)
+    let params = new URLSearchParams(location.search)
     if (selfUser?.inviteCode.value != null) {
       params.set('inviteCode', selfUser.inviteCode.value)
       location.search = params.toString()
@@ -99,7 +99,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const getSpectateModeUrl = () => {
     const location = new URL(window.location as any)
-    const params = new URLSearchParams(location.search)
+    let params = new URLSearchParams(location.search)
     params.set('spectate', selfUser.id.value)
     params.delete('inviteCode')
     location.search = params.toString()
@@ -145,7 +145,7 @@ const ShareMenu = (): JSX.Element => {
   })
 
   // Ref: https://developer.oculus.com/documentation/web/web-launch
-  const questShareLink = new URL('https://oculus.com/open_url/')
+  let questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
 
   const copyToClipboard = (text: string) => {

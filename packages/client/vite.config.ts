@@ -162,11 +162,9 @@ export default defineConfig(async () => {
       mediapipe_workaround(),
       PkgConfig(),
       PWA(clientSetting),
-      PWA(clientSetting),
       createHtmlPlugin({
         inject: {
           data: {
-            ...manifest,
             ...manifest,
             title: clientSetting.title || 'Ethereal Engine',
             description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',

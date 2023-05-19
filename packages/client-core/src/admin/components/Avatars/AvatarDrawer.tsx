@@ -176,6 +176,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       return
     }
 
+    let tempErrors = { ...state.formErrors }
+
     switch (name) {
       case 'avatarFile': {
         const inValidSize = files[0].size < MIN_AVATAR_FILE_SIZE || files[0].size > MAX_AVATAR_FILE_SIZE
@@ -210,6 +212,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
   const handleChange = (e) => {
     const { name, value } = e.target
+
+    let tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'name':
@@ -246,7 +250,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     let avatarBlob: Blob | undefined = undefined
     let thumbnailBlob: Blob | undefined = undefined
 
-    const tempErrors = {
+    let tempErrors = {
       name: state.name.value ? '' : t('admin:components.avatar.nameCantEmpty'),
       avatarUrl:
         state.source.value === 'url' && state.avatarUrl.value ? '' : t('admin:components.avatar.avatarUrlCantEmpty'),

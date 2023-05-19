@@ -1,12 +1,14 @@
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 
+import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import CardMedia from '@etherealengine/ui/src/primitives/mui/CardMedia'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useRouter } from '../../../common/services/RouterService'
-import { AuthService, useAuthState } from '../../services/AuthService'
+import { AuthService, AuthState } from '../../services/AuthService'
 import styles from '../Login/index.module.scss'
 
 interface Props {
@@ -15,7 +17,7 @@ interface Props {
 
 const ConfirmEmail = (props: Props): JSX.Element => {
   const route = useRouter()
-  const auth = useAuthState()
+  const auth = useHookstate(getMutableState(AuthState))
   const { t } = useTranslation()
 
   const handleResendEmail = (e: any): any => {

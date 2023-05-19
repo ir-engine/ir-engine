@@ -23,14 +23,14 @@ const EmoteDetailView = () => {
   const [page, setPage] = useState(0)
 
   const imgPerPage = 7
-  const menuRadius = 250
-  const menuPadding = 25
+  let menuRadius = 250
+  let menuPadding = 25
   let menuThickness = menuRadius > 170 ? 70 : 60
   let menuItemWidth = menuThickness - menuPadding
   let menuItemRadius = menuItemWidth / 2
   let effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
 
-  const [items, setItems] = useState([
+  let [items, setItems] = useState([
     {
       body: <img src="/static/grinning.svg" alt="Dance 4" />,
       containerProps: {
@@ -124,7 +124,7 @@ const EmoteDetailView = () => {
     const itemList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, items.length)
-    const angle = 360 / imgPerPage
+    let angle = 360 / imgPerPage
     let index = 0
     let itemAngle = 0
     let x = 0

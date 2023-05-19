@@ -29,7 +29,7 @@ export interface UserKick {
   instanceId: string
 }
 
-export type CreateUserKick = Omit<UserKick, 'id'>
+export interface CreateUserKick extends Omit<UserKick, 'id'> {}
 
 export interface UserInterface {
   id: UserId
@@ -52,7 +52,6 @@ export interface UserInterface {
   apiKey: UserApiKey
   static_resources?: StaticResourceInterface
   instanceAttendance?: InstanceAttendanceInterface[]
-  instance: Instance
 }
 
 export const UserSeed: UserInterface = {
@@ -75,34 +74,7 @@ export const UserSeed: UserInterface = {
     userId: '' as UserId
   },
   identityProviders: [],
-  locationAdmins: [],
-  instance: {
-    id: '',
-    roomCode: '',
-    currentUsers: 0,
-    ipAddress: '',
-    locationId: '',
-    channelId: '',
-    location: {
-      id: '',
-      name: '',
-      slugifiedName: '',
-      maxUsersPerInstance: 0,
-      sceneId: '',
-      locationSettingsId: '',
-      locationSetting: {
-        id: '',
-        locationId: '',
-        locationType: 'public',
-        audioEnabled: false,
-        screenSharingEnabled: false,
-        faceStreamingEnabled: false,
-        videoEnabled: false
-      },
-      isLobby: false,
-      isFeatured: false
-    }
-  }
+  locationAdmins: []
 }
 
 export interface CreateEditUser {
@@ -163,33 +135,6 @@ export function resolveWalletUser(credentials: any): UserInterface {
     identityProviders: [],
     locationAdmins: [],
     avatarUrl: credentials.user.icon,
-    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserId },
-    instance: {
-      id: '',
-      roomCode: '',
-      currentUsers: 0,
-      ipAddress: '',
-      locationId: '',
-      channelId: '',
-      location: {
-        id: '',
-        name: '',
-        slugifiedName: '',
-        maxUsersPerInstance: 0,
-        sceneId: '',
-        locationSettingsId: '',
-        locationSetting: {
-          id: '',
-          locationId: '',
-          locationType: 'public',
-          audioEnabled: false,
-          screenSharingEnabled: false,
-          faceStreamingEnabled: false,
-          videoEnabled: false
-        },
-        isLobby: false,
-        isFeatured: false
-      }
-    }
+    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserId }
   }
 }

@@ -19,9 +19,19 @@ import { createTransitionState } from '@etherealengine/engine/src/xrui/functions
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { defineState, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import type { WebLayer3D } from '@etherealengine/xrui'
+
+import { LocationInstanceConnectionService } from '../common/services/LocationInstanceConnectionService'
+import { MediaInstanceConnectionService } from '../common/services/MediaInstanceConnectionService'
+
+type ActionType = {
+  name: string
+  data?: {
+    channelId?: string
+    createPrivateRoom?: boolean
+    locationId?: string
+  }
+}
 
 export const WarningUIState = defineState({
   name: 'WarningUIState',
@@ -29,18 +39,38 @@ export const WarningUIState = defineState({
     open: false,
     title: '',
     body: '',
-    action: null as null | (() => void),
-    timeRemaining: 0
+    timeRemaining: 0,
+    action: {
+      name: '',
+      data: {}
+    } as ActionType
   }
 })
 
+const executeAction = async () => {
+  const action = getState(WarningUIState).action
+  switch (action.name) {
+    case 'provisionMediaServer':
+      if (action.data?.channelId)
+        await MediaInstanceConnectionService.provisionServer(action.data.channelId, action.data.createPrivateRoom)
+      break
+    case 'provisionWorldServer':
+      if (action.data?.locationId) await LocationInstanceConnectionService.provisionServer(action.data.locationId)
+      break
+    case 'reloadWindow':
+      window.location.reload()
+      break
+  }
+}
+
 export const WarningUIService = {
-  openWarning: (args: { title: string; body: string; timeout?: number; action?: () => void }) => {
+  openWarning: async (args: { title: string; body: string; timeout?: number; action?: ActionType }) => {
     const state = getMutableState(WarningUIState)
     state.open.set(true)
     state.title.set(args.title)
     state.body.set(args.body)
     state.timeRemaining.set(args.timeout ?? 0)
+    if (args.action) state.action.set(args.action)
   },
   closeWarning: () => {
     const state = getMutableState(WarningUIState)
@@ -53,11 +83,6 @@ const WarningSystemXRUI = function () {
 
   const state = useHookstate(getMutableState(WarningUIState))
   const { title, body, timeRemaining } = state.value
-
-  const onClose = () => {
-    const action = getState(WarningUIState).action
-    if (action) action()
-  }
 
   return (
     <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1' }}>
@@ -73,7 +98,7 @@ const WarningSystemXRUI = function () {
           borderRadius: '20px',
           padding: '12px'
         }}
-        onClick={onClose}
+        onClick={executeAction}
       >
         <div
           xr-layer="true"
@@ -93,7 +118,7 @@ const WarningSystemXRUI = function () {
             aria-label="close"
             className={'bg lightgrey'}
             style={{ backgroundColor: 'lightgrey' }}
-            onClick={onClose}
+            onClick={executeAction}
             size="large"
             icon={<Icon type="Close" />}
           /> */}
@@ -160,8 +185,7 @@ const execute = () => {
       const timeRemaining = Math.max(0, state.timeRemaining - 1)
       getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
       if (timeRemaining === 0) {
-        const action = state.action
-        if (action) action()
+        executeAction()
         WarningUIService.closeWarning()
       }
       accumulator = 0

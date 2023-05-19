@@ -1,4 +1,4 @@
-import { POSE_LANDMARKS } from '@mediapipe/holistic'
+import { POSE_LANDMARKS } from '@mediapipe/pose'
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'

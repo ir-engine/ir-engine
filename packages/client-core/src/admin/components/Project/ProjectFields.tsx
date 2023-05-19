@@ -58,7 +58,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name])
 
-  const selfUser = useHookstate(getMutableState(AuthState)?.user)
+  const selfUser = useHookstate(getMutableState(AuthState).user)
 
   const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
     (commit: ProjectCommitInterface) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
@@ -189,8 +189,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   const hasGithubProvider = selfUser?.identityProviders?.value?.find((ip) => ip.type === 'github')
 
   const handleCommitChange = async (e) => {
-    const { value } = e.target
-    let { commitData } = e.target
+    let { value, commitData } = e.target
 
     if (!commitData) {
       commitData = projectUpdateStatus.value.commitData

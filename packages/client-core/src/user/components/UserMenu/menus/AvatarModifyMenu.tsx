@@ -124,8 +124,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
       return
     }
 
-    const tempState = { ...state }
-    const tempErrors = { ...state.formErrors }
+    let tempState = { ...state }
+    let tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'avatarFile': {
@@ -167,7 +167,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    const tempErrors = { ...state.formErrors }
+    let tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'name':

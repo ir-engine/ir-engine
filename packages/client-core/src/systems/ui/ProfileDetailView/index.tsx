@@ -24,7 +24,7 @@ import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { initialAuthState, initialOAuthConnectedState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
-import { AuthService, AuthState, useAuthState } from '../../../user/services/AuthService'
+import { AuthService, AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
 import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
@@ -87,7 +87,7 @@ const ProfileDetailView = () => {
 
   useEffect(() => {
     if (authSetting) {
-      const temp = { ...initialAuthState }
+      let temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -146,7 +146,7 @@ const ProfileDetailView = () => {
   useEffect(() => {
     oauthConnectedState.set(initialOAuthConnectedState)
     if (selfUser.identityProviders.value)
-      for (const ip of selfUser.identityProviders.value) {
+      for (let ip of selfUser.identityProviders.value) {
         switch (ip.type) {
           case 'discord':
             oauthConnectedState.set((oauthConnectedState) => {

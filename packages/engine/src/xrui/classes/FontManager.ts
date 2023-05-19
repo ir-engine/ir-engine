@@ -3,6 +3,7 @@ import { ExtrudeGeometry, Vector3 } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Font, FontLoader } from '../../assets/font/FontLoader'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 
 export class FontManager {
@@ -10,7 +11,7 @@ export class FontManager {
   private _loader: FontLoader = new FontLoader()
   _defaultFont: Font
 
-  create3dText(text: string, scale: Vector3 = new Vector3(1, 1, 1), fontResolution = 120): ExtrudeGeometry {
+  create3dText(text: string, scale: Vector3 = new Vector3(1, 1, 1), fontResolution: number = 120): ExtrudeGeometry {
     const textShapes = this._defaultFont.generateShapes(text, fontResolution)
     const geometry = new ExtrudeGeometry(textShapes, { bevelEnabled: false })
     const invRes = 1 / fontResolution

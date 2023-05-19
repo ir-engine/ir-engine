@@ -63,6 +63,7 @@
       "delete": "Delete",
       "view": "View",
       "kick": "Kick",
+      "ban": "Ban",
       "yes": "Yes",
       "no": "No",
       "refresh": "Refresh",
@@ -205,7 +206,8 @@
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
       "count": "Count",
-      "kickDuration": "Kick Duration"
+      "kickDuration": "Kick Duration",
+      "confirmUserBan": "Are you sure you want to ban this user?"
     },
     "resources": {
       "resources": "resources",

@@ -11,7 +11,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
-import { AuthState, useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import { AdminProjectSettingsState, ProjectSettingService } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
 
@@ -47,9 +47,9 @@ const Project = () => {
 
   useEffect(() => {
     if (projectSetting.value && projectSetting.value?.length > 0) {
-      const tempSettings = JSON.parse(JSON.stringify(settings.value))
+      let tempSettings = JSON.parse(JSON.stringify(settings.value))
 
-      for (const [index, setting] of tempSettings.entries()) {
+      for (let [index, setting] of tempSettings.entries()) {
         const savedSetting = projectSetting.value.filter((item) => item.key === setting.key)
         if (savedSetting.length > 0) {
           tempSettings[index].value = savedSetting[0].value
@@ -65,9 +65,9 @@ const Project = () => {
     const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
 
     if (projectConfig && projectConfig?.settings) {
-      const tempSetting = [] as ProjectSetting[]
+      let tempSetting = [] as ProjectSetting[]
 
-      for (const setting of projectConfig.settings) {
+      for (let setting of projectConfig.settings) {
         tempSetting.push({ key: setting.key, value: '' })
       }
 
@@ -78,10 +78,10 @@ const Project = () => {
     }
   }
 
-  // useEffect(() => {
-  //   if (user?.id?.value != null && selectedProject.value) {
-  //   }
-  // }, [user?.id?.value, selectedProject.value])
+  useEffect(() => {
+    if (user?.id?.value != null && selectedProject.value) {
+    }
+  }, [user?.id?.value, selectedProject.value])
 
   const handleProjectChange = (e) => {
     const { value } = e.target

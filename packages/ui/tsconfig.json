@@ -29,8 +29,7 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "testing-library__jest-dom"],
-    "preserveSymlinks": true
+    "types": ["vite/client"]
   },
   "exclude": [
     "../server-core/src/",
@@ -41,6 +40,6 @@
   ],
   "include": [
     "./src/**/*.ts",
-    "./src/**/*.tsx"
+    "./serc/**/*.tsx"
   ]
 }
