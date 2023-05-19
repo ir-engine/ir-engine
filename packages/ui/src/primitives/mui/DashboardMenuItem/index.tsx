@@ -4,13 +4,13 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { SidebarItems } from '@etherealengine/ui/src/primitives/mui/DashboardItems'
 import Divider from '@etherealengine/ui/src/primitives/mui/Divider'
 import List from '@etherealengine/ui/src/primitives/mui/List'
 import ListItem from '@etherealengine/ui/src/primitives/mui/ListItem'
 import ListItemIcon from '@etherealengine/ui/src/primitives/mui/ListItemIcon'
 import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 
-import { SidebarItems } from '../DashboardItems'
 import styles from './index.module.scss'
 
 const DashboardMenuItem = () => {

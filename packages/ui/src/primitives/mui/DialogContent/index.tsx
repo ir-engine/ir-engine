@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react'
 
-import { DialogContentProps, DialogContent as MuiDialogContent } from '@mui/material'
+import DialogContentText from '@etherealengine/ui/src/primitives/mui/DialogContentText'
+import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import DialogContentText from '../DialogContentText'
-import TextField from '../TextField'
+import { DialogContentProps, DialogContent as MuiDialogContent } from '@mui/material'
 
 const DialogContent = ({ children, ...props }: DialogContentProps & {}) => (
   <MuiDialogContent {...props}>{children}</MuiDialogContent>

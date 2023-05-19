@@ -5,6 +5,7 @@ import { handleSoundEffect } from '@etherealengine/client-core/src/common/utils'
 import CloseIcon from '@mui/icons-material/Close'
 import { IconButtonProps, default as MUIIconButton } from '@mui/material/IconButton'
 
+// @ts-ignore
 import styles from './index.module.scss'
 
 const IconButton = ({

@@ -1,8 +1,9 @@
 import React from 'react'
 
+import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
+
 import { Table, TableBody } from '@mui/material'
 
-import TableRow from '../TableRow'
 import Component from './index'
 
 const argTypes = {}

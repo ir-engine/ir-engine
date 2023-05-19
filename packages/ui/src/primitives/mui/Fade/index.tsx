@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { FadeProps, Fade as MuiFade } from '@mui/material'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import Typography from '../Typography'
+import { FadeProps, Fade as MuiFade } from '@mui/material'
 
 const Fade = (props: FadeProps) => <MuiFade {...props} />
 

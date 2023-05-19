@@ -1,9 +1,10 @@
 import React, { ReactNode } from 'react'
 
+import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
+
 import { CardProps, Card as MuiCard } from '@mui/material'
 
-import CardContent from '../CardContent'
-import Typography from '../Typography'
+// import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 const Card = (props: CardProps) => <MuiCard {...props} />
 

@@ -3,7 +3,7 @@ import { CameraIcon, CogIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import LoadingCircle from '../../../primitives/tailwind/LoadingCircle'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
 /**
  * Props for Toolbar component

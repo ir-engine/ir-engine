@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react'
 
-import { AccordionProps, Accordion as MuiAccordion } from '@mui/material'
+import AccordionDetails from '@etherealengine/ui/src/primitives/mui/AccordionDetails'
+import AccordionSummary from '@etherealengine/ui/src/primitives/mui/AccordionSummary'
 
-import AccordionDetails from '../AccordionDetails'
-import AccordionSummary from '../AccordionSummary'
+import { AccordionProps, Accordion as MuiAccordion } from '@mui/material'
 
 const Accordion = (props: AccordionProps) => <MuiAccordion {...props} />
 

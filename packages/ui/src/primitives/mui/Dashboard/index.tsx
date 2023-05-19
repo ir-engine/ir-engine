@@ -7,6 +7,7 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import AppBar from '@etherealengine/ui/src/primitives/mui/AppBar'
+import DashboardMenuItem from '@etherealengine/ui/src/primitives/mui/DashboardMenuItem'
 import Drawer from '@etherealengine/ui/src/primitives/mui/Drawer'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -14,7 +15,6 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useTheme } from '@mui/material/styles'
 
-import DashboardMenuItem from '../DashboardMenuItem'
 import styles from './index.module.scss'
 
 /**

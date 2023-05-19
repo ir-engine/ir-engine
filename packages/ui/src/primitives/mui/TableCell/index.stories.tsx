@@ -1,8 +1,9 @@
 import React from 'react'
 
-import Table from '../Table'
-import TableBody from '../TableBody'
-import TableRow from '../TableRow'
+import Table from '@etherealengine/ui/src/primitives/mui/Table'
+import TableBody from '@etherealengine/ui/src/primitives/mui/TableBody'
+import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
+
 import Component from './index'
 
 const argTypes = {}

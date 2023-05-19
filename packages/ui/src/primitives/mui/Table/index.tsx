@@ -1,10 +1,10 @@
 import React, { ReactNode } from 'react'
 
-import { Table as MuiTable, TableProps } from '@mui/material'
+import TableBody from '@etherealengine/ui/src/primitives/mui/TableBody'
+import TableCell from '@etherealengine/ui/src/primitives/mui/TableCell'
+import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 
-import TableBody from '../TableBody'
-import TableCell from '../TableCell'
-import TableRow from '../TableRow'
+import { Table as MuiTable, TableProps } from '@mui/material'
 
 const Table = ({ children, ...props }: TableProps) => <MuiTable {...props}>{children}</MuiTable>
 

@@ -1,8 +1,9 @@
 import React from 'react'
 
-import FormControl from '../FormControl'
-import InputBase from '../InputBase'
-import InputLabel from '../InputLabel'
+import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
+import InputBase from '@etherealengine/ui/src/primitives/mui/InputBase'
+import InputLabel from '@etherealengine/ui/src/primitives/mui/InputLabel'
+
 import Component from './index'
 
 const argTypes = {}

@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { Paper as MuiPaper, PaperProps } from '@mui/material'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import Typography from '../Typography'
+import { Paper as MuiPaper, PaperProps } from '@mui/material'
 
 const Paper = ({ children, ...props }: PaperProps & { component?: string }) => (
   <MuiPaper {...props}>{children}</MuiPaper>

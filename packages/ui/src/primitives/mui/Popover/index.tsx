@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { Popover as MuiPopover, PopoverProps } from '@mui/material'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import Typography from '../Typography'
+import { Popover as MuiPopover, PopoverProps } from '@mui/material'
 
 const Popover = ({ children, ...props }: PopoverProps & {}) => <MuiPopover {...props}>{children}</MuiPopover>
 

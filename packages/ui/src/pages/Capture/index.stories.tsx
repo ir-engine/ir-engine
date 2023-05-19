@@ -6,20 +6,9 @@ import { useTranslation } from 'react-i18next'
 import { AuthSettingsServiceReceptor } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 // import { useLocation, useNavigate } from 'react-router-dom'
 
-import {
-  AuthSettingsService,
-  AuthSettingsState
-} from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
-import {
-  AdminClientSettingsState,
-  ClientSettingService
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { AuthSettingsService } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import { ClientSettingsServiceReceptor } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import {
-  AdminCoilSettingService,
-  AdminCoilSettingsState
-} from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
-import { API } from '@etherealengine/client-core/src/API'
+import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   NotificationAction,
   NotificationActions
@@ -34,8 +23,6 @@ import { LocationAction } from '@etherealengine/client-core/src/social/services/
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
-import Engine_tw from '@etherealengine/client/src/engine_tw'
-import { CustomRoute, getCustomRoutes } from '@etherealengine/client/src/route/getCustomRoutes'
 import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -53,7 +40,6 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
 import Component from './index'
 
@@ -115,8 +101,11 @@ export default {
           ProjectService.fetchProjects()
           if (!fetchedProjectComponents) {
             setFetchedProjectComponents(true)
+            // @ts-ignore
             Engine.instance.api
+              // @ts-ignore
               .service('projects')
+              // @ts-ignore
               .find()
               .then((projects) => {
                 loadEngineInjection(projects).then((result) => {

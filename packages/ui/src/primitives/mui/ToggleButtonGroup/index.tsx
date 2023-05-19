@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { ToggleButtonGroup as MuiToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material'
+import ToggleButton from '@etherealengine/ui/src/primitives/mui/ToggleButton'
 
-import ToggleButton from '../ToggleButton'
+import { ToggleButtonGroup as MuiToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material'
 
 const ToggleButtonGroup = (props: ToggleButtonGroupProps) => <MuiToggleButtonGroup {...props} />
 

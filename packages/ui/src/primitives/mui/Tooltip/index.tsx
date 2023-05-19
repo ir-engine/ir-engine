@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { Tooltip as MuiTooltip, TooltipProps } from '@mui/material'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import Icon from '../Icon'
-import IconButton from '../IconButton'
+import { Tooltip as MuiTooltip, TooltipProps } from '@mui/material'
 
 const Tooltip = ({ children, ...props }: TooltipProps) => (
   <MuiTooltip {...props}>

@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { DialogActionsProps, DialogActions as MuiDialogActions } from '@mui/material'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
-import Button from '../Button'
+import { DialogActionsProps, DialogActions as MuiDialogActions } from '@mui/material'
 
 const DialogActions = ({ children, ...props }: DialogActionsProps & {}) => (
   <MuiDialogActions {...props}>{children}</MuiDialogActions>

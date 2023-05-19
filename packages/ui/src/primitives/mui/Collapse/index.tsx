@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { CollapseProps, Collapse as MuiCollapse } from '@mui/material'
+import Card from '@etherealengine/ui/src/primitives/mui/Card'
 
-import Card from '../Card'
+import { CollapseProps, Collapse as MuiCollapse } from '@mui/material'
 
 const Collapse = (props: CollapseProps) => <MuiCollapse {...props} />
 

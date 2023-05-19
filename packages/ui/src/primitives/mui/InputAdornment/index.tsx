@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { InputAdornmentProps, InputAdornment as MuiInputAdornment } from '@mui/material'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import Icon from '../Icon'
+import { InputAdornmentProps, InputAdornment as MuiInputAdornment } from '@mui/material'
 
 const InputAdornment = (props: InputAdornmentProps & { position?: any }) => <MuiInputAdornment {...props} />
 

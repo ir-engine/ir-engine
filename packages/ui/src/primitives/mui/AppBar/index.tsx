@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { AppBarProps, AppBar as MuiAppBar } from '@mui/material'
+import Toolbar from '@etherealengine/ui/src/primitives/mui/Toolbar'
 
-import Toolbar from '../Toolbar'
+import { AppBarProps, AppBar as MuiAppBar } from '@mui/material'
 
 const AppBar = (props: AppBarProps) => <MuiAppBar {...props} />
 

@@ -1,10 +1,10 @@
 import React, { ReactNode } from 'react'
 
-import { DialogProps, Dialog as MuiDialog } from '@mui/material'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
+import DialogContent from '@etherealengine/ui/src/primitives/mui/DialogContent'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
-import DialogActions from '../DialogActions'
-import DialogContent from '../DialogContent'
-import DialogTitle from '../DialogTitle'
+import { DialogProps, Dialog as MuiDialog } from '@mui/material'
 
 const Dialog = ({ children, classes, ...props }: DialogProps & { classes?: any }) => (
   <MuiDialog className={classes} {...props}>

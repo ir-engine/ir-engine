@@ -1,6 +1,7 @@
 import React from 'react'
 
-import Button from '../Button'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+
 import Component from './index'
 
 const argTypes = {}

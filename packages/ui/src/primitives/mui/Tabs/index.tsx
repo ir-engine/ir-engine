@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { Tabs as MuiTabs, TabsProps } from '@mui/material'
+import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
 
-import Tab from '../Tab'
+import { Tabs as MuiTabs, TabsProps } from '@mui/material'
 
 const Tabs = (props: TabsProps) => <MuiTabs {...props} />
 

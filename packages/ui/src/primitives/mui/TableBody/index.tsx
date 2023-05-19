@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react'
 
-import { TableBody as MuiTableBody } from '@mui/material'
+import TableCell from '@etherealengine/ui/src/primitives/mui/TableCell'
+import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 
-import TableCell from '../TableCell'
-import TableRow from '../TableRow'
+import { TableBody as MuiTableBody } from '@mui/material'
 
 export interface Props {
   children: ReactNode

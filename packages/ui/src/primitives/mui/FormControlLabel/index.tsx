@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { FormControlLabelProps, FormControlLabel as MuiFormControlLabel } from '@mui/material'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
-import Checkbox from '../Checkbox'
+import { FormControlLabelProps, FormControlLabel as MuiFormControlLabel } from '@mui/material'
 
 const FormControlLabel = (props: FormControlLabelProps) => <MuiFormControlLabel {...props} />
 

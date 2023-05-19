@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react'
 
-import { ContainerProps, Container as MuiContainer } from '@mui/material'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import Typography from '../Typography'
+import { ContainerProps, Container as MuiContainer } from '@mui/material'
 
 const Container = (props: ContainerProps & { component?: string }) => <MuiContainer {...props} />
 
