@@ -151,12 +151,13 @@ const CaptureDashboard = () => {
 
         const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
 
-        sendResults({
-          ...poseLandmarks,
-          // ...faceLandmarks,
-          ...(leftHandLandmarks !== undefined ? leftHandLandmarks : []),
-          ...(rightHandLandmarks !== undefined ? rightHandLandmarks : [])
-        })
+        sendResults(poseLandmarks)
+        // sendResults(faceLandmarks)
+        // sendResults({
+        // ...(leftHandLandmarks !== undefined ? leftHandLandmarks : []),
+        // ...(rightHandLandmarks !== undefined ? rightHandLandmarks : [])
+        // })
+
         processingFrame.set(false)
 
         if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
