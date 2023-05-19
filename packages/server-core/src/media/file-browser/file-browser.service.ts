@@ -47,14 +47,12 @@ export default (app: Application): any => {
         before: [
           multipartMiddleware.any(),
           async (ctx, next) => {
-            console.log('trying to upload file')
             if (ctx?.feathers && ctx.method !== 'GET') {
               ;(ctx as any).feathers.files = (ctx as any).request.files.media
                 ? (ctx as any).request.files.media
                 : ctx.request.files
             }
             await next()
-            console.log('uploaded file')
             return ctx.body
           }
         ]

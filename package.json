@@ -151,7 +151,6 @@
     "daisyui": "^2.51.4",
     "dotenv": "16.0.3",
     "fix-esm": "^1.0.1",
-    "koa-cors": "^0.0.16",
     "lerna": "6.5.1",
     "patch-package": "^6.5.1",
     "pino": "^8.11.0",

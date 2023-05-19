@@ -56,11 +56,8 @@
     "@types/koa-compress": "^4.0.3",
     "aws-sdk": "2.1339.0",
     "cli": "1.0.1",
-    "compression": "1.7.4",
-    "cors": "2.8.5",
     "cross-env": "7.0.3",
     "feathers-sync": "3.0.2",
-    "helmet": "6.0.1",
     "koa-favicon": "^2.1.0",
     "nanoid": "3.3.4",
     "ps-list": "7.2.0",
@@ -70,8 +67,6 @@
     "uuid": "9.0.0"
   },
   "devDependencies": {
-    "@types/compression": "1.7.2",
-    "@types/cors": "2.8.13",
     "@types/node": "18.15.5",
     "concurrently": "7.6.0",
     "http-server": "14.1.1",

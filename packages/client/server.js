@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { readFileSync } from 'fs';
-import Koa from 'koa';
+import Koa from '@feathersjs/koa';
 import serve from 'koa-static';
 import { path as packageRoot } from 'app-root-path';
 import { createServer } from 'https';
