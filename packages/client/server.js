@@ -1,10 +1,11 @@
-import { join } from 'path';
-import { readFileSync } from 'fs';
-import Koa from '@feathersjs/koa';
-import serve from 'koa-static';
-import { path as packageRoot } from 'app-root-path';
-import { createServer } from 'https';
-import { createServer as _createServer } from 'http';
+const { join } = require('path');
+const { readFileSync } = require('fs');
+const Koa = require('@feathersjs/koa');
+const serve = require('koa-static');
+const { path: packageRoot } = require('app-root-path');
+const { createServer } = require('https');
+const { createServer: _createServer } = require('http');
+
 
 const app = new Koa();
 const PORT = process.env.HOST_PORT || 3000;
@@ -12,8 +13,8 @@ const HTTPS = process.env.VITE_LOCAL_BUILD ?? false;
 
 app.use(serve(join(packageRoot, 'packages', 'client', 'dist'), {
   brotli: true,
-  setHeaders: (res) => {
-    res.set('Origin-Agent-Cluster', '?1')
+  setHeaders: (ctx) => {
+    ctx.set('Origin-Agent-Cluster', '?1')
   }
 }));
 
