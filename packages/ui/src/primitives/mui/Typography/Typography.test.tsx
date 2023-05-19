@@ -3,7 +3,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import Typography from './index'
-import { Default as story } from './index.stories'
+import { Primary as story } from './index.stories'
 
 describe('Typography', () => {
   it('- should render', () => {

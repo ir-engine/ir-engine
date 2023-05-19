@@ -19,6 +19,7 @@ import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
 import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRSlider from '../../components/XRSlider'
@@ -44,9 +45,12 @@ const SettingDetailView = () => {
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
+  const authState = useAuthState()
+  const selfUser = authState.user
   const firstRender = useRef(true)
-  const showDetails = useHookstate(false)
-  const showAudioDetails = useHookstate(false)
+  const [showDetails, setShowDetails] = useState(false)
+  const [showAudioDetails, setShowAudioDetails] = useState(false)
+  const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
 
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const handOptions = ['left', 'right'] as const
@@ -73,6 +77,12 @@ const SettingDetailView = () => {
     /** @todo - switch handedness */
   }, [avatarInputState.invertRotationAndMoveSticks])
 
+  const setUserSettings = (newSetting: any): void => {
+    const setting = { ...userSettings, ...newSetting }
+    setUserSetting(setting)
+    AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
+  }
+
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAction(
       AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
@@ -90,11 +100,11 @@ const SettingDetailView = () => {
   }
 
   const toggleShowDetails = () => {
-    showDetails.set(!showDetails.value)
+    setShowDetails(!showDetails)
   }
 
   const toggleShowOtherAudioSettings = () => {
-    showAudioDetails.set(!showAudioDetails.value)
+    setShowAudioDetails(!showAudioDetails)
   }
 
   const handleQualityLevelChange = (value) => {
@@ -152,10 +162,10 @@ const SettingDetailView = () => {
             <div className="sectionRow justifySpaceBetween" onClick={toggleShowOtherAudioSettings}>
               <h4 className="title">{t('user:usermenu.setting.other-audio-setting')}</h4>
               <div xr-layer="true" className="showHideButton">
-                {showAudioDetails.value ? 'hide details' : 'show details'}
+                {showAudioDetails ? 'hide details' : 'show details'}
               </div>
             </div>
-            {showAudioDetails.value && (
+            {showAudioDetails && (
               <>
                 <div className="sectionRow">
                   <Icon type="SurroundSound" />
@@ -284,10 +294,10 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="showHideButton" onClick={toggleShowDetails}>
-                  {showDetails.value ? 'hide details' : 'show details'}
+                  {showDetails ? 'hide details' : 'show details'}
                 </div>
               </div>
-              {showDetails.value && (
+              {showDetails && (
                 <table>
                   <thead>
                     <tr>

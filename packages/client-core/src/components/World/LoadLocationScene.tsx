@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next'
 import {
   LocationAction,
   LocationService,
-  LocationState
+  LocationState,
+  useLocationState
 } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { WarningUIService } from '../../systems/WarningUISystem'
@@ -61,8 +62,8 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
 
 export const useLoadLocationScene = () => {
   const { t } = useTranslation()
-  const authState = useHookstate(getMutableState(AuthState))
-  const locationState = useHookstate(getMutableState(LocationState))
+  const authState = useAuthState()
+  const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const userNotAuthorized = locationState.currentLocation.selfNotAuthorized.value
 

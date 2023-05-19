@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import SvgIcon from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/SvgIcon',
-  component: SvgIcon,
+  component: Component,
   parameters: {
     componentSubtitle: 'SvgIcon',
     jest: 'SvgIcon.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof SvgIcon>
+}
 
-const Template: ComponentStory<typeof SvgIcon> = (args) => <SvgIcon {...args} />
-
-export const Default = Template.bind({})
-Default.args = SvgIcon.defaultProps
+export const Primary = { args: Component.defaultProps }

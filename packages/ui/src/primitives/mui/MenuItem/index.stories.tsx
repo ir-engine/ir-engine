@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import MenuItem from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/MenuItem',
-  component: MenuItem,
+  component: Component,
   parameters: {
     componentSubtitle: 'MenuItem',
     jest: 'MenuItem.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof MenuItem>
+}
 
-const Template: ComponentStory<typeof MenuItem> = (args) => <MenuItem {...args} />
-
-export const Default = Template.bind({})
-Default.args = MenuItem.defaultProps
+export const Primary = { args: Component.defaultProps }

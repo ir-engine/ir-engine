@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Typography from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Typography',
-  component: Typography,
+  component: Component,
   parameters: {
     componentSubtitle: 'Typography',
     jest: 'Typography.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Typography>
+}
 
-const Template: ComponentStory<typeof Typography> = (args) => <Typography {...args} />
-
-export const Default = Template.bind({})
-Default.args = Typography.defaultProps
+export const Primary = { args: Component.defaultProps }

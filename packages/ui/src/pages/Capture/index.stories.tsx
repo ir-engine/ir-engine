@@ -24,16 +24,14 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { RouterServiceReceptor } from '@etherealengine/client-core/src/common/services/RouterService'
-import { RouterState, useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { RecordingServiceSystem } from '@etherealengine/client-core/src/recording/RecordingService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { LocationAction } from '@etherealengine/client-core/src/social/services/LocationService'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import Engine_tw from '@etherealengine/client/src/engine_tw'
@@ -57,7 +55,7 @@ import {
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import Capture from './index'
+import Component from './index'
 
 const startCaptureSystems = () => {
   startSystem(MotionCaptureSystem, { with: InputSystemGroup })
@@ -81,32 +79,17 @@ const argTypes = {}
 
 export default {
   title: 'Pages/Capture',
-  component: Capture,
+  component: Component,
   decorators: [
     (Story) => {
       const notistackRef = useRef<SnackbarProvider>()
-      const authState = useAuthState()
+      const authState = useHookstate(getMutableState(AuthState))
       const selfUser = authState.user
-      const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
-      const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
-      // const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
-      const [clientSetting] = clientSettingState?.client?.value || []
-      // const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
-      // const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
-      // const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
-      // const [description, setDescription] = useState(clientSetting?.siteDescription)
+
       const [projectComponents, setProjectComponents] = useState<Array<any>>([])
       const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-      const projectState = useProjectState()
+      const projectState = useHookstate(getMutableState(ProjectState))
 
-      // const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
-      const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
-      const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
-      // const location = useLocation()
-      // const navigate = useNavigate()
-      // const [routesReady, setRoutesReady] = useState(false)
-      // const routerState = useHookstate(getMutableState(RouterState))
-      // const route = useRouter()
       const { t } = useTranslation()
 
       useEffect(() => {
@@ -127,19 +110,12 @@ export default {
         }
       }, [])
 
-      // useEffect(() => {
-      //   chapiWalletPolyfill
-      //     .loadOnce()
-      //     .then(() => console.log('CHAPI wallet polyfill loaded.'))
-      //     .catch((e) => console.error('Error loading polyfill:', e))
-      // }, [])
-
       useEffect(() => {
         if (selfUser?.id.value && projectState.updateNeeded.value) {
           ProjectService.fetchProjects()
           if (!fetchedProjectComponents) {
             setFetchedProjectComponents(true)
-            API.instance.client
+            Engine.instance.api
               .service('projects')
               .find()
               .then((projects) => {
@@ -161,18 +137,7 @@ export default {
         authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
       }, [authState.isLoggedIn])
 
-      // useEffect(() => {
-      //   if (clientSetting) {
-      //     setTitle(clientSetting?.title)
-      //     setFavicon16(clientSetting?.favicon16px)
-      //     setFavicon32(clientSetting?.favicon32px)
-      //     setDescription(clientSetting?.siteDescription)
-      //   }
-      //   if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
-      // }, [clientSettingState?.updateNeeded?.value])
-
       useEffect(() => {
-        // addActionReceptor(RouterServiceReceptor)
         addActionReceptor(ClientSettingsServiceReceptor)
         addActionReceptor(AuthSettingsServiceReceptor)
         addActionReceptor(AuthServiceReceptor)
@@ -187,9 +152,6 @@ export default {
           AuthService.doLoginAuto()
           AuthSettingsService.fetchAuthSetting()
         }
-        // getCustomRoutes().then((routes) => {
-        //   setCustomRoutes(routes)
-        // })
 
         getMutableState(NetworkState).config.set({
           world: true,
@@ -209,33 +171,6 @@ export default {
         }
       }, [])
 
-      // useEffect(() => {
-      //   if (location.pathname !== routerState.pathname.value) {
-      //     route(location.pathname)
-      //   }
-      // }, [location.pathname])
-
-      // useEffect(() => {
-      //   if (location.pathname !== routerState.pathname.value) {
-      //     // navigate(routerState.pathname.value)
-      //   }
-      // }, [routerState.pathname])
-
-      // useEffect(() => {
-      //   // For the same reason as above, we will not need to load the client and auth settings for these routes
-      //   if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
-      //   if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
-      //     return setRoutesReady(true)
-      // }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
-
-      // if (!routesReady) {
-      //   return (
-      //     <div className="absolute w-full h-full">
-      //       <LoadingCircle message={t('common:loader.loadingRoutes')} />
-      //     </div>
-      //   )
-      // }
-
       AuthService.useAPIListeners()
       SceneService.useAPIListeners()
 
@@ -243,29 +178,14 @@ export default {
 
       const locationName = 'default'
 
-      // useEffect(() => {
-      //   dispatchAction(LocationAction.setLocationName({ locationName }))
-      //   initializeEngineForRecorder()
-      // }, [])
-
       const engineState = useHookstate(getMutableState(EngineState))
 
       if (!engineState.isEngineInitialized.value && !engineState.connectedWorld.value) return <></>
-
-      // const engineState = getMutableState(EngineState)
-      // useEffect(() => {
-      console.log('engineState', engineState.isEngineInitialized.value, engineState.connectedWorld.value)
-      // }, [engineState.isEngineInitialized, engineState.connectedWorld])
-      if (!getMutableState(EngineState).isEngineInitialized.value) return <>butts1</>
-      if (!engineState.isEngineInitialized.value && !engineState.connectedWorld.value) return <>butts</>
 
       return (
         <div style={{ height: '100vh', pointerEvents: 'auto' }}>
           <Story />
           {projectComponents}
-          {/* {fetchedProjectComponents ? projectComponents.map((Component, i) => (
-            <Component key={i} />
-          )) : null} */}
         </div>
       )
     }
@@ -285,4 +205,4 @@ export default {
   argTypes
 }
 
-export const Primary = { args: Capture.defaultProps }
+export const Primary = { args: Component.defaultProps }

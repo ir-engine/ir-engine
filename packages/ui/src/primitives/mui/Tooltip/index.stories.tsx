@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Tooltip from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Tooltip',
-  component: Tooltip,
+  component: Component,
   parameters: {
     componentSubtitle: 'Tooltip',
     jest: 'Tooltip.test.tsx',
@@ -17,9 +14,5 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Tooltip>
-
-const Template: ComponentStory<typeof Tooltip> = (args) => <Tooltip {...args} />
-
-export const Default = Template.bind({})
-Default.args = Tooltip.defaultProps
+}
+export const Primary = { args: Component.defaultProps }

@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Accordion from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Accordion',
-  component: Accordion,
+  component: Component,
   parameters: {
     componentSubtitle: 'Accordion',
     jest: 'Accordion.test.tsx',
@@ -17,9 +14,5 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Accordion>
-
-const Template: ComponentStory<typeof Accordion> = (args) => <Accordion {...args} />
-
-export const Default = Template.bind({})
-Default.args = Accordion.defaultProps
+}
+export const Primary = { args: Component.defaultProps }

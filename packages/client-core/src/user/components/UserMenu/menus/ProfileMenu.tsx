@@ -74,7 +74,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -117,7 +117,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   useEffect(() => {
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
     if (selfUser.identityProviders.get({ noproxy: true }))
-      for (let ip of selfUser.identityProviders.get({ noproxy: true })!) {
+      for (const ip of selfUser.identityProviders.get({ noproxy: true })!) {
         switch (ip.type) {
           case 'discord':
             oauthConnectedState.merge({ discord: true })
@@ -335,7 +335,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
-            showChangeButton={!!engineInitialized.value}
+            showChangeButton={engineInitialized.value ? true : false}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />
 

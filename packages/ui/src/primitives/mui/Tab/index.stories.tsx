@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Tab from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Tab',
-  component: Tab,
+  component: Component,
   parameters: {
     componentSubtitle: 'Tab',
     jest: 'Tab.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Tab>
+}
 
-const Template: ComponentStory<typeof Tab> = (args) => <Tab {...args} />
-
-export const Default = Template.bind({})
-Default.args = Tab.defaultProps
+export const Primary = { args: Component.defaultProps }

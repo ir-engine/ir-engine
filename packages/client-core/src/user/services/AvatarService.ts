@@ -9,11 +9,12 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
-import { AuthAction, AuthState } from './AuthService'
+import { accessAuthState, AuthAction } from './AuthService'
 
 export const AVATAR_PAGE_LIMIT = 100
 
@@ -43,10 +44,14 @@ export const AvatarServiceReceptor = (action) => {
       return s.avatarList[index].set(action.avatar)
     })
 }
+/**@deprecated use getMutableState directly instead */
+export const accessAvatarState = () => getMutableState(AvatarState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
+export const useAvatarService = () => useState(accessAvatarState())
 
 export const AvatarService = {
   async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean) {
-    const newAvatar = await Engine.instance.api.service('avatar').create({
+    const newAvatar = await API.instance.client.service('avatar').create({
       name: avatarName,
       isPublic
     })
@@ -60,8 +65,8 @@ export const AvatarService = {
     )
 
     if (!isPublic) {
-      const selfUser = getState(AuthState).user
-      const userId = selfUser.id!
+      const selfUser = accessAuthState().user
+      const userId = selfUser.id.value!
       await AvatarService.updateUserAvatarId(
         userId,
         newAvatar.id,
@@ -72,10 +77,10 @@ export const AvatarService = {
   },
 
   async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {
-    const skip = getState(AvatarState).skip
+    const skip = accessAvatarState().skip.value
     const newSkip =
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
-    const result = (await Engine.instance.api.service('avatar').find({
+    const result = (await API.instance.client.service('avatar').find({
       query: {
         search,
         $skip: newSkip,
@@ -122,13 +127,13 @@ export const AvatarService = {
       }
     }
 
-    const avatar = await Engine.instance.api.service('avatar').patch(originalAvatar.id, payload)
+    const avatar = await API.instance.client.service('avatar').patch(originalAvatar.id, payload)
     dispatchAction(AvatarActions.updateAvatarAction({ avatar }))
 
-    const authState = getState(AuthState)
-    const userAvatarId = authState.user?.avatarId
+    const authState = accessAuthState()
+    const userAvatarId = authState.user?.avatarId?.value
     if (userAvatarId === avatar.id) {
-      const userId = authState.user?.id!
+      const userId = authState.user?.id.value!
       await AvatarService.updateUserAvatarId(
         userId,
         avatar.id,
@@ -139,17 +144,17 @@ export const AvatarService = {
   },
 
   async removeAvatar(keys: string) {
-    await Engine.instance.api.service('avatar').remove('', { query: { keys } })
+    await API.instance.client.service('avatar').remove('', { query: { keys } })
     NotificationService.dispatchNotify(i18n.t('user:avatar.remove-success-msg'), { variant: 'success' })
     return this.fetchAvatarList()
   },
 
   async removeStaticResource(id: string) {
-    return Engine.instance.api.service('static-resource').remove(id)
+    return API.instance.client.service('static-resource').remove(id)
   },
 
   async updateUserAvatarId(userId: UserId, avatarId: string, avatarURL: string, thumbnailURL: string) {
-    const res = await Engine.instance.api.service('user').patch(userId, { avatarId: avatarId })
+    const res = await API.instance.client.service('user').patch(userId, { avatarId: avatarId })
     // dispatchAlertSuccess(dispatch, 'User Avatar updated');
     dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
     dispatchAction(
@@ -161,18 +166,17 @@ export const AvatarService = {
   },
 
   async uploadAvatar(data: any) {
-    const authState = getState(AuthState)
-    const token = authState.authUser.accessToken
-    const selfUser = authState.user
+    const token = accessAuthState().authUser.accessToken.value
+    const selfUser = accessAuthState().user
     const res = await axios.post(`https://${config.client.serverHost}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token
       }
     })
-    const userId = selfUser.id ?? null
-    await Engine.instance.api.service('user').patch(userId, {
-      name: selfUser.name
+    const userId = selfUser.id.value ?? null
+    await API.instance.client.service('user').patch(userId, {
+      name: selfUser.name.value
     })
     const result = res.data
     NotificationService.dispatchNotify('Avatar updated', { variant: 'success' })

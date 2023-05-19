@@ -48,6 +48,10 @@ export const FileBrowserServiceReceptor = (action) => {
       })
     })
 }
+/**@deprecated use getMutableState directly instead */
+export const accessFileBrowserState = () => getMutableState(FileBrowserState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
+export const useFileBrowserState = () => useState(accessFileBrowserState())
 
 export class FileBrowserAction {
   static filesFetching = defineAction({

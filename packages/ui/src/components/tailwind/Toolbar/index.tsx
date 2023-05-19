@@ -8,7 +8,7 @@ import LoadingCircle from '../../../primitives/tailwind/LoadingCircle'
 /**
  * Props for Toolbar component
  */
-interface ToolbarProps {
+export interface ToolbarProps {
   className: string
   toggleDetecting: () => void
   toggleWebcam: () => void
@@ -221,14 +221,22 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
 
 Toolbar.defaultProps = {
   className: '',
+  toggleDetecting: () => {},
   toggleWebcam: () => {},
-  isVideoOn: false,
-  isDetecting: false,
-  isRecording: false,
-  recordingStatus: 'Record',
+  videoStatus: 'loading',
+  detectingStatus: 'loading',
+  isRecording: true,
+  recordingStatus: 'loading',
   onToggleRecording: () => {},
-  isVideoFlipped: false,
-  flipVideo: () => {}
+  isVideoFlipped: true,
+  flipVideo: () => {},
+  cycleCamera: () => {},
+  drawBody: () => {},
+  isDrawingBody: true,
+  drawFace: () => {},
+  isDrawingFace: true,
+  drawHands: () => {},
+  isDrawingHands: true
 }
 
 export default Toolbar

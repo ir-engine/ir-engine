@@ -6,8 +6,14 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { addActionReceptor, defineActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
-import { LocationInstanceConnectionServiceReceptor } from '../common/services/LocationInstanceConnectionService'
-import { MediaInstanceConnectionServiceReceptor } from '../common/services/MediaInstanceConnectionService'
+import {
+  LocationInstanceConnectionService,
+  LocationInstanceConnectionServiceReceptor
+} from '../common/services/LocationInstanceConnectionService'
+import {
+  MediaInstanceConnectionService,
+  MediaInstanceConnectionServiceReceptor
+} from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerConsumers } from '../media/PeerMedia'
@@ -17,6 +23,7 @@ import { LocationState } from '../social/services/LocationService'
 import { WarningUIService } from '../systems/WarningUISystem'
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
+import { NetworkUserServiceReceptor } from '../user/services/NetworkUserService'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
 const noWorldServersAvailableQueue = defineActionQueue(NetworkConnectionService.actions.noWorldServersAvailable.matches)
@@ -46,12 +53,7 @@ const execute = () => {
     WarningUIService.openWarning({
       title: t('common:instanceServer.noAvailableServers'),
       body: t('common:instanceServer.noAvailableServersMessage'),
-      action: {
-        name: 'provisionWorldServer',
-        data: {
-          locationId: currentLocationID
-        }
-      }
+      action: async () => LocationInstanceConnectionService.provisionServer(currentLocationID)
     })
   }
 
@@ -72,14 +74,7 @@ const execute = () => {
       WarningUIService.openWarning({
         title: t('common:instanceServer.noAvailableServers'),
         body: t('common:instanceServer.noAvailableServersMessage'),
-        timeout: 15,
-        action: {
-          name: 'provisionMediaServer',
-          data: {
-            channelId,
-            createPrivateRoom: false
-          }
-        }
+        action: async () => MediaInstanceConnectionService.provisionServer(channelId, false)
       })
     }
   }
@@ -92,9 +87,7 @@ const execute = () => {
     WarningUIService.openWarning({
       title: t('common:instanceServer.worldDisconnected'),
       body: t('common:instanceServer.worldDisconnectedMessage'),
-      action: {
-        name: 'reloadWindow'
-      },
+      action: async () => window.location.reload(),
       timeout: 30
     })
   }
@@ -108,27 +101,18 @@ const execute = () => {
 
   for (const action of mediaInstanceDisconnectedQueue()) {
     const transport = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-    if (transport?.reconnecting) continue
+    if (transport.reconnecting) continue
 
     const channels = chatState.channels.channels
-    const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
-    const partyChannel = Object.values(channels).find(
-      (channel) => channel.channelType === 'party' && channel.partyId === authState.user.partyId
+    const instanceChannel = Object.values(channels).find(
+      (channel) => channel.instanceId === Engine.instance.mediaNetwork?.hostId
     )
-    const channelId = partyChannel ? partyChannel.id : instanceChannel ? instanceChannel.id : null
-    if (channelId)
-      WarningUIService.openWarning({
-        title: 'Media disconnected',
-        body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
-        action: {
-          name: 'provisionMediaServer',
-          data: {
-            channelId,
-            createPrivateRoom: false
-          }
-        },
-        timeout: 15
-      })
+    WarningUIService.openWarning({
+      title: 'Media disconnected',
+      body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
+      action: async () => MediaInstanceConnectionService.provisionServer(instanceChannel?.id, true),
+      timeout: 15
+    })
   }
 
   for (const action of worldInstanceReconnectedQueue()) {
@@ -144,6 +128,7 @@ const reactor = () => {
   useEffect(() => {
     addActionReceptor(LocationInstanceConnectionServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
+    addActionReceptor(NetworkUserServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
     addActionReceptor(ChatServiceReceptor)
 
@@ -151,6 +136,7 @@ const reactor = () => {
       // todo replace with subsystems
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
       removeActionReceptor(MediaInstanceConnectionServiceReceptor)
+      removeActionReceptor(NetworkUserServiceReceptor)
       removeActionReceptor(FriendServiceReceptor)
       removeActionReceptor(ChatServiceReceptor)
     }

@@ -54,7 +54,7 @@ const Avatar = () => {
   }
 
   const handleDeleteAll = () => {
-    for (let id of selectedAvatarIds) AdminAvatarService.removeAdminAvatar(id)
+    for (const id of selectedAvatarIds) AdminAvatarService.removeAdminAvatar(id)
     setOpenDeleteAvatarModal(false)
   }
 

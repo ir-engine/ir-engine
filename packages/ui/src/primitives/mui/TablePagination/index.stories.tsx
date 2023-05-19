@@ -1,16 +1,15 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
+import React from 'react'
 
 import { Table, TableBody } from '@mui/material'
 
 import TableRow from '../TableRow'
-import TablePagination from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/TablePagination',
-  component: TablePagination,
+  component: Component,
   parameters: {
     componentSubtitle: 'TablePagination',
     jest: 'TablePagination.test.tsx',
@@ -31,9 +30,6 @@ export default {
     )
   ],
   argTypes
-} as ComponentMeta<typeof TablePagination>
+}
 
-const Template: ComponentStory<typeof TablePagination> = (args) => <TablePagination {...args} />
-
-export const Default = Template.bind({})
-Default.args = TablePagination.defaultProps
+export const Primary = { args: Component.defaultProps }

@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import TextField from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/TextField',
-  component: TextField,
+  component: Component,
   parameters: {
     componentSubtitle: 'TextField',
     jest: 'TextField.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof TextField>
+}
 
-const Template: ComponentStory<typeof TextField> = (args) => <TextField {...args} />
-
-export const Default = Template.bind({})
-Default.args = TextField.defaultProps
+export const Primary = { args: Component.defaultProps }

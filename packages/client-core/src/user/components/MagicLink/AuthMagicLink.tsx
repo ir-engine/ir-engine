@@ -1,15 +1,13 @@
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { AuthService } from '../../services/AuthService'
-import { AuthState } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import { VerifyEmail } from '../Auth/VerifyEmail'
 
 interface Props {
@@ -22,7 +20,7 @@ interface Props {
 
 const AuthMagicLink = ({ token, type, instanceId, path }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const user = useHookstate(getMutableState(AuthState)).user
+  const user = useAuthState().user
   useEffect(() => {
     if (type === 'login') {
       let redirectSuccess = path ? `${path}` : null

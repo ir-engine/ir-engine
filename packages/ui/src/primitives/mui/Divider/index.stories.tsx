@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Divider from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Divider',
-  component: Divider,
+  component: Component,
   parameters: {
     componentSubtitle: 'Divider',
     jest: 'Divider.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Divider>
+}
 
-const Template: ComponentStory<typeof Divider> = (args) => <Divider {...args} />
-
-export const Default = Template.bind({})
-Default.args = Divider.defaultProps
+export const Primary = { args: Component.defaultProps }

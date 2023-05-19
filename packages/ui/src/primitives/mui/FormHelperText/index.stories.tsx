@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import FormHelperText from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/FormHelperText',
-  component: FormHelperText,
+  component: Component,
   parameters: {
     componentSubtitle: 'FormHelperText',
     jest: 'FormHelperText.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof FormHelperText>
+}
 
-const Template: ComponentStory<typeof FormHelperText> = (args) => <FormHelperText {...args} />
-
-export const Default = Template.bind({})
-Default.args = FormHelperText.defaultProps
+export const Primary = { args: Component.defaultProps }

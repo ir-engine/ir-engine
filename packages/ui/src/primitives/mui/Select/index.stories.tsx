@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Select from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Select',
-  component: Select,
+  component: Component,
   parameters: {
     componentSubtitle: 'Select',
     jest: 'Select.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Select>
+}
 
-const Template: ComponentStory<typeof Select> = (args) => <Select {...args} />
-
-export const Default = Template.bind({})
-Default.args = Select.defaultProps
+export const Primary = { args: Component.defaultProps }

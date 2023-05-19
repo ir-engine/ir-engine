@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import { Typography as MuiTypography, TypographyProps } from '@mui/material'
 

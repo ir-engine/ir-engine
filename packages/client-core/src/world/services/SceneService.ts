@@ -4,7 +4,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { LocationState } from '../../social/services/LocationService'
+import { accessLocationState } from '../../social/services/LocationService'
 
 export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
@@ -16,7 +16,7 @@ export const SceneService = {
   useAPIListeners: () => {
     useEffect(() => {
       const sceneUpdatedListener = async () => {
-        const locationState = getMutableState(LocationState)
+        const locationState = accessLocationState()
         const [projectName, sceneName] = locationState.currentLocation.location.sceneId.value.split('/')
         const sceneData = await Engine.instance.api
           .service('scene')

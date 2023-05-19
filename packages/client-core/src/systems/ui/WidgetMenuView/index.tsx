@@ -1,4 +1,5 @@
-import React from 'react'
+import { createState, useHookstate } from '@hookstate/core'
+import React, { useState } from 'react'
 
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
@@ -6,13 +7,12 @@ import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respa
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { createState, useHookstate } from '@etherealengine/hyperflux'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { ChatState } from '../../../social/services/ChatService'
+import { useChatState } from '../../../social/services/ChatService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
@@ -34,7 +34,7 @@ type WidgetButtonProps = {
 }
 
 const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps) => {
-  const mouseOver = useHookstate(false)
+  const [mouseOver, setMouseOver] = useState(false)
   return (
     <XRIconButton
       disabled={disabled}
@@ -42,12 +42,12 @@ const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps
       content={
         <>
           <Icon type={name} className="svgIcon" />
-          {mouseOver.value && <div>{label}</div>}
+          {mouseOver && <div>{label}</div>}
         </>
       }
       onClick={toggle}
-      onMouseEnter={() => mouseOver.set(true)}
-      onMouseLeave={() => mouseOver.set(false)}
+      onMouseEnter={() => setMouseOver(true)}
+      onMouseLeave={() => setMouseOver(false)}
       xr-layer="true"
     />
   )
@@ -55,7 +55,7 @@ const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps
 
 const WidgetButtons = () => {
   let activeChannel: Channel | null = null
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useChatState()
   const widgetMutableState = useHookstate(getMutableState(WidgetAppState))
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]

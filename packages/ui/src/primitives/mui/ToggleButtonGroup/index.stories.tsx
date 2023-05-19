@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import ToggleButtonGroup from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/ToggleButtonGroup',
-  component: ToggleButtonGroup,
+  component: Component,
   parameters: {
     componentSubtitle: 'ToggleButtonGroup',
     jest: 'ToggleButtonGroup.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof ToggleButtonGroup>
+}
 
-const Template: ComponentStory<typeof ToggleButtonGroup> = (args) => <ToggleButtonGroup {...args} />
-
-export const Default = Template.bind({})
-Default.args = ToggleButtonGroup.defaultProps
+export const Primary = { args: Component.defaultProps }

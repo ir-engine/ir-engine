@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Radio from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Radio',
-  component: Radio,
+  component: Component,
   parameters: {
     componentSubtitle: 'Radio',
     jest: 'Radio.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Radio>
+}
 
-const Template: ComponentStory<typeof Radio> = (args) => <Radio {...args} />
-
-export const Default = Template.bind({})
-Default.args = Radio.defaultProps
+export const Primary = { args: Component.defaultProps }

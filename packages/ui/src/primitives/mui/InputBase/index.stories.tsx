@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import InputBase from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/InputBase',
-  component: InputBase,
+  component: Component,
   parameters: {
     componentSubtitle: 'InputBase',
     jest: 'InputBase.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof InputBase>
+}
 
-const Template: ComponentStory<typeof InputBase> = (args) => <InputBase {...args} />
-
-export const Default = Template.bind({})
-Default.args = InputBase.defaultProps
+export const Primary = { args: Component.defaultProps }

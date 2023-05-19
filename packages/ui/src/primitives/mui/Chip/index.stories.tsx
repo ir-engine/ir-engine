@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Chip from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Chip',
-  component: Chip,
+  component: Component,
   parameters: {
     componentSubtitle: 'Chip',
     jest: 'Chip.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Chip>
+}
 
-const Template: ComponentStory<typeof Chip> = (args) => <Chip {...args} />
-
-export const Default = Template.bind({})
-Default.args = Chip.defaultProps
+export const Primary = { args: Component.defaultProps }

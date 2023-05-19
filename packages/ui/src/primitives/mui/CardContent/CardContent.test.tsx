@@ -3,7 +3,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import CardContent from './index'
-import { Default as story } from './index.stories'
+import { Primary as story } from './index.stories'
 
 describe('CardContent', () => {
   it('- should render', () => {

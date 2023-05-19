@@ -41,6 +41,11 @@ function createUploadAvatarMenuState() {
   return createState({})
 }
 
+// const camera: PerspectiveCamera
+// const scene: Scene
+// const renderer: WebGLRenderer = null!
+// const entity: Entity = null!
+
 export const UploadAvatarMenu = () => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)

@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import FormControl from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/FormControl',
-  component: FormControl,
+  component: Component,
   parameters: {
     componentSubtitle: 'FormControl',
     jest: 'FormControl.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof FormControl>
+}
 
-const Template: ComponentStory<typeof FormControl> = (args) => <FormControl {...args} />
-
-export const Default = Template.bind({})
-Default.args = FormControl.defaultProps
+export const Primary = { args: Component.defaultProps }

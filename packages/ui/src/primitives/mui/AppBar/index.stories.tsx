@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import AppBar from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/AppBar',
-  component: AppBar,
+  component: Component,
   parameters: {
     componentSubtitle: 'AppBar',
     jest: 'AppBar.test.tsx',
@@ -17,9 +14,5 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof AppBar>
-
-const Template: ComponentStory<typeof AppBar> = (args) => <AppBar {...args} />
-
-export const Default = Template.bind({})
-Default.args = AppBar.defaultProps
+}
+export const Primary = { args: Component.defaultProps }

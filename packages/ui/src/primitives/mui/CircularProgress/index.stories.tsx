@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import CircularProgress from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/CircularProgress',
-  component: CircularProgress,
+  component: Component,
   parameters: {
     componentSubtitle: 'CircularProgress',
     jest: 'CircularProgress.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof CircularProgress>
+}
 
-const Template: ComponentStory<typeof CircularProgress> = (args) => <CircularProgress {...args} />
-
-export const Default = Template.bind({})
-Default.args = CircularProgress.defaultProps
+export const Primary = { args: Component.defaultProps }

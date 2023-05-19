@@ -1,8 +1,7 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
+import React from 'react'
 
 import IconsPage from './IconsPage'
-import Icon from './index'
+import Component from './index'
 
 const argTypes = {
   type: {
@@ -143,7 +142,7 @@ const argTypes = {
 
 export default {
   title: 'Primitives/MUI/Icon',
-  component: Icon,
+  component: Component,
   parameters: {
     componentSubtitle: 'Icon',
     jest: 'Icon.test.tsx',
@@ -153,17 +152,15 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Icon>
+}
 
-const Template: ComponentStory<typeof Icon> = (args) => <Icon {...args} />
+export const Primary = { args: Component.defaultProps }
 
-export const Default = Template.bind({})
-Default.args = Icon.defaultProps
-
-export const All = Template.bind({})
-All.decorators = [
-  () => {
-    return <IconsPage argTypes={argTypes} />
-  }
-]
-All.args = Icon.defaultProps
+export const AllIcons = {
+  decorators: [
+    () => {
+      return <IconsPage argTypes={argTypes} />
+    }
+  ],
+  args: Component.defaultProps
+}

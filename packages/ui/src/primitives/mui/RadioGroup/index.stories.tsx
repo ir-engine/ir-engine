@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import RadioGroup from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/RadioGroup',
-  component: RadioGroup,
+  component: Component,
   parameters: {
     componentSubtitle: 'RadioGroup',
     jest: 'RadioGroup.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof RadioGroup>
+}
 
-const Template: ComponentStory<typeof RadioGroup> = (args) => <RadioGroup {...args} />
-
-export const Default = Template.bind({})
-Default.args = RadioGroup.defaultProps
+export const Primary = { args: Component.defaultProps }

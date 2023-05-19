@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Collapse from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Collapse',
-  component: Collapse,
+  component: Component,
   parameters: {
     componentSubtitle: 'Collapse',
     jest: 'Collapse.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Collapse>
+}
 
-const Template: ComponentStory<typeof Collapse> = (args) => <Collapse {...args} />
-
-export const Default = Template.bind({})
-Default.args = Collapse.defaultProps
+export const Primary = { args: Component.defaultProps }

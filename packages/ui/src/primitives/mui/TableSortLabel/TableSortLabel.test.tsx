@@ -3,7 +3,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import TableSortLabel from './index'
-import { Default as story } from './index.stories'
+import { Primary as story } from './index.stories'
 
 describe('TableSortLabel', () => {
   it('- should render', () => {

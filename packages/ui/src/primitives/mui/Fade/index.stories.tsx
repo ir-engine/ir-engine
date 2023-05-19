@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Fade from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Fade',
-  component: Fade,
+  component: Component,
   parameters: {
     componentSubtitle: 'Fade',
     jest: 'Fade.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Fade>
+}
 
-const Template: ComponentStory<typeof Fade> = (args) => <Fade {...args} />
-
-export const Default = Template.bind({})
-Default.args = Fade.defaultProps
+export const Primary = { args: Component.defaultProps }

@@ -71,7 +71,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@types/enzyme": "^3.10.12",
     "@types/enzyme-adapter-react-16": "^1.0.6",
-    "@types/jest": "^29.4.0",
+    "@types/jest": "^29.5.1",
     "@types/node": "18.15.5",
     "@types/react": "18.0.28",
     "@types/react-router-dom": "5.3.3",

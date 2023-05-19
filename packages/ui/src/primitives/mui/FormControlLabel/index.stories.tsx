@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import FormControlLabel from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/FormControlLabel',
-  component: FormControlLabel,
+  component: Component,
   parameters: {
     componentSubtitle: 'FormControlLabel',
     jest: 'FormControlLabel.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof FormControlLabel>
+}
 
-const Template: ComponentStory<typeof FormControlLabel> = (args) => <FormControlLabel {...args} />
-
-export const Default = Template.bind({})
-Default.args = FormControlLabel.defaultProps
+export const Primary = { args: Component.defaultProps }

@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import OutlinedInput from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/OutlinedInput',
-  component: OutlinedInput,
+  component: Component,
   parameters: {
     componentSubtitle: 'OutlinedInput',
     jest: 'OutlinedInput.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof OutlinedInput>
+}
 
-const Template: ComponentStory<typeof OutlinedInput> = (args) => <OutlinedInput {...args} />
-
-export const Default = Template.bind({})
-Default.args = OutlinedInput.defaultProps
+export const Primary = { args: Component.defaultProps }

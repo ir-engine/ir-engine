@@ -27,6 +27,8 @@ const LoadingCircle = ({ message, className }: { message: string; className?: st
 
 LoadingCircle.displayName = 'LoadingCircle'
 
-LoadingCircle.defaultProps = {}
+LoadingCircle.defaultProps = {
+  message: 'Loading...'
+}
 
 export default LoadingCircle

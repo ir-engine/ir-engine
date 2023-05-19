@@ -91,7 +91,7 @@ const Account = () => {
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -100,7 +100,7 @@ const Account = () => {
       state.set(temp)
       holdAuth.set(temp)
 
-      let tempKeySecret = JSON.parse(
+      const tempKeySecret = JSON.parse(
         JSON.stringify({
           discord: authSetting?.oauth.discord,
           github: authSetting?.oauth.github,
@@ -122,7 +122,7 @@ const Account = () => {
 
     const oauth = { ...authSetting.oauth, ...keySecret.value }
 
-    for (let key of Object.keys(oauth)) {
+    for (const key of Object.keys(oauth)) {
       oauth[key] = JSON.stringify(oauth[key])
     }
 
@@ -133,14 +133,14 @@ const Account = () => {
   }
 
   const handleCancel = () => {
-    let temp = { ...initialAuthState }
+    const temp = { ...initialAuthState }
     authSetting?.authStrategies?.forEach((el) => {
       Object.entries(el).forEach(([strategyName, strategy]) => {
         temp[strategyName] = strategy
       })
     })
 
-    let tempKeySecret = JSON.parse(
+    const tempKeySecret = JSON.parse(
       JSON.stringify({
         discord: authSetting?.oauth.discord,
         github: authSetting?.oauth.github,

@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import FullscreenContainer from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/Tailwind/FullscreenContainer',
-  component: FullscreenContainer,
+  component: Component,
   parameters: {
     componentSubtitle: 'FullscreenContainer',
     jest: 'FullscreenContainer.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof FullscreenContainer>
+}
 
-const Template: ComponentStory<typeof FullscreenContainer> = (args) => <FullscreenContainer {...args} />
-
-export const Default = Template.bind({})
-Default.args = FullscreenContainer.defaultProps
+export const Primary = { args: Component.defaultProps }

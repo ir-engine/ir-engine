@@ -21,7 +21,7 @@ const { t } = useTranslation()
 
 const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
   const {
-    userId,
+    user,
     volume,
     isScreen,
     username,
@@ -63,7 +63,7 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
       >
         {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
           <img
-            src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : userId)}
+            src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : user?.id)}
             alt=""
             crossOrigin="anonymous"
             draggable={false}

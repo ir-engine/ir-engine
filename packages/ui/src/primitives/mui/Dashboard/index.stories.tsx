@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Dashboard from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Admin/Dashboard',
-  component: Dashboard,
+  component: Component,
   parameters: {
     componentSubtitle: 'Dashboard',
     jest: 'Dashboard.test.tsx',
@@ -21,9 +18,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Dashboard>
+}
 
-const Template: ComponentStory<typeof Dashboard> = (args) => <Dashboard {...args} />
-
-export const Default = Template.bind({})
-Default.args = Dashboard.defaultProps
+export const Primary = { args: Component.defaultProps }

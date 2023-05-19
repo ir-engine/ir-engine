@@ -64,11 +64,11 @@ const InvitesConsole = () => {
   const { t } = useTranslation()
 
   const confirmMultiInviteDelete = () => {
-    for (const id of selectedInviteIds) AdminInviteService.removeInvite(id)
+    for (let id of selectedInviteIds) AdminInviteService.removeInvite(id)
     handleCloseDeleteMultiInviteModal()
   }
 
-  const handleChange = (event: React.ChangeEvent, newValue: number) => {
+  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
   }
 

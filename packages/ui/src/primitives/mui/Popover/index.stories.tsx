@@ -1,14 +1,34 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
+import React from 'react'
 
 import Button from '../Button'
-import Popover from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Popover',
-  component: Popover,
+  component: Component,
+  decorators: [
+    (Story) => {
+      const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+      const openMenu = Boolean(anchorEl)
+
+      const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget)
+      }
+
+      const handleClose = () => {
+        setAnchorEl(null)
+      }
+
+      return (
+        <>
+          <Button onClick={handleClick}></Button>
+          <Story open={openMenu} anchorEl={anchorEl} onClose={handleClose} />
+        </>
+      )
+    }
+  ],
   parameters: {
     componentSubtitle: 'Popover',
     jest: 'Popover.test.tsx',
@@ -18,27 +38,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Popover>
-
-const Template: ComponentStory<typeof Popover> = (args) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const openMenu = Boolean(anchorEl)
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
-  return (
-    <>
-      <Button onClick={handleClick}></Button>
-      <Popover {...args} open={openMenu} anchorEl={anchorEl} onClose={handleClose} />
-    </>
-  )
 }
 
-export const Default = Template.bind({})
-Default.args = Popover.defaultProps
+export const Primary = { args: Component.defaultProps }

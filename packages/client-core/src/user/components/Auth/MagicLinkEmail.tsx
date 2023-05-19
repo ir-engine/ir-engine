@@ -42,7 +42,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy

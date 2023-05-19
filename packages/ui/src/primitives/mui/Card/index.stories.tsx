@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Card from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Card',
-  component: Card,
+  component: Component,
   parameters: {
     componentSubtitle: 'Card',
     jest: 'Card.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Card>
+}
 
-const Template: ComponentStory<typeof Card> = (args) => <Card {...args} />
-
-export const Default = Template.bind({})
-Default.args = Card.defaultProps
+export const Primary = { args: Component.defaultProps }

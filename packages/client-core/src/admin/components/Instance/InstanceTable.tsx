@@ -106,7 +106,7 @@ const InstanceTable = ({ className, search }: Props) => {
     el: Instance,
     id: string,
     ipAddress: string,
-    currentUsers: number,
+    currentUsers: Number,
     channelId: string,
     podName: string,
     locationId?: Location

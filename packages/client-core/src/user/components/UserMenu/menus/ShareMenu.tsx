@@ -19,7 +19,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
-import { AuthState } from '../../../services/AuthService'
+import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
@@ -31,7 +31,7 @@ export const useShareMenuHooks = ({ refLink }) => {
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
   const [shareLink, setShareLink] = useState('')
   const engineState = useHookstate(getMutableState(EngineState))
-  const selfUser = useHookstate(getMutableState(AuthState)).user
+  const selfUser = useAuthState().user
 
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)

@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import ListItem from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/ListItem',
-  component: ListItem,
+  component: Component,
   parameters: {
     componentSubtitle: 'ListItem',
     jest: 'ListItem.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof ListItem>
+}
 
-const Template: ComponentStory<typeof ListItem> = (args) => <ListItem {...args} />
-
-export const Default = Template.bind({})
-Default.args = ListItem.defaultProps
+export const Primary = { args: Component.defaultProps }

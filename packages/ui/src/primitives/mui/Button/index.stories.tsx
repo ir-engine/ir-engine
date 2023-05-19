@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Button from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Button',
-  component: Button,
+  component: Component,
   parameters: {
     componentSubtitle: 'Button',
     jest: 'Button.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Button>
+}
 
-const Template: ComponentStory<typeof Button> = (args) => <Button {...args} />
-
-export const Default = Template.bind({})
-Default.args = Button.defaultProps
+export const Primary = { args: Component.defaultProps }

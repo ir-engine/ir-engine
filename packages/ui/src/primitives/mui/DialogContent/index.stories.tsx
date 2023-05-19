@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import DialogContent from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/DialogContent',
-  component: DialogContent,
+  component: Component,
   parameters: {
     componentSubtitle: 'DialogContent',
     jest: 'DialogContent.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof DialogContent>
+}
 
-const Template: ComponentStory<typeof DialogContent> = (args) => <DialogContent {...args} />
-
-export const Default = Template.bind({})
-Default.args = DialogContent.defaultProps
+export const Primary = { args: Component.defaultProps }

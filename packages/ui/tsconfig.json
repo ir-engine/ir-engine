@@ -29,7 +29,8 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client"]
+    "types": ["vite/client", "testing-library__jest-dom"],
+    "preserveSymlinks": true
   },
   "exclude": [
     "../server-core/src/",

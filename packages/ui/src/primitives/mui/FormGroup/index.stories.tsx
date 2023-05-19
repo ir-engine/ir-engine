@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import FormGroup from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/FormGroup',
-  component: FormGroup,
+  component: Component,
   parameters: {
     componentSubtitle: 'FormGroup',
     jest: 'FormGroup.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof FormGroup>
+}
 
-const Template: ComponentStory<typeof FormGroup> = (args) => <FormGroup {...args} />
-
-export const Default = Template.bind({})
-Default.args = FormGroup.defaultProps
+export const Primary = { args: Component.defaultProps }

@@ -1,11 +1,9 @@
-import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
-import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
@@ -19,7 +17,7 @@ import Switch from '@etherealengine/ui/src/primitives/mui/Switch'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
-import { AuthState } from '../../../user/services/AuthService'
+import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
@@ -33,7 +31,8 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const { t } = useTranslation()
   const [userInviteCode, setUserInviteCode] = useState('')
   const [error, setError] = useState('')
-  const selfUser = useHookstate(getMutableState(AuthState)).user
+
+  const selfUser = useAuthState().user
   const selfUserPermission =
     project?.project_permissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
     selfUser.scopes?.value?.find((scope) => scope.type === 'admin:admin')

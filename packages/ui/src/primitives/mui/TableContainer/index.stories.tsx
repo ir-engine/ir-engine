@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import TableContainer from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/TableContainer',
-  component: TableContainer,
+  component: Component,
   parameters: {
     componentSubtitle: 'TableContainer',
     jest: 'TableContainer.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof TableContainer>
+}
 
-const Template: ComponentStory<typeof TableContainer> = (args) => <TableContainer {...args} />
-
-export const Default = Template.bind({})
-Default.args = TableContainer.defaultProps
+export const Primary = { args: Component.defaultProps }

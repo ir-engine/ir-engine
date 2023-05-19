@@ -56,6 +56,10 @@ export const ProjectServiceReceptor = (action) => {
       return s.merge({ refreshingGithubRepoAccess: action.refreshing })
     })
 }
+/**@deprecated use getMutableState directly instead */
+export const accessProjectState = () => getMutableState(ProjectState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
+export const useProjectState = () => useState(accessProjectState())
 
 //Service
 export const ProjectService = {

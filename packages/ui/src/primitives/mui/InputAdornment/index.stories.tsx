@@ -1,16 +1,15 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
+import React from 'react'
 
 import FormControl from '../FormControl'
 import InputBase from '../InputBase'
 import InputLabel from '../InputLabel'
-import InputAdornment from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/InputAdornment',
-  component: InputAdornment,
+  component: Component,
   parameters: {
     componentSubtitle: 'InputAdornment',
     jest: 'InputAdornment.test.tsx',
@@ -28,9 +27,6 @@ export default {
     )
   ],
   argTypes
-} as ComponentMeta<typeof InputAdornment>
+}
 
-const Template: ComponentStory<typeof InputAdornment> = ({ children, ...args }) => <InputAdornment {...args} />
-
-export const Default = Template.bind({})
-Default.args = InputAdornment.defaultProps
+export const Primary = { args: Component.defaultProps }

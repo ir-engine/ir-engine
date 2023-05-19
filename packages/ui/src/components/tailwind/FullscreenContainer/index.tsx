@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import React, { createRef, useCallback, useEffect } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
@@ -45,4 +45,9 @@ const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
   )
 })
 
+FullscreenContainer.displayName = 'FullscreenContainer'
+
+FullscreenContainer.defaultProps = {
+  children: <div>FullscreenContainer</div>
+}
 export default FullscreenContainer

@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Slider from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Slider',
-  component: Slider,
+  component: Component,
   parameters: {
     componentSubtitle: 'Slider',
     jest: 'Slider.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Slider>
+}
 
-const Template: ComponentStory<typeof Slider> = (args) => <Slider {...args} />
-
-export const Default = Template.bind({})
-Default.args = Slider.defaultProps
+export const Primary = { args: Component.defaultProps }

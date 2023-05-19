@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Grid from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Grid',
-  component: Grid,
+  component: Component,
   parameters: {
     componentSubtitle: 'Grid',
     jest: 'Grid.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Grid>
+}
 
-const Template: ComponentStory<typeof Grid> = (args) => <Grid {...args} />
-
-export const Default = Template.bind({})
-Default.args = Grid.defaultProps
+export const Primary = { args: Component.defaultProps }

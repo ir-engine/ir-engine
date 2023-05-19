@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Toolbar from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Toolbar',
-  component: Toolbar,
+  component: Component,
   parameters: {
     componentSubtitle: 'Toolbar',
     jest: 'Toolbar.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Toolbar>
+}
 
-const Template: ComponentStory<typeof Toolbar> = (args) => <Toolbar {...args} />
-
-export const Default = Template.bind({})
-Default.args = Toolbar.defaultProps
+export const Primary = { args: Component.defaultProps }

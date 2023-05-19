@@ -8,7 +8,12 @@ import logger from '@etherealengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  addNetwork,
+  NetworkState,
+  removeNetwork,
+  updateNetworkID
+} from '@etherealengine/engine/src/networking/NetworkState'
 import {
   defineAction,
   defineState,
@@ -103,6 +108,10 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       s.instances[action.currentInstanceId].set(none)
     })
 }
+/**@deprecated use getMutableState directly instead */
+export const accessLocationInstanceConnectionState = () => getMutableState(LocationInstanceState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
+export const useLocationInstanceConnectionState = () => useState(accessLocationInstanceConnectionState())
 
 //Service
 export const LocationInstanceConnectionService = {
@@ -241,7 +250,7 @@ export const LocationInstanceConnectionService = {
     const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, transport: network }, 'Connect To World Server')
     if (network.primus) {
-      await leaveNetwork(network, false)
+      leaveNetwork(network, false)
     }
     const { ipAddress, port, locationId, roomCode } = getState(LocationInstanceState).instances[instanceId]
     await connectToNetwork(network, { port, ipAddress, locationId, roomCode })

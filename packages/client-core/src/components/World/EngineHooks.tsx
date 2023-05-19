@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -34,7 +34,7 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
-import { LocationState } from '../../social/services/LocationService'
+import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AvatarService } from '../../user/services/AvatarService'
 import { startClientSystems } from '../../world/startClientSystems'
@@ -78,7 +78,7 @@ const fetchMissingAvatar = async (user, avatarSpawnPose) => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useAuthState()
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
@@ -124,8 +124,8 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 export const usePortalTeleport = () => {
   const route = useRouter()
   const engineState = useHookstate(getMutableState(EngineState))
-  const locationState = useHookstate(getMutableState(LocationState))
-  const authState = useHookstate(getMutableState(AuthState))
+  const locationState = useLocationState()
+  const authState = useAuthState()
 
   useEffect(() => {
     if (engineState.isTeleporting.value) {

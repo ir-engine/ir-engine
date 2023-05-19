@@ -62,6 +62,7 @@ const reactor = () => {
     })
 
     addActionReceptor(AvatarServiceReceptor)
+    addActionReceptor(InviteServiceReceptor)
 
     return () => {
       popupMenuState.menus.merge({
@@ -81,6 +82,7 @@ const reactor = () => {
       })
 
       removeActionReceptor(AvatarServiceReceptor)
+      removeActionReceptor(InviteServiceReceptor)
     }
   }, [])
   return null

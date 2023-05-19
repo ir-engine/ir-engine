@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import TableSortLabel from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/TableSortLabel',
-  component: TableSortLabel,
+  component: Component,
   parameters: {
     componentSubtitle: 'TableSortLabel',
     jest: 'TableSortLabel.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof TableSortLabel>
+}
 
-const Template: ComponentStory<typeof TableSortLabel> = (args) => <TableSortLabel {...args} />
-
-export const Default = Template.bind({})
-Default.args = TableSortLabel.defaultProps
+export const Primary = { args: Component.defaultProps }

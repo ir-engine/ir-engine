@@ -1,7 +1,7 @@
 import React from 'react'
 
 import Icon from '.'
-import { Default } from './index.stories'
+import { Primary } from './index.stories'
 
 const IconsPage = ({ argTypes }) => {
   return (
@@ -11,7 +11,7 @@ const IconsPage = ({ argTypes }) => {
           <div key={`${key}-options`}>
             {argTypes[key]?.options?.map((o) => (
               <div key={`${key}-options-${o}`} style={{ margin: '10px', display: 'inline-block' }}>
-                <Icon {...Default.args} {...{ [key]: o }} />
+                <Icon {...Primary.args} {...{ [key]: o }} />
               </div>
             ))}
           </div>

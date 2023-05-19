@@ -4,11 +4,12 @@ import { useEffect } from 'react'
 import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
 import { GroupUser } from '@etherealengine/common/src/interfaces/GroupUser'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { AuthState } from '../../user/services/AuthService'
+import { accessAuthState } from '../../user/services/AuthService'
+import { NetworkUserAction } from '../../user/services/NetworkUserService'
 import { ChatService } from './ChatService'
 
 //State
@@ -146,14 +147,18 @@ export const GroupServiceReceptor = (action) => {
       return s.closeDetails.set('')
     })
 }
+/**@deprecated use getMutableState directly instead */
+export const accessGroupState = () => getMutableState(GroupState)
+/**@deprecated use useHookstate(getMutableState(...) directly instead */
+export const useGroupState = () => useState(accessGroupState())
 
 //Service
 export const GroupService = {
   getGroups: async (skip?: number, limit?: number) => {
     dispatchAction(GroupAction.fetchingGroups({}))
-    const groupActionState = getState(GroupState)
+    const groupActionState = accessGroupState().value
     try {
-      const groupResults = await Engine.instance.api.service('group').find({
+      const groupResults = await API.instance.client.service('group').find({
         query: {
           $limit: limit != null ? limit : groupActionState.groups.limit,
           $skip: skip != null ? skip : groupActionState.groups.skip
@@ -173,7 +178,7 @@ export const GroupService = {
   },
   createGroup: async (values: CreateGroup) => {
     try {
-      const result = (await Engine.instance.api.service('group').create({
+      const result = (await API.instance.client.service('group').create({
         name: values.name,
         description: values.description
       })) as Group
@@ -191,7 +196,7 @@ export const GroupService = {
       ;(patch as any).description = values.description
     }
     try {
-      const data = (await Engine.instance.api.service('group').patch(values.id ?? '', patch)) as Group
+      const data = (await API.instance.client.service('group').patch(values.id ?? '', patch)) as Group
       // ;(patch as any).id = values.id
       dispatchAction(GroupAction.patchedGroup({ group: data }))
     } catch (err) {
@@ -200,23 +205,23 @@ export const GroupService = {
   },
   removeGroup: async (groupId: string) => {
     try {
-      const channelResult = (await Engine.instance.api.service('channel').find({
+      const channelResult = (await API.instance.client.service('channel').find({
         query: {
           channelType: 'group',
           groupId: groupId
         }
       })) as any
       if (channelResult.total > 0) {
-        await Engine.instance.api.service('channel').remove(channelResult.data[0].id)
+        await API.instance.client.service('channel').remove(channelResult.data[0].id)
       }
-      await Engine.instance.api.service('group').remove(groupId)
+      await API.instance.client.service('group').remove(groupId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeGroupUser: async (groupUserId: string) => {
     try {
-      await Engine.instance.api.service('group-user').remove(groupUserId)
+      await API.instance.client.service('group-user').remove(groupUserId)
       dispatchAction(GroupAction.leftGroup({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -224,9 +229,9 @@ export const GroupService = {
   },
   getInvitableGroups: async (skip?: number, limit?: number) => {
     dispatchAction(GroupAction.fetchingInvitableGroups({}))
-    const groupActionState = getState(GroupState)
+    const groupActionState = accessGroupState().value
     try {
-      const groupResults = await Engine.instance.api.service('group').find({
+      const groupResults = await API.instance.client.service('group').find({
         query: {
           invitable: true,
           $limit: limit != null ? limit : groupActionState.groups.limit,
@@ -250,19 +255,40 @@ export const GroupService = {
     useEffect(() => {
       const groupUserCreatedListener = (params) => {
         const newGroupUser = params.groupUser
+        const selfUser = accessAuthState().user
         dispatchAction(GroupAction.createdGroupUser({ groupUser: newGroupUser }))
+        if (
+          newGroupUser.user.channelInstanceId != null &&
+          newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
+        )
+          dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
+        if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
+          dispatchAction(NetworkUserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
       }
 
       const groupUserPatchedListener = (params) => {
         const updatedGroupUser = params.groupUser
+        const selfUser = accessAuthState().user
         dispatchAction(GroupAction.patchedGroupUser({ groupUser: updatedGroupUser }))
+        if (
+          updatedGroupUser.user.channelInstanceId != null &&
+          updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
+        )
+          dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
+        if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
+          dispatchAction(
+            NetworkUserAction.removedChannelLayerUserAction({
+              user: updatedGroupUser.user
+            })
+          )
       }
 
       const groupUserRemovedListener = (params) => {
         const deletedGroupUser = params.groupUser
-        const selfUser = getState(AuthState).user
+        const selfUser = accessAuthState().user
         dispatchAction(GroupAction.removedGroupUser({ groupUser: deletedGroupUser, self: params.self }))
-        if (deletedGroupUser.userId === selfUser.id)
+        dispatchAction(NetworkUserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
+        if (deletedGroupUser.userId === selfUser.id.value)
           ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
       }
 
@@ -283,22 +309,22 @@ export const GroupService = {
         dispatchAction(GroupAction.createdGroup({ group: params.group }))
       }
 
-      Engine.instance.api.service('group-user').on('created', groupUserCreatedListener)
-      Engine.instance.api.service('group-user').on('patched', groupUserPatchedListener)
-      Engine.instance.api.service('group-user').on('removed', groupUserRemovedListener)
-      Engine.instance.api.service('group').on('created', groupCreatedListener)
-      Engine.instance.api.service('group').on('patched', groupPatchedListener)
-      Engine.instance.api.service('group').on('removed', groupRemovedListener)
-      Engine.instance.api.service('group').on('refresh', groupRefreshListener)
+      API.instance.client.service('group-user').on('created', groupUserCreatedListener)
+      API.instance.client.service('group-user').on('patched', groupUserPatchedListener)
+      API.instance.client.service('group-user').on('removed', groupUserRemovedListener)
+      API.instance.client.service('group').on('created', groupCreatedListener)
+      API.instance.client.service('group').on('patched', groupPatchedListener)
+      API.instance.client.service('group').on('removed', groupRemovedListener)
+      API.instance.client.service('group').on('refresh', groupRefreshListener)
 
       return () => {
-        Engine.instance.api.service('group-user').off('created', groupUserCreatedListener)
-        Engine.instance.api.service('group-user').off('patched', groupUserPatchedListener)
-        Engine.instance.api.service('group-user').off('removed', groupUserRemovedListener)
-        Engine.instance.api.service('group').off('created', groupCreatedListener)
-        Engine.instance.api.service('group').off('patched', groupPatchedListener)
-        Engine.instance.api.service('group').off('removed', groupRemovedListener)
-        Engine.instance.api.service('group').off('refresh', groupRefreshListener)
+        API.instance.client.service('group-user').off('created', groupUserCreatedListener)
+        API.instance.client.service('group-user').off('patched', groupUserPatchedListener)
+        API.instance.client.service('group-user').off('removed', groupUserRemovedListener)
+        API.instance.client.service('group').off('created', groupCreatedListener)
+        API.instance.client.service('group').off('patched', groupPatchedListener)
+        API.instance.client.service('group').off('removed', groupRemovedListener)
+        API.instance.client.service('group').off('refresh', groupRefreshListener)
       }
     }, [])
   }

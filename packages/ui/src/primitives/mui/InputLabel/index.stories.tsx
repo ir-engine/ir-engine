@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import InputLabel from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/InputLabel',
-  component: InputLabel,
+  component: Component,
   parameters: {
     componentSubtitle: 'InputLabel',
     jest: 'InputLabel.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof InputLabel>
+}
 
-const Template: ComponentStory<typeof InputLabel> = (args) => <InputLabel {...args} />
-
-export const Default = Template.bind({})
-Default.args = InputLabel.defaultProps
+export const Primary = { args: Component.defaultProps }

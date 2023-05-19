@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Switch from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Switch',
-  component: Switch,
+  component: Component,
   parameters: {
     componentSubtitle: 'Switch',
     jest: 'Switch.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Switch>
+}
 
-const Template: ComponentStory<typeof Switch> = (args) => <Switch {...args} />
-
-export const Default = Template.bind({})
-Default.args = Switch.defaultProps
+export const Primary = { args: Component.defaultProps }

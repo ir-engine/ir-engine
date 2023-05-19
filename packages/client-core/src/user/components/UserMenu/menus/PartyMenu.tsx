@@ -10,24 +10,22 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
-import { InviteState } from '../../../../social/services/InviteService'
-import { PartyService, PartyState } from '../../../../social/services/PartyService'
-import { AuthState } from '../../../services/AuthService'
+import { PartyService, usePartyState } from '../../../../social/services/PartyService'
+import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
 export const usePartyMenuHooks = () => {
-  const token = useHookstate('')
-  const isInviteOpen = useHookstate(false)
-  const isDeleteConfirmOpen = useHookstate(false)
-  const partyState = useHookstate(getMutableState(PartyState))
-  const selfUser = useHookstate(getMutableState(AuthState).user)
+  const [token, setToken] = React.useState('')
+  const [isInviteOpen, setInviteOpen] = React.useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = React.useState(false)
+  const partyState = usePartyState()
+  const selfUser = useAuthState().user
 
   const isOwned = partyState.isOwned?.value
 
@@ -35,8 +33,7 @@ export const usePartyMenuHooks = () => {
     PartyService.createParty()
   }
 
-  const kickUser = (userId?: UserId) => {
-    if (!userId) return
+  const kickUser = (userId: UserId) => {
     const partyUser = partyState.party?.partyUsers?.value
       ? partyState.party.partyUsers.value.find((partyUser) => {
           return partyUser.userId === userId
@@ -46,7 +43,7 @@ export const usePartyMenuHooks = () => {
   }
 
   const handleChangeToken = (e) => {
-    token.set(e.target.value)
+    setToken(e.target.value)
   }
 
   const deleteParty = (partyId: string) => {
@@ -54,11 +51,11 @@ export const usePartyMenuHooks = () => {
   }
 
   const sendInvite = async (): Promise<void> => {
-    const isEmail = emailRegex.test(token.value)
-    const isPhone = phoneRegex.test(token.value)
+    const isEmail = emailRegex.test(token)
+    const isPhone = phoneRegex.test(token)
     const sendData = {
       inviteType: 'party',
-      token: token.value,
+      token,
       inviteCode: null,
       identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
       targetObjectId: partyState.party.id.value,
@@ -69,18 +66,20 @@ export const usePartyMenuHooks = () => {
     } as SendInvite
 
     InviteService.sendInvite(sendData)
-    token.set('')
-    isInviteOpen.set(false)
+    setToken('')
+    setInviteOpen(false)
   }
 
   return {
     createParty,
     kickUser,
-    token: token.value,
+    token,
     handleChangeToken,
     sendInvite,
     isInviteOpen,
+    setInviteOpen,
     isDeleteConfirmOpen,
+    setIsDeleteConfirmOpen,
     deleteParty,
     isOwned,
     selfUser
@@ -89,7 +88,7 @@ export const usePartyMenuHooks = () => {
 
 const PartyMenu = (): JSX.Element => {
   const { t } = useTranslation()
-  const partyState = useHookstate(getMutableState(PartyState))
+  const partyState = usePartyState()
 
   const {
     createParty,
@@ -98,7 +97,9 @@ const PartyMenu = (): JSX.Element => {
     handleChangeToken,
     sendInvite,
     isInviteOpen,
+    setInviteOpen,
     isDeleteConfirmOpen,
+    setIsDeleteConfirmOpen,
     deleteParty,
     isOwned,
     selfUser
@@ -113,21 +114,21 @@ const PartyMenu = (): JSX.Element => {
   }
 
   const renderUser = () => {
-    return partyState.party.partyUsers.get({ noproxy: true })?.map((user, i) => {
+    return partyState.party.partyUsers.value?.map((user, i) => {
       return (
         <Box key={i} display="flex" alignItems="center" mb={2} gap={1}>
-          <Avatar imageSrc={user.user?.avatar?.thumbnailResource?.LOD0_url} size={50} />
+          <Avatar imageSrc={user.user.static_resources && user.user.static_resources[0].url} size={50} />
 
-          <Text>{user.user?.name}</Text>
+          <Text>{user.user.name}</Text>
 
-          {user.isOwner && <CrownIcon sx={{ height: '22px', width: '22px', mt: -0.5 }} />}
+          <CrownIcon sx={{ height: '22px', width: '22px', mt: -0.5 }} />
 
           <Box flex={1} />
 
-          {user.user?.id === selfUser.id.value ? (
+          {user.user.id === selfUser.id.value ? (
             <Text variant="body2">{t('user:usermenu.party.you')}</Text>
-          ) : partyState.isOwned.value && user.user ? (
-            <Text color="red" variant="body2" onClick={() => kickUser(user.user?.id)}>
+          ) : partyState.isOwned.value ? (
+            <Text color="red" variant="body2" onClick={() => kickUser(user.user.id)}>
               {t('user:usermenu.party.kick')}
             </Text>
           ) : null}
@@ -154,7 +155,7 @@ const PartyMenu = (): JSX.Element => {
   const renderUserButtons = () => {
     return (
       <Box flex={1}>
-        {isInviteOpen.value && (
+        {isInviteOpen && (
           <InputText
             endIcon={<Icon type="Send" />}
             placeholder={t('user:usermenu.share.ph-phoneEmail')}
@@ -163,7 +164,7 @@ const PartyMenu = (): JSX.Element => {
             value={token}
             onChange={(e) => handleChangeToken(e)}
             onEndIconClick={sendInvite}
-            onStartIconClick={() => isInviteOpen.set(false)}
+            onStartIconClick={() => setInviteOpen(false)}
           />
         )}
 
@@ -172,27 +173,27 @@ const PartyMenu = (): JSX.Element => {
             {t('user:usermenu.party.leave')}
           </Button>
           {isOwned && (
-            <Button fullWidth type="gradientRounded" onClick={() => isInviteOpen.set(!isInviteOpen.value)}>
+            <Button fullWidth type="gradientRounded" onClick={() => setInviteOpen(!isInviteOpen)}>
               {t('user:usermenu.party.invite')}
             </Button>
           )}
         </Box>
 
         {isOwned && (
-          <Button fullWidth type="gradientRounded" onClick={() => isDeleteConfirmOpen.set(true)}>
+          <Button fullWidth type="gradientRounded" onClick={() => setIsDeleteConfirmOpen(true)}>
             {t('user:common.delete')}
           </Button>
         )}
 
-        {isDeleteConfirmOpen.value && (
+        {isDeleteConfirmOpen && (
           <ConfirmDialog
             open
             description={t('user:usermenu.party.deleteConfirmation')}
             submitButtonText={t('user:common.delete')}
-            onClose={() => isDeleteConfirmOpen.set(false)}
+            onClose={() => setIsDeleteConfirmOpen(false)}
             onSubmit={() => {
               deleteParty(partyState.party.id.value)
-              isDeleteConfirmOpen.set(false)
+              setIsDeleteConfirmOpen(false)
             }}
           />
         )}

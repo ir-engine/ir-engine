@@ -20,7 +20,7 @@ import {
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'

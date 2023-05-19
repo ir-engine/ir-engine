@@ -14,7 +14,8 @@ const Tooltip = ({ children, ...props }: TooltipProps) => (
 Tooltip.displayName = 'Tooltip'
 
 Tooltip.defaultProps = {
-  children: <IconButton icon={<Icon type="Menu" />} />
+  children: <IconButton icon={<Icon type="Menu" />} />,
+  title: 'Tooltip'
 }
 
 export default Tooltip

@@ -1,4 +1,4 @@
-import { createState, useHookstate, useState } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -12,7 +12,7 @@ import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useAuthState } from '../../../user/services/AuthService'
 import { EmoteIcon } from '../../../user/UserUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
@@ -29,9 +29,7 @@ const LocationMenuView = () => {
   const { t } = useTranslation()
   const xrState = useState(getMutableState(XRState))
 
-  const isAdmin = useHookstate(getMutableState(AuthState)).user?.scopes?.value?.find(
-    (scope) => scope.type === 'admin:admin'
-  )
+  const isAdmin = useAuthState().user?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
   const handleStartXRSession = () => {
     if (!xrState.sessionActive.value) {

@@ -5,13 +5,12 @@ import { act } from 'react-dom/test-utils'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { getMutableState } from '@etherealengine/hyperflux'
 
 import { InstanceChat } from '.'
 import { createDOM } from '../../../tests/createDOM'
 import { createMockAPI } from '../../../tests/createMockAPI'
 import { API } from '../../API'
-import { ChatState } from '../../social/services/ChatService'
+import { accessChatState } from '../../social/services/ChatService'
 
 describe('Instance Chat Component', () => {
   let rootContainer: HTMLDivElement
@@ -30,7 +29,7 @@ describe('Instance Chat Component', () => {
   })
 
   it('displays chat message', async () => {
-    getMutableState(ChatState).channels.channels.set([
+    accessChatState().channels.channels.set([
       {
         id: 'id',
         channelType: 'instance',

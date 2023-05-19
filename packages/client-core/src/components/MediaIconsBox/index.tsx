@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { useMediaInstanceConnectionState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useLocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   toggleMicrophonePaused,
   toggleScreenshare,
@@ -12,7 +12,6 @@ import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -24,15 +23,13 @@ import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
   const location = useLocation()
-  const hasAudioDevice = useHookstate(false)
-  const hasVideoDevice = useHookstate(false)
+  const [hasAudioDevice, setHasAudioDevice] = useState(0)
+  const [hasVideoDevice, setHasVideoDevice] = useState(0)
   const { topShelfStyle } = useShelfStyles()
 
-  const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
-  const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
-  const networkState = useHookstate(getMutableState(NetworkState))
+  const currentLocation = useLocationState().currentLocation.location
+  const channelConnectionState = useMediaInstanceConnectionState()
   const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaNetworkReady = networkState.networks[mediaHostId]?.ready?.value
   const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
@@ -58,8 +55,8 @@ export const MediaIconsBox = () => {
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => {
-        hasAudioDevice.set(devices.filter((device) => device.kind === 'audioinput').length > 0)
-        hasVideoDevice.set(devices.filter((device) => device.kind === 'videoinput').length > 0)
+        setHasAudioDevice(devices.filter((device) => device.kind === 'audioinput').length)
+        setHasVideoDevice(devices.filter((device) => device.kind === 'videoinput').length)
       })
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
@@ -70,8 +67,8 @@ export const MediaIconsBox = () => {
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
       {audioEnabled &&
-      hasAudioDevice.value &&
-      mediaNetworkReady &&
+      hasAudioDevice &&
+      Engine.instance.mediaNetwork &&
       currentChannelInstanceConnection?.connected.value ? (
         <button
           type="button"
@@ -85,8 +82,8 @@ export const MediaIconsBox = () => {
         </button>
       ) : null}
       {videoEnabled &&
-      hasVideoDevice.value &&
-      mediaNetworkReady &&
+      hasVideoDevice &&
+      Engine.instance.mediaNetwork &&
       currentChannelInstanceConnection?.connected.value ? (
         <>
           <button
@@ -99,7 +96,7 @@ export const MediaIconsBox = () => {
           >
             <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
           </button>
-          {isCamVideoEnabled && hasVideoDevice.value && (
+          {isCamVideoEnabled && hasVideoDevice > 1 && (
             <button
               type="button"
               id="FlipVideo"

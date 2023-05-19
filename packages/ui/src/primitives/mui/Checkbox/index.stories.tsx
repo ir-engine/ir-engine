@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Checkbox from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
   title: 'Primitives/MUI/Checkbox',
-  component: Checkbox,
+  component: Component,
   parameters: {
     componentSubtitle: 'Checkbox',
     jest: 'Checkbox.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof Checkbox>
+}
 
-const Template: ComponentStory<typeof Checkbox> = (args) => <Checkbox {...args} />
-
-export const Default = Template.bind({})
-Default.args = Checkbox.defaultProps
+export const Primary = { args: Component.defaultProps }
