@@ -19,7 +19,12 @@ npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
 npm run install-projects >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
 test -s project-install-build-error.txt && npm run record-build-error -- --service=project-install
+npm run create-root-package-json
+mv package.json package.jsonmoved
+mv package-root-build.json package.json
 npm install
+rm package.json
+mv package.jsonmoved package.json
 npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
 cd packages/client && npm run buildenv >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
@@ -44,12 +49,8 @@ mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-ROOT_START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL root $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >root-build-logs.txt 2>root-build-error.txt
-ROOT_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 npm run record-build-error -- --service=root --isDocker=true
-
-echo "Started root build at $ROOT_START_TIME, ended at $ROOT_END_TIME"
 
 npm install -g cli aws-sdk
 

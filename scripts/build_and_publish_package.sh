@@ -106,7 +106,7 @@ else
 fi
 
 BUILD_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
-echo "Ending ${PACKAGE} build at ${BUILD_END_TIME}"
+echo "Ending ${PACKAGE} build at ${BUILD_END_TIME}, start time was ${BUILD_START_TIME}"
 # cache links to use once ECR supports cache manifests
 #  --cache-to type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE_cache,mode=max \
 #  --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE_cache
