@@ -11,7 +11,7 @@ const PORT = process.env.HOST_PORT || 3000;
 const HTTPS = process.env.VITE_LOCAL_BUILD ?? false;
 
 app.use(serve(join(packageRoot, 'packages', 'client', 'dist'), {
-  gzip: true,
+  brotli: true,
   setHeaders: (res) => {
     res.set('Origin-Agent-Cluster', '?1')
   }

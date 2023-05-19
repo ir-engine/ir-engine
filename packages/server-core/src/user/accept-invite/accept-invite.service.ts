@@ -25,7 +25,7 @@ declare module '@etherealengine/common/declarations' {
  */
 async function redirect(ctx, next) {
   try {
-    const { data } = ctx.res
+    const data = ctx.body
     if (data.error) {
       ctx.redirect(`${config.client.url}/?error=${data.error as string}`)
     } else {

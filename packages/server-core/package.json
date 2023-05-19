@@ -83,7 +83,6 @@
     "ipfs-http-client": "^56.0.3",
     "jszip": "^3.10.1",
     "knex": "2.4.2",
-    "koa": "^2.14.2",
     "koa-cors": "^0.0.16",
     "koa-compress": "^5.1.1",
     "koa-helmet": "^7.0.2",

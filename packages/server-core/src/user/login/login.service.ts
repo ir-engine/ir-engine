@@ -1,7 +1,4 @@
 // Initializes the `login` service on path `/login`
-
-import { Context } from 'koa'
-
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
