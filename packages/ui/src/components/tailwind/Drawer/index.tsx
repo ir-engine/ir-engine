@@ -15,6 +15,9 @@ const Drawer = ({ children, settings }: { children: ReactNode; settings: ReactNo
 
 Drawer.displayName = 'Drawer'
 
-Drawer.defaultProps = {}
+Drawer.defaultProps = {
+  children: <div>Drawer</div>,
+  settings: <div>Settings</div>
+}
 
 export default Drawer

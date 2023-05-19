@@ -8,7 +8,7 @@ import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { createState, useHookstate } from '@etherealengine/hyperflux'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'

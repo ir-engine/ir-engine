@@ -1,9 +1,9 @@
-import { expect } from '@jest/globals'
+import { describe, expect, it } from '@jest/globals'
 import { shallow } from 'enzyme'
 import React from 'react'
 
 import ThemeSwitcher from './index'
-import { Default as story } from './index.stories'
+import { Primary as story } from './index.stories'
 
 describe('ThemeSwitcher', () => {
   it('- should render', () => {

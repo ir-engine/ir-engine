@@ -65,4 +65,11 @@ const RecordingsList = ({ startPlayback, stopPlayback, recordingState }) => {
   )
 }
 
+RecordingsList.displayName = 'RecordingsList'
+RecordingsList.defaultProps = {
+  startPlayback: () => {},
+  stopPlayback: () => {},
+  recordingState: {}
+}
+
 export default RecordingsList

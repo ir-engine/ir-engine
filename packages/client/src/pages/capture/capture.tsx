@@ -15,7 +15,7 @@ import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functi
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import CaptureUI from '@etherealengine/ui/src/components/tailwind/Capture'
+import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
 const startCaptureSystems = () => {
   startSystem(MotionCaptureSystem, { with: InputSystemGroup })
