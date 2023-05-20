@@ -4,15 +4,16 @@ import { useTranslation } from 'react-i18next'
 
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { getMutableState } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { recordingColumns } from '../../common/variables/recording'
 import { AdminRecordingService, AdminRecordingState, RECORDING_PAGE_LIMIT } from '../../services/RecordingService'
 import styles from '../../styles/admin.module.scss'
+import RecordingFilesDrawer from './RecordingsDrawer'
 
 const RecordingsTable = () => {
   const page = useHookstate(0)
@@ -21,9 +22,10 @@ const RecordingsTable = () => {
   const sortField = useHookstate('createdAt')
   const openConfirm = useHookstate(false)
   const currentRecordingId = useHookstate<string | null>(null)
+  const recordingResourcesDrawerOpen = useHookstate<boolean>(false)
   const { t } = useTranslation()
 
-  const handlePageChange = (event: unknown, newPage: number) => {
+  const handlePageChange = (_event: unknown, newPage: number) => {
     page.set(newPage)
   }
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,10 +36,10 @@ const RecordingsTable = () => {
   const adminRecordingsState = useHookstate(getMutableState(AdminRecordingState))
 
   useEffect(() => {
-    if (adminRecordingsState.updateNeeded) {
+    if (adminRecordingsState.updateNeeded.value) {
       AdminRecordingService.fetchAdminRecordings(null, page.value, sortField.value, fieldOrder.value, rowsPerPage.value)
     }
-  }, [page.value, sortField.value, fieldOrder.value, rowsPerPage.value, adminRecordingsState.updateNeeded])
+  }, [page.value, sortField.value, fieldOrder.value, rowsPerPage.value, adminRecordingsState.updateNeeded.value])
 
   const handleSubmitRemove = () => {
     if (currentRecordingId.value) {
@@ -53,7 +55,17 @@ const RecordingsTable = () => {
     user,
     ended: ended ? t('admin:components.common.yes') : t('admin:components.common.no'),
     schema,
-    view: <IconButton className={styles.iconButton} name="view" onClick={() => {}} icon={<Icon type="Visibility" />} />,
+    view: (
+      <IconButton
+        className={styles.iconButton}
+        name="view"
+        onClick={() => {
+          currentRecordingId.set(id)
+          recordingResourcesDrawerOpen.set(true)
+        }}
+        icon={<Icon type="Visibility" />}
+      />
+    ),
     action: (
       <IconButton
         className={styles.iconButton}
@@ -92,11 +104,14 @@ const RecordingsTable = () => {
         onClose={() => openConfirm.set(false)}
         onSubmit={handleSubmitRemove}
       />
-      {/* <InstanceDrawer
-        open={openInstanceDrawer.value}
-        selectedInstance={instanceAdmin.value}
-        onClose={() => openInstanceDrawer.set(false)}
-      /> */}
+      <RecordingFilesDrawer
+        open={recordingResourcesDrawerOpen.value}
+        selectedRecordingId={currentRecordingId.value}
+        onClose={() => {
+          recordingResourcesDrawerOpen.set(false)
+          currentRecordingId.set(null)
+        }}
+      />
     </Box>
   )
 }

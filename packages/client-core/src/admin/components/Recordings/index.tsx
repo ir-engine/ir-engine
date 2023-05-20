@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Grid from '@etherealengine/ui/src/Grid'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'

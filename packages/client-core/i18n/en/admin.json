@@ -447,7 +447,8 @@
     },
     "recording": {
       "recording": "Recording",
-      "confirmRecordingDelete": "Do you want to delete recording"
+      "confirmRecordingDelete": "Do you want to delete recording",
+      "recordingFiles": "Recordings Files for:"
     }
   }
 }

@@ -77,6 +77,7 @@ type FileBrowserContentPanelProps = {
   onSelectionChanged: (AssetSelectionChangePropsType) => void
   disableDnD?: boolean
   selectedFile?: string
+  folderName?: string
 }
 
 type DnDFileType = {
@@ -99,7 +100,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const anchorPosition = useHookstate<undefined | PopoverPosition>(undefined)
   const open = Boolean(anchorEl.value)
   const isLoading = useState(true)
-  const selectedDirectory = useState(`/projects/${props.selectedFile ? props.selectedFile + '/' : ''}`)
+  const selectedDirectory = useState(
+    `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
+  )
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
   const { skip, total, retrieving } = fileState.value

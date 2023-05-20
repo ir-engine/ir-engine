@@ -7,7 +7,6 @@ import { defineAction, defineState, dispatchAction, getMutableState } from '@eth
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { AuthState } from '../../user/services/AuthService'
 
 type RecordingResultFetch = RecordingResult & { 'user.name': string }
 
@@ -54,13 +53,12 @@ export const AdminRecordingReceptors = {
 //Service
 export const AdminRecordingService = {
   fetchAdminRecordings: async (
-    value: string | null = null,
+    _value: string | null = null,
     $skip = 0,
     sortField = 'createdAt',
     orderBy = 'asc',
     $limit = RECORDING_PAGE_LIMIT
   ) => {
-    const user = getMutableState(AuthState).user
     try {
       let $sort = {}
       if (sortField.length > 0) {
@@ -99,12 +97,44 @@ export const AdminRecordingService = {
 
 export class AdminRecordingsActions {
   static recordingsRetrieved = defineAction({
-    type: 'ee.client.AdminInstance.RECORDINGS_RETRIEVED',
+    type: 'ee.client.AdminRecording.RECORDINGS_RETRIEVED',
     recordingsResult: matches.object as Validator<unknown, Paginated<RecordingResultFetch>>
   })
 
   static recordingsRemoved = defineAction({
-    type: 'ee.client.AdminInstance.RECORDING_REMOVED_ROW',
+    type: 'ee.client.AdminRecording.RECORDING_REMOVED_ROW',
     recording: matches.object as Validator<unknown, RecordingResult>
   })
+}
+
+export const AdminSingleRecordingState = defineState({
+  name: 'AdminSingleRecordingState',
+  initial: () => ({
+    recording: null as RecordingResult | null
+  })
+})
+
+export const AdminSingleRecordingService = {
+  fetchSingleAdminRecording: async (id: RecordingResult['id']) => {
+    const recording = await API.instance.client.service('recording').get(id)
+    dispatchAction(AdminSingleRecordingsActions.recordingsRetrieved({ recording }))
+  }
+}
+
+export class AdminSingleRecordingsActions {
+  static recordingsRetrieved = defineAction({
+    type: 'ee.client.AdminSingleRecording.RECORDING_RETRIEVED',
+    recording: matches.object as Validator<unknown, RecordingResult>
+  })
+}
+
+const singleRecordingFetchedReceptor = (
+  action: typeof AdminSingleRecordingsActions.recordingsRetrieved.matches._TYPE
+) => {
+  const state = getMutableState(AdminSingleRecordingState)
+  return state.merge({ recording: action.recording })
+}
+
+export const AdminSingleRecordingReceptors = {
+  singleRecordingFetchedReceptor
 }
