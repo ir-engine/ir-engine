@@ -6,7 +6,7 @@ import path from "path";
 import fs from "fs";
 import appRootPath from 'app-root-path'
 import logger from '@etherealengine/server-core/src/ServerLogger'
-import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
 
@@ -26,7 +26,7 @@ db.url = process.env.MYSQL_URL ??
 
 async function installAllProjects() {
   try {
-    const app = createFeathersExpressApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
     createDefaultStorageProvider()
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')
