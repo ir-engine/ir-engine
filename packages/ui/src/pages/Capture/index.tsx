@@ -151,12 +151,12 @@ const CaptureDashboard = () => {
 
         const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
 
-        sendResults(poseLandmarks)
-        // sendResults(faceLandmarks)
-        // sendResults({
-        // ...(leftHandLandmarks !== undefined ? leftHandLandmarks : []),
-        // ...(rightHandLandmarks !== undefined ? rightHandLandmarks : [])
-        // })
+        /**
+         * Holistic model currently has no export for poseWorldLandmarks, instead as za (likely to change for new builds of the package)
+         * See https://github.com/google/mediapipe/issues/3155
+         */
+        //@ts-ignore
+        sendResults(results.za)
 
         processingFrame.set(false)
 
