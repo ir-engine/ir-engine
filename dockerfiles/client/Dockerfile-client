@@ -79,5 +79,5 @@ WORKDIR /app
 COPY --from=builder /app/packages/client ./packages/client
 COPY --from=builder /app/scripts ./scripts
 
-RUN npm install koa app-root-path koa-static
+RUN npm install app-root-path koa koa-body koa-qs koa-static
 CMD ["scripts/start-server.sh"]

@@ -1,6 +1,6 @@
 const { join } = require('path');
 const { readFileSync } = require('fs');
-const Koa = require('@feathersjs/koa');
+const koa = require('koa');
 const serve = require('koa-static');
 const sendFile = require('koa-send')
 const { path: packageRoot } = require('app-root-path');
@@ -8,7 +8,7 @@ const { createServer } = require('https');
 const { createServer: _createServer } = require('http');
 
 
-const app = new Koa.koa();
+const app = new koa();
 const PORT = process.env.HOST_PORT || 3000;
 const HTTPS = process.env.VITE_LOCAL_BUILD ?? false;
 
