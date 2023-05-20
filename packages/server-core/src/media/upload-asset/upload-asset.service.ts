@@ -27,7 +27,7 @@ import { getStorageProvider } from '../storageprovider/storageprovider'
 import { videoUpload } from '../video/video-upload.helper'
 import hooks from './upload-asset.hooks'
 
-const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity } })
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
