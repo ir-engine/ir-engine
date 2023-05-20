@@ -8,9 +8,9 @@ import {
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/Button'
-import Container from '@etherealengine/ui/src/Container'
-import DialogActions from '@etherealengine/ui/src/DialogActions'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'

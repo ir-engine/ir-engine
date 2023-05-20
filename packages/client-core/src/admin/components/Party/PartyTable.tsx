@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { Party } from '@etherealengine/common/src/interfaces/Party'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'

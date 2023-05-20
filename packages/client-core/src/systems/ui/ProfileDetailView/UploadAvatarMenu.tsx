@@ -20,7 +20,7 @@ import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/C
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { loadAvatarForPreview, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'

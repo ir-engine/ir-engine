@@ -103,10 +103,6 @@ function RouterComp() {
       return routesReady.set(true)
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
-  if (!(Engine.instance.api as FeathersClient).authentication?.authenticated) {
-    return <LoadingCircle message={t('common:loader.authenticating')} />
-  }
-
   if (!routesReady.value) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }

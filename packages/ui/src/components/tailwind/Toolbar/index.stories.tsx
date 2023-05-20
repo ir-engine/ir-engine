@@ -1,25 +1,18 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import Drawer from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
-  title: 'Primatives/Tailwind/Drawer',
-  component: Drawer,
+  title: 'Primitives/Tailwind/Toolbar',
+  component: Component,
   parameters: {
-    componentSubtitle: 'Drawer',
-    jest: 'Drawer.test.tsx',
+    componentSubtitle: 'Toolbar',
+    jest: 'Toolbar.test.tsx',
     design: {
       type: 'figma',
       url: ''
     }
   },
   argTypes
-} as ComponentMeta<typeof Drawer>
-
-const Template: ComponentStory<typeof Drawer> = (args) => <Drawer {...args} />
-
-export const Default = Template.bind({})
-Default.args = Drawer.defaultProps
+}
+export const Primary = { args: Component.defaultProps }

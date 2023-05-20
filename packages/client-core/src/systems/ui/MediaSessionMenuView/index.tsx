@@ -5,7 +5,7 @@ import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
 import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import {

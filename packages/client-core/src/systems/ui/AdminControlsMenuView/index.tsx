@@ -3,7 +3,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'

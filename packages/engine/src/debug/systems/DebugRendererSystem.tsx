@@ -21,7 +21,12 @@ import { RaycastArgs } from '../../physics/classes/Physics'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
-import { createGroupQueryReactor, GroupComponent } from '../../scene/components/GroupComponent'
+import {
+  createGroupQueryReactor,
+  GroupComponent,
+  GroupQueryReactor,
+  GroupReactorProps
+} from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -42,14 +47,15 @@ const sceneLoadQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const visualizers = [] as MeshBVHVisualizer[]
 
-const DebugReactor = createGroupQueryReactor(function DebugReactor(props) {
-  const entity = props.entity
-  const group = useOptionalComponent(entity, GroupComponent)
+const DebugGroupChildReactor = (props: GroupReactorProps) => {
+  const obj = props.obj
   const debug = useHookstate(getMutableState(RendererState).debugEnable)
 
   // add MeshBVHVisualizer to meshes when debugEnable is true
   useEffect(() => {
-    const groupVisualizers = [] as MeshBVHVisualizer[]
+    if (!debug.value || !obj) return
+
+    const meshBVHVisualizers = [] as MeshBVHVisualizer[]
 
     function addMeshBVHVisualizer(obj: Mesh) {
       const mesh = obj as any as Mesh
@@ -57,7 +63,7 @@ const DebugReactor = createGroupQueryReactor(function DebugReactor(props) {
         const meshBVHVisualizer = new MeshBVHVisualizer(mesh)
         mesh.parent!.add(meshBVHVisualizer)
         visualizers.push(meshBVHVisualizer)
-        groupVisualizers.push(meshBVHVisualizer)
+        meshBVHVisualizers.push(meshBVHVisualizer)
         meshBVHVisualizer.depth = 20
         meshBVHVisualizer.displayParents = false
         meshBVHVisualizer.update()
@@ -65,19 +71,18 @@ const DebugReactor = createGroupQueryReactor(function DebugReactor(props) {
       }
     }
 
-    if (debug.value && group) {
-      for (const obj of group.value) obj.traverse(addMeshBVHVisualizer)
-      return () => {
-        for (const visualizer of groupVisualizers) {
-          visualizer.removeFromParent()
-          visualizers.splice(visualizers.indexOf(visualizer), 1)
-        }
+    obj.traverse(addMeshBVHVisualizer)
+
+    return () => {
+      for (const visualizer of meshBVHVisualizers) {
+        visualizer.removeFromParent()
+        visualizers.splice(visualizers.indexOf(visualizer), 1)
       }
     }
-  }, [group, debug])
+  }, [obj, debug])
 
   return null
-})
+}
 
 const execute = () => {
   const _enabled = getState(RendererState).debugEnable
@@ -146,7 +151,8 @@ const reactor = () => {
       InfiniteGridHelper.instance = null!
     }
   }, [])
-  return <DebugReactor />
+
+  return <GroupQueryReactor GroupChildReactor={DebugGroupChildReactor} />
 }
 
 export const DebugRendererSystem = defineSystem({
