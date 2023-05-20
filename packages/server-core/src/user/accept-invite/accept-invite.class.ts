@@ -51,7 +51,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
   async get(id: Id, params?: AcceptInviteParams): Promise<Data> {
     let inviteeIdentityProvider
-    let returned = {} as any
+    const returned = {} as any
     if (!params) params = {}
     if (params.query?.t) {
       params.query.passcode = params.query.t

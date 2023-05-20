@@ -1,18 +1,19 @@
 // Do not delete json and urlencoded, they are used even if some IDEs show them as unused
-import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
+
 import { feathers } from '@feathersjs/feathers'
+import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
 import * as k8s from '@kubernetes/client-node'
-import compress from 'compression'
-import cors from 'cors'
 import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import { parse, stringify } from 'flatted'
-import helmet from 'helmet'
+import compress from 'koa-compress'
+import cors from 'koa-cors'
+import helmet from 'koa-helmet'
+import healthcheck from 'koa-simple-healthcheck'
 import path from 'path'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -26,12 +27,13 @@ import config from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
 import sequelize from './sequelize'
-import { elasticOnlyLogger, logger } from './ServerLogger'
+import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('fix-esm').register()
 
 export const configureOpenAPI = () => (app: Application) => {
@@ -137,7 +139,7 @@ export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureR
   app: Application
 ) => Application
 
-export const createFeathersExpressApp = (
+export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
@@ -153,8 +155,7 @@ export const createFeathersExpressApp = (
     initializeNode()
   }
 
-  const app = express(feathers()) as Application
-
+  const app = koa(feathers()) as Application
   Engine.instance.api = app
 
   const serverState = getMutableState(ServerState)
@@ -172,9 +173,14 @@ export const createFeathersExpressApp = (
 
   app.set('paginate', appConfig.server.paginate)
   app.set('authentication', appConfig.authentication)
-
+  app.use(healthcheck())
+  app.use(
+    cors({
+      origin: '*',
+      credentials: true
+    })
+  )
   configurationPipe(app)
-
   // Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
   // Doesn't appear anything else uses it.
   app.set('env', 'production')
@@ -182,17 +188,11 @@ export const createFeathersExpressApp = (
   app.configure(sequelize)
 
   // Enable security, CORS, compression, favicon and body parsing
+  app.use(errorHandler()) // in koa no option to pass logger object its a async function instead and must be set first
   app.use(helmet())
-  app.use(
-    cors({
-      origin: true,
-      credentials: true
-    }) as any
-  )
 
   app.use(compress())
-  app.use(json())
-  app.use(urlencoded({ extended: true }))
+  app.use(bodyParser())
 
   app.configure(rest())
   // app.use(function (req, res, next) {
@@ -208,19 +208,6 @@ export const createFeathersExpressApp = (
 
   // Set up our services (see `services/index.js`)
   app.configure(services)
-
-  app.use('/healthcheck', (req, res) => {
-    res.sendStatus(200)
-  })
-
-  // Receive client-side log events (only active when APP_ENV != 'development')
-  app.post('/api/log', (req, res) => {
-    const { msg, ...mergeObject } = req.body
-    if (!isDev) elasticOnlyLogger.info({ user: req.params?.user, ...mergeObject }, msg)
-    return res.status(204).send()
-  })
-
-  app.use(errorHandler({ logger }))
 
   return app
 }

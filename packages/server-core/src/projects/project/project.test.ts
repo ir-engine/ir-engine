@@ -5,7 +5,7 @@ import path from 'path'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const newProjectName = 'ProjectTest_test_project_name'
@@ -22,7 +22,7 @@ const cleanup = async (app: Application) => {
 
 /**
  * @todo
- * - refactor storage provider to be create as part of createFeathersExpressApp() to eliminate global scope
+ * - refactor storage provider to be create as part of createFeathersKoaApp() to eliminate global scope
  * - use this to force a local storage provider and test specific files in the upload folder
  * - add tests for all combinations of state for projects
  *
@@ -32,7 +32,7 @@ const cleanup = async (app: Application) => {
 describe('project.test', () => {
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
   })

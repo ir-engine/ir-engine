@@ -1,4 +1,4 @@
-import { Application } from '@feathersjs/express/lib'
+import { Application } from '@feathersjs/koa/lib'
 import {
   Accessor,
   BufferUtils,

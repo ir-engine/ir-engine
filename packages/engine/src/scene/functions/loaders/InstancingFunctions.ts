@@ -418,7 +418,7 @@ export async function stageInstancing(entity: Entity) {
   const transforms: number[] = []
   const surfaceUVs: number[] = []
   if ([SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling)) {
-    await loadSampleTextures(scatterState.sampleProperties)
+    await loadSampleTextures(scatterState.sampleProperties as unknown as State<SampleProperties>)
   }
 
   let props = scatter.sourceProperties
