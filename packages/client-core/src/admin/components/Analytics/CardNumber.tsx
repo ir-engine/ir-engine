@@ -1,8 +1,8 @@
 import React from 'react'
 
-import Card from '@etherealengine/ui/src/Card'
-import CardContent from '@etherealengine/ui/src/CardContent'
-import Typography from '@etherealengine/ui/src/Typography'
+import Card from '@etherealengine/ui/src/primitives/mui/Card'
+import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import styles from '../../styles/admin.module.scss'
 

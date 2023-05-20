@@ -50,6 +50,7 @@
     "create-root-package-json": "cross-env ts-node --swc scripts/create-root-package-json",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
     "dev": "npm run dev-docker && concurrently -n agones,server,client,taskserver npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver",
+    "dev-noclient": "npm run dev-docker && concurrently -n agones,server,taskserver npm:dev-agones-silent npm:dev-server npm:dev-taskserver",
     "dev-agones": "cd scripts && ./start-agones.sh",
     "dev-agones-silent": "npm run dev-agones &> /dev/null",
     "dev-client": "cd packages/client && npm run dev",

@@ -3,31 +3,6 @@ import React from 'react'
 
 import ThemeSwitcher from '@etherealengine/ui/src/components/tailwind/ThemeSwitcher'
 
-// const Header = (props: any) => {
-//   return (
-//     <div className="navbar bg-base-100 w-full">
-//       <div className="flex-none w-full">
-//         <h1 className="w-full whitespace-nowrap">Capture Pose</h1>
-//       </div>
-//       <div className="flex-1" />
-//       <div className="navbar-end w-full">
-//         <ThemeSwitcher />
-//         <label htmlFor="capture-drawer" className="drawer-button">
-//           <CogIcon className="w-6 h-6" />
-//           Settings
-//         </label>
-//         {/* <Button
-//           className="drawer-button"
-//           icon={
-//             <FilmIcon className="h-full w-full mr-2" />
-//           }
-//           title="Recordings"
-//         /> */}
-//       </div>
-//     </div>
-//   )
-// }
-
 const Header = () => {
   return (
     <nav className="navbar w-full fixed">

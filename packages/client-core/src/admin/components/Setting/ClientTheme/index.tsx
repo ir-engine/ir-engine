@@ -8,7 +8,7 @@ import {
 } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { ThemeMode, ThemeSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/Button'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
 import { AuthState } from '../../../../user/services/AuthService'
 import { AdminClientSettingsState, ClientSettingService } from '../../../services/Setting/ClientSettingService'

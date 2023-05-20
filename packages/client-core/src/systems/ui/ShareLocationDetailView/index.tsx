@@ -7,7 +7,7 @@ import { isShareAvailable } from '@etherealengine/engine/src/common/functions/De
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { getMutableState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useShareMenuHooks } from '../../../user/components/UserMenu/menus/ShareMenu'
 import XRCheckboxButton from '../../components/XRCheckboxButton'

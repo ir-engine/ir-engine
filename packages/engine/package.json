@@ -38,7 +38,7 @@
     "@gltf-transform/extensions": "3.1.1",
     "@gltf-transform/functions": "3.1.1",
     "@hookstate/subscribable": "^4.0.0",
-    "@mediapipe/pose": "^0.5.1675469404",
+    "@mediapipe/holistic": "^0.5.1675471629",
     "@pixiv/three-vrm": "^1.0.9",
     "@tweenjs/tween.js": "^18.6.4",
     "@vladmandic/face-api": "^1.7.9",
