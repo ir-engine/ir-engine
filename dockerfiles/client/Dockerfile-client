@@ -79,6 +79,5 @@ WORKDIR /app
 COPY --from=builder /app/packages/client ./packages/client
 COPY --from=builder /app/scripts ./scripts
 
-RUN npm install express app-root-path express-static-gzip
-
+RUN npm install app-root-path koa koa-body koa-qs koa-static
 CMD ["scripts/start-server.sh"]
