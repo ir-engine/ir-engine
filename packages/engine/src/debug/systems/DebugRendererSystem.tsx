@@ -1,32 +1,16 @@
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, LineSegments, Mesh, Vector3 } from 'three'
 import { MeshBVHVisualizer } from 'three-mesh-bvh'
 
-import {
-  defineActionQueue,
-  getMutableState,
-  getState,
-  removeActionQueue,
-  startReactor,
-  useHookstate,
-  useReactorRootContext
-} from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
-import { useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RaycastArgs } from '../../physics/classes/Physics'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
-import {
-  createGroupQueryReactor,
-  GroupComponent,
-  GroupQueryReactor,
-  GroupReactorProps
-} from '../../scene/components/GroupComponent'
+import { GroupQueryReactor, GroupReactorProps } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -35,15 +19,12 @@ type RaycastDebugs = {
   hits: RaycastHit[]
 }
 
-let enabled = false
-
 const debugLines = new Set<Line<BufferGeometry, LineBasicMaterial>>()
 const debugLineLifetime = 1000 // 1 second
 
 const lineMaterial = new LineBasicMaterial({ vertexColors: true })
 const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
 _lineSegments.frustumCulled = false
-const sceneLoadQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const visualizers = [] as MeshBVHVisualizer[]
 
@@ -53,6 +34,7 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 
   // add MeshBVHVisualizer to meshes when debugEnable is true
   useEffect(() => {
+    console.log(debug.value, obj)
     if (!debug.value || !obj) return
 
     const meshBVHVisualizers = [] as MeshBVHVisualizer[]
@@ -81,16 +63,13 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
     }
   }, [obj, debug])
 
-  return null
+  return <></>
 }
 
 const execute = () => {
-  const _enabled = getState(RendererState).debugEnable
+  const enabled = getState(RendererState).debugEnable
 
-  if (enabled !== _enabled) {
-    enabled = _enabled
-    _lineSegments.visible = enabled
-  }
+  _lineSegments.visible = enabled
 
   if (enabled && Engine.instance.physicsWorld) {
     const debugRenderBuffer = Engine.instance.physicsWorld.debugRender()
@@ -146,7 +125,6 @@ const reactor = () => {
 
     return () => {
       _lineSegments.removeFromParent()
-      removeActionQueue(sceneLoadQueue)
       Engine.instance.scene.remove(InfiniteGridHelper.instance)
       InfiniteGridHelper.instance = null!
     }

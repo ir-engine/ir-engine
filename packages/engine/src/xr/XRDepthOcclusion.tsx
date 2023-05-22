@@ -7,24 +7,18 @@ import { useEffect } from 'react'
 import React from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import {
-  defineActionQueue,
-  getMutableState,
-  getState,
-  removeActionQueue,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
-import { defineQuery, removeQuery } from '../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { createGroupQueryReactor, GroupComponent } from '../scene/components/GroupComponent'
+import { GroupComponent, GroupQueryReactor } from '../scene/components/GroupComponent'
 import { SceneTagComponent } from '../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
-import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 import { XRCPUDepthInformation } from './XRTypes'
 
 const DepthOcclusionPluginID = 'DepthOcclusionPlugin'
@@ -242,30 +236,25 @@ const useDepthTextureDebug = false
 const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
 let depthSupported = false
 
-const DepthOcclusionReactor = createGroupQueryReactor(
-  function DepthOcclusionReactor({ obj }) {
-    const depthDataTexture = useHookstate(getMutableState(XRState).depthDataTexture)
+function DepthOcclusionReactor({ obj }) {
+  const depthDataTexture = useHookstate(getMutableState(XRState).depthDataTexture)
 
-    useEffect(() => {
+  useEffect(() => {
+    const mesh = obj as any as Mesh<any, Material>
+    if (depthDataTexture && depthSupported)
+      mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.addDepthOBCPlugin(o.material, depthDataTexture.value!))
+    else mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
+  }, [depthDataTexture])
+
+  useEffect(() => {
+    return () => {
       const mesh = obj as any as Mesh<any, Material>
-      if (depthDataTexture && depthSupported)
-        mesh.traverse((o: Mesh<any, Material>) =>
-          XRDepthOcclusion.addDepthOBCPlugin(o.material, depthDataTexture.value!)
-        )
-      else mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
-    }, [depthDataTexture])
+      mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
+    }
+  }, [])
 
-    useEffect(() => {
-      return () => {
-        const mesh = obj as any as Mesh<any, Material>
-        mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
-      }
-    }, [])
-
-    return null
-  },
-  [Not(SceneTagComponent), VisibleComponent]
-)
+  return null
+}
 
 const execute = () => {
   const xrFrame = Engine.instance.xrFrame as XRFrame & getDepthInformationType
@@ -287,7 +276,12 @@ const reactor = () => {
     }
   }, [xrState.sessionActive])
 
-  return <DepthOcclusionReactor />
+  return (
+    <GroupQueryReactor
+      GroupChildReactor={DepthOcclusionReactor}
+      Components={[Not(SceneTagComponent), VisibleComponent]}
+    />
+  )
 }
 
 export const XRDepthOcclusionSystem = defineSystem({

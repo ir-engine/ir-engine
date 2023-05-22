@@ -35,7 +35,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { createGroupQueryReactor, GroupComponent, Object3DWithEntity } from '../components/GroupComponent'
+import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
@@ -128,11 +128,6 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
   return null
 }
 
-/**
- * Group Reactor - responds to any changes in the
- */
-const GroupReactor = createGroupQueryReactor(SceneObjectReactor)
-
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const execute = () => {
@@ -161,7 +156,7 @@ const reactor = () => {
   useEffect(() => {
     Engine.instance.gltfLoader = createGLTFLoader()
   }, [])
-  return <GroupReactor />
+  return <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
 }
 
 export const SceneObjectSystem = defineSystem({
