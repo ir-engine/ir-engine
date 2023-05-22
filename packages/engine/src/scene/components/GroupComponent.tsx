@@ -100,7 +100,7 @@ export type GroupReactorProps = {
   obj: Object3DWithEntity
 }
 
-export const GroupReactor = (props: { GroupChildReactor: FC<GroupReactorProps> }) => {
+export const GroupReactor = memo((props: { GroupChildReactor: FC<GroupReactorProps> }) => {
   const entity = useEntityContext()
   const groupComponent = useComponent(entity, GroupComponent)
   return (
@@ -110,16 +110,15 @@ export const GroupReactor = (props: { GroupChildReactor: FC<GroupReactorProps> }
       ))}
     </>
   )
-}
+})
 
-export const GroupQueryReactor = (props: {
-  GroupChildReactor: FC<GroupReactorProps>
-  Components?: QueryComponents
-}) => {
-  return (
-    <QueryReactor
-      Components={[GroupComponent, ...(props.Components ?? [])]}
-      ChildEntityReactor={() => <GroupReactor GroupChildReactor={props.GroupChildReactor} />}
-    />
-  )
-}
+export const GroupQueryReactor = memo(
+  (props: { GroupChildReactor: FC<GroupReactorProps>; Components?: QueryComponents }) => {
+    return (
+      <QueryReactor
+        Components={[GroupComponent, ...(props.Components ?? [])]}
+        ChildEntityReactor={() => <GroupReactor GroupChildReactor={props.GroupChildReactor} />}
+      />
+    )
+  }
+)
