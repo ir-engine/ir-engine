@@ -7,7 +7,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 import { parseSceneDataCacheURLs } from './scene-parser'
@@ -28,7 +28,7 @@ describe('scene.test', () => {
   before(async () => {
     const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
     deleteFolderRecursive(projectDir)
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
     parsedData = Object.assign(

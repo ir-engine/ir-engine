@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import React, { createRef, useCallback, useEffect } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
@@ -7,7 +7,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 
-export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
+const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
   const fullScreenActive = useHookstate(false)
   const handle = useFullScreenHandle()
 
@@ -44,3 +44,10 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
     </FullscreenContext.Provider>
   )
 })
+
+FullscreenContainer.displayName = 'FullscreenContainer'
+
+FullscreenContainer.defaultProps = {
+  children: <div>FullscreenContainer</div>
+}
+export default FullscreenContainer

@@ -576,9 +576,6 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
-  const isResult = await serverState.agonesSDK.getGameServer()
-  const status = isResult.status as InstanceserverStatus
-
   /**
    * Since local environments do not have the ability to run multiple gameservers,
    * we need to shut down the current one if the user tries to load a new location
@@ -595,9 +592,12 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       locationId ?? channelId
     }`
   )
-  logger.info(`current room code: ${roomCode} and new id: ${instanceServerState.instance?.roomCode}`)
+  logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
+    await app.service('instance').patch(instanceServerState.instance.id, {
+      ended: true
+    })
     restartInstanceServer()
     return
   }
@@ -623,6 +623,9 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
    */
+  const isResult = await serverState.agonesSDK.getGameServer()
+  const status = isResult.status as InstanceserverStatus
+
   await createOrUpdateInstance(app, status, locationId, channelId, sceneId, userId)
 
   if (instanceServerState.instance) {

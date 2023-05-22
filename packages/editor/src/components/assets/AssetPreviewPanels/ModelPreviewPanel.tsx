@@ -1,15 +1,22 @@
 import React, { useEffect, useRef } from 'react'
+import { Mesh } from 'three'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { loadAvatarModelAsset } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import {
+  removeMaterialSource,
+  unregisterMaterial
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { State, useHookstate } from '@etherealengine/hyperflux'
 
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
   const loading = useHookstate(true)
+
   const error = useHookstate('')
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
@@ -34,6 +41,14 @@ export const ModelPreviewPanel = (props) => {
     }
 
     loadModel()
+
+    return () => {
+      const sceneVal = scene.value
+      const avatar = sceneVal.children.find((child) => child.name === 'avatar')
+      if (avatar) {
+        removeMaterialSource({ type: SourceType.MODEL, path: avatar.userData['src'] })
+      }
+    }
   }, [])
 
   return (

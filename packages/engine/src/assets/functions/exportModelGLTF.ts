@@ -26,7 +26,8 @@ export default async function exportModelGLTF(
       {
         ...options,
         animations: scene.animations ?? [],
-        flipY: scene.userData.src.endsWith('.usdz')
+        flipY: scene.userData.src.endsWith('.usdz'),
+        resourceURI: 'model-resources'
       }
     )
   })

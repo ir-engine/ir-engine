@@ -13,7 +13,7 @@ import {
   RandomColorJSON
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
-import Typography from '@etherealengine/ui/src/Typography'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Grid } from '@mui/material'
 

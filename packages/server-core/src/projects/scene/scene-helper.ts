@@ -1,5 +1,5 @@
+import koa from '@feathersjs/koa'
 import appRootPath from 'app-root-path'
-import express from 'express'
 import path from 'path'
 
 import config from '@etherealengine/common/src/config'
@@ -40,10 +40,12 @@ export const getPortal = (app: any) => {
 }
 
 export const getEnvMapBake = (app: any) => {
-  return async (req: express.Request, res: express.Response) => {
-    const envMapBake = await getEnvMapBakeById(app, req.params.entityId)
-
-    res.json(envMapBake)
+  return async (ctx: koa.FeathersKoaContext) => {
+    const envMapBake = await getEnvMapBakeById(app, ctx.params.entityId)
+    ctx.body = {
+      status: 'success',
+      json: envMapBake
+    }
   }
 }
 

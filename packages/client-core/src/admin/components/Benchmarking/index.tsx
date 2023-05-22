@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/Button'
-import Grid from '@etherealengine/ui/src/Grid'
-import Typography from '@etherealengine/ui/src/Typography'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { AdminTestBotState, TestBotService } from '../../services/TestBotService'
 import styles from '../../styles/admin.module.scss'

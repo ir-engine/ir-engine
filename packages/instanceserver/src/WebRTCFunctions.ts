@@ -948,7 +948,8 @@ export async function handleWebRtcCloseConsumer(
   if (consumer) {
     await closeConsumer(network, consumer)
   }
-  spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), data: { closed: true }, id: messageId })
+  // this is to reply to the request, which needs to be resolved
+  spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), id: messageId })
 }
 
 export async function handleWebRtcConsumerSetLayers(

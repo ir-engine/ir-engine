@@ -17,7 +17,7 @@ import { RendererState } from '@etherealengine/engine/src/renderer/RendererState
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import XRCheckboxButton from '../../components/XRCheckboxButton'
 import XRSelectDropdown from '../../components/XRSelectDropdown'
@@ -45,7 +45,6 @@ const SettingDetailView = () => {
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const firstRender = useRef(true)
-  const showDetails = useHookstate(false)
   const showAudioDetails = useHookstate(false)
 
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
@@ -87,10 +86,6 @@ const SettingDetailView = () => {
 
   const handleChangeControlType = (value) => {
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
-  }
-
-  const toggleShowDetails = () => {
-    showDetails.set(!showDetails.value)
   }
 
   const toggleShowOtherAudioSettings = () => {
@@ -283,30 +278,7 @@ const SettingDetailView = () => {
                     onChange={handleChangeInvertRotationAndMoveSticks}
                   />
                 </div>
-                <div className="showHideButton" onClick={toggleShowDetails}>
-                  {showDetails.value ? 'hide details' : 'show details'}
-                </div>
               </div>
-              {showDetails.value && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>{t('user:usermenu.setting.rotation')}</th>
-                      <th>{t('user:usermenu.setting.rotation-angle')}</th>
-                      <th align="right">{t('user:usermenu.setting.rotation-smooth-speed')}</th>
-                      <th align="right">{t('user:usermenu.setting.moving')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td align="center">{avatarInputState.rotation.value}</td>
-                      <td align="center">{avatarInputState.rotationAngle.value}</td>
-                      <td align="center">{avatarInputState.rotationSmoothSpeed.value}</td>
-                      <td align="center">{avatarInputState.moving.value}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
             </section>
             <section className="settingView">
               <div className="controlsContainer">

@@ -8,7 +8,7 @@ import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match
 import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 
 interface User {
   id: string
@@ -48,7 +48,7 @@ describe.skip('matchmaking match-instance service', () => {
 
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
 
     scope = nock(FRONTEND_SERVICE_URL)

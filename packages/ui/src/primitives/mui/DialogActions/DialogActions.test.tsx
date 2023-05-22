@@ -1,0 +1,13 @@
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
+import React from 'react'
+
+import DialogActions from './index'
+import { Primary as story } from './index.stories'
+
+describe('DialogActions', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<DialogActions {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
+})

@@ -99,6 +99,10 @@ const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destr
       `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
     )
   removeEntity(entity)
+  const idx = Engine.instance.store.actions.cached.findIndex((a) => {
+    WorldNetworkAction.spawnObject.matches.test(a) && a.networkId === action.networkId
+  })
+  if (idx !== -1) Engine.instance.store.actions.cached.splice(idx, 1)
 }
 
 const receiveRequestAuthorityOverObject = (

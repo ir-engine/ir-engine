@@ -5,8 +5,8 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { getMutableState } from '@etherealengine/hyperflux'
-import Avatar from '@etherealengine/ui/src/Avatar'
-import Icon from '@etherealengine/ui/src/Icon'
+import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useChatHooks } from '../../../components/InstanceChat'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
