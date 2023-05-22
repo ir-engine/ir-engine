@@ -1,6 +1,6 @@
 import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
 
-import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { matches, matchesEntity, matchesPeerID, Validator } from '../../common/functions/MatchesUtils'
 import { NetworkPeer } from '../../networking/interfaces/NetworkPeer'
 import { Entity } from './Entity'
 
@@ -154,13 +154,11 @@ export class EngineActions {
 
   static peerCreated = defineAction({
     type: 'ee.engine.Engine.PEER_CREATED' as const,
-    peer: matches.any as Validator<unknown, NetworkPeer>,
-    name: matches.string
+    peerID: matchesPeerID
   })
 
   static peerDestroyed = defineAction({
     type: 'ee.engine.Engine.PEER_DESTROYED' as const,
-    peer: matches.any as Validator<unknown, NetworkPeer>,
-    name: matches.string
+    peerID: matchesPeerID
   })
 }
