@@ -314,9 +314,9 @@ const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC })
   )
 })
 
-export function QueryReactor(props: { Components: QueryComponents; ChildEntityReactor: FC }) {
+export const QueryReactor = memo((props: { Components: QueryComponents; ChildEntityReactor: FC }) => {
   const entities = useQuery(props.Components)
-  const MemoChildEntityReactor = memo(props.ChildEntityReactor)
+  const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
   return (
     <>
       {entities.map((entity) => (
@@ -324,7 +324,7 @@ export function QueryReactor(props: { Components: QueryComponents; ChildEntityRe
       ))}
     </>
   )
-}
+})
 
 /**
  * @deprecated use QueryReactor directly
