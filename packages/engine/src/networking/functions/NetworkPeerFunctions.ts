@@ -47,7 +47,7 @@ function createPeer(
   worldState.userNames[userID].set(name)
 
   if (network.topic === 'world') {
-    dispatchAction(EngineActions.peerCreated({ peer: network.peers.get(peerID)!, name: name ?? '' }))
+    dispatchAction(EngineActions.peerCreated({ peerID }))
   }
 }
 
@@ -58,9 +58,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
   if (userID === Engine.instance.userId) return console.warn(`[NetworkPeerFunctions]: tried to remove local client`)
 
   if (network.topic === 'world') {
-    const worldState = getState(WorldState)
-    const name = worldState.userNames[userID]
-    dispatchAction(EngineActions.peerDestroyed({ peer: network.peers.get(peerID)!, name: name ?? '' }))
+    dispatchAction(EngineActions.peerDestroyed({ peerID }))
   }
 
   network.peers.delete(peerID)

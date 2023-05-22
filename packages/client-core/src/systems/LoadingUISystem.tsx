@@ -14,6 +14,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -119,16 +120,25 @@ const execute = () => {
       transition.setState('OUT')
   }
 
+  const mediaNetwork = Engine.instance.mediaNetwork
+  const worldState = getState(WorldState)
+
   for (const action of peerCreatedQueue()) {
     const selfUser = getState(AuthState).user
-    if (action.peer.peerID !== 'server' && action.peer.userId !== selfUser.id)
-      NotificationService.dispatchNotify(`${action.name} ${t('common:toast.joined')}`, { variant: 'default' })
+    const peerUser = mediaNetwork.peers.get(action.peerID)
+    if (action.peerID !== 'server' && peerUser && peerUser.userId !== selfUser.id) {
+      const name = worldState.userNames[peerUser.userId]
+      NotificationService.dispatchNotify(`${name} ${t('common:toast.joined')}`, { variant: 'default' })
+    }
   }
 
   for (const action of peerDestroyedQueue()) {
     const selfUser = getState(AuthState).user
-    if (action.peer.peerID !== 'server' && action.peer.userId !== selfUser.id)
-      NotificationService.dispatchNotify(`${action.name} ${t('common:toast.left')}`, { variant: 'default' })
+    const peerUser = mediaNetwork.peers.get(action.peerID)
+    if (action.peerID !== 'server' && peerUser && peerUser.userId !== selfUser.id) {
+      const name = worldState.userNames[peerUser.userId]
+      NotificationService.dispatchNotify(`${name} ${t('common:toast.left')}`, { variant: 'default' })
+    }
   }
 
   if (transition.state === 'OUT' && transition.alpha === 0) {
