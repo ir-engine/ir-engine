@@ -34,7 +34,6 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 
   // add MeshBVHVisualizer to meshes when debugEnable is true
   useEffect(() => {
-    console.log(debug.value, obj)
     if (!debug.value || !obj) return
 
     const meshBVHVisualizers = [] as MeshBVHVisualizer[]
