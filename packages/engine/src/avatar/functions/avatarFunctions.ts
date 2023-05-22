@@ -44,7 +44,7 @@ import { computeTransformMatrix, updateGroupChildren } from '../../transform/sys
 import { XRState } from '../../xr/XRState'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import { animationManager } from '../AnimationManager'
+import { AnimationManager } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import avatarBoneMatching, {
   BoneNames,
@@ -223,20 +223,24 @@ export const createIKAnimator = async (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
 
-  animationComponent.mixer = new AnimationMixer(rigComponent.targets)
-  const idle = animations[1]
-  const walkForward = animations[0]
+  const bindPose = animations[0]
+  const idle = animations[2]
+  const walkForward = animations[1]
 
-  animationComponent.animations = [idle, walkForward]
+  //Using set component here allows us to react to animations being
+  setComponent(entity, AnimationComponent, {
+    animations: [bindPose, idle, walkForward],
+    mixer: new AnimationMixer(rigComponent.targets)
+  })
   const idleAction = animationComponent.mixer.clipAction(idle)
   const walkAction = animationComponent.mixer.clipAction(walkForward)
-  console.log(idle)
+
   idleAction.play()
   walkAction.play()
 }
 
 export const getAnimations = async () => {
-  const manager = getMutableState(animationManager)
+  const manager = getMutableState(AnimationManager)
   if (!manager.targetsAnimation.value) {
     const asset = await AssetLoader.loadAsync('/default_assets/test_ik_targets.glb')
     const glb = asset as GLTF
@@ -278,8 +282,6 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   return model
 }
 
-export const ikRetargeting = (entity: Entity) => {}
-
 export const animateAvatarModel = (entity: Entity) => (model: VRM) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
@@ -289,16 +291,11 @@ export const animateAvatarModel = (entity: Entity) => (model: VRM) => {
   // Mixer has some issues when binding with the target skeleton
   // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
 
-  console.log((makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton)
-
-  const sourceSkeleton = getComponent(entity, AvatarRigComponent).bindRig
+  //const sourceSkeleton = getComponent(entity, AvatarRigComponent).bindRig
   // debugger
   //animationComponent.mixer = new AnimationMixer(AnimationManager.instance._animatedScene.children[0].children[0])
   //animationComponent.animations = AnimationManager.instance._animations
   //animationComponent.mixer.clipAction(animationComponent.animations[0]).play()
-
-  console.log(animationComponent.mixer)
-  console.log(avatarAnimationComponent.locomotion)
 
   /* if (avatarAnimationComponent)
     avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(

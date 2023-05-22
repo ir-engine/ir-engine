@@ -45,8 +45,8 @@ export function solveTwoBoneIK(
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
   hint: Vector3 | null = null,
-  targetPosWeight: number = 1,
-  targetRotWeight: number = 1,
+  targetPosWeight: number = 0,
+  targetRotWeight: number = 0,
   hintWeight: number = 1
 ) {
   targetPos.copy(targetPosition)

@@ -14,7 +14,7 @@ import { makeDefaultSkinnedMesh } from './functions/avatarFunctions'
 //a named struct and in an object 3d hierarchy
 //the former allows easy accessability while the
 //latter allows for threejs keyframe animation
-export const animationManager = defineState({
+export const AnimationManager = defineState({
   name: 'animationManager',
   initial: () => ({
     targetsAnimation: undefined as AnimationClip[] | undefined

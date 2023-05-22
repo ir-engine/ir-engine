@@ -14,6 +14,6 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   //walk forward animation stored at index 1
-  const walkForward = animationComponent.mixer.clipAction(animationComponent.animations[1])
+  const walkForward = animationComponent.mixer.clipAction(animationComponent.animations[2])
   walkForward.setEffectiveWeight(avatarAnimationComponent.locomotion.lengthSq())
 }

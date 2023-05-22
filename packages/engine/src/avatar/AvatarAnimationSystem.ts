@@ -1,27 +1,42 @@
 import { VRMHumanBone, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import * as VRMSchema from '@pixiv/types-vrmc-vrm-1.0'
-import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Matrix4, Object3D, Quaternion, Raycaster, Vector3 } from 'three'
+import { useEffect, useState } from 'react'
+import {
+  AxesHelper,
+  Bone,
+  Euler,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  Object3D,
+  Quaternion,
+  Raycaster,
+  SphereGeometry,
+  Vector3
+} from 'three'
+import { object } from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { defineActionQueue, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, dispatchAction, getState, startReactor } from '@etherealengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 import { proxifyQuaternion } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../physics/classes/Physics'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -30,7 +45,7 @@ import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
-import { TransformComponent } from '../transform/components/TransformComponent'
+import { TransformComponent, TransformComponentType } from '../transform/components/TransformComponent'
 import { updateGroupChildren } from '../transform/systems/TransformSystem'
 import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../xr/XRState'
 import { updateAnimationGraph } from './animation/AnimationGraph'
@@ -38,9 +53,9 @@ import { setAvatarLocomotionAnimation } from './animation/AvatarAnimationGraph'
 import { solveHipHeight } from './animation/HipIKSolver'
 import { solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
-import { animationManager } from './AnimationManager'
+import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent, ikTargets } from './components/AvatarAnimationComponent'
 import {
   AvatarIKTargetComponent,
   xrTargetHeadSuffix,
@@ -63,7 +78,8 @@ export const AvatarAnimationState = defineState({
 
     return {
       priorityQueue,
-      sortedTransformEntities: [] as Entity[]
+      sortedTransformEntities: [] as Entity[],
+      visualizeTargets: true
     }
   }
 })
@@ -104,23 +120,38 @@ const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0
 let avatarSortAccumulator = 0
 
 const _vector3 = new Vector3()
-const _vec = new Vector3()
+const _position = new Vector3()
 
 const rightHandRot = new Quaternion()
 const leftHandRot = new Quaternion()
 
-const rightHandWorldPos = new Vector3(),
-  rightElbowWorldPos = new Vector3(),
-  leftHandWorldPos = new Vector3(),
-  leftElbowWorldPos = new Vector3(),
-  rightFootWorldPos = new Vector3(),
-  rightKneeWorldPos = new Vector3(),
-  leftFootWorldPos = new Vector3(),
-  leftKneeWorldPos = new Vector3()
+const worldSpaceTargets = {
+  rightHandTarget: new Vector3(),
+  leftHandTarget: new Vector3(),
+  rightFootTarget: new Vector3(),
+  leftFootTarget: new Vector3(),
+
+  rightElbowHint: new Vector3(),
+  leftElbowHint: new Vector3(),
+  rightKneeHint: new Vector3(),
+  leftKneeHint: new Vector3()
+}
+
+//debug visualizers
+const visualizers = [] as TransformComponentType[]
+if (getState(AvatarAnimationState).visualizeTargets) {
+  for (let i = 0; i < 8; i++) {
+    const e = createEntity()
+    setComponent(e, VisibleComponent, true)
+    addObjectToGroup(e, new Mesh(new SphereGeometry(0.05)))
+    setComponent(e, TransformComponent)
+    visualizers[i] = getComponent(e, TransformComponent)
+  }
+}
 
 const execute = () => {
   const xrState = getState(XRState)
-  const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
+  const { priorityQueue, sortedTransformEntities, visualizeTargets } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
 
   for (const action of sessionChangedQueue()) {
@@ -253,27 +284,28 @@ const execute = () => {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const rig = rigComponent.rig
     const transform = getComponent(entity, TransformComponent)
-    const animationState = getState(animationManager)
+    const animationState = getState(AnimationManager)
 
     if (!animationState.targetsAnimation) return
 
     //calculate world positions
     const root = rigComponent.vrm.humanoid.normalizedHumanBonesRoot
     root.updateMatrixWorld()
-    rightHandWorldPos.copy(rigComponent.ikTargetsMap.rightHandTarget.position).applyMatrix4(root.matrixWorld)
-    rightElbowWorldPos.copy(rigComponent.ikTargetsMap.rightElbowHint.position).applyMatrix4(root.matrixWorld)
 
-    leftHandWorldPos.copy(rigComponent.ikTargetsMap.leftHandTarget.position).applyMatrix4(root.matrixWorld)
-    leftElbowWorldPos.copy(rigComponent.ikTargetsMap.leftElbowHint.position).applyMatrix4(root.matrixWorld)
+    let i = 0
+    for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
+      worldSpaceTargets[key]
+        .copy(value.position)
+        .sub(rigComponent.ikOffsetsMap.get(key)!)
+        .applyMatrix4(root.matrixWorld)
 
-    rightFootWorldPos.copy(rigComponent.ikTargetsMap.rightFootTarget.position).applyMatrix4(root.matrixWorld)
-    rightKneeWorldPos.copy(rigComponent.ikTargetsMap.rightKneeHint.position).applyMatrix4(root.matrixWorld)
+      if (visualizeTargets) {
+        visualizers[i].position.copy(worldSpaceTargets[key])
+      }
 
-    leftFootWorldPos.copy(rigComponent.ikTargetsMap.leftFootTarget.position).applyMatrix4(root.matrixWorld)
-    leftKneeWorldPos.copy(rigComponent.ikTargetsMap.leftKneeHint.position).applyMatrix4(root.matrixWorld)
-
+      i++
+    }
     const hipsWorldSpace = new Vector3()
-
     rig.hips.node.getWorldPosition(hipsWorldSpace)
 
     //to do: get leg length of avatar in world space
@@ -294,55 +326,55 @@ const execute = () => {
       rig.rightUpperArm.node,
       rig.rightLowerArm.node,
       rig.rightHand.node,
-      rightHandWorldPos,
+      worldSpaceTargets.rightHandTarget,
       rightHandRot,
       null,
-      rightElbowWorldPos
+      worldSpaceTargets.rightElbowHint
     )
     solveTwoBoneIK(
       rig.leftUpperArm.node,
       rig.leftLowerArm.node,
       rig.leftHand.node,
-      leftHandWorldPos,
+      worldSpaceTargets.leftHandTarget,
       leftHandRot,
       null,
-      leftElbowWorldPos
+      worldSpaceTargets.leftElbowHint
     )
 
     //raycasting here every frame is terrible, this should be done every quarter of a second at most.
     //cast ray for right foot, starting at hips y position and foot x/z
     const footRaycastArgs = {
       type: SceneQueryType.Closest,
-      origin: new Vector3(rightFootWorldPos.x, hipsWorldSpace.y, rightFootWorldPos.z),
+      origin: new Vector3(worldSpaceTargets.rightFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.rightFootTarget.z),
       direction: new Vector3(0, -1, 0),
       maxDistance: legLength,
       groups: interactionGroups
     } as RaycastArgs
 
     const rightCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    if (rightCastedRay[0]) rightFootWorldPos.copy(rightCastedRay[0].position as Vector3)
+    if (rightCastedRay[0]) worldSpaceTargets.rightFootTarget.copy(rightCastedRay[0].position as Vector3)
     solveTwoBoneIK(
       rig.rightUpperLeg.node,
       rig.rightLowerLeg.node,
       rig.rightFoot.node,
-      rightFootWorldPos.setY(rightFootWorldPos.y + 0.1),
+      worldSpaceTargets.rightFootTarget.setY(worldSpaceTargets.rightFootTarget.y + 0.1),
       rot,
       null,
-      rightKneeWorldPos
+      worldSpaceTargets.rightKneeHint
     )
 
     //reuse raycast args object, cast ray for left foot
-    footRaycastArgs.origin.set(leftFootWorldPos.x, hipsWorldSpace.y, leftFootWorldPos.z)
+    footRaycastArgs.origin.set(worldSpaceTargets.leftFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.leftFootTarget.z)
     const leftCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    if (leftCastedRay[0]) leftFootWorldPos.copy(leftCastedRay[0].position as Vector3)
+    if (leftCastedRay[0]) worldSpaceTargets.leftFootTarget.copy(leftCastedRay[0].position as Vector3)
     solveTwoBoneIK(
       rig.leftUpperLeg.node,
       rig.leftLowerLeg.node,
       rig.leftFoot.node,
-      leftFootWorldPos.setY(leftFootWorldPos.y + 0.1),
+      worldSpaceTargets.leftFootTarget.setY(worldSpaceTargets.leftFootTarget.y + 0.1),
       rot,
       null,
-      leftKneeWorldPos
+      worldSpaceTargets.leftKneeHint
     )
 
     rig.hips.node.quaternion.copy(hipsRotationoffset)
@@ -430,9 +462,7 @@ const execute = () => {
 }
 
 const reactor = () => {
-  useEffect(() => {
-    //AnimationManager.instance.loadDefaultAnimations()
-  }, [])
+  useEffect(() => {}, [])
   return null
 }
 

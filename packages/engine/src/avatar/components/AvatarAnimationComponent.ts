@@ -1,11 +1,23 @@
 import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AxesHelper, Object3D, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import {
+  AxesHelper,
+  Euler,
+  Matrix4,
+  Mesh,
+  Object3D,
+  Quaternion,
+  SkeletonHelper,
+  SkinnedMesh,
+  SphereGeometry,
+  Vector3
+} from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { Engine } from '../../ecs/classes/Engine'
 import {
   defineComponent,
   getMutableComponent,
@@ -20,6 +32,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
 import { AnimationGraph } from '../animation/AnimationGraph'
+import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -88,9 +101,7 @@ export const AvatarRigComponent = defineComponent({
       /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
       footHeight: 0,
 
-      upperArmLength: 0,
-
-      lowerArmLength: 0,
+      armLength: 0,
 
       /** Cache of the skinned meshes currently on the rig */
       skinnedMeshes: [] as SkinnedMesh[],
@@ -173,6 +184,60 @@ export const AvatarRigComponent = defineComponent({
       value.name = key
       rigComponent.targets.value.add(value)
     }
+
+    const animComponent = useComponent(entity, AnimationComponent)
+
+    //Calculate ik target offsets for retargeting
+    useEffect(() => {
+      if (!animComponent.animations[0].value) return
+      const bindTracks = animComponent.animations[0].tracks.value
+      if (!bindTracks) return
+      for (let i = 0; i < bindTracks.length; i += 3) {
+        const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
+
+        const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+        rigComponent.rig.hips.node.matrix.value.multiply(new Matrix4().makeRotationY(Math.PI))
+        //todo: find a better way to map joints to ik targets here
+        const bonePos = new Vector3()
+        switch (key) {
+          case 'rightHandTarget':
+            bonePos.copy(rigComponent.bindRig.rightHand.value.node.position)
+            break
+          case 'leftHandTarget':
+            bonePos.copy(rigComponent.bindRig.leftHand.value.node.position)
+            break
+          case 'rightFootTarget':
+            bonePos.copy(rigComponent.bindRig.rightFoot.value.node.position)
+            break
+          case 'leftFootTarget':
+            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            break
+          case 'rightElbowHint':
+            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            break
+          case 'leftElbowHint':
+            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            break
+          case 'rightKneeHint':
+            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            break
+          case 'leftKneeHint':
+            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            break
+        }
+        const root = rigComponent.vrm.humanoid.normalizedHumanBonesRoot.value
+        const worldPos = new Vector3()
+        root.getWorldPosition(worldPos)
+        bonePos.add(worldPos)
+        bonePos.sub(
+          new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).add(worldPos)
+        )
+        //temporarily multiplying the vector by zero to avoid calculation errors
+        bonePos.multiplyScalar(0)
+        rigComponent.ikOffsetsMap.value.set(key, bonePos)
+      }
+      console.log(rigComponent.ikOffsetsMap.value)
+    }, [animComponent.animations])
     return null
   }
 })

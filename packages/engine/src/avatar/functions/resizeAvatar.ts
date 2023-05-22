@@ -6,6 +6,7 @@ import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/C
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -27,9 +28,7 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
   rigComponent.lowerLegLength =
     rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y
   rigComponent.footHeight = rig.leftFoot.node.getWorldPosition(vec3).y - transform.position.y
-
-  rigComponent.upperArmLength = rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y
-
+  rigComponent.armLength = rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
   if (!hasComponent(entity, RigidBodyComponent)) return
 
   Physics.removeCollidersFromRigidBody(entity, Engine.instance.physicsWorld)
