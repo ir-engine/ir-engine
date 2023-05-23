@@ -151,14 +151,4 @@ export class EngineActions {
     type: 'xre.engine.Engine.AVATAR_MODEL_CHANGED' as const,
     entity: matchesEntity
   })
-
-  static peerCreated = defineAction({
-    type: 'ee.engine.Engine.PEER_CREATED' as const,
-    peerID: matchesPeerID
-  })
-
-  static peerDestroyed = defineAction({
-    type: 'ee.engine.Engine.PEER_DESTROYED' as const,
-    peerID: matchesPeerID
-  })
 }
