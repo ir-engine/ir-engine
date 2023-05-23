@@ -39,7 +39,8 @@ const AdminRoutes = () => {
     routes: false,
     projects: false,
     settings: false,
-    server: false
+    server: false,
+    recording: false
   }
   const scopes = admin?.scopes?.value || []
 

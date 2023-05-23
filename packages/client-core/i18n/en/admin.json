@@ -444,6 +444,11 @@
       "minutes": "minutes",
       "download": "Download",
       "confirmPodDelete": "Do you want to delete pod"
+    },
+    "recording": {
+      "recording": "Recording",
+      "confirmRecordingDelete": "Do you want to delete recording",
+      "recordingFiles": "Recordings Files for:"
     }
   }
 }
