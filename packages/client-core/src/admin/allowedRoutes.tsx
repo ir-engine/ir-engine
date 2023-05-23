@@ -34,7 +34,7 @@ const availableRoutes = [
   { route: '/settings', key: 'settings', component: Setting, props: {} },
   { route: '/resources', key: 'static_resource', component: Resources, props: {} },
   { route: '/users', key: 'user', component: Users, props: {} },
-  { route: '/recordings', key: 'recordings', component: Recordings, props: {} }
+  { route: '/recordings', key: 'recording', component: Recordings, props: {} }
 ]
 
 const AllowedRoutes = ({ allowedRoutes }) => {

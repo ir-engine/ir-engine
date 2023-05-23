@@ -78,7 +78,7 @@ export const SidebarItems = (allowedRoutes) => [
     path: '/admin/bots',
     icon: <Icon type="Toys" style={{ color: 'white' }} />
   },
-  allowedRoutes.recordings && {
+  allowedRoutes.recording && {
     name: 'user:dashboard.recordings',
     path: '/admin/recordings',
     icon: <Icon type="Videocam" style={{ color: 'white' }} />

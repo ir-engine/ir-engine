@@ -39,7 +39,8 @@ const DashboardMenuItem = () => {
     routes: false,
     projects: false,
     settings: false,
-    server: false
+    server: false,
+    recording: false
   })
 
   useEffect(() => {
