@@ -291,7 +291,7 @@ const execute = () => {
     // If data is zeroed out, assume there is no input and do not run IK
     if (transformComponent.position.equals(V_000)) continue
 
-    const { rig } = getComponent(ownerEntity, AvatarRigComponent)
+    const { rig, handRadius } = getComponent(ownerEntity, AvatarRigComponent)
 
     const ikComponent = getComponent(entity, AvatarIKTargetComponent)
     if (ikComponent.handedness === 'none') {
@@ -312,7 +312,11 @@ const execute = () => {
         rig.LeftArm,
         rig.LeftForeArm,
         rig.LeftHand,
-        transformComponent.position,
+        // this is a hack to align the middle of the hand with the controller
+        _vector3.addVectors(
+          transformComponent.position,
+          rig.LeftForeArm.getWorldDirection(_vec).multiplyScalar(handRadius)
+        ),
         _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
       )
@@ -324,7 +328,11 @@ const execute = () => {
         rig.RightArm,
         rig.RightForeArm,
         rig.RightHand,
-        transformComponent.position,
+        // this is a hack to align the middle of the hand with the controller
+        _vector3.subVectors(
+          transformComponent.position,
+          rig.RightForeArm.getWorldDirection(_vec).multiplyScalar(handRadius)
+        ),
         _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
       )
