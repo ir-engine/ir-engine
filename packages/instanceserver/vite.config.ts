@@ -28,7 +28,7 @@ export default defineConfig(
     return {
       plugins: [
         ...VitePluginNode({
-          adapter: 'express',
+          adapter: 'koa',
           appPath: './src/index.ts',
           exportName: 'instanceserver',
           tsCompiler: 'esbuild'

@@ -8,7 +8,7 @@
   top: 55px;
   right: 5px;
   z-index: 10;
-  align-content: start;
+  align-content: flex-start;
   overflow-y: overlay;
   pointer-events: auto;
   background: var(--dockBackground);
@@ -42,8 +42,5 @@
 
 .elementDropZone {
   position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
+  inset: 0;
 }

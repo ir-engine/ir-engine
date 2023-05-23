@@ -17,13 +17,17 @@ import {
 import os from 'os'
 import { Spark } from 'primus'
 
-import { MediaStreamAppData, MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeer } from '@etherealengine/engine/src/networking/interfaces/NetworkPeer'
-import { dataChannelRegistry, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  dataChannelRegistry,
+  MediaStreamAppData,
+  MediaTagType,
+  NetworkState
+} from '@etherealengine/engine/src/networking/NetworkState'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -47,7 +51,7 @@ export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   // Initialize roomstate
   const cores = os.cpus()
-  const routers = { instance: [] } as { instance: Router[] }
+  const routers = { instance: [] } as { instance: Router[]; [channelTypeAndChannelID: string]: Router[] }
   const workers = [] as Worker[]
   for (let i = 0; i < cores.length; i++) {
     const newWorker = await createWorker({
@@ -756,7 +760,7 @@ export async function handleWebRtcSendTrack(
         paused,
         producerId: producer.id,
         globalMute: false,
-        encodings: rtpParameters.encodings,
+        encodings: rtpParameters.encodings as any,
         channelType: appData.channelType,
         channelId: appData.channelId
       }
@@ -926,7 +930,7 @@ export async function handleWebRtcResumeConsumer(
     if (typeof consumer.resume === 'function' && !consumer.closed && !(consumer as any)._closed) await consumer.resume()
     spark.write({ type: MessageTypes.WebRTCResumeConsumer.toString(), data: consumer.id })
   }
-  spark.write({ type: MessageTypes.WebRTCResumeConsumer.toString(), data: { resumed: true }, id: messageId })
+  spark.write({ type: MessageTypes.WebRTCResumeConsumer.toString(), data: consumer.id, id: messageId })
 }
 
 export async function handleWebRtcCloseConsumer(
@@ -940,7 +944,8 @@ export async function handleWebRtcCloseConsumer(
   if (consumer) {
     await closeConsumer(network, consumer)
   }
-  spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), data: { closed: true }, id: messageId })
+  // this is to reply to the request, which needs to be resolved
+  spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), id: messageId })
 }
 
 export async function handleWebRtcConsumerSetLayers(
@@ -983,7 +988,7 @@ export async function handleWebRtcResumeProducer(
         client.spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id })
     }
   }
-  spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: { resumed: true }, id: messageId })
+  spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id, id: messageId })
 }
 
 export async function handleWebRtcPauseProducer(

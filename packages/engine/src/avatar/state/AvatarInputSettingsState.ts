@@ -1,5 +1,4 @@
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@etherealengine/engine/src/xr/XRUserSettings'
 import {
   defineAction,
   defineState,
@@ -24,36 +23,21 @@ export const AvatarInputSettingsState = defineState({
   name: 'AvatarInputSettingsState',
   initial: () => ({
     controlType: AvatarControllerType.None as (typeof AvatarControllerType)[keyof typeof AvatarControllerType],
-
     leftAxesControlScheme:
       AvatarAxesControlScheme.Move as (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme],
     rightAxesControlScheme:
       AvatarAxesControlScheme.Teleport as (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme],
-
     preferredHand: 'right' as 'left' | 'right',
     invertRotationAndMoveSticks: true,
-    // TODO: implement the following
-    moving: XR_FOLLOW_MODE.CONTROLLER as XR_FOLLOW_MODE,
-    // rotation mode
-    rotation: XR_ROTATION_MODE.ANGLED as XR_ROTATION_MODE,
-    // 0.1, 0.3, 0.5, 0.8, 1
-    rotationSmoothSpeed: 0.1,
-    // 15, 30, 45, 60
-    rotationAngle: 30,
-    rotationInvertAxes: true,
     showAvatar: true
   }),
   onCreate: (store, state) => {
     syncStateWithLocalStorage(AvatarInputSettingsState, [
       'controlType',
-      'controlScheme',
+      'leftAxesControlScheme',
+      'rightAxesControlScheme',
       'preferredHand',
       'invertRotationAndMoveSticks',
-      'moving',
-      'rotation',
-      'rotationSmoothSpeed',
-      'rotationAngle',
-      'rotationInvertAxes',
       'showAvatar'
     ])
   }

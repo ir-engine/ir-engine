@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import styleString from './index.scss?inline'
 

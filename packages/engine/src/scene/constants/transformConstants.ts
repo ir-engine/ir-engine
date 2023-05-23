@@ -3,7 +3,8 @@ import { Vector3 } from 'three'
 export const TransformPivot = {
   Selection: 'Selection' as const,
   Center: 'Center' as const,
-  Bottom: 'Bottom' as const
+  Bottom: 'Bottom' as const,
+  Origin: 'Origin' as const
 }
 export const TransformMode = {
   Disabled: 'Disabled' as const,
@@ -39,8 +40,8 @@ export const SnapMode = {
 
 export enum TransformSpace {
   World,
-  Local,
-  LocalSelection // The local space of the last selected object
+  Local
+  // LocalSelection // The local space of the last selected object
   // TODO: Viewport, Cursor?
 }
 

@@ -6,7 +6,7 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'
 import { SceneState } from '../ecs/classes/Scene'
-import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
+import { createInitialButtonState, OldButtonInputStateType } from '../input/InputState'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
@@ -95,7 +95,6 @@ export const setupXRSession = async (requestedMode) => {
 
   xrState.sessionActive.set(true)
 
-  xrManager.setFoveation(1)
   xrState.sessionMode.set(mode)
 
   await xrManager.setSession(xrSession, framebufferScaleFactor)
@@ -119,16 +118,10 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
   const rigidBody = localClientEntity
     ? getComponent(localClientEntity, RigidBodyComponent)
     : getComponent(Engine.instance.cameraEntity, TransformComponent)
-  const xrState = getMutableState(XRState)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
-  if (xrState.sessionMode.value === 'immersive-ar') {
-    worldOriginTransform.position.copy(rigidBody.position)
-    worldOriginTransform.rotation.copy(quat180y)
-  } else {
-    worldOriginTransform.position.copy(rigidBody.position)
-    worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
-  }
+  worldOriginTransform.position.copy(rigidBody.position)
+  worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
 
   /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
   xrSession.requestReferenceSpace('local-floor').then((space) => {
@@ -204,10 +197,10 @@ export const setupARSession = () => {
    * This gets piped into the input system as a TouchInput.Touch
    */
   session.addEventListener('selectstart', () => {
-    ;(Engine.instance.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
+    ;(Engine.instance.buttons as OldButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   session.addEventListener('selectend', (inputSource) => {
-    const buttons = Engine.instance.buttons as ButtonInputStateType
+    const buttons = Engine.instance.buttons as OldButtonInputStateType
     if (!buttons.PrimaryClick) return
     buttons.PrimaryClick!.up = true
   })

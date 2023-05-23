@@ -11,11 +11,11 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
 
@@ -231,10 +231,6 @@ export const ChatServiceReceptor = (action) => {
       return s
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const accessChatState = () => getMutableState(ChatState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useChatState = () => useState(accessChatState())
 
 globalThis.chatState = ChatState
 
@@ -242,7 +238,7 @@ globalThis.chatState = ChatState
 export const ChatService = {
   getChannels: async (skip?: number, limit?: number) => {
     try {
-      const chatState = accessChatState().value
+      const chatState = getMutableState(ChatState).value
 
       const channelResult = (await API.instance.client.service('channel').find({
         query: {
@@ -271,7 +267,7 @@ export const ChatService = {
   },
   getPartyChannel: async () => {
     try {
-      const selfUser = accessAuthState().user.value
+      const selfUser = getMutableState(AuthState).user.value
       const channelResult = (await API.instance.client.service('channel').find({
         query: {
           channelType: 'party',
@@ -287,7 +283,7 @@ export const ChatService = {
   },
   createMessage: async (values: ChatMessageProps) => {
     try {
-      const chatState = accessChatState().value
+      const chatState = getMutableState(ChatState).value
       const data = {
         targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
         targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
@@ -314,10 +310,10 @@ export const ChatService = {
     }
   },
   sendMessage: (text: string) => {
-    const user = accessAuthState().user.value
-    if (user.instanceId && text) {
+    const instanceId = Engine.instance.worldNetwork.hostId
+    if (instanceId && text) {
       ChatService.sendChatMessage({
-        targetObjectId: user.instanceId,
+        targetObjectId: instanceId,
         targetObjectType: 'instance',
         text: text
       })
@@ -326,7 +322,7 @@ export const ChatService = {
   getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
     if (channelId && channelId.length > 0) {
       try {
-        const chatState = accessChatState().value
+        const chatState = getMutableState(ChatState).value
         const messageResult = (await API.instance.client.service('message').find({
           query: {
             channelId: channelId,
@@ -382,7 +378,7 @@ export const ChatService = {
     }
   },
   clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
-    const chatState = accessChatState().value
+    const chatState = getMutableState(ChatState).value
     const chatStateTargetObjectType = chatState.targetObjectType
     const chatStateTargetObjectId = chatState.targetObjectId
     if (
@@ -400,7 +396,7 @@ export const ChatService = {
   useAPIListeners: () => {
     useEffect(() => {
       const messageCreatedListener = (params) => {
-        const selfUser = accessAuthState().user.value
+        const selfUser = getMutableState(AuthState).user.value
         dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser }))
       }
 

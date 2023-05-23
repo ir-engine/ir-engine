@@ -4,9 +4,6 @@ import https from 'https'
 import psList from 'ps-list'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
-
-import '@etherealengine/engine/src/patchEngineNode'
-
 import { getMutableState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -15,7 +12,7 @@ import {
   configureOpenAPI,
   configurePrimus,
   configureRedis,
-  createFeathersExpressApp
+  createFeathersKoaApp
 } from '@etherealengine/server-core/src/createApp'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
@@ -46,7 +43,7 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 ) => Application
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersExpressApp(ServerMode.Instance, instanceServerPipe)
+  const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
   const serverState = getMutableState(ServerState)
 
   const agonesSDK = new AgonesSDK()
@@ -105,7 +102,7 @@ export const start = async (): Promise<Application> => {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   } as any
-  const port = config.instanceserver.port
+  const port = Number(config.instanceserver.port)
   if (useSSL) {
     logger.info(`Starting instanceserver with HTTPS on port ${port}.`)
   } else {
@@ -116,13 +113,13 @@ export const start = async (): Promise<Application> => {
 
   // http redirects for development
   if (useSSL) {
-    app.use((req, res, next) => {
-      if (req.secure) {
+    app.use(async (ctx, next) => {
+      if (ctx.secure) {
         // request was via https, so do no special handling
-        next()
+        await next()
       } else {
         // request was via http, so redirect to https
-        res.redirect('https://' + req.headers.host + req.url)
+        ctx.redirect('https://' + ctx.headers.host + ctx.url)
       }
     })
   }
@@ -131,7 +128,7 @@ export const start = async (): Promise<Application> => {
   //   ? https.createServer(certOptions, app as any).listen(port)
   //   : app.listen(port);
 
-  const server = useSSL ? https.createServer(certOptions, app as any).listen(port) : await app.listen(port)
+  const server = useSSL ? https.createServer(certOptions, app.callback()).listen(port) : await app.listen(port)
 
   if (useSSL) {
     app.setup(server)

@@ -62,6 +62,8 @@
       "reset": "Reset",
       "delete": "Delete",
       "view": "View",
+      "kick": "Kick",
+      "ban": "Ban",
       "yes": "Yes",
       "no": "No",
       "refresh": "Refresh",
@@ -203,7 +205,9 @@
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
-      "count": "Count"
+      "count": "Count",
+      "kickDuration": "Kick Duration",
+      "confirmUserBan": "Are you sure you want to ban this user?"
     },
     "resources": {
       "resources": "resources",
@@ -289,7 +293,7 @@
       "favIcon16px": "FavIcon 16px",
       "favIcon32px": "FavIcon 32px",
       "webmanifestLink": "Webmanifest",
-      "swScriptLink": "pwabuilder-sw.js",
+      "swScriptLink": "service-worker.js",
       "releaseName": "Release Name",
       "email": "Email",
       "smtp": "SMTP",
@@ -440,6 +444,11 @@
       "minutes": "minutes",
       "download": "Download",
       "confirmPodDelete": "Do you want to delete pod"
+    },
+    "recording": {
+      "recording": "Recording",
+      "confirmRecordingDelete": "Do you want to delete recording",
+      "recordingFiles": "Recordings Files for:"
     }
   }
 }

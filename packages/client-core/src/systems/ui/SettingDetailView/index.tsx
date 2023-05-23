@@ -3,7 +3,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserSetting } from '@etherealengine/common/src/interfaces/User'
-import { AudioSettingAction, useAudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarAxesControlScheme,
@@ -17,9 +17,8 @@ import { RendererState } from '@etherealengine/engine/src/renderer/RendererState
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
 import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRSlider from '../../components/XRSlider'
@@ -38,19 +37,15 @@ function createSettingDetailState() {
 const SettingDetailView = () => {
   const { t } = useTranslation()
   const rendererState = useHookstate(getMutableState(RendererState))
-  const audioState = useAudioState()
+  const audioState = useHookstate(getMutableState(AudioState))
   const xrSessionActive = useHookstate(getMutableState(XRState).sessionActive)
   const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
-  const authState = useAuthState()
-  const selfUser = authState.user
   const firstRender = useRef(true)
-  const [showDetails, setShowDetails] = useState(false)
-  const [showAudioDetails, setShowAudioDetails] = useState(false)
-  const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
+  const showAudioDetails = useHookstate(false)
 
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const handOptions = ['left', 'right'] as const
@@ -77,12 +72,6 @@ const SettingDetailView = () => {
     /** @todo - switch handedness */
   }, [avatarInputState.invertRotationAndMoveSticks])
 
-  const setUserSettings = (newSetting: any): void => {
-    const setting = { ...userSettings, ...newSetting }
-    setUserSetting(setting)
-    AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
-  }
-
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAction(
       AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
@@ -99,12 +88,8 @@ const SettingDetailView = () => {
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
   }
 
-  const toggleShowDetails = () => {
-    setShowDetails(!showDetails)
-  }
-
   const toggleShowOtherAudioSettings = () => {
-    setShowAudioDetails(!showAudioDetails)
+    showAudioDetails.set(!showAudioDetails.value)
   }
 
   const handleQualityLevelChange = (value) => {
@@ -162,10 +147,10 @@ const SettingDetailView = () => {
             <div className="sectionRow justifySpaceBetween" onClick={toggleShowOtherAudioSettings}>
               <h4 className="title">{t('user:usermenu.setting.other-audio-setting')}</h4>
               <div xr-layer="true" className="showHideButton">
-                {showAudioDetails ? 'hide details' : 'show details'}
+                {showAudioDetails.value ? 'hide details' : 'show details'}
               </div>
             </div>
-            {showAudioDetails && (
+            {showAudioDetails.value && (
               <>
                 <div className="sectionRow">
                   <Icon type="SurroundSound" />
@@ -293,30 +278,7 @@ const SettingDetailView = () => {
                     onChange={handleChangeInvertRotationAndMoveSticks}
                   />
                 </div>
-                <div className="showHideButton" onClick={toggleShowDetails}>
-                  {showDetails ? 'hide details' : 'show details'}
-                </div>
               </div>
-              {showDetails && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>{t('user:usermenu.setting.rotation')}</th>
-                      <th>{t('user:usermenu.setting.rotation-angle')}</th>
-                      <th align="right">{t('user:usermenu.setting.rotation-smooth-speed')}</th>
-                      <th align="right">{t('user:usermenu.setting.moving')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td align="center">{avatarInputState.rotation.value}</td>
-                      <td align="center">{avatarInputState.rotationAngle.value}</td>
-                      <td align="center">{avatarInputState.rotationSmoothSpeed.value}</td>
-                      <td align="center">{avatarInputState.moving.value}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
             </section>
             <section className="settingView">
               <div className="controlsContainer">

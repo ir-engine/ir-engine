@@ -1,23 +1,26 @@
 import { Color, Texture } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { defineState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { UndefinedEntity } from './Entity'
-
-/** @todo support multiple scenes */
-
-export type SceneMetadata<T> = {
-  data: T
-  default: any
-}
 
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
     sceneData: null as SceneData | null,
     sceneEntity: UndefinedEntity,
-    background: null as null | Color | Texture,
-    sceneMetadataRegistry: {} as Record<string, SceneMetadata<any>>
+    /** @todo support multiple scenes */
+    // sceneEntities: {} as Record<string /* SceneID */, EntityUUID>,
+    background: null as null | Color | Texture
   })
 })
+
+// export const
+
+// export const getActiveSceneEntity = () => {
+//   const state = getState(SceneState)
+//   return UUIDComponent.entitiesByUUID[state.sceneEntities[state.sceneEntity]]
+// }

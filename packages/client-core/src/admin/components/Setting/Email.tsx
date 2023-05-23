@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Button from '@etherealengine/ui/src/Button'
-import Grid from '@etherealengine/ui/src/Grid'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import Typography from '@etherealengine/ui/src/Typography'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { AuthState } from '../../../user/services/AuthService'
 import { AdminEmailSettingsState, EmailSettingService } from '../../services/Setting/EmailSettingService'
@@ -62,9 +62,9 @@ const Email = () => {
 
   useEffect(() => {
     if (emailSetting) {
-      let tempSmtp = JSON.parse(JSON.stringify(emailSetting?.smtp))
-      let tempAuth = JSON.parse(JSON.stringify(emailSetting?.smtp?.auth))
-      let tempSubject = JSON.parse(JSON.stringify(emailSetting?.subject))
+      const tempSmtp = emailSetting?.smtp
+      const tempAuth = emailSetting?.smtp?.auth
+      const tempSubject = emailSetting?.subject
 
       smtp.set(tempSmtp)
       auth.set(tempAuth)
@@ -78,18 +78,18 @@ const Email = () => {
 
     EmailSettingService.patchEmailSetting(
       {
-        smtp: JSON.stringify({ ...smtp.value, auth: JSON.stringify(auth.value) }),
+        smtp: { ...smtp.value, auth: auth.value },
         from: from.value,
-        subject: JSON.stringify(subject.value)
+        subject: subject.value
       },
       id
     )
   }
 
   const handleCancel = () => {
-    let tempSmtp = JSON.parse(JSON.stringify(emailSetting?.smtp))
-    let tempAuth = JSON.parse(JSON.stringify(emailSetting?.smtp?.auth))
-    let tempSubject = JSON.parse(JSON.stringify(emailSetting?.subject))
+    const tempSmtp = emailSetting?.smtp
+    const tempAuth = emailSetting?.smtp?.auth
+    const tempSubject = emailSetting?.subject
 
     smtp.set(tempSmtp)
     auth.set(tempAuth)
@@ -141,12 +141,15 @@ const Email = () => {
             name="pass"
             label={t('admin:components.setting.password')}
             value={auth?.value?.pass || ''}
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword.value ? 'text' : 'password'}
             endAdornment={
               <IconButton
-                onClick={() => showPassword.set(!showPassword)}
+                onClick={() => showPassword.set(!showPassword.value)}
                 icon={
-                  <Icon icon={showPassword ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'} color="orange" />
+                  <Icon
+                    icon={showPassword.value ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                    color="orange"
+                  />
                 }
               />
             }

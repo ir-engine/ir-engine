@@ -1,13 +1,14 @@
 import { Mesh, Object3D } from 'three'
 
 import multiLogger from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import iterateObject3D from '../../../scene/util/iterateObject3D'
-import { getMaterialLibrary, MaterialLibraryState } from '../MaterialLibrary'
+import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function dedupMaterials() {
-  const materialTable = Object.entries(getMaterialLibrary().materials.value)
+  const materialTable = Object.entries(getState(MaterialLibraryState).materials)
   materialTable.map(([uuid, materialComponent], i) => {
     for (let j = 0; j < i; j++) {
       const [uuid2, materialComponent2] = materialTable[j]

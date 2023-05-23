@@ -1,53 +1,33 @@
 import { BadRequest, NotFound } from '@feathersjs/errors'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, Params } from '@feathersjs/feathers'
+import { KnexAdapter, KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex/lib'
 
 import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
-import { OpenMatchTicket } from '@etherealengine/matchmaking/src/interfaces'
+import { MatchTicketData, MatchTicketQuery, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 
 import { Application } from '../../../declarations'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'
 
-interface Data {}
-
-interface ServiceOptions {}
-
-interface OpenMatchTicketParams extends Params {
-  body: {
-    userId: string
-  }
-}
-
-interface TicketParams {
-  gamemode: string
-  attributes?: Record<string, string>
-}
-
-function isValidTicketParams(data: unknown): data is TicketParams {
-  const params = data as TicketParams
-  return typeof params.gamemode !== 'undefined'
+export interface MatchTicketParams extends KnexAdapterParams<MatchTicketQuery> {
+  userId?: string
 }
 
 /**
- * A class for OpenMatch Tickets service
+ * A class for MatchTicket service
  */
-export class MatchTicket implements ServiceMethods<Data> {
+export class MatchTicketService<
+  T = MatchTicketType,
+  ServiceParams extends Params = MatchTicketParams
+> extends KnexAdapter<MatchTicketType, MatchTicketData, MatchTicketParams> {
   app: Application
-  options: ServiceOptions
-  docs: any
 
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
+  constructor(options: KnexAdapterOptions, app: Application) {
+    super(options)
     this.app = app
   }
 
-  async setup() {}
-
-  async find(params: Params): Promise<Data[]> {
-    return []
-  }
-
-  async get(id: Id, params: OpenMatchTicketParams): Promise<OpenMatchTicket> {
+  async get(id: Id, params: MatchTicketParams): Promise<MatchTicketType> {
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
@@ -55,7 +35,7 @@ export class MatchTicket implements ServiceMethods<Data> {
     let ticket
     if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
-      ticket = await emulate_getTicket(this.app, id, params.body.userId)
+      ticket = await emulate_getTicket(this.app, id, params.userId)
     } else {
       ticket = getTicket(String(id))
     }
@@ -63,38 +43,19 @@ export class MatchTicket implements ServiceMethods<Data> {
     if (!ticket) {
       throw new NotFound()
     }
-    return ticket as OpenMatchTicket
+    return ticket as MatchTicketType
   }
 
-  async create(data: unknown, params?: Params): Promise<OpenMatchTicket | OpenMatchTicket[]> {
-    if (Array.isArray(data)) {
-      return await Promise.all(data.map((current) => this.create(current, params) as OpenMatchTicket))
-    }
-
-    if (!isValidTicketParams(data)) {
-      // TODO: better validation response
-      throw new BadRequest('Invalid ticket params')
-    }
-
+  async create(data: MatchTicketData) {
     if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
-      return emulate_createTicket(data.gamemode)
+      return emulate_createTicket(data.gameMode)
     }
 
-    return await createTicket(data.gamemode, data.attributes)
+    return await createTicket(data.gameMode, data.attributes)
   }
 
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    // not implemented for tickets
-    return data
-  }
-
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    // not implemented for tickets
-    return data
-  }
-
-  async remove(id: Id, params?: Params): Promise<Data> {
+  async remove(id: Id) {
     // skip delete in emulation, user-match will be deleted in hook
     if (!config.server.matchmakerEmulationMode) {
       await deleteTicket(String(id))

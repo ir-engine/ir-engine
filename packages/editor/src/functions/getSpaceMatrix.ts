@@ -4,13 +4,14 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessSelectionState } from '../services/SelectionServices'
+import { SelectionState } from '../services/SelectionServices'
 
 const IDENTITY_MAT_4 = new Matrix4().identity()
 
 export function getSpaceMatrix() {
-  const selectedEntities = accessSelectionState().selectedEntities.value.slice()
+  const selectedEntities = getState(SelectionState).selectedEntities.slice()
 
   if (selectedEntities.length === 0) return IDENTITY_MAT_4
 

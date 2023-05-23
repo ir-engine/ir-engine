@@ -1,11 +1,12 @@
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-const LoadingCircle = ({ message }: { message: string }) => (
-  <div className="z-9001 w-full h-full flex justify-center items-center">
-    <div role="status" className="w-40 h-40">
+const LoadingCircle = ({ message, className }: { message: string; className?: string }) => (
+  <div className={twMerge('', className)}>
+    <div role="status" className="top-1/2 my-0 mx-auto block relative w-20 h-20">
       <svg
         aria-hidden="true"
-        className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+        className="w-auto h-full text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -19,13 +20,15 @@ const LoadingCircle = ({ message }: { message: string }) => (
           fill="currentFill"
         />
       </svg>
-      <span className="sr-only text-black">{message}</span>
+      <span className="w-full sr-only text-black">{message}</span>
     </div>
   </div>
 )
 
 LoadingCircle.displayName = 'LoadingCircle'
 
-LoadingCircle.defaultProps = {}
+LoadingCircle.defaultProps = {
+  message: 'Loading...'
+}
 
 export default LoadingCircle

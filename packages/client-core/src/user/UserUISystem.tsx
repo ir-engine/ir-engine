@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-import { addActionReceptor, getMutableState, none, removeActionReceptor, startReactor } from '@etherealengine/hyperflux'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { addActionReceptor, getMutableState, none, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 
@@ -38,57 +39,55 @@ export const UserMenus = {
   Emote: 'user.Emote'
 }
 
-export default async function UserUISystem() {
-  const popupMenuState = getMutableState(PopupMenuState)
+const reactor = () => {
+  InviteService.useAPIListeners()
 
-  popupMenuState.menus.merge({
-    [UserMenus.Profile]: ProfileMenu,
-    [UserMenus.Settings]: SettingMenu,
-    [UserMenus.AvatarSelect]: AvatarSelectMenu,
-    [UserMenus.AvatarModify]: AvatarModifyMenu,
-    [UserMenus.ReadyPlayer]: ReadyPlayerMenu,
-    [UserMenus.Share]: ShareMenu,
-    [UserMenus.Emote]: EmoteMenu
-  })
+  useEffect(() => {
+    const popupMenuState = getMutableState(PopupMenuState)
 
-  popupMenuState.hotbar.merge({
-    [UserMenus.Profile]: FaceRetouchingNatural,
-    [UserMenus.Share]: Send,
-    [UserMenus.Emote]: EmoteIcon
-  })
-
-  addActionReceptor(AvatarServiceReceptor)
-  addActionReceptor(InviteServiceReceptor)
-
-  const reactor = startReactor(() => {
-    InviteService.useAPIListeners()
-    return null
-  })
-
-  const execute = () => {}
-
-  const cleanup = async () => {
     popupMenuState.menus.merge({
-      [UserMenus.Profile]: none,
-      [UserMenus.Settings]: none,
-      [UserMenus.AvatarSelect]: none,
-      [UserMenus.AvatarModify]: none,
-      [UserMenus.ReadyPlayer]: none,
-      [UserMenus.Share]: none,
-      [UserMenus.Emote]: none
+      [UserMenus.Profile]: ProfileMenu,
+      [UserMenus.Settings]: SettingMenu,
+      [UserMenus.AvatarSelect]: AvatarSelectMenu,
+      [UserMenus.AvatarModify]: AvatarModifyMenu,
+      [UserMenus.ReadyPlayer]: ReadyPlayerMenu,
+      [UserMenus.Share]: ShareMenu,
+      [UserMenus.Emote]: EmoteMenu
     })
 
     popupMenuState.hotbar.merge({
-      [UserMenus.Profile]: none,
-      [UserMenus.Share]: none,
-      [UserMenus.Emote]: none
+      [UserMenus.Profile]: FaceRetouchingNatural,
+      [UserMenus.Share]: Send,
+      [UserMenus.Emote]: EmoteIcon
     })
 
-    removeActionReceptor(AvatarServiceReceptor)
-    removeActionReceptor(InviteServiceReceptor)
+    addActionReceptor(AvatarServiceReceptor)
 
-    await reactor.stop()
-  }
+    return () => {
+      popupMenuState.menus.merge({
+        [UserMenus.Profile]: none,
+        [UserMenus.Settings]: none,
+        [UserMenus.AvatarSelect]: none,
+        [UserMenus.AvatarModify]: none,
+        [UserMenus.ReadyPlayer]: none,
+        [UserMenus.Share]: none,
+        [UserMenus.Emote]: none
+      })
 
-  return { execute, cleanup }
+      popupMenuState.hotbar.merge({
+        [UserMenus.Profile]: none,
+        [UserMenus.Share]: none,
+        [UserMenus.Emote]: none
+      })
+
+      removeActionReceptor(AvatarServiceReceptor)
+    }
+  }, [])
+  return null
 }
+
+export const UserUISystem = defineSystem({
+  uuid: 'ee.client.UserUISystem',
+  execute: () => {},
+  reactor
+})

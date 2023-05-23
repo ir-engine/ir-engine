@@ -5,25 +5,18 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { ECSSerializationModule } from '@etherealengine/engine/src/ecs/ECSSerializationModule'
-import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MotionCaptureModule } from '@etherealengine/engine/src/mocap/MotionCaptureModule'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
+import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { RealtimeNetworkingModule } from '@etherealengine/engine/src/networking/RealtimeNetworkingModule'
-import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
-import { TransformModule } from '@etherealengine/engine/src/transform/TransformModule'
+import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -34,10 +27,10 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { InstanceServerState } from './InstanceServerState'
+import { startMediaServerSystems, startWorldServerSystems } from './InstanceServerSystems'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { WorldHostModule } from './WorldHostModule'
+import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -173,7 +166,7 @@ const initializeInstance = async (
   channelId: string,
   userId?: UserId
 ) => {
-  logger.info('Initialized new instance')
+  logger.info('Initializing new instance')
 
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
@@ -247,12 +240,24 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
   await setupSubdomain()
-  const networkPromise = initializeNetwork(app, hostId, topic)
+  const network = await initializeNetwork(app, hostId, topic)
+
+  addNetwork(network)
+
+  NetworkPeerFunctions.createPeer(
+    network,
+    'server' as PeerID,
+    network.peerIndexCount++,
+    hostId,
+    network.userIndexCount++,
+    'server-' + hostId
+  )
+
   const projects = await getProjectsList()
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId as UserId)
-    await initSystems([...RealtimeNetworkingModule(true, false)])
+    startMediaServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
@@ -263,15 +268,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
-    await initSystems([
-      ...TransformModule(),
-      ...MotionCaptureModule(),
-      ...ECSSerializationModule(),
-      ...RealtimeNetworkingModule(false, true),
-      ...SceneCommonModule(),
-      ...AvatarCommonModule(),
-      ...WorldHostModule()
-    ])
+    startWorldServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
@@ -279,7 +276,15 @@ const loadEngine = async (app: Application, sceneId: string) => {
       const sceneData = (await sceneResultPromise).data
       getMutableState(SceneState).sceneData.set(sceneData)
       /** @todo - quick hack to wait until scene has loaded */
-      await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
+
+      await new Promise<void>((resolve) => {
+        const interval = setInterval(() => {
+          if (getState(EngineState).sceneLoaded) {
+            clearInterval(interval)
+            resolve()
+          }
+        }, 100)
+      })
     }
     app.service('scene').on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()
@@ -287,20 +292,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
 
-  const network = await networkPromise
-
-  addNetwork(network)
-
   network.ready = true
 
-  NetworkPeerFunctions.createPeer(
-    network,
-    'server' as PeerID,
-    network.peerIndexCount++,
-    hostId,
-    network.userIndexCount++,
-    'server-' + hostId
-  )
   dispatchAction(EngineActions.joinedWorld({}))
 }
 
@@ -312,26 +305,21 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
 const handleUserAttendance = async (app: Application, userId: UserId) => {
   const instanceServerState = getState(InstanceServerState)
-  const instanceIdKey = instanceServerState.isMediaInstance ? 'channelInstanceId' : 'instanceId'
-  logger.info(`Patching user ${userId} ${instanceIdKey} to ${instanceServerState.instance.id}`)
 
-  const instanceIdPatchResult = await app.service('user').patch(userId, {
-    [instanceIdKey]: instanceServerState.instance.id
-  })
-  logger.info('Patched new user instanceId to', instanceIdPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
       ended: true
     },
     {
-      where: {
+      query: {
         isChannel: instanceServerState.isMediaInstance,
         ended: false,
         userId: userId
       }
     }
   )
+
   const newInstanceAttendance = {
     instanceId: instanceServerState.instance.id,
     isChannel: instanceServerState.isMediaInstance,
@@ -381,9 +369,15 @@ const createOrUpdateInstance = async (
     await loadEngine(app, sceneId)
   } else {
     try {
-      if (!getEngineState().joinedWorld.value) {
-        await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
-      }
+      if (!getState(EngineState).joinedWorld)
+        await new Promise<void>((resolve) => {
+          const interval = setInterval(() => {
+            if (getState(EngineState).joinedWorld) {
+              clearInterval(interval)
+              resolve()
+            }
+          }, 1000)
+        })
       const instance = await app.service('instance').get(instanceServerState.instance.id)
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
       await serverState.agonesSDK.allocate()
@@ -462,11 +456,7 @@ const handleUserDisconnect = async (
     logger.info('Failed to patch instance user count, likely because it was destroyed.')
   }
 
-  const instanceIdKey = instanceServerState.isMediaInstance ? 'channelInstanceId' : 'instanceId'
-
-  const userPatch = {
-    [instanceIdKey]: null
-  }
+  const userPatch = {} as any
 
   if (user?.partyId && instanceServerState.isMediaInstance) {
     const partyChannel = await app.service('channel').Model.findOne({
@@ -495,8 +485,7 @@ const handleUserDisconnect = async (
     .service('user')
     .patch(null, userPatch, {
       query: {
-        id: user.id,
-        [instanceIdKey]: instanceId
+        id: user.id
       }
     })
     .catch((err) => {
@@ -528,6 +517,26 @@ const handleUserDisconnect = async (
   if (network.peers.size <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
+  }
+}
+
+const handlePartyUserRemoved = (app: Application) => async (params) => {
+  const instanceServerState = getState(InstanceServerState)
+  if (!instanceServerState.isMediaInstance) return
+  const instance = instanceServerState.instance
+  if (!instance.channelId) return
+  const channel = await app.service('channel').Model.findOne({
+    where: {
+      id: instance.channelId
+    }
+  })
+  if (channel.channelType !== 'party') return
+  const network = getServerNetwork(app)
+  const matchingPeer = Array.from(network.peers.values()).find((peer) => peer.userId === params.userId)
+  if (matchingPeer) {
+    matchingPeer.spark?.end()
+    NetworkPeerFunctions.destroyPeer(network, matchingPeer.peerID)
+    updatePeers(network)
   }
 }
 
@@ -567,9 +576,6 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
-  const isResult = await serverState.agonesSDK.getGameServer()
-  const status = isResult.status as InstanceserverStatus
-
   /**
    * Since local environments do not have the ability to run multiple gameservers,
    * we need to shut down the current one if the user tries to load a new location
@@ -586,9 +592,12 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       locationId ?? channelId
     }`
   )
-  logger.info(`current id: ${roomCode} and new id: ${instanceServerState.instance?.roomCode}`)
+  logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
+    await app.service('instance').patch(instanceServerState.instance.id, {
+      ended: true
+    })
     restartInstanceServer()
     return
   }
@@ -614,6 +623,9 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
    */
+  const isResult = await serverState.agonesSDK.getGameServer()
+  const status = isResult.status as InstanceserverStatus
+
   await createOrUpdateInstance(app, status, locationId, channelId, sceneId, userId)
 
   if (instanceServerState.instance) {
@@ -625,7 +637,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
 }
 
 const onDisconnection = (app: Application) => async (connection: PrimusConnectionType) => {
-  logger.info('Disconnection: %o', connection)
+  logger.info('Disconnection or end: %o', connection)
   const token = connection.socketQuery?.token
   if (!token) return
 
@@ -651,7 +663,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)
-    logger.info('Disconnecting user instanceId %s channelInstanceId %s: ', user.instanceId, user.channelInstanceId)
+    logger.info('Disconnecting user ', user.id)
 
     if (!instanceId) {
       logger.info('No instanceId on user disconnect, waiting one second to see if initial user was connecting')
@@ -700,6 +712,29 @@ export default (app: Application): void => {
 
     createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
+
+  const kickCreatedListener = async (data: UserKick) => {
+    // TODO: only run for instanceserver
+    if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
+
+    logger.info('kicking user id %s', data.userId)
+
+    const peerId = Engine.instance.worldNetwork.users.get(data.userId)
+    if (!peerId || !peerId[0]) return
+
+    logger.info('kicking peerId %o', peerId)
+
+    const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
+    if (!peer || !peer.spark) return
+
+    peer.spark.write({ type: MessageTypes.Kick.toString(), data: '' })
+  }
+
+  app.service('user-kick').on('created', kickCreatedListener)
+
+  logger.info('registered kickCreatedListener')
+
+  app.service('party-user').on('removed', handlePartyUserRemoved(app))
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

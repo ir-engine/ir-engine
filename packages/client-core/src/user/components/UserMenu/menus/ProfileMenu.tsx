@@ -21,10 +21,10 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import CircularProgress from '@etherealengine/ui/src/CircularProgress'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
@@ -93,7 +93,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     (authState?.value?.linkedin && !oauthConnectedState.linkedin.value) ||
     (authState?.value?.twitter && !oauthConnectedState.twitter.value)
 
-  const removeSocial = Object.values(oauthConnectedState.value).filter((value) => value).length > 1
+  const removeSocial = Object.values(oauthConnectedState.value).filter((value) => value).length >= 1
 
   // const loadCredentialHandler = async () => {
   //   try {
@@ -192,7 +192,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleLogout = async () => {
-    PopupMenuServices.showPopupMenu()
+    PopupMenuServices.showPopupMenu(UserMenus.Profile)
     if (onClose) onClose()
     showUserId.set(false)
     showApiKey.set(false)
@@ -335,7 +335,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
-            showChangeButton={engineInitialized.value ? true : false}
+            showChangeButton={!!engineInitialized.value}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />
 

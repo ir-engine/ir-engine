@@ -2,9 +2,10 @@ import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { getMutableState, getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { matchesEntity, matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -52,8 +53,6 @@ export const EntityTreeComponent = defineComponent({
     return {
       // api
       parentEntity: null as Entity | null,
-      /** @deprecated use UUIDComponent instead */
-      uuid: MathUtils.generateUUID() as EntityUUID,
       // internal
       children: [] as Entity[],
       rootEntity: null as Entity | null
@@ -74,8 +73,7 @@ export const EntityTreeComponent = defineComponent({
     // set new data
     if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
 
-    if (matchesEntityUUID.test(json?.uuid)) component.uuid.set(json.uuid)
-    setComponent(entity, UUIDComponent, component.uuid.value)
+    if (matchesEntityUUID.test(json?.uuid)) setComponent(entity, UUIDComponent, json.uuid)
 
     if (component.parentEntity.value) {
       const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
@@ -138,6 +136,7 @@ export function initializeSceneEntity(): void {
   getMutableState(SceneState).sceneEntity.set(sceneEntity)
   setComponent(sceneEntity, NameComponent, 'scene')
   setComponent(sceneEntity, VisibleComponent, true)
+  setComponent(sceneEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
   setComponent(sceneEntity, SceneTagComponent, true)
   setTransformComponent(sceneEntity)
   setComponent(sceneEntity, EntityTreeComponent, { parentEntity: null })
@@ -176,7 +175,8 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
     !hasComponent(entity, EntityTreeComponent) ||
     parentEntity !== getComponent(entity, EntityTreeComponent).parentEntity
   ) {
-    setComponent(entity, EntityTreeComponent, { parentEntity, uuid })
+    setComponent(entity, EntityTreeComponent, { parentEntity })
+    setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
   }
 
   const parentTransform = getComponent(parentEntity, TransformComponent)
@@ -191,24 +191,25 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
 
-  /** @todo networking all objects breaks portals currently - need to implement checks with connecting to instance server to ensure it's the same scene */
-  // if (Engine.instance.worldNetwork?.isHosting) {
-  //   dispatchAction(
-  //     WorldNetworkAction.registerSceneObject({
-  //       objectUuid: node.uuid
-  //     })
-  //   )
-  // }
+  if (Engine.instance.worldNetwork?.isHosting) {
+    const uuid = getComponent(entity, UUIDComponent)
+    dispatchAction(
+      WorldNetworkAction.registerSceneObject({
+        objectUuid: uuid
+      })
+    )
+  }
 }
 
 export function serializeNodeToWorld(entity: Entity) {
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
-  const jsonEntity = getState(SceneState).sceneData!.scene.entities[entityTreeNode.uuid] as EntityJson
+  const nodeUUID = getComponent(entity, UUIDComponent)
+  const jsonEntity = getState(SceneState).sceneData!.scene.entities[nodeUUID] as EntityJson
   if (jsonEntity) {
     jsonEntity.components = serializeEntity(entity)
     if (entityTreeNode.parentEntity && entityTreeNode.parentEntity !== getState(SceneState).sceneEntity) {
-      const parentNode = getComponent(entityTreeNode.parentEntity, EntityTreeComponent)
-      jsonEntity.parent = parentNode.uuid
+      const parentNodeUUID = getComponent(entityTreeNode.parentEntity, UUIDComponent)
+      jsonEntity.parent = parentNodeUUID
     }
   }
 }
@@ -218,9 +219,8 @@ export function serializeNodeToWorld(entity: Entity) {
  * @param node
  * @param tree
  */
-export function removeEntityNodeRecursively(entity: Entity, serialize = false) {
-  traverseEntityNode(entity, (childEntity) => {
-    if (serialize) serializeNodeToWorld(childEntity)
+export function removeEntityNodeRecursively(entity: Entity) {
+  traverseEntityNodeChildFirst(entity, (childEntity) => {
     removeEntity(childEntity)
   })
 }
@@ -250,7 +250,7 @@ export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, 
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   if (entityTreeNode.parentEntity === parentEntity) return
   if (parentEntity) addEntityNodeChild(entity, parentEntity)
-  else setComponent(entity, EntityTreeComponent, { parentEntity: null, uuid: entityTreeNode.uuid })
+  else setComponent(entity, EntityTreeComponent, { parentEntity: null })
 }
 
 /**
@@ -287,6 +287,23 @@ export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: n
   }
 }
 
+export function traverseEntityNodeChildFirst(
+  entity: Entity,
+  cb: (entity: Entity, index: number) => void,
+  index = 0
+): void {
+  const entityTreeNode = getComponent(entity, EntityTreeComponent)
+
+  if (!entityTreeNode) return
+
+  for (let i = 0; i < entityTreeNode.children.length; i++) {
+    const child = entityTreeNode.children[i]
+    traverseEntityNodeChildFirst(child, cb, i)
+  }
+
+  cb(entity, index)
+}
+
 /**
  * Iteratively traverse parent nodes for given Entity Tree Node
  * @param node Node for which traversal will occur
@@ -294,33 +311,34 @@ export function traverseEntityNode(entity: Entity, cb: (entity: Entity, index: n
  * @param pred Predicate function which will not process a node or its children if return false
  * @param snubChildren If true, will not traverse children of a node if pred returns false
  */
-export function iterateEntityNode(
+export function iterateEntityNode<R>(
   entity: Entity,
-  cb: (entity: Entity, index: number) => void,
+  cb: (entity: Entity, index: number) => R,
   pred: (entity: Entity) => boolean = (x) => true,
-  snubChildren: boolean = false
-): void {
+  snubChildren = false
+): R[] {
   const frontier = [[entity]]
+  const result: R[] = []
   while (frontier.length > 0) {
     const items = frontier.pop()!
     let idx = 0
-    for (let i = 0; i < items.length; i += 1) {
+    for (let i = 0; i < items.length; i++) {
       const item = items[i]
       if (pred(item)) {
-        cb(item, idx)
+        result.push(cb(item, idx))
         idx += 1
-        if (snubChildren)
+        snubChildren &&
           frontier.push(
             getComponent(item, EntityTreeComponent).children?.filter((x) => hasComponent(x, EntityTreeComponent)) ?? []
           )
       }
-      if (!snubChildren) {
+      !snubChildren &&
         frontier.push(
           getComponent(item, EntityTreeComponent).children?.filter((x) => hasComponent(x, EntityTreeComponent)) ?? []
         )
-      }
     }
   }
+  return result
 }
 
 /**

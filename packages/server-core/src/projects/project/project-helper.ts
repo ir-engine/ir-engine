@@ -1,3 +1,4 @@
+import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import AWS from 'aws-sdk'
 import axios from 'axios'
@@ -19,7 +20,7 @@ import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { getOctokitForChecking, getUserOrgs, getUserRepos } from './github-helper'
+import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
@@ -109,7 +110,7 @@ export const updateBuilder = async (
         undefined,
         {
           headers: {
-            'Content-Type': 'application/strategic-merge-patch+json'
+            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
           }
         }
       )
@@ -876,7 +877,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
         undefined,
         {
           headers: {
-            'content-type': 'application/merge-patch+json'
+            'content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_MERGE_PATCH
           }
         }
       )

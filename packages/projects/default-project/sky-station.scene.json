@@ -1,6 +1,5 @@
 {
   "version": 0,
-  "metadata": {},
   "entities": {
     "1b731841-172a-4141-89cb-d1cceeec748f": {
       "components": [
@@ -32,11 +31,6 @@
         {
           "name": "envmapbake",
           "props": {
-            "bakeType": "Baked",
-            "resolution": 2048,
-            "refreshMode": "OnAwake",
-            "envMapOrigin": "__$project$__/default-project/sky-station.envmap.png",
-            "boxProjection": true,
             "bakePosition": {
               "x": 0,
               "y": 0,
@@ -51,12 +45,16 @@
               "x": 1,
               "y": 1,
               "z": 1
-            }
+            },
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/sky-station.envmap.ktx2",
+            "boxProjection": true
           }
         }
       ],
-      "name": "sky-station",
-      "type": "envmap"
+      "name": "sky-station"
     },
     "1e8b1451-a87f-4cd4-8556-d0732f328a3c": {
       "components": [
@@ -64,20 +62,20 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
+              "x": 17.956847776903302,
+              "y": 2.5,
+              "z": -31.999999999999996
             },
             "rotation": {
               "x": 0,
-              "y": 0,
+              "y": 0.3826834323650898,
               "z": 0,
-              "w": 1
+              "w": 0.9238795325112867
             },
             "scale": {
-              "x": 1,
+              "x": 0.9999999999999993,
               "y": 1,
-              "z": 1
+              "z": 0.9999999999999993
             }
           }
         },
@@ -88,8 +86,7 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 0,
-      "name": "scene preview camera",
-      "type": "camera"
+      "name": "scene preview camera"
     },
     "35621369-7e83-4878-953c-f30bf81dc775": {
       "components": [
@@ -139,8 +136,7 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 1,
-      "name": "skybox",
-      "type": "camera"
+      "name": "skybox"
     },
     "2b68a123-8a48-4258-a985-69a36679b4ef": {
       "components": [
@@ -174,8 +170,7 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 2,
-      "name": "spawn point",
-      "type": "spawn_point"
+      "name": "spawn point"
     },
     "bd83d58b-80e4-40a2-9a1d-d45aaee0c76a": {
       "components": [
@@ -215,15 +210,11 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
+            "resource": {
+              "src": "__$project$__/default-project/assets/Skybase.glb"
+            },
             "generateBVH": true,
-            "matrixAutoUpdate": true
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
+            "avoidCameraOcclusion": false
           }
         },
         {
@@ -239,8 +230,7 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 3,
-      "name": "Model",
-      "type": "model"
+      "name": "Model"
     },
     "e29dce88-8f22-4f8d-ae5d-e7dd0d55c41a": {
       "components": [
@@ -272,15 +262,14 @@
         {
           "name": "ambient-light",
           "props": {
-            "color": 13686783,
+            "color": 16777215,
             "intensity": 1.6
           }
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 4,
-      "name": "Ambient Light",
-      "type": "light"
+      "name": "Ambient Light"
     },
     "5867cc3f-4c7d-47e6-9a7b-db77cdcf4e7c": {
       "components": [
@@ -321,9 +310,15 @@
           "props": {
             "controls": true,
             "paused": false,
-            "paths": [
-              "__$project$__/default-project/assets/SampleVideo.mp4"
+            "paths": [],
+            "resources": [
+              {
+                "path": "__$project$__/default-project/assets/SampleVideo.mp4",
+                "mediaType": "video"
+              }
             ],
+            "volume": 1,
+            "synchronize": true,
             "playMode": "loop",
             "isMusic": false
           }
@@ -343,8 +338,7 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 5,
-      "name": "Video",
-      "type": "video"
+      "name": "Video"
     },
     "03162202-1925-44e8-9d64-d8f5aba3a476": {
       "components": [
@@ -378,40 +372,6 @@
           "props": {
             "cast": true,
             "receive": true
-          }
-        },
-        {
-          "name": "particle-emitter",
-          "props": {
-            "mode": "LIBRARY",
-            "src": "/static/editor/dot.png",
-            "startColor": 11860735,
-            "middleColor": 7785939,
-            "endColor": 45055,
-            "startOpacity": 1,
-            "middleOpacity": 1,
-            "endOpacity": 0,
-            "colorCurve": "linear",
-            "sizeCurve": "linear",
-            "startSize": 0.25,
-            "endSize": 0,
-            "sizeRandomness": 0,
-            "ageRandomness": 10,
-            "lifetime": 5,
-            "lifetimeRandomness": 5,
-            "particleCount": 1000,
-            "startVelocity": {
-              "x": 0,
-              "y": 0,
-              "z": 1
-            },
-            "endVelocity": {
-              "x": 0,
-              "y": 0,
-              "z": 5
-            },
-            "velocityCurve": "linear",
-            "angularVelocity": 0
           }
         }
       ],
@@ -457,15 +417,11 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
+            "resource": {
+              "src": "__$project$__/default-project/assets/test-equippable.glb"
+            },
             "generateBVH": true,
-            "matrixAutoUpdate": true
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
+            "avoidCameraOcclusion": false
           }
         },
         {
@@ -477,12 +433,27 @@
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1
           }
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7,
+            "restitution": 0.5
+          }
+        },
+        {
+          "name": "equippable",
+          "props": {}
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 7,
-      "name": "Equippable",
-      "type": "equippable"
+      "name": "Equippable"
     },
     "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae": {
       "components": [
@@ -519,6 +490,21 @@
           }
         },
         {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "restitution": 1,
+            "onEnter": "teleport",
+            "onExit": null,
+            "target": ""
+          }
+        },
+        {
           "name": "portal",
           "props": {
             "location": "apartment",
@@ -536,28 +522,14 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "order": "XYZ"
+              "w": 1
             }
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "onEnter": "teleport",
-            "target": ""
           }
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 8,
-      "name": "Portal - to Apartment",
-      "type": "portal"
+      "name": "Portal - to Apartment"
     },
     "87df7b80-3c4f-4272-8e44-bc28315a99ad": {
       "components": [
@@ -591,9 +563,15 @@
           "props": {
             "controls": true,
             "paused": true,
-            "paths": [
-              "__$project$__/default-project/assets/SampleAudio.mp3"
+            "paths": [],
+            "resources": [
+              {
+                "path": "__$project$__/default-project/assets/SampleAudio.mp3",
+                "mediaType": "audio"
+              }
             ],
+            "volume": 1,
+            "synchronize": true,
             "playMode": "loop",
             "isMusic": true
           }
@@ -613,8 +591,7 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 9,
-      "name": "Audio",
-      "type": "audio"
+      "name": "Audio"
     },
     "dd1eafe4-dc87-4353-b3ae-567d4f81c032": {
       "components": [
@@ -651,6 +628,21 @@
           }
         },
         {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "restitution": 1,
+            "onEnter": "teleport",
+            "onExit": null,
+            "target": ""
+          }
+        },
+        {
           "name": "portal",
           "props": {
             "location": "",
@@ -668,28 +660,14 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "order": "XYZ"
+              "w": 1
             }
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "onEnter": "teleport",
-            "target": ""
           }
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 10,
-      "name": "Portal - Sky Station Interior",
-      "type": "portal"
+      "name": "Portal - Sky Station Interior"
     },
     "2d7f9f97-20a0-40e8-a504-682f650af501": {
       "components": [
@@ -726,6 +704,21 @@
           }
         },
         {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "restitution": 1,
+            "onEnter": "teleport",
+            "onExit": null,
+            "target": ""
+          }
+        },
+        {
           "name": "portal",
           "props": {
             "location": "",
@@ -743,28 +736,14 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "order": "XYZ"
+              "w": 1
             }
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "onEnter": "teleport",
-            "target": ""
           }
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 11,
-      "name": "Portal - Sky Station Exterior",
-      "type": "portal"
+      "name": "Portal - Sky Station Exterior"
     },
     "355eab21-0ac3-4c7e-841b-8eff4e02842c": {
       "components": [
@@ -798,9 +777,15 @@
           "props": {
             "controls": false,
             "paused": false,
-            "paths": [
-              "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
+            "paths": [],
+            "resources": [
+              {
+                "path": "__$project$__/default-project/assets/sky-station-ambience-loop.mp3",
+                "mediaType": "audio"
+              }
             ],
+            "volume": 1,
+            "synchronize": true,
             "playMode": "loop",
             "isMusic": false
           }
@@ -820,8 +805,39 @@
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 12,
-      "name": "Audio - Ambience",
-      "type": "audio"
+      "name": "Audio - Ambience"
+    },
+    "6fbb28ad-d3a9-48aa-a077-44d7598a0a51": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 37,
+              "y": 4,
+              "z": 22.5
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0.21643961393810288,
+              "z": 0,
+              "w": 0.9762960071199334
+            },
+            "scale": {
+              "x": 0.999999999999999,
+              "y": 1,
+              "z": 0.999999999999999
+            }
+          }
+        },
+        {
+          "name": "scene-preview-camera",
+          "props": {}
+        }
+      ],
+      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
+      "index": 13,
+      "name": "entity-13"
     }
   },
   "root": "1b731841-172a-4141-89cb-d1cceeec748f"

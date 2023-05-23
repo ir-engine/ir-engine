@@ -11,7 +11,7 @@ import { useRouter } from '@etherealengine/client-core/src/common/services/Route
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState, getEngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -25,8 +25,8 @@ import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
-import { useEditorErrorState } from '../services/EditorErrorServices'
-import { EditorAction, useEditorState } from '../services/EditorServices'
+import { EditorErrorState } from '../services/EditorErrorServices'
+import { EditorAction, EditorState } from '../services/EditorServices'
 import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
@@ -128,15 +128,14 @@ DockContainer.defaultProps = {
  *
  */
 const EditorContainer = () => {
-  const editorState = useEditorState()
+  const editorState = useHookstate(getMutableState(EditorState))
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
   const sceneLoading = useHookstate(getMutableState(EngineState)).sceneLoading
 
-  const errorState = useEditorErrorState()
-  const editorError = errorState.error
+  const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
@@ -260,7 +259,7 @@ const EditorContainer = () => {
   }
 
   const onSaveAs = async () => {
-    const sceneLoaded = getEngineState().sceneLoaded.value
+    const sceneLoaded = getState(EngineState).sceneLoaded
 
     // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
     if (!sceneLoaded) {
@@ -464,10 +463,10 @@ const EditorContainer = () => {
   }, [sceneLoaded])
 
   useEffect(() => {
-    if (editorError) {
-      onEditorError(editorError.value)
+    if (errorState.value) {
+      onEditorError(errorState.value)
     }
-  }, [editorError])
+  }, [errorState])
 
   const generateToolbarMenu = () => {
     return [

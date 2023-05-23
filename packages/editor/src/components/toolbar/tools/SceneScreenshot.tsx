@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Icon from '@etherealengine/ui/src/Icon/index'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon/index'
 
 import { downloadScreenshot } from '../../../functions/takeScreenshot'
 import { InfoTooltip } from '../../layout/Tooltip'

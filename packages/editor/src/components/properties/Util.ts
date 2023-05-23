@@ -47,12 +47,12 @@ export const updateProperties = <C extends Component>(
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value]
+    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
     : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityOrObjectUUID[])
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
 
 export function traverseScene<T>(

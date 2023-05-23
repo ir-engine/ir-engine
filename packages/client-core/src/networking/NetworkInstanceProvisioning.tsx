@@ -9,19 +9,19 @@ import {
   MediaInstanceConnectionService,
   useMediaInstance
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { MediaStreamService } from '@etherealengine/client-core/src/media/services/MediaStreamService'
 import { ChatAction, ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { NetworkUserService, NetworkUserState } from '@etherealengine/client-core/src/user/services/NetworkUserService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { useSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Groups } from '@mui/icons-material'
 
 import { FriendService } from '../social/services/FriendService'
-import { PartyService, PartyState } from '../social/services/PartyService'
+import { PartyService, PartyState, PartySystem } from '../social/services/PartyService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import PartyMenu from '../user/components/UserMenu/menus/PartyMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -116,9 +116,6 @@ export const WorldInstanceProvisioning = () => {
 }
 
 export const MediaInstanceProvisioning = () => {
-  const authState = useHookstate(getMutableState(AuthState))
-  const selfUser = authState.user
-  const userState = useHookstate(getMutableState(NetworkUserState))
   const chatState = useHookstate(getMutableState(ChatState))
 
   const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
@@ -139,35 +136,20 @@ export const MediaInstanceProvisioning = () => {
     }
   }, [chatState.instanceChannelFetched])
 
-  // Once the instance server is provisioned, connect to it
-  useEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value)
-      NetworkUserService.getLayerUsers(true)
-  }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
-
-  useEffect(() => {
-    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value)
-      NetworkUserService.getLayerUsers(false)
-  }, [selfUser?.channelInstanceId, userState.channelLayerUsersUpdateNeeded])
-
   // Once the media server is provisioned, connect to it
   useEffect(() => {
     if (
       mediaNetworkHostId &&
-      currentChannelInstanceConnection?.value &&
-      currentChannelInstanceConnection.provisioned.value === true &&
-      currentChannelInstanceConnection.readyToConnect.value === true &&
-      currentChannelInstanceConnection.connecting.value === false &&
-      currentChannelInstanceConnection.connected.value === false
+      currentChannelInstanceConnection?.get({ noproxy: true }) &&
+      currentChannelInstanceConnection.provisioned.value &&
+      currentChannelInstanceConnection.readyToConnect.value &&
+      !currentChannelInstanceConnection.connecting.value &&
+      !currentChannelInstanceConnection.connected.value
     ) {
       MediaInstanceConnectionService.connectToServer(
         mediaNetworkHostId,
         currentChannelInstanceConnection.channelId.value
       )
-      MediaStreamService.updateCamVideoState()
-      MediaStreamService.updateCamAudioState()
-      MediaStreamService.updateScreenAudioState()
-      MediaStreamService.updateScreenVideoState()
     }
   }, [
     currentChannelInstanceConnection?.connected,
@@ -189,6 +171,8 @@ export const PartyInstanceProvisioning = () => {
   const selfUser = authState.user
   const chatState = useHookstate(getMutableState(ChatState))
   const partyState = useHookstate(getMutableState(PartyState))
+
+  useSystem(PartySystem, { before: PresentationSystemGroup })
 
   const currentChannelInstanceConnection = useMediaInstance()
 
@@ -215,13 +199,14 @@ export const PartyInstanceProvisioning = () => {
 
   // Once we have the world server, provision the party server
   useEffect(() => {
-    if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
-      const partyChannel = Object.values(chatState.channels.channels.value).find(
+    if (selfUser?.partyId?.value && chatState.channels.channels?.get({ noproxy: true })) {
+      const partyChannel = Object.values(chatState.channels.channels.get({ noproxy: true })).find(
         (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
       )
-      const partyUser = partyState.party?.partyUsers?.value
-        ? partyState.party.partyUsers.value.find((partyUser) => partyUser.userId === selfUser.id.value)
-        : null
+      const partyUser =
+        partyState.party?.partyUsers
+          ?.get({ noproxy: true })
+          ?.find((partyUser) => partyUser.userId === selfUser.id.value) || null
       if (
         chatState.partyChannelFetched?.value &&
         partyChannel &&
@@ -235,7 +220,7 @@ export const PartyInstanceProvisioning = () => {
   }, [
     selfUser?.partyId?.value,
     partyState.party?.id,
-    chatState.channels.channels.value as any,
+    chatState.channels.channels?.get({ noproxy: true }),
     chatState.partyChannelFetching?.value,
     chatState.partyChannelFetched?.value
   ])

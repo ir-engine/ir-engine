@@ -2,35 +2,26 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
-import { dispatchAction } from '@etherealengine/hyperflux'
-import Dashboard from '@etherealengine/ui/src/Dashboard'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
-import AdminSystem from '../systems/AdminSystem'
-import { useAuthState } from '../user/services/AuthService'
-import UserUISystem from '../user/UserUISystem'
+import { AdminSystem } from '../systems/AdminSystem'
+import { AuthState } from '../user/services/AuthService'
+import { UserUISystem } from '../user/UserUISystem'
 import Analytics from './components/Analytics'
 
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
-const AdminSystemInjection = [
-  {
-    uuid: 'core.admin.AdminSystem',
-    type: SystemUpdateType.POST_RENDER,
-    systemLoader: () => Promise.resolve({ default: AdminSystem })
-  },
-  {
-    uuid: 'ee.client.core.UserUISystem',
-    type: SystemUpdateType.POST_RENDER,
-    systemLoader: () => Promise.resolve({ default: UserUISystem })
-  }
-]
+const AdminSystemInjection = () => {
+  startSystems([AdminSystem, UserUISystem], { after: PresentationSystemGroup })
+}
 
 const AdminRoutes = () => {
   const location = useLocation()
-  const admin = useAuthState().user
+  const admin = useHookstate(getMutableState(AuthState)).user
 
   let allowedRoutes = {
     analytics: false,
@@ -48,15 +39,14 @@ const AdminRoutes = () => {
     routes: false,
     projects: false,
     settings: false,
-    server: false
+    server: false,
+    recording: false
   }
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    initSystems(AdminSystemInjection).then(async () => {
-      // @ts-ignore
-      dispatchAction(EngineActions.initializeEngine({ initialised: true }))
-    })
+    AdminSystemInjection()
+    dispatchAction(EngineActions.initializeEngine({ initialised: true }))
   }, [])
 
   scopes.forEach((scope) => {

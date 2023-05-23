@@ -11,13 +11,13 @@ import {
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/Button'
-import Checkbox from '@etherealengine/ui/src/Checkbox'
-import Container from '@etherealengine/ui/src/Container'
-import DialogActions from '@etherealengine/ui/src/DialogActions'
-import DialogTitle from '@etherealengine/ui/src/DialogTitle'
-import FormControlLabel from '@etherealengine/ui/src/FormControlLabel'
-import Icon from '@etherealengine/ui/src/Icon'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
@@ -73,7 +73,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     })
     return {
       value: el.tag,
-      label: `Commit ${el.commitSHA.slice(0, 8)} -- ${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
+      label: `Commit ${el.commitSHA?.slice(0, 8)} -- ${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
         el.engineVersion
       } -- Pushed ${pushedDate}`
     }

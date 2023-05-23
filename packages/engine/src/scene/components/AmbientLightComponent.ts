@@ -3,10 +3,12 @@ import { AmbientLight, Color } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const AmbientLightComponent = defineComponent({
   name: 'AmbientLightComponent',
+  jsonID: 'ambient-light',
 
   onInit: (entity) => {
     const light = new AmbientLight()
@@ -28,7 +30,7 @@ export const AmbientLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value
     }
   },
@@ -37,8 +39,9 @@ export const AmbientLightComponent = defineComponent({
     removeObjectFromGroup(entity, component.light.value)
   },
 
-  reactor: function ({ root }) {
-    const light = useComponent(root.entity, AmbientLightComponent)
+  reactor: function () {
+    const entity = useEntityContext()
+    const light = useComponent(entity, AmbientLightComponent)
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
@@ -51,5 +54,3 @@ export const AmbientLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_AMBIENT_LIGHT = 'ambient-light'

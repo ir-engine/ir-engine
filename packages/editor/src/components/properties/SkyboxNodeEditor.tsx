@@ -1,15 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Color } from 'three'
 
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import {
-  ComponentType,
-  getComponent,
-  hasComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent, getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SkyTypeEnum } from '@etherealengine/engine/src/scene/constants/SkyTypeEnum'
 

@@ -7,6 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
+  ComponentJSONIDMap,
   ComponentMap,
   getComponent,
   removeComponent,
@@ -52,20 +53,13 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      const componentId = Engine.instance.sceneComponentRegistry.get(key)
-      if (typeof componentId === 'string') {
-        const deserialize = Engine.instance.sceneLoadingRegistry.get(componentId)?.deserialize
-        if (typeof deserialize === 'function') deserialize(entity, value)
-        else addComponent(entity, component, value)
-      } else {
-        addComponent(entity, component, value)
-      }
+      addComponent(entity, component, value)
       getComponent(entity, GLTFLoadedComponent).push(component)
     }
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    const component = Array.from(Engine.instance.sceneComponentRegistry).find(([_, prefab]) => prefab === key)?.[0]
+    const component = Array.from(ComponentJSONIDMap.keys()).find((jsonID) => jsonID === key)
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${component}'`)
     } else {

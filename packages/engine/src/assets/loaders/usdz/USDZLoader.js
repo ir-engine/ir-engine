@@ -269,9 +269,6 @@ class USDZLoader extends Loader {
 
 		let text = fflate.strFromU8( file );
 
-		//remove all "nan" values
-		text = text.replace('nan', '0')
-
 		const root = parser.parse( text );
 		const plugins = this.plugins
 		// Build scene
@@ -389,6 +386,9 @@ class USDZLoader extends Loader {
 
 			let geometry = new BufferGeometry();
 			let indices = []
+			function parseArray( text) {
+				return JSON.parse( text.replaceAll(/[()]*/g,'').replaceAll(/nan|inf/g, '0.0'))
+			}
 			if ( 'int[] faceVertexIndices' in data && typeof data['int[] faceVertexIndices'] === 'string' ) {
 
 				indices = JSON.parse( data[ 'int[] faceVertexIndices' ] )
@@ -398,7 +398,7 @@ class USDZLoader extends Loader {
 
 			if ( 'point3f[] points' in data && typeof data['point3f[] points'] === 'string') {
 
-				const positions = JSON.parse( data[ 'point3f[] points' ].replace( /[()]*/g, '' ) );
+				const positions = parseArray(data[ 'point3f[] points' ])
                 const positionArr = new Float32Array( positions )
 				const attribute = new BufferAttribute(positionArr , 3 );
 				geometry.setAttribute( 'position', attribute );
@@ -409,7 +409,7 @@ class USDZLoader extends Loader {
 			&& typeof data['normal3f[] normals'] === 'string'
 			&& data['normal3f[] normals'] !== "None" ) {
 
-				const normals = JSON.parse( data[ 'normal3f[] normals' ].replace( /[()]*/g, '' ) );
+				const normals = parseArray(data[ 'normal3f[] normals' ])
 				const attribute = new BufferAttribute( new Float32Array( normals ), 3 );
 				geometry.setAttribute( 'normal', attribute );
 
@@ -434,7 +434,7 @@ class USDZLoader extends Loader {
 			&& typeof data['texCoord2f[] primvars:st'] === 'string'
 			&& data['texCoord2f[] primvars:st'] !== 'None') {
 
-				let uvs = JSON.parse( data[ 'texCoord2f[] primvars:st' ].replace( /[()]*/g, '' ) );
+				let uvs = parseArray(data[ 'texCoord2f[] primvars:st' ])
 				const attribute = new BufferAttribute( new Float32Array( uvs ), 2 );
 
 				geometry.setAttribute( 'uv', attribute );
@@ -731,9 +731,10 @@ class USDZLoader extends Loader {
 					? Object.entries(nameContext['rel prototypes'])
 					: [[0, /[\s<>,]*(.*?)[\s<>,]*$/.exec(nameContext['rel prototypes'])[1]]]
 				for ( const [i, prototypePath] of prototypePaths ) {
+					console.log("prototypepath:", prototypePath)
 					const geo = findMeshGeometry(findContext(prototypePath))
 					const baseMesh = geo ? buildMesh(geo) : new Mesh()
-					baseMesh.name = /\/([^\/]*)$/.exec(prototypePath)?.[1] || `baseMesh-${i}`
+					baseMesh.name = /\/([^/]*)$/.exec(prototypePath)?.[1] || `baseMesh-${i}`
 					baseMesh.geometry.scale( 1, 1, 1 )
 					baseMesh.geometry.computeBoundingBox()
 					instanceTable[i] = {
@@ -819,6 +820,7 @@ class USDZLoader extends Loader {
         const frontier = Object.keys(root).map(field => ["", root, field])
 		while (frontier.length > 0) {
             const [path, context, name] = frontier.pop()
+						console.log("path", path, "context", context, "name", name)
             const nameContext = context[name]
             if ( registryRegex.test( name ) ) {
                 const domain = registryRegex.exec( name )[1]

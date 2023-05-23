@@ -1,6 +1,6 @@
 import { Color, Material, Texture } from 'three'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import {
   materialIdToDefaultArgs,
@@ -8,7 +8,7 @@ import {
   protoIdToFactory,
   prototypeFromId
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary, MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
 import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
@@ -36,7 +36,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
     const extension: EEMaterialExtensionType = materialDef.extensions[this.name]
-    const defaultArgs = getMaterialLibrary().materials[extension.uuid].value
+    const defaultArgs = getState(MaterialLibraryState).materials[extension.uuid]
       ? materialIdToDefaultArgs(extension.uuid)!
       : prototypeFromId(extension.prototype).arguments
     return Promise.all(

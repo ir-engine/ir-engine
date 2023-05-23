@@ -2,10 +2,10 @@ import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
 import { SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   getComponent,
   getMutableComponent,
@@ -25,11 +25,13 @@ import {
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
-  const existingAvatar =
-    WorldNetworkAction.spawnAvatar.matches.test(action) &&
-    !!Engine.instance.getUserAvatarEntity(action.$from) &&
-    action.uuid === action.$from
-  if (existingAvatar) return
+  // const existingAvatar =
+  //   WorldNetworkAction.spawnAvatar.matches.test(action) &&
+  //   !!Engine.instance.getUserAvatarEntity(action.$from) &&
+  //   action.uuid === action.$from
+  // if (existingAvatar) return
+
+  if (UUIDComponent.entitiesByUUID[action.uuid]) return
 
   const entity = createEntity()
   setComponent(entity, UUIDComponent, action.uuid)
@@ -66,7 +68,7 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
 }
 
 const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE) => {
-  const entity = UUIDComponent.entitiesByUUID[action.objectUuid]?.value!
+  const entity = UUIDComponent.entitiesByUUID[action.objectUuid]
 
   if (!entity) return console.warn('[WorldNetworkAction] Tried to register a scene entity that does not exist', action)
 
@@ -97,6 +99,10 @@ const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destr
       `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
     )
   removeEntity(entity)
+  const idx = Engine.instance.store.actions.cached.findIndex((a) => {
+    WorldNetworkAction.spawnObject.matches.test(a) && a.networkId === action.networkId
+  })
+  if (idx !== -1) Engine.instance.store.actions.cached.splice(idx, 1)
 }
 
 const receiveRequestAuthorityOverObject = (
@@ -153,7 +159,7 @@ const receiveTransferAuthorityOfObject = (
 }
 
 const receiveSetUserTyping = (action: typeof WorldNetworkAction.setUserTyping.matches._TYPE) => {
-  getEngineState().usersTyping[action.$from].set(action.typing ? true : none)
+  getMutableState(EngineState).usersTyping[action.$from].set(action.typing ? true : none)
 }
 
 export const WorldNetworkActionReceptor = {

@@ -124,7 +124,7 @@ export const ResourceService = {
     }
   },
   fetchAdminResources: async (skip = 0, search: string | null = null, sortField = 'key', orderBy = 'asc') => {
-    let sortData = {}
+    const sortData = {}
     if (sortField.length > 0) {
       sortData[sortField] = orderBy === 'desc' ? 0 : 1
     }

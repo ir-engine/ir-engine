@@ -1,17 +1,17 @@
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
 import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
-import { getFogSceneMetadataState } from '@etherealengine/engine/src/scene/systems/FogSystem'
 
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
+import { EditorComponentType } from './Util'
 
 const FogTypeOptions = [
   {
@@ -36,26 +36,29 @@ const FogTypeOptions = [
   }
 ]
 
-export const FogSettingsEditor = () => {
+export const FogSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const fogState = useHookstate(getFogSceneMetadataState())
-  const fog = fogState.get({ noproxy: true })
+  const fogState = useComponent(props.entity, FogSettingsComponent)
 
   return (
     <PropertyGroup name={t('editor:properties.fog.name')} description={t('editor:properties.fog.description')}>
       <InputGroup name="Fog Type" label={t('editor:properties.fog.lbl-fogType')}>
-        <SelectInput options={FogTypeOptions} value={fog.type} onChange={(val: FogType) => fogState.type.set(val)} />
+        <SelectInput
+          options={FogTypeOptions}
+          value={fogState.type.value}
+          onChange={(val: FogType) => fogState.type.set(val)}
+        />
       </InputGroup>
-      {fog.type !== FogType.Disabled && (
+      {fogState.type.value !== FogType.Disabled && (
         <>
           <InputGroup name="Fog Color" label={t('editor:properties.fog.lbl-fogColor')}>
             <ColorInput
-              value={new Color(fog.color)}
+              value={new Color(fogState.color.value)}
               onSelect={(val: Color) => fogState.color.set('#' + val.getHexString())}
             />
           </InputGroup>
-          {fog.type === FogType.Linear ? (
+          {fogState.type.value === FogType.Linear ? (
             <>
               <NumericInputGroup
                 name="Fog Near Distance"
@@ -64,7 +67,7 @@ export const FogSettingsEditor = () => {
                 mediumStep={1}
                 largeStep={10}
                 min={0}
-                value={fog.near}
+                value={fogState.near.value}
                 onChange={(val) => fogState.near.set(val)}
               />
               <NumericInputGroup
@@ -74,7 +77,7 @@ export const FogSettingsEditor = () => {
                 mediumStep={100}
                 largeStep={1000}
                 min={0}
-                value={fog.far}
+                value={fogState.far.value}
                 onChange={(val) => fogState.far.set(val)}
               />
             </>
@@ -87,10 +90,10 @@ export const FogSettingsEditor = () => {
                 mediumStep={0.1}
                 largeStep={0.25}
                 min={0}
-                value={fog.density}
+                value={fogState.density.value}
                 onChange={(val) => fogState.density.set(val)}
               />
-              {fog.type !== FogType.Exponential && (
+              {fogState.type.value !== FogType.Exponential && (
                 <NumericInputGroup
                   name="Fog Height"
                   label={t('editor:properties.fog.lbl-fogHeight')}
@@ -98,11 +101,11 @@ export const FogSettingsEditor = () => {
                   mediumStep={0.1}
                   largeStep={0.25}
                   min={0}
-                  value={fog.height}
+                  value={fogState.height.value}
                   onChange={(val) => fogState.height.set(val)}
                 />
               )}
-              {fog.type === FogType.Brownian && (
+              {fogState.type.value === FogType.Brownian && (
                 <NumericInputGroup
                   name="Fog Time Scale"
                   label={t('editor:properties.fog.lbl-fogTimeScale')}
@@ -110,7 +113,7 @@ export const FogSettingsEditor = () => {
                   mediumStep={0.1}
                   largeStep={0.25}
                   min={0.001}
-                  value={fog.timeScale}
+                  value={fogState.timeScale.value}
                   onChange={(val) => fogState.timeScale.set(val)}
                 />
               )}

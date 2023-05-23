@@ -171,10 +171,6 @@
       "xrusersetting": "XR",
       "other-audio-setting": "Other Audio Settings",
       "use-positional-media": "Spatial User Audio and Video Above Avatar",
-      "rotation": "Rotation",
-      "rotation-smooth-speed": "Rotation Smooth Speed",
-      "rotation-angle": "Rotation Angle",
-      "moving": "Moving",
       "user-avatar": "Avatar",
       "invert-rotation": "Invert Gamepads",
       "show-avatar": "Show Avatar",
@@ -288,7 +284,8 @@
       "avatars": "Avatars",
       "benchmarking": "Benchmarking",
       "bots": "Bots",
-      "server": "Server"
+      "server": "Server",
+      "recordings": "Recordings"
     }
   },
   "oauth": {

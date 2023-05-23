@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { dispatchAction, useState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import Box from '@mui/material/Box'
 
-import { EditorHelperAction, useEditorHelperState } from '../../services/EditorHelperState'
+import { EditorHelperAction, EditorHelperState } from '../../services/EditorHelperState'
 import BooleanInput from '../inputs/BooleanInput'
 import { InfoTooltip } from '../layout/Tooltip'
 import Dialog from './Dialog'
@@ -19,7 +19,7 @@ import Dialog from './Dialog'
  */
 export function SaveSceneDialog({ onConfirm, onCancel }) {
   const { t } = useTranslation()
-  const editorHelperState = useEditorHelperState()
+  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const state = useState({
     isGenerateThumbnailsEnabled: editorHelperState.isGenerateThumbnailsEnabled.value
   })

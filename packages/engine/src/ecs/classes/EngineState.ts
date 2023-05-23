@@ -1,6 +1,7 @@
 import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
 
-import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { matches, matchesEntity, matchesPeerID, Validator } from '../../common/functions/MatchesUtils'
+import { NetworkPeer } from '../../networking/interfaces/NetworkPeer'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -34,7 +35,8 @@ export const EngineState = defineState({
     publicPath: '',
     transformsNeedSorting: true,
     isBot: false,
-    isEditor: false
+    isEditor: false,
+    systemPerformanceProfilingEnabled: false
   }
 })
 
@@ -59,10 +61,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
-/**@deprecated use getMutableState directly instead */
-export const getEngineState = () => getMutableState(EngineState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useEngineState = () => useState(getEngineState())
 
 export class EngineActions {
   static setTeleporting = defineAction({

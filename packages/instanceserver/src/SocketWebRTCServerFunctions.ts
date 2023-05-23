@@ -9,11 +9,11 @@ import {
   Worker
 } from 'mediasoup/node/lib/types'
 
-import { MediaStreamAppData } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createNetwork, DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
+import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
 import { getState } from '@etherealengine/hyperflux'
 import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -57,7 +57,8 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     },
 
     /**
-     * We need a to specify which data channel type this is
+     * We need to specify which data channel type this is
+     * @param dataChannelType
      * @param data
      */
     bufferToAll: (dataChannelType: DataChannelType, data: any) => {

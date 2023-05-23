@@ -21,15 +21,11 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import {
-  getPostProcessingSceneMetadataState,
-  PostProcessingSceneMetadataLabel
-} from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Grid from '@etherealengine/ui/src/Grid'
-import Icon from '@etherealengine/ui/src/Icon'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
@@ -61,15 +57,6 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const handOptions = ['left', 'right']
   const selectedTab = useHookstate('general')
   const engineState = useHookstate(getMutableState(EngineState))
-
-  const postProcessingSceneMetadataState = getMutableState(SceneState).sceneMetadataRegistry[
-    PostProcessingSceneMetadataLabel
-  ]
-    ? getPostProcessingSceneMetadataState()
-    : undefined
-  const postprocessingSettings = postProcessingSceneMetadataState?.enabled
-    ? useHookstate(postProcessingSceneMetadataState.enabled)
-    : { value: undefined }
 
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
@@ -459,8 +446,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               <Grid item xs={12} sm={4}>
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-pp')}
-                  checked={postprocessingSettings.value && rendererState.usePostProcessing.value}
-                  disabled={!postprocessingSettings.value}
+                  checked={rendererState.usePostProcessing.value}
                   onChange={handlePostProcessingCheckbox}
                 />
               </Grid>

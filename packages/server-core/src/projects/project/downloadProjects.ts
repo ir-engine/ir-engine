@@ -40,27 +40,27 @@ export const download = async (projectName: string, storageProviderName?: string
     )
 
     logger.info(`[ProjectLoader]: Successfully downloaded and mounted project "${projectName}".`)
-    if (projectName !== 'default-project') {
-      const npmInstallPromise = new Promise<void>((resolve) => {
-        const npmInstallProcess = spawn('npm', ['install', '--legacy-peer-deps'], { cwd: localProjectDirectory })
-        npmInstallProcess.once('exit', () => {
-          logger.info('Finished npm installing %s', projectName)
-          resolve()
-        })
-        npmInstallProcess.once('error', resolve)
-        npmInstallProcess.once('disconnect', resolve)
-        npmInstallProcess.stdout.on('data', (data) => logger.info(data.toString()))
-      }).then((result) => logger.info(result))
-      await Promise.race([
-        npmInstallPromise,
-        new Promise<void>((resolve) => {
-          setTimeout(() => {
-            logger.warn(`WARNING: npm installing ${projectName} took too long!`)
-            resolve()
-          }, 5 * 60 * 1000) // timeout after 5 minutes
-        })
-      ])
-    }
+    // if (projectName !== 'default-project') {
+    //   const npmInstallPromise = new Promise<void>((resolve) => {
+    //     const npmInstallProcess = spawn('npm', ['install', '--legacy-peer-deps'], { cwd: localProjectDirectory })
+    //     npmInstallProcess.once('exit', () => {
+    //       logger.info('Finished npm installing %s', projectName)
+    //       resolve()
+    //     })
+    //     npmInstallProcess.once('error', resolve)
+    //     npmInstallProcess.once('disconnect', resolve)
+    //     npmInstallProcess.stdout.on('data', (data) => logger.info(data.toString()))
+    //   }).then((result) => logger.info(result))
+    //   await Promise.race([
+    //     npmInstallPromise,
+    //     new Promise<void>((resolve) => {
+    //       setTimeout(() => {
+    //         logger.warn(`WARNING: npm installing ${projectName} took too long!`)
+    //         resolve()
+    //       }, 5 * 60 * 1000) // timeout after 5 minutes
+    //     })
+    //   ])
+    // }
   } catch (e) {
     const errorMsg = `[ProjectLoader]: Failed to download project ${projectName} with error: ${e.message}`
     logger.error(e, errorMsg)

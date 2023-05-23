@@ -3,24 +3,24 @@ import React from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
-import { ButtonTypes } from '@etherealengine/engine/src/input/InputState'
+import { OldButtonTypes } from '@etherealengine/engine/src/input/InputState'
 import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
 
-const triggerButton = (button: ButtonTypes, pressed: boolean): void => {
+const triggerButton = (button: OldButtonTypes, pressed: boolean): void => {
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
   const event = new CustomEvent(eventType, { detail: { button } })
   document.dispatchEvent(event)
 }
 
 const normalizeValues = (val) => {
-  const a = 1
-  const b = -1
+  const a = 5
+  const b = -5
   const maxVal = 50
   const minVal = -50
 
@@ -36,6 +36,7 @@ const handleMove = (e) => {
       value: { x: normalizeValues(-e.x), y: normalizeValues(e.y), angleRad: 0 }
     }
   })
+
   document.dispatchEvent(event)
 }
 
@@ -46,7 +47,7 @@ const handleStop = () => {
   document.dispatchEvent(event)
 }
 
-const buttonsConfig: Array<{ button: ButtonTypes; label: string }> = [
+const buttonsConfig: Array<{ button: OldButtonTypes; label: string }> = [
   {
     button: 'ButtonA',
     label: 'A'

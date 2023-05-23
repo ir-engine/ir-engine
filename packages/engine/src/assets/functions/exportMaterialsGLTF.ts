@@ -21,7 +21,7 @@ export default async function exportMaterialsGLTF(
   )
   lib.name = 'Materials'
   scene.add(lib)
-  const exporter = await createGLTFExporter()
+  const exporter = createGLTFExporter()
   const gltf = await new Promise<ArrayBuffer | { [key: string]: any }>((resolve) => {
     exporter.parse(
       scene,

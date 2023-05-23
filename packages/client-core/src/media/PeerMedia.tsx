@@ -1,10 +1,18 @@
 import React, { useEffect } from 'react'
 
-import { MediaTagType } from '@etherealengine/common/src/interfaces/MediaStreamConstants'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID, SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  MediaTagType,
+  NetworkState,
+  screenshareAudioDataChannelType,
+  screenshareVideoDataChannelType,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@etherealengine/engine/src/networking/NetworkState'
+import { getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
@@ -19,49 +27,41 @@ import {
   SocketWebRTCClientNetwork
 } from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
-import { NetworkUserState } from '../user/services/NetworkUserService'
-import { MediaState } from './services/MediaStreamService'
 
-export const getMediaChannels = (network: SocketWebRTCClientNetwork, consumers: ConsumerExtension[]) => {
-  const mediaState = getMutableState(MediaState)
-  const nearbyLayerUsers = mediaState.nearbyLayerUsers
-  const selfUserId = getMutableState(AuthState).user.id
-  const userState = getMutableState(NetworkUserState)
+export const getMediaChannels = (network: SocketWebRTCClientNetwork | Network, consumers: ConsumerExtension[]) => {
+  const mediaStreamState = getMutableState(MediaStreamState)
+  const selfUserId = getState(AuthState).user.id
   const channelConnectionState = getMutableState(MediaInstanceState)
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
 
   const displayedUsers = (
     network?.hostId && currentChannelInstanceConnection
-      ? currentChannelInstanceConnection.channelType?.value === 'party'
-        ? userState.channelLayerUsers?.value.filter((user) => {
-            return (
-              user.id !== selfUserId.value &&
-              user.channelInstanceId != null &&
-              user.channelInstanceId === network?.hostId
-            )
-          }) || []
-        : currentChannelInstanceConnection.channelType?.value === 'instance'
-        ? userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
-        : []
+      ? Array.from(network.peers.values()).filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId) ||
+        []
       : []
-  ).map((user) => user.id)
+  ).map((peer) => peer.userId)
 
   const mediaChannels = [] as Array<{ peerID: PeerID; mediaTag?: MediaTagType }>
 
   /** always put own peer first */
-  const selfPeerID = network?.peerID ?? 'self'
-  if (mediaState.isScreenVideoEnabled.value) mediaChannels.push({ peerID: selfPeerID, mediaTag: 'screen-video' })
-  if (mediaState.isScreenAudioEnabled.value) mediaChannels.push({ peerID: selfPeerID, mediaTag: 'screen-audio' })
-  mediaChannels.push({ peerID: selfPeerID, mediaTag: 'cam-video' })
-  mediaChannels.push({ peerID: selfPeerID, mediaTag: 'cam-audio' })
+  const selfPeerID =
+    network?.peerID ||
+    (network.peers && Array.from(network.peers.values()).find((peer) => peer.userId === selfUserId)?.peerID) ||
+    SelfPeerID
+  if (mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value)
+    mediaChannels.push({ peerID: selfPeerID, mediaTag: screenshareVideoDataChannelType })
+  if (mediaStreamState.screenAudioProducer.value != null && !mediaStreamState.screenShareAudioPaused.value)
+    mediaChannels.push({ peerID: selfPeerID, mediaTag: screenshareAudioDataChannelType })
+  mediaChannels.push({ peerID: selfPeerID, mediaTag: webcamVideoDataChannelType })
+  mediaChannels.push({ peerID: selfPeerID, mediaTag: webcamAudioDataChannelType })
 
   // filter out pairs of cam video & cam audio
   consumers.forEach((consumer) => {
     const isUnique = !mediaChannels.find(
       (u) =>
         consumer.appData.peerID === u.peerID &&
-        ((consumer.appData.mediaTag === 'cam-video' && u.mediaTag === 'cam-audio') ||
-          (consumer.appData.mediaTag === 'cam-audio' && u.mediaTag === 'cam-video'))
+        ((consumer.appData.mediaTag === webcamVideoDataChannelType && u.mediaTag === webcamAudioDataChannelType) ||
+          (consumer.appData.mediaTag === webcamAudioDataChannelType && u.mediaTag === webcamVideoDataChannelType))
     )
     if (isUnique && displayedUsers.includes(network.peers.get(consumer.appData.peerID)?.userId!))
       mediaChannels.push({ peerID: consumer.appData.peerID, mediaTag: consumer.appData.mediaTag })
@@ -80,7 +80,7 @@ export const getMediaChannels = (network: SocketWebRTCClientNetwork, consumers: 
 /**
  * Sets media stream state for a peer
  */
-const PeerConsumer = (props: {
+const PeerMedia = (props: {
   channel: ConsumerExtension | ProducerExtension
   peerID: PeerID
   mediaTag: MediaTagType
@@ -88,8 +88,11 @@ const PeerConsumer = (props: {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
 
   const peerID = props.peerID
-  const type = props.mediaTag.startsWith('screen') ? 'screen' : 'cam'
-  const isAudio = props.mediaTag.endsWith('audio')
+  const type =
+    props.mediaTag === screenshareAudioDataChannelType || props.mediaTag === screenshareVideoDataChannelType
+      ? 'screen'
+      : 'cam'
+  const isAudio = props.mediaTag === webcamAudioDataChannelType || props.mediaTag === screenshareAudioDataChannelType
 
   const isScreen = type === 'screen'
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
@@ -117,17 +120,17 @@ const PeerConsumer = (props: {
       peerMediaChannelState.audioProducerPaused.set(true)
       peerMediaChannelState.audioProducerGlobalMute.set(true)
     } else {
-      const videoConsumer = network.consumers?.find(
+      const videoConsumer = network.consumers.find(
         (c) =>
           c.appData.peerID === peerID &&
           c.producerId === producerId &&
-          c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+          c.appData.mediaTag === (isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType)
       )
-      const audioConsumer = network.consumers?.find(
+      const audioConsumer = network.consumers.find(
         (c) =>
           c.appData.peerID === peerID &&
           c.producerId === producerId &&
-          c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+          c.appData.mediaTag === (isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType)
       )
       if (videoConsumer) {
         videoConsumer.producerPaused = true
@@ -148,11 +151,17 @@ const PeerConsumer = (props: {
       peerMediaChannelState.audioProducerPaused.set(false)
       peerMediaChannelState.audioProducerGlobalMute.set(false)
     } else {
-      const videoConsumer = network.consumers?.find(
-        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+      const videoConsumer = network.consumers.find(
+        (c) =>
+          c.appData.peerID === peerID &&
+          c.producerId === producerId &&
+          c.appData.mediaTag === (isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType)
       )
-      const audioConsumer = network.consumers?.find(
-        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+      const audioConsumer = network.consumers.find(
+        (c) =>
+          c.appData.peerID === peerID &&
+          c.producerId === producerId &&
+          c.appData.mediaTag === (isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType)
       )
       if (videoConsumer) {
         videoConsumer.producerPaused = false
@@ -198,11 +207,15 @@ const PeerConsumer = (props: {
         }
       }
     } else {
-      const videoConsumer = network.consumers?.find(
-        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+      const videoConsumer = network.consumers.find(
+        (c) =>
+          c.appData.peerID === peerID &&
+          c.appData.mediaTag === (isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType)
       )
-      const audioConsumer = network.consumers?.find(
-        (c) => c.appData.peerID === peerID && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+      const audioConsumer = network.consumers.find(
+        (c) =>
+          c.appData.peerID === peerID &&
+          c.appData.mediaTag === (isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType)
       )
       if (videoConsumer) {
         peerMediaChannelState.videoProducerPaused.set(videoConsumer.producerPaused)
@@ -271,7 +284,7 @@ const PeerConsumer = (props: {
   }, [mediaStreamState.audioPaused])
 
   useEffect(() => {
-    if (isSelf) {
+    if (isSelf && !isScreen) {
       peerMediaChannelState.videoStreamPaused.set(mediaStreamState.videoPaused.value)
       if (videoElement != null) {
         if (mediaStreamState.videoPaused.value) {
@@ -285,29 +298,36 @@ const PeerConsumer = (props: {
   return null
 }
 
-export const PeerMedia = () => {
-  const mediaState = useHookstate(getMutableState(MediaState))
+export const PeerConsumers = () => {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
-  const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const selfUserId = getState(AuthState).user.id
+
+  const networkState = useHookstate(getMutableState(NetworkState))
+  const network = networkState?.get({ noproxy: true })
+  const mediaHostId = network.hostIds?.media
+  const mediaNetwork = mediaHostId ? network.networks[mediaHostId] : null
 
   // create a peer media stream for each peer with a consumer
   useEffect(() => {
-    const mediaChannels = getMediaChannels(network, mediaState.consumers.get({ noproxy: true }))
+    if (!mediaNetwork?.consumers) return
+    const mediaChannels = getMediaChannels(mediaNetwork, mediaNetwork.consumers)
     for (const consumer of mediaChannels) {
-      if (!peerMediaChannelState.value[consumer.peerID]) {
+      if (!peerMediaChannelState.get({ noproxy: true })[consumer.peerID]) {
         createPeerMediaChannels(consumer.peerID)
       }
     }
-    for (const peerID of Object.keys(peerMediaChannelState.value)) {
+    for (const peerID of Object.keys(peerMediaChannelState.get({ noproxy: true }))) {
       const peerConsumers = mediaChannels.filter((consumer) => consumer.peerID === peerID)
       if (peerConsumers.length === 0) {
         removePeerMediaChannels(peerID as PeerID)
       }
     }
   }, [
-    mediaState.nearbyLayerUsers.length,
-    mediaState.consumers.length,
+    mediaNetwork?.peerID,
+    mediaNetwork?.peers?.size,
+    mediaNetwork?.consumers?.length,
+    peerMediaChannelState.get({ noproxy: true }),
     mediaStreamState.videoStream,
     mediaStreamState.audioStream,
     mediaStreamState.screenAudioProducer,
@@ -320,30 +340,50 @@ export const PeerMedia = () => {
     channel: ConsumerExtension | ProducerExtension
   }[]
 
-  mediaChannels.push(
-    ...mediaState.consumers.value.map((media) => {
-      return { peerID: media.appData.peerID, mediaTag: media.appData.mediaTag, channel: media }
-    })
-  )
+  if (mediaNetwork)
+    mediaChannels.push(
+      ...mediaNetwork.consumers.map((media: ConsumerExtension) => {
+        return { peerID: media.appData.peerID, mediaTag: media.appData.mediaTag, channel: media }
+      })
+    )
 
   // own peer id
-  const peerID = network?.peerID ?? 'self'
-
+  const peerID =
+    mediaNetwork?.peerID ||
+    (mediaNetwork?.peers &&
+      Array.from(mediaNetwork.peers.values()).find((peer) => peer.userId === selfUserId)?.peerID) ||
+    ('self' as PeerID)
   if (mediaStreamState.camVideoProducer.value)
-    mediaChannels.push({ peerID, channel: mediaStreamState.camVideoProducer.value, mediaTag: 'cam-video' })
+    mediaChannels.push({
+      peerID,
+      channel: mediaStreamState.camVideoProducer.value,
+      mediaTag: webcamVideoDataChannelType
+    })
   if (mediaStreamState.camAudioProducer.value)
-    mediaChannels.push({ peerID, channel: mediaStreamState.camAudioProducer.value, mediaTag: 'cam-audio' })
+    mediaChannels.push({
+      peerID,
+      channel: mediaStreamState.camAudioProducer.value,
+      mediaTag: webcamAudioDataChannelType
+    })
   if (mediaStreamState.screenVideoProducer.value)
-    mediaChannels.push({ peerID, channel: mediaStreamState.screenVideoProducer.value, mediaTag: 'screen-video' })
+    mediaChannels.push({
+      peerID,
+      channel: mediaStreamState.screenVideoProducer.value,
+      mediaTag: screenshareVideoDataChannelType
+    })
   if (mediaStreamState.screenAudioProducer.value)
-    mediaChannels.push({ peerID, channel: mediaStreamState.screenAudioProducer.value, mediaTag: 'screen-audio' })
+    mediaChannels.push({
+      peerID,
+      channel: mediaStreamState.screenAudioProducer.value,
+      mediaTag: screenshareAudioDataChannelType
+    })
 
   return (
     <>
       {mediaChannels
-        .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+        .filter(({ peerID }) => peerMediaChannelState[peerID].get({ noproxy: true }))
         .map(({ channel, peerID, mediaTag }) => (
-          <PeerConsumer channel={channel} peerID={peerID} mediaTag={mediaTag} key={peerID + '-' + mediaTag} />
+          <PeerMedia channel={channel} peerID={peerID} mediaTag={mediaTag} key={peerID + '-' + mediaTag} />
         ))}
     </>
   )

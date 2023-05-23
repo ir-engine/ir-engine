@@ -1,6 +1,5 @@
 {
   "version": 0,
-  "metadata": {},
   "entities": {
     "60a390ad-4193-493d-84bf-cfb77b5095c2": {
       "components": [
@@ -32,11 +31,6 @@
         {
           "name": "envmapbake",
           "props": {
-            "bakeType": "Baked",
-            "resolution": 2048,
-            "refreshMode": "OnAwake",
-            "envMapOrigin": "__$project$__/default-project/apartment.envmap.png",
-            "boxProjection": true,
             "bakePosition": {
               "x": 0,
               "y": 0,
@@ -51,7 +45,12 @@
               "x": 1,
               "y": 1,
               "z": 1
-            }
+            },
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/apartment.envmap.png",
+            "boxProjection": true
           }
         }
       ],
@@ -170,7 +169,7 @@
           "name": "ground-plane",
           "props": {
             "color": 3561699,
-            "generateNavmesh": false
+            "visible": true
           }
         }
       ],
@@ -284,14 +283,11 @@
           "props": {
             "color": 16777215,
             "intensity": 0.6699999999999999,
+            "cameraFar": 2000,
             "castShadow": true,
-            "shadowMapResolution": [
-              512,
-              512
-            ],
+            "shadowMapResolution": 512,
             "shadowBias": -0.00001,
             "shadowRadius": 1,
-            "cameraFar": 2000,
             "useInCSM": true
           }
         }
@@ -331,8 +327,11 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/apartment.glb",
+            "resource": {
+              "src": "__$project$__/default-project/assets/apartment.glb"
+            },
             "generateBVH": true,
-            "matrixAutoUpdate": false
+            "avoidCameraOcclusion": false
           }
         },
         {
@@ -345,10 +344,10 @@
         {
           "name": "envmap",
           "props": {
-            "type": "Skybox",
-            "envMapTextureType": "Cubemap",
+            "type": "Texture",
+            "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapSourceURL": "__$project$__/default-project/apartment.envmap.ktx2",
             "envMapIntensity": 1
           }
         }
@@ -392,7 +391,8 @@
             "isTrigger": false,
             "removeMesh": false,
             "collisionLayer": 1,
-            "collisionMask": 7
+            "collisionMask": 7,
+            "restitution": 1
           }
         }
       ],
@@ -435,7 +435,8 @@
             "isTrigger": false,
             "removeMesh": false,
             "collisionLayer": 1,
-            "collisionMask": 7
+            "collisionMask": 7,
+            "restitution": 1
           }
         }
       ],
@@ -478,7 +479,8 @@
             "isTrigger": false,
             "removeMesh": false,
             "collisionLayer": 1,
-            "collisionMask": 7
+            "collisionMask": 7,
+            "restitution": 1
           }
         }
       ],
@@ -521,7 +523,8 @@
             "isTrigger": false,
             "removeMesh": false,
             "collisionLayer": 1,
-            "collisionMask": 7
+            "collisionMask": 7,
+            "restitution": 1
           }
         }
       ],
@@ -564,7 +567,8 @@
             "isTrigger": false,
             "removeMesh": false,
             "collisionLayer": 1,
-            "collisionMask": 7
+            "collisionMask": 7,
+            "restitution": 1
           }
         }
       ],
@@ -607,7 +611,8 @@
             "isTrigger": false,
             "removeMesh": false,
             "collisionLayer": 1,
-            "collisionMask": 7
+            "collisionMask": 7,
+            "restitution": 1
           }
         }
       ],
@@ -650,7 +655,8 @@
             "isTrigger": false,
             "removeMesh": false,
             "collisionLayer": 1,
-            "collisionMask": 7
+            "collisionMask": 7,
+            "restitution": 1
           }
         }
       ],
@@ -693,7 +699,8 @@
             "isTrigger": false,
             "removeMesh": false,
             "collisionLayer": 1,
-            "collisionMask": 7
+            "collisionMask": 7,
+            "restitution": 1
           }
         }
       ],
@@ -731,11 +738,6 @@
         {
           "name": "envmapbake",
           "props": {
-            "bakeType": "Baked",
-            "resolution": 2048,
-            "refreshMode": "OnAwake",
-            "envMapOrigin": "",
-            "boxProjection": true,
             "bakePosition": {
               "x": 0,
               "y": 0,
@@ -750,7 +752,12 @@
               "x": 1,
               "y": 1,
               "z": 1
-            }
+            },
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "",
+            "boxProjection": true
           }
         }
       ],
@@ -793,6 +800,21 @@
           }
         },
         {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "restitution": 1,
+            "onEnter": "teleport",
+            "onExit": null,
+            "target": ""
+          }
+        },
+        {
           "name": "portal",
           "props": {
             "location": "sky-station",
@@ -810,21 +832,8 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "order": "XYZ"
+              "w": 1
             }
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "onEnter": "teleport",
-            "target": ""
           }
         }
       ],
@@ -902,9 +911,15 @@
           "props": {
             "controls": false,
             "paused": false,
-            "paths": [
-              "__$project$__/default-project/assets/apartment-ambience.mp3"
+            "paths": [],
+            "resources": [
+              {
+                "path": "__$project$__/default-project/assets/apartment-ambience.mp3",
+                "mediaType": "audio"
+              }
             ],
+            "volume": 1,
+            "synchronize": true,
             "playMode": "loop",
             "isMusic": false
           }
@@ -962,6 +977,7 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
+            "restitution": 1,
             "onEnter": "activate",
             "onExit": "",
             "target": "Self"
@@ -1008,6 +1024,7 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 8,
+            "restitution": 1,
             "onEnter": "activate",
             "onExit": "",
             "target": "Self"
@@ -1056,8 +1073,11 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/keycard.glb",
+            "resource": {
+              "src": "__$project$__/default-project/assets/keycard.glb"
+            },
             "generateBVH": true,
-            "matrixAutoUpdate": true
+            "avoidCameraOcclusion": false
           }
         },
         {
@@ -1068,13 +1088,6 @@
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
           }
         }
       ],
@@ -1118,6 +1131,7 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 8,
+            "restitution": 1,
             "onEnter": "receiveVc",
             "onExit": "",
             "target": "Self"

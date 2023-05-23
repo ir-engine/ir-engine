@@ -5,14 +5,14 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 
 let users: any = []
 
 describe('user service', () => {
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
   })
   after(() => {
@@ -79,26 +79,6 @@ describe('user service', () => {
 
       assert.ok(item, 'user item is found')
     }
-  })
-
-  it('should find users by action layer-users', async () => {
-    const item = await app.service('user').find({
-      query: {
-        action: 'layer-users'
-      }
-    })
-
-    assert.ok(item, 'user items is found')
-  })
-
-  it('should find users by action channel-users', async () => {
-    const item = await app.service('user').find({
-      query: {
-        action: 'channel-users'
-      }
-    })
-
-    assert.ok(item, 'user items is found')
   })
 
   it('should find users by action invite-code-lookup', async () => {

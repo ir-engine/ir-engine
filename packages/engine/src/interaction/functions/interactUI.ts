@@ -14,8 +14,6 @@ export function createInteractUI(entity: Entity, interactMessage: string) {
   const nameComponent = getComponent(entity, NameComponent)
   addComponent(ui.entity, NameComponent, 'interact-ui-' + nameComponent)
 
-  addEntityNodeChild(ui.entity, entity)
-
   const xrui = getComponent(ui.entity, XRUIComponent)
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
     const mat = layer.contentMesh.material as THREE.MeshBasicMaterial

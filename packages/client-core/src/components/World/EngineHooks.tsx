@@ -1,10 +1,10 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { LocationAction, LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
+import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { AuthState, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -17,10 +17,8 @@ import {
   AppLoadingStates
 } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState, useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { initSystems, SystemModuleType } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
@@ -31,57 +29,62 @@ import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/
 import { PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
-import {
-  addActionReceptor,
-  addOutgoingTopicIfNecessary,
-  dispatchAction,
-  getMutableState,
-  getState,
-  removeActionReceptor
-} from '@etherealengine/hyperflux'
+import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
-import { useLocationState } from '../../social/services/LocationService'
+import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { ClientModules } from '../../world/ClientModules'
-import { loadSceneJsonOffline } from '../../world/utils'
+import { AvatarService } from '../../user/services/AvatarService'
+import { startClientSystems } from '../../world/startClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
-type LoadEngineProps = {
-  injectedSystems?: SystemModuleType<any>[]
-}
-
-export const initClient = async (injectedSystems: SystemModuleType<any>[] = []) => {
+export const initClient = async () => {
   if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  const projects = API.instance.client.service('projects').find()
+  const projects = Engine.instance.api.service('projects').find()
 
-  await ClientModules()
-  await initSystems(injectedSystems)
+  startClientSystems()
   await loadEngineInjection(await projects)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
-export const useLoadEngine = ({ injectedSystems }: LoadEngineProps) => {
+export const useLoadEngine = () => {
   useEffect(() => {
-    initClient(injectedSystems)
+    initClient()
   }, [])
 }
 
+const fetchMissingAvatar = async (user, avatarSpawnPose) => {
+  const avatar = await AvatarService.getAvatar(user.avatar.id.value)
+  if (avatar && (avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src))
+    spawnLocalAvatarInWorld({
+      avatarSpawnPose,
+      avatarDetail: {
+        avatarURL: avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src,
+        thumbnailURL: avatar.thumbnailResource?.LOD0_url || (avatar.thumbnailResource as any)?.src
+      },
+      name: user.name.value
+    })
+  else
+    NotificationService.dispatchNotify(
+      'Your avatar is missing its model. Please change your avatar from the user menu.',
+      { variant: 'error' }
+    )
+}
+
 export const useLocationSpawnAvatar = (spectate = false) => {
-  const engineState = useEngineState()
-  const authState = useAuthState()
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const authState = useHookstate(getMutableState(AuthState))
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
   useEffect(() => {
     if (spectate) {
-      if (!engineState.sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
+      if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
       dispatchAction(EngineActions.spectateUser({}))
       dispatchAction(EngineActions.joinedWorld({}))
       return
@@ -89,7 +92,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     if (
       Engine.instance.localClientEntity ||
-      !engineState.sceneLoaded.value ||
+      !sceneLoaded.value ||
       !authState.user.value ||
       !authState.user.avatar.value ||
       spectateParam
@@ -105,7 +108,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       ? getSpawnPoint(spawnPoint, Engine.instance.userId)
       : getRandomSpawnPoint(Engine.instance.userId)
 
-    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any).src)
+    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any)?.src)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
         avatarDetail: {
@@ -114,20 +117,15 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         },
         name: user.name.value
       })
-    else {
-      NotificationService.dispatchNotify(
-        'Your avatar is missing its model. Please change your avatar from the user menu.',
-        { variant: 'error' }
-      )
-    }
-  }, [engineState.sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
+    else fetchMissingAvatar(user, avatarSpawnPose)
+  }, [sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
 }
 
 export const usePortalTeleport = () => {
   const route = useRouter()
-  const engineState = useEngineState()
-  const locationState = useLocationState()
-  const authState = useAuthState()
+  const engineState = useHookstate(getMutableState(EngineState))
+  const locationState = useHookstate(getMutableState(LocationState))
+  const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
     if (engineState.isTeleporting.value) {
@@ -137,10 +135,7 @@ export const usePortalTeleport = () => {
       if (!activePortal) return
 
       const currentLocation = locationState.locationName.value.split('/')[1]
-      if (
-        currentLocation === activePortal.location ||
-        UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]?.value
-      ) {
+      if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
         teleportAvatar(
           Engine.instance.localClientEntity!,
           activePortal.remoteSpawnPosition
@@ -157,7 +152,7 @@ export const usePortalTeleport = () => {
       }
 
       route('/location/' + Engine.instance.activePortal!.location)
-      LocationService.getLocationByName(Engine.instance.activePortal!.location, authState.user.id.value)
+      LocationService.getLocationByName(Engine.instance.activePortal!.location)
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too
@@ -174,15 +169,14 @@ export const usePortalTeleport = () => {
 }
 
 type Props = {
-  injectedSystems?: SystemModuleType<any>[]
   spectate?: boolean
 }
 
-export const useLoadEngineWithScene = ({ injectedSystems, spectate }: Props) => {
+export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const appState = useHookstate(getMutableState(AppLoadingState).state)
 
-  useLoadEngine({ injectedSystems })
+  useLoadEngine()
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
 
@@ -192,18 +186,28 @@ export const useLoadEngineWithScene = ({ injectedSystems, spectate }: Props) => 
   }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 
-export const useOfflineScene = (props: { projectName: string; sceneName: string; spectate?: boolean }) => {
+export const useOnlineInstance = () => {
+  useEffect(() => {
+    getMutableState(NetworkState).config.set({
+      world: true,
+      media: true,
+      friends: true,
+      instanceID: true,
+      roomID: false
+    })
+  }, [])
+}
+
+export const useOfflineScene = (props?: { spectate?: boolean }) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName: `${props.projectName}/${props.sceneName}` }))
-    loadSceneJsonOffline(props.projectName, props.sceneName)
+    dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
   }, [])
 
   /** OFFLINE */
   useEffect(() => {
-    if (props.spectate) return
     if (engineState.sceneLoaded.value) {
       const userId = Engine.instance.userId
       const userIndex = 1
@@ -223,6 +227,8 @@ export const useOfflineScene = (props: { projectName: string; sceneName: string;
         userIndex,
         authState.user.name.value
       )
+
+      if (props?.spectate) return
 
       receiveJoinWorld({
         highResTimeOrigin: performance.timeOrigin,

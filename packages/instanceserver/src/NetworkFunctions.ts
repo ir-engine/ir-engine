@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
@@ -16,6 +17,7 @@ import { MessageTypes } from '@etherealengine/engine/src/networking/enums/Messag
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { updateNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -225,6 +227,24 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
       return false
     }
   }
+
+  // check if user is not kicked in the instance for a duration
+  const currentDate = new Date()
+  const userKick = (await app.service('user-kick').find({
+    query: {
+      userId,
+      instanceId: instance.id,
+      duration: {
+        $gt: currentDate
+      },
+      $limit: 0
+    }
+  })) as any
+  if (userKick.total > 0) {
+    logger.info(`User "${userId}" has been kicked from this server for this duration`)
+    return false
+  }
+
   return true
 }
 
@@ -276,25 +296,29 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
   network.userIDToUserIndex.set(userId, userIndex)
   network.userIndexToUserID.set(userIndex, userId)
 
+  //TODO: remove this once all network state properties are reactively set
+  updateNetwork(network)
+
   const spectating = network.peers.get(peerID)!.spectating
 
   const instanceServerState = getState(InstanceServerState)
 
   const app = Engine.instance.api as Application
 
-  app.service('message').create(
-    {
-      targetObjectId: instanceServerState.instance.id,
-      targetObjectType: 'instance',
-      text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
-      isNotification: true
-    },
-    {
-      'identity-provider': {
-        userId: userId
+  if (!instanceServerState.isMediaInstance)
+    app.service('message').create(
+      {
+        targetObjectId: instanceServerState.instance.id,
+        targetObjectType: 'instance',
+        text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
+        isNotification: true
+      },
+      {
+        'identity-provider': {
+          userId: userId
+        }
       }
-    }
-  )
+    )
 }
 
 export async function handleJoinWorld(
@@ -307,7 +331,12 @@ export async function handleJoinWorld(
 ) {
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId)
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId).map((action) => {
+    const _action = _.cloneDeep(action)
+    // todo, can we ensure the server actions always has a peerID?
+    if (!_action.$peer) _action.$peer = network.hostPeerID
+    return _action
+  })
 
   const peerID = spark.id as PeerID
 
@@ -325,8 +354,6 @@ export async function handleJoinWorld(
     },
     id: messageId
   })
-
-  const app = Engine.instance.api as Application
 
   const instanceServerState = getState(InstanceServerState)
   if (data.inviteCode && !instanceServerState.isMediaInstance)
@@ -351,7 +378,19 @@ const getUserSpawnFromInvite = async (
     const users = result.data as UserInterface[]
     if (users.length > 0) {
       const inviterUser = users[0]
-      if (inviterUser.instanceId === user.instanceId) {
+      const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []
+      const userInstanceAttendance = user.instanceAttendance || []
+      let bothOnSameInstance = false
+      for (let instanceAttendance of inviterUserInstanceAttendance) {
+        if (
+          !instanceAttendance.isChannel &&
+          userInstanceAttendance.find(
+            (userAttendance) => !userAttendance.isChannel && userAttendance.id === instanceAttendance.id
+          )
+        )
+          bothOnSameInstance = true
+      }
+      if (bothOnSameInstance) {
         const selfAvatarEntity = Engine.instance.getUserAvatarEntity(user.id as UserId)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
@@ -429,19 +468,21 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
 
     const instanceServerState = getState(InstanceServerState)
     const app = Engine.instance.api as Application
-    app.service('message').create(
-      {
-        targetObjectId: instanceServerState.instance.id,
-        targetObjectType: 'instance',
-        text: `${userName} left`,
-        isNotification: true
-      },
-      {
-        'identity-provider': {
-          userId: userId
+
+    if (!instanceServerState.isMediaInstance)
+      app.service('message').create(
+        {
+          targetObjectId: instanceServerState.instance.id,
+          targetObjectType: 'instance',
+          text: `${userName} left`,
+          isNotification: true
+        },
+        {
+          'identity-provider': {
+            userId: userId
+          }
         }
-      }
-    )
+      )
 
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
@@ -463,7 +504,7 @@ export async function handleLeaveWorld(
 ): Promise<any> {
   const peerID = spark.id as PeerID
   for (const [, transport] of Object.entries(network.mediasoupTransports))
-    if (transport.appData.peerID === peerID) closeTransport(network, transport)
+    if (transport.appData.peerID === peerID) await closeTransport(network, transport)
   if (network.peers.has(peerID)) {
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)

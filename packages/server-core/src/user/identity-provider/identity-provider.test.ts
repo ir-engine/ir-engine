@@ -5,7 +5,7 @@ import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/I
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 
 let userId: string
 
@@ -14,7 +14,7 @@ describe('identity-provider service', () => {
   let providers: IdentityProviderInterface[] = []
 
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
   })
 

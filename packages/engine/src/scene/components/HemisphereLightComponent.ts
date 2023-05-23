@@ -3,10 +3,12 @@ import { Color, HemisphereLight } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
+  jsonID: 'hemisphere-light',
 
   onInit: (entity) => {
     const light = new HemisphereLight()
@@ -30,8 +32,8 @@ export const HemisphereLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      skyColor: component.skyColor.value.getHex(),
-      groundColor: component.groundColor.value.getHex(),
+      skyColor: component.skyColor.value,
+      groundColor: component.groundColor.value,
       intensity: component.intensity.value
     }
   },
@@ -40,8 +42,9 @@ export const HemisphereLightComponent = defineComponent({
     removeObjectFromGroup(entity, component.light.value)
   },
 
-  reactor: function ({ root }) {
-    const light = useComponent(root.entity, HemisphereLightComponent)
+  reactor: function () {
+    const entity = useEntityContext()
+    const light = useComponent(entity, HemisphereLightComponent)
 
     useEffect(() => {
       light.light.value.groundColor.set(light.groundColor.value)
@@ -58,5 +61,3 @@ export const HemisphereLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_HEMISPHERE_LIGHT = 'hemisphere-light'
