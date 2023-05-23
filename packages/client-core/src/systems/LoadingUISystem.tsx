@@ -81,8 +81,6 @@ function SceneDataReactor() {
 
 const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
 const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
-const peerCreatedQueue = defineActionQueue(EngineActions.peerCreated.matches)
-const peerDestroyedQueue = defineActionQueue(EngineActions.peerDestroyed.matches)
 
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
