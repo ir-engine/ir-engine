@@ -256,8 +256,6 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   const rig = model.humanoid?.rawHumanBones
 
-  const targetSkeleton = model.scene.children[0]
-
   const skinnedMeshes = findSkinnedMeshes(model.scene)
 
   // Try converting to T pose
