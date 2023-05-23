@@ -13,6 +13,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { createAvatarCollider } from './spawnAvatarReceptor'
 
 const vec3 = new Vector3()
+const vec3_2 = new Vector3()
 
 export const resizeAvatar = (entity: Entity, height: number, center: Vector3) => {
   const avatar = getComponent(entity, AvatarComponent)

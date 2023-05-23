@@ -5,7 +5,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../declarations'
-import { createFeathersExpressApp } from '../createApp'
+import { createFeathersKoaApp } from '../createApp'
 import { UnauthorizedException } from '../util/exceptions/exception'
 import verifyScope from './verify-scope'
 
@@ -21,7 +21,7 @@ const mockUserHookContext = (user: UserInterface, app: Application) => {
 describe('verify-scope', () => {
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
   })
 

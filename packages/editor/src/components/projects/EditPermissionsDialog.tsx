@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
@@ -78,7 +79,7 @@ export const EditPermissionsDialog = ({
     onClose()
   }
 
-  const selfUser = useAuthState().user
+  const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
     project.project_permissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner'
       ? 'owner'

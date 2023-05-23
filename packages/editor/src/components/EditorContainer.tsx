@@ -26,7 +26,7 @@ import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorAction, useEditorState } from '../services/EditorServices'
+import { EditorAction, EditorState } from '../services/EditorServices'
 import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
@@ -128,7 +128,7 @@ DockContainer.defaultProps = {
  *
  */
 const EditorContainer = () => {
-  const editorState = useEditorState()
+  const editorState = useHookstate(getMutableState(EditorState))
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified

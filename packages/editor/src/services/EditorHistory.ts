@@ -1,11 +1,20 @@
+import { diff } from 'deep-object-diff'
+
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import { defineAction, defineState, getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import {
+  removeSceneEntitiesFromOldJSON,
+  updateSceneEntitiesFromJSON
+} from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { defineActionQueue, dispatchAction, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { SelectionAction, SelectionState } from './SelectionServices'
@@ -13,15 +22,14 @@ import { SelectionAction, SelectionState } from './SelectionServices'
 export const EditorTopic = 'editor' as Topic
 
 export type EditorStateSnapshot = {
-  selectedEntities?: Array<Entity | string>
-  data?: SceneData
+  selectedEntities: Array<EntityUUID | string>
+  data: SceneData
 }
 
 export const EditorHistoryState = defineState({
   name: 'EditorHistoryState',
   initial: () => ({
     index: 0,
-    includeSelection: false,
     history: [] as EditorStateSnapshot[]
   })
 })
@@ -54,18 +62,24 @@ export class EditorHistoryAction {
 
   static createSnapshot = defineAction({
     type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
-    selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>,
-    modify: matches.boolean.optional()
+    selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>
   })
 }
 
 const applyCurrentSnapshot = () => {
-  const state = getMutableState(EditorHistoryState)
-  const snapshot = state.history[state.index.value].get(NO_PROXY)
-  console.log('Applying snapshot', state.index.value, snapshot)
-  if (snapshot.data) getMutableState(SceneState).sceneData.set(snapshot.data)
+  const state = getState(EditorHistoryState)
+  const snapshot = state.history[state.index]
+  if (snapshot.data) {
+    getMutableState(SceneState).sceneData.ornull!.scene.set(snapshot.data.scene)
+    removeSceneEntitiesFromOldJSON()
+    updateSceneEntitiesFromJSON(snapshot.data.scene.root)
+  }
   if (snapshot.selectedEntities)
-    dispatchAction(SelectionAction.updateSelection({ selectedEntities: snapshot.selectedEntities }))
+    dispatchAction(
+      SelectionAction.updateSelection({
+        selectedEntities: snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid)
+      })
+    )
 }
 
 const undoQueue = defineActionQueue(EditorHistoryAction.undo.matches)
@@ -75,6 +89,8 @@ const appendSnapshotQueue = defineActionQueue(EditorHistoryAction.appendSnapshot
 const modifyQueue = defineActionQueue(EditorHistoryAction.createSnapshot.matches)
 
 const execute = () => {
+  const selectedEntitiesState = getState(SelectionState)
+
   const state = getMutableState(EditorHistoryState)
   for (const action of undoQueue()) {
     if (state.index.value <= 0) continue
@@ -89,9 +105,13 @@ const execute = () => {
   }
 
   for (const action of clearHistoryQueue()) {
+    const selectedEntities = selectedEntitiesState.selectedEntities.map((entity) =>
+      typeof entity === 'number' ? getComponent(entity, UUIDComponent) : entity
+    ) as Array<EntityUUID | string>
+    const data = { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData
     state.merge({
       index: 0,
-      history: [{ data: { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData }]
+      history: [{ data, selectedEntities }]
     })
   }
 
@@ -111,19 +131,15 @@ const execute = () => {
     }
   }
 
-  const selectedEntitiesState = getState(SelectionState)
-
   /** Local only - serialize world then push to CRDT */
   for (const action of modifyQueue()) {
-    if (action.modify) {
-      const data = { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData
-      state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { data }])
-      state.index.set(state.index.value + 1)
-    } else if (state.includeSelection.value) {
-      const selectedEntities = action.selectedEntities ?? selectedEntitiesState.selectedEntities
-      state.history.set([...state.history.get(NO_PROXY).slice(0, state.index.value + 1), { selectedEntities }])
-      state.index.set(state.index.value + 1)
-    }
+    const editorHistory = getState(EditorHistoryState)
+    const data = { scene: serializeWorld(getState(SceneState).sceneEntity) } as any as SceneData
+    const selectedEntities = (action.selectedEntities ?? selectedEntitiesState.selectedEntities).map((entity) =>
+      typeof entity === 'number' ? getComponent(entity, UUIDComponent) : entity
+    ) as Array<EntityUUID | string>
+    state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { data, selectedEntities }])
+    state.index.set(state.index.value + 1)
   }
 }
 

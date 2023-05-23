@@ -40,6 +40,8 @@ import { addObjectToGroup, GroupComponent } from '../scene/components/GroupCompo
 import { NameComponent } from '../scene/components/NameComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import {
   compareDistance,
   DistanceFromCameraComponent,
@@ -118,6 +120,7 @@ const filterFrustumCulledEntities = (entity: Entity) =>
 const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 let avatarSortAccumulator = 0
+const _quat = new Quaternion()
 
 const _vector3 = new Vector3()
 const _position = new Vector3()
@@ -171,10 +174,16 @@ const execute = () => {
   }
 
   for (const action of ikTargetSpawnQueue()) {
-    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)!
+    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
+    if (!entity) {
+      console.warn('Could not find entity for networkId', action.$from, action.networkId)
+      continue
+    }
     setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
     setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
-    // addObjectToGroup(entity, new AxesHelper(0.5))
+    const helper = new AxesHelper(0.5)
+    setObjectLayers(helper, ObjectLayers.Gizmos)
+    addObjectToGroup(entity, helper)
     setComponent(entity, VisibleComponent)
   }
 
@@ -457,7 +466,7 @@ const execute = () => {
 
   /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
   for (const entity of ikEntities) {
-    delete TransformComponent.dirtyTransforms[entity]
+    // delete TransformComponent.dirtyTransforms[entity]
   }
 }
 

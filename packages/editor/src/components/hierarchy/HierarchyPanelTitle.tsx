@@ -1,12 +1,7 @@
-import { t } from 'i18next'
 import React from 'react'
 
-import { dispatchAction } from '@etherealengine/hyperflux'
-
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
-import { Checkbox } from '@mui/material'
 
-import { EditorAction, useEditorState } from '../../services/EditorServices'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import styles from '../styles.module.scss'
 

@@ -57,7 +57,8 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     },
 
     /**
-     * We need a to specify which data channel type this is
+     * We need to specify which data channel type this is
+     * @param dataChannelType
      * @param data
      */
     bufferToAll: (dataChannelType: DataChannelType, data: any) => {

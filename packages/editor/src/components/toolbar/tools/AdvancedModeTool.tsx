@@ -1,14 +1,14 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EditorAction, useEditorState } from '../../../services/EditorServices'
+import { EditorAction, EditorState } from '../../../services/EditorServices'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const AdvancedModeTool = () => {
-  const editorState = useEditorState()
+  const editorState = useHookstate(getMutableState(EditorState))
   const { t } = useTranslation()
   return (
     <div className={styles.toolbarInputGroup}>

@@ -81,6 +81,10 @@ export const addNetwork = (network: Network) => {
   getMutableState(NetworkState).networks[network.hostId].set(network)
 }
 
+export const updateNetwork = (network: Network) => {
+  getMutableState(NetworkState).networks[network.hostId].set(network)
+}
+
 export const removeNetwork = (network: Network) => {
   getMutableState(NetworkState).networks[network.hostId].set(none)
 }

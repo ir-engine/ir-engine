@@ -1,6 +1,7 @@
 import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
 
-import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
+import { matches, matchesEntity, matchesPeerID, Validator } from '../../common/functions/MatchesUtils'
+import { NetworkPeer } from '../../networking/interfaces/NetworkPeer'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.

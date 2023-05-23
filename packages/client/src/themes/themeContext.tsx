@@ -1,7 +1,9 @@
 import React, { createContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 
 import 'tailwindcss/tailwind.css'
-import './globals.css'
+import './base.css'
+import './components.css'
+import './utilities.css'
 import 'daisyui/dist/full.css'
 
 export interface ThemeContextProps {

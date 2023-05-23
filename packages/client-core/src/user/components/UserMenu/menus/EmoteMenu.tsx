@@ -4,8 +4,8 @@ import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/Medi
 import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import Button from '@etherealengine/ui/src/Button'
-import Icon from '@etherealengine/ui/src/Icon'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 

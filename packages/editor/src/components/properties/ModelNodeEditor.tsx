@@ -1,6 +1,10 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  DefaultModelTransformParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import {
   addComponent,
@@ -16,7 +20,7 @@ import { CallbackComponent, getCallback } from '@etherealengine/engine/src/scene
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
-import { useState } from '@etherealengine/hyperflux'
+import { State, useState } from '@etherealengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -30,7 +34,9 @@ import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
+import PaginatedList from '../layout/PaginatedList'
 import Well from '../layout/Well'
+import GLTFTransformProperties from './GLTFTransformProperties'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -49,7 +55,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
-  const exportPath = useState(modelComponent?.src.value)
+
+  const exportPath = useState(() => modelComponent?.src.value)
+  const exportType = useState(modelComponent?.src.value?.endsWith('.gltf') ? 'gltf' : 'glb')
 
   if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
@@ -57,7 +65,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
 
   const lodParms = useState<LODsFromModelParameters>(() => ({
-    serialize: false
+    serialize: false,
+    levels: []
   }))
 
   const onChangeEquippable = useCallback(() => {
@@ -75,6 +84,30 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     const animations = obj3d?.animations ?? []
     return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
   })
+
+  const onChangeExportPath = useCallback(
+    (path: string) => {
+      let finalPath = path
+      if (finalPath.endsWith('.gltf')) {
+        exportType.set('gltf')
+      } else if (path.endsWith('.glb')) {
+        exportType.set('glb')
+      } else {
+        finalPath = `${finalPath}.${exportType.value}`
+      }
+      exportPath.set(finalPath)
+    },
+    [exportType, exportPath]
+  )
+
+  const onChangeExportType = useCallback(
+    (type: string) => {
+      const finalPath = exportPath.value.replace(/\.[^.]*$/, `.${type}`)
+      exportPath.set(finalPath)
+      exportType.set(type)
+    },
+    [exportPath, exportType]
+  )
 
   const onExportModel = useCallback(() => {
     if (exporting.value) {
@@ -105,6 +138,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     })
     getCallback(props.entity, 'xre.play')!()
   }
+
+  const onAddLODLevel = useCallback(() => {
+    lodParms.levels[lodParms.levels.length].set({
+      ...DefaultModelTransformParameters
+    })
+  }, [])
 
   return (
     <NodeEditor
@@ -166,6 +205,15 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <InputGroup name="Serialize" label={t('editor:properties.model.lods.serialize')}>
             <BooleanInput value={lodParms.value.serialize} onChange={lodParms.serialize.set} />
           </InputGroup>
+          <InputGroup name="LOD Level Parameters" label={t('editor:properties.model.lods.lodLevelParameters')}>
+            <Button onClick={onAddLODLevel}>Add LOD Level</Button>
+          </InputGroup>
+          <PaginatedList
+            list={lodParms.levels}
+            element={(lodLevel: State<ModelTransformParameters>) => {
+              return <GLTFTransformProperties transformParms={lodLevel} onChange={lodLevel.set} />
+            }}
+          />
           <div className="p-4">
             <Button onClick={convertToScaffold.bind({}, entity)}>Convert to Scaffold</Button>
           </div>
@@ -179,7 +227,23 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting.value && modelComponent.src.value && (
         <Well>
-          <ModelInput value={exportPath.value} onChange={exportPath.set} />
+          <ModelInput value={exportPath.value} onChange={onChangeExportPath} />
+          <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
+            <SelectInput<string>
+              options={[
+                {
+                  label: 'glB',
+                  value: 'glb'
+                },
+                {
+                  label: 'glTF',
+                  value: 'gltf'
+                }
+              ]}
+              value={exportType.value}
+              onChange={onChangeExportType}
+            />
+          </InputGroup>
           <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
         </Well>
       )}

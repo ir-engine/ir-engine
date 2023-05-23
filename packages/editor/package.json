@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/editor",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "lib/editor.umd.js",
   "module": "lib/editor.es.js",
   "types": "lib/index.d.ts",
@@ -28,10 +28,11 @@
     "react": "18.2.0"
   },
   "dependencies": {
-    "@etherealengine/client-core": "^1.2.0",
-    "@etherealengine/common": "^1.2.0",
-    "@etherealengine/engine": "^1.2.0",
-    "@etherealengine/hyperflux": "^1.2.0",
+    "@dimforge/rapier3d-compat": "0.11.2",
+    "@etherealengine/client-core": "^1.2.1",
+    "@etherealengine/common": "^1.2.1",
+    "@etherealengine/engine": "^1.2.1",
+    "@etherealengine/hyperflux": "^1.2.1",
     "@fortawesome/fontawesome-svg-core": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -64,6 +65,7 @@
     "reactflow": "^11.6.1",
     "styled-components": "5.3.9",
     "typescript": "5.0.2",
+    "three.quarks": "0.10.2",
     "use-http": "1.0.27",
     "uuid": "9.0.0"
   },

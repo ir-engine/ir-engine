@@ -28,10 +28,6 @@ export const OEmbedServiceReceptor = (action) => {
       }
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const accessOEmbedState = () => getMutableState(OEmbedState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useOEmbedState = () => useState(accessOEmbedState())
 
 export const OEmbedService = {
   fetchData: async (pathname: string, queryUrl: string) => {

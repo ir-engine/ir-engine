@@ -285,7 +285,7 @@ describe('DataReader', () => {
     rotation.z[entity] = z
     rotation.w[entity] = w
 
-    writeRotation(view, entity)
+    writeRotation(view, entity, true)
 
     rotation.x[entity] = 0
     rotation.y[entity] = 0
@@ -296,7 +296,7 @@ describe('DataReader', () => {
 
     readRotation(view, entity)
 
-    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float64Array.BYTES_PER_ELEMENT * 4)
 
     // Round values to 3 decimal places and compare
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
@@ -308,14 +308,13 @@ describe('DataReader', () => {
   it('should readCompressedVector3', () => {
     const view = createViewCursor()
     const entity = 42 as Entity
-    const rotation = TransformComponent.rotation
 
     const [x, y, z] = [1.333, 2.333, 3.333]
     RigidBodyComponent.linearVelocity.x[entity] = x
     RigidBodyComponent.linearVelocity.y[entity] = y
     RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity, true)
 
     RigidBodyComponent.linearVelocity.x[entity] = 0
     RigidBodyComponent.linearVelocity.y[entity] = 0
@@ -325,7 +324,7 @@ describe('DataReader', () => {
 
     readCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity)
 
-    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
     strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
@@ -588,7 +587,23 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 36)
+    strictEqual(
+      view.cursor,
+      // network id
+      Uint32Array.BYTES_PER_ELEMENT +
+        // change mask for entity
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for transform
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for position
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform position
+        Float64Array.BYTES_PER_ELEMENT * 3 +
+        // change mask for rotation
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform rotation
+        Float64Array.BYTES_PER_ELEMENT * 4
+    )
   })
 
   it('should not readEntity if entity is undefined', () => {
@@ -634,7 +649,23 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 36)
+    strictEqual(
+      view.cursor,
+      // network id
+      Uint32Array.BYTES_PER_ELEMENT +
+        // change mask for entity
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for transform
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for position
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform position
+        Float64Array.BYTES_PER_ELEMENT * 3 +
+        // change mask for rotation
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform rotation
+        Float64Array.BYTES_PER_ELEMENT * 4
+    )
   })
 
   it('should readEntities', () => {
@@ -778,8 +809,14 @@ describe('DataReader', () => {
       // read writeRotation changeMask
       strictEqual(readUint8(readView), 0b1111)
 
+      // read compressed rotation values
+      // readFloat32(readView)
+
       // read rotation values
-      readFloat32(readView)
+      strictEqual(readFloat64(readView), rotX)
+      strictEqual(readFloat64(readView), rotY)
+      strictEqual(readFloat64(readView), rotZ)
+      strictEqual(readFloat64(readView), rotW)
     }
 
     for (let i = 0; i < entities.length; i++) {

@@ -930,7 +930,7 @@ export async function handleWebRtcResumeConsumer(
     if (typeof consumer.resume === 'function' && !consumer.closed && !(consumer as any)._closed) await consumer.resume()
     spark.write({ type: MessageTypes.WebRTCResumeConsumer.toString(), data: consumer.id })
   }
-  spark.write({ type: MessageTypes.WebRTCResumeConsumer.toString(), data: { resumed: true }, id: messageId })
+  spark.write({ type: MessageTypes.WebRTCResumeConsumer.toString(), data: consumer.id, id: messageId })
 }
 
 export async function handleWebRtcCloseConsumer(
@@ -944,7 +944,8 @@ export async function handleWebRtcCloseConsumer(
   if (consumer) {
     await closeConsumer(network, consumer)
   }
-  spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), data: { closed: true }, id: messageId })
+  // this is to reply to the request, which needs to be resolved
+  spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), id: messageId })
 }
 
 export async function handleWebRtcConsumerSetLayers(
@@ -987,7 +988,7 @@ export async function handleWebRtcResumeProducer(
         client.spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id })
     }
   }
-  spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: { resumed: true }, id: messageId })
+  spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id, id: messageId })
 }
 
 export async function handleWebRtcPauseProducer(

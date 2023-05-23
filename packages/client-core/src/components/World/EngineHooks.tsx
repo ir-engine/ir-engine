@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { AuthState, useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -34,8 +34,9 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
-import { useLocationState } from '../../social/services/LocationService'
+import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { AvatarService } from '../../user/services/AvatarService'
 import { startClientSystems } from '../../world/startClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
@@ -57,9 +58,27 @@ export const useLoadEngine = () => {
   }, [])
 }
 
+const fetchMissingAvatar = async (user, avatarSpawnPose) => {
+  const avatar = await AvatarService.getAvatar(user.avatar.id.value)
+  if (avatar && (avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src))
+    spawnLocalAvatarInWorld({
+      avatarSpawnPose,
+      avatarDetail: {
+        avatarURL: avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src,
+        thumbnailURL: avatar.thumbnailResource?.LOD0_url || (avatar.thumbnailResource as any)?.src
+      },
+      name: user.name.value
+    })
+  else
+    NotificationService.dispatchNotify(
+      'Your avatar is missing its model. Please change your avatar from the user menu.',
+      { variant: 'error' }
+    )
+}
+
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
@@ -89,7 +108,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       ? getSpawnPoint(spawnPoint, Engine.instance.userId)
       : getRandomSpawnPoint(Engine.instance.userId)
 
-    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any).src)
+    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any)?.src)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
         avatarDetail: {
@@ -98,20 +117,15 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         },
         name: user.name.value
       })
-    else {
-      NotificationService.dispatchNotify(
-        'Your avatar is missing its model. Please change your avatar from the user menu.',
-        { variant: 'error' }
-      )
-    }
+    else fetchMissingAvatar(user, avatarSpawnPose)
   }, [sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
 }
 
 export const usePortalTeleport = () => {
   const route = useRouter()
   const engineState = useHookstate(getMutableState(EngineState))
-  const locationState = useLocationState()
-  const authState = useAuthState()
+  const locationState = useHookstate(getMutableState(LocationState))
+  const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
     if (engineState.isTeleporting.value) {

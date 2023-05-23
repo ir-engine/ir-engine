@@ -12,7 +12,7 @@ import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
@@ -20,7 +20,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { useSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
@@ -103,7 +103,7 @@ const MemoAssetGridItem = memo(PrefabListItem)
  */
 export function ElementList() {
   const { t } = useTranslation()
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const [prefabs, setPrefabs] = useState(getPrefabList())
   const [selectedItem, setSelectedItem] = React.useState<undefined | PrefabItemType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)

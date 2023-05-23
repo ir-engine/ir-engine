@@ -134,6 +134,14 @@ export async function checkForDuplicatedAssignments({
   userId?: string
   podName?: string
 }): Promise<InstanceServerProvisionResult> {
+  /** since in local dev we can only have one instance server of each type at a time, we must force all old instances of this type to be ended */
+  if (!config.kubernetes.enabled) {
+    const query = { ended: false } as any
+    if (locationId) query.locationId = locationId
+    if (channelId) query.channelId = channelId
+    await app.service('instance').patch(null, { ended: true }, { query })
+  }
+
   //Create an assigned instance at this IP
   const assignResult: any = await app.service('instance').create({
     ipAddress: ipAddress,

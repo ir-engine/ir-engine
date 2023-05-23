@@ -166,14 +166,18 @@ export const AdminInstanceUserService = {
     dispatchAction(AdminInstanceUserActions.instanceUsersRetrieved({ users }))
   },
   kickUser: async (kickData: { userId: UserInterface['id']; instanceId: Instance['id']; duration: string }) => {
-    console.log('kicking user', kickData)
-
     const duration = new Date()
-    duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
+    if (kickData.duration === 'INFINITY') {
+      duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years
+    } else {
+      duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
+    }
 
     const userKick = await API.instance.client.service('user-kick').create({ ...kickData, duration })
 
-    console.log('kicked user', userKick)
+    console.log('user kicked ->', userKick)
+
+    NotificationService.dispatchNotify(`user was kicked`, { variant: 'default' })
   }
 }
 

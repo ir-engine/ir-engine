@@ -27,20 +27,13 @@ export const PrefabComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     matches.boolean.test(json.dirty) && component.dirty.set(json.dirty)
-    ;(matches.string as Validator<unknown, LoadState>).test(json.loaded) && component.loaded.set(json.loaded)
     matches.arrayOf(matchesEntity).test(json.roots) && component.roots.set(json.roots)
     matches.string.test(json.src) && component.src.set(json.src)
-
-    if (json.loaded === LoadState.LOADED) {
-      component.loaded.set(LoadState.UNLOADED)
-      loadPrefab(entity)
-    }
   },
 
   toJSON: (entity, component) => {
     return {
-      src: component.src.value,
-      loaded: component.loaded.value
+      src: component.src.value
     }
   },
 
@@ -48,23 +41,19 @@ export const PrefabComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const assembly = getComponent(entity, PrefabComponent)
     const assemblyState = useComponent(entity, PrefabComponent)
 
     useEffect(() => {
-      switch (assembly.loaded) {
-        case LoadState.LOADED:
-        case LoadState.LOADING:
-          assemblyState.dirty.set(true)
-          break
-      }
+      assemblyState.dirty.set(true)
+      loadPrefab(entity),
+        () => {
+          unloadPrefab(entity)
+        }
     }, [assemblyState.src])
 
     useEffect(() => {
-      switch (assembly.loaded) {
-        case LoadState.LOADED:
-        case LoadState.UNLOADED:
-          assemblyState.dirty.set(false)
+      if (assemblyState.loaded.value === LoadState.LOADED) {
+        assemblyState.dirty.set(false)
       }
     }, [assemblyState.loaded])
     return null

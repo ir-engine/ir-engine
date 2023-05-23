@@ -1,15 +1,7 @@
 import { Material } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import {
-  defineAction,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  StateDefinition,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
@@ -41,10 +33,6 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
     initialized: false
   } as MaterialLibraryType
 })
-/**@deprecated use getMutableState directly instead */
-export const getMaterialLibrary = () => getMutableState(MaterialLibraryState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useMaterialLibrary = () => useState(getMaterialLibrary())
 
 export const MaterialLibraryActions = {
   RegisterMaterial: defineAction({
@@ -65,8 +53,8 @@ export const MaterialLibraryActions = {
 export function initializeMaterialLibrary() {
   //load default prototypes from source
   const materialLibrary = getState(MaterialLibraryState)
-  ;(!materialLibrary.initialized &&
-    [
+  if (!materialLibrary.initialized) {
+    ;[
       MeshBasicMaterial,
       MeshStandardMaterial,
       MeshMatcapMaterial,
@@ -76,6 +64,7 @@ export function initializeMaterialLibrary() {
       MeshToonMaterial,
       ShaderMaterial,
       ShadowMaterial
-    ].map(registerMaterialPrototype)) ||
+    ].map(registerMaterialPrototype)
     getMutableState(MaterialLibraryState).initialized.set(true)
+  }
 }

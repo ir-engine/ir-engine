@@ -6,7 +6,7 @@ import dotenv from 'dotenv-flow'
 import fetch from 'node-fetch'
 import Sequelize, { DataTypes, Op } from 'sequelize'
 
-import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { addGenericAssetToS3AndStaticResources } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
@@ -31,7 +31,7 @@ cli.enable('status')
 
 cli.main(async () => {
   try {
-    const app = createFeathersExpressApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
 
     const staticResources = await app.service('static-resource').Model.findAll({

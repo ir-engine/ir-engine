@@ -1,12 +1,11 @@
-import { createState, useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
-import { getMutableState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import {

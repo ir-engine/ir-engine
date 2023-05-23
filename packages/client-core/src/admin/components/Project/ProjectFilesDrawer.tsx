@@ -7,9 +7,9 @@ import {
   AssetsPreviewPanel
 } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowserContentPanel'
-import Box from '@etherealengine/ui/src/Box'
-import Container from '@etherealengine/ui/src/Container'
-import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'

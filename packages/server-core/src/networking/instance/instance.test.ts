@@ -7,7 +7,7 @@ import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 
 const params = { isInternal: true } as any
 
@@ -15,7 +15,7 @@ describe('instance.test', () => {
   let app: Application
 
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
   })
 

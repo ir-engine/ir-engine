@@ -7,7 +7,7 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 

@@ -2,6 +2,8 @@ import React, { useCallback } from 'react'
 
 import {
   BezierFunctionJSON,
+  ConstantValueJSON,
+  IntervalValueJSON,
   PiecewiseBezierValueJSON,
   ValueGeneratorJSON,
   ValueGeneratorJSONDefaults
@@ -21,10 +23,10 @@ export default function ValueGenerator({
 }: {
   scope: State<ValueGeneratorJSON>
   value: ValueGeneratorJSON
-  onChange: (key: string) => (value: any) => void
+  onChange: (scope: State<any>) => (value: any) => void
 }) {
   const onChangeType = useCallback(() => {
-    const thisOnChange = onChange('type')
+    const thisOnChange = onChange(scope.type)
     return (type: typeof value.type) => {
       scope.set(ValueGeneratorJSONDefaults[type])
       thisOnChange(type)
@@ -32,7 +34,8 @@ export default function ValueGenerator({
   }, [])
 
   const onAddBezier = useCallback(() => {
-    const thisOnChange = onChange('functions')
+    const bezierScope = scope as State<PiecewiseBezierValueJSON>
+    const thisOnChange = onChange(bezierScope.functions)
     return () => {
       const bezierJson = value as PiecewiseBezierValueJSON
       const nuFunctions = [
@@ -51,17 +54,105 @@ export default function ValueGenerator({
     }
   }, [])
 
-  const onEditBezierCurve = useCallback((element: State<BezierFunctionJSON>, key: string) => {
-    return (value: any) => {
-      element.function[key].set(value)
+  const onRemoveBezier = useCallback((element: State<BezierFunctionJSON>) => {
+    const bezierScope = scope as State<PiecewiseBezierValueJSON>
+    const bezier = bezierScope.value
+    const thisOnChange = onChange(bezierScope.functions)
+    return () => {
+      const nuFunctions = bezier.functions.filter((f) => f !== element.value)
+      thisOnChange(JSON.parse(JSON.stringify(nuFunctions)))
     }
   }, [])
 
-  const onEditBezierStart = useCallback((element: State<BezierFunctionJSON>) => {
-    return (value: any) => {
-      element.start.set(value)
-    }
-  }, [])
+  const ConstantInput = useCallback(() => {
+    const constantScope = scope as State<ConstantValueJSON>
+    const constant = constantScope.value
+    return (
+      <>
+        <NumericInputGroup
+          name="value"
+          label="Value"
+          value={constant.value}
+          onChange={onChange(constantScope.nested('value'))}
+        />
+      </>
+    )
+  }, [scope])
+
+  const IntervalInput = useCallback(() => {
+    const intervalScope = scope as State<IntervalValueJSON>
+    const interval = intervalScope.value
+    return (
+      <>
+        <NumericInputGroup name="min" label="Min" value={interval.a} onChange={onChange(intervalScope.a)} />
+        <NumericInputGroup name="max" label="Max" value={interval.b} onChange={onChange(intervalScope.b)} />
+      </>
+    )
+  }, [scope])
+
+  const BezierInput = useCallback(() => {
+    const bezierScope = scope as State<PiecewiseBezierValueJSON>
+    return (
+      <div>
+        <Button onClick={onAddBezier()}>Add Bezier</Button>
+        <PaginatedList
+          list={bezierScope.functions}
+          element={(element: State<BezierFunctionJSON>) => (
+            <div
+              style={{
+                margin: '2rem',
+                padding: '2rem',
+                border: '1px solid white',
+                borderRadius: '1rem'
+              }}
+            >
+              <NumericInputGroup
+                name="p0"
+                label="p0"
+                value={element.function.p0.value}
+                onChange={onChange(element.function.p0)}
+              />
+              <NumericInputGroup
+                name="p1"
+                label="p1"
+                value={element.function.p1.value}
+                onChange={onChange(element.function.p1)}
+              />
+              <NumericInputGroup
+                name="p2"
+                label="p2"
+                value={element.function.p2.value}
+                onChange={onChange(element.function.p2)}
+              />
+              <NumericInputGroup
+                name="p3"
+                label="p3"
+                value={element.function.p3.value}
+                onChange={onChange(element.function.p3)}
+              />
+              <br />
+              <hr />
+              <br />
+              <NumericInputGroup
+                name="start"
+                label={'Start'}
+                value={element.start.value}
+                onChange={onChange(element.start)}
+              />
+              <br />
+              <Button onClick={onRemoveBezier(element)}>Remove</Button>
+            </div>
+          )}
+        />
+      </div>
+    )
+  }, [scope])
+
+  const valueInputs = {
+    ConstantValue: ConstantInput,
+    IntervalValue: IntervalInput,
+    PiecewiseBezier: BezierInput
+  }
 
   return (
     <div>
@@ -75,71 +166,8 @@ export default function ValueGenerator({
           ]}
           onChange={onChangeType()}
         />
-        <hr />
-        {value.type === 'ConstantValue' && (
-          <div>
-            <NumericInputGroup name="value" label="Value" value={value.value} onChange={onChange('value')} />
-          </div>
-        )}
-        {value.type === 'IntervalValue' && (
-          <div>
-            <NumericInputGroup name="min" label="Min" value={value.a} onChange={onChange('a')} />
-            <NumericInputGroup name="max" label="Max" value={value.b} onChange={onChange('b')} />
-          </div>
-        )}
-        {value.type === 'PiecewiseBezier' && (
-          <div>
-            <Button onClick={onAddBezier()}>Add Bezier</Button>
-            <PaginatedList
-              list={(scope as State<PiecewiseBezierValueJSON>).functions}
-              element={(element: State<BezierFunctionJSON>) => (
-                <div
-                  style={{
-                    margin: '2rem',
-                    padding: '2rem',
-                    border: '1px solid white',
-                    borderRadius: '1rem'
-                  }}
-                >
-                  <NumericInputGroup
-                    name="p0"
-                    label="p0"
-                    value={element.function.p0.value}
-                    onChange={onEditBezierCurve(element, 'p0')}
-                  />
-                  <NumericInputGroup
-                    name="p1"
-                    label="p1"
-                    value={element.function.p1.value}
-                    onChange={onEditBezierCurve(element, 'p1')}
-                  />
-                  <NumericInputGroup
-                    name="p2"
-                    label="p2"
-                    value={element.function.p2.value}
-                    onChange={onEditBezierCurve(element, 'p2')}
-                  />
-                  <NumericInputGroup
-                    name="p3"
-                    label="p3"
-                    value={element.function.p3.value}
-                    onChange={onEditBezierCurve(element, 'p3')}
-                  />
-                  <br />
-                  <hr />
-                  <br />
-                  <NumericInputGroup
-                    name="start"
-                    label={'Start'}
-                    value={element.start.value}
-                    onChange={onEditBezierStart(element)}
-                  />
-                </div>
-              )}
-            />
-          </div>
-        )}
       </InputGroup>
+      {valueInputs[value.type]()}
     </div>
   )
 }

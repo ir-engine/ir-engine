@@ -10,12 +10,12 @@ import {
   prototypeFromId
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, none, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useState } from '@etherealengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { accessSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
@@ -27,7 +27,6 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
   const materialComponent = materialLibrary.materials[material.uuid]
   const prototypeComponent = materialLibrary.prototypes[materialComponent.prototype.value]
   const loadingData = useState(false)
-  const selectionState = accessSelectionState()
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
     value: prototype.prototypeId
@@ -141,7 +140,7 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
             prop = val
           }
           EditorControlFunctions.modifyMaterial(
-            selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
+            getState(SelectionState).selectedEntities.filter((val) => typeof val === 'string') as string[],
             material.uuid,
             [{ [k]: prop }]
           )

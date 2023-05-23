@@ -32,10 +32,10 @@ export default (app: Application) => {
   service.hooks(hooks)
 
   /**
-   * A method which is used to create instance provinsion
+   * A method which is used to create instance provision
    *
-   * @param data which is parsed to create instance provinsion
-   * @returns created instance provinsion
+   * @param data which is parsed to create instance provision
+   * @returns created instance provision
    */
   service.publish('created', async (data): Promise<any> => {
     try {

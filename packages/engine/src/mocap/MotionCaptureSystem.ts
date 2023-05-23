@@ -1,4 +1,4 @@
-import { POSE_LANDMARKS } from '@mediapipe/pose'
+import { POSE_LANDMARKS } from '@mediapipe/holistic'
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
@@ -9,7 +9,9 @@ import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
+import { isClient } from '../common/functions/getEnvironment'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -67,7 +69,7 @@ const handleMocapData = (
   const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
   if (!peerID) return
   if (!timeSeriesMocapData.has(peerID)) {
-    timeSeriesMocapData.set(peerID, new RingBuffer(100))
+    timeSeriesMocapData.set(peerID, new RingBuffer(10))
   }
   timeSeriesMocapData.get(peerID)!.add(landmarks)
 }
@@ -89,26 +91,41 @@ const leftHandPos = new Vector3()
 const rightHandPos = new Vector3()
 
 const execute = () => {
-  const xrState = getState(XRState)
-
-  if (xrState.sessionActive) return
-
-  const network = Engine.instance.worldNetwork
-  if (!network) return
+  const engineState = getState(EngineState)
 
   const localClientEntity = Engine.instance.localClientEntity
 
+  const network = Engine.instance.worldNetwork
+
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network.peers.has(peerID)) {
+    if (!network?.peers?.has(peerID) || mocapData.empty()) {
       timeSeriesMocapData.delete(peerID)
-      continue
     }
+  }
+
+  const userPeers = network?.users?.get(Engine.instance.userId)
+
+  // Stop mocap by removing entities if data doesnt exist
+  if (isClient && (!localClientEntity || !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID)))) {
+    const headUUID = (Engine.instance.userId + motionCaptureHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userId + motionCaptureLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userId + motionCaptureRightHandSuffix) as EntityUUID
+
+    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
+    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
+    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+
+    if (ikTargetHead) removeEntity(ikTargetHead)
+    if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
+    if (ikTargetRightHand) removeEntity(ikTargetRightHand)
+  }
+
+  for (const [peerID, mocapData] of timeSeriesMocapData) {
     const userID = network.peers.get(peerID)!.userId
     const entity = Engine.instance.getUserAvatarEntity(userID)
-    if (!entity) continue
 
-    if (entity === localClientEntity) {
-      const data = mocapData.getLast()
+    if (entity && entity === localClientEntity) {
+      const data = mocapData.popLast()
       if (!data) continue
 
       const leftHips = data[POSE_LANDMARKS.LEFT_HIP]
@@ -124,12 +141,12 @@ const execute = () => {
       const leftWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
 
       const head = !!nose.visibility && nose.visibility > 0.5
-      const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.5
-      const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.5
+      const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.1
+      const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.1
 
-      const headUUID = (Engine.instance.userId + motionCaptureHeadSuffix) as EntityUUID
-      const leftHandUUID = (Engine.instance.userId + motionCaptureLeftHandSuffix) as EntityUUID
-      const rightHandUUID = (Engine.instance.userId + motionCaptureRightHandSuffix) as EntityUUID
+      const headUUID = (userID + motionCaptureHeadSuffix) as EntityUUID
+      const leftHandUUID = (userID + motionCaptureLeftHandSuffix) as EntityUUID
+      const rightHandUUID = (userID + motionCaptureRightHandSuffix) as EntityUUID
 
       const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
       const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
@@ -164,7 +181,7 @@ const execute = () => {
         }
 
       if (ikTargetHead) {
-        if (!nose.visibility || nose.visibility < 0.5) continue
+        if (!nose.visibility || nose.visibility < 0.1) continue
         if (!nose.x || !nose.y || !nose.z) continue
         const ik = getComponent(ikTargetHead, TransformComponent)
         headPos
@@ -180,7 +197,7 @@ const execute = () => {
       }
 
       if (ikTargetLeftHand) {
-        if (!leftWrist.visibility || leftWrist.visibility < 0.5) continue
+        if (!leftWrist.visibility || leftWrist.visibility < 0.1) continue
         if (!leftWrist.x || !leftWrist.y || !leftWrist.z) continue
         const ik = getComponent(ikTargetLeftHand, TransformComponent)
         leftHandPos
@@ -188,7 +205,7 @@ const execute = () => {
           .multiplyScalar(-1)
           .applyQuaternion(avatarTransform.rotation)
           .add(hipsPos)
-        ik.position.copy(leftHandPos)
+        ik.position.lerp(leftHandPos, engineState.deltaSeconds * 10)
         // ik.quaternion.copy()
       }
 
@@ -201,7 +218,7 @@ const execute = () => {
           .multiplyScalar(-1)
           .applyQuaternion(avatarTransform.rotation)
           .add(hipsPos)
-        ik.position.copy(rightHandPos)
+        ik.position.lerp(rightHandPos, engineState.deltaSeconds * 10)
         // ik.quaternion.copy()
       }
     }

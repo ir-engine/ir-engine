@@ -63,7 +63,8 @@ const onUploadDropBuffer = (uuid?: string) =>
 
 const onTextureUploadDropSource = (uuid?: string) =>
   function (this: Texture) {
-    this.source.data = null
+    // source.data can't be null because the WebGLRenderer checks for it
+    this.source.data = { width: this.source.data.width, height: this.source.data.height, __deleted: true }
     this.mipmaps.map((b) => delete b.data)
     this.mipmaps = []
   }

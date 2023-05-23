@@ -5,6 +5,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
+import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -215,6 +216,8 @@ export const InstancingComponent = defineComponent({
   },
 
   reactor: function () {
+    if (!isClient) return null
+
     const entity = useEntityContext()
 
     const instancingComponent = useComponent(entity, InstancingComponent)
