@@ -7,7 +7,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const newProjectName1 = 'ProjectTest_test_project_name_1'
@@ -22,7 +22,7 @@ const cleanup = async (app: Application) => {
 
 /**
  * @todo
- * - refactor storage provider to be create as part of createFeathersExpressApp() to eliminate global scope
+ * - refactor storage provider to be create as part of createFeathersKoaApp() to eliminate global scope
  * - use this to force a local storage provider and test specific files in the upload folder
  * - add tests for all combinations of state for projects
  *
@@ -37,7 +37,7 @@ describe('party.test', () => {
   let user4: UserInterface
   let party1, party2, partyUser1, partyUser2, partyUser3
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
     const avatarName = 'CyberbotGreen'
 

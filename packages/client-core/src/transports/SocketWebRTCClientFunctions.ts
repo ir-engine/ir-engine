@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
@@ -43,6 +44,7 @@ import {
   JoinWorldRequestData,
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import {
   dataChannelRegistry,
   MediaStreamAppData,
@@ -69,6 +71,7 @@ import {
   MediaInstanceState
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
+import { NotificationService } from '../common/services/NotificationService'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -416,10 +419,20 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   function peerUpdateHandler(peers: Array<PeersUpdateType>) {
     for (const peer of peers) {
+      const hasPeer = network.peers.get(peer.peerID)
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
+      if (network.topic === NetworkTopics.world && !hasPeer && network.peers.get(peer.peerID)) {
+        NotificationService.dispatchNotify(`${peer.name} ${t('common:toast.joined')}`, { variant: 'default' })
+      }
     }
-    for (const [peerID] of network.peers)
-      if (!peers.find((p) => p.peerID === peerID)) NetworkPeerFunctions.destroyPeer(network, peerID)
+    for (const [peerID, peer] of network.peers)
+      if (!peers.find((p) => p.peerID === peerID)) {
+        NetworkPeerFunctions.destroyPeer(network, peerID)
+        if (network.topic === NetworkTopics.world) {
+          const name = getState(WorldState).userNames[peer.userId]
+          NotificationService.dispatchNotify(`${name} ${t('common:toast.left')}`, { variant: 'default' })
+        }
+      }
     if (network.topic === NetworkTopics.media) removePeerMediaChannels(SelfPeerID)
     logger.info('Updated peers %o', { topic: network.topic, peers })
   }

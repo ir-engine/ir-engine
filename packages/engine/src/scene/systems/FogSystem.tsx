@@ -9,7 +9,7 @@ import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { createGroupQueryReactor, GroupReactorProps } from '../components/GroupComponent'
+import { GroupQueryReactor, GroupReactorProps } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { FogType } from '../constants/FogType'
@@ -81,8 +81,6 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
   return null
 }
 
-const FogGroupQueryReactor = createGroupQueryReactor(FogGroupReactor, [Not(SceneTagComponent), VisibleComponent])
-
 const reactor = () => {
   const fog = useHookstate(getMutableState(FogSettingState))
   const scene = Engine.instance.scene
@@ -152,7 +150,9 @@ const reactor = () => {
       }
   }, [fog.height])
 
-  return <FogGroupQueryReactor />
+  return (
+    <GroupQueryReactor GroupChildReactor={FogGroupReactor} Components={[Not(SceneTagComponent), VisibleComponent]} />
+  )
 }
 
 export const FogSystem = defineSystem({

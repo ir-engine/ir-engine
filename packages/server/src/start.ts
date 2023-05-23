@@ -1,11 +1,11 @@
 import fs from 'fs'
 import https from 'https'
+import favicon from 'koa-favicon'
 import path from 'path'
 import psList from 'ps-list'
-import favicon from 'serve-favicon'
 
 import config from '@etherealengine/server-core/src/appconfig'
-import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { StartCorsServer } from '@etherealengine/server-core/src/createCorsServer'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
@@ -19,7 +19,7 @@ process.on('unhandledRejection', (error, promise) => {
 })
 
 export const start = async (): Promise<void> => {
-  const app = createFeathersExpressApp(ServerMode.API)
+  const app = createFeathersKoaApp(ServerMode.API)
 
   app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)
@@ -69,22 +69,22 @@ export const start = async (): Promise<void> => {
   } else {
     logger.info("Starting server with NO HTTPS, if you meant to use HTTPS try 'sudo bash generate-certs'")
   }
-  const port = config.server.port
+  const port = Number(config.server.port)
 
   // http redirects for development
   if (useSSL) {
-    app.use((req, res, next) => {
-      if (req.secure) {
+    app.use(async (ctx, next) => {
+      if (ctx.secure) {
         // request was via https, so do no special handling
-        next()
+        await next()
       } else {
         // request was via http, so redirect to https
-        res.redirect('https://' + req.headers.host + req.url)
+        ctx.redirect('https://' + ctx.headers.host + ctx.url)
       }
     })
   }
 
-  const server = useSSL ? https.createServer(certOptions as any, app as any).listen(port) : await app.listen(port)
+  const server = useSSL ? https.createServer(certOptions as any, app.callback()).listen(port) : await app.listen(port)
 
   if (useSSL) {
     app.setup(server)

@@ -1,7 +1,8 @@
 import { Params } from '@feathersjs/feathers'
+import { bodyParser, koa } from '@feathersjs/koa'
+import Multer from '@koa/multer'
+import { Route53RecoveryControlConfig } from 'aws-sdk'
 import { createHash } from 'crypto'
-import express from 'express'
-import multer from 'multer'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'
 
@@ -26,7 +27,7 @@ import { getStorageProvider } from '../storageprovider/storageprovider'
 import { videoUpload } from '../video/video-upload.helper'
 import hooks from './upload-asset.hooks'
 
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity } })
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -65,6 +66,76 @@ const uploadLOD = async (file: Buffer, mimeType: string, key: string, storagePro
       isDirectory: false
     }
   )
+}
+
+const uploadAsset = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
+  if (typeof data.args === 'string') data.args = JSON.parse(data.args)
+  const files = params.files
+  if (data.type === 'user-avatar-upload') {
+    return await uploadAvatarStaticResource(
+      app,
+      {
+        avatar: files[0].buffer,
+        thumbnail: files[1].buffer,
+        ...(data.args as AvatarUploadArgsType)
+      },
+      params
+    )
+  } else if (data.type === 'admin-file-upload') {
+    if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
+
+    if (files && files.length > 0) {
+      return Promise.all(
+        files.map((file, i) => {
+          let promise
+          const callBody = {
+            name: data.args.key.split('.')[0],
+            file
+          }
+          switch (data.args.staticResourceType) {
+            case 'image':
+              promise = imageUpload(app, callBody)
+              break
+            case 'video':
+              promise = videoUpload(app, callBody)
+              break
+            case 'audio':
+              promise = audioUpload(app, callBody)
+              break
+            case 'model3d':
+              promise = modelUpload(app, callBody)
+              break
+          }
+          return promise
+        })
+      )
+    } else {
+      return Promise.all(
+        data?.files.map((file, i) => {
+          let promise
+          const callBody = {
+            name: data.args.key.split('.')[0],
+            file: file as Buffer
+          }
+          switch (data.args.staticResourceType) {
+            case 'image':
+              promise = imageUpload(app, callBody)
+              break
+            case 'video':
+              promise = videoUpload(app, callBody)
+              break
+            case 'audio':
+              promise = audioUpload(app, callBody)
+              break
+            case 'model3d':
+              promise = modelUpload(app, callBody)
+              break
+          }
+          return promise
+        })
+      )
+    }
+  }
 }
 
 export const createStaticResourceHash = (file: Buffer, props: { name?: string; assetURL?: string }) => {
@@ -135,85 +206,31 @@ export const addGenericAssetToS3AndStaticResources = async (
 export default (app: Application): void => {
   app.use(
     'upload-asset',
-    multipartMiddleware.any(),
-    (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (req?.feathers && req.method !== 'GET') {
-        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
-      }
-      next()
+    {
+      create: uploadAsset(app)
     },
     {
-      create: async (data: AssetUploadType, params: UploadParams) => {
-        if (typeof data.args === 'string') data.args = JSON.parse(data.args)
-        const files = params.files
-        if (data.type === 'user-avatar-upload') {
-          return await uploadAvatarStaticResource(
-            app,
-            {
-              avatar: files[0].buffer,
-              thumbnail: files[1].buffer,
-              ...(data.args as AvatarUploadArgsType)
-            },
-            params
-          )
-        } else if (data.type === 'admin-file-upload') {
-          if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
+      koa: {
+        before: [
+          multipartMiddleware.any(),
+          async (ctx, next) => {
+            console.log('trying to upload asset')
+            const files = ctx.request.files
+            if (ctx?.feathers && ctx.method !== 'GET') {
+              ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
+            }
 
-          if (files && files.length > 0) {
-            return Promise.all(
-              files.map((file, i) => {
-                let promise
-                const callBody = {
-                  name: data.args.key.split('.')[0],
-                  file
-                }
-                switch (data.args.staticResourceType) {
-                  case 'image':
-                    promise = imageUpload(app, callBody)
-                    break
-                  case 'video':
-                    promise = videoUpload(app, callBody)
-                    break
-                  case 'audio':
-                    promise = audioUpload(app, callBody)
-                    break
-                  case 'model3d':
-                    promise = modelUpload(app, callBody)
-                    break
-                }
-                return promise
-              })
-            )
-          } else {
-            return Promise.all(
-              data?.files.map((file, i) => {
-                let promise
-                const callBody = {
-                  name: data.args.key.split('.')[0],
-                  file: file as Buffer
-                }
-                switch (data.args.staticResourceType) {
-                  case 'image':
-                    promise = imageUpload(app, callBody)
-                    break
-                  case 'video':
-                    promise = videoUpload(app, callBody)
-                    break
-                  case 'audio':
-                    promise = audioUpload(app, callBody)
-                    break
-                  case 'model3d':
-                    promise = modelUpload(app, callBody)
-                    break
-                }
-                return promise
-              })
-            )
+            await next()
+            console.log('uploaded asset')
+            return ctx.body
           }
-        }
+        ]
       }
     }
   )
   const service = app.service('upload-asset')
-  ;(service as any).hooks(hooks)
+
+  service.hooks(hooks)
 }

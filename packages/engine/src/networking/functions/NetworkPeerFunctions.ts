@@ -37,7 +37,7 @@ function createPeer(
   if (!network.users.has(userID)) {
     network.users.set(userID, [peerID])
   } else {
-    network.users.get(userID)!.push(peerID)
+    if (!network.users.get(userID)!.includes(peerID)) network.users.get(userID)!.push(peerID)
   }
 
   //TODO: remove this once all network state properties are reactively set
@@ -45,10 +45,6 @@ function createPeer(
 
   const worldState = getMutableState(WorldState)
   worldState.userNames[userID].set(name)
-
-  if (network.topic === 'world') {
-    dispatchAction(EngineActions.peerCreated({ peer: network.peers.get(peerID)!, name: name ?? '' }))
-  }
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {
@@ -56,12 +52,6 @@ function destroyPeer(network: Network, peerID: PeerID) {
     return console.warn(`[NetworkPeerFunctions]: tried to remove client with peerID ${peerID} that doesn't exit`)
   const userID = network.peers.get(peerID)!.userId
   if (userID === Engine.instance.userId) return console.warn(`[NetworkPeerFunctions]: tried to remove local client`)
-
-  if (network.topic === 'world') {
-    const worldState = getState(WorldState)
-    const name = worldState.userNames[userID]
-    dispatchAction(EngineActions.peerDestroyed({ peer: network.peers.get(peerID)!, name: name ?? '' }))
-  }
 
   network.peers.delete(peerID)
 
@@ -86,19 +76,19 @@ function destroyPeer(network: Network, peerID: PeerID) {
    * we want to remove them from world.users
    */
   if (network.topic === 'world') {
-    const remainingPeersForDisconnectingUser = Object.entries(getState(NetworkState).networks)
-      .map(([id, network]) => {
-        return network.peers.has(peerID)
-      })
-      .filter((peer) => !!peer)
-
-    if (!remainingPeersForDisconnectingUser.length) {
+    // todo - when multiple world servers are running, we may need to do this
+    // const remainingPeersForDisconnectingUser = Object.entries(getState(NetworkState).networks)
+    //   .map(([id, network]) => {
+    //     return network.users.has(userID)
+    //   })
+    //   .filter((peer) => !!peer)
+    // console.log({remainingPeersForDisconnectingUser})
+    if (!network.users.has(userID)) {
       Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
       for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) removeEntity(eid)
+      clearCachedActionsForUser(userID)
+      clearActionsHistoryForUser(userID)
     }
-
-    clearCachedActionsForUser(userID)
-    clearActionsHistoryForUser(userID)
   }
 }
 

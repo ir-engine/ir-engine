@@ -20,6 +20,8 @@ import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import {
   compareDistance,
   DistanceFromCameraComponent,
@@ -133,7 +135,9 @@ const execute = () => {
     }
     setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
     setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
-    // addObjectToGroup(entity, new AxesHelper(0.5))
+    const helper = new AxesHelper(0.5)
+    setObjectLayers(helper, ObjectLayers.Gizmos)
+    addObjectToGroup(entity, helper)
     setComponent(entity, VisibleComponent)
   }
 
@@ -287,7 +291,7 @@ const execute = () => {
     // If data is zeroed out, assume there is no input and do not run IK
     if (transformComponent.position.equals(V_000)) continue
 
-    const { rig } = getComponent(ownerEntity, AvatarRigComponent)
+    const { rig, handRadius } = getComponent(ownerEntity, AvatarRigComponent)
 
     const ikComponent = getComponent(entity, AvatarIKTargetComponent)
     if (ikComponent.handedness === 'none') {
@@ -303,24 +307,32 @@ const execute = () => {
     } else if (ikComponent.handedness === 'left') {
       rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
       /** @todo see if this is still necessary */
-      rig.LeftForeArm.updateWorldMatrix(false, true)
+      rig.LeftForeArm.updateWorldMatrix(true, true)
       solveTwoBoneIK(
         rig.LeftArm,
         rig.LeftForeArm,
         rig.LeftHand,
-        transformComponent.position,
+        // this is a hack to align the middle of the hand with the controller
+        _vector3.addVectors(
+          transformComponent.position,
+          rig.LeftForeArm.getWorldDirection(_vec).multiplyScalar(handRadius)
+        ),
         _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
       )
     } else if (ikComponent.handedness === 'right') {
       rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
       /** @todo see if this is still necessary */
-      rig.RightForeArm.updateWorldMatrix(false, true)
+      rig.RightForeArm.updateWorldMatrix(true, true)
       solveTwoBoneIK(
         rig.RightArm,
         rig.RightForeArm,
         rig.RightHand,
-        transformComponent.position,
+        // this is a hack to align the middle of the hand with the controller
+        _vector3.subVectors(
+          transformComponent.position,
+          rig.RightForeArm.getWorldDirection(_vec).multiplyScalar(handRadius)
+        ),
         _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
       )
@@ -344,7 +356,7 @@ const execute = () => {
 
   /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
   for (const entity of ikEntities) {
-    delete TransformComponent.dirtyTransforms[entity]
+    // delete TransformComponent.dirtyTransforms[entity]
   }
 }
 

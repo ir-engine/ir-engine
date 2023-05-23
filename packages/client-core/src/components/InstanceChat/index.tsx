@@ -418,7 +418,6 @@ export const InstanceChat = ({
                 ) : (
                   <CloseButton
                     onClick={() => {
-                      toggleChatWindow()
                       dispatchAction(AppAction.showTouchPad({ show: true }))
                     }}
                   />
