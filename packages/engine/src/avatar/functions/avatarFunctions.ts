@@ -252,20 +252,10 @@ export const getAnimations = async () => {
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
-  // const rig = avatarBoneMatching(model)
 
   const rig = model.humanoid?.rawHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
-
-  // Try converting to T pose
-  // if (!hasComponent(entity, LoopAnimationComponent)) {
-  //   // makeTPose(rig)
-  //   skinnedMeshes.forEach(applySkeletonPose)
-  // }
-
-  //retargetSkeleton(targetSkeleton, sourceSkeleton)
-  //syncModelSkeletons(model.scene, targetSkeleton)
 
   setComponent(entity, AvatarRigComponent, {
     rig,
@@ -274,8 +264,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
     vrm: model
   })
 
-  // const sourceHips = sourceSkeleton.bones[0]
-  avatarAnimationComponent.rootYRatio = 1 // rig.Hips.position.y / sourceHips.position.y
+  avatarAnimationComponent.rootYRatio = 1
 
   return model
 }
