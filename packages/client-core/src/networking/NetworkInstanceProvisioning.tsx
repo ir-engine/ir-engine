@@ -262,7 +262,7 @@ export const InstanceProvisioning = () => {
       {networkConfigState.media.value && <MediaInstanceProvisioning />}
       {networkConfigState.friends.value && <PartyInstanceProvisioning />}
       {Object.entries(userNames.value).map(([userID, name]) => (
-        <WorldNetworkPeer userID={userID as UserId} name={name} />
+        <WorldNetworkPeer key={userID} userID={userID as UserId} name={name} />
       ))}
     </>
   )
