@@ -285,10 +285,11 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     _volume.set(value)
   }
 
+  const usernames = useHookstate(getMutableState(WorldState).userNames)
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = userId ? getState(WorldState).userNames[userId] : 'A User'
+    const username = userId ? usernames.get({ noproxy: true })[userId] : 'A User'
     if (!isSelf && isScreen) return username + "'s Screen"
     return username
   }
