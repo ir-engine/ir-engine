@@ -315,7 +315,7 @@ const execute = () => {
         // this is a hack to align the middle of the hand with the controller
         _vector3.addVectors(
           transformComponent.position,
-          rig.LeftForeArm.getWorldDirection(_vec).multiplyScalar(handRadius)
+          rig.LeftHand.getWorldDirection(_vec).multiplyScalar(handRadius)
         ),
         _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
@@ -331,7 +331,7 @@ const execute = () => {
         // this is a hack to align the middle of the hand with the controller
         _vector3.subVectors(
           transformComponent.position,
-          rig.RightForeArm.getWorldDirection(_vec).multiplyScalar(handRadius)
+          rig.RightHand.getWorldDirection(_vec).multiplyScalar(handRadius)
         ),
         _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
