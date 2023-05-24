@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import {
@@ -241,6 +242,7 @@ const CaptureDashboard = () => {
     }
   }, [isDetecting])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     canvasRef.current!.width = videoRef.current!.clientWidth
     canvasRef.current!.height = videoRef.current!.clientHeight
@@ -280,16 +282,6 @@ const CaptureDashboard = () => {
 
   return (
     <div className="w-full">
-      <ul className="">
-        <li>
-          {`videoStatus: ${videoStatus}`}
-          {` - mediaConnection: ${mediaConnection?.connected?.value}`}
-          {` - videoActive: ${videoActive?.value}`}
-          {` - camVideoProducer: ${mediaStreamState.camVideoProducer.value}`}
-          {` - videoPaused: ${mediaStreamState.videoPaused.value}`}
-          {` - isDetecting: ${isDetecting?.value}`}
-        </li>
-      </ul>
       <Drawer
         settings={
           <div className="w-100 bg-base-100">
