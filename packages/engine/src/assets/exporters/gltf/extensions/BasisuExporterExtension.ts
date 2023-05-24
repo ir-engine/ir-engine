@@ -1,4 +1,3 @@
-import { ImageDataType } from '@loaders.gl/images'
 import { CompressedTexture, LinearEncoding, Texture } from 'three'
 
 import { dispatchAction } from '@etherealengine/hyperflux'
@@ -74,7 +73,7 @@ export default class BasisuExporterExtension extends ExporterExtension implement
           if (!writer.json.images) writer.json.images = []
           const imgIdx = writer.json.images.push(imageDef) - 1
 
-          const imgData: ImageDataType = image.getContext('2d')!.getImageData(0, 0, image.width, image.height) as any
+          const imgData = image.getContext('2d')!.getImageData(0, 0, image.width, image.height)
           const imgId = getImageHash(image)
 
           writer.extensionsUsed[this.name] = true
@@ -86,46 +85,54 @@ export default class BasisuExporterExtension extends ExporterExtension implement
           const ktx2Encoder = new KTX2Encoder()
           similarImages.length && ((imageDef.uri = this.imageIdCache[similarImages[0]]) || resolve(null))
           !similarImages.length &&
-            ktx2Encoder.encode(imgData, false, 2, false, false).then(async (arrayBuffer) => {
-              if (writer.options.embedImages) {
-                const bufferIdx = writer.processBuffer(arrayBuffer)
+            ktx2Encoder
+              .encode(imgData, {
+                qualityLevel: 256,
+                compressionLevel: 6,
+                srgb: true, // TODO: set false if normal map
+                normalMap: false, // TODO: set true if normal map
+                mipmaps: true
+              })
+              .then(async (arrayBuffer) => {
+                if (writer.options.embedImages) {
+                  const bufferIdx = writer.processBuffer(arrayBuffer)
 
-                const bufferViewDef = {
-                  buffer: bufferIdx,
-                  byteOffset: writer.byteOffset,
-                  byteLength: arrayBuffer.byteLength
-                }
-                writer.byteOffset += arrayBuffer.byteLength
-                const bufferViewIdx = writer.json.bufferViews.push(bufferViewDef) - 1
+                  const bufferViewDef = {
+                    buffer: bufferIdx,
+                    byteOffset: writer.byteOffset,
+                    byteLength: arrayBuffer.byteLength
+                  }
+                  writer.byteOffset += arrayBuffer.byteLength
+                  const bufferViewIdx = writer.json.bufferViews.push(bufferViewDef) - 1
 
-                imageDef.bufferView = bufferViewIdx
-              } else {
-                const [_, projectName, basePath] = /projects\/([^/]+)\/assets\/(.*)$/.exec(writer.options.path!)!
-                const baseURI = basePath.includes('/') ? basePath.slice(0, basePath.lastIndexOf('/')) : '.'
-                const relativeURI = `${writer.options.resourceURI ?? baseURI}/images/${imgId}.ktx2`
-                const projectSpaceURI = `${baseURI}/${
-                  writer.options.resourceURI ? `${writer.options.resourceURI}/` : ''
-                }images`
-                imageDef.uri = relativeURI
-                this.imageIdCache[stagedHash] = relativeURI
-                this.lshIndex.add(stagedHash, stagedHash)
-                const saveParms = {
-                  name: `${imgId}`,
-                  byteLength: arrayBuffer.byteLength,
-                  uri: `${projectSpaceURI}/${imgId}.ktx2`,
-                  buffer: arrayBuffer
+                  imageDef.bufferView = bufferViewIdx
+                } else {
+                  const [_, projectName, basePath] = /projects\/([^/]+)\/assets\/(.*)$/.exec(writer.options.path!)!
+                  const baseURI = basePath.includes('/') ? basePath.slice(0, basePath.lastIndexOf('/')) : '.'
+                  const relativeURI = `${writer.options.resourceURI ?? baseURI}/images/${imgId}.ktx2`
+                  const projectSpaceURI = `${baseURI}/${
+                    writer.options.resourceURI ? `${writer.options.resourceURI}/` : ''
+                  }images`
+                  imageDef.uri = relativeURI
+                  this.imageIdCache[stagedHash] = relativeURI
+                  this.lshIndex.add(stagedHash, stagedHash)
+                  const saveParms = {
+                    name: `${imgId}`,
+                    byteLength: arrayBuffer.byteLength,
+                    uri: `${projectSpaceURI}/${imgId}.ktx2`,
+                    buffer: arrayBuffer
+                  }
+                  dispatchAction(
+                    BufferHandlerExtension.saveBuffer({
+                      saveParms,
+                      projectName,
+                      modelName: `${imgId}`
+                    })
+                  )
                 }
-                dispatchAction(
-                  BufferHandlerExtension.saveBuffer({
-                    saveParms,
-                    projectName,
-                    modelName: `${imgId}`
-                  })
-                )
-              }
-              ktx2Encoder.pool.dispose()
-              resolve(null)
-            })
+                ktx2Encoder.pool.dispose()
+                resolve(null)
+              })
         })
       })
     )

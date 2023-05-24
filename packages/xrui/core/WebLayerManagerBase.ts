@@ -17,7 +17,7 @@ import { bufferToHex } from './hex-utils'
 import { serializeToString } from './serialization-utils'
 import { getParentsHTML } from './serialization-utils'
 import { getAllEmbeddedStyles } from './serialization/getAllEmbeddedStyles'
-import type { KTX2Encoder as KTX2EncoderType } from './textures/KTX2Encoder'
+import { KTX2Encoder as KTX2EncoderType, UASTCFlags } from './textures/KTX2Encoder'
 // @ts-ignore
 import { KTX2Encoder } from './textures/KTX2Encoder.bundle.js'
 import { WebLayer } from './WebLayer'
@@ -331,10 +331,16 @@ export class WebLayerManagerBase {
     if (!canvas) throw new Error('Missing texture canvas')
     if (this.ktx2Encoder.pool.limit === 0) return
 
-    const imageData = this.getImageData(canvas)
+    const image = this.getImageData(canvas)
     let ktx2Texture: ArrayBuffer
     try {
-      ktx2Texture = await this.ktx2Encoder.encode(imageData as any)
+      ktx2Texture = await this.ktx2Encoder.encode(image, {
+        srgb: true,
+        // compressionLevel: 0,
+        // qualityLevel: 256,
+        uastc: true,
+        uastcFlags: UASTCFlags.UASTCLevelFastest
+      })
     } catch (error: any) {
       console.error(`KTX2 encoding failed for image (${canvas.width}, ${canvas.height}) `, error)
       this.ktx2Encoder.pool.dispose()
