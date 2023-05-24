@@ -1,4 +1,3 @@
-import { t } from 'i18next'
 import React, { useEffect } from 'react'
 
 import {
@@ -12,18 +11,15 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChatAction, ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Groups } from '@mui/icons-material'
 
-import { NotificationService } from '../common/services/NotificationService'
 import { FriendService } from '../social/services/FriendService'
 import { PartyService, PartyState, PartySystem } from '../social/services/PartyService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
@@ -240,30 +236,14 @@ export const PartyInstanceProvisioning = () => {
   return null
 }
 
-export const WorldNetworkPeer = (props: { userID: UserId; name: string }) => {
-  useEffect(() => {
-    if (props.userID === Engine.instance.userId) return
-    NotificationService.dispatchNotify(`${props.name} ${t('common:toast.joined')}`, { variant: 'default' })
-    return () => {
-      NotificationService.dispatchNotify(`${props.name} ${t('common:toast.left')}`, { variant: 'default' })
-    }
-  }, [])
-
-  return <></>
-}
-
 export const InstanceProvisioning = () => {
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
-  const userNames = useHookstate(getMutableState(WorldState).userNames)
 
   return (
     <>
       {networkConfigState.world.value && <WorldInstanceProvisioning />}
       {networkConfigState.media.value && <MediaInstanceProvisioning />}
       {networkConfigState.friends.value && <PartyInstanceProvisioning />}
-      {Object.entries(userNames.value).map(([userID, name]) => (
-        <WorldNetworkPeer key={userID} userID={userID as UserId} name={name} />
-      ))}
     </>
   )
 }

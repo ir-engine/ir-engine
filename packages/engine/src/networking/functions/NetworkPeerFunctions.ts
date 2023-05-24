@@ -69,11 +69,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
   const userPeers = network.users.get(userID)!
   const peerIndexInUserPeers = userPeers.indexOf(peerID)
   userPeers.splice(peerIndexInUserPeers, 1)
-  if (!userPeers.length) {
-    network.users.delete(userID)
-    const worldState = getMutableState(WorldState)
-    if (worldState.userNames.value[userID]) worldState.userNames[userID].set(none)
-  }
+  if (!userPeers.length) network.users.delete(userID)
 
   //TODO: remove this once all network state properties are reactively set
   updateNetwork(network)
