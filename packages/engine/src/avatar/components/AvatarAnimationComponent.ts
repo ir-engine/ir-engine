@@ -196,47 +196,47 @@ export const AvatarRigComponent = defineComponent({
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
 
         const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
-        rigComponent.rig.hips.node.matrix.value.multiply(new Matrix4().makeRotationY(Math.PI))
+        rigComponent.vrm.humanoid.normalizedHumanBonesRoot.value.quaternion.copy(hipsRotationoffset)
+        rigComponent.vrm.humanoid.normalizedHumanBonesRoot.value.updateMatrix()
         //todo: find a better way to map joints to ik targets here
-        const bonePos = new Vector3()
+        const bonePos = new Matrix4()
         switch (key) {
           case 'rightHandTarget':
-            bonePos.copy(rigComponent.bindRig.rightHand.value.node.position)
+            rigComponent.bindRig.rightHand.value.node.updateMatrixWorld()
+            bonePos.copy(rigComponent.bindRig.rightHand.value.node.matrixWorld)
             break
           case 'leftHandTarget':
-            bonePos.copy(rigComponent.bindRig.leftHand.value.node.position)
+            rigComponent.bindRig.leftHand.value.node.updateMatrixWorld()
+            bonePos.copy(rigComponent.bindRig.leftHand.value.node.matrixWorld)
             break
           case 'rightFootTarget':
-            bonePos.copy(rigComponent.bindRig.rightFoot.value.node.position)
+            rigComponent.bindRig.rightFoot.value.node.updateMatrixWorld()
+            bonePos.copy(rigComponent.bindRig.rightFoot.value.node.matrixWorld)
             break
           case 'leftFootTarget':
-            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            rigComponent.bindRig.leftFoot.value.node.updateMatrixWorld()
+            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.matrixWorld)
             break
           case 'rightElbowHint':
-            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            bonePos.copy(rigComponent.bindRig.rightLowerArm.value.node.matrixWorld)
             break
           case 'leftElbowHint':
-            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            bonePos.copy(rigComponent.bindRig.leftLowerArm.value.node.matrixWorld)
             break
           case 'rightKneeHint':
-            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            bonePos.copy(rigComponent.bindRig.rightLowerLeg.value.node.matrixWorld)
             break
           case 'leftKneeHint':
-            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.position)
+            bonePos.copy(rigComponent.bindRig.leftLowerLeg.value.node.matrixWorld)
             break
         }
-        const root = rigComponent.vrm.humanoid.normalizedHumanBonesRoot.value
-        const worldPos = new Vector3()
-        root.getWorldPosition(worldPos)
-        bonePos.add(worldPos)
-        bonePos.sub(
-          new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).add(worldPos)
-        )
         //temporarily multiplying the vector by zero to avoid calculation errors
-        bonePos.multiplyScalar(0)
-        rigComponent.ikOffsetsMap.value.set(key, bonePos)
+        bonePos.multiplyScalar(1)
+        const pos = new Vector3()
+        bonePos.decompose(pos, new Quaternion(), new Vector3())
+        //pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).add(worldPos))
+        rigComponent.ikOffsetsMap.value.set(key, pos)
       }
-      console.log(rigComponent.ikOffsetsMap.value)
     }, [animComponent.animations])
     return null
   }

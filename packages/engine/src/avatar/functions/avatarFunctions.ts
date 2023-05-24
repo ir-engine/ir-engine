@@ -10,6 +10,7 @@ import {
   Euler,
   Group,
   Object3D,
+  Quaternion,
   Skeleton,
   SkinnedMesh,
   Vector3
@@ -249,11 +250,15 @@ export const getAnimations = async () => {
   return manager.targetsAnimation.value!
 }
 
+const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
 
-  const rig = model.humanoid?.rawHumanBones
+  const rig = model.humanoid?.humanBones
+
+  model.humanoid.normalizedHumanBonesRoot.quaternion.copy(hipsRotationoffset)
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
 
