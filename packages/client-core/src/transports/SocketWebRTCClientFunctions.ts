@@ -419,19 +419,11 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   function peerUpdateHandler(peers: Array<PeersUpdateType>) {
     for (const peer of peers) {
-      const hasPeer = network.peers.get(peer.peerID)
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
-      if (network.topic === NetworkTopics.world && !hasPeer && network.peers.get(peer.peerID)) {
-        NotificationService.dispatchNotify(`${peer.name} ${t('common:toast.joined')}`, { variant: 'default' })
-      }
     }
     for (const [peerID, peer] of network.peers)
       if (!peers.find((p) => p.peerID === peerID)) {
         NetworkPeerFunctions.destroyPeer(network, peerID)
-        if (network.topic === NetworkTopics.world) {
-          const name = getState(WorldState).userNames[peer.userId]
-          NotificationService.dispatchNotify(`${name} ${t('common:toast.left')}`, { variant: 'default' })
-        }
       }
     if (network.topic === NetworkTopics.media) removePeerMediaChannels(SelfPeerID)
     logger.info('Updated peers %o', { topic: network.topic, peers })

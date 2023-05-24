@@ -24,7 +24,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
@@ -285,11 +285,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     _volume.set(value)
   }
 
-  const usernames = useHookstate(getMutableState(WorldState).userNames)
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = userId ? usernames.get({ noproxy: true })[userId] : 'A User'
+    const username = userId ? getState(WorldState).userNames[userId] : 'A User'
     if (!isSelf && isScreen) return username + "'s Screen"
     return username
   }
