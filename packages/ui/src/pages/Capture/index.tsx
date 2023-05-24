@@ -135,13 +135,15 @@ const CaptureDashboard = () => {
     if (!isDetecting?.value) return
 
     if (!detector.value) {
-      setDetectingStatus('loading')
-      const holistic = new Holistic({
-        locateFile: (file) => {
-          return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
-        }
-      })
-      detector.set(holistic)
+      if (Holistic !== undefined) {
+        setDetectingStatus('loading')
+        const holistic = new Holistic({
+          locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+          }
+        })
+        detector.set(holistic)
+      }
     }
 
     processingFrame.set(false)
@@ -156,6 +158,7 @@ const CaptureDashboard = () => {
          * Holistic model currently has no export for poseWorldLandmarks, instead as za (likely to change for new builds of the package)
          * See https://github.com/google/mediapipe/issues/3155
          */
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         sendResults(results.za)
 

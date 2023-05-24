@@ -151,7 +151,8 @@ export default defineConfig(async () => {
     },
     base,
     optimizeDeps: {
-      exclude: ['@etherealengine/volumetric'],
+      entries: ['./src/main.tsx'],
+      exclude: ['@etherealengine/volumetric', '@mediapipe/holistic'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
         target: 'es2020'
