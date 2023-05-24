@@ -76,7 +76,6 @@ function mediapipe_workaround() {
           'FACEMESH_TESSELATION',
           'HAND_CONNECTIONS',
           'Holistic',
-          'NormalizedLandmarkList',
           'Options',
           'POSE_CONNECTIONS',
           'POSE_LANDMARKS',
