@@ -1,8 +1,7 @@
-import type { ImageDataType } from '@loaders.gl/images'
-
 // @ts-ignore
-import BasisEncoderWASMBinary from '../../../client/public/loader_decoders/basis_encoder_low_memory/basis_encoder.wasm'
+
 import BasisEncoderModuleSRC from './basis_encoder_low_memory/basis_encoder.js.txt'
+import BasisEncoderWASMBinary from './basis_encoder_low_memory/basis_encoder.wasm'
 import type { KTX2EncodeRequestData, KTX2EncodeResponseData } from './KTX2Encoder'
 
 ;(0, eval)(BasisEncoderModuleSRC)
