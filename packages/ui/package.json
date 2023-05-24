@@ -65,6 +65,7 @@
     "@storybook/addon-interactions": "^7.1.0-alpha.19",
     "@storybook/addon-jest": "^7.1.0-alpha.19",
     "@storybook/addon-links": "^7.1.0-alpha.19",
+    "@storybook/addon-styling": "^1.0.8",
     "@storybook/builder-vite": "^7.1.0-alpha.19",
     "@storybook/react": "^7.1.0-alpha.19",
     "@storybook/react-vite": "^7.1.0-alpha.19",

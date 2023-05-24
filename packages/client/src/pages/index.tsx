@@ -6,9 +6,7 @@ import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/
 import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { UserMenu } from '@etherealengine/client-core/src/user/components/UserMenu'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import {
   PopupMenuServiceReceptor,
   PopupMenuState
@@ -22,6 +20,7 @@ import { Box, Button } from '@mui/material'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))

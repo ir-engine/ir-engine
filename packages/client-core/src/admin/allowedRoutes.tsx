@@ -23,7 +23,7 @@ const availableRoutes = [
   { route: '/avatars', key: 'globalAvatars', component: Avatars, props: {} },
   { route: '/benchmarking', key: 'benchmarking', component: Benchmarking, props: {} },
   { route: '/groups', key: 'groups', component: Groups, props: {} },
-  { route: '/instance', key: 'instance', component: Recordings, props: {} },
+  { route: '/instance', key: 'instance', component: Instance, props: {} },
   { route: '/invites', key: 'invite', component: Invites, props: {} },
   { route: '/locations', key: 'location', component: Locations, props: {} },
   { route: '/routes', key: 'routes', component: RoutesComp, props: {} },
@@ -51,6 +51,7 @@ const AllowedRoutes = ({ allowedRoutes }) => {
       <Routes>
         {matchedRoutes.map((route, i) => {
           const { route: r, component, props: p } = route
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const Element = component as any
           return (
             <Route

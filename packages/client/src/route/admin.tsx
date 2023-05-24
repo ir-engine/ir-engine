@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import {
   AuthSettingsService,
@@ -32,9 +32,10 @@ import {
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
-const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
+const $admin = lazy(() => import('@etherealengine/ui/src/pages/Admin'))
 
 function AdminRouterComp() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
   const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
   const authSettingsState = useHookstate(getMutableState(AuthSettingsState))

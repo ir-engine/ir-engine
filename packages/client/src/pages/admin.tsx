@@ -15,13 +15,12 @@ import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { theme } from '@etherealengine/client-core/src/theme'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
+import AdminRouterComp from '@etherealengine/client/src/route/admin'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
-
-import AdminRouterComp from '../route/admin'
 
 import './styles.scss'
 
@@ -160,7 +159,8 @@ const AdminPage = (): any => {
     const currentThemeName = getAppThemeName()
     const theme = getAppTheme()
     if (theme)
-      for (let variable of Object.keys(theme)) {
+      for (const variable of Object.keys(theme)) {
+        // eslint-disable-next-line @typescript-eslint/no-extra-semi
         ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
           '--' + variable,
           theme[variable]
@@ -194,5 +194,9 @@ const AdminPage = (): any => {
     </>
   )
 }
+
+AdminPage.displayName = 'AdminPage'
+
+AdminPage.defaultProps = {}
 
 export default AdminPage

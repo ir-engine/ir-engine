@@ -30,7 +30,7 @@
     "types": ["vite/client", "mocha", "@types/offscreencanvas", "vite-plugin-pwa/client"]
   },
   "exclude": [
-    "**/node_modules/**",
+    "./node_modules",
   ],
   "include": [
     "../server-core/src/",

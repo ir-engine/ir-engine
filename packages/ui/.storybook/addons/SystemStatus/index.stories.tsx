@@ -15,11 +15,11 @@ const decorators = [
 ]
 
 export default {
-  title: 'Components/Tailwind/ThemeSwitcher',
+  title: 'Addons/SystemStatus',
   component: Component,
   parameters: {
-    componentSubtitle: 'ThemeSwitcher',
-    jest: 'ThemeSwitcher.test.tsx',
+    componentSubtitle: 'SystemStatus',
+    jest: 'SystemStatus.test.tsx',
     design: {
       type: 'figma',
       url: ''

@@ -30,7 +30,7 @@
   },
   "exclude": [
     "../projects/projects/**",
-    "**/node_modules/**"
+    "./node_modules/**"
   ],
   "include": [
     "./*.ts",

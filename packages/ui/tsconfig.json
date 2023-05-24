@@ -36,10 +36,10 @@
     "../client-core/src/",
     "../xrui/core/",
     "../projects/projects/**",
-    "**/node_modules/**",
+    "./node_modules/**",
   ],
   "include": [
     "./src/**/*.ts",
-    "./serc/**/*.tsx"
+    "./src/**/*.tsx"
   ]
 }

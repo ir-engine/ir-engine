@@ -29,7 +29,7 @@
     "types": ["vite/client", "mocha"]
   },
   "exclude": [
-    "**/node_modules/**",
+    "./node_modules/**",
     "./packages/server/upload/**"
   ],
   "include": [

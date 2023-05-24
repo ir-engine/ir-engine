@@ -1,7 +1,6 @@
 import { VitePWA } from 'vite-plugin-pwa'
 
 import manifest from './manifest.default.json'
-import packageJson from './package.json'
 
 /**
  * Creates a new instance of the VitePWA plugin for Vite.js.
@@ -98,7 +97,7 @@ const PWA = (clientSetting) =>
         // code
         '**/*.{js, css, html}',
         // webmanifest
-        '**/*.webmanifest',
+        // '**/*.webmanifest',
         // docs
         '**/*.{txt,xml,json,pdf}',
         // 3d objects
@@ -114,6 +113,7 @@ const PWA = (clientSetting) =>
       additionalManifestEntries: [
         { url: '/index.html', revision: null },
         { url: '/service-worker.js', revision: null }
+        // { url: '/manifest.webmanifest', revision: null }
       ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,

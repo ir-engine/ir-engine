@@ -151,6 +151,7 @@ export default defineConfig(async () => {
     },
     base,
     optimizeDeps: {
+      entries: ['./src/main.tsx'],
       exclude: ['@etherealengine/volumetric'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
@@ -176,7 +177,7 @@ export default defineConfig(async () => {
             favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
             icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
             icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
-            webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
+            webmanifestLink: '',
             swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
             paymentPointer: clientSetting.paymentPointer || ''
           }
@@ -217,6 +218,5 @@ export default defineConfig(async () => {
       }
     }
   } as UserConfig
-
   return await getProjectConfigExtensions(returned)
 })

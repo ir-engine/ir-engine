@@ -2,7 +2,7 @@ import React from 'react'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-export const SidebarItems = (allowedRoutes) => [
+const SidebarItems = (allowedRoutes) => [
   allowedRoutes.analytics && {
     name: 'user:dashboard.dashboard',
     path: '/admin',
@@ -78,9 +78,14 @@ export const SidebarItems = (allowedRoutes) => [
     path: '/admin/bots',
     icon: <Icon type="Toys" style={{ color: 'white' }} />
   },
-  allowedRoutes.recording && {
+  allowedRoutes.recordings && {
     name: 'user:dashboard.recordings',
     path: '/admin/recordings',
     icon: <Icon type="Videocam" style={{ color: 'white' }} />
   }
 ]
+
+SidebarItems.defaultProps = {}
+SidebarItems.displayName = 'SidebarItems'
+
+export default SidebarItems

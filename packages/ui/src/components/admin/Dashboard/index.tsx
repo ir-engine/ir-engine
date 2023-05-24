@@ -1,13 +1,13 @@
 import clsx from 'clsx'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Sidebar from '@etherealengine/ui/src/components/admin/Sidebar'
 import AppBar from '@etherealengine/ui/src/primitives/mui/AppBar'
-import DashboardMenuItem from '@etherealengine/ui/src/primitives/mui/DashboardMenuItem'
 import Drawer from '@etherealengine/ui/src/primitives/mui/Drawer'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -29,8 +29,42 @@ const Dashboard = ({ children }) => {
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
   const { user } = authState
+  const { scopes } = user
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const [allowedRoutes, setAllowedRoutes] = useState({
+    analytics: true,
+    location: false,
+    user: false,
+    bot: false,
+    scene: false,
+    party: false,
+    groups: false,
+    instance: false,
+    invite: false,
+    globalAvatars: false,
+    static_resource: false,
+    benchmarking: false,
+    routes: false,
+    projects: false,
+    settings: false,
+    server: false,
+    recording: false
+  })
+
+  useEffect(() => {
+    const { value } = scopes
+    if (value) {
+      const routes = {
+        ...allowedRoutes,
+        ...(value?.length > 0
+          ? value?.reduce((prevoius, current) => Object.assign({}, prevoius, { [current.type.split(':')[0]]: true }))
+          : {}) // eslint-disable-line
+      }
+      setAllowedRoutes(routes)
+    }
+  }, [scopes])
+
+  const handleClick = () => {
     PopupMenuServices.showPopupMenu(UserMenus.Profile)
   }
 
@@ -102,7 +136,7 @@ const Dashboard = ({ children }) => {
             icon={<Icon type={theme.direction === 'rtl' ? 'ChevronRight' : 'ChevronLeft'} />}
           />
         </div>
-        <DashboardMenuItem />
+        <Sidebar />
       </Drawer>
       <main
         className={clsx(styles.content, {

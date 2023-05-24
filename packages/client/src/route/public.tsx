@@ -11,7 +11,6 @@ import {
   AdminClientSettingsState,
   ClientSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { FeathersClient } from '@etherealengine/client-core/src/API'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import {
@@ -22,21 +21,21 @@ import {
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
-const $index = lazy(() => import('@etherealengine/client/src/pages'))
+const $index = lazy(() => import('@etherealengine/client/src/pages/index'))
 const $auth = lazy(() => import('@etherealengine/client/src/pages/auth/authRoutes'))
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
-const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
+const $admin = lazy(() => import('@etherealengine/ui/src/pages/Admin'))
 const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
 
 function RouterComp() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
   const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
   const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
