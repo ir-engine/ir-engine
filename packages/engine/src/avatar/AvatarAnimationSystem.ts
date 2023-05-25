@@ -16,7 +16,7 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -79,7 +79,8 @@ const loopAnimationQuery = defineQuery([
   LoopAnimationComponent,
   AnimationComponent,
   AvatarAnimationComponent,
-  AvatarRigComponent
+  AvatarRigComponent,
+  GroupComponent
 ])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
