@@ -136,7 +136,6 @@ async function encodeKTX2BasisTexture(data) {
   let basisEncoder;
   try {
     const { BasisEncoder } = await loadBasisEncoder();
-    const basisFileData = new Uint8Array(data.image.width * data.image.height);
     basisEncoder = new BasisEncoder();
     basisEncoder.setCreateKTX2File(true);
     basisEncoder.setDebug(false);
@@ -160,6 +159,7 @@ async function encodeKTX2BasisTexture(data) {
       basisEncoder.setMipRenormalize(true);
     }
     basisEncoder.setMipGen(data.options.mipmaps ?? false);
+    const basisFileData = new Uint8Array(data.image.width * data.image.height * 4);
     const numOutputBytes = basisEncoder.encode(basisFileData);
     const actualKTX2FileData = basisFileData.subarray(0, numOutputBytes).buffer;
     return actualKTX2FileData.slice(0, numOutputBytes);
