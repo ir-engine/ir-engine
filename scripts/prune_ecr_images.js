@@ -1,8 +1,7 @@
-import { ECRClient } from '@aws-sdk/client-ecr'
-import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
-
 /* eslint-disable @typescript-eslint/no-var-requires */
 const cli = require('cli')
+const { ECRClient } = require('@aws-sdk/client-ecr')
+const { BatchDeleteImageCommand, DescribeImagesCommand, ECRPUBLICClient } = require('@aws-sdk/client-ecr-public')
 
 cli.enable('status')
 
@@ -30,13 +29,14 @@ cli.main(async () => {
     const sorted = withoutLatest.sort((a, b) => b.imagePushedAt - a.imagePushedAt)
     const toBeDeleted = sorted.slice(10)
     if (toBeDeleted.length > 0) {
-      const deleteParams = {
+      const deleteCommand = new BatchDeleteImageCommand({
         imageIds: toBeDeleted.map((image) => {
           return { imageDigest: image.imageDigest }
         }),
         repositoryName: options.repoName || 'etherealengine'
-      }
-      await ecr.batchDeleteImage(deleteParams).promise()
+      })
+      await ecr.send(deleteCommand)
+      process.exit(0)
     }
   } catch (err) {
     console.log('Error in deleting old ECR images:')

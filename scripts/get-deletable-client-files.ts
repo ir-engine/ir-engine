@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import cli from 'cli'
-import fs from 'fs'
 
 import {
   createDefaultStorageProvider,
   getStorageProvider
 } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 
-const UNIQUIFIED_FILE_NAME_REGEX = /\.[a-zA-Z0-9]{8}$/
+const UNIQUIFIED_FILE_NAME_REGEX = /[.-]{1}[a-zA-Z0-9]{8}$/
 
 cli.enable('status')
 
